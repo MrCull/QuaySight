@@ -2,6 +2,7 @@
 import { computed } from 'vue'
 import { useInspectionStore } from '../stores/inspection'
 import { getProvider } from '../domain/providers'
+import { idResultState, visibleAlternatives } from '../domain/certainty'
 import CertaintyChip from './CertaintyChip.vue'
 import ContainerId from './ContainerId.vue'
 
@@ -14,6 +15,27 @@ const recordedLabel = computed(() => {
   if (!r || r.source !== 'recorded') return null
   return `Recorded demonstration: ${getProvider(r.provider).name} / ${r.model}`
 })
+
+// Plain explanation for the uncertain, partial and insufficient-evidence states (spec 5.4, 8.4).
+const idState = computed(() =>
+  record.value?.containerId ? idResultState(record.value.containerId) : null,
+)
+const alternatives = computed(() =>
+  record.value?.containerId ? visibleAlternatives(record.value.containerId) : [],
+)
+const bestInterpretation = computed(() =>
+  (record.value?.containerId?.value ?? '').replace(/\s+/g, '').toUpperCase().replace(/\?/g, '·'),
+)
+const remainsUncertain = computed(() => {
+  const r = record.value?.containerId
+  if (!r) return ''
+  if (r.uncertainty) return r.uncertainty
+  return idState.value === 'partial'
+    ? 'some positions were not read, marked · above.'
+    : 'some characters are hard to read, so the reading could be one of a few things.'
+})
+const showExplanation = computed(() => idState.value === 'uncertain' || idState.value === 'partial')
+const showInsufficient = computed(() => idState.value === 'insufficient')
 </script>
 
 <template>
@@ -48,6 +70,28 @@ const recordedLabel = computed(() => {
         <CertaintyChip :level="record.containerId.certainty" />
       </div>
       <ContainerId :reading="record.containerId" />
+
+      <p v-for="alt in alternatives" :key="alt" class="rs-also qs-rise" style="--i: 1">
+        Also possible: {{ alt }}
+      </p>
+
+      <div v-if="showExplanation" class="rs-explain qs-rise" style="--i: 2">
+        <p><b>Best interpretation:</b> {{ bestInterpretation }}</p>
+        <p><b>What remains uncertain:</b> {{ remainsUncertain }}</p>
+      </div>
+
+      <div
+        v-if="showInsufficient"
+        class="qs-notice qs-notice--suggestion rs-explain qs-rise"
+        style="--i: 2"
+        role="status"
+      >
+        <i class="qs-glyph qs-glyph--unseen" aria-hidden="true"></i>
+        <div>
+          <div class="qs-notice__title">The container ID could not be read from this photo.</div>
+          <div class="qs-notice__body">A closer photo of the door markings may help.</div>
+        </div>
+      </div>
     </div>
   </section>
 </template>

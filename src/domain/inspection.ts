@@ -28,6 +28,12 @@ export interface ContainerIdReading {
   checkDigitValid: boolean
   certainty: CertaintyLabel
   provenance: Provenance
+  /** Optional per-position certainty (11 entries). Defaults to the overall certainty for every position. */
+  positionCertainty?: CertaintyLabel[]
+  /** Plausible alternative IDs. Only the first two are ever shown, as "Also possible". */
+  alternatives?: string[]
+  /** Plain-words note on what remains uncertain, shown beside the best interpretation. */
+  uncertainty?: string
 }
 
 export interface PhotoRef {
