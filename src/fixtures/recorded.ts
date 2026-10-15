@@ -1,4 +1,6 @@
 import type { CertaintyLabel, ProviderId } from '../domain/inspection'
+import type { DamageAssessment } from '../domain/damage'
+import { recordedSideDamage } from './recordedDamage'
 
 /**
  * Recorded results for the walking skeleton. They replay saved readings with no network and no key.
@@ -16,6 +18,8 @@ export interface RecordedFixture {
   containerNumber: string
   observedCheckDigit: number | null
   certainty: CertaintyLabel
+  /** Side-damage assessment replayed with the ID reading. Null when none was recorded. */
+  damage: DamageAssessment | null
   /** ISO size/type code printed on the door (e.g. 45G1), or null when not captured. */
   sizeCode: string | null
   /** Printed MAX GROSS, TARE and NET in kg (the lb values are not used). Null when not captured. */
@@ -35,6 +39,7 @@ export const recordedFixtures: Record<ProviderId, RecordedFixture> = {
     containerNumber: 'APHU658684',
     observedCheckDigit: 7,
     certainty: 'Confident',
+    damage: recordedSideDamage,
     // Door plate in the photo: 45G1; MAX GROSS 32,500 KGS, TARE 3,870 KGS, NET 28,630 KGS.
     sizeCode: '45G1',
     maxGrossKg: 32500,
@@ -49,6 +54,7 @@ export const recordedFixtures: Record<ProviderId, RecordedFixture> = {
     containerNumber: 'APHU658684',
     observedCheckDigit: 7,
     certainty: 'Likely',
+    damage: null,
     sizeCode: null,
     maxGrossKg: null,
     tareKg: null,

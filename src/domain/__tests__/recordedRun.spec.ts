@@ -41,6 +41,16 @@ describe('recorded inspection run', () => {
   })
 })
 
+describe('recorded damage assessment', () => {
+  it('replays the side-damage fixture for Luna and no damage for Jev, which captured none', async () => {
+    const luna = await runRecordedInspection('luna', { delayMs: 0 })
+    expect(luna.damage?.findings).toHaveLength(1)
+    expect(luna.damage?.photos).toEqual([{ photo: 'side-dented-grey.jpg', face: 'long-side' }])
+    const jev = await runRecordedInspection('jev', { delayMs: 0 })
+    expect(jev.damage).toBeNull()
+  })
+})
+
 describe('recorded run deterministic checks', () => {
   it('decodes the size code from the photo as a 40 ft High Cube, labelled decoded', async () => {
     const record = await runRecordedInspection('luna', { delayMs: 0 })

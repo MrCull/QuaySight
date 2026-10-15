@@ -5,6 +5,7 @@ import { getProvider } from './domain/providers'
 import ProviderSelect from './components/ProviderSelect.vue'
 import PhotoPanel from './components/PhotoPanel.vue'
 import ResultsPanel from './components/ResultsPanel.vue'
+import DamageView from './components/damage/DamageView.vue'
 import CostIndicator from './components/CostIndicator.vue'
 
 const store = useInspectionStore()
@@ -83,6 +84,7 @@ function start() {
         </div>
       </section>
       <ResultsPanel />
+      <DamageView v-if="store.record" :assessment="store.record.damage" />
     </main>
   </div>
 </template>

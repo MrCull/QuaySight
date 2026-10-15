@@ -53,6 +53,7 @@ describe('CostIndicator', () => {
       status: 'complete',
       photo: null,
       containerId: null,
+      damage: null,
       sizeCode: null,
       weights: null,
     }
@@ -78,6 +79,7 @@ describe('CostIndicator', () => {
       status: 'complete',
       photo: null,
       containerId: null,
+      damage: null,
       sizeCode: null,
       weights: null,
     }
@@ -112,6 +114,7 @@ describe('CostIndicator', () => {
       status: 'complete',
       photo: null,
       containerId: null,
+      damage: null,
       sizeCode: null,
       weights: null,
     }

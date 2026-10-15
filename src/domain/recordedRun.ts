@@ -55,5 +55,6 @@ export async function runRecordedInspection(
       printedNetKg: fixture.printedNetKg,
       certainty: fixture.detailCertainty,
     }),
+    damage: fixture.damage,
   }
 }

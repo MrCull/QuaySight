@@ -5,6 +5,8 @@ import type { WeightChecks } from './weights'
 // normalises into this shape. Later tickets extend it (checks, findings, costs) without changing
 // the fields below, so schemaVersion bumps only on breaking changes.
 
+import type { DamageAssessment } from './damage'
+
 export const INSPECTION_SCHEMA_VERSION = 1
 
 export type ProviderId = 'luna' | 'jev'
@@ -57,6 +59,8 @@ export interface InspectionRecord {
   status: 'running' | 'complete' | 'failed'
   photo: PhotoRef | null
   containerId: ContainerIdReading | null
+  /** Damage assessment for the neutral schematic (ticket #8). Null when the run assessed no damage. */
+  damage: DamageAssessment | null
   /** Decoded ISO size/type code (provenance: decoded), or null when not visible or not recognised. */
   sizeCode: DecodedSizeCode | null
   /** Printed maximum gross and tare, calculated payload, and any printed-versus-arithmetic conflict. */
