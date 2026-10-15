@@ -4,6 +4,7 @@ import { useInspectionStore } from '../stores/inspection'
 import { getProvider } from '../domain/providers'
 import CertaintyChip from './CertaintyChip.vue'
 import ContainerId from './ContainerId.vue'
+import ContainerDetails from './ContainerDetails.vue'
 
 const store = useInspectionStore()
 const record = computed(() => store.record)
@@ -49,5 +50,7 @@ const recordedLabel = computed(() => {
       </div>
       <ContainerId :reading="record.containerId" />
     </div>
+
+    <ContainerDetails v-if="record" :record="record" />
   </section>
 </template>

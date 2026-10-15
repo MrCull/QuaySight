@@ -16,6 +16,14 @@ export interface RecordedFixture {
   containerNumber: string
   observedCheckDigit: number | null
   certainty: CertaintyLabel
+  /** ISO size/type code printed on the door (e.g. 45G1), or null when not captured. */
+  sizeCode: string | null
+  /** Printed MAX GROSS, TARE and NET in kg (the lb values are not used). Null when not captured. */
+  maxGrossKg: number | null
+  tareKg: number | null
+  printedNetKg: number | null
+  /** Certainty of the printed size code and weights. */
+  detailCertainty: CertaintyLabel
 }
 
 export const recordedFixtures: Record<ProviderId, RecordedFixture> = {
@@ -25,6 +33,12 @@ export const recordedFixtures: Record<ProviderId, RecordedFixture> = {
     containerNumber: 'APHU658684',
     observedCheckDigit: 7,
     certainty: 'Confident',
+    // Door plate in the photo: 45G1; MAX GROSS 32,500 KGS, TARE 3,870 KGS, NET 28,630 KGS.
+    sizeCode: '45G1',
+    maxGrossKg: 32500,
+    tareKg: 3870,
+    printedNetKg: 28630,
+    detailCertainty: 'Confident',
   },
   jev: {
     provider: 'jev',
@@ -32,5 +46,10 @@ export const recordedFixtures: Record<ProviderId, RecordedFixture> = {
     containerNumber: 'APHU658684',
     observedCheckDigit: 7,
     certainty: 'Likely',
+    sizeCode: null,
+    maxGrossKg: null,
+    tareKg: null,
+    printedNetKg: null,
+    detailCertainty: 'Likely',
   },
 }
