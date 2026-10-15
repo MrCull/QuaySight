@@ -81,7 +81,7 @@ What the app looks like after photos are uploaded. Live, animated versions are i
   - utility: `chevron`, `eye`, `upload`
 - For any other UI icon, use an outline set at a 1.5px stroke on a 16 or 20px grid to match the glyphs. Lucide is the suggested match; it is not part of the source.
 - No emoji, and no illustrations of damage on the schematic. The photos in the previews are illustrated stand-ins; in the app, the uploaded photo takes their place.
-- There is no logo yet. Set the name "Quay Sight" in `display-md` or larger.
+- **Logo.** The mark is the corner casting: a container's cast steel corner, its oval aperture read as an eye. Use `.qs-logo` (mask, `brand` by default) and `.qs-brand` for the mark beside the name in Barlow Condensed; the SVG files and their rules are in the **Logo** asset group. One colour only, never green.
 
 ## Using the components
 
@@ -97,3 +97,4 @@ At `MrCull/QuaySight@cc7ec10` the repository is an unstyled create-vue scaffold:
 - In the app, import `design-system/tokens.css` then `design-system/components/bundle.css` once (in `src/main.ts`), and wrap the app in `.qs-root`. Night quay is the default theme; set `data-theme="light"` on `<html>` for Daylight.
 - Type styles are available as `.qs-type-{name}` classes (`display-lg`, `body`, `label` and so on) in `tokens.css`.
 - Open any `components/<Name>/preview.html` directly in a browser to see the reference rendering.
+- The **Logo** asset group lives in `design-system/assets/logo/` (SVG files and their rules). The app uses `public/favicon.svg`.

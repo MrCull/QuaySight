@@ -97,6 +97,12 @@
 .qs-marking--hazard .qs-glyph { color: var(--hazard-fg); width: 18px; height: 18px; }
 .qs-marking__caveat { display: block; color: var(--ink-muted); font-size: 12px; line-height: 16px; }
 
+/* ---------- Logo: the corner-casting mark, single ink (brand by default) ---------- */
+.qs-logo { display: inline-block; flex: none; width: 32px; height: 32px; color: var(--brand); background-color: currentColor; -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 48 48'%3E%3Cpath fill-rule='evenodd' d='M10 6h28a6 6 0 0 1 6 6v24a6 6 0 0 1-6 6H10a6 6 0 0 1-6-6V12a6 6 0 0 1 6-6Zm0 4.5a1.5 1.5 0 0 0-1.5 1.5v24a1.5 1.5 0 0 0 1.5 1.5h28a1.5 1.5 0 0 0 1.5-1.5V12a1.5 1.5 0 0 0-1.5-1.5Z'/%3E%3Cpath fill-rule='evenodd' d='M24 14.5c7 0 12.5 5.2 14 9.5-1.5 4.3-7 9.5-14 9.5S11.5 28.3 10 24c1.5-4.3 7-9.5 14-9.5Zm0 4.5a5 5 0 1 0 0 10 5 5 0 0 0 0-10Z'/%3E%3C/svg%3E") center / contain no-repeat; mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 48 48'%3E%3Cpath fill-rule='evenodd' d='M10 6h28a6 6 0 0 1 6 6v24a6 6 0 0 1-6 6H10a6 6 0 0 1-6-6V12a6 6 0 0 1 6-6Zm0 4.5a1.5 1.5 0 0 0-1.5 1.5v24a1.5 1.5 0 0 0 1.5 1.5h28a1.5 1.5 0 0 0 1.5-1.5V12a1.5 1.5 0 0 0-1.5-1.5Z'/%3E%3Cpath fill-rule='evenodd' d='M24 14.5c7 0 12.5 5.2 14 9.5-1.5 4.3-7 9.5-14 9.5S11.5 28.3 10 24c1.5-4.3 7-9.5 14-9.5Zm0 4.5a5 5 0 1 0 0 10 5 5 0 0 0 0-10Z'/%3E%3C/svg%3E") center / contain no-repeat; }
+.qs-logo--sm { width: 20px; height: 20px; } .qs-logo--lg { width: 64px; height: 64px; }
+.qs-logo--ink { color: var(--ink); }
+.qs-brand { display: inline-flex; align-items: center; gap: var(--space-2); font: 600 28px/1 var(--font-display); letter-spacing: 0.01em; color: var(--ink); white-space: nowrap; }
+
 /* ---------- Schematic: 3D container drawing ---------- */
 .qs-schem { position: relative; background: radial-gradient(120% 90% at 50% 35%, var(--surface) 0%, var(--surface-sunken) 70%); border: 1px solid var(--line); border-radius: var(--radius-lg); padding: var(--space-5) var(--space-5) var(--space-4); overflow: hidden; }
 .qs-schem svg.qs-c { display: block; width: 100%; height: auto; overflow: visible; }
