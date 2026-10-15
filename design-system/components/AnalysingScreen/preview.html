@@ -1,0 +1,406 @@
+<!-- @dsCard group="Screens" height=660 width=1440 subtitle="Main screen while photos are analysed: real stages, skeletons, no fake progress" -->
+<!doctype html>
+<html><head><link rel="stylesheet" href="../../tokens.css"><link rel="stylesheet" href="../bundle.css"><meta charset="utf-8"><title>Results screen</title>
+<style>
+body{margin:0;background:var(--bg)}
+.rs{min-width:1280px}
+.rs-top{position:sticky;top:0;z-index:5;display:flex;white-space:nowrap;align-items:center;gap:var(--space-5);height:64px;padding:0 var(--space-6);background:var(--surface);border-bottom:1px solid var(--line)}
+.rs-brand{font:600 28px/1 var(--font-display);letter-spacing:.01em;color:var(--ink)}
+.rs-brand b{color:var(--brand);font-weight:600}
+.rs-crumb{font:600 15px/20px var(--font-sans);color:var(--ink)} .rs-crumb span{color:var(--ink-muted);font-weight:400}
+.rs-run{display:inline-flex;align-items:center;gap:var(--space-2);height:36px;padding:0 var(--space-3) 0 4px;border:1px solid var(--line);border-radius:var(--radius-sm);font:600 14px/1 var(--font-sans);color:var(--ink)}
+.rs-run .qs-mono{width:28px;height:28px;font-size:11px} .rs-run small{font:400 12px/1 var(--font-mono);color:var(--ink-muted)}
+.rs-spacer{flex:1}
+.rs-main{display:grid;grid-template-columns:minmax(0,1fr) 540px;gap:var(--space-6);padding:var(--space-6)}
+.rs-left{display:grid;gap:var(--space-4);align-content:start}
+.rs-photo{position:relative;aspect-ratio:1000/640;border-radius:var(--radius-lg);overflow:hidden;background:var(--surface-sunken);border:1px solid var(--line)}
+.rs-photo__bar{position:absolute;left:var(--space-3);right:var(--space-3);top:var(--space-3);display:flex;align-items:center;gap:var(--space-2);flex-wrap:wrap}
+.rs-pill{display:inline-flex;align-items:center;gap:6px;height:28px;padding:0 var(--space-3);border-radius:var(--radius-sm);background:var(--scrim);color:#fff;font:500 13px/1 var(--font-sans);backdrop-filter:blur(6px)}
+.rs-pill .qs-glyph{width:14px;height:14px}
+.rs-pill--muted{font-weight:400;opacity:.9}
+.rs-photo__foot{position:absolute;right:var(--space-3);bottom:var(--space-3);display:flex;gap:var(--space-2);align-items:center}
+.rs-zoom{display:inline-flex;gap:4px}
+.qs-arriving .rs-photo__bar{opacity:0}.rs-photo__bar{transition:opacity var(--duration-base)}
+.rs-zoom button{width:32px;height:32px;border:0;border-radius:var(--radius-sm);background:var(--scrim);color:#fff;font:600 18px/1 var(--font-sans);cursor:pointer}
+.rs-analysing{position:absolute;inset:0;pointer-events:none;transition:opacity var(--duration-base)}
+.rs-sweep{position:absolute;left:0;right:0;top:0;height:40%;background:linear-gradient(180deg,transparent,var(--brand) 50%,transparent);opacity:.18;animation:qs-sweep 2.2s cubic-bezier(.4,0,.2,1) infinite}
+.rs-stagecard{position:absolute;left:var(--space-4);top:var(--space-4);width:330px;padding:var(--space-3) var(--space-4) var(--space-1);background:var(--surface-raised);border:1px solid var(--line);border-radius:var(--radius-md);box-shadow:var(--shadow-raised)}
+.rs-stagecard__k{font:600 11px/16px var(--font-sans);letter-spacing:.08em;text-transform:uppercase;color:var(--ink-muted);margin-bottom:4px}
+.qs-arrived .rs-analysing{opacity:0}
+.qs-arrived .rs-stagecard{animation:rs-out var(--duration-arrive) ease-in both}
+@keyframes rs-out{to{opacity:0;transform:translateY(-8px) scale(.98)}}
+.rs-thumbs{display:flex;gap:var(--space-3)}
+.rs-thumb{display:grid;gap:6px;width:156px;padding:0;border:0;background:none;color:var(--ink-muted);font:500 13px/16px var(--font-sans);text-align:left;cursor:pointer}
+.rs-thumb__img{display:block;aspect-ratio:16/10;border-radius:var(--radius-md);overflow:hidden;border:2px solid var(--line)}
+.rs-thumb__img svg{display:block;width:100%;height:100%}
+.rs-thumb.is-on{color:var(--ink)} .rs-thumb.is-on .rs-thumb__img{border-color:var(--brand)}
+.rs-thumb--add{place-items:center;align-content:center;aspect-ratio:16/10;height:auto;border:2px dashed var(--line-strong);border-radius:var(--radius-md);color:var(--ink-muted)}
+.rs-thumb--add .qs-glyph{width:20px;height:20px;color:var(--brand)}
+.rs-summary{padding:var(--space-5);background:var(--surface);border:1px solid var(--line);border-radius:var(--radius-md)}
+.rs-k{font:600 12px/16px var(--font-sans);letter-spacing:.08em;text-transform:uppercase;color:var(--ink-muted)}
+.rs-headline{margin:var(--space-2) 0 var(--space-3);font:600 40px/44px var(--font-display);color:var(--ink)}
+.rs-headline em{font-style:normal;color:var(--damage-fg)}
+.rs-summary p{margin:0;max-width:72ch;font:400 16px/24px var(--font-sans);color:var(--ink)}
+.rs-stats{display:flex;flex-wrap:wrap;gap:var(--space-6);margin-top:var(--space-4);padding-top:var(--space-4);border-top:1px solid var(--line)}
+.rs-stat{display:grid;gap:2px} .rs-stat b{font:500 22px/28px var(--font-mono);color:var(--ink)} .rs-stat span{font:600 11px/16px var(--font-sans);letter-spacing:.06em;text-transform:uppercase;color:var(--ink-muted)}
+.rs-right{position:relative;display:grid;gap:var(--space-4);align-content:start}
+.rs-card{padding:var(--space-5);background:var(--surface);border:1px solid var(--line);border-radius:var(--radius-md)}
+.rs-card .qs-field{grid-template-columns:112px 1fr auto}
+.rs-card .qs-field:last-child{border-bottom:0;padding-bottom:0}
+.rs-card__head{display:flex;align-items:center;justify-content:space-between;gap:var(--space-3);margin-bottom:var(--space-3)}
+.rs-refine{display:flex;flex-wrap:wrap;align-items:center;gap:var(--space-2);margin-top:var(--space-4);padding:var(--space-3);border-radius:var(--radius-sm);background:var(--surface-sunken);font:400 13px/18px var(--font-sans);color:var(--ink-muted)}
+.rs-refine code{font:500 14px/18px var(--font-mono);color:var(--ink)} .rs-refine code u{text-decoration:none;color:var(--cert-uncertain-fg)}
+.rs-refine__arrow{color:var(--brand);font-weight:600}
+.rs-marks{display:flex;flex-wrap:wrap;gap:var(--space-2)}
+.rs-skel{position:absolute;inset:0;display:grid;gap:var(--space-4);align-content:start;transition:opacity var(--duration-base)}
+.rs-skel .rs-card{display:grid;gap:12px}
+.qs-arrived .rs-skel{opacity:0;pointer-events:none}
+.rs-damage{grid-column:1/-1;padding:var(--space-5);background:var(--surface);border:1px solid var(--line);border-radius:var(--radius-md)}
+.rs-damage__head{display:flex;align-items:center;gap:var(--space-5);flex-wrap:wrap;margin-bottom:var(--space-4)}
+.rs-damage__title{font:600 28px/32px var(--font-display);letter-spacing:.01em;color:var(--ink)}
+.rs-damage__grid{display:grid;grid-template-columns:minmax(0,1fr) 420px;gap:var(--space-5);align-items:start}
+.rs-findings{display:grid;grid-template-columns:minmax(0,1fr);gap:var(--space-3);align-items:start}
+@media (min-width:1800px){.rs-damage__grid{grid-template-columns:minmax(0,1fr)}.rs-findings{grid-template-columns:repeat(3,minmax(0,1fr))}}
+.rs--analysing .rs-damage,.rs--analysing .rs-summary,.rs--analysing .rs-thumbs,.rs--analysing .rs-right>.qs-rise{display:none}
+.rs--analysing .rs-skel{position:static}
+.rs-replay{position:fixed;right:var(--space-5);bottom:var(--space-5);z-index:9;box-shadow:var(--shadow-raised);background:var(--surface-raised)}
+</style></head>
+<body class="qs-root rs rs--analysing">
+<header class="rs-top">
+  <span class="qs-brand"><i class="qs-logo" aria-hidden="true"></i>Quay Sight</span>
+  <span class="rs-crumb">Inspection 4 <span>· 2 photos</span></span>
+  <span class="rs-run" title="Provider and model that produced this result"><span class="qs-mono">OA</span>GPT-6 Luna <small>OpenAI · pinned 2026-08</small></span>
+  <span class="rs-spacer"></span>
+  <div class="qs-cost"><button class="qs-cost__toggle" id="cost" aria-expanded="false"><span class="qs-cost__mode">Live</span><span class="qs-cost__sep"></span>This container <b id="c-now">$0.0042</b><span class="qs-cost__sep"></span>Session <b id="c-ses">$0.0187</b><i class="qs-glyph qs-glyph--chevron"></i></button></div>
+  <button class="qs-btn qs-btn--secondary"><i class="qs-glyph qs-glyph--upload"></i>Export</button>
+  <button class="qs-btn qs-btn--primary">New inspection</button>
+</header>
+
+<main class="rs-main qs-arriving" id="stage">
+  <section class="rs-left">
+    <div class="rs-photo" style="--base:250ms">
+      <svg class="qs-photo" viewBox="0 0 1000 640" preserveAspectRatio="xMidYMid slice" role="img" aria-label="Illustrated stand-in photo of rear container doors">
+<defs>
+<linearGradient id="ph-sky" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#2b3d55"/><stop offset=".55" stop-color="#7a6f78"/><stop offset="1" stop-color="#c9917a"/></linearGradient>
+<linearGradient id="ph-ground" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#4a4d52"/><stop offset="1" stop-color="#25272b"/></linearGradient>
+<linearGradient id="ph-paint" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#5e2622"/><stop offset=".35" stop-color="#8a3a32"/><stop offset=".7" stop-color="#7a312b"/><stop offset="1" stop-color="#4d1f1c"/></linearGradient>
+<linearGradient id="ph-rib" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#a24a40"/><stop offset=".5" stop-color="#7a312b"/><stop offset="1" stop-color="#4a1d1a"/></linearGradient>
+<radialGradient id="ph-dent" cx=".45" cy=".45" r=".6"><stop offset="0" stop-color="#2a0f0d" stop-opacity=".75"/><stop offset=".6" stop-color="#3a1512" stop-opacity=".35"/><stop offset="1" stop-color="#3a1512" stop-opacity="0"/></radialGradient>
+<radialGradient id="ph-hl" cx=".5" cy=".5" r=".5"><stop offset="0" stop-color="#e6907f" stop-opacity=".55"/><stop offset="1" stop-color="#e6907f" stop-opacity="0"/></radialGradient>
+<radialGradient id="ph-vig" cx=".5" cy=".5" r=".75"><stop offset=".55" stop-color="#000" stop-opacity="0"/><stop offset="1" stop-color="#000" stop-opacity=".55"/></radialGradient>
+<filter id="ph-grain"><feTurbulence type="fractalNoise" baseFrequency=".9" numOctaves="2" seed="4"/><feColorMatrix values="0 0 0 0 .5  0 0 0 0 .5  0 0 0 0 .5  0 0 0 .09 0"/><feComposite in2="SourceGraphic" operator="in"/></filter>
+<filter id="ph-soft"><feGaussianBlur stdDeviation="1.4"/></filter>
+<filter id="ph-rust"><feTurbulence type="fractalNoise" baseFrequency=".06" numOctaves="3" seed="9"/><feColorMatrix values="0 0 0 0 .62  0 0 0 0 .33  0 0 0 0 .12  0 0 0 1.6 -.65"/><feComposite in2="SourceGraphic" operator="in"/></filter>
+</defs>
+<rect width="1000" height="640" fill="url(#ph-sky)"/>
+<g opacity=".55"><rect x="40" y="250" width="160" height="70" fill="#2f4a5c"/><rect x="40" y="200" width="160" height="50" fill="#4f6b4a"/><rect x="820" y="240" width="170" height="80" fill="#38485e"/><rect x="820" y="190" width="120" height="50" fill="#6b5a3a"/><path d="M880 40 L900 40 L900 190 L880 190Z M760 60 L990 60 L990 72 L760 72Z" fill="#1f2a36"/><path d="M890 72 L800 72 L890 40Z" fill="none" stroke="#1f2a36" stroke-width="3"/></g>
+<rect y="560" width="1000" height="80" fill="url(#ph-ground)"/>
+<ellipse cx="505" cy="574" rx="420" ry="16" fill="#000" opacity=".45" filter="url(#ph-soft)"/>
+<path d="M180 84 L830 70 L838 572 L172 566Z" fill="url(#ph-paint)"/>
+<path d="M180 84 L830 70 L831 104 L180 116Z" fill="#3e1916"/><path d="M174 540 L837 546 L838 572 L172 566Z" fill="#3a1714"/>
+<path d="M180 84 L214 83 L208 566 L172 566Z" fill="#4a1d1a"/><path d="M796 71 L830 70 L838 572 L803 571Z" fill="#4a1d1a"/>
+<rect x="174" y="84" width="34" height="22" rx="2" fill="#2b100e"/><ellipse cx="191" cy="95" rx="9" ry="5" fill="#120605"/>
+<rect x="798" y="71" width="34" height="22" rx="2" fill="#2b100e"/><ellipse cx="815" cy="82" rx="9" ry="5" fill="#120605"/>
+<rect x="172" y="548" width="34" height="22" rx="2" fill="#2b100e"/><ellipse cx="189" cy="559" rx="9" ry="5" fill="#120605"/>
+<rect x="804" y="552" width="34" height="22" rx="2" fill="#2b100e"/><ellipse cx="821" cy="563" rx="9" ry="5" fill="#120605"/>
+<path d="M214 150 L503 147 L503 188 L212 190Z" fill="url(#ph-rib)" opacity=".9"/>
+<path d="M507 147 L798 144 L800 185 L507 188Z" fill="url(#ph-rib)" opacity=".9"/>
+<path d="M214 230 L503 227 L503 268 L212 270Z" fill="url(#ph-rib)" opacity=".9"/>
+<path d="M507 227 L798 224 L800 265 L507 268Z" fill="url(#ph-rib)" opacity=".9"/>
+<path d="M214 310 L503 307 L503 348 L212 350Z" fill="url(#ph-rib)" opacity=".9"/>
+<path d="M507 307 L798 304 L800 345 L507 348Z" fill="url(#ph-rib)" opacity=".9"/>
+<path d="M214 390 L503 387 L503 428 L212 430Z" fill="url(#ph-rib)" opacity=".9"/>
+<path d="M507 387 L798 384 L800 425 L507 428Z" fill="url(#ph-rib)" opacity=".9"/>
+<path d="M214 470 L503 467 L503 508 L212 510Z" fill="url(#ph-rib)" opacity=".9"/>
+<path d="M507 467 L798 464 L800 505 L507 508Z" fill="url(#ph-rib)" opacity=".9"/>
+<path d="M505 102 L505 545" stroke="#250c0a" stroke-width="5"/>
+<path d="M268 96 L269 552" stroke="#2a2d30" stroke-width="9" stroke-linecap="round"/><path d="M266 96 L267 552" stroke="#8b9096" stroke-width="2.5" opacity=".7"/>
+<rect x="257" y="92" width="24" height="18" rx="2" fill="#26292c"/><rect x="257" y="534" width="24" height="18" rx="2" fill="#26292c"/>
+<rect x="262" y="346" width="52" height="11" rx="3" fill="#3a3e42"/><rect x="298" y="338" width="14" height="26" rx="2" fill="#2a2d30"/>
+<path d="M420 96 L421 552" stroke="#2a2d30" stroke-width="9" stroke-linecap="round"/><path d="M418 96 L419 552" stroke="#8b9096" stroke-width="2.5" opacity=".7"/>
+<rect x="409" y="92" width="24" height="18" rx="2" fill="#26292c"/><rect x="409" y="534" width="24" height="18" rx="2" fill="#26292c"/>
+<rect x="414" y="346" width="52" height="11" rx="3" fill="#3a3e42"/><rect x="450" y="338" width="14" height="26" rx="2" fill="#2a2d30"/>
+<path d="M590 96 L591 552" stroke="#2a2d30" stroke-width="9" stroke-linecap="round"/><path d="M588 96 L589 552" stroke="#8b9096" stroke-width="2.5" opacity=".7"/>
+<rect x="579" y="92" width="24" height="18" rx="2" fill="#26292c"/><rect x="579" y="534" width="24" height="18" rx="2" fill="#26292c"/>
+<rect x="584" y="346" width="52" height="11" rx="3" fill="#3a3e42"/><rect x="620" y="338" width="14" height="26" rx="2" fill="#2a2d30"/>
+<path d="M742 96 L743 552" stroke="#2a2d30" stroke-width="9" stroke-linecap="round"/><path d="M740 96 L741 552" stroke="#8b9096" stroke-width="2.5" opacity=".7"/>
+<rect x="731" y="92" width="24" height="18" rx="2" fill="#26292c"/><rect x="731" y="534" width="24" height="18" rx="2" fill="#26292c"/>
+<rect x="736" y="346" width="52" height="11" rx="3" fill="#3a3e42"/><rect x="772" y="338" width="14" height="26" rx="2" fill="#2a2d30"/>
+<rect x="212" y="150" width="22" height="30" rx="2" fill="#2b100e"/><rect x="777" y="146" width="22" height="30" rx="2" fill="#2b100e"/>
+<rect x="212" y="260" width="22" height="30" rx="2" fill="#2b100e"/><rect x="777" y="256" width="22" height="30" rx="2" fill="#2b100e"/>
+<rect x="212" y="380" width="22" height="30" rx="2" fill="#2b100e"/><rect x="777" y="376" width="22" height="30" rx="2" fill="#2b100e"/>
+<rect x="212" y="500" width="22" height="30" rx="2" fill="#2b100e"/><rect x="777" y="496" width="22" height="30" rx="2" fill="#2b100e"/>
+<g fill="#efe9e2" font-family="'Barlow Condensed', 'Arial Narrow', sans-serif" font-weight="600">
+<text x="536" y="150" font-size="40" letter-spacing="3">QSIU 307428</text><rect x="760" y="116" width="32" height="42" fill="none" stroke="#efe9e2" stroke-width="3"/><text x="776" y="150" font-size="40" text-anchor="middle">8</text>
+<text x="618" y="196" font-size="30" letter-spacing="4">45G1</text>
+<text x="236" y="210" font-size="17" letter-spacing="1">MAX GROSS  32,500 KG</text><text x="236" y="232" font-size="17" letter-spacing="1" opacity=".85">71,650 LB</text>
+<text x="236" y="262" font-size="17" letter-spacing="1">TARE  3,750 KG</text><text x="236" y="284" font-size="17" letter-spacing="1" opacity=".85">8,270 LB</text>
+<text x="236" y="314" font-size="17" letter-spacing="1">NET  28,750 KG</text></g>
+<ellipse cx="660" cy="470" rx="78" ry="48" fill="url(#ph-dent)" transform="rotate(-12 660 470)"/>
+<ellipse cx="640" cy="448" rx="40" ry="16" fill="url(#ph-hl)" transform="rotate(-12 640 448)"/>
+<path d="M592 462 Q640 500 716 476" stroke="#1d0a09" stroke-width="3" fill="none" opacity=".55"/>
+<rect x="214" y="490" width="290" height="60" filter="url(#ph-rust)"/>
+<g fill="#6b3a1c" opacity=".7"><path d="M300 505 l3 40 l-5 0z"/><path d="M380 500 l2 46 l-4 0z"/><path d="M440 512 l2 34 l-4 0z"/></g>
+<rect width="1000" height="640" fill="#fff" filter="url(#ph-grain)" opacity=".7"/>
+<rect width="1000" height="640" fill="url(#ph-vig)"/>
+<g class="qs-photo__regions">
+<g class="qs-photo-region qs-photo-region--moderate" data-finding="2" style="--i:1"><rect x="560" y="400" width="210" height="135" rx="10"/><g class="qs-photo-region__tag" transform="translate(560 384)"><rect x="0" y="-22" width="120" height="28" rx="4"/><text x="10" y="-3">2 · DT dent</text></g></g>
+<g class="qs-photo-region qs-photo-region--minor" data-finding="3" style="--i:2"><rect x="214" y="482" width="290" height="70" rx="10"/><g class="qs-photo-region__tag" transform="translate(214 466)"><rect x="0" y="-22" width="150" height="28" rx="4"/><text x="10" y="-3">3 · CO corrosion</text></g></g>
+<g class="qs-photo-region qs-photo-region--id" style="--i:0"><rect x="526" y="108" width="280" height="100" rx="10"/></g>
+</g>
+</svg>
+      <div class="rs-analysing"><div class="rs-sweep"></div><div class="rs-stagecard"><div class="rs-stagecard__k">Analysing with GPT-6 Luna</div><ol class="qs-stages" id="stages" aria-live="polite">
+<li class="qs-stage" data-s="0"><span class="qs-stage__dot"></span><span class="qs-stage__title">Reading markings</span><span class="qs-stage__time"></span></li>
+<li class="qs-stage" data-s="1"><span class="qs-stage__dot"></span><span class="qs-stage__title">Looking for damage</span><span class="qs-stage__time"></span></li>
+<li class="qs-stage" data-s="2"><span class="qs-stage__dot"></span><span class="qs-stage__title">Checking the details</span><span class="qs-stage__time"></span></li>
+</ol></div></div>
+      <div class="rs-photo__bar">
+        <span class="rs-pill"><i class="qs-glyph qs-glyph--check"></i>Photo 1 of 2 · Rear doors (face identified)</span>
+        <span class="rs-pill rs-pill--muted">Dashed areas are approximate</span>
+      </div>
+      <div class="rs-photo__foot"><span class="rs-pill rs-pill--muted">Illustrated stand-in for an uploaded photo</span><span class="rs-zoom"><button aria-label="Zoom out">−</button><button aria-label="Zoom in">+</button></span></div>
+    </div>
+    <div class="rs-thumbs qs-rise" style="--i:1;--base:200ms">
+<button class="rs-thumb is-on" aria-pressed="true"><span class="rs-thumb__img"><svg class="qs-photo qs-photo--thumb" viewBox="0 0 1000 640" preserveAspectRatio="xMidYMid slice" role="img" aria-label="Illustrated stand-in photo of rear container doors">
+<defs>
+<linearGradient id="t1-sky" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#2b3d55"/><stop offset=".55" stop-color="#7a6f78"/><stop offset="1" stop-color="#c9917a"/></linearGradient>
+<linearGradient id="t1-ground" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#4a4d52"/><stop offset="1" stop-color="#25272b"/></linearGradient>
+<linearGradient id="t1-paint" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#5e2622"/><stop offset=".35" stop-color="#8a3a32"/><stop offset=".7" stop-color="#7a312b"/><stop offset="1" stop-color="#4d1f1c"/></linearGradient>
+<linearGradient id="t1-rib" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#a24a40"/><stop offset=".5" stop-color="#7a312b"/><stop offset="1" stop-color="#4a1d1a"/></linearGradient>
+<radialGradient id="t1-dent" cx=".45" cy=".45" r=".6"><stop offset="0" stop-color="#2a0f0d" stop-opacity=".75"/><stop offset=".6" stop-color="#3a1512" stop-opacity=".35"/><stop offset="1" stop-color="#3a1512" stop-opacity="0"/></radialGradient>
+<radialGradient id="t1-hl" cx=".5" cy=".5" r=".5"><stop offset="0" stop-color="#e6907f" stop-opacity=".55"/><stop offset="1" stop-color="#e6907f" stop-opacity="0"/></radialGradient>
+<radialGradient id="t1-vig" cx=".5" cy=".5" r=".75"><stop offset=".55" stop-color="#000" stop-opacity="0"/><stop offset="1" stop-color="#000" stop-opacity=".55"/></radialGradient>
+<filter id="t1-grain"><feTurbulence type="fractalNoise" baseFrequency=".9" numOctaves="2" seed="4"/><feColorMatrix values="0 0 0 0 .5  0 0 0 0 .5  0 0 0 0 .5  0 0 0 .09 0"/><feComposite in2="SourceGraphic" operator="in"/></filter>
+<filter id="t1-soft"><feGaussianBlur stdDeviation="1.4"/></filter>
+<filter id="t1-rust"><feTurbulence type="fractalNoise" baseFrequency=".06" numOctaves="3" seed="9"/><feColorMatrix values="0 0 0 0 .62  0 0 0 0 .33  0 0 0 0 .12  0 0 0 1.6 -.65"/><feComposite in2="SourceGraphic" operator="in"/></filter>
+</defs>
+<rect width="1000" height="640" fill="url(#t1-sky)"/>
+<g opacity=".55"><rect x="40" y="250" width="160" height="70" fill="#2f4a5c"/><rect x="40" y="200" width="160" height="50" fill="#4f6b4a"/><rect x="820" y="240" width="170" height="80" fill="#38485e"/><rect x="820" y="190" width="120" height="50" fill="#6b5a3a"/><path d="M880 40 L900 40 L900 190 L880 190Z M760 60 L990 60 L990 72 L760 72Z" fill="#1f2a36"/><path d="M890 72 L800 72 L890 40Z" fill="none" stroke="#1f2a36" stroke-width="3"/></g>
+<rect y="560" width="1000" height="80" fill="url(#t1-ground)"/>
+<ellipse cx="505" cy="574" rx="420" ry="16" fill="#000" opacity=".45" filter="url(#t1-soft)"/>
+<path d="M180 84 L830 70 L838 572 L172 566Z" fill="url(#t1-paint)"/>
+<path d="M180 84 L830 70 L831 104 L180 116Z" fill="#3e1916"/><path d="M174 540 L837 546 L838 572 L172 566Z" fill="#3a1714"/>
+<path d="M180 84 L214 83 L208 566 L172 566Z" fill="#4a1d1a"/><path d="M796 71 L830 70 L838 572 L803 571Z" fill="#4a1d1a"/>
+<rect x="174" y="84" width="34" height="22" rx="2" fill="#2b100e"/><ellipse cx="191" cy="95" rx="9" ry="5" fill="#120605"/>
+<rect x="798" y="71" width="34" height="22" rx="2" fill="#2b100e"/><ellipse cx="815" cy="82" rx="9" ry="5" fill="#120605"/>
+<rect x="172" y="548" width="34" height="22" rx="2" fill="#2b100e"/><ellipse cx="189" cy="559" rx="9" ry="5" fill="#120605"/>
+<rect x="804" y="552" width="34" height="22" rx="2" fill="#2b100e"/><ellipse cx="821" cy="563" rx="9" ry="5" fill="#120605"/>
+<path d="M214 150 L503 147 L503 188 L212 190Z" fill="url(#t1-rib)" opacity=".9"/>
+<path d="M507 147 L798 144 L800 185 L507 188Z" fill="url(#t1-rib)" opacity=".9"/>
+<path d="M214 230 L503 227 L503 268 L212 270Z" fill="url(#t1-rib)" opacity=".9"/>
+<path d="M507 227 L798 224 L800 265 L507 268Z" fill="url(#t1-rib)" opacity=".9"/>
+<path d="M214 310 L503 307 L503 348 L212 350Z" fill="url(#t1-rib)" opacity=".9"/>
+<path d="M507 307 L798 304 L800 345 L507 348Z" fill="url(#t1-rib)" opacity=".9"/>
+<path d="M214 390 L503 387 L503 428 L212 430Z" fill="url(#t1-rib)" opacity=".9"/>
+<path d="M507 387 L798 384 L800 425 L507 428Z" fill="url(#t1-rib)" opacity=".9"/>
+<path d="M214 470 L503 467 L503 508 L212 510Z" fill="url(#t1-rib)" opacity=".9"/>
+<path d="M507 467 L798 464 L800 505 L507 508Z" fill="url(#t1-rib)" opacity=".9"/>
+<path d="M505 102 L505 545" stroke="#250c0a" stroke-width="5"/>
+<path d="M268 96 L269 552" stroke="#2a2d30" stroke-width="9" stroke-linecap="round"/><path d="M266 96 L267 552" stroke="#8b9096" stroke-width="2.5" opacity=".7"/>
+<rect x="257" y="92" width="24" height="18" rx="2" fill="#26292c"/><rect x="257" y="534" width="24" height="18" rx="2" fill="#26292c"/>
+<rect x="262" y="346" width="52" height="11" rx="3" fill="#3a3e42"/><rect x="298" y="338" width="14" height="26" rx="2" fill="#2a2d30"/>
+<path d="M420 96 L421 552" stroke="#2a2d30" stroke-width="9" stroke-linecap="round"/><path d="M418 96 L419 552" stroke="#8b9096" stroke-width="2.5" opacity=".7"/>
+<rect x="409" y="92" width="24" height="18" rx="2" fill="#26292c"/><rect x="409" y="534" width="24" height="18" rx="2" fill="#26292c"/>
+<rect x="414" y="346" width="52" height="11" rx="3" fill="#3a3e42"/><rect x="450" y="338" width="14" height="26" rx="2" fill="#2a2d30"/>
+<path d="M590 96 L591 552" stroke="#2a2d30" stroke-width="9" stroke-linecap="round"/><path d="M588 96 L589 552" stroke="#8b9096" stroke-width="2.5" opacity=".7"/>
+<rect x="579" y="92" width="24" height="18" rx="2" fill="#26292c"/><rect x="579" y="534" width="24" height="18" rx="2" fill="#26292c"/>
+<rect x="584" y="346" width="52" height="11" rx="3" fill="#3a3e42"/><rect x="620" y="338" width="14" height="26" rx="2" fill="#2a2d30"/>
+<path d="M742 96 L743 552" stroke="#2a2d30" stroke-width="9" stroke-linecap="round"/><path d="M740 96 L741 552" stroke="#8b9096" stroke-width="2.5" opacity=".7"/>
+<rect x="731" y="92" width="24" height="18" rx="2" fill="#26292c"/><rect x="731" y="534" width="24" height="18" rx="2" fill="#26292c"/>
+<rect x="736" y="346" width="52" height="11" rx="3" fill="#3a3e42"/><rect x="772" y="338" width="14" height="26" rx="2" fill="#2a2d30"/>
+<rect x="212" y="150" width="22" height="30" rx="2" fill="#2b100e"/><rect x="777" y="146" width="22" height="30" rx="2" fill="#2b100e"/>
+<rect x="212" y="260" width="22" height="30" rx="2" fill="#2b100e"/><rect x="777" y="256" width="22" height="30" rx="2" fill="#2b100e"/>
+<rect x="212" y="380" width="22" height="30" rx="2" fill="#2b100e"/><rect x="777" y="376" width="22" height="30" rx="2" fill="#2b100e"/>
+<rect x="212" y="500" width="22" height="30" rx="2" fill="#2b100e"/><rect x="777" y="496" width="22" height="30" rx="2" fill="#2b100e"/>
+<g fill="#efe9e2" font-family="'Barlow Condensed', 'Arial Narrow', sans-serif" font-weight="600">
+<text x="536" y="150" font-size="40" letter-spacing="3">QSIU 307428</text><rect x="760" y="116" width="32" height="42" fill="none" stroke="#efe9e2" stroke-width="3"/><text x="776" y="150" font-size="40" text-anchor="middle">8</text>
+<text x="618" y="196" font-size="30" letter-spacing="4">45G1</text>
+<text x="236" y="210" font-size="17" letter-spacing="1">MAX GROSS  32,500 KG</text><text x="236" y="232" font-size="17" letter-spacing="1" opacity=".85">71,650 LB</text>
+<text x="236" y="262" font-size="17" letter-spacing="1">TARE  3,750 KG</text><text x="236" y="284" font-size="17" letter-spacing="1" opacity=".85">8,270 LB</text>
+<text x="236" y="314" font-size="17" letter-spacing="1">NET  28,750 KG</text></g>
+<ellipse cx="660" cy="470" rx="78" ry="48" fill="url(#t1-dent)" transform="rotate(-12 660 470)"/>
+<ellipse cx="640" cy="448" rx="40" ry="16" fill="url(#t1-hl)" transform="rotate(-12 640 448)"/>
+<path d="M592 462 Q640 500 716 476" stroke="#1d0a09" stroke-width="3" fill="none" opacity=".55"/>
+<rect x="214" y="490" width="290" height="60" filter="url(#t1-rust)"/>
+<g fill="#6b3a1c" opacity=".7"><path d="M300 505 l3 40 l-5 0z"/><path d="M380 500 l2 46 l-4 0z"/><path d="M440 512 l2 34 l-4 0z"/></g>
+<rect width="1000" height="640" fill="#fff" filter="url(#t1-grain)" opacity=".7"/>
+<rect width="1000" height="640" fill="url(#t1-vig)"/>
+</svg></span><span class="rs-thumb__t">1 · Rear doors</span></button>
+<button class="rs-thumb" aria-pressed="false"><span class="rs-thumb__img"><svg viewBox="0 0 160 100" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
+<defs><linearGradient id="t2-s" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#34475e"/><stop offset="1" stop-color="#b98c78"/></linearGradient></defs>
+<rect width="160" height="100" fill="url(#t2-s)"/><rect y="84" width="160" height="16" fill="#2c2e32"/>
+<path d="M6 26 L154 30 L154 84 L6 86Z" fill="#7a312b"/><rect x="10" y="29.0" width="3.4" height="54" fill="#93413a"/><rect x="17" y="29.1" width="3.4" height="54" fill="#93413a"/><rect x="24" y="29.2" width="3.4" height="54" fill="#93413a"/><rect x="31" y="29.3" width="3.4" height="54" fill="#93413a"/><rect x="38" y="29.4" width="3.4" height="54" fill="#93413a"/><rect x="45" y="29.5" width="3.4" height="54" fill="#93413a"/><rect x="52" y="29.6" width="3.4" height="54" fill="#93413a"/><rect x="59" y="29.7" width="3.4" height="54" fill="#93413a"/><rect x="66" y="29.8" width="3.4" height="54" fill="#93413a"/><rect x="73" y="29.9" width="3.4" height="54" fill="#93413a"/><rect x="80" y="30.0" width="3.4" height="54" fill="#93413a"/><rect x="87" y="30.1" width="3.4" height="54" fill="#93413a"/><rect x="94" y="30.2" width="3.4" height="54" fill="#93413a"/><rect x="101" y="30.3" width="3.4" height="54" fill="#93413a"/><rect x="108" y="30.4" width="3.4" height="54" fill="#93413a"/><rect x="115" y="30.5" width="3.4" height="54" fill="#93413a"/><rect x="122" y="30.6" width="3.4" height="54" fill="#93413a"/><rect x="129" y="30.7" width="3.4" height="54" fill="#93413a"/><rect x="136" y="30.8" width="3.4" height="54" fill="#93413a"/><rect x="143" y="30.9" width="3.4" height="54" fill="#93413a"/>
+<circle cx="104" cy="44" r="5" fill="#1b0807"/></svg></span><span class="rs-thumb__t">2 · Right side</span></button>
+<button class="rs-thumb rs-thumb--add"><i class="qs-glyph qs-glyph--photo"></i><span class="rs-thumb__t">Add photo</span></button>
+</div>
+    <div class="rs-summary qs-rise" style="--i:2;--base:900ms">
+      <div class="rs-k">What we found</div>
+      <h1 class="rs-headline">A 40 ft High Cube with <em>3 suspected findings</em></h1>
+      <p>The ID reads <b>QSIU 307428 8</b>. The fifth serial digit is hard to read; it could be a 7, but the printed check digit favours 2. We are confident about a moderate dent on the right door. A possible hole on the right side is uncertain and could be a decal. The roof, left side and front end were not photographed, so we haven't seen them. That doesn't mean they're clear.</p>
+      <div class="rs-stats"><div class="rs-stat"><b>3</b><span>Suspected findings</span></div><div class="rs-stat"><b>3 of 6</b><span>Faces not seen</span></div><div class="rs-stat"><b>2</b><span>Photos used</span></div><div class="rs-stat"><b>6.7 s</b><span>Elapsed</span></div></div>
+    </div>
+  </section>
+
+  <aside class="rs-right">
+    <div class="rs-skel" aria-hidden="true">
+<div class="rs-card"><div class="qs-skeleton" style="width:30%;height:14px"></div><div class="qs-skeleton" style="width:85%;height:46px"></div><div class="qs-skeleton" style="width:55%;height:22px"></div></div>
+<div class="rs-card"><div class="qs-skeleton" style="width:25%;height:14px"></div><div class="qs-skeleton" style="height:22px"></div><div class="qs-skeleton" style="height:22px"></div><div class="qs-skeleton" style="height:22px"></div><div class="qs-skeleton" style="height:22px;width:70%"></div></div>
+</div>
+    <div class="rs-card qs-rise" style="--i:0;--base:80ms">
+      <div class="rs-card__head"><span class="rs-k">Container ID</span><span class="qs-cert qs-cert--likely"><i class="qs-glyph qs-glyph--likely"></i>Likely</span></div>
+      <div class="qs-id" style="--base:120ms" aria-label="Q S I U 3 0 7 4 2 8, check digit 8. Fifth serial digit uncertain."><span class="qs-id__group"><span class="qs-id__ch" style="--c:0">Q</span><span class="qs-id__ch" style="--c:1">S</span><span class="qs-id__ch" style="--c:2">I</span><span class="qs-id__ch" style="--c:3">U</span></span><span class="qs-id__group"><span class="qs-id__ch" style="--c:4">3</span><span class="qs-id__ch" style="--c:5">0</span><span class="qs-id__ch" style="--c:6">7</span></span><span class="qs-id__group"><span class="qs-id__ch" data-c="likely" style="--c:7">4</span><span class="qs-id__ch" data-c="uncertain" style="--c:8">2</span><span class="qs-id__ch" style="--c:9">8</span></span><span class="qs-id__check" style="--c:10">8</span></div>
+      <div class="qs-id__meta"><span class="qs-prov">Printed</span><span class="qs-prov qs-prov--calculated">Check digit valid</span></div>
+      <div class="rs-refine"><span>Also possible</span><code>QSIU 3074<u>7</u>8 1</code><span>· the fifth digit could be a 7; the printed check digit favours 2</span></div>
+    </div>
+    <div class="rs-card qs-rise" style="--i:1;--base:160ms">
+      <div class="rs-card__head"><span class="rs-k">Equipment</span></div>
+      <div style="--base:420ms"><div class="qs-field qs-rise" style="--i:0"><span class="qs-field__label">ISO code</span><span class="qs-field__value">45G1 <span class="qs-prov">Printed</span></span><span class="qs-cert qs-cert--confident"><i class="qs-glyph qs-glyph--confident"></i>Confident</span></div><div class="qs-field qs-rise" style="--i:1"><span class="qs-field__label">Size · type</span><span class="qs-field__value">40 ft · High Cube · General purpose <span class="qs-prov">Decoded from ISO</span></span><span class="qs-cert qs-cert--confident"><i class="qs-glyph qs-glyph--confident"></i>Confident</span></div><div class="qs-field qs-rise" style="--i:2"><span class="qs-field__label">Max gross</span><span class="qs-field__value">32,500 kg <span class="qs-prov">Printed</span></span><span class="qs-cert qs-cert--confident"><i class="qs-glyph qs-glyph--confident"></i>Confident</span></div><div class="qs-field qs-rise" style="--i:3"><span class="qs-field__label">Tare</span><span class="qs-field__value">3,750 kg <span class="qs-prov">Printed</span></span><span class="qs-cert qs-cert--uncertain"><i class="qs-glyph qs-glyph--uncertain"></i>Uncertain</span><span class="qs-field__note"><strong>Best interpretation:</strong> 3,750 kg. <strong>What remains uncertain:</strong> the last digits are hard to read; it could be 3,780 kg.</span></div><div class="qs-field qs-rise" style="--i:4"><span class="qs-field__label">Max payload</span><span class="qs-field__value">28,750 kg <span class="qs-prov qs-prov--calculated">Calculated</span></span><span class="qs-cert qs-cert--likely"><i class="qs-glyph qs-glyph--likely"></i>Likely</span></div></div>
+    </div>
+    <div class="rs-card qs-rise" style="--i:2;--base:300ms">
+      <div class="rs-card__head"><span class="rs-k">Markings</span></div>
+      <div class="rs-marks"><span class="qs-marking"><i class="qs-glyph qs-glyph--eye"></i><span>No DG placard visible<span class="qs-marking__caveat">Not evidence that the cargo is non-hazardous</span></span></span><span class="qs-marking"><i class="qs-glyph qs-glyph--check"></i>High-container stripes</span></div>
+    </div>
+    <div class="qs-notice qs-notice--suggestion qs-rise" style="--i:3;--base:300ms" role="note"><i class="qs-glyph qs-glyph--photo"></i><div><div class="qs-notice__title">A closer photo of the right side may help.</div><div class="qs-notice__body">It would show whether finding 1 is a hole or a decal. The inspection is complete without it.</div></div><span class="qs-notice__kicker">Optional</span></div>
+  </aside>
+
+  <section class="rs-damage qs-rise" style="--i:0;--base:600ms">
+    <div class="rs-damage__head"><span class="rs-damage__title">Damage view</span><div class="qs-legend"><span><i class="l-minor"></i>Minor</span><span><i class="l-moderate"></i>Moderate</span><span><i class="l-major"></i>Major</span><span class="qs-legend__sep"></span><span><i class="l-sup"></i>Confident</span><span><i class="l-lik"></i>Likely</span><span><i class="l-unc"></i>Uncertain</span></div></div>
+    <div class="rs-damage__grid">
+      <div class="qs-schem" style="--base:1000ms">
+        <div class="qs-schem__views"><div class="qs-schem__views-in"><figure class="qs-schem__view"><figcaption>Rear and right side</figcaption><svg class="qs-c" viewBox="0 0 900 430" role="group" aria-label="Container drawing, rear and right side: right side photographed, rear doors photographed, roof not seen">
+<defs>
+<pattern id="rsa-hatch" width="0.7" height="0.7" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><line class="qs-c-hatch" vector-effect="non-scaling-stroke" x1="0" y1="0" x2="0" y2="0.7"/></pattern>
+<filter id="rsa-blur" x="-20%" y="-50%" width="140%" height="200%"><feGaussianBlur stdDeviation="10"/></filter>
+<linearGradient id="rsa-sheen" x1="0" y1="0" x2="1" y2="0"><stop offset="0" class="qs-c-sheen-a"/><stop offset=".45" class="qs-c-sheen-b"/><stop offset="1" class="qs-c-sheen-a"/></linearGradient>
+</defs>
+<polygon class="qs-c-shadow" filter="url(#rsa-blur)" points="24.82,272.54 733.7,396.77 901.1,319.74 188.73,194.9"/>
+<g transform="matrix(17.46 3.06 0 18 34 91)"><rect class="qs-c-side" x="0" y="0" width="40.0" height="9.5"/><rect class="qs-c-side-rib" x="0.75" y="0.4" width="0.42" height="8.6"/><line class="qs-c-crease" vector-effect="non-scaling-stroke" x1="1.17" y1="0.4" x2="1.17" y2="9"/><rect class="qs-c-side-rib" x="1.63" y="0.4" width="0.42" height="8.6"/><line class="qs-c-crease" vector-effect="non-scaling-stroke" x1="2.05" y1="0.4" x2="2.05" y2="9"/><rect class="qs-c-side-rib" x="2.51" y="0.4" width="0.42" height="8.6"/><line class="qs-c-crease" vector-effect="non-scaling-stroke" x1="2.93" y1="0.4" x2="2.93" y2="9"/><rect class="qs-c-side-rib" x="3.39" y="0.4" width="0.42" height="8.6"/><line class="qs-c-crease" vector-effect="non-scaling-stroke" x1="3.81" y1="0.4" x2="3.81" y2="9"/><rect class="qs-c-side-rib" x="4.27" y="0.4" width="0.42" height="8.6"/><line class="qs-c-crease" vector-effect="non-scaling-stroke" x1="4.69" y1="0.4" x2="4.69" y2="9"/><rect class="qs-c-side-rib" x="5.15" y="0.4" width="0.42" height="8.6"/><line class="qs-c-crease" vector-effect="non-scaling-stroke" x1="5.57" y1="0.4" x2="5.57" y2="9"/><rect class="qs-c-side-rib" x="6.03" y="0.4" width="0.42" height="8.6"/><line class="qs-c-crease" vector-effect="non-scaling-stroke" x1="6.45" y1="0.4" x2="6.45" y2="9"/><rect class="qs-c-side-rib" x="6.91" y="0.4" width="0.42" height="8.6"/><line class="qs-c-crease" vector-effect="non-scaling-stroke" x1="7.33" y1="0.4" x2="7.33" y2="9"/><rect class="qs-c-side-rib" x="7.79" y="0.4" width="0.42" height="8.6"/><line class="qs-c-crease" vector-effect="non-scaling-stroke" x1="8.21" y1="0.4" x2="8.21" y2="9"/><rect class="qs-c-side-rib" x="8.67" y="0.4" width="0.42" height="8.6"/><line class="qs-c-crease" vector-effect="non-scaling-stroke" x1="9.09" y1="0.4" x2="9.09" y2="9"/><rect class="qs-c-side-rib" x="9.55" y="0.4" width="0.42" height="8.6"/><line class="qs-c-crease" vector-effect="non-scaling-stroke" x1="9.97" y1="0.4" x2="9.97" y2="9"/><rect class="qs-c-side-rib" x="10.43" y="0.4" width="0.42" height="8.6"/><line class="qs-c-crease" vector-effect="non-scaling-stroke" x1="10.85" y1="0.4" x2="10.85" y2="9"/><rect class="qs-c-side-rib" x="11.31" y="0.4" width="0.42" height="8.6"/><line class="qs-c-crease" vector-effect="non-scaling-stroke" x1="11.73" y1="0.4" x2="11.73" y2="9"/><rect class="qs-c-side-rib" x="12.19" y="0.4" width="0.42" height="8.6"/><line class="qs-c-crease" vector-effect="non-scaling-stroke" x1="12.61" y1="0.4" x2="12.61" y2="9"/><rect class="qs-c-side-rib" x="13.07" y="0.4" width="0.42" height="8.6"/><line class="qs-c-crease" vector-effect="non-scaling-stroke" x1="13.49" y1="0.4" x2="13.49" y2="9"/><rect class="qs-c-side-rib" x="13.95" y="0.4" width="0.42" height="8.6"/><line class="qs-c-crease" vector-effect="non-scaling-stroke" x1="14.37" y1="0.4" x2="14.37" y2="9"/><rect class="qs-c-side-rib" x="14.83" y="0.4" width="0.42" height="8.6"/><line class="qs-c-crease" vector-effect="non-scaling-stroke" x1="15.25" y1="0.4" x2="15.25" y2="9"/><rect class="qs-c-side-rib" x="15.71" y="0.4" width="0.42" height="8.6"/><line class="qs-c-crease" vector-effect="non-scaling-stroke" x1="16.13" y1="0.4" x2="16.13" y2="9"/><rect class="qs-c-side-rib" x="16.59" y="0.4" width="0.42" height="8.6"/><line class="qs-c-crease" vector-effect="non-scaling-stroke" x1="17.01" y1="0.4" x2="17.01" y2="9"/><rect class="qs-c-side-rib" x="17.47" y="0.4" width="0.42" height="8.6"/><line class="qs-c-crease" vector-effect="non-scaling-stroke" x1="17.89" y1="0.4" x2="17.89" y2="9"/><rect class="qs-c-side-rib" x="18.35" y="0.4" width="0.42" height="8.6"/><line class="qs-c-crease" vector-effect="non-scaling-stroke" x1="18.77" y1="0.4" x2="18.77" y2="9"/><rect class="qs-c-side-rib" x="19.23" y="0.4" width="0.42" height="8.6"/><line class="qs-c-crease" vector-effect="non-scaling-stroke" x1="19.65" y1="0.4" x2="19.65" y2="9"/><rect class="qs-c-side-rib" x="20.11" y="0.4" width="0.42" height="8.6"/><line class="qs-c-crease" vector-effect="non-scaling-stroke" x1="20.53" y1="0.4" x2="20.53" y2="9"/><rect class="qs-c-side-rib" x="20.99" y="0.4" width="0.42" height="8.6"/><line class="qs-c-crease" vector-effect="non-scaling-stroke" x1="21.41" y1="0.4" x2="21.41" y2="9"/><rect class="qs-c-side-rib" x="21.87" y="0.4" width="0.42" height="8.6"/><line class="qs-c-crease" vector-effect="non-scaling-stroke" x1="22.29" y1="0.4" x2="22.29" y2="9"/><rect class="qs-c-side-rib" x="22.75" y="0.4" width="0.42" height="8.6"/><line class="qs-c-crease" vector-effect="non-scaling-stroke" x1="23.17" y1="0.4" x2="23.17" y2="9"/><rect class="qs-c-side-rib" x="23.63" y="0.4" width="0.42" height="8.6"/><line class="qs-c-crease" vector-effect="non-scaling-stroke" x1="24.05" y1="0.4" x2="24.05" y2="9"/><rect class="qs-c-side-rib" x="24.51" y="0.4" width="0.42" height="8.6"/><line class="qs-c-crease" vector-effect="non-scaling-stroke" x1="24.93" y1="0.4" x2="24.93" y2="9"/><rect class="qs-c-side-rib" x="25.39" y="0.4" width="0.42" height="8.6"/><line class="qs-c-crease" vector-effect="non-scaling-stroke" x1="25.81" y1="0.4" x2="25.81" y2="9"/><rect class="qs-c-side-rib" x="26.27" y="0.4" width="0.42" height="8.6"/><line class="qs-c-crease" vector-effect="non-scaling-stroke" x1="26.69" y1="0.4" x2="26.69" y2="9"/><rect class="qs-c-side-rib" x="27.15" y="0.4" width="0.42" height="8.6"/><line class="qs-c-crease" vector-effect="non-scaling-stroke" x1="27.57" y1="0.4" x2="27.57" y2="9"/><rect class="qs-c-side-rib" x="28.03" y="0.4" width="0.42" height="8.6"/><line class="qs-c-crease" vector-effect="non-scaling-stroke" x1="28.45" y1="0.4" x2="28.45" y2="9"/><rect class="qs-c-side-rib" x="28.91" y="0.4" width="0.42" height="8.6"/><line class="qs-c-crease" vector-effect="non-scaling-stroke" x1="29.33" y1="0.4" x2="29.33" y2="9"/><rect class="qs-c-side-rib" x="29.79" y="0.4" width="0.42" height="8.6"/><line class="qs-c-crease" vector-effect="non-scaling-stroke" x1="30.21" y1="0.4" x2="30.21" y2="9"/><rect class="qs-c-side-rib" x="30.67" y="0.4" width="0.42" height="8.6"/><line class="qs-c-crease" vector-effect="non-scaling-stroke" x1="31.09" y1="0.4" x2="31.09" y2="9"/><rect class="qs-c-side-rib" x="31.55" y="0.4" width="0.42" height="8.6"/><line class="qs-c-crease" vector-effect="non-scaling-stroke" x1="31.97" y1="0.4" x2="31.97" y2="9"/><rect class="qs-c-side-rib" x="32.43" y="0.4" width="0.42" height="8.6"/><line class="qs-c-crease" vector-effect="non-scaling-stroke" x1="32.85" y1="0.4" x2="32.85" y2="9"/><rect class="qs-c-side-rib" x="33.31" y="0.4" width="0.42" height="8.6"/><line class="qs-c-crease" vector-effect="non-scaling-stroke" x1="33.73" y1="0.4" x2="33.73" y2="9"/><rect class="qs-c-side-rib" x="34.19" y="0.4" width="0.42" height="8.6"/><line class="qs-c-crease" vector-effect="non-scaling-stroke" x1="34.61" y1="0.4" x2="34.61" y2="9"/><rect class="qs-c-side-rib" x="35.07" y="0.4" width="0.42" height="8.6"/><line class="qs-c-crease" vector-effect="non-scaling-stroke" x1="35.49" y1="0.4" x2="35.49" y2="9"/><rect class="qs-c-side-rib" x="35.95" y="0.4" width="0.42" height="8.6"/><line class="qs-c-crease" vector-effect="non-scaling-stroke" x1="36.37" y1="0.4" x2="36.37" y2="9"/><rect class="qs-c-side-rib" x="36.83" y="0.4" width="0.42" height="8.6"/><line class="qs-c-crease" vector-effect="non-scaling-stroke" x1="37.25" y1="0.4" x2="37.25" y2="9"/><rect class="qs-c-side-rib" x="37.71" y="0.4" width="0.42" height="8.6"/><line class="qs-c-crease" vector-effect="non-scaling-stroke" x1="38.13" y1="0.4" x2="38.13" y2="9"/><rect class="qs-c-side-rib" x="38.59" y="0.4" width="0.42" height="8.6"/><line class="qs-c-crease" vector-effect="non-scaling-stroke" x1="39.01" y1="0.4" x2="39.01" y2="9"/><rect class="qs-c-rail" x="0" y="0" width="40.0" height="0.4"/><rect class="qs-c-rail" x="0" y="9" width="40.0" height="0.5"/><rect class="qs-c-rail" x="0" y="0" width="0.6" height="9.5"/><rect class="qs-c-rail" x="39.4" y="0" width="0.6" height="9.5"/><rect class="qs-c-casting" vector-effect="non-scaling-stroke" x="0" y="0" width="0.6" height="0.5"/><ellipse class="qs-c-hole" cx="0.3" cy="0.25" rx="0.17" ry="0.1"/><rect class="qs-c-casting" vector-effect="non-scaling-stroke" x="0" y="9" width="0.6" height="0.5"/><ellipse class="qs-c-hole" cx="0.3" cy="9.25" rx="0.17" ry="0.1"/><rect class="qs-c-casting" vector-effect="non-scaling-stroke" x="39.4" y="0" width="0.6" height="0.5"/><ellipse class="qs-c-hole" cx="39.7" cy="0.25" rx="0.17" ry="0.1"/><rect class="qs-c-casting" vector-effect="non-scaling-stroke" x="39.4" y="9" width="0.6" height="0.5"/><ellipse class="qs-c-hole" cx="39.7" cy="9.25" rx="0.17" ry="0.1"/><text class="qs-c-stencil" x="38.6" y="1.45" text-anchor="end" font-size="0.62">QSIU 307428 8</text><rect class="qs-c-face-edge" vector-effect="non-scaling-stroke" x="0" y="0" width="40.0" height="9.5"/><g class="qs-c-grid" data-face="side"><line vector-effect="non-scaling-stroke" x1="4" y1="0.4" x2="4" y2="9"/><line vector-effect="non-scaling-stroke" x1="8" y1="0.4" x2="8" y2="9"/><line vector-effect="non-scaling-stroke" x1="12" y1="0.4" x2="12" y2="9"/><line vector-effect="non-scaling-stroke" x1="16" y1="0.4" x2="16" y2="9"/><line vector-effect="non-scaling-stroke" x1="20" y1="0.4" x2="20" y2="9"/><line vector-effect="non-scaling-stroke" x1="24" y1="0.4" x2="24" y2="9"/><line vector-effect="non-scaling-stroke" x1="28" y1="0.4" x2="28" y2="9"/><line vector-effect="non-scaling-stroke" x1="32" y1="0.4" x2="32" y2="9"/><line vector-effect="non-scaling-stroke" x1="36" y1="0.4" x2="36" y2="9"/><line vector-effect="non-scaling-stroke" x1="0.6" y1="4.75" x2="39.4" y2="4.75"/></g></g>
+<rect transform="matrix(17.46 3.06 0 18 34 91)" x="0" y="0" width="40.0" height="9.5" fill="url(#rsa-sheen)" class="qs-c-sheen"/>
+<g transform="matrix(15.3 -7.56 0 18 732.4 213.4)"><rect class="qs-c-end" x="0" y="0" width="8.0" height="9.5"/><rect class="qs-c-end-rib" x="0.45" y="1.2" width="3.53" height="0.75"/><rect class="qs-c-end-rib" x="0.45" y="2.8" width="3.53" height="0.75"/><rect class="qs-c-end-rib" x="0.45" y="4.4" width="3.53" height="0.75"/><rect class="qs-c-end-rib" x="0.45" y="6" width="3.53" height="0.75"/><rect class="qs-c-end-rib" x="0.45" y="7.6" width="3.53" height="0.75"/><rect class="qs-c-end-rib" x="4.02" y="1.2" width="3.53" height="0.75"/><rect class="qs-c-end-rib" x="4.02" y="2.8" width="3.53" height="0.75"/><rect class="qs-c-end-rib" x="4.02" y="4.4" width="3.53" height="0.75"/><rect class="qs-c-end-rib" x="4.02" y="6" width="3.53" height="0.75"/><rect class="qs-c-end-rib" x="4.02" y="7.6" width="3.53" height="0.75"/><rect class="qs-c-rail" x="0" y="0" width="8.0" height="0.55"/><rect class="qs-c-rail" x="0" y="9" width="8.0" height="0.5"/><rect class="qs-c-rail" x="0" y="0" width="0.45" height="9.5"/><rect class="qs-c-rail" x="7.55" y="0" width="0.45" height="9.5"/><line class="qs-c-seam" vector-effect="non-scaling-stroke" x1="4" y1="0.55" x2="4" y2="9"/><line class="qs-c-bar" vector-effect="non-scaling-stroke" x1="1.15" y1="0.35" x2="1.15" y2="9.2"/><rect class="qs-c-keeper" x="0.99" y="0.3" width="0.32" height="0.3"/><rect class="qs-c-keeper" x="0.99" y="8.9" width="0.32" height="0.3"/><rect class="qs-c-keeper" x="1.07" y="5.2" width="0.6" height="0.18"/><line class="qs-c-bar" vector-effect="non-scaling-stroke" x1="2.95" y1="0.35" x2="2.95" y2="9.2"/><rect class="qs-c-keeper" x="2.79" y="0.3" width="0.32" height="0.3"/><rect class="qs-c-keeper" x="2.79" y="8.9" width="0.32" height="0.3"/><rect class="qs-c-keeper" x="2.87" y="5.2" width="0.6" height="0.18"/><line class="qs-c-bar" vector-effect="non-scaling-stroke" x1="5.05" y1="0.35" x2="5.05" y2="9.2"/><rect class="qs-c-keeper" x="4.89" y="0.3" width="0.32" height="0.3"/><rect class="qs-c-keeper" x="4.89" y="8.9" width="0.32" height="0.3"/><rect class="qs-c-keeper" x="4.97" y="5.2" width="0.6" height="0.18"/><line class="qs-c-bar" vector-effect="non-scaling-stroke" x1="6.85" y1="0.35" x2="6.85" y2="9.2"/><rect class="qs-c-keeper" x="6.69" y="0.3" width="0.32" height="0.3"/><rect class="qs-c-keeper" x="6.69" y="8.9" width="0.32" height="0.3"/><rect class="qs-c-keeper" x="6.77" y="5.2" width="0.6" height="0.18"/><rect class="qs-c-keeper" x="0.5" y="1.5" width="0.12" height="0.45"/><rect class="qs-c-keeper" x="0.5" y="3.6" width="0.12" height="0.45"/><rect class="qs-c-keeper" x="0.5" y="5.8" width="0.12" height="0.45"/><rect class="qs-c-keeper" x="0.5" y="7.9" width="0.12" height="0.45"/><rect class="qs-c-keeper" x="7.38" y="1.5" width="0.12" height="0.45"/><rect class="qs-c-keeper" x="7.38" y="3.6" width="0.12" height="0.45"/><rect class="qs-c-keeper" x="7.38" y="5.8" width="0.12" height="0.45"/><rect class="qs-c-keeper" x="7.38" y="7.9" width="0.12" height="0.45"/><rect class="qs-c-casting" vector-effect="non-scaling-stroke" x="0" y="0" width="0.45" height="0.5"/><rect class="qs-c-casting" vector-effect="non-scaling-stroke" x="0" y="9" width="0.45" height="0.5"/><rect class="qs-c-casting" vector-effect="non-scaling-stroke" x="7.55" y="0" width="0.45" height="0.5"/><rect class="qs-c-casting" vector-effect="non-scaling-stroke" x="7.55" y="9" width="0.45" height="0.5"/><text class="qs-c-stencil" x="0.75" y="1.05" font-size="0.36">QSIU 307428</text><rect class="qs-c-stencil-box" vector-effect="non-scaling-stroke" x="3.05" y="0.73" width="0.38" height="0.42"/><text class="qs-c-stencil" x="3.24" y="1.05" font-size="0.36" text-anchor="middle">8</text><rect class="qs-c-face-edge" vector-effect="non-scaling-stroke" x="0" y="0" width="8.0" height="9.5"/><g class="qs-c-grid" data-face="end"><line vector-effect="non-scaling-stroke" x1="4" y1="0.55" x2="4" y2="9"/><line vector-effect="non-scaling-stroke" x1="0.45" y1="4.75" x2="7.55" y2="4.75"/></g></g>
+<g class="qs-c-roof" transform="matrix(17.46 3.06 15.3 -7.56 34 91)"><rect class="qs-c-top" x="0" y="0" width="40.0" height="8.0"/><line class="qs-c-crease" vector-effect="non-scaling-stroke" x1="0.8" y1="0.3" x2="0.8" y2="7.7"/><line class="qs-c-crease" vector-effect="non-scaling-stroke" x1="2.4" y1="0.3" x2="2.4" y2="7.7"/><line class="qs-c-crease" vector-effect="non-scaling-stroke" x1="4" y1="0.3" x2="4" y2="7.7"/><line class="qs-c-crease" vector-effect="non-scaling-stroke" x1="5.6" y1="0.3" x2="5.6" y2="7.7"/><line class="qs-c-crease" vector-effect="non-scaling-stroke" x1="7.2" y1="0.3" x2="7.2" y2="7.7"/><line class="qs-c-crease" vector-effect="non-scaling-stroke" x1="8.8" y1="0.3" x2="8.8" y2="7.7"/><line class="qs-c-crease" vector-effect="non-scaling-stroke" x1="10.4" y1="0.3" x2="10.4" y2="7.7"/><line class="qs-c-crease" vector-effect="non-scaling-stroke" x1="12" y1="0.3" x2="12" y2="7.7"/><line class="qs-c-crease" vector-effect="non-scaling-stroke" x1="13.6" y1="0.3" x2="13.6" y2="7.7"/><line class="qs-c-crease" vector-effect="non-scaling-stroke" x1="15.2" y1="0.3" x2="15.2" y2="7.7"/><line class="qs-c-crease" vector-effect="non-scaling-stroke" x1="16.8" y1="0.3" x2="16.8" y2="7.7"/><line class="qs-c-crease" vector-effect="non-scaling-stroke" x1="18.4" y1="0.3" x2="18.4" y2="7.7"/><line class="qs-c-crease" vector-effect="non-scaling-stroke" x1="20" y1="0.3" x2="20" y2="7.7"/><line class="qs-c-crease" vector-effect="non-scaling-stroke" x1="21.6" y1="0.3" x2="21.6" y2="7.7"/><line class="qs-c-crease" vector-effect="non-scaling-stroke" x1="23.2" y1="0.3" x2="23.2" y2="7.7"/><line class="qs-c-crease" vector-effect="non-scaling-stroke" x1="24.8" y1="0.3" x2="24.8" y2="7.7"/><line class="qs-c-crease" vector-effect="non-scaling-stroke" x1="26.4" y1="0.3" x2="26.4" y2="7.7"/><line class="qs-c-crease" vector-effect="non-scaling-stroke" x1="28" y1="0.3" x2="28" y2="7.7"/><line class="qs-c-crease" vector-effect="non-scaling-stroke" x1="29.6" y1="0.3" x2="29.6" y2="7.7"/><line class="qs-c-crease" vector-effect="non-scaling-stroke" x1="31.2" y1="0.3" x2="31.2" y2="7.7"/><line class="qs-c-crease" vector-effect="non-scaling-stroke" x1="32.8" y1="0.3" x2="32.8" y2="7.7"/><line class="qs-c-crease" vector-effect="non-scaling-stroke" x1="34.4" y1="0.3" x2="34.4" y2="7.7"/><line class="qs-c-crease" vector-effect="non-scaling-stroke" x1="36" y1="0.3" x2="36" y2="7.7"/><line class="qs-c-crease" vector-effect="non-scaling-stroke" x1="37.6" y1="0.3" x2="37.6" y2="7.7"/><rect class="qs-c-face-edge" vector-effect="non-scaling-stroke" x="0" y="0" width="40.0" height="8.0"/><rect fill="url(#rsa-hatch)" x="0" y="0" width="40.0" height="8.0"/></g>
+<g class="qs-c-regions">
+<g class="qs-region qs-region--major" data-finding="1"><rect transform="matrix(17.46 3.06 0 18 34 91)" x="24.08" y="0.4" width="3.84" height="4.35"/></g>
+<g class="qs-region qs-region--moderate is-selected" data-finding="2"><rect transform="matrix(15.3 -7.56 0 18 732.4 213.4)" x="0.5" y="4.75" width="3.45" height="4.2"/></g>
+<g class="qs-region qs-region--minor" data-finding="3"><rect transform="matrix(15.3 -7.56 0 18 732.4 213.4)" x="4.05" y="7.6" width="3.45" height="1.35"/></g>
+</g>
+<text class="qs-c-label" x="54.95" y="297.07">RIGHT SIDE · 40 FT</text>
+<text class="qs-c-label" x="746.05" y="414.02">REAR DOORS</text>
+<g class="qs-c-unseen-tag" transform="translate(444.4 121.96)"><rect x="-56.5" y="-13" width="113" height="26" rx="4"/><text x="0" y="1">Roof · not seen</text></g>
+<g class="qs-c-pins">
+<g class="qs-pin qs-marker--major qs-pin--uncertain" data-finding="1" style="--i:0" tabindex="0" role="button" aria-pressed="false" aria-label="Finding 1: possible hole, apparent major, uncertain. Right side, section 7 upper">
+<circle class="qs-pin__halo" cx="487.96" cy="213.76" r="7"/>
+<circle class="qs-pin__foot" cx="487.96" cy="213.76" r="3.5"/>
+<g class="qs-pin__drop"><line class="qs-pin__stem" x1="487.96" y1="213.76" x2="487.96" y2="173.76"/>
+<circle class="qs-pin__head" cx="487.96" cy="173.76" r="15"/><text class="qs-pin__num" x="487.96" y="173.76">1</text></g></g>
+<g class="qs-pin qs-marker--moderate qs-pin--confident is-selected" data-finding="2" style="--i:1" tabindex="0" role="button" aria-pressed="true" aria-label="Finding 2: dent, apparent moderate, confident. Rear doors, right door lower panel">
+<circle class="qs-pin__halo" cx="764.53" cy="316.32" r="7"/>
+<circle class="qs-pin__foot" cx="764.53" cy="316.32" r="3.5"/>
+<g class="qs-pin__drop"><line class="qs-pin__stem" x1="764.53" y1="316.32" x2="764.53" y2="276.32"/>
+<circle class="qs-pin__head" cx="764.53" cy="276.32" r="15"/><text class="qs-pin__num" x="764.53" y="276.32">2</text></g></g>
+<g class="qs-pin qs-marker--minor qs-pin--likely" data-finding="3" style="--i:2" tabindex="0" role="button" aria-pressed="false" aria-label="Finding 3: corrosion, apparent minor, likely. Rear doors, left door bottom">
+<circle class="qs-pin__halo" cx="822.67" cy="321.8" r="7"/>
+<circle class="qs-pin__foot" cx="822.67" cy="321.8" r="3.5"/>
+<g class="qs-pin__drop"><line class="qs-pin__stem" x1="822.67" y1="321.8" x2="822.67" y2="281.8"/>
+<circle class="qs-pin__head" cx="822.67" cy="281.8" r="15"/><text class="qs-pin__num" x="822.67" y="281.8">3</text></g></g>
+</g></svg></figure><figure class="qs-schem__view qs-schem__view--unseen"><figcaption>Front and left side <small>No photos</small></figcaption><svg class="qs-c" viewBox="0 0 900 430" role="group" aria-label="Container drawing, front and left side: left side not seen, front end not seen, roof not seen">
+<defs>
+<pattern id="rsb-hatch" width="0.7" height="0.7" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><line class="qs-c-hatch" vector-effect="non-scaling-stroke" x1="0" y1="0" x2="0" y2="0.7"/></pattern>
+<filter id="rsb-blur" x="-20%" y="-50%" width="140%" height="200%"><feGaussianBlur stdDeviation="10"/></filter>
+<linearGradient id="rsb-sheen" x1="0" y1="0" x2="1" y2="0"><stop offset="0" class="qs-c-sheen-a"/><stop offset=".45" class="qs-c-sheen-b"/><stop offset="1" class="qs-c-sheen-a"/></linearGradient>
+</defs>
+<polygon class="qs-c-shadow" filter="url(#rsb-blur)" points="24.82,272.54 733.7,396.77 901.1,319.74 188.73,194.9"/>
+<g transform="matrix(17.46 3.06 0 18 34 91)"><rect class="qs-c-side" x="0" y="0" width="40.0" height="9.5"/><rect class="qs-c-side-rib" x="0.75" y="0.4" width="0.42" height="8.6"/><line class="qs-c-crease" vector-effect="non-scaling-stroke" x1="1.17" y1="0.4" x2="1.17" y2="9"/><rect class="qs-c-side-rib" x="1.63" y="0.4" width="0.42" height="8.6"/><line class="qs-c-crease" vector-effect="non-scaling-stroke" x1="2.05" y1="0.4" x2="2.05" y2="9"/><rect class="qs-c-side-rib" x="2.51" y="0.4" width="0.42" height="8.6"/><line class="qs-c-crease" vector-effect="non-scaling-stroke" x1="2.93" y1="0.4" x2="2.93" y2="9"/><rect class="qs-c-side-rib" x="3.39" y="0.4" width="0.42" height="8.6"/><line class="qs-c-crease" vector-effect="non-scaling-stroke" x1="3.81" y1="0.4" x2="3.81" y2="9"/><rect class="qs-c-side-rib" x="4.27" y="0.4" width="0.42" height="8.6"/><line class="qs-c-crease" vector-effect="non-scaling-stroke" x1="4.69" y1="0.4" x2="4.69" y2="9"/><rect class="qs-c-side-rib" x="5.15" y="0.4" width="0.42" height="8.6"/><line class="qs-c-crease" vector-effect="non-scaling-stroke" x1="5.57" y1="0.4" x2="5.57" y2="9"/><rect class="qs-c-side-rib" x="6.03" y="0.4" width="0.42" height="8.6"/><line class="qs-c-crease" vector-effect="non-scaling-stroke" x1="6.45" y1="0.4" x2="6.45" y2="9"/><rect class="qs-c-side-rib" x="6.91" y="0.4" width="0.42" height="8.6"/><line class="qs-c-crease" vector-effect="non-scaling-stroke" x1="7.33" y1="0.4" x2="7.33" y2="9"/><rect class="qs-c-side-rib" x="7.79" y="0.4" width="0.42" height="8.6"/><line class="qs-c-crease" vector-effect="non-scaling-stroke" x1="8.21" y1="0.4" x2="8.21" y2="9"/><rect class="qs-c-side-rib" x="8.67" y="0.4" width="0.42" height="8.6"/><line class="qs-c-crease" vector-effect="non-scaling-stroke" x1="9.09" y1="0.4" x2="9.09" y2="9"/><rect class="qs-c-side-rib" x="9.55" y="0.4" width="0.42" height="8.6"/><line class="qs-c-crease" vector-effect="non-scaling-stroke" x1="9.97" y1="0.4" x2="9.97" y2="9"/><rect class="qs-c-side-rib" x="10.43" y="0.4" width="0.42" height="8.6"/><line class="qs-c-crease" vector-effect="non-scaling-stroke" x1="10.85" y1="0.4" x2="10.85" y2="9"/><rect class="qs-c-side-rib" x="11.31" y="0.4" width="0.42" height="8.6"/><line class="qs-c-crease" vector-effect="non-scaling-stroke" x1="11.73" y1="0.4" x2="11.73" y2="9"/><rect class="qs-c-side-rib" x="12.19" y="0.4" width="0.42" height="8.6"/><line class="qs-c-crease" vector-effect="non-scaling-stroke" x1="12.61" y1="0.4" x2="12.61" y2="9"/><rect class="qs-c-side-rib" x="13.07" y="0.4" width="0.42" height="8.6"/><line class="qs-c-crease" vector-effect="non-scaling-stroke" x1="13.49" y1="0.4" x2="13.49" y2="9"/><rect class="qs-c-side-rib" x="13.95" y="0.4" width="0.42" height="8.6"/><line class="qs-c-crease" vector-effect="non-scaling-stroke" x1="14.37" y1="0.4" x2="14.37" y2="9"/><rect class="qs-c-side-rib" x="14.83" y="0.4" width="0.42" height="8.6"/><line class="qs-c-crease" vector-effect="non-scaling-stroke" x1="15.25" y1="0.4" x2="15.25" y2="9"/><rect class="qs-c-side-rib" x="15.71" y="0.4" width="0.42" height="8.6"/><line class="qs-c-crease" vector-effect="non-scaling-stroke" x1="16.13" y1="0.4" x2="16.13" y2="9"/><rect class="qs-c-side-rib" x="16.59" y="0.4" width="0.42" height="8.6"/><line class="qs-c-crease" vector-effect="non-scaling-stroke" x1="17.01" y1="0.4" x2="17.01" y2="9"/><rect class="qs-c-side-rib" x="17.47" y="0.4" width="0.42" height="8.6"/><line class="qs-c-crease" vector-effect="non-scaling-stroke" x1="17.89" y1="0.4" x2="17.89" y2="9"/><rect class="qs-c-side-rib" x="18.35" y="0.4" width="0.42" height="8.6"/><line class="qs-c-crease" vector-effect="non-scaling-stroke" x1="18.77" y1="0.4" x2="18.77" y2="9"/><rect class="qs-c-side-rib" x="19.23" y="0.4" width="0.42" height="8.6"/><line class="qs-c-crease" vector-effect="non-scaling-stroke" x1="19.65" y1="0.4" x2="19.65" y2="9"/><rect class="qs-c-side-rib" x="20.11" y="0.4" width="0.42" height="8.6"/><line class="qs-c-crease" vector-effect="non-scaling-stroke" x1="20.53" y1="0.4" x2="20.53" y2="9"/><rect class="qs-c-side-rib" x="20.99" y="0.4" width="0.42" height="8.6"/><line class="qs-c-crease" vector-effect="non-scaling-stroke" x1="21.41" y1="0.4" x2="21.41" y2="9"/><rect class="qs-c-side-rib" x="21.87" y="0.4" width="0.42" height="8.6"/><line class="qs-c-crease" vector-effect="non-scaling-stroke" x1="22.29" y1="0.4" x2="22.29" y2="9"/><rect class="qs-c-side-rib" x="22.75" y="0.4" width="0.42" height="8.6"/><line class="qs-c-crease" vector-effect="non-scaling-stroke" x1="23.17" y1="0.4" x2="23.17" y2="9"/><rect class="qs-c-side-rib" x="23.63" y="0.4" width="0.42" height="8.6"/><line class="qs-c-crease" vector-effect="non-scaling-stroke" x1="24.05" y1="0.4" x2="24.05" y2="9"/><rect class="qs-c-side-rib" x="24.51" y="0.4" width="0.42" height="8.6"/><line class="qs-c-crease" vector-effect="non-scaling-stroke" x1="24.93" y1="0.4" x2="24.93" y2="9"/><rect class="qs-c-side-rib" x="25.39" y="0.4" width="0.42" height="8.6"/><line class="qs-c-crease" vector-effect="non-scaling-stroke" x1="25.81" y1="0.4" x2="25.81" y2="9"/><rect class="qs-c-side-rib" x="26.27" y="0.4" width="0.42" height="8.6"/><line class="qs-c-crease" vector-effect="non-scaling-stroke" x1="26.69" y1="0.4" x2="26.69" y2="9"/><rect class="qs-c-side-rib" x="27.15" y="0.4" width="0.42" height="8.6"/><line class="qs-c-crease" vector-effect="non-scaling-stroke" x1="27.57" y1="0.4" x2="27.57" y2="9"/><rect class="qs-c-side-rib" x="28.03" y="0.4" width="0.42" height="8.6"/><line class="qs-c-crease" vector-effect="non-scaling-stroke" x1="28.45" y1="0.4" x2="28.45" y2="9"/><rect class="qs-c-side-rib" x="28.91" y="0.4" width="0.42" height="8.6"/><line class="qs-c-crease" vector-effect="non-scaling-stroke" x1="29.33" y1="0.4" x2="29.33" y2="9"/><rect class="qs-c-side-rib" x="29.79" y="0.4" width="0.42" height="8.6"/><line class="qs-c-crease" vector-effect="non-scaling-stroke" x1="30.21" y1="0.4" x2="30.21" y2="9"/><rect class="qs-c-side-rib" x="30.67" y="0.4" width="0.42" height="8.6"/><line class="qs-c-crease" vector-effect="non-scaling-stroke" x1="31.09" y1="0.4" x2="31.09" y2="9"/><rect class="qs-c-side-rib" x="31.55" y="0.4" width="0.42" height="8.6"/><line class="qs-c-crease" vector-effect="non-scaling-stroke" x1="31.97" y1="0.4" x2="31.97" y2="9"/><rect class="qs-c-side-rib" x="32.43" y="0.4" width="0.42" height="8.6"/><line class="qs-c-crease" vector-effect="non-scaling-stroke" x1="32.85" y1="0.4" x2="32.85" y2="9"/><rect class="qs-c-side-rib" x="33.31" y="0.4" width="0.42" height="8.6"/><line class="qs-c-crease" vector-effect="non-scaling-stroke" x1="33.73" y1="0.4" x2="33.73" y2="9"/><rect class="qs-c-side-rib" x="34.19" y="0.4" width="0.42" height="8.6"/><line class="qs-c-crease" vector-effect="non-scaling-stroke" x1="34.61" y1="0.4" x2="34.61" y2="9"/><rect class="qs-c-side-rib" x="35.07" y="0.4" width="0.42" height="8.6"/><line class="qs-c-crease" vector-effect="non-scaling-stroke" x1="35.49" y1="0.4" x2="35.49" y2="9"/><rect class="qs-c-side-rib" x="35.95" y="0.4" width="0.42" height="8.6"/><line class="qs-c-crease" vector-effect="non-scaling-stroke" x1="36.37" y1="0.4" x2="36.37" y2="9"/><rect class="qs-c-side-rib" x="36.83" y="0.4" width="0.42" height="8.6"/><line class="qs-c-crease" vector-effect="non-scaling-stroke" x1="37.25" y1="0.4" x2="37.25" y2="9"/><rect class="qs-c-side-rib" x="37.71" y="0.4" width="0.42" height="8.6"/><line class="qs-c-crease" vector-effect="non-scaling-stroke" x1="38.13" y1="0.4" x2="38.13" y2="9"/><rect class="qs-c-side-rib" x="38.59" y="0.4" width="0.42" height="8.6"/><line class="qs-c-crease" vector-effect="non-scaling-stroke" x1="39.01" y1="0.4" x2="39.01" y2="9"/><rect class="qs-c-rail" x="0" y="0" width="40.0" height="0.4"/><rect class="qs-c-rail" x="0" y="9" width="40.0" height="0.5"/><rect class="qs-c-rail" x="0" y="0" width="0.6" height="9.5"/><rect class="qs-c-rail" x="39.4" y="0" width="0.6" height="9.5"/><rect class="qs-c-casting" vector-effect="non-scaling-stroke" x="0" y="0" width="0.6" height="0.5"/><ellipse class="qs-c-hole" cx="0.3" cy="0.25" rx="0.17" ry="0.1"/><rect class="qs-c-casting" vector-effect="non-scaling-stroke" x="0" y="9" width="0.6" height="0.5"/><ellipse class="qs-c-hole" cx="0.3" cy="9.25" rx="0.17" ry="0.1"/><rect class="qs-c-casting" vector-effect="non-scaling-stroke" x="39.4" y="0" width="0.6" height="0.5"/><ellipse class="qs-c-hole" cx="39.7" cy="0.25" rx="0.17" ry="0.1"/><rect class="qs-c-casting" vector-effect="non-scaling-stroke" x="39.4" y="9" width="0.6" height="0.5"/><ellipse class="qs-c-hole" cx="39.7" cy="9.25" rx="0.17" ry="0.1"/><text class="qs-c-stencil" x="38.6" y="1.45" text-anchor="end" font-size="0.62">QSIU 307428 8</text><rect class="qs-c-face-edge" vector-effect="non-scaling-stroke" x="0" y="0" width="40.0" height="9.5"/><g class="qs-c-grid" data-face="side"><line vector-effect="non-scaling-stroke" x1="4" y1="0.4" x2="4" y2="9"/><line vector-effect="non-scaling-stroke" x1="8" y1="0.4" x2="8" y2="9"/><line vector-effect="non-scaling-stroke" x1="12" y1="0.4" x2="12" y2="9"/><line vector-effect="non-scaling-stroke" x1="16" y1="0.4" x2="16" y2="9"/><line vector-effect="non-scaling-stroke" x1="20" y1="0.4" x2="20" y2="9"/><line vector-effect="non-scaling-stroke" x1="24" y1="0.4" x2="24" y2="9"/><line vector-effect="non-scaling-stroke" x1="28" y1="0.4" x2="28" y2="9"/><line vector-effect="non-scaling-stroke" x1="32" y1="0.4" x2="32" y2="9"/><line vector-effect="non-scaling-stroke" x1="36" y1="0.4" x2="36" y2="9"/><line vector-effect="non-scaling-stroke" x1="0.6" y1="4.75" x2="39.4" y2="4.75"/></g></g>
+<rect transform="matrix(17.46 3.06 0 18 34 91)" x="0" y="0" width="40.0" height="9.5" fill="url(#rsb-sheen)" class="qs-c-sheen"/>
+<g transform="matrix(15.3 -7.56 0 18 732.4 213.4)"><rect class="qs-c-end" x="0" y="0" width="8.0" height="9.5"/><rect class="qs-c-end-rib" x="0.75" y="0.55" width="0.38" height="8.45"/><line class="qs-c-crease" vector-effect="non-scaling-stroke" x1="1.13" y1="0.55" x2="1.13" y2="9"/><rect class="qs-c-end-rib" x="1.55" y="0.55" width="0.38" height="8.45"/><line class="qs-c-crease" vector-effect="non-scaling-stroke" x1="1.93" y1="0.55" x2="1.93" y2="9"/><rect class="qs-c-end-rib" x="2.35" y="0.55" width="0.38" height="8.45"/><line class="qs-c-crease" vector-effect="non-scaling-stroke" x1="2.73" y1="0.55" x2="2.73" y2="9"/><rect class="qs-c-end-rib" x="3.15" y="0.55" width="0.38" height="8.45"/><line class="qs-c-crease" vector-effect="non-scaling-stroke" x1="3.53" y1="0.55" x2="3.53" y2="9"/><rect class="qs-c-end-rib" x="3.95" y="0.55" width="0.38" height="8.45"/><line class="qs-c-crease" vector-effect="non-scaling-stroke" x1="4.33" y1="0.55" x2="4.33" y2="9"/><rect class="qs-c-end-rib" x="4.75" y="0.55" width="0.38" height="8.45"/><line class="qs-c-crease" vector-effect="non-scaling-stroke" x1="5.13" y1="0.55" x2="5.13" y2="9"/><rect class="qs-c-end-rib" x="5.55" y="0.55" width="0.38" height="8.45"/><line class="qs-c-crease" vector-effect="non-scaling-stroke" x1="5.93" y1="0.55" x2="5.93" y2="9"/><rect class="qs-c-end-rib" x="6.35" y="0.55" width="0.38" height="8.45"/><line class="qs-c-crease" vector-effect="non-scaling-stroke" x1="6.73" y1="0.55" x2="6.73" y2="9"/><rect class="qs-c-end-rib" x="7.15" y="0.55" width="0.38" height="8.45"/><line class="qs-c-crease" vector-effect="non-scaling-stroke" x1="7.53" y1="0.55" x2="7.53" y2="9"/><rect class="qs-c-rail" x="0" y="0" width="8.0" height="0.55"/><rect class="qs-c-rail" x="0" y="9" width="8.0" height="0.5"/><rect class="qs-c-rail" x="0" y="0" width="0.45" height="9.5"/><rect class="qs-c-rail" x="7.55" y="0" width="0.45" height="9.5"/><rect class="qs-c-casting" vector-effect="non-scaling-stroke" x="0" y="0" width="0.45" height="0.5"/><rect class="qs-c-casting" vector-effect="non-scaling-stroke" x="0" y="9" width="0.45" height="0.5"/><rect class="qs-c-casting" vector-effect="non-scaling-stroke" x="7.55" y="0" width="0.45" height="0.5"/><rect class="qs-c-casting" vector-effect="non-scaling-stroke" x="7.55" y="9" width="0.45" height="0.5"/><rect class="qs-c-face-edge" vector-effect="non-scaling-stroke" x="0" y="0" width="8.0" height="9.5"/></g>
+<g class="qs-c-roof" transform="matrix(17.46 3.06 15.3 -7.56 34 91)"><rect class="qs-c-top" x="0" y="0" width="40.0" height="8.0"/><line class="qs-c-crease" vector-effect="non-scaling-stroke" x1="0.8" y1="0.3" x2="0.8" y2="7.7"/><line class="qs-c-crease" vector-effect="non-scaling-stroke" x1="2.4" y1="0.3" x2="2.4" y2="7.7"/><line class="qs-c-crease" vector-effect="non-scaling-stroke" x1="4" y1="0.3" x2="4" y2="7.7"/><line class="qs-c-crease" vector-effect="non-scaling-stroke" x1="5.6" y1="0.3" x2="5.6" y2="7.7"/><line class="qs-c-crease" vector-effect="non-scaling-stroke" x1="7.2" y1="0.3" x2="7.2" y2="7.7"/><line class="qs-c-crease" vector-effect="non-scaling-stroke" x1="8.8" y1="0.3" x2="8.8" y2="7.7"/><line class="qs-c-crease" vector-effect="non-scaling-stroke" x1="10.4" y1="0.3" x2="10.4" y2="7.7"/><line class="qs-c-crease" vector-effect="non-scaling-stroke" x1="12" y1="0.3" x2="12" y2="7.7"/><line class="qs-c-crease" vector-effect="non-scaling-stroke" x1="13.6" y1="0.3" x2="13.6" y2="7.7"/><line class="qs-c-crease" vector-effect="non-scaling-stroke" x1="15.2" y1="0.3" x2="15.2" y2="7.7"/><line class="qs-c-crease" vector-effect="non-scaling-stroke" x1="16.8" y1="0.3" x2="16.8" y2="7.7"/><line class="qs-c-crease" vector-effect="non-scaling-stroke" x1="18.4" y1="0.3" x2="18.4" y2="7.7"/><line class="qs-c-crease" vector-effect="non-scaling-stroke" x1="20" y1="0.3" x2="20" y2="7.7"/><line class="qs-c-crease" vector-effect="non-scaling-stroke" x1="21.6" y1="0.3" x2="21.6" y2="7.7"/><line class="qs-c-crease" vector-effect="non-scaling-stroke" x1="23.2" y1="0.3" x2="23.2" y2="7.7"/><line class="qs-c-crease" vector-effect="non-scaling-stroke" x1="24.8" y1="0.3" x2="24.8" y2="7.7"/><line class="qs-c-crease" vector-effect="non-scaling-stroke" x1="26.4" y1="0.3" x2="26.4" y2="7.7"/><line class="qs-c-crease" vector-effect="non-scaling-stroke" x1="28" y1="0.3" x2="28" y2="7.7"/><line class="qs-c-crease" vector-effect="non-scaling-stroke" x1="29.6" y1="0.3" x2="29.6" y2="7.7"/><line class="qs-c-crease" vector-effect="non-scaling-stroke" x1="31.2" y1="0.3" x2="31.2" y2="7.7"/><line class="qs-c-crease" vector-effect="non-scaling-stroke" x1="32.8" y1="0.3" x2="32.8" y2="7.7"/><line class="qs-c-crease" vector-effect="non-scaling-stroke" x1="34.4" y1="0.3" x2="34.4" y2="7.7"/><line class="qs-c-crease" vector-effect="non-scaling-stroke" x1="36" y1="0.3" x2="36" y2="7.7"/><line class="qs-c-crease" vector-effect="non-scaling-stroke" x1="37.6" y1="0.3" x2="37.6" y2="7.7"/><rect class="qs-c-face-edge" vector-effect="non-scaling-stroke" x="0" y="0" width="40.0" height="8.0"/><rect fill="url(#rsb-hatch)" x="0" y="0" width="40.0" height="8.0"/></g>
+<rect transform="matrix(17.46 3.06 0 18 34 91)" fill="url(#rsb-hatch)" class="qs-c-unseen-face" x="0" y="0" width="40" height="9.5"/>
+<rect transform="matrix(15.3 -7.56 0 18 732.4 213.4)" fill="url(#rsb-hatch)" class="qs-c-unseen-face" x="0" y="0" width="8" height="9.5"/>
+<g class="qs-c-regions">
+</g>
+<text class="qs-c-label" x="54.95" y="297.07">LEFT SIDE · 40 FT</text>
+<text class="qs-c-label" x="746.05" y="414.02">FRONT END</text>
+<g class="qs-c-unseen-tag" transform="translate(444.4 121.96)"><rect x="-56.5" y="-13" width="113" height="26" rx="4"/><text x="0" y="1">Roof · not seen</text></g>
+<g class="qs-c-unseen-tag" transform="translate(383.2 237.7)"><rect x="-74.0" y="-13" width="148" height="26" rx="4"/><text x="0" y="1">Left side · not seen</text></g>
+<g class="qs-c-unseen-tag" transform="translate(793.6 268.66)"><rect x="-32.0" y="-13" width="64" height="26" rx="4"/><text x="0" y="1">Not seen</text></g>
+<g class="qs-c-pins">
+</g></svg></figure></div></div>
+        <ul class="qs-coverage" aria-label="Inspection coverage"><li class="qs-coverage__item qs-coverage__item--seen"><i class="qs-glyph qs-glyph--check"></i><span>Right side</span><small>Photo 2</small></li><li class="qs-coverage__item qs-coverage__item--seen"><i class="qs-glyph qs-glyph--check"></i><span>Rear doors</span><small>Photo 1</small></li><li class="qs-coverage__item qs-coverage__item--unseen"><i class="qs-glyph qs-glyph--unseen"></i><span>Roof</span><small>Not seen</small></li><li class="qs-coverage__item qs-coverage__item--unseen"><i class="qs-glyph qs-glyph--unseen"></i><span>Left side</span><small>Not seen</small></li><li class="qs-coverage__item qs-coverage__item--unseen"><i class="qs-glyph qs-glyph--unseen"></i><span>Front end</span><small>Not seen</small></li></ul>
+        <div class="qs-schem__caption">Illustrative drawing. Tinted zones are approximate regions, not pixel-precise or certified CEDEX locations.</div>
+      </div>
+      <div class="rs-findings" style="--base:900ms">
+<button class="qs-finding qs-rise" style="--i:0" data-finding="1" aria-pressed="false">
+  <span class="qs-finding__n qs-finding__n--major qs-finding__n--uncertain">1</span>
+  <span><span class="qs-finding__title">Possible hole</span><br><span class="qs-finding__loc">Right side · section 7, upper · photo 2</span></span>
+  <span class="qs-finding__tags"><span class="qs-sev qs-sev--major"><span class="qs-sev__bars"><i></i><i></i><i></i></span><span class="qs-sev__code">HO</span>Major</span><span class="qs-cert qs-cert--uncertain"><i class="qs-glyph qs-glyph--uncertain"></i>Uncertain</span></span>
+  <span class="qs-finding__more"><span><strong>Best interpretation:</strong> a small dark opening in the upper panel.</span><span><strong>What remains uncertain:</strong> it could be a decal or a shadow. A closer photo would settle it.</span></span>
+</button>
+<button class="qs-finding qs-rise" style="--i:1" data-finding="2" aria-pressed="true">
+  <span class="qs-finding__n qs-finding__n--moderate">2</span>
+  <span><span class="qs-finding__title">Dent in the door panel</span><br><span class="qs-finding__loc">Rear doors · right door, lower panel · photo 1</span></span>
+  <span class="qs-finding__tags"><span class="qs-sev qs-sev--moderate"><span class="qs-sev__bars"><i></i><i></i><i></i></span><span class="qs-sev__code">DT</span>Moderate</span><span class="qs-cert qs-cert--confident"><i class="qs-glyph qs-glyph--confident"></i>Confident</span></span>
+  <span class="qs-finding__more">
+    <span>A local inward dent across two ribs, roughly a third of the door width. Not a sharp bend.</span>
+    <span class="qs-finding__probs" aria-label="Model probability, GPT-6 Luna">
+      <span class="qs-prob qs-prob--top"><span>DT dent</span><span class="qs-prob__bar"><i style="--p:74%"></i></span><span>0.74</span></span>
+      <span class="qs-prob"><span>BT bend</span><span class="qs-prob__bar"><i style="--p:18%"></i></span><span>0.18</span></span>
+      <span class="qs-prob"><span>BW bow</span><span class="qs-prob__bar"><i style="--p:6%"></i></span><span>0.06</span></span>
+    </span>
+    <span>How strongly GPT-6 Luna rated each description. Not a measured accuracy.</span>
+  </span>
+</button>
+<button class="qs-finding qs-rise" style="--i:2" data-finding="3" aria-pressed="false">
+  <span class="qs-finding__n qs-finding__n--minor qs-finding__n--likely">3</span>
+  <span><span class="qs-finding__title">Surface corrosion</span><br><span class="qs-finding__loc">Rear doors · left door, bottom edge · photo 1</span></span>
+  <span class="qs-finding__tags"><span class="qs-sev qs-sev--minor"><span class="qs-sev__bars"><i></i><i></i><i></i></span><span class="qs-sev__code">CO</span>Minor</span><span class="qs-cert qs-cert--likely"><i class="qs-glyph qs-glyph--likely"></i>Likely</span></span>
+  <span class="qs-finding__more"><span><strong>Best interpretation:</strong> surface rust streaks along the door bottom, no visible perforation.</span></span>
+</button></div>
+    </div>
+  </section>
+</main>
+
+<script>var QS_MODE='analysing';
+function qsSelect(root, n){
+  root.querySelectorAll('[data-finding]').forEach(function(el){
+    var on = el.getAttribute('data-finding') === String(n);
+    el.classList.toggle('is-selected', on);
+    if (el.hasAttribute('aria-pressed')) el.setAttribute('aria-pressed', on ? 'true' : 'false');
+  });
+}
+function qsBindSelect(root){
+  root.querySelectorAll('[data-finding]').forEach(function(el){
+    if (!(el.matches('.qs-pin, .qs-finding, .qs-photo-region'))) return;
+    el.addEventListener('click', function(){ qsSelect(root, el.getAttribute('data-finding')); });
+    el.addEventListener('keydown', function(e){ if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); qsSelect(root, el.getAttribute('data-finding')); } });
+  });
+}
+
+var stage=document.getElementById('stage'), pill=document.getElementById('cost'), stages=document.querySelectorAll('#stages .qs-stage');
+var reduce=window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+qsBindSelect(stage);
+var timers=[];
+function later(ms,fn){ timers.push(setTimeout(fn,ms)); }
+function money(v){ return '$'+v.toFixed(4); }
+function countTo(el,from,to,ms){ var t0=performance.now(); (function step(t){ var k=Math.min(1,(t-t0)/ms); k=1-Math.pow(1-k,3); el.textContent=money(from+(to-from)*k); if(k<1) requestAnimationFrame(step); })(t0); }
+function setStage(i,state,time){ var s=stages[i]; s.className='qs-stage'+(state?' qs-stage--'+state:''); s.querySelector('.qs-stage__dot').innerHTML= state==='done'?'<i class="qs-glyph qs-glyph--check"></i>':''; s.querySelector('.qs-stage__time').textContent=time||''; }
+function arrive(){
+  stage.classList.remove('qs-arriving'); void stage.offsetWidth; stage.classList.add('qs-arrived');
+  var c=document.getElementById('c-now'), s=document.getElementById('c-ses');
+  if(reduce){ c.textContent=money(.0042); s.textContent=money(.0187); return; }
+  later(300,function(){ pill.classList.remove('qs-glow'); void pill.offsetWidth; pill.classList.add('qs-glow'); countTo(c,0,.0042,700); countTo(s,.0145,.0187,700); });
+}
+function run(){
+  timers.forEach(clearTimeout); timers=[];
+  stage.classList.remove('qs-arrived'); stage.classList.add('qs-arriving');
+  document.getElementById('c-now').textContent=money(0); document.getElementById('c-ses').textContent=money(.0145);
+  [0,1,2].forEach(function(i){ setStage(i,''); });
+  if(reduce){ [0,1,2].forEach(function(i){ setStage(i,'done'); }); arrive(); return; }
+  setStage(0,'active'); setStage(1,'active');
+  later(900,function(){ setStage(0,'done','2.4 s'); });
+  later(1500,function(){ setStage(1,'done','3.1 s'); setStage(2,'active'); });
+  later(2500,function(){ setStage(2,'done','1.2 s'); });
+  later(2800,arrive);
+}
+if(QS_MODE==='analysing'){ setStage(0,'done','2.4 s'); setStage(1,'done','3.1 s'); setStage(2,'active'); }
+else { document.getElementById('replay').addEventListener('click',run); run(); }
+</script>
+</body></html>

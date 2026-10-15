@@ -5,7 +5,7 @@
 **Product type:** AI-powered container recognition and damage inspection POC  
 
 **Product requirements specification**  
-**Version:** 1.4  
+**Version:** 1.5  
 **Status:** Multi-provider requirements for a live innovation-event demonstration  
 **Initial AI providers:** OpenAI GPT-6 Luna (Decisions API) and TypeSafe Jev (System One API)  
 **Additional providers:** Designed to be added later without redesigning inspection features  
@@ -315,6 +315,7 @@ Definitions must explicitly distinguish **local dents in corrugated panels**, **
 **MUST** include a **neutral visual container representation** as the default location view:
 
 - An illustrative, generic container diagram or simplified 2D/3D schematic that clearly separates relevant faces (for example side, rear, front and roof where available).
+- Draw the container as **two fixed 3D views**, stacked one above the other (side by side only on wide screens), each showing one end, one long side and the roof: *rear doors and right side*, and *front end and left side*. Together they cover every face. The roof appears in both views but is always **greyed out**, so it never competes with the photographed faces. Each finding is drawn in the view that holds its face; a view with no photographed faces says so.
 - Place discrete **pointers, markers or highlighted zones** on the schematic to indicate approximate suspected damage locations; selecting a marker reveals its CEDEX candidate(s), plain-English description, visual severity, probability, evidence photograph and inspection-coverage caveats.
 - Indicate the correct face/relative area only where orientation is supported. If orientation is unknown, show an explicitly labelled *image-relative* face or strip instead of inventing which side of the real container is damaged.
 - Use visual treatments that distinguish **location**, **damage concern/severity** and **certainty**. Do not paint a fictional dent, hole, crack or rust patch onto the neutral representation.
@@ -604,7 +605,7 @@ This is a *demonstration and learning POC*. The goal is to demonstrate the poten
 | High Cube / Super Heavy markings | Distinguishes height, width and weight signage; does not infer dangerous cargo from Super Heavy. |
 | Live API unavailable | Usable, clearly recorded sample demonstration and actionable error state; sample costs are not added to live session charges. |
 | Model confident about wrong character or weight | App surfaces incompatible evidence or validation failures instead of silently certifying the value. |
-| Unseen side or roof | Schematic marks it uninspected, not undamaged. |
+| Unseen side or roof | Schematic marks it uninspected, not undamaged, in whichever of the two views holds that face; the roof stays greyed out. |
 | Automatic re-check runs | Cost indicator and expanded ledger include that additional call; the UI shows only the outcome and its certainty, with no pass wording. |
 | Multiple containers inspected | Session cost accumulates across the full current browsing session; per-container costs remain individually inspectable. |
 | Jev live inspection | Experimental image opt-in applied, Jev schema correctly interpreted, equipment/damage results rendered using the same inspection screens as Luna. |
