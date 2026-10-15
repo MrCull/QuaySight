@@ -1,3 +1,6 @@
+import type { DecodedSizeCode } from './isoSizeCode'
+import type { WeightChecks } from './weights'
+
 // Shared inspection record (spec 11.2). Provider-independent: every adapter, recorded or live,
 // normalises into this shape. Later tickets extend it (checks, findings, costs) without changing
 // the fields below, so schemaVersion bumps only on breaking changes.
@@ -52,4 +55,8 @@ export interface InspectionRecord {
   status: 'running' | 'complete' | 'failed'
   photo: PhotoRef | null
   containerId: ContainerIdReading | null
+  /** Decoded ISO size/type code (provenance: decoded), or null when not visible or not recognised. */
+  sizeCode: DecodedSizeCode | null
+  /** Printed maximum gross and tare, calculated payload, and any printed-versus-arithmetic conflict. */
+  weights: WeightChecks | null
 }

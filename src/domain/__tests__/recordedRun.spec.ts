@@ -40,3 +40,39 @@ describe('recorded inspection run', () => {
     }
   })
 })
+
+describe('recorded run deterministic checks', () => {
+  it('decodes the size code from the photo as a 40 ft High Cube, labelled decoded', async () => {
+    const record = await runRecordedInspection('luna', { delayMs: 0 })
+    expect(record.sizeCode?.code).toBe('45G1')
+    expect(record.sizeCode?.summary).toBe('40 ft High Cube, general purpose')
+    expect(record.sizeCode?.certainty).toBe('Confident')
+  })
+
+  it('keeps printed maximum gross and tare, and calculates payload as a separate labelled row', async () => {
+    const record = await runRecordedInspection('luna', { delayMs: 0 })
+    expect(record.weights?.maxGross).toEqual({
+      valueKg: 32500,
+      provenance: 'printed',
+      certainty: 'Confident',
+    })
+    expect(record.weights?.tare).toEqual({
+      valueKg: 3870,
+      provenance: 'printed',
+      certainty: 'Confident',
+    })
+    expect(record.weights?.payload).toEqual({
+      valueKg: 28630,
+      provenance: 'calculated',
+      certainty: 'Confident',
+    })
+    expect(record.weights?.conflict).toBeNull()
+  })
+
+  it('shows no decoded size or weights for Jev, because no Jev response has been captured', async () => {
+    const record = await runRecordedInspection('jev', { delayMs: 0 })
+    expect(record.sizeCode).toBeNull()
+    expect(record.weights?.maxGross).toBeNull()
+    expect(record.weights?.payload).toBeNull()
+  })
+})

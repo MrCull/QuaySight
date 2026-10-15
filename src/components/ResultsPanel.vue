@@ -5,6 +5,7 @@ import { getProvider } from '../domain/providers'
 import { idResultState, visibleAlternatives } from '../domain/certainty'
 import CertaintyChip from './CertaintyChip.vue'
 import ContainerId from './ContainerId.vue'
+import ContainerDetails from './ContainerDetails.vue'
 
 const store = useInspectionStore()
 const record = computed(() => store.record)
@@ -93,5 +94,7 @@ const showInsufficient = computed(() => idState.value === 'insufficient')
         </div>
       </div>
     </div>
+
+    <ContainerDetails v-if="record" :record="record" />
   </section>
 </template>

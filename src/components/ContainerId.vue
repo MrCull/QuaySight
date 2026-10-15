@@ -95,6 +95,11 @@ const spelled = computed(() => {
       <span v-else :class="['qs-prov', { 'qs-prov--calculated': reading.checkDigitValid }]">
         {{ reading.checkDigitValid ? 'Check digit valid' : 'Check digit does not match' }}
       </span>
+      <span
+        v-if="!reading.checkDigitValid && reading.observedCheckDigit !== null"
+        class="qs-prov qs-prov--calculated"
+        >Calculated {{ reading.calculatedCheckDigit }}</span
+      >
     </div>
   </div>
 </template>
