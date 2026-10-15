@@ -23,7 +23,7 @@ const recordedLabel = computed(() => {
 const liveLabel = computed(() => {
   const r = record.value
   if (!r || r.source !== 'live') return null
-  return `Live result: ${getProvider(r.provider).name} / ${r.model}`
+  return `Live result: ${getProvider(r.provider).name} / ${r.resolvedVersion}`
 })
 
 // Plain explanation for the uncertain, partial and insufficient-evidence states (spec 5.4, 8.4).

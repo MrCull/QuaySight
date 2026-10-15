@@ -19,6 +19,8 @@ export interface CallLunaOptions {
 
 export interface LunaCallResult extends LunaMapping {
   latencyMs: number
+  /** The response payload as returned. Contains no headers and no key. */
+  raw: unknown
 }
 
 function blobToDataUrl(blob: Blob): Promise<string> {
@@ -74,5 +76,5 @@ export async function callLuna(options: CallLunaOptions): Promise<LunaCallResult
 
   if (!response.ok) throw lunaFailure(response.status, parsed, options.apiKey)
 
-  return { ...mapLunaResponse(parsed, LUNA_MODEL), latencyMs }
+  return { ...mapLunaResponse(parsed, LUNA_MODEL), latencyMs, raw: parsed }
 }

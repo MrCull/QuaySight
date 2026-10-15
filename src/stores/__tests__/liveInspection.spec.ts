@@ -74,7 +74,9 @@ describe('live Luna inspection in the store', () => {
 
     expect(store.status).toBe('complete')
     expect(store.record?.source).toBe('live')
-    expect(store.record?.model).toBe('gpt-6-luna-20260922')
+    expect(store.record?.model).toBe('gpt-6-luna')
+    expect(store.record?.resolvedVersion).toBe('gpt-6-luna-20260922')
+    expect(store.record?.rawResponses[0]).toMatchObject({ capturedFrom: 'provider', provider: 'luna' })
     expect(store.record?.containerId?.value).toBe('APHU6586847')
 
     const entries = ledger.entries()

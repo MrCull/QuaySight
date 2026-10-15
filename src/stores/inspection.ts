@@ -180,7 +180,17 @@ export const useInspectionStore = defineStore('inspection', {
             schemaVersion: INSPECTION_SCHEMA_VERSION,
             id: inspectionId,
             provider: 'luna',
-            model: reading.resolvedModel,
+            model: LUNA_MODEL,
+            resolvedVersion: reading.resolvedModel,
+            rawResponses: [
+              {
+                passId: inspectionId,
+                provider: 'luna',
+                model: LUNA_MODEL,
+                capturedFrom: 'provider',
+                body: reading.raw,
+              },
+            ],
             source: 'live',
             status: 'complete',
             photo: { name: photo.name, orientation: photo.orientation },
