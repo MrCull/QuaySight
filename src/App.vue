@@ -6,6 +6,7 @@ import ProviderSelect from './components/ProviderSelect.vue'
 import PhotoPanel from './components/PhotoPanel.vue'
 import ResultsPanel from './components/ResultsPanel.vue'
 import DamageView from './components/damage/DamageView.vue'
+import CostIndicator from './components/CostIndicator.vue'
 
 const store = useInspectionStore()
 
@@ -35,6 +36,7 @@ function start() {
       <span class="rs-crumb">Container inspection <span>· recorded walking skeleton</span></span>
       <span v-if="store.status !== 'idle'" class="rs-run">{{ runLabel }}</span>
       <span class="rs-spacer"></span>
+      <CostIndicator />
     </header>
 
     <main id="stage" :class="['rs-main', stageClass]">
