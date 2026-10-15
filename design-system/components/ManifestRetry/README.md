@@ -9,7 +9,7 @@ The manifest retry panel is an optional card that lets the presenter paste conta
 - Cost note under the actions: *This runs a new live check on **[provider model]** and adds to the cost total.* Use the provider and model names from the current run, e.g. *OpenAI GPT-6 Luna*.
 
 ## Input and live feedback
-- `.qs-manifest__input`: a mono text area. Accept one ID per line, commas (CSV), tabs (pasted from a spreadsheet), semicolons, spaces, or a mix. An ID written with internal spaces (`QSIU 307428 8`) counts as one entry.
+- `.qs-manifest__input`: a mono text area. Accept one ID per line, commas (CSV), tabs (pasted from a spreadsheet), semicolons, spaces, or a mix. Every separator splits entries; IDs never contain spaces, so `QSIU307428 8` is not a supported form.
 - `.qs-manifest__count` (`role="status"`, `aria-live="polite"`) updates as the text changes: *312 container numbers found*, *2 duplicates ignored* (compared ignoring case).
 - Over 500 entries: add `.qs-manifest__limit` with the `cross` glyph, *Limit for this demo is 500. Remove some to continue.*, and disable the primary action.
 - No messages about check digits or ISO format. Entries are used as pasted.
