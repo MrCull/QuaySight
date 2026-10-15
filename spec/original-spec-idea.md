@@ -5,7 +5,7 @@
 **Product type:** AI-powered container recognition and damage inspection POC  
 
 **Product requirements specification**  
-**Version:** 1.3  
+**Version:** 1.4  
 **Status:** Multi-provider requirements for a live innovation-event demonstration  
 **Initial AI providers:** OpenAI GPT-6 Luna (Decisions API) and TypeSafe Jev (System One API)  
 **Additional providers:** Designed to be added later without redesigning inspection features  
@@ -28,7 +28,7 @@ An attendee should be able to see, in one short demonstration:
 1. A container photograph is uploaded and analysed using the presenter-selected provider and model (initially Luna or Jev).
 2. The app identifies the container and key equipment characteristics where supported by evidence.
 3. A photograph with damage produces approximate schematic location markers and clear descriptions of the CEDEX damage types that fit.
-4. Uncertain identification can lead to a focused second attempt with constrained, check-digit-valid candidates, using the same selected provider/model unless an explicitly separate run is started.
+4. Uncertain identification can lead to a focused second attempt with constrained, check-digit-valid candidates, using the same selected provider/model unless an explicitly separate run is started. This happens behind the scenes: the audience sees only the outcome, never passes or candidate mechanics.
 5. Remaining ambiguity is expressed as likely alternatives and specific limitations; the demo never stops to demand a human answer.
 6. Suspected damage is located on an attractive, neutral container schematic, without pretending to render the physical defect.
 7. A compact cost monitor shows this container's API cost and the current session total, with expandable request-level detail.
@@ -72,7 +72,6 @@ Priority labels: **MUST** = core innovation-event POC; **SHOULD** = strongly des
 - Optional user-supplied expected container numbers or manifest list.
 - Focused second-pass damage or markings inspection using crops or alternative choices.
 - Interactive photo-relative region highlighting and drill-down, complementing (not replacing) the neutral container schematic.
-- Side-by-side first- and second-pass comparison.
 - Presenter-friendly comparison/evaluation using pre-labelled test fixtures, without prompting demo users to correct results.
 - Responsive layout suitable for phone/tablet photo capture as well as desktop presentation.
 
@@ -251,7 +250,7 @@ Thresholds must be explicit, adjustable during evaluation and treated as POC heu
 
 - Reuse the same original photographic evidence, or a faithful crop of the relevant marking with enough context.
 - Ask a focused choice between a limited number of *plausible* complete IDs, instead of rerunning the entire initial battery unchanged.
-- Preserve first-pass and second-pass outputs for comparison.
+- Preserve first-pass and second-pass outputs in the consolidated JSON and raw provider responses for technical evaluation. They are **not** shown in the user interface (see §8.2 and §9).
 - Avoid presenting second-pass probability as directly comparable to first-pass probability when the choice sets differ.
 - Compare second-pass results with observed groups and calculated check digits before promoting a candidate.
 - Default to **no more than one automatic refinement per unresolved field/region**, with a configurable overall per-inspection request and estimated-spend cap. Stop automatically when the limit is reached; do **not** ask for permission to keep guessing.
@@ -264,7 +263,7 @@ Thresholds must be explicit, adjustable during evaluation and treated as POC heu
 - **Never interrupt the POC inspection to demand a human decision.** No manual number entry, candidate picker, correction form, approve/reject control or confirmation gate.
 - Present the strongest supported complete ID if sufficiently corroborated; otherwise show a *likely* ID or *unable to establish* with the most plausible alternatives and their uncertainty.
 - If only a prefix or a subset of digits is supportable, display the known partial pattern and clearly mark missing/uncertain positions rather than filling them in as fact.
-- Distinguish statuses such as **Supported**, **Likely**, **Uncertain**, **Not established** and **Not visible**. A successful mathematical check alone must not upgrade a visually weak candidate to Supported.
+- Use the certainty labels defined in §8.4: **Confident**, **Likely**, **Uncertain**, **Can't tell** and **Not seen**. A successful mathematical check alone must not upgrade a visually weak reading to Confident.
 - Present an optional, nonblocking suggestion such as *A closer photo of the top-left door markings may help*. The existing inspection stays complete and viewable even if no further photo is provided.
 - Stop after the automated refinement limit and preserve an evidence trail of all attempted candidates, observed characters and disagreements.
 - Apply the same autonomous approach to weights, warnings and damage: do what can be justified, explain the rest, and do not keep iterating until an arbitrarily confident answer appears.
@@ -299,7 +298,7 @@ Definitions must explicitly distinguish **local dents in corrugated panels**, **
 - Adapt the inspection zones and damage/component questions to the **visible face**: a rear-door photograph requires door/locking-gear regions, not the long-side corrugation grid; a side photograph requires panels/rails/corner posts, not fabricated rear-door assessments.
 - Keep separate the broad decision grid used for the POC and any later official CEDEX location code, and show the mapping assumptions only when those are justified.
 - Support damage spanning neighbouring sections, without turning it into multiple confirmed defects simply because it crosses grid lines.
-- Track visual coverage independently of absence of detected damage. Unseen, obstructed or low-resolution regions are **not inspected**, not 'clear'.
+- Track visual coverage independently of absence of detected damage. Unseen, obstructed or low-resolution regions are **not seen**, not 'clear'.
 
 ### 6.3 Per-finding information
 
@@ -331,7 +330,7 @@ Definitions must explicitly distinguish **local dents in corrugated panels**, **
 - Ask focused follow-up questions for uncertain, consequential or conflicting region findings.
 - Inspect a faithful crop with overlap/context where useful, rather than automatically submitting every region at high detail.
 - Include occasional predefined overlap checks for small defects that the first pass could miss.
-- Compare the refined damage type and severity with the first pass; visibly retain unresolved disagreements.
+- Compare the refined damage type and severity with the first pass; keep unresolved disagreements in the record and show them to the user only as certainty (e.g. **Uncertain** with alternatives), never as a pass comparison.
 - Avoid counting the same dent twice across overlapping images or zones.
 
 **MUST** avoid silently ruling out serious defects solely because the full-image first pass gave low probabilities. Closer pictures may be needed; the app must be able to say 'insufficient evidence'.
@@ -359,7 +358,7 @@ Definitions must explicitly distinguish **local dents in corrugated panels**, **
 - Visible special markings and DG placard status, with cargo-status caveat.
 - Visible damage overview: count of *suspected findings or affected regions*, main categories and whether the evidence is convincing, inconclusive or insufficient.
 - Coverage limitations and any fields that could not be established.
-- Number of API passes, total input tokens, estimated usage cost for **this container**, and elapsed time.
+- Estimated usage cost for **this container** and elapsed time. Request counts and tokens belong in the expandable cost detail (§8.5), not the summary.
 - The current **session-wide** estimated API cost, request count and inspected-container count, visible in a compact unobtrusive summary throughout the demo.
 - A short, plain-English *What we found* summary that never overstates uncertainty or declares an unphotographed area clear.
 
@@ -372,7 +371,7 @@ Definitions must explicitly distinguish **local dents in corrugated panels**, **
 - Make uncertain results and failed checks prominent **without turning every low probability into an alarming error**.
 - Provide a clean view of the **selected provider's raw answers** and all available alternatives for technical attendees; retain provider-specific diagnostics rather than dropping them during normalisation.
 - Differentiate model probability, consistency validation, inferred/derived fields and actual benchmark accuracy metrics; label confidence-like fields according to their provider-specific meaning.
-- Show first-pass/refined evidence where a second attempt occurred, including the candidate choices considered.
+- Do **not** show first-pass/second-pass results, refinement steps, candidate lists or question-level mechanics in the user interface. Show the final reading, its certainty label and, where useful, one or two plausible alternatives in plain words (e.g. *Also possible: …, the fifth digit could be a 7*). Pass-level evidence stays in the exports.
 - Keep the result view **read-only**: provide suggested alternatives and evidential caveats rather than controls requiring users to validate or correct fields.
 - Expose *why* a consistency warning exists: invalid check digit, gross/tare/payload mismatch, contradictory classifications, missing face/orientation, etc.
 
@@ -391,14 +390,24 @@ The consolidated record must retain distinctions between printed/visually classi
 
 **MUST**
 
-- Give each significant reading a **clear certainty category** with consistent, colour-coded visual treatment and plain-language label. A possible scheme is **high support**, **moderate support**, **uncertain/conflicted** and **not established/not visible**; the final palette is a design decision, not specified here.
+- Give each significant reading a **clear certainty category** with consistent, colour-coded visual treatment and an everyday label. Use exactly these labels, which a non-specialist reads the same way:
+
+  | Label | Meaning shown to the user |
+  | --- | --- |
+  | **Confident** | Clearly visible, and everything checks out. |
+  | **Likely** | Probably right, but not certain. |
+  | **Uncertain** | Could be one of a few things; alternatives are shown. |
+  | **Can't tell** | In the photo, but not clear enough to say. |
+  | **Not seen** | Not in any photo, so nothing can be said about it. Never 'clear'. |
+
+  Avoid evidence jargon such as *supported* or *not established* in the interface.
 - Use colour **plus** labels/icons/patterns so projected displays, colour-vision differences and accessibility settings don't make statuses ambiguous.
 - Base certainty categories on appropriate evidence: available choice/predicate distributions, margin between alternatives, consistency between related questions, deterministic standards checks, visibility/coverage and agreement or disagreement between passes. Missing probability/confidence must not be silently converted to 0 or 100%.
 - Treat these as **POC evidence/support levels**, not empirically calibrated probabilities of correctness. Present raw model probabilities separately in detail when useful.
 - Never use the same visual scale for **certainty** and **damage severity**. A high-confidence minor dent is different from a low-confidence potentially serious crack; both axes must remain understandable.
 - Avoid classifying an absence of evidence (e.g. rear doors not visible) as a high-confidence negative finding.
 - Give unresolved items a concise *Best interpretation* and *What remains uncertain* explanation. Suggestions such as *a closer photo could help* are informational, not a request to finish the task.
-- Sort the result so the most useful supported findings appear first, then important caveats, with lower-priority model detail available on expansion.
+- Sort the result so the most useful confident findings appear first, then important caveats, with lower-priority model detail available on expansion.
 
 ### 8.5 Per-container and session cost visibility
 
@@ -406,7 +415,7 @@ The consolidated record must retain distinctions between printed/visually classi
 
 - Show an **always-available, small and unobtrusive cost indicator** in the inspection experience. It displays both **this container's estimated API cost** and **the current session's cumulative estimated API cost** without taking attention away from the image and findings.
 - Make the cost indicator clickable/tappable to **expand** into a more detailed usage panel. It must be easy to collapse again; the location/interaction treatment can be decided during design.
-- The expanded view itemises each API call, e.g. initial markings, initial damage analysis, ID refinement, focused damage recheck. Show purpose, **provider, exact model/version**, request status, timestamp/sequence, usage units/tokens when available, estimated USD cost and latency.
+- The expanded view itemises each API call with a plain-language purpose, e.g. reading markings, looking for damage, closer look at the ID, closer look at a dented area (no pass numbering). Show purpose, **provider, exact model/version**, request status, timestamp/sequence, usage units/tokens when available, estimated USD cost and latency.
 - Show totals for the current container, all containers inspected during the current page session, request counts, total tokens and overall elapsed API time. Do not count the same request twice because it contributes to both a container and the session ledger.
 - Clearly distinguish **estimated API usage cost** from an actual provider invoice, and **live calls** from recorded sample results. Sample mode must show *no live API charge* even when recorded usage metadata is demonstrated.
 - Display tiny sub-cent costs with enough precision to be meaningful (e.g. `$0.0016`, not `$0.00`); handle zero, unknown and incomplete usage separately.
@@ -440,7 +449,7 @@ The consolidated record must retain distinctions between printed/visually classi
 
 - Be ready for a **short live innovation-event presentation**, with a simple obvious main action and no setup maze.
 - Show real analysis progress honestly; do not display fake percentages implying API-level progress that is unavailable.
-- Make any second-pass refinement visibly purposeful: 'checking uncertain digits', 'verifying the tare marking', 'rechecking a dented region'. The app continues automatically and shows outcomes without asking the presenter to decide.
+- Run any automatic refinement silently within the normal progress. Progress uses a few plain stages (e.g. *Reading markings*, *Looking for damage*, *Checking the details*) and never mentions passes, refinement, candidates or retries. The app continues automatically and shows only outcomes, without asking the presenter to decide.
 - Offer **clearly labelled recorded sample results** so the presenter can still demonstrate a complete inspection if connectivity, credentials or the beta API fail.
 - Never masquerade recorded/simulated output as a live response from any provider.
 - Make it easy to reset and switch between a clean container, a damaged container and a markings-rich container. Clearly show which provider/model produced the example.
@@ -448,7 +457,6 @@ The consolidated record must retain distinctions between printed/visually classi
 
 ### Demo experience: SHOULD
 
-- Include a graceful before/after refinement view for the container ID, highlighting improvement and continuing ambiguity without implying that the second pass must be correct.
 - Add optional photo-relative highlighting in addition to the required neutral schematic with selectable location markers.
 - Provide subtle, high-quality motion for location marker discovery and for the cost panel expanding from its compact indicator.
 - Avoid modal-heavy UX and excessive technical jargon in the primary experience.
@@ -460,7 +468,7 @@ The consolidated record must retain distinctions between printed/visually classi
 - Do not equate a reported 1.0 probability with guaranteed correctness.
 - Never combine unrelated predicates into a fake single 'inspection accuracy' percentage.
 - Distinguish **a model's top-choice probability** from provider-specific `confidence`, score or other metrics; do not assume every provider supplies the same fields or that any of them are empirically measured reliability.
-- Treat certainty thresholds as adjustable POC heuristics and present **Supported**, **Likely**, **Uncertain**, **Not established** or **Not inspected**, not `user review required`, `confirmed`, `certified` or `safe`.
+- Treat certainty thresholds as adjustable POC heuristics and present **Confident**, **Likely**, **Uncertain**, **Can't tell** or **Not seen** (§8.4), not `supported`, `not established`, `user review required`, `confirmed`, `certified` or `safe`.
 - Preserve alternative answers and conflicts, particularly when separate questions disagree or differ after refinement.
 - Perform independent deterministic checks for ISO code-to-dimensions mappings, ISO 6346 check digits and gross/tare/payload arithmetic.
 - **Do not** provide user overrides, manual corrections or confirmations in the POC; preserve competing interpretations transparently.
@@ -586,18 +594,18 @@ This is a *demonstration and learning POC*. The goal is to demonstrate the poten
 | --- | --- |
 | Clear rear-door image, no manifest | Complete or strongly supported ID; ISO code, dimensions and markings shown without requiring a supplied list. |
 | Rear-door image with uncertain digits | Independent group/digit evidence; bounded candidate generation; check-digit validation; focused second request when appropriate. |
-| ID still uncertain after refinement | App finishes automatically, displays supported partial characters and a shortlist of plausible alternatives as suggestions, explicitly labels the full ID unresolved and optionally suggests a closer photograph. No manual input. |
+| ID still uncertain after refinement | App finishes automatically, displays confidently read partial characters and a shortlist of plausible alternatives as suggestions, explicitly labels the full ID unresolved and optionally suggests a closer photograph. No manual input. |
 | Correct ID absent from an optional manifest | May select `other_not_listed`; never silently substitute a near-match. |
 | Obvious dented side | Neutral container schematic displays approximate affected region markers and plausible `DT`/related damage classes; marker selection explains the finding without recreating the dent. |
 | Apparently clean side | Low damage indicators, clear visibility/coverage state, no fabricated confirmed damage. |
 | Rear-door-only photo | Door markings and door-region damage can be assessed; long-side and roof surfaces remain uninspected. |
-| Partially obscured/distant image | Explicit 'uncertain' or 'not inspected' findings; request closer evidence where valuable. |
+| Partially obscured/distant image | Explicit 'uncertain' or 'not seen' findings; request closer evidence where valuable. |
 | Printed weights disagree between questions | Arithmetic validation highlights conflict and labels calculated values separately. |
 | High Cube / Super Heavy markings | Distinguishes height, width and weight signage; does not infer dangerous cargo from Super Heavy. |
 | Live API unavailable | Usable, clearly recorded sample demonstration and actionable error state; sample costs are not added to live session charges. |
 | Model confident about wrong character or weight | App surfaces incompatible evidence or validation failures instead of silently certifying the value. |
 | Unseen side or roof | Schematic marks it uninspected, not undamaged. |
-| Second pass runs | Cost indicator and expanded ledger include that additional call; uncertainty remains visible if unresolved. |
+| Automatic re-check runs | Cost indicator and expanded ledger include that additional call; the UI shows only the outcome and its certainty, with no pass wording. |
 | Multiple containers inspected | Session cost accumulates across the full current browsing session; per-container costs remain individually inspectable. |
 | Jev live inspection | Experimental image opt-in applied, Jev schema correctly interpreted, equipment/damage results rendered using the same inspection screens as Luna. |
 | Jev experimental `box` unavailable or wrong | Preserve region-based damage assessment; don't invent or display a verified damage location merely because a box was returned. |
@@ -614,7 +622,7 @@ This is a *demonstration and learning POC*. The goal is to demonstrate the poten
 - [ ] Model catalogue flags prevent unsupported model/capability choices and allow additional provider integrations without changes to the main results presentation.
 - [ ] The demo works with **no manifest** and supports an optional genuine manifest without requiring one, with both initial providers.
 - [ ] First-pass identification preserves character, grouped and check-digit evidence.
-- [ ] A deliberately ambiguous ID triggers an understandable candidate/refinement flow, subject to the request limit.
+- [ ] A deliberately ambiguous ID triggers an automatic, silent re-check (subject to the request limit); the result shows the final reading, its certainty label and plausible alternatives, with no pass or candidate wording.
 - [ ] Generated IDs are ISO-format/check-digit validated; unresolved results remain unresolved, with optional nonblocking suggestions and **no manual resolution controls**.
 - [ ] ISO code and dimensions are decoded consistently, and printed vs derived weights are separated.
 - [ ] At least one obvious damaged and one apparently clean container produce readable damage assessments, a neutral schematic with meaningful location markers, and appropriate uncertainty/coverage states.
@@ -652,7 +660,7 @@ Include examples that are **not** tailored to the prompt's choices. Prompt chang
 
 **MUST**
 
-- Provide at least three pre-validated, visually distinct demo scenarios **for the initial providers**: legible rear doors with markings, obvious side damage, and an apparently clean/low-defect view. Ideally also include a deliberately ambiguous container number to demonstrate automatic refinement.
+- Provide at least three pre-validated, visually distinct demo scenarios **for the initial providers**: legible rear doors with markings, obvious side damage, and an apparently clean/low-defect view. Ideally also include a deliberately ambiguous container number to demonstrate how uncertainty and alternatives are shown.
 - Keep sample observations and responses labelled **Recorded demonstration: [provider/model]** and never merge their token/cost records into the live usage ledger.
 - Let the presenter run consecutive inspections with the same provider without re-entering its key during the current page session; keep each provider's credential transient and provide clear/reset actions.
 - Show high-value findings progressively when calls complete, without claiming that queued steps have already finished; partial failures should leave the successful findings visible.
@@ -689,6 +697,6 @@ Relevant public references:
 
 ## 15. Definition of success
 
-The POC is successful when an audience can **select a provider/model** and see it recognise a container and its markings, **explore** suspected damage on a neutral container/location visual, **see** the app intelligently challenge or refine uncertain decisions using domain rules, and **see** provider-aware estimated cost per container and session, while understanding what is and is not proven. The user is not required to interpret, correct or confirm any model output.
+The POC is successful when an audience can **select a provider/model** and see it recognise a container and its markings, **explore** suspected damage on a neutral container/location visual, **see** the app reach sensible, clearly labelled conclusions (re-checking doubtful readings behind the scenes using domain rules), and **see** provider-aware estimated cost per container and session, while understanding what is and is not proven. The user is not required to interpret, correct or confirm any model output.
 
 It should feel impressive, fast, polished and technically credible, while treating Luna and Jev as the first two replaceable integrations rather than permanent UI assumptions. An unresolved result that is explained well is more valuable than a confidently wrong one. **Intelligent restraint and transparent uncertainty are part of the demonstration, not failures to hide.**
