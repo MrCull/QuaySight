@@ -53,6 +53,8 @@ describe('CostIndicator', () => {
       status: 'complete',
       photo: null,
       containerId: null,
+      sizeCode: null,
+      weights: null,
     }
     await ledger.run(liveRequest())
 
@@ -76,6 +78,8 @@ describe('CostIndicator', () => {
       status: 'complete',
       photo: null,
       containerId: null,
+      sizeCode: null,
+      weights: null,
     }
     await ledger.run(liveRequest())
 
@@ -108,6 +112,8 @@ describe('CostIndicator', () => {
       status: 'complete',
       photo: null,
       containerId: null,
+      sizeCode: null,
+      weights: null,
     }
     await ledger.run(
       liveRequest({
