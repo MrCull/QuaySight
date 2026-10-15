@@ -15,6 +15,8 @@ function recordFor(provider: 'luna' | 'jev'): InspectionRecord {
     id: `r-${provider}`,
     provider,
     model: provider === 'luna' ? 'gpt-6-luna' : 'jev-1.14.0',
+    resolvedVersion: provider === 'luna' ? 'gpt-6-luna' : 'jev-1.14.0',
+    rawResponses: [],
     source: 'recorded',
     status: 'complete',
     photo: null,
@@ -26,9 +28,9 @@ function recordFor(provider: 'luna' | 'jev'): InspectionRecord {
       certainty: 'Confident',
       provenance: 'printed',
     },
-      damage: null,
-      sizeCode: null,
-      weights: null,
+    damage: null,
+    sizeCode: null,
+    weights: null,
   }
 }
 

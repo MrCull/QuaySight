@@ -33,11 +33,22 @@ export async function runRecordedInspection(
     fixture.observedCheckDigit === null ? printed : `${printed}${fixture.observedCheckDigit}`
 
   counter += 1
+  const id = options.id ?? `recorded-${providerId}-${counter}`
   return {
     schemaVersion: INSPECTION_SCHEMA_VERSION,
-    id: options.id ?? `recorded-${providerId}-${counter}`,
+    id,
     provider: providerId,
     model: fixture.model,
+    resolvedVersion: fixture.model,
+    rawResponses: [
+      {
+        passId: id,
+        provider: providerId,
+        model: fixture.model,
+        capturedFrom: 'recorded-fixture',
+        body: structuredClone(fixture),
+      },
+    ],
     source: 'recorded',
     status: 'complete',
     photo: null,

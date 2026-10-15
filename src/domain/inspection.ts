@@ -49,11 +49,28 @@ export interface PhotoRef {
   orientation: 'landscape' | 'portrait' | 'square' | 'unknown'
 }
 
+/**
+ * One provider response as received for a single pass of the inspection. 'recorded-fixture' means the
+ * body is the saved sample the app replayed, not an HTTP capture. 'provider' is for live adapters.
+ * A body must never contain request headers or keys: adapters pass only the response payload.
+ */
+export interface RawProviderResponse {
+  passId: string
+  provider: ProviderId
+  model: string
+  capturedFrom: 'recorded-fixture' | 'provider'
+  body: unknown
+}
+
 export interface InspectionRecord {
   schemaVersion: typeof INSPECTION_SCHEMA_VERSION
   id: string
   provider: ProviderId
   model: string
+  /** Version the provider reports for the model that answered (recorded: the fixture's model). */
+  resolvedVersion: string
+  /** Raw provider responses, one per pass. Exported separately; never shown in the UI. */
+  rawResponses: RawProviderResponse[]
   /** 'recorded' runs replay saved results: no network, no key, no live charge. */
   source: 'recorded' | 'live'
   status: 'running' | 'complete' | 'failed'

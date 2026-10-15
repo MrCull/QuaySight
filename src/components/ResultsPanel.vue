@@ -7,6 +7,7 @@ import CertaintyChip from './CertaintyChip.vue'
 import ContainerId from './ContainerId.vue'
 import ManifestRetry from './ManifestRetry.vue'
 import ContainerDetails from './ContainerDetails.vue'
+import ExportActions from './ExportActions.vue'
 
 const store = useInspectionStore()
 const record = computed(() => store.record)
@@ -126,5 +127,7 @@ const showInsufficient = computed(() => idState.value === 'insufficient')
     <ManifestRetry v-if="record?.source === 'recorded'" />
 
     <ContainerDetails v-if="record" :record="record" />
+
+    <ExportActions />
   </section>
 </template>
