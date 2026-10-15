@@ -93,7 +93,7 @@ Priority labels: **MUST** = core innovation-event POC; **SHOULD** = strongly des
 - No requirement to support arbitrary models that cannot accept photographs or produce interpretable structured classifications. Such models must be labelled unsupported, not forced through an incompatible interface.
 - No mandatory live two-model comparison as a prerequisite to presenting one inspection.
 - No full design system, screen mock-ups or fixed brand direction in this document.
-- Asking an attendee or presenter to decipher characters, select a candidate, enter a missing number or manually confirm the model's results.
+- Asking an attendee or presenter to decipher characters, select a candidate, enter a missing number or manually confirm the model's results. (The optional manifest retry in §3.2 is the only exception, and it never blocks a result.)
 - Generating an apparently photorealistic reconstruction of damage or claiming pixel-precise localisation from region decisions or experimental box estimates.
 
 ## 3. Core inspection journey
@@ -133,6 +133,14 @@ Priority labels: **MUST** = core innovation-event POC; **SHOULD** = strongly des
 - Explain that the list is used to narrow candidates and that 'none of these' is always a possible outcome.
 - Preserve the distinction between 'visually read from image' and 'matched against supplied candidates'.
 - Handle list sizes above the practical per-question choice limit by narrowing or chunking candidates without pretending all were considered in a single question.
+
+**Manifest retry (when the container ID is not identified)**
+
+- If the first attempt cannot identify the container ID, offer the presenter an optional paste box for a manifest list. This is never required, and the first result stays viewable while the offer is open.
+- Accept CSV, tab-separated and space-separated IDs, as well as one ID per line. Pasted entries are not validated against ISO 6346 or check digits; they are used as supplied.
+- Limit one paste to about 500 containers for this POC.
+- Run the retry on the same provider and model as the first attempt, as a separate chargeable run (§8.5).
+- When the retry finishes, the first attempt's container-ID result is replaced by the new attempt's result. Other findings from the first attempt (damage, properties, markings) are kept, since they don't depend on the manifest.
 
 ## 4. First-pass equipment identification
 
@@ -260,7 +268,7 @@ Thresholds must be explicit, adjustable during evaluation and treated as POC heu
 
 **MUST**
 
-- **Never interrupt the POC inspection to demand a human decision.** No manual number entry, candidate picker, correction form, approve/reject control or confirmation gate.
+- **Never interrupt the POC inspection to demand a human decision.** No manual number entry (except the optional manifest retry in §3.2, which never blocks the result), candidate picker, correction form, approve/reject control or confirmation gate.
 - Present the strongest supported complete ID if sufficiently corroborated; otherwise show a *likely* ID or *unable to establish* with the most plausible alternatives and their uncertainty.
 - If only a prefix or a subset of digits is supportable, display the known partial pattern and clearly mark missing/uncertain positions rather than filling them in as fact.
 - Use the certainty labels defined in §8.4: **Confident**, **Likely**, **Uncertain**, **Can't tell** and **Not seen**. A successful mathematical check alone must not upgrade a visually weak reading to Confident.
@@ -421,6 +429,7 @@ The consolidated record must retain distinctions between printed/visually classi
 - Clearly distinguish **estimated API usage cost** from an actual provider invoice, and **live calls** from recorded sample results. Sample mode must show *no live API charge* even when recorded usage metadata is demonstrated.
 - Display tiny sub-cent costs with enough precision to be meaningful (e.g. `$0.0016`, not `$0.00`); handle zero, unknown and incomplete usage separately.
 - Include automatic refinements and any chargeable retries in totals. Where usage is missing or a provider's billing basis is unknown, mark the estimate as incomplete rather than silently assuming the request was free.
+- A manifest retry (§3.2) is a live call on the same provider and model. It counts toward the per-inspection request/spend cap and appears as its own line in the ledger.
 - Source usage from **each provider's actual response fields** and use configurable, timestamped, provider/model/endpoint-specific price schedules. Support distinct input/output/image/request billing where applicable; never apply Luna token pricing to Jev.
 - Show usage in-session only by default; no billing account integration or persistent server-side tracking is required. Totals across providers are estimates in a common display currency, not a consolidated invoice.
 
