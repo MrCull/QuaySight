@@ -76,6 +76,6 @@ Not checked in this pass: rate-limit figures, SDK package names and versions, Op
 
 ## Key type check
 
-- The supplied key has the `sk-or-v1-` prefix, which is the OpenRouter key format.
-- The live TypeSafe docs say the direct API uses a TypeSafe API key from the TypeSafe console, sent as a Bearer token to `api.typesafe.ai`. They do not say OpenRouter keys are accepted, and they do not show an `sk-or-v1-` example.
+- The supplied key has the `sk-or-` (OpenRouter) prefix, which is the OpenRouter key format.
+- The live TypeSafe docs say the direct API uses a TypeSafe API key from the TypeSafe console, sent as a Bearer token to `api.typesafe.ai`. They do not say OpenRouter keys are accepted, and they do not show an `sk-or-` (OpenRouter) example.
 - Result: the supplied key does not match the direct TypeSafe endpoint's documented key source, so it should not be used against `api.typesafe.ai`. If it is, expect a 401. No request was made with the key in this ticket. The lead runs the smoke test with `JEV_API_KEY` set to a TypeSafe console key.

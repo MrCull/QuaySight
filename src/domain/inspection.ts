@@ -62,6 +62,29 @@ export interface RawProviderResponse {
   body: unknown
 }
 
+/**
+ * One automatic re-check (spec 5.1, 8.5). Its observations and outcome are kept for export only. The UI
+ * shows the resulting reading and its certainty, never the re-check itself.
+ */
+export interface RecheckRecord {
+  id: string
+  /** The unresolved field re-checked. One re-check per field per photo. */
+  field: 'containerId'
+  /** 1-based positions re-asked: the positions the first pass left unread. */
+  positions: number[]
+  provider: ProviderId
+  model: string
+  /** Version the provider reports for the model that answered, or null when no reply was received. */
+  resolvedVersion: string | null
+  /** resolved: all asked positions read. partly-resolved / unchanged: some or none read. failed: no reply. skipped-cap: the cap stopped it. */
+  outcome: 'resolved' | 'partly-resolved' | 'unchanged' | 'failed' | 'skipped-cap'
+  resolvedPositions: number[]
+  /** What the re-check read at each asked position. Empty when it did not run. */
+  observations: { position: number; value: string | null; certainty: CertaintyLabel }[]
+  /** Set when the cap stopped the re-check. */
+  reason: 'requests' | 'spend' | null
+}
+
 export interface InspectionRecord {
   schemaVersion: typeof INSPECTION_SCHEMA_VERSION
   id: string
@@ -80,6 +103,8 @@ export interface InspectionRecord {
   damage: DamageAssessment | null
   /** Decoded ISO size/type code (provenance: decoded), or null when not visible or not recognised. */
   sizeCode: DecodedSizeCode | null
+  /** Automatic re-checks for unresolved fields (live only). Absent or empty when none ran. */
+  rechecks?: RecheckRecord[]
   /** Printed maximum gross and tare, calculated payload, and any printed-versus-arithmetic conflict. */
   weights: WeightChecks | null
 }

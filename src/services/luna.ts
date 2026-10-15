@@ -13,6 +13,8 @@ export interface CallLunaOptions {
   apiKey: string
   /** The photo as chosen. Its MIME type must be one the endpoint accepts; it is sent as declared. */
   photo: Blob
+  /** 1-based positions to ask. Omitted for the first pass (all eleven); the re-check passes only its unread positions. */
+  positions?: number[]
   /** Test seam. Defaults to the global fetch. */
   fetchImpl?: typeof fetch
 }
@@ -29,7 +31,12 @@ function blobToDataUrl(blob: Blob): Promise<string> {
     reader.onload = () => {
       const result = typeof reader.result === 'string' ? reader.result : ''
       if (!result.startsWith('data:image/')) {
-        reject(new LunaError('bad-response', 'Choose a JPEG, PNG or WebP photo to run a live inspection.'))
+        reject(
+          new LunaError(
+            'bad-response',
+            'Choose a JPEG, PNG or WebP photo to run a live inspection.',
+          ),
+        )
         return
       }
       resolve(result)
@@ -46,7 +53,7 @@ function blobToDataUrl(blob: Blob): Promise<string> {
 export async function callLuna(options: CallLunaOptions): Promise<LunaCallResult> {
   const fetchImpl = options.fetchImpl ?? fetch
   const imageDataUrl = await blobToDataUrl(options.photo)
-  const body = JSON.stringify(buildLunaRequest(imageDataUrl))
+  const body = JSON.stringify(buildLunaRequest(imageDataUrl, options.positions))
 
   const started = Date.now()
   let response: Response
@@ -60,10 +67,7 @@ export async function callLuna(options: CallLunaOptions): Promise<LunaCallResult
       body,
     })
   } catch {
-    throw new LunaError(
-      'network',
-      'Could not reach OpenAI. Check your connection, then try again.',
-    )
+    throw new LunaError('network', 'Could not reach OpenAI. Check your connection, then try again.')
   }
   const latencyMs = Date.now() - started
 
@@ -76,5 +80,5 @@ export async function callLuna(options: CallLunaOptions): Promise<LunaCallResult
 
   if (!response.ok) throw lunaFailure(response.status, parsed, options.apiKey)
 
-  return { ...mapLunaResponse(parsed, LUNA_MODEL), latencyMs, raw: parsed }
+  return { ...mapLunaResponse(parsed, LUNA_MODEL, options.positions), latencyMs, raw: parsed }
 }

@@ -2,14 +2,28 @@ import { defineStore } from 'pinia'
 import { defaultModelFor } from '../domain/providers'
 import { runRecordedInspection, type SampleScenario } from '../domain/recordedRun'
 import { runRecordedManifestRetry } from '../domain/manifest'
-import { LUNA_MODEL, LunaError } from '../domain/luna'
-import { callLuna } from '../services/luna'
+import { assembleLunaReading, LUNA_MODEL, LunaError } from '../domain/luna'
+import { callLuna, type LunaCallResult } from '../services/luna'
 import { callJev } from '../services/jev'
 import { JEV_ENDPOINT_ID, JevError } from '../domain/jev'
+import {
+  mergeRecheck,
+  observationsOf,
+  RECHECK_PURPOSE,
+  recheckOutcome,
+  recheckRecord,
+  unresolvedPositions,
+} from '../domain/recheck'
 import type { ContainerIdReading } from '../domain/inspection'
 import type { Usage } from '../domain/ledger'
 import { useLedgerStore } from './ledger'
-import { INSPECTION_SCHEMA_VERSION, type InspectionRecord, type ProviderId } from '../domain/inspection'
+import {
+  INSPECTION_SCHEMA_VERSION,
+  type InspectionRecord,
+  type ProviderId,
+  type RawProviderResponse,
+  type RecheckRecord,
+} from '../domain/inspection'
 
 export interface SelectedPhoto {
   name: string
@@ -151,7 +165,8 @@ export const useInspectionStore = defineStore('inspection', {
     },
     /**
      * One live call for the chosen photo, through the cost ledger and its per-inspection cap (spec 8.5, 11.5).
-     * Luna and Jev share this path; each provider\'s key goes only to its own call.
+     * Luna and Jev share this path; each provider's key goes only to its own call. Only Luna runs the
+     * position re-check (ticket #14); Jev makes one call.
      * A failure keeps the photo and the ledger line; a partial reading from a successful call is kept.
      */
     startLive(): Promise<void> {
@@ -180,6 +195,7 @@ export const useInspectionStore = defineStore('inspection', {
       const ledger = useLedgerStore()
       const run: Promise<void> = (async () => {
         let reading = null as LiveReading | null
+        let lunaFirst = null as LunaCallResult | null
         const result = await ledger.run({
           id: `${inspectionId}-read`,
           inspectionId,
@@ -188,43 +204,134 @@ export const useInspectionStore = defineStore('inspection', {
           endpoint,
           model: requestedModel,
           call: async () => {
-            reading =
-              provider === 'luna'
-                ? { ...(await callLuna({ apiKey, photo: file })), reportedCostUsd: null }
-                : await callJev({ apiKey, photo: file, model: requestedModel })
+            if (provider === 'luna') {
+              const call = await callLuna({ apiKey, photo: file })
+              lunaFirst = call
+              reading = { ...call, reportedCostUsd: null }
+            } else {
+              reading = await callJev({ apiKey, photo: file, model: requestedModel })
+            }
+            const done = reading as LiveReading
             return {
-              resolvedModel: reading.resolvedModel,
-              usage: reading.usage,
-              latencyMs: reading.latencyMs,
-              reportedCostUsd: reading.reportedCostUsd,
+              resolvedModel: done.resolvedModel,
+              usage: done.usage,
+              latencyMs: done.latencyMs,
+              reportedCostUsd: done.reportedCostUsd,
             }
           },
         })
         if (token !== this.runToken) return
 
         if (result.status === 'ran' && reading) {
+          const first = reading as LiveReading
+          let containerId = first.containerId
+          const resolvedVersion = first.resolvedModel
+          const rawResponses: RawProviderResponse[] = [
+            {
+              passId: inspectionId,
+              provider,
+              model: requestedModel,
+              capturedFrom: 'provider',
+              body: first.raw,
+            },
+          ]
+          let rechecks: RecheckRecord[] = []
+
+          if (provider === 'luna' && lunaFirst) {
+            const lunaFirstCall = lunaFirst as LunaCallResult
+            const asked = unresolvedPositions(lunaFirstCall.readings)
+            if (asked.length > 0) {
+              // One re-check for the unread positions, on the same provider and model, through the same cap (spec 5.1, 8.5).
+              const recheckId = `${inspectionId}-recheck`
+              let again = null as LunaCallResult | null
+              const checked = await ledger.run({
+                id: recheckId,
+                inspectionId,
+                purpose: RECHECK_PURPOSE,
+                provider: 'luna',
+                endpoint: 'decisions',
+                model: LUNA_MODEL,
+                call: async () => {
+                  again = await callLuna({ apiKey, photo: file, positions: asked })
+                  return {
+                    resolvedModel: again.resolvedModel,
+                    usage: again.usage,
+                    latencyMs: again.latencyMs,
+                  }
+                },
+              })
+              if (token !== this.runToken) return
+
+              if (checked.status === 'ran' && again) {
+                const second: LunaCallResult = again
+                const merged = mergeRecheck(lunaFirstCall.readings, second.readings, asked)
+                containerId = assembleLunaReading(merged.readings)
+                rawResponses.push({
+                  passId: recheckId,
+                  provider: 'luna',
+                  model: LUNA_MODEL,
+                  capturedFrom: 'provider',
+                  body: second.raw,
+                })
+                rechecks = [
+                  recheckRecord({
+                    id: recheckId,
+                    provider: 'luna',
+                    model: LUNA_MODEL,
+                    asked,
+                    resolvedVersion: second.resolvedModel,
+                    outcome: recheckOutcome(asked, merged.resolved),
+                    resolved: merged.resolved,
+                    observations: observationsOf(second.readings, asked),
+                  }),
+                ]
+              } else if (checked.status === 'blocked') {
+                rechecks = [
+                  recheckRecord({
+                    id: recheckId,
+                    provider: 'luna',
+                    model: LUNA_MODEL,
+                    asked,
+                    resolvedVersion: null,
+                    outcome: 'skipped-cap',
+                    resolved: [],
+                    observations: [],
+                    reason: checked.reason,
+                  }),
+                ]
+              } else {
+                // A failed re-check keeps the first result, which is already usable.
+                rechecks = [
+                  recheckRecord({
+                    id: recheckId,
+                    provider: 'luna',
+                    model: LUNA_MODEL,
+                    asked,
+                    resolvedVersion: null,
+                    outcome: 'failed',
+                    resolved: [],
+                    observations: [],
+                  }),
+                ]
+              }
+            }
+          }
+
           const live: InspectionRecord = {
             schemaVersion: INSPECTION_SCHEMA_VERSION,
             id: inspectionId,
             provider,
             model: requestedModel,
-            resolvedVersion: reading.resolvedModel,
-            rawResponses: [
-              {
-                passId: inspectionId,
-                provider,
-                model: requestedModel,
-                capturedFrom: 'provider',
-                body: reading.raw,
-              },
-            ],
+            resolvedVersion,
+            rawResponses,
             source: 'live',
             status: 'complete',
             photo: { name: photo.name, orientation: photo.orientation },
-            containerId: reading.containerId,
+            containerId,
             damage: null,
             sizeCode: null,
             weights: null,
+            rechecks,
           }
           this.record = live
           this.status = 'complete'
