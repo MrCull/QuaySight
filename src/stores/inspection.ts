@@ -2,10 +2,24 @@ import { defineStore } from 'pinia'
 import { defaultModelFor } from '../domain/providers'
 import { runRecordedInspection, type SampleScenario } from '../domain/recordedRun'
 import { runRecordedManifestRetry } from '../domain/manifest'
-import { LUNA_MODEL, LunaError } from '../domain/luna'
-import { callLuna } from '../services/luna'
+import { assembleLunaReading, LUNA_MODEL, LunaError } from '../domain/luna'
+import { callLuna, type LunaCallResult } from '../services/luna'
+import {
+  mergeRecheck,
+  observationsOf,
+  RECHECK_PURPOSE,
+  recheckOutcome,
+  recheckRecord,
+  unresolvedPositions,
+} from '../domain/recheck'
 import { useLedgerStore } from './ledger'
-import { INSPECTION_SCHEMA_VERSION, type InspectionRecord, type ProviderId } from '../domain/inspection'
+import {
+  INSPECTION_SCHEMA_VERSION,
+  type InspectionRecord,
+  type ProviderId,
+  type RawProviderResponse,
+  type RecheckRecord,
+} from '../domain/inspection'
 
 export interface SelectedPhoto {
   name: string
@@ -176,28 +190,111 @@ export const useInspectionStore = defineStore('inspection', {
         if (token !== this.runToken) return
 
         if (result.status === 'ran' && reading) {
+          const first: LunaCallResult = reading
+          const asked = unresolvedPositions(first.readings)
+          let containerId = first.containerId
+          const rawResponses: RawProviderResponse[] = [
+            {
+              passId: inspectionId,
+              provider: 'luna',
+              model: LUNA_MODEL,
+              capturedFrom: 'provider',
+              body: first.raw,
+            },
+          ]
+          let rechecks: RecheckRecord[] = []
+
+          if (asked.length > 0) {
+            // One re-check for the unread positions, on the same provider and model, through the same cap (spec 5.1, 8.5).
+            const recheckId = `${inspectionId}-recheck`
+            let again = null as LunaCallResult | null
+            const checked = await ledger.run({
+              id: recheckId,
+              inspectionId,
+              purpose: RECHECK_PURPOSE,
+              provider: 'luna',
+              endpoint: 'decisions',
+              model: LUNA_MODEL,
+              call: async () => {
+                again = await callLuna({ apiKey, photo: file, positions: asked })
+                return {
+                  resolvedModel: again.resolvedModel,
+                  usage: again.usage,
+                  latencyMs: again.latencyMs,
+                }
+              },
+            })
+            if (token !== this.runToken) return
+
+            if (checked.status === 'ran' && again) {
+              const second: LunaCallResult = again
+              const merged = mergeRecheck(first.readings, second.readings, asked)
+              containerId = assembleLunaReading(merged.readings)
+              rawResponses.push({
+                passId: recheckId,
+                provider: 'luna',
+                model: LUNA_MODEL,
+                capturedFrom: 'provider',
+                body: second.raw,
+              })
+              rechecks = [
+                recheckRecord({
+                  id: recheckId,
+                  provider: 'luna',
+                  model: LUNA_MODEL,
+                  asked,
+                  resolvedVersion: second.resolvedModel,
+                  outcome: recheckOutcome(asked, merged.resolved),
+                  resolved: merged.resolved,
+                  observations: observationsOf(second.readings, asked),
+                }),
+              ]
+            } else if (checked.status === 'blocked') {
+              rechecks = [
+                recheckRecord({
+                  id: recheckId,
+                  provider: 'luna',
+                  model: LUNA_MODEL,
+                  asked,
+                  resolvedVersion: null,
+                  outcome: 'skipped-cap',
+                  resolved: [],
+                  observations: [],
+                  reason: checked.reason,
+                }),
+              ]
+            } else {
+              // A failed re-check keeps the first result, which is already usable.
+              rechecks = [
+                recheckRecord({
+                  id: recheckId,
+                  provider: 'luna',
+                  model: LUNA_MODEL,
+                  asked,
+                  resolvedVersion: null,
+                  outcome: 'failed',
+                  resolved: [],
+                  observations: [],
+                }),
+              ]
+            }
+          }
+
           const live: InspectionRecord = {
             schemaVersion: INSPECTION_SCHEMA_VERSION,
             id: inspectionId,
             provider: 'luna',
             model: LUNA_MODEL,
-            resolvedVersion: reading.resolvedModel,
-            rawResponses: [
-              {
-                passId: inspectionId,
-                provider: 'luna',
-                model: LUNA_MODEL,
-                capturedFrom: 'provider',
-                body: reading.raw,
-              },
-            ],
+            resolvedVersion: first.resolvedModel,
+            rawResponses,
             source: 'live',
             status: 'complete',
             photo: { name: photo.name, orientation: photo.orientation },
-            containerId: reading.containerId,
+            containerId,
             damage: null,
             sizeCode: null,
             weights: null,
+            rechecks,
           }
           this.record = live
           this.status = 'complete'

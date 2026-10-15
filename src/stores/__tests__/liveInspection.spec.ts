@@ -10,6 +10,7 @@ import { useInspectionStore } from '../inspection'
 import { useLedgerStore } from '../ledger'
 import { LunaError } from '../../domain/luna'
 import { buildContainerIdReading } from '../../domain/containerId'
+import type { ChoiceReading } from '../../domain/luna'
 
 const KEY = 'test-only-key-value-0000'
 
@@ -22,9 +23,22 @@ function choosePhoto(store: ReturnType<typeof useInspectionStore>) {
   })
 }
 
+const readAll = (value: string): ChoiceReading[] =>
+  value.split('').map((c) => ({ value: c, certainty: 'Confident', runnerUp: null }))
+const unreadAt = (value: string): ChoiceReading[] =>
+  value
+    .split('')
+    .map((c) =>
+      c === '?'
+        ? { value: null, certainty: "Can't tell", runnerUp: null }
+        : { value: c, certainty: 'Confident', runnerUp: null },
+    )
+
 function liveResult(overrides: Partial<{ resolvedModel: string }> = {}) {
   return {
     containerId: buildContainerIdReading({ printed: 'APHU6586847', certainty: 'Confident' }),
+    readings: readAll('APHU6586847'),
+    raw: { answers: [] },
     resolvedModel: overrides.resolvedModel ?? 'gpt-6-luna-20260922',
     usage: { inputTokens: 15780, outputTokens: null },
     latencyMs: 812,
@@ -76,7 +90,10 @@ describe('live Luna inspection in the store', () => {
     expect(store.record?.source).toBe('live')
     expect(store.record?.model).toBe('gpt-6-luna')
     expect(store.record?.resolvedVersion).toBe('gpt-6-luna-20260922')
-    expect(store.record?.rawResponses[0]).toMatchObject({ capturedFrom: 'provider', provider: 'luna' })
+    expect(store.record?.rawResponses[0]).toMatchObject({
+      capturedFrom: 'provider',
+      provider: 'luna',
+    })
     expect(store.record?.containerId?.value).toBe('APHU6586847')
 
     const entries = ledger.entries()
@@ -94,6 +111,7 @@ describe('live Luna inspection in the store', () => {
   it('keeps a partial reading and marks the unread positions', async () => {
     callLunaMock.mockResolvedValue({
       ...liveResult(),
+      readings: unreadAt('APHU65868??'),
       containerId: {
         value: 'APHU65868??',
         observedCheckDigit: null,

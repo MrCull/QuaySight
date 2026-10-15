@@ -36,10 +36,7 @@ export interface LunaRequestBody {
   model: typeof LUNA_MODEL
   input: {
     role: 'user'
-    content: (
-      | { type: 'input_text'; text: string }
-      | { type: 'input_image'; image_url: string }
-    )[]
+    content: ({ type: 'input_text'; text: string } | { type: 'input_image'; image_url: string })[]
   }[]
   questions: LunaChoiceQuestion[]
 }
@@ -51,10 +48,13 @@ function questionName(position: number): string {
   return `id_char_${String(position).padStart(2, '0')}`
 }
 
-/** One choice question per character position: letters for owner code and category, digits for serial and check digit. */
-export function buildIdQuestions(): LunaChoiceQuestion[] {
-  return Array.from({ length: ID_POSITIONS }, (_, i) => {
-    const position = i + 1
+/**
+ * One choice question per character position: letters for owner code and category, digits for serial and check digit.
+ * With positions, only those (1-based) are asked; the re-check uses this for the unread ones.
+ */
+export function buildIdQuestions(positions?: number[]): LunaChoiceQuestion[] {
+  const wanted = positions ?? Array.from({ length: ID_POSITIONS }, (_, i) => i + 1)
+  return wanted.map((position) => {
     const isLetter = position <= LETTER_POSITIONS
     const values = isLetter ? LETTERS : DIGITS
     const role = isLetter
@@ -74,7 +74,7 @@ export function buildIdQuestions(): LunaChoiceQuestion[] {
 }
 
 /** Builds the Decisions request for one photo. The data URL must carry the photo's real MIME type. */
-export function buildLunaRequest(imageDataUrl: string): LunaRequestBody {
+export function buildLunaRequest(imageDataUrl: string, positions?: number[]): LunaRequestBody {
   return {
     model: LUNA_MODEL,
     input: [
@@ -86,7 +86,7 @@ export function buildLunaRequest(imageDataUrl: string): LunaRequestBody {
         ],
       },
     ],
-    questions: buildIdQuestions(),
+    questions: buildIdQuestions(positions),
   }
 }
 
@@ -163,13 +163,15 @@ export function lunaFailure(status: number, body: unknown, apiKey: string): Luna
 
 export interface LunaMapping {
   containerId: ContainerIdReading
+  /** One reading per position (11 entries). Positions not asked, or not answered, are unread. */
+  readings: ChoiceReading[]
   /** The model the response reports, or the requested model when it reports none. */
   resolvedModel: string
   /** Usage from the response's own fields, or null when the response carries none. */
   usage: Usage | null
 }
 
-interface ChoiceReading {
+export interface ChoiceReading {
   value: string | null
   certainty: CertaintyLabel
   runnerUp: string | null
@@ -220,8 +222,13 @@ function worstOf(labels: CertaintyLabel[]): CertaintyLabel {
 /**
  * Maps a Decisions response to the shared container-ID reading. Missing, refused or low-probability
  * positions stay as UNREAD; they are never filled in. The check digit is calculated here, not taken from the model.
+ * With positions, only those are read; any other position is unread whatever the response says.
  */
-export function mapLunaResponse(response: unknown, requestedModel: string): LunaMapping {
+export function mapLunaResponse(
+  response: unknown,
+  requestedModel: string,
+  positions?: number[],
+): LunaMapping {
   if (typeof response !== 'object' || response === null) {
     throw new LunaError('bad-response', 'OpenAI replied in a shape the app does not recognise.')
   }
@@ -236,12 +243,27 @@ export function mapLunaResponse(response: unknown, requestedModel: string): Luna
     if (typeof name === 'string') byName.set(name, answer)
   }
 
+  const asked = new Set(positions ?? Array.from({ length: ID_POSITIONS }, (_, i) => i + 1))
   const readings = Array.from({ length: ID_POSITIONS }, (_, i) => {
     const position = i + 1
+    if (!asked.has(position))
+      return { value: null, certainty: "Can't tell" as const, runnerUp: null }
     const allowed = position <= LETTER_POSITIONS ? LETTERS : DIGITS
     return readChoice(byName.get(questionName(position)), allowed)
   })
 
+  const resolvedModel =
+    typeof body.model === 'string' && body.model.trim() ? body.model.trim() : requestedModel
+  return {
+    containerId: assembleLunaReading(readings),
+    readings,
+    resolvedModel,
+    usage: readUsage(body.usage),
+  }
+}
+
+/** Builds the shared container-ID reading from one reading per position. Pure; used by the first pass and any re-check merge. */
+export function assembleLunaReading(readings: ChoiceReading[]): ContainerIdReading {
   const chars = readings.map((r) => r.value ?? UNREAD)
   const positionCertainty = readings.map((r) => r.certainty)
   const printed = chars.join('')
@@ -283,10 +305,7 @@ export function mapLunaResponse(response: unknown, requestedModel: string): Luna
   if (uncertainPositions.length > 0 && printed.includes(UNREAD)) {
     containerId.uncertainty = `Positions ${uncertainPositions.join(', ')} were not read clearly.`
   }
-
-  const resolvedModel =
-    typeof body.model === 'string' && body.model.trim() ? body.model.trim() : requestedModel
-  return { containerId, resolvedModel, usage: readUsage(body.usage) }
+  return containerId
 }
 
 function numberField(record: Record<string, unknown>, keys: string[]): number | null {

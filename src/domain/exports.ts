@@ -3,7 +3,7 @@
 // credential can reach an export because none is an input.
 import { getProvider } from './providers'
 import { faceStatus, type DamageFace, type FaceStatus, type FindingZone } from './damage'
-import type { CertaintyLabel, InspectionRecord, Provenance } from './inspection'
+import type { CertaintyLabel, InspectionRecord, Provenance, RecheckRecord } from './inspection'
 
 export const EXPORT_SCHEMA_VERSION = 1
 
@@ -68,6 +68,8 @@ export interface InspectionExport {
   candidates: ExportCandidate[]
   unresolved: ExportUnresolved[]
   conflicts: string[]
+  /** Automatic re-checks: observations and outcome. Never shown in the UI. */
+  rechecks: RecheckRecord[]
   damage: {
     assessed: boolean
     photos: { photo: string; face: DamageFace }[]
@@ -241,6 +243,7 @@ export function buildInspectionExport(record: InspectionRecord): InspectionExpor
     candidates,
     unresolved,
     conflicts,
+    rechecks: record.rechecks ?? [],
     damage: {
       assessed: assessment !== null,
       photos: assessment?.photos ?? [],
@@ -316,6 +319,12 @@ export function buildSummaryText(record: InspectionRecord): string {
       )
     }
     for (const alt of json.candidates) lines.push(`  Also possible: ${alt.value}`)
+  }
+  for (const check of json.rechecks) {
+    const cap = check.reason ? ` (stopped at the per-inspection ${check.reason} limit)` : ''
+    lines.push(
+      `Re-check of container ID (positions ${check.positions.join(', ')}): ${check.outcome}${cap}`,
+    )
   }
   if (record.sizeCode) {
     lines.push(
