@@ -1,0 +1,55 @@
+<!-- @dsCard group="Setup" height=560 subtitle="Providers come from a catalogue list, so new adapters just appear" -->
+<!doctype html>
+<html><head><link rel="stylesheet" href="../../tokens.css"><link rel="stylesheet" href="../bundle.css"><meta charset="utf-8"><title>Provider select</title>
+<style>body{margin:0;padding:24px;background:var(--surface);max-width:600px}</style></head>
+<body class="qs-root">
+<div class="qs-setup">
+  <div class="qs-fieldset">
+    <span class="qs-fieldset__label" id="pl">AI provider</span>
+    <div class="qs-combo">
+      <button class="qs-combo__button" id="pb" aria-haspopup="listbox" aria-expanded="true" aria-labelledby="pl pb">
+        <span class="qs-mono">OA</span>
+        <span class="qs-opt-text"><strong>GPT-6 Luna</strong><small>OpenAI · Decisions API</small></span>
+        <span class="qs-cap qs-cap--rec">Recommended</span>
+        <i class="qs-glyph qs-glyph--chevron"></i>
+      </button>
+      <div class="qs-listbox" role="listbox" aria-labelledby="pl" id="lb">
+        <label class="qs-listbox__filter"><input placeholder="Filter providers" aria-label="Filter providers"></label>
+        <div class="qs-listbox__group">Ready for photos</div>
+        <div class="qs-option" role="option" aria-selected="true" tabindex="-1">
+          <span class="qs-mono">OA</span><span class="qs-opt-text"><strong>GPT-6 Luna</strong><small>OpenAI · Decisions API</small></span>
+          <span class="qs-option__caps"><span class="qs-cap qs-cap--rec">Recommended</span><span class="qs-cap">Probabilities</span></span>
+        </div>
+        <div class="qs-option is-active" role="option" aria-selected="false" tabindex="-1">
+          <span class="qs-mono">TS</span><span class="qs-opt-text"><strong>Jev</strong><small>TypeSafe · System One</small></span>
+          <span class="qs-option__caps"><span class="qs-cap">Probabilities</span><span class="qs-cap qs-cap--exp">Boxes · experimental</span></span>
+        </div>
+        <div class="qs-listbox__foot">2 providers in the catalogue. New provider adapters are listed here automatically, with what each one supports.</div>
+      </div>
+    </div>
+  </div>
+  <div class="qs-fieldset">
+    <span class="qs-fieldset__label">Model version</span>
+    <label class="qs-input"><select aria-label="Model version"><option>GPT-6 Luna · pinned 2026-08</option><option>GPT-6 Luna · latest (moving alias)</option></select></label>
+    <span class="qs-hint">Image input · choice probabilities · no bounding boxes</span>
+  </div>
+  <div class="qs-fieldset">
+    <span class="qs-fieldset__label">OpenAI API key</span>
+    <label class="qs-input"><input type="password" placeholder="Paste your OpenAI key" aria-label="OpenAI API key"><button class="qs-btn qs-btn--ghost qs-btn--sm" aria-label="Show key"><i class="qs-glyph qs-glyph--eye"></i></button><button class="qs-btn qs-btn--ghost qs-btn--sm">Clear</button></label>
+    <span class="qs-hint">Kept in this tab only and sent only to OpenAI.</span>
+  </div>
+</div>
+<script>
+var b=document.getElementById('pb'), lb=document.getElementById('lb');
+b.addEventListener('click',function(){ var o=b.getAttribute('aria-expanded')==='true'; b.setAttribute('aria-expanded', o?'false':'true'); lb.hidden=o; });
+lb.querySelectorAll('.qs-option').forEach(function(op){ op.addEventListener('click',function(){
+  lb.querySelectorAll('.qs-option').forEach(function(x){ x.setAttribute('aria-selected','false'); x.classList.remove('is-active'); });
+  op.setAttribute('aria-selected','true');
+  b.querySelector('.qs-mono').textContent=op.querySelector('.qs-mono').textContent;
+  b.querySelector('.qs-opt-text').innerHTML=op.querySelector('.qs-opt-text').innerHTML;
+  var rec=op.querySelector('.qs-cap--rec'); b.querySelector('.qs-cap').style.visibility=rec?'visible':'hidden';
+});});
+lb.querySelector('input').addEventListener('input',function(e){ var q=e.target.value.toLowerCase();
+  lb.querySelectorAll('.qs-option').forEach(function(op){ op.hidden = op.textContent.toLowerCase().indexOf(q)<0; }); });
+</script>
+</body></html>

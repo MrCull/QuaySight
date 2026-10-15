@@ -1,0 +1,65 @@
+<!-- @dsCard height=320 -->
+<!doctype html>
+<html lang="en">
+<head><link rel="stylesheet" href="../../tokens.css"><link rel="stylesheet" href="../bundle.css">
+<meta charset="utf-8">
+<title>Quay Sight</title>
+<style>
+  html, body { margin:0; height:100%; }
+  body { background:var(--bg); color:var(--ink); font-family:var(--font-sans); overflow:hidden; }
+  .cover { position:relative; height:320px; overflow:hidden; }
+  .art { position:absolute; top:0; left:480px; width:480px; height:320px; overflow:hidden; }
+  .art svg { display:block; width:480px; height:320px; }
+  .blk { rx:var(--radius-sm); }
+  .teal { fill:var(--brand); }
+  .inkb { fill:var(--ink); }
+  .blue { fill:var(--cert-confident-fg); }
+  .amber { fill:var(--cert-uncertain-line); }
+  .d-full { fill:var(--brand); }
+  .d-blue { fill:var(--cert-confident-fg); }
+  .d-amber { fill:var(--cert-uncertain-line); }
+  .d-muted { fill:var(--ink-muted); }
+  .d-ring-blue, .d-ring-amber, .d-ring-muted { fill:none; stroke-width:2.5; }
+  .d-ring-blue { stroke:var(--cert-confident-fg); }
+  .d-ring-amber { stroke:var(--cert-uncertain-line); }
+  .d-ring-muted { stroke:var(--ink-muted); }
+  .d-dash { stroke-dasharray:4 3.6; }
+  .mark { fill:var(--sev-moderate); stroke:var(--bg); stroke-width:2.5; }
+  .words { position:absolute; left:var(--space-6); bottom:var(--space-6); max-width:440px; }
+  .name { margin:0; font-family:var(--font-display); font-size:112px; line-height:.92; font-weight:600; letter-spacing:-.01em; color:var(--ink); }
+  .tag { margin:var(--space-5) 0 0 4px; font-size:14px; line-height:20px; color:var(--ink-muted); }
+</style>
+</head>
+<body>
+<div class="cover">
+<div class="art" aria-hidden="true">
+<svg viewBox="0 0 480 320" width="480" height="320">
+<!--
+  blocks      brand 288x96 and ink 200x96 (bleeds right) on the bottom tier; cert-confident-fg 288x96 and cert-uncertain-line 144x96 (bleeds right) stacked above: about 27% of 960x320
+  arrangement a staggered container stack, the 40 ft / 20 ft proportions of the boxes it inspects; bottom tier sits space-6 above the edge, tiers and gaps space-2 apart
+  pattern     literal motif: the support-meter glyph (full, three-quarter, half, ring, dashed ring) as a row of nine discs fading left to right, because the system's signature is certainty told by how full the disc is; one sev-moderate marker sits on the blue box like a finding on the schematic
+  scales      disc pitch space-7 (48), disc r 12 (half of space-5), tier gap space-2, corners radius-sm
+-->
+<rect class="teal blk" x="16" y="192" width="288" height="96" rx="4"/>
+<rect class="inkb blk" x="312" y="192" width="200" height="96" rx="4"/>
+<rect class="blue blk" x="64" y="88" width="288" height="96" rx="4"/>
+<rect class="amber blk" x="360" y="88" width="144" height="96" rx="4"/>
+<circle class="mark" cx="248" cy="124" r="14"/>
+<circle class="d-full" cx="40" cy="44" r="12"/>
+<circle class="d-full" cx="88" cy="44" r="12"/>
+<circle class="d-full" cx="136" cy="44" r="12"/>
+<circle class="d-ring-blue" cx="184" cy="44" r="11"/><path class="d-blue" d="M184 44V37A7 7 0 1 1 177 44Z"/>
+<circle class="d-ring-blue" cx="232" cy="44" r="11"/><path class="d-blue" d="M232 44V37A7 7 0 1 1 225 44Z"/>
+<circle class="d-ring-amber" cx="280" cy="44" r="11"/><path class="d-amber" d="M280 37A7 7 0 0 1 280 51Z"/>
+<circle class="d-ring-amber" cx="328" cy="44" r="11"/><path class="d-amber" d="M328 37A7 7 0 0 1 328 51Z"/>
+<circle class="d-ring-muted" cx="376" cy="44" r="11"/><rect class="d-muted" x="370" y="42.75" width="12" height="2.5"/>
+<circle class="d-ring-muted d-dash" cx="424" cy="44" r="11"/>
+</svg>
+</div>
+<div class="words">
+  <h1 class="name">Quay<br>Sight</h1>
+  <p class="tag">Evidence-led container inspection, honest about what it saw.</p>
+</div>
+</div>
+</body>
+</html>

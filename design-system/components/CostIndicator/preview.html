@@ -1,0 +1,30 @@
+<!-- @dsCard group="Usage" height=430 subtitle="Compact pill, expandable ledger" -->
+<!doctype html>
+<html><head><link rel="stylesheet" href="../../tokens.css"><link rel="stylesheet" href="../bundle.css"><meta charset="utf-8"><title>Cost indicator</title>
+<style>body{margin:0;padding:24px;background:var(--bg)} .row{display:flex;flex-wrap:wrap;gap:12px;margin-bottom:16px}</style></head>
+<body class="qs-root">
+<div class="row">
+  <div class="qs-cost"><button class="qs-cost__toggle" aria-expanded="false"><span class="qs-cost__mode qs-cost__mode--recorded">Sample</span><span class="qs-cost__sep"></span>Saved result · no charge<i class="qs-glyph qs-glyph--chevron"></i></button></div>
+</div>
+<div class="qs-cost">
+  <button class="qs-cost__toggle" aria-expanded="true" aria-controls="ledger"><span class="qs-cost__mode">Live</span><span class="qs-cost__sep"></span>This container <b>$0.0042</b><span class="qs-cost__sep"></span>Session <b>$0.0187</b><i class="qs-glyph qs-glyph--chevron"></i></button>
+  <div class="qs-cost__panel" id="ledger">
+    <div class="qs-cost__head">
+      <div class="qs-cost__stat"><span>This container</span><b>$0.0042</b></div>
+      <div class="qs-cost__stat"><span>Session · 4 containers</span><b>$0.0187</b></div>
+      <div class="qs-cost__stat"><span>Requests</span><b>3 / 11</b></div>
+      <div class="qs-cost__stat"><span>API time</span><b>7.9 s</b></div>
+    </div>
+    <table class="qs-cost__table">
+      <thead><tr><th>#</th><th>Purpose</th><th>Provider · model</th><th class="num">Tokens</th><th class="num">Est. cost</th><th class="num">Latency</th></tr></thead>
+      <tbody>
+        <tr><td>1</td><td class="qs-cost__purpose">Reading markings</td><td class="qs-cost__model">OpenAI · GPT-6 Luna</td><td class="num">1,284</td><td class="num">$0.0016</td><td class="num">2.4 s</td></tr>
+        <tr><td>2</td><td class="qs-cost__purpose">Looking for damage</td><td class="qs-cost__model">OpenAI · GPT-6 Luna</td><td class="num">1,902</td><td class="num">$0.0021</td><td class="num">3.1 s</td></tr>
+        <tr><td>3</td><td class="qs-cost__purpose">Closer look at the ID</td><td class="qs-cost__model">OpenAI · GPT-6 Luna</td><td class="num">412</td><td class="num">$0.0005</td><td class="num">1.2 s</td></tr>
+        <tr><td>—</td><td class="qs-cost__purpose">Earlier: Jev rear-door run</td><td class="qs-cost__model">TypeSafe · Jev 1.14</td><td class="num">—</td><td class="num qs-cost__unknown">Partial estimate</td><td class="num">1.2 s</td></tr>
+      </tbody>
+    </table>
+    <div class="qs-cost__foot">Estimated API usage at each provider's published rates, not an invoice. Recorded samples are never added to live totals.</div>
+  </div>
+</div>
+</body></html>

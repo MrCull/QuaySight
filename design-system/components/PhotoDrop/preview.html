@@ -1,0 +1,86 @@
+<!-- @dsCard group="Setup" height=560 subtitle="Your photo, or a sample container with a saved result" -->
+<!doctype html>
+<html><head><link rel="stylesheet" href="../../tokens.css"><link rel="stylesheet" href="../bundle.css"><meta charset="utf-8"><title>Photo drop</title>
+<style>body{margin:0;padding:24px;background:var(--surface)}</style></head>
+<body class="qs-root">
+<label class="qs-drop" tabindex="0">
+  <span class="qs-drop__icon"><i class="qs-glyph qs-glyph--photo"></i></span>
+  <span class="qs-drop__title">Drop container photos here</span>
+  <span class="qs-drop__meta">or <u>browse files</u> · JPEG, PNG or WebP · one container per inspection: doors, sides or close-ups</span>
+</label>
+<div class="qs-samples">
+  <div class="qs-samples__head"><span class="qs-samples__title">No photo to hand? Try a sample container</span><span class="qs-samples__why">Each sample opens a result saved from an earlier real inspection. It works offline, with no API key and no charge.</span></div>
+  <div class="qs-samples__grid"><button class="qs-sample"><span class="qs-sample__img"><svg class="qs-photo qs-photo--thumb" viewBox="0 0 1000 640" preserveAspectRatio="xMidYMid slice" role="img" aria-label="Illustrated stand-in photo of rear container doors">
+<defs>
+<linearGradient id="sa-sky" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#2b3d55"/><stop offset=".55" stop-color="#7a6f78"/><stop offset="1" stop-color="#c9917a"/></linearGradient>
+<linearGradient id="sa-ground" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#4a4d52"/><stop offset="1" stop-color="#25272b"/></linearGradient>
+<linearGradient id="sa-paint" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#5e2622"/><stop offset=".35" stop-color="#8a3a32"/><stop offset=".7" stop-color="#7a312b"/><stop offset="1" stop-color="#4d1f1c"/></linearGradient>
+<linearGradient id="sa-rib" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#a24a40"/><stop offset=".5" stop-color="#7a312b"/><stop offset="1" stop-color="#4a1d1a"/></linearGradient>
+<radialGradient id="sa-dent" cx=".45" cy=".45" r=".6"><stop offset="0" stop-color="#2a0f0d" stop-opacity=".75"/><stop offset=".6" stop-color="#3a1512" stop-opacity=".35"/><stop offset="1" stop-color="#3a1512" stop-opacity="0"/></radialGradient>
+<radialGradient id="sa-hl" cx=".5" cy=".5" r=".5"><stop offset="0" stop-color="#e6907f" stop-opacity=".55"/><stop offset="1" stop-color="#e6907f" stop-opacity="0"/></radialGradient>
+<radialGradient id="sa-vig" cx=".5" cy=".5" r=".75"><stop offset=".55" stop-color="#000" stop-opacity="0"/><stop offset="1" stop-color="#000" stop-opacity=".55"/></radialGradient>
+<filter id="sa-grain"><feTurbulence type="fractalNoise" baseFrequency=".9" numOctaves="2" seed="4"/><feColorMatrix values="0 0 0 0 .5  0 0 0 0 .5  0 0 0 0 .5  0 0 0 .09 0"/><feComposite in2="SourceGraphic" operator="in"/></filter>
+<filter id="sa-soft"><feGaussianBlur stdDeviation="1.4"/></filter>
+<filter id="sa-rust"><feTurbulence type="fractalNoise" baseFrequency=".06" numOctaves="3" seed="9"/><feColorMatrix values="0 0 0 0 .62  0 0 0 0 .33  0 0 0 0 .12  0 0 0 1.6 -.65"/><feComposite in2="SourceGraphic" operator="in"/></filter>
+</defs>
+<rect width="1000" height="640" fill="url(#sa-sky)"/>
+<g opacity=".55"><rect x="40" y="250" width="160" height="70" fill="#2f4a5c"/><rect x="40" y="200" width="160" height="50" fill="#4f6b4a"/><rect x="820" y="240" width="170" height="80" fill="#38485e"/><rect x="820" y="190" width="120" height="50" fill="#6b5a3a"/><path d="M880 40 L900 40 L900 190 L880 190Z M760 60 L990 60 L990 72 L760 72Z" fill="#1f2a36"/><path d="M890 72 L800 72 L890 40Z" fill="none" stroke="#1f2a36" stroke-width="3"/></g>
+<rect y="560" width="1000" height="80" fill="url(#sa-ground)"/>
+<ellipse cx="505" cy="574" rx="420" ry="16" fill="#000" opacity=".45" filter="url(#sa-soft)"/>
+<path d="M180 84 L830 70 L838 572 L172 566Z" fill="url(#sa-paint)"/>
+<path d="M180 84 L830 70 L831 104 L180 116Z" fill="#3e1916"/><path d="M174 540 L837 546 L838 572 L172 566Z" fill="#3a1714"/>
+<path d="M180 84 L214 83 L208 566 L172 566Z" fill="#4a1d1a"/><path d="M796 71 L830 70 L838 572 L803 571Z" fill="#4a1d1a"/>
+<rect x="174" y="84" width="34" height="22" rx="2" fill="#2b100e"/><ellipse cx="191" cy="95" rx="9" ry="5" fill="#120605"/>
+<rect x="798" y="71" width="34" height="22" rx="2" fill="#2b100e"/><ellipse cx="815" cy="82" rx="9" ry="5" fill="#120605"/>
+<rect x="172" y="548" width="34" height="22" rx="2" fill="#2b100e"/><ellipse cx="189" cy="559" rx="9" ry="5" fill="#120605"/>
+<rect x="804" y="552" width="34" height="22" rx="2" fill="#2b100e"/><ellipse cx="821" cy="563" rx="9" ry="5" fill="#120605"/>
+<path d="M214 150 L503 147 L503 188 L212 190Z" fill="url(#sa-rib)" opacity=".9"/>
+<path d="M507 147 L798 144 L800 185 L507 188Z" fill="url(#sa-rib)" opacity=".9"/>
+<path d="M214 230 L503 227 L503 268 L212 270Z" fill="url(#sa-rib)" opacity=".9"/>
+<path d="M507 227 L798 224 L800 265 L507 268Z" fill="url(#sa-rib)" opacity=".9"/>
+<path d="M214 310 L503 307 L503 348 L212 350Z" fill="url(#sa-rib)" opacity=".9"/>
+<path d="M507 307 L798 304 L800 345 L507 348Z" fill="url(#sa-rib)" opacity=".9"/>
+<path d="M214 390 L503 387 L503 428 L212 430Z" fill="url(#sa-rib)" opacity=".9"/>
+<path d="M507 387 L798 384 L800 425 L507 428Z" fill="url(#sa-rib)" opacity=".9"/>
+<path d="M214 470 L503 467 L503 508 L212 510Z" fill="url(#sa-rib)" opacity=".9"/>
+<path d="M507 467 L798 464 L800 505 L507 508Z" fill="url(#sa-rib)" opacity=".9"/>
+<path d="M505 102 L505 545" stroke="#250c0a" stroke-width="5"/>
+<path d="M268 96 L269 552" stroke="#2a2d30" stroke-width="9" stroke-linecap="round"/><path d="M266 96 L267 552" stroke="#8b9096" stroke-width="2.5" opacity=".7"/>
+<rect x="257" y="92" width="24" height="18" rx="2" fill="#26292c"/><rect x="257" y="534" width="24" height="18" rx="2" fill="#26292c"/>
+<rect x="262" y="346" width="52" height="11" rx="3" fill="#3a3e42"/><rect x="298" y="338" width="14" height="26" rx="2" fill="#2a2d30"/>
+<path d="M420 96 L421 552" stroke="#2a2d30" stroke-width="9" stroke-linecap="round"/><path d="M418 96 L419 552" stroke="#8b9096" stroke-width="2.5" opacity=".7"/>
+<rect x="409" y="92" width="24" height="18" rx="2" fill="#26292c"/><rect x="409" y="534" width="24" height="18" rx="2" fill="#26292c"/>
+<rect x="414" y="346" width="52" height="11" rx="3" fill="#3a3e42"/><rect x="450" y="338" width="14" height="26" rx="2" fill="#2a2d30"/>
+<path d="M590 96 L591 552" stroke="#2a2d30" stroke-width="9" stroke-linecap="round"/><path d="M588 96 L589 552" stroke="#8b9096" stroke-width="2.5" opacity=".7"/>
+<rect x="579" y="92" width="24" height="18" rx="2" fill="#26292c"/><rect x="579" y="534" width="24" height="18" rx="2" fill="#26292c"/>
+<rect x="584" y="346" width="52" height="11" rx="3" fill="#3a3e42"/><rect x="620" y="338" width="14" height="26" rx="2" fill="#2a2d30"/>
+<path d="M742 96 L743 552" stroke="#2a2d30" stroke-width="9" stroke-linecap="round"/><path d="M740 96 L741 552" stroke="#8b9096" stroke-width="2.5" opacity=".7"/>
+<rect x="731" y="92" width="24" height="18" rx="2" fill="#26292c"/><rect x="731" y="534" width="24" height="18" rx="2" fill="#26292c"/>
+<rect x="736" y="346" width="52" height="11" rx="3" fill="#3a3e42"/><rect x="772" y="338" width="14" height="26" rx="2" fill="#2a2d30"/>
+<rect x="212" y="150" width="22" height="30" rx="2" fill="#2b100e"/><rect x="777" y="146" width="22" height="30" rx="2" fill="#2b100e"/>
+<rect x="212" y="260" width="22" height="30" rx="2" fill="#2b100e"/><rect x="777" y="256" width="22" height="30" rx="2" fill="#2b100e"/>
+<rect x="212" y="380" width="22" height="30" rx="2" fill="#2b100e"/><rect x="777" y="376" width="22" height="30" rx="2" fill="#2b100e"/>
+<rect x="212" y="500" width="22" height="30" rx="2" fill="#2b100e"/><rect x="777" y="496" width="22" height="30" rx="2" fill="#2b100e"/>
+<g fill="#efe9e2" font-family="'Barlow Condensed', 'Arial Narrow', sans-serif" font-weight="600">
+<text x="536" y="150" font-size="40" letter-spacing="3">QSIU 307428</text><rect x="760" y="116" width="32" height="42" fill="none" stroke="#efe9e2" stroke-width="3"/><text x="776" y="150" font-size="40" text-anchor="middle">8</text>
+<text x="618" y="196" font-size="30" letter-spacing="4">45G1</text>
+<text x="236" y="210" font-size="17" letter-spacing="1">MAX GROSS  32,500 KG</text><text x="236" y="232" font-size="17" letter-spacing="1" opacity=".85">71,650 LB</text>
+<text x="236" y="262" font-size="17" letter-spacing="1">TARE  3,750 KG</text><text x="236" y="284" font-size="17" letter-spacing="1" opacity=".85">8,270 LB</text>
+<text x="236" y="314" font-size="17" letter-spacing="1">NET  28,750 KG</text></g>
+<ellipse cx="660" cy="470" rx="78" ry="48" fill="url(#sa-dent)" transform="rotate(-12 660 470)"/>
+<ellipse cx="640" cy="448" rx="40" ry="16" fill="url(#sa-hl)" transform="rotate(-12 640 448)"/>
+<path d="M592 462 Q640 500 716 476" stroke="#1d0a09" stroke-width="3" fill="none" opacity=".55"/>
+<rect x="214" y="490" width="290" height="60" filter="url(#sa-rust)"/>
+<g fill="#6b3a1c" opacity=".7"><path d="M300 505 l3 40 l-5 0z"/><path d="M380 500 l2 46 l-4 0z"/><path d="M440 512 l2 34 l-4 0z"/></g>
+<rect width="1000" height="640" fill="#fff" filter="url(#sa-grain)" opacity=".7"/>
+<rect width="1000" height="640" fill="url(#sa-vig)"/>
+</svg><span class="qs-sample__badge"><i class="qs-glyph qs-glyph--recorded"></i>Saved result</span></span><span class="qs-sample__body"><strong>Rear doors, clear markings</strong><small>ID, ISO code and weights</small></span></button><button class="qs-sample"><span class="qs-sample__img"><svg viewBox="0 0 160 100" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
+<defs><linearGradient id="sb-s" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#34475e"/><stop offset="1" stop-color="#b98c78"/></linearGradient></defs>
+<rect width="160" height="100" fill="url(#sb-s)"/><rect y="84" width="160" height="16" fill="#2c2e32"/>
+<path d="M6 26 L154 30 L154 84 L6 86Z" fill="#7a312b"/><rect x="10" y="29.0" width="3.4" height="54" fill="#93413a"/><rect x="17" y="29.1" width="3.4" height="54" fill="#93413a"/><rect x="24" y="29.2" width="3.4" height="54" fill="#93413a"/><rect x="31" y="29.3" width="3.4" height="54" fill="#93413a"/><rect x="38" y="29.4" width="3.4" height="54" fill="#93413a"/><rect x="45" y="29.5" width="3.4" height="54" fill="#93413a"/><rect x="52" y="29.6" width="3.4" height="54" fill="#93413a"/><rect x="59" y="29.7" width="3.4" height="54" fill="#93413a"/><rect x="66" y="29.8" width="3.4" height="54" fill="#93413a"/><rect x="73" y="29.9" width="3.4" height="54" fill="#93413a"/><rect x="80" y="30.0" width="3.4" height="54" fill="#93413a"/><rect x="87" y="30.1" width="3.4" height="54" fill="#93413a"/><rect x="94" y="30.2" width="3.4" height="54" fill="#93413a"/><rect x="101" y="30.3" width="3.4" height="54" fill="#93413a"/><rect x="108" y="30.4" width="3.4" height="54" fill="#93413a"/><rect x="115" y="30.5" width="3.4" height="54" fill="#93413a"/><rect x="122" y="30.6" width="3.4" height="54" fill="#93413a"/><rect x="129" y="30.7" width="3.4" height="54" fill="#93413a"/><rect x="136" y="30.8" width="3.4" height="54" fill="#93413a"/><rect x="143" y="30.9" width="3.4" height="54" fill="#93413a"/>
+<circle cx="104" cy="44" r="5" fill="#1b0807"/></svg><span class="qs-sample__badge"><i class="qs-glyph qs-glyph--recorded"></i>Saved result</span></span><span class="qs-sample__body"><strong>Side with damage</strong><small>A dent and a possible hole</small></span></button><button class="qs-sample"><span class="qs-sample__img"><svg viewBox="0 0 160 100" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
+<defs><linearGradient id="sc-c" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#6d8aa6"/><stop offset="1" stop-color="#d9c9b0"/></linearGradient></defs>
+<rect width="160" height="100" fill="url(#sc-c)"/><rect y="84" width="160" height="16" fill="#3c3f44"/>
+<path d="M10 24 L150 28 L150 84 L10 86Z" fill="#2f5d7c"/><rect x="14" y="27" width="3.4" height="56" fill="#3b6f92"/><rect x="21" y="27" width="3.4" height="56" fill="#3b6f92"/><rect x="28" y="27" width="3.4" height="56" fill="#3b6f92"/><rect x="35" y="27" width="3.4" height="56" fill="#3b6f92"/><rect x="42" y="27" width="3.4" height="56" fill="#3b6f92"/><rect x="49" y="27" width="3.4" height="56" fill="#3b6f92"/><rect x="56" y="27" width="3.4" height="56" fill="#3b6f92"/><rect x="63" y="27" width="3.4" height="56" fill="#3b6f92"/><rect x="70" y="27" width="3.4" height="56" fill="#3b6f92"/><rect x="77" y="27" width="3.4" height="56" fill="#3b6f92"/><rect x="84" y="27" width="3.4" height="56" fill="#3b6f92"/><rect x="91" y="27" width="3.4" height="56" fill="#3b6f92"/><rect x="98" y="27" width="3.4" height="56" fill="#3b6f92"/><rect x="105" y="27" width="3.4" height="56" fill="#3b6f92"/><rect x="112" y="27" width="3.4" height="56" fill="#3b6f92"/><rect x="119" y="27" width="3.4" height="56" fill="#3b6f92"/><rect x="126" y="27" width="3.4" height="56" fill="#3b6f92"/><rect x="133" y="27" width="3.4" height="56" fill="#3b6f92"/><rect x="140" y="27" width="3.4" height="56" fill="#3b6f92"/></svg><span class="qs-sample__badge"><i class="qs-glyph qs-glyph--recorded"></i>Saved result</span></span><span class="qs-sample__body"><strong>Clean container</strong><small>Few or no visible defects</small></span></button></div>
+</div>
+</body></html>
