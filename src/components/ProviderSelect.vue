@@ -6,6 +6,10 @@ import type { ProviderId } from '../domain/inspection'
 
 const store = useInspectionStore()
 const open = ref(false)
+const revealed = ref(false)
+/** The key field stays hidden until the presenter asks for a live run. Recorded samples never ask for a key. */
+const keyRequested = ref(false)
+const keyVisible = computed(() => keyRequested.value || store.apiKey !== '')
 
 const selected = computed(() => getProvider(store.provider))
 const busy = computed(() => store.status === 'running')
@@ -67,6 +71,47 @@ function choose(id: ProviderId) {
         </select>
       </label>
       <span class="qs-hint">Recorded samples need no key and make no network call.</span>
+    </div>
+    <div v-if="store.provider === 'luna' && !keyVisible" class="qs-fieldset">
+      <button type="button" class="qs-btn qs-btn--ghost qs-btn--sm" @click="keyRequested = true">
+        Run live with an OpenAI key
+      </button>
+    </div>
+    <div v-if="store.provider === 'luna' && keyVisible" class="qs-fieldset">
+      <label class="qs-fieldset__label" for="luna-key">OpenAI API key</label>
+      <label class="qs-input">
+        <input
+          id="luna-key"
+          v-model="store.apiKey"
+          :type="revealed ? 'text' : 'password'"
+          autocomplete="off"
+          spellcheck="false"
+          placeholder="Paste your OpenAI key"
+          aria-label="OpenAI API key"
+          :disabled="busy"
+        />
+        <button
+          type="button"
+          class="qs-btn qs-btn--ghost qs-btn--sm"
+          :aria-label="revealed ? 'Hide key' : 'Show key'"
+          :aria-pressed="revealed ? 'true' : 'false'"
+          @click="revealed = !revealed"
+        >
+          <i class="qs-glyph qs-glyph--eye" aria-hidden="true"></i>
+        </button>
+        <button
+          type="button"
+          class="qs-btn qs-btn--ghost qs-btn--sm"
+          :disabled="busy || store.apiKey === ''"
+          @click="store.clearApiKey()"
+        >
+          Clear
+        </button>
+      </label>
+      <span class="qs-hint"
+        >Kept in this tab's memory only, cleared on request, and sent only to OpenAI's Luna endpoint.
+        Leave it empty to replay the recorded sample.</span
+      >
     </div>
   </div>
 </template>

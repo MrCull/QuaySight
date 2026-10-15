@@ -14,7 +14,7 @@ const running = computed(() => store.status === 'running')
 const canStart = computed(() => !!store.photo && !running.value)
 const runLabel = computed(() => {
   const p = getProvider(store.provider)
-  return `${p.name} · ${store.model}`
+  return `${p.name} · ${store.model}${store.mode === 'live' ? ' · live' : ''}`
 })
 
 // Arrival choreography: .qs-arriving while analysing, .qs-arrived once the record lands.
@@ -79,7 +79,7 @@ function start() {
             :aria-busy="running ? 'true' : 'false'"
             @click="start"
           >
-            {{ running ? 'Analysing…' : 'Start inspection' }}
+            {{ running ? 'Analysing…' : store.mode === 'live' ? 'Run live inspection' : 'Start inspection' }}
           </button>
         </div>
       </section>

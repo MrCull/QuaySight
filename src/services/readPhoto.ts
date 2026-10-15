@@ -18,7 +18,7 @@ export async function readPhotoFile(file: File): Promise<SelectedPhoto> {
   const url = URL.createObjectURL(file)
   try {
     const { width, height } = await measure(url)
-    return { name: file.name, url, orientation: orientationOf(width, height) }
+    return { name: file.name, url, orientation: orientationOf(width, height), file }
   } catch (err) {
     URL.revokeObjectURL(url)
     throw err

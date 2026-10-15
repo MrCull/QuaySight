@@ -2,13 +2,18 @@ import { defineStore } from 'pinia'
 import { defaultModelFor } from '../domain/providers'
 import { runRecordedInspection, type SampleScenario } from '../domain/recordedRun'
 import { runRecordedManifestRetry } from '../domain/manifest'
-import type { InspectionRecord, ProviderId } from '../domain/inspection'
+import { LUNA_MODEL, LunaError } from '../domain/luna'
+import { callLuna } from '../services/luna'
+import { useLedgerStore } from './ledger'
+import { INSPECTION_SCHEMA_VERSION, type InspectionRecord, type ProviderId } from '../domain/inspection'
 
 export interface SelectedPhoto {
   name: string
   /** Object URL for display. The view owns its lifecycle (revoke when replaced). */
   url: string
   orientation: 'landscape' | 'portrait' | 'square' | 'unknown'
+  /** The photo as chosen, sent to a live provider. Absent for a photo that was not read from a file. */
+  file?: Blob
 }
 
 export type RunStatus = 'idle' | 'running' | 'complete' | 'failed'
@@ -27,6 +32,8 @@ export interface ManifestRetryState {
 export const RECORDED_STAGE_DELAY_MS = 1600
 /** Pause before a recorded manifest check lands. */
 export const RECORDED_RETRY_DELAY_MS = 1600
+
+let liveCounter = 0
 
 const freshRetry = (): ManifestRetryState => ({
   status: 'idle',
@@ -50,8 +57,27 @@ export const useInspectionStore = defineStore('inspection', {
     /** Sample-only control: the recorded manifest check fails. */
     retryFails: false,
     retry: freshRetry() as ManifestRetryState,
+    /**
+     * The presenter's OpenAI key. Memory only: no persistence plugin, no storage write, cleared on request.
+     * It is sent only by callLuna, only to the Luna endpoint.
+     */
+    apiKey: '' as string,
+    /** Actionable message for the last failed run. The provider's text is never the key. */
+    errorMessage: null as string | null,
   }),
+  getters: {
+    /** Live only for Luna with a key entered. Jev has no live path yet, so it always replays its sample. */
+    mode(): 'live' | 'recorded' {
+      return this.provider === 'luna' && this.apiKey.trim() !== '' ? 'live' : 'recorded'
+    },
+  },
   actions: {
+    setApiKey(key: string) {
+      this.apiKey = key
+    },
+    clearApiKey() {
+      this.apiKey = ''
+    },
     setProvider(provider: ProviderId) {
       this.provider = provider
       this.model = defaultModelFor(provider)
@@ -66,11 +92,13 @@ export const useInspectionStore = defineStore('inspection', {
       this.status = 'idle'
       this.record = null
       this.retry = freshRetry()
+      this.errorMessage = null
     },
     start(): Promise<void> {
       // Single-flight: repeated clicks while a run is in progress share it.
       if (this.inFlight) return this.inFlight
       if (!this.photo) return Promise.resolve()
+      if (this.mode === 'live') return this.startLive()
 
       this.runToken += 1
       const token = this.runToken
@@ -78,6 +106,7 @@ export const useInspectionStore = defineStore('inspection', {
       this.status = 'running'
       this.record = null
       this.retry = freshRetry()
+      this.errorMessage = null
 
       const run: Promise<void> = runRecordedInspection(this.provider, {
         delayMs: RECORDED_STAGE_DELAY_MS,
@@ -97,6 +126,87 @@ export const useInspectionStore = defineStore('inspection', {
         .finally(() => {
           if (this.inFlight === run) this.inFlight = null
         })
+
+      this.inFlight = run
+      return run
+    },
+    /**
+     * One live Luna call for the chosen photo, through the cost ledger and its per-inspection cap (spec 8.5, 11.5).
+     * A failure keeps the photo and the ledger line; a partial reading from a successful call is kept.
+     */
+    startLive(): Promise<void> {
+      const photo = this.photo
+      if (!photo) return Promise.resolve()
+      if (!photo.file) {
+        this.status = 'failed'
+        this.record = null
+        this.errorMessage = 'Choose the photo again to run a live inspection.'
+        return Promise.resolve()
+      }
+
+      this.runToken += 1
+      const token = this.runToken
+      const apiKey = this.apiKey
+      const file = photo.file
+      const inspectionId = `live-luna-${(liveCounter += 1)}`
+      this.status = 'running'
+      this.record = null
+      this.retry = freshRetry()
+      this.errorMessage = null
+
+      const ledger = useLedgerStore()
+      const run: Promise<void> = (async () => {
+        let reading = null as Awaited<ReturnType<typeof callLuna>> | null
+        const result = await ledger.run({
+          id: `${inspectionId}-read`,
+          inspectionId,
+          purpose: 'Reading markings',
+          provider: 'luna',
+          endpoint: 'decisions',
+          model: LUNA_MODEL,
+          call: async () => {
+            reading = await callLuna({ apiKey, photo: file })
+            return {
+              resolvedModel: reading.resolvedModel,
+              usage: reading.usage,
+              latencyMs: reading.latencyMs,
+            }
+          },
+        })
+        if (token !== this.runToken) return
+
+        if (result.status === 'ran' && reading) {
+          const live: InspectionRecord = {
+            schemaVersion: INSPECTION_SCHEMA_VERSION,
+            id: inspectionId,
+            provider: 'luna',
+            model: reading.resolvedModel,
+            source: 'live',
+            status: 'complete',
+            photo: { name: photo.name, orientation: photo.orientation },
+            containerId: reading.containerId,
+            damage: null,
+            sizeCode: null,
+            weights: null,
+          }
+          this.record = live
+          this.status = 'complete'
+        } else if (result.status === 'blocked') {
+          this.status = 'failed'
+          this.errorMessage =
+            result.reason === 'requests'
+              ? 'This inspection has reached its request limit. Start a new photo to run again.'
+              : 'This inspection has reached its spend limit. Start a new photo to run again.'
+        } else {
+          this.status = 'failed'
+          this.errorMessage =
+            result.status === 'failed' && result.error instanceof LunaError
+              ? result.error.message
+              : 'The live inspection could not be completed. Try again.'
+        }
+      })().finally(() => {
+        if (this.inFlight === run) this.inFlight = null
+      })
 
       this.inFlight = run
       return run

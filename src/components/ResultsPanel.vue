@@ -18,6 +18,13 @@ const recordedLabel = computed(() => {
   return `Recorded demonstration: ${getProvider(r.provider).name} / ${r.model}`
 })
 
+// "Live: [provider/model]" for a result from a live call (spec 8.5). Never shown with the recorded label.
+const liveLabel = computed(() => {
+  const r = record.value
+  if (!r || r.source !== 'live') return null
+  return `Live result: ${getProvider(r.provider).name} / ${r.model}`
+})
+
 // Plain explanation for the uncertain, partial and insufficient-evidence states (spec 5.4, 8.4).
 const idState = computed(() =>
   record.value?.containerId ? idResultState(record.value.containerId) : null,
@@ -54,10 +61,22 @@ const showInsufficient = computed(() => idState.value === 'insufficient')
       <span class="qs-notice__kicker">Sample</span>
     </div>
 
+    <div v-if="liveLabel" class="qs-notice" role="note">
+      <div>
+        <div class="qs-notice__title">{{ liveLabel }}</div>
+        <div class="qs-notice__body">
+          A live call to the provider. The cost shown is an estimate, not an invoice.
+        </div>
+      </div>
+      <span class="qs-notice__kicker">Live</span>
+    </div>
+
     <div v-if="store.status === 'failed'" class="qs-notice qs-notice--error" role="alert">
       <i class="qs-glyph qs-glyph--error" aria-hidden="true"></i>
       <div>
-        <div class="qs-notice__title">The recorded result could not be loaded.</div>
+        <div class="qs-notice__title">
+          {{ store.errorMessage ?? 'The recorded result could not be loaded.' }}
+        </div>
       </div>
     </div>
 
@@ -104,7 +123,7 @@ const showInsufficient = computed(() => idState.value === 'insufficient')
       <p class="rs-note">The container ID could not be read from this photo.</p>
     </div>
 
-    <ManifestRetry v-if="record" />
+    <ManifestRetry v-if="record?.source === 'recorded'" />
 
     <ContainerDetails v-if="record" :record="record" />
   </section>
