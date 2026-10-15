@@ -43,6 +43,34 @@ function start() {
       <section class="rs-left">
         <ProviderSelect />
         <PhotoPanel />
+        <div
+          v-if="store.record?.source === 'recorded'"
+          class="rs-sample"
+          role="group"
+          aria-label="Recorded sample options"
+        >
+          <span class="rs-sample__title">Sample options (next run)</span>
+          <label
+            ><input
+              type="checkbox"
+              :checked="store.scenario === 'unidentified'"
+              @change="
+                store.scenario = ($event.target as HTMLInputElement).checked
+                  ? 'unidentified'
+                  : 'identified'
+              "
+            />
+            Container ID not visible in this sample</label
+          >
+          <label
+            ><input
+              type="checkbox"
+              :checked="store.retryFails"
+              @change="store.retryFails = ($event.target as HTMLInputElement).checked"
+            />
+            Make the manifest check fail</label
+          >
+        </div>
         <div>
           <button
             type="button"

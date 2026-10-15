@@ -28,6 +28,8 @@ export interface RecordedFixture {
   printedNetKg: number | null
   /** Certainty of the printed size code and weights. */
   detailCertainty: CertaintyLabel
+  /** Provider message shown when the recorded manifest check fails (spec 3.2). */
+  retryFailureMessage: string
 }
 
 export const recordedFixtures: Record<ProviderId, RecordedFixture> = {
@@ -44,6 +46,7 @@ export const recordedFixtures: Record<ProviderId, RecordedFixture> = {
     tareKg: 3870,
     printedNetKg: 28630,
     detailCertainty: 'Confident',
+    retryFailureMessage: 'Rate limit reached for requests. Please try again in 20s.',
   },
   jev: {
     provider: 'jev',
@@ -57,5 +60,6 @@ export const recordedFixtures: Record<ProviderId, RecordedFixture> = {
     tareKg: null,
     printedNetKg: null,
     detailCertainty: 'Likely',
+    retryFailureMessage: 'Service is busy. Please try again in 20s.',
   },
 }

@@ -4,11 +4,15 @@ import { decodeSizeCode } from './isoSizeCode'
 import { INSPECTION_SCHEMA_VERSION, type InspectionRecord, type ProviderId } from './inspection'
 import { checkWeights } from './weights'
 
+/** 'unidentified' replays a sample whose container ID could not be read (opens the manifest retry). */
+export type SampleScenario = 'identified' | 'unidentified'
+
 export interface RecordedRunOptions {
   /** Pause before the record lands, so the arrival choreography can show. Tests pass 0. */
   delayMs?: number
   /** Stable id for the run. Defaults to a fresh id. */
   id?: string
+  scenario?: SampleScenario
 }
 
 let counter = 0
@@ -48,10 +52,13 @@ export async function runRecordedInspection(
     source: 'recorded',
     status: 'complete',
     photo: null,
-    containerId: buildContainerIdReading({
-      printed: characters,
-      certainty: fixture.certainty,
-    }),
+    containerId:
+      options.scenario === 'unidentified'
+        ? null
+        : buildContainerIdReading({
+            printed: characters,
+            certainty: fixture.certainty,
+          }),
     sizeCode: decodeSizeCode(fixture.sizeCode, fixture.detailCertainty),
     weights: checkWeights({
       maxGrossKg: fixture.maxGrossKg,

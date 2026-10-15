@@ -5,6 +5,7 @@ import { getProvider } from '../domain/providers'
 import { idResultState, visibleAlternatives } from '../domain/certainty'
 import CertaintyChip from './CertaintyChip.vue'
 import ContainerId from './ContainerId.vue'
+import ManifestRetry from './ManifestRetry.vue'
 import ContainerDetails from './ContainerDetails.vue'
 import ExportActions from './ExportActions.vue'
 
@@ -95,6 +96,16 @@ const showInsufficient = computed(() => idState.value === 'insufficient')
         </div>
       </div>
     </div>
+
+    <div v-else-if="record" class="rs-card qs-rise" style="--i: 0">
+      <div class="rs-card__head">
+        <span class="rs-k">Container ID</span>
+        <CertaintyChip level="Can't tell" />
+      </div>
+      <p class="rs-note">The container ID could not be read from this photo.</p>
+    </div>
+
+    <ManifestRetry v-if="record" />
 
     <ContainerDetails v-if="record" :record="record" />
 

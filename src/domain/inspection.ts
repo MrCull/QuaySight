@@ -33,6 +33,8 @@ export interface ContainerIdReading {
   checkDigitValid: boolean
   certainty: CertaintyLabel
   provenance: Provenance
+  /** True after the optional manifest check (spec 3.2), whatever the outcome; the reading itself came from the photo unless provenance is manifest. */
+  manifestChecked?: boolean
   /** Optional per-position certainty (11 entries). Defaults to the overall certainty for every position. */
   positionCertainty?: CertaintyLabel[]
   /** Plausible alternative IDs. Only the first two are ever shown, as "Also possible". */
