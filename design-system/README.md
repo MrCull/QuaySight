@@ -26,6 +26,7 @@ What the app looks like after photos are uploaded. Live, animated versions are i
 - **Status words are fixed and everyday.** Use exactly **Confident** (clearly visible, everything checks out), **Likely** (probably right), **Uncertain** (could be one of a few things), **Can't tell** (in the photo, not clear enough) and **Not seen** (not in any photo). Never *supported*, *established*, *confirmed*, *certified*, *verified*, *safe*, *undamaged* or *user review required*.
 - **Explain unresolved items in two beats.** "**Best interpretation:** 3,750 kg. **What remains uncertain:** the last digits are hard to read; it could be 3,780 kg."
 - **Suggestions are optional.** "A closer photo of the top-left door markings may help." Never "Upload a photo to continue."
+- **The manifest retry is an offer, not a task.** "Container ID not identified. If you have the manifest, paste the container numbers and check again." Never ask the presenter to fix, confirm or enter the number.
 - **Caveat what isn't known.** "No DG placard visible", never "Non-hazardous". "Apparent moderate dent", never "Repair required". "Approximate area", never a precise position.
 - **Show outcomes, not machinery.** Never mention passes, refinement, candidates, questions or retries. Progress reads *Reading markings*, *Looking for damage*, *Checking the details*. A doubtful reading shows its best value, its certainty and any plausible alternative ("Also possible: QSIU 307478 1"). That detail belongs in the exported JSON, not on screen.
 - **Samples are explained, not jargon.** On the start screen, offer a **sample container** with a **saved result** ("works offline, no API key, no charge"). Once a sample is open, label it "Recorded demonstration: TypeSafe Jev 1.14" and say what that means in one sentence.
@@ -77,7 +78,7 @@ What the app looks like after photos are uploaded. Live, animated versions are i
 
 - The status and utility glyphs are part of this system. They are single-ink 16px masks in `components/bundle.css`, used as `<i class="qs-glyph qs-glyph--{name}">` and coloured by `currentColor`:
   - certainty: `confident`, `likely`, `uncertain`, `unknown`, `unseen` (a disc that fills as confidence rises)
-  - meaning: `hazard` (diamond), `error` (octagon), `photo`, `recorded`, `check`, `cross`
+  - meaning: `hazard` (diamond), `error` (octagon), `photo`, `recorded`, `list` (manifest), `check`, `cross`
   - utility: `chevron`, `eye`, `upload`
 - For any other UI icon, use an outline set at a 1.5px stroke on a 16 or 20px grid to match the glyphs. Lucide is the suggested match; it is not part of the source.
 - No emoji, and no illustrations of damage on the schematic. The photos in the previews are illustrated stand-ins; in the app, the uploaded photo takes their place.
@@ -85,7 +86,7 @@ What the app looks like after photos are uploaded. Live, animated versions are i
 
 ## Using the components
 
-The repository is a Vue 3 app, so components ship as framework-agnostic CSS classes (`qs-*`) in `components/bundle.css`, built on `tokens.css` custom properties. Wrap the app in `.qs-root`, then follow each component's guidelines: `Button`, `CertaintyChip`, `SeverityBadge`, `ProvenanceTag`, `FieldRow`, `ContainerId`, `MarkingBadge`, `FindingCard`, `ContainerSchematic`, `CostIndicator`, `ProviderSelect`, `PhotoDrop`, `StageProgress`, `Notice`. `AnalysingScreen` and `ResultsScreen` show them assembled into the main screen, before and after the results land. Turn each into a Vue SFC that renders the documented markup. Don't re-colour them locally.
+The repository is a Vue 3 app, so components ship as framework-agnostic CSS classes (`qs-*`) in `components/bundle.css`, built on `tokens.css` custom properties. Wrap the app in `.qs-root`, then follow each component's guidelines: `Button`, `CertaintyChip`, `SeverityBadge`, `ProvenanceTag`, `FieldRow`, `ContainerId`, `MarkingBadge`, `FindingCard`, `ManifestRetry`, `ContainerSchematic`, `CostIndicator`, `ProviderSelect`, `PhotoDrop`, `StageProgress`, `Notice`. `AnalysingScreen` and `ResultsScreen` show them assembled into the main screen, before and after the results land. Turn each into a Vue SFC that renders the documented markup. Don't re-colour them locally.
 
 ## Not synced
 

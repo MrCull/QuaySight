@@ -1,0 +1,164 @@
+<!-- @dsCard group="Evidence" height=1900 width=1200 subtitle="Optional manifest paste when the container ID is not identified: live count, check again, done replaces the ID in place" -->
+<!doctype html>
+<html><head><link rel="stylesheet" href="../../tokens.css"><link rel="stylesheet" href="../bundle.css"><meta charset="utf-8"><title>Manifest retry</title>
+<style>
+body{margin:0;padding:24px;background:var(--bg)}
+.mr-h{margin:0 0 4px;font:600 24px/28px var(--font-display);letter-spacing:.02em;color:var(--ink)}
+.mr-sub{margin:0 0 16px;max-width:75ch;font:400 14px/20px var(--font-sans);color:var(--ink-muted)}
+.mr-demo{display:grid;grid-template-columns:minmax(0,540px);gap:16px;margin-bottom:12px}
+.mr-card{padding:20px 24px;background:var(--surface);border:1px solid var(--line);border-radius:var(--radius-md)}
+.mr-card__head{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}
+.mr-k{font:600 12px/16px var(--font-sans);letter-spacing:.08em;text-transform:uppercase;color:var(--ink-muted)}
+.mr-note{margin:10px 0 0;font:400 14px/20px var(--font-sans);color:var(--ink-muted)}
+.mr-tools{display:flex;flex-wrap:wrap;gap:12px;align-items:center;margin:0 0 32px;padding:10px 12px;border:1px dashed var(--line-strong);border-radius:var(--radius-sm);max-width:516px;font:400 13px/18px var(--font-sans);color:var(--ink-muted)}
+.mr-tools label{display:inline-flex;gap:6px;align-items:center}
+.mr-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(340px,1fr));gap:16px;align-items:start}
+.mr-state{display:grid;gap:8px}
+.mr-state > span{font:600 12px/16px var(--font-sans);letter-spacing:.08em;text-transform:uppercase;color:var(--ink-muted)}
+.mr-phone{max-width:360px}
+</style></head>
+<body class="qs-root">
+<h2 class="mr-h">Try it</h2>
+<p class="mr-sub">The panel appears beside the Container ID only when the first inspection couldn't identify it. Everything else in the result stays as it is. Paste, edit or clear the list, then check again.</p>
+<div class="mr-demo">
+  <div class="mr-card" id="idcard"><div class="mr-card__head"><span class="mr-k">Container ID</span><span class="qs-cert qs-cert--unknown"><i class="qs-glyph qs-glyph--unknown"></i>Can't tell</span></div><div class="qs-id qs-id--md" aria-label="Owner code Q S I U read; serial number and check digit can't be read.">
+<span class="qs-id__group"><span class="qs-id__ch" data-c="uncertain">Q</span><span class="qs-id__ch" data-c="uncertain">S</span><span class="qs-id__ch" data-c="uncertain">I</span><span class="qs-id__ch" data-c="uncertain">U</span></span>
+<span class="qs-id__group"><span class="qs-id__ch" data-c="unknown">–</span><span class="qs-id__ch" data-c="unknown">–</span><span class="qs-id__ch" data-c="unknown">–</span></span>
+<span class="qs-id__group"><span class="qs-id__ch" data-c="unknown">–</span><span class="qs-id__ch" data-c="unknown">–</span><span class="qs-id__ch" data-c="unknown">–</span></span>
+<span class="qs-id__check" data-c="uncertain">–</span></div><div class="qs-id__meta"><span class="qs-prov">Printed</span></div><p class="mr-note">Only the owner code is readable; the serial number is behind a door bar.</p></div>
+  <section class="qs-manifest" id="mr" aria-labelledby="mr-t"><div class="qs-manifest__head"><i class="qs-glyph qs-glyph--list"></i><div><h3 class="qs-manifest__title" id="mr-t">Container ID not identified</h3><p class="qs-manifest__body">If you have the manifest, paste the container numbers and check again.</p></div><span class="qs-manifest__kicker">Optional</span></div><div class="qs-manifest__field">
+  <label class="qs-manifest__label" for="mr-in">Container numbers from the manifest</label>
+  <textarea class="qs-manifest__input" id="mr-in" rows="6" spellcheck="false" autocomplete="off" autocapitalize="characters" placeholder="Paste from a manifest or spreadsheet. One per line, or separated by commas, tabs or spaces." aria-describedby="mr-count">QSIU 307428 8
+MSCU4417305, TGHU 812004 9
+CAIU5527380	TEMU 990213 1
+QSIU3074288
+FSCU 771620 3  SEGU 402551 6</textarea>
+  <div class="qs-manifest__count" id="mr-count" role="status" aria-live="polite"></div>
+</div>
+<div class="qs-manifest__actions">
+  <button type="button" class="qs-btn qs-btn--primary" id="mr-go" aria-describedby="mr-count mr-cost">Check again with this manifest</button>
+  <button type="button" class="qs-btn qs-btn--secondary" id="mr-keep">Keep first result</button>
+</div>
+<p class="qs-manifest__cost" id="mr-cost">This runs a new live check on <b>OpenAI GPT-6 Luna</b> and adds to the cost total.</p></section>
+</div>
+<div class="mr-tools" aria-label="Preview controls (not part of the component)"><span>Preview only:</span><label><input type="checkbox" id="mr-fail"> Make the check fail</label><button type="button" class="qs-btn qs-btn--ghost qs-btn--sm" id="mr-reset">Reset</button></div>
+
+<h2 class="mr-h">States</h2>
+<p class="mr-sub">Ready, over the limit, checking, an error from the provider, and done. When it's done, the panel closes and the new reading replaces the earlier Container ID in place.</p>
+<div class="mr-grid">
+  <div class="mr-state"><span>Empty</span><section class="qs-manifest" id="s0" aria-labelledby="s0-t"><div class="qs-manifest__head"><i class="qs-glyph qs-glyph--list"></i><div><h3 class="qs-manifest__title" id="s0-t">Container ID not identified</h3><p class="qs-manifest__body">If you have the manifest, paste the container numbers and check again.</p></div><span class="qs-manifest__kicker">Optional</span></div><div class="qs-manifest__field">
+  <label class="qs-manifest__label" for="s0-in">Container numbers from the manifest</label>
+  <textarea class="qs-manifest__input" id="s0-in" rows="6" spellcheck="false" autocomplete="off" autocapitalize="characters" placeholder="Paste from a manifest or spreadsheet. One per line, or separated by commas, tabs or spaces." aria-describedby="s0-count"></textarea>
+  <div class="qs-manifest__count" id="s0-count" role="status" aria-live="polite"></div>
+</div>
+<div class="qs-manifest__actions">
+  <button type="button" class="qs-btn qs-btn--primary" id="s0-go" aria-disabled="true" aria-describedby="s0-count s0-cost">Check again with this manifest</button>
+  <button type="button" class="qs-btn qs-btn--secondary" id="s0-keep">Keep first result</button>
+</div>
+<p class="qs-manifest__cost" id="s0-cost">This runs a new live check on <b>OpenAI GPT-6 Luna</b> and adds to the cost total.</p></section></div>
+  <div class="mr-state"><span>Ready</span><section class="qs-manifest" id="s1" aria-labelledby="s1-t"><div class="qs-manifest__head"><i class="qs-glyph qs-glyph--list"></i><div><h3 class="qs-manifest__title" id="s1-t">Container ID not identified</h3><p class="qs-manifest__body">If you have the manifest, paste the container numbers and check again.</p></div><span class="qs-manifest__kicker">Optional</span></div><div class="qs-manifest__field">
+  <label class="qs-manifest__label" for="s1-in">Container numbers from the manifest</label>
+  <textarea class="qs-manifest__input" id="s1-in" rows="6" spellcheck="false" autocomplete="off" autocapitalize="characters" placeholder="Paste from a manifest or spreadsheet. One per line, or separated by commas, tabs or spaces." aria-describedby="s1-count">QSIU 307428 8&#10;MSCU4417305, TGHU 812004 9&#10;CAIU5527380&#9;TEMU 990213 1&#10;…</textarea>
+  <div class="qs-manifest__count" id="s1-count" role="status" aria-live="polite"><span><b>312</b> container numbers found</span><span><b>2</b> duplicates ignored</span></div>
+</div>
+<div class="qs-manifest__actions">
+  <button type="button" class="qs-btn qs-btn--primary" id="s1-go" aria-describedby="s1-count s1-cost">Check again with this manifest</button>
+  <button type="button" class="qs-btn qs-btn--secondary" id="s1-keep">Keep first result</button>
+</div>
+<p class="qs-manifest__cost" id="s1-cost">This runs a new live check on <b>OpenAI GPT-6 Luna</b> and adds to the cost total.</p></section></div>
+  <div class="mr-state"><span>Over the limit</span><section class="qs-manifest" id="s2" aria-labelledby="s2-t"><div class="qs-manifest__head"><i class="qs-glyph qs-glyph--list"></i><div><h3 class="qs-manifest__title" id="s2-t">Container ID not identified</h3><p class="qs-manifest__body">If you have the manifest, paste the container numbers and check again.</p></div><span class="qs-manifest__kicker">Optional</span></div><div class="qs-manifest__field">
+  <label class="qs-manifest__label" for="s2-in">Container numbers from the manifest</label>
+  <textarea class="qs-manifest__input" id="s2-in" rows="6" spellcheck="false" autocomplete="off" autocapitalize="characters" placeholder="Paste from a manifest or spreadsheet. One per line, or separated by commas, tabs or spaces." aria-describedby="s2-count">QSIU 307428 8&#10;MSCU4417305, TGHU 812004 9&#10;…</textarea>
+  <div class="qs-manifest__count" id="s2-count" role="status" aria-live="polite"><span><b>512</b> container numbers found</span><span class="qs-manifest__limit"><i class="qs-glyph qs-glyph--cross"></i>Limit for this demo is 500. Remove some to continue.</span></div>
+</div>
+<div class="qs-manifest__actions">
+  <button type="button" class="qs-btn qs-btn--primary" id="s2-go" aria-disabled="true" aria-describedby="s2-count s2-cost">Check again with this manifest</button>
+  <button type="button" class="qs-btn qs-btn--secondary" id="s2-keep">Keep first result</button>
+</div>
+<p class="qs-manifest__cost" id="s2-cost">This runs a new live check on <b>OpenAI GPT-6 Luna</b> and adds to the cost total.</p></section></div>
+  <div class="mr-state"><span>Checking</span><section class="qs-manifest" id="s3" aria-labelledby="s3-t"><div class="qs-manifest__head"><i class="qs-glyph qs-glyph--list"></i><div><h3 class="qs-manifest__title" id="s3-t">Container ID not identified</h3><p class="qs-manifest__body">If you have the manifest, paste the container numbers and check again.</p></div><span class="qs-manifest__kicker">Optional</span></div><ol class="qs-stages" aria-live="polite"><li class="qs-stage qs-stage--done"><span class="qs-stage__dot"><i class="qs-glyph qs-glyph--check"></i></span><span class="qs-stage__title">Checking against manifest</span><span class="qs-stage__time">1.6 s</span></li><li class="qs-stage qs-stage--active"><span class="qs-stage__dot"></span><span class="qs-stage__title">Reading the container ID again</span><span class="qs-stage__time"></span></li><li class="qs-stage"><span class="qs-stage__dot"></span><span class="qs-stage__title">Updating the result</span><span class="qs-stage__time"></span></li></ol></section></div>
+  <div class="mr-state"><span>Error</span><section class="qs-manifest" id="s4" aria-labelledby="s4-t"><div class="qs-manifest__head"><i class="qs-glyph qs-glyph--list"></i><div><h3 class="qs-manifest__title" id="s4-t">Container ID not identified</h3><p class="qs-manifest__body">If you have the manifest, paste the container numbers and check again.</p></div><span class="qs-manifest__kicker">Optional</span></div><div class="qs-notice qs-notice--error" role="alert"><i class="qs-glyph qs-glyph--error"></i><div><div class="qs-notice__title">The check didn't finish</div><div class="qs-notice__body">OpenAI said: "Rate limit reached for requests. Please try again in 20s." Your first result is unchanged.</div></div></div>
+<div class="qs-manifest__actions"><button type="button" class="qs-btn qs-btn--primary">Try again</button><button type="button" class="qs-btn qs-btn--secondary">Keep first result</button></div>
+<p class="qs-manifest__cost">Trying again runs a new live check on <b>OpenAI GPT-6 Luna</b> and adds to the cost total.</p></section></div>
+  <div class="mr-state"><span>Done: matched against manifest</span><div class="mr-card qs-arrived"><div class="mr-card__head"><span class="mr-k">Container ID</span><span class="qs-cert qs-cert--likely"><i class="qs-glyph qs-glyph--likely"></i>Likely</span></div><div class="qs-id qs-id--md" style="--base:80ms"><span class="qs-id__group"><span class="qs-id__ch" style="--c:0">Q</span><span class="qs-id__ch" style="--c:1">S</span><span class="qs-id__ch" style="--c:2">I</span><span class="qs-id__ch" style="--c:3">U</span></span><span class="qs-id__group"><span class="qs-id__ch" style="--c:4">3</span><span class="qs-id__ch" style="--c:5">0</span><span class="qs-id__ch" style="--c:6">7</span></span><span class="qs-id__group"><span class="qs-id__ch" style="--c:7">4</span><span class="qs-id__ch" style="--c:8">2</span><span class="qs-id__ch" style="--c:9">8</span></span><span class="qs-id__check" style="--c:10">8</span></div><div class="qs-id__meta"><span class="qs-prov qs-prov--manifest">Matched against manifest</span><span class="qs-prov qs-prov--calculated">Check digit valid</span></div></div></div>
+  <div class="mr-state"><span>Done: read from image</span><div class="mr-card qs-arrived"><div class="mr-card__head"><span class="mr-k">Container ID</span><span class="qs-cert qs-cert--confident"><i class="qs-glyph qs-glyph--confident"></i>Confident</span></div><div class="qs-id qs-id--md" style="--base:80ms"><span class="qs-id__group"><span class="qs-id__ch" style="--c:0">Q</span><span class="qs-id__ch" style="--c:1">S</span><span class="qs-id__ch" style="--c:2">I</span><span class="qs-id__ch" style="--c:3">U</span></span><span class="qs-id__group"><span class="qs-id__ch" style="--c:4">3</span><span class="qs-id__ch" style="--c:5">0</span><span class="qs-id__ch" style="--c:6">7</span></span><span class="qs-id__group"><span class="qs-id__ch" style="--c:7">4</span><span class="qs-id__ch" style="--c:8">2</span><span class="qs-id__ch" style="--c:9">8</span></span><span class="qs-id__check" style="--c:10">8</span></div><div class="qs-id__meta"><span class="qs-prov">Read from image</span><span class="qs-prov qs-prov--calculated">Check digit valid</span></div></div></div>
+  <div class="mr-state mr-phone"><span>Phone width</span><section class="qs-manifest" id="s5" aria-labelledby="s5-t"><div class="qs-manifest__head"><i class="qs-glyph qs-glyph--list"></i><div><h3 class="qs-manifest__title" id="s5-t">Container ID not identified</h3><p class="qs-manifest__body">If you have the manifest, paste the container numbers and check again.</p></div><span class="qs-manifest__kicker">Optional</span></div><div class="qs-manifest__field">
+  <label class="qs-manifest__label" for="s5-in">Container numbers from the manifest</label>
+  <textarea class="qs-manifest__input" id="s5-in" rows="6" spellcheck="false" autocomplete="off" autocapitalize="characters" placeholder="Paste from a manifest or spreadsheet. One per line, or separated by commas, tabs or spaces." aria-describedby="s5-count">QSIU 307428 8&#10;MSCU4417305</textarea>
+  <div class="qs-manifest__count" id="s5-count" role="status" aria-live="polite"><span><b>2</b> container numbers found</span></div>
+</div>
+<div class="qs-manifest__actions">
+  <button type="button" class="qs-btn qs-btn--primary" id="s5-go" aria-describedby="s5-count s5-cost">Check again with this manifest</button>
+  <button type="button" class="qs-btn qs-btn--secondary" id="s5-keep">Keep first result</button>
+</div>
+<p class="qs-manifest__cost" id="s5-cost">This runs a new live check on <b>OpenAI GPT-6 Luna</b> and adds to the cost total.</p></section></div>
+</div>
+
+<script>
+(function(){
+  var LIMIT = 500, RUN = 'OpenAI GPT-6 Luna';
+  var panel = document.getElementById('mr'), input = document.getElementById('mr-in'), count = document.getElementById('mr-count');
+  var go = document.getElementById('mr-go'), keep = document.getElementById('mr-keep'), card = document.getElementById('idcard');
+  var formHTML = panel.innerHTML, cardHTML = card.innerHTML;
+  var reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  // Split on new lines, commas, semicolons, tabs and spaces. An ID written with spaces
+  // (QSIU 307428 8) is joined first, so it counts once. Entries are not validated.
+  function parse(text){
+    var joined = text.replace(/\b([A-Za-z]{4})[ \u00a0]+(\d{6})[ \u00a0]*(\d)\b/g, '$1$2$3').replace(/\b([A-Za-z]{4})[ \u00a0]+(\d{7})\b/g, '$1$2');
+    var seen = Object.create(null), ids = [], dup = 0;
+    joined.split(/[\s,;]+/).forEach(function(t){ t = t.trim(); if (!t) return; var k = t.toUpperCase(); if (seen[k]) { dup++; return; } seen[k] = 1; ids.push(t); });
+    return { ids: ids, dup: dup };
+  }
+  function n(v, one, many){ return '<b>' + v.toLocaleString('en-GB') + '</b> ' + (v === 1 ? one : many); }
+  function update(){
+    var r = parse(input.value), k = r.ids.length, html = '';
+    if (k) html += '<span>' + n(k, 'container number found', 'container numbers found') + '</span>';
+    if (r.dup) html += '<span>' + n(r.dup, 'duplicate ignored', 'duplicates ignored') + '</span>';
+    if (k > LIMIT) html += '<span class="qs-manifest__limit"><i class="qs-glyph qs-glyph--cross"></i>Limit for this demo is 500. Remove some to continue.</span>';
+    count.innerHTML = html;
+    var ok = k > 0 && k <= LIMIT;
+    if (ok) go.removeAttribute('aria-disabled'); else go.setAttribute('aria-disabled', 'true');
+    return ok;
+  }
+  function close(after){
+    if (reduce) { panel.hidden = true; if (after) after(); return; }
+    panel.classList.add('is-leaving');
+    setTimeout(function(){ panel.hidden = true; panel.classList.remove('is-leaving'); if (after) after(); }, 200);
+  }
+  function run(){
+    var head = panel.querySelector('.qs-manifest__head').outerHTML;
+    var steps = ["<ol class=\"qs-stages\" aria-live=\"polite\"><li class=\"qs-stage qs-stage--active\"><span class=\"qs-stage__dot\"></span><span class=\"qs-stage__title\">Checking against manifest</span><span class=\"qs-stage__time\"></span></li><li class=\"qs-stage\"><span class=\"qs-stage__dot\"></span><span class=\"qs-stage__title\">Reading the container ID again</span><span class=\"qs-stage__time\"></span></li><li class=\"qs-stage\"><span class=\"qs-stage__dot\"></span><span class=\"qs-stage__title\">Updating the result</span><span class=\"qs-stage__time\"></span></li></ol>", "<ol class=\"qs-stages\" aria-live=\"polite\"><li class=\"qs-stage qs-stage--done\"><span class=\"qs-stage__dot\"><i class=\"qs-glyph qs-glyph--check\"></i></span><span class=\"qs-stage__title\">Checking against manifest</span><span class=\"qs-stage__time\">1.6 s</span></li><li class=\"qs-stage qs-stage--active\"><span class=\"qs-stage__dot\"></span><span class=\"qs-stage__title\">Reading the container ID again</span><span class=\"qs-stage__time\"></span></li><li class=\"qs-stage\"><span class=\"qs-stage__dot\"></span><span class=\"qs-stage__title\">Updating the result</span><span class=\"qs-stage__time\"></span></li></ol>", "<ol class=\"qs-stages\" aria-live=\"polite\"><li class=\"qs-stage qs-stage--done\"><span class=\"qs-stage__dot\"><i class=\"qs-glyph qs-glyph--check\"></i></span><span class=\"qs-stage__title\">Checking against manifest</span><span class=\"qs-stage__time\">1.6 s</span></li><li class=\"qs-stage qs-stage--done\"><span class=\"qs-stage__dot\"><i class=\"qs-glyph qs-glyph--check\"></i></span><span class=\"qs-stage__title\">Reading the container ID again</span><span class=\"qs-stage__time\">2.1 s</span></li><li class=\"qs-stage qs-stage--active\"><span class=\"qs-stage__dot\"></span><span class=\"qs-stage__title\">Updating the result</span><span class=\"qs-stage__time\"></span></li></ol>"];
+    var t = reduce ? 0 : 1;
+    panel.innerHTML = head + steps[0];
+    setTimeout(function(){ panel.innerHTML = head + steps[1]; }, 900 * t);
+    setTimeout(function(){
+      if (document.getElementById('mr-fail').checked) {
+        panel.innerHTML = head + "<div class=\"qs-notice qs-notice--error\" role=\"alert\"><i class=\"qs-glyph qs-glyph--error\"></i><div><div class=\"qs-notice__title\">The check didn't finish</div><div class=\"qs-notice__body\">OpenAI said: \"Rate limit reached for requests. Please try again in 20s.\" Your first result is unchanged.</div></div></div>\n<div class=\"qs-manifest__actions\"><button type=\"button\" class=\"qs-btn qs-btn--primary\">Try again</button><button type=\"button\" class=\"qs-btn qs-btn--secondary\">Keep first result</button></div>\n<p class=\"qs-manifest__cost\">Trying again runs a new live check on <b>OpenAI GPT-6 Luna</b> and adds to the cost total.</p>";
+        var b = panel.querySelectorAll('.qs-btn');
+        b[0].addEventListener('click', run); b[1].addEventListener('click', function(){ close(); });
+        b[0].focus();
+        return;
+      }
+      panel.innerHTML = head + steps[2];
+      setTimeout(function(){ close(function(){
+        card.outerHTML = "<div class=\"mr-card qs-arrived\" id=\"idcard\"><div class=\"mr-card__head\"><span class=\"mr-k\">Container ID</span><span class=\"qs-cert qs-cert--likely\"><i class=\"qs-glyph qs-glyph--likely\"></i>Likely</span></div><div class=\"qs-id qs-id--md\" style=\"--base:80ms\"><span class=\"qs-id__group\"><span class=\"qs-id__ch\" style=\"--c:0\">Q</span><span class=\"qs-id__ch\" style=\"--c:1\">S</span><span class=\"qs-id__ch\" style=\"--c:2\">I</span><span class=\"qs-id__ch\" style=\"--c:3\">U</span></span><span class=\"qs-id__group\"><span class=\"qs-id__ch\" style=\"--c:4\">3</span><span class=\"qs-id__ch\" style=\"--c:5\">0</span><span class=\"qs-id__ch\" style=\"--c:6\">7</span></span><span class=\"qs-id__group\"><span class=\"qs-id__ch\" style=\"--c:7\">4</span><span class=\"qs-id__ch\" style=\"--c:8\">2</span><span class=\"qs-id__ch\" style=\"--c:9\">8</span></span><span class=\"qs-id__check\" style=\"--c:10\">8</span></div><div class=\"qs-id__meta\"><span class=\"qs-prov qs-prov--manifest\">Matched against manifest</span><span class=\"qs-prov qs-prov--calculated\">Check digit valid</span></div></div>";
+        card = document.getElementById('idcard');
+      }); }, 500 * t);
+    }, 2000 * t);
+  }
+  function bind(){
+    panel = document.getElementById('mr'); input = document.getElementById('mr-in'); count = document.getElementById('mr-count');
+    go = document.getElementById('mr-go'); keep = document.getElementById('mr-keep');
+    input.addEventListener('input', update);
+    go.addEventListener('click', function(){ if (update()) run(); });
+    keep.addEventListener('click', function(){ close(); });
+    update();
+  }
+  document.getElementById('mr-reset').addEventListener('click', function(){
+    var c = document.getElementById('idcard'); c.outerHTML = '<div class="mr-card" id="idcard">' + cardHTML + '</div>'; card = document.getElementById('idcard');
+    panel.hidden = false; panel.innerHTML = formHTML; bind();
+  });
+  bind();
+})();
+</script>
+</body></html>
