@@ -1,8 +1,20 @@
 import { test, expect } from '@playwright/test'
+import path from 'node:path'
+import { fileURLToPath } from 'node:url'
 
-// See here how to get started:
-// https://playwright.dev/docs/intro
-test('visits the app root url', async ({ page }) => {
+const samplePhoto = path.resolve(
+  path.dirname(fileURLToPath(import.meta.url)),
+  '../samples/rear-door-aphu-45g1.jpg',
+)
+
+// Recorded-sample walking skeleton: no key, no network call.
+test('recorded run shows the container ID and the recorded label', async ({ page }) => {
   await page.goto('/')
-  await expect(page.locator('h1')).toHaveText('You did it!')
+  await page.locator('input[type="file"]').setInputFiles(samplePhoto)
+  const start = page.getByRole('button', { name: 'Start inspection' })
+  await expect(start).toBeEnabled()
+  await start.click()
+  await expect(page.getByText('Recorded demonstration: GPT-6 Luna / gpt-6-luna')).toBeVisible()
+  await expect(page.locator('.qs-cert').filter({ hasText: 'Confident' })).toBeVisible()
+  await expect(page.locator('input[type="password"]')).toHaveCount(0)
 })
