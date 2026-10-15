@@ -1,0 +1,169 @@
+<script setup lang="ts">
+import type { DamageFinding, FaceStatus } from '../../domain/damage'
+
+// One fixed view (or the image-relative long side) of the neutral container drawing, following
+// design-system/components/ContainerSchematic. Markers are approximate areas on a flat face, drawn
+// with the same oblique projection in both views so they read as one object turned round.
+defineProps<{
+  id: string
+  caption: string
+  noPhotos: boolean
+  side: { text: string; status: FaceStatus }
+  end: { text: string; status: FaceStatus } | null
+  roof: boolean
+  markers: DamageFinding[]
+  selectedId: number | null
+}>()
+
+const emit = defineEmits<{ select: [id: number] }>()
+
+type Pt = [number, number]
+type Projection = (u: number, v: number) => Pt
+
+// Oblique projection taken from the design-system drawing: 40 ft long side, 8 ft end, 9.5 ft high.
+const sidePt: Projection = (u, v) => [34 + 698.4 * u, 91 + 122.4 * u + 171 * v]
+const endPt: Projection = (u, v) => [732.4 + 122.4 * u, 213.4 - 60.48 * u + 171 * v]
+const ROOF_POINTS = '34,91 732.4,213.4 854.8,152.92 156.4,30.52'
+
+function quad(pt: Projection, u0: number, u1: number, v0: number, v1: number): string {
+  return [pt(u0, v0), pt(u1, v0), pt(u1, v1), pt(u0, v1)].map(([x, y]) => `${x},${y}`).join(' ')
+}
+
+const SIDE_POINTS = quad(sidePt, 0, 1, 0, 1)
+const END_POINTS = quad(endPt, 0, 1, 0, 1)
+
+function isEnd(f: DamageFinding): boolean {
+  return f.face === 'rear' || f.face === 'front'
+}
+
+function regionPoints(f: DamageFinding): string {
+  const pt = isEnd(f) ? endPt : sidePt
+  const z = f.zone
+  return quad(pt, z.u0, z.u1, z.v0, z.v1)
+}
+
+function pinFoot(f: DamageFinding): Pt {
+  const pt = isEnd(f) ? endPt : sidePt
+  return pt((f.zone.u0 + f.zone.u1) / 2, (f.zone.v0 + f.zone.v1) / 2)
+}
+
+function pinClass(f: DamageFinding): string[] {
+  const cert =
+    f.certainty === 'Likely'
+      ? 'qs-pin--likely'
+      : f.certainty === 'Uncertain'
+        ? 'qs-pin--uncertain'
+        : ''
+  return ['qs-pin', `qs-marker--${f.severity}`, cert].filter(Boolean)
+}
+
+function pinLabel(f: DamageFinding): string {
+  return `Finding ${f.id}: ${f.title.toLowerCase()}, apparent ${f.severity}, ${f.certainty.toLowerCase()}. ${f.location}`
+}
+
+function select(id: number) {
+  emit('select', id)
+}
+</script>
+
+<template>
+  <figure :class="['qs-schem__view', { 'qs-schem__view--unseen': noPhotos }]" :data-view="id">
+    <figcaption>
+      {{ caption }}
+      <small v-if="noPhotos">No photos</small>
+    </figcaption>
+    <svg
+      class="qs-c"
+      viewBox="0 0 900 430"
+      role="group"
+      :aria-label="`Container drawing, ${caption}`"
+    >
+      <defs>
+        <pattern
+          :id="`${id}-hatch`"
+          width="8"
+          height="8"
+          patternUnits="userSpaceOnUse"
+          patternTransform="rotate(45)"
+        >
+          <line class="qs-c-hatch" x1="0" y1="0" x2="0" y2="8" vector-effect="non-scaling-stroke" />
+        </pattern>
+      </defs>
+
+      <g v-if="roof" class="qs-c-roof">
+        <polygon class="qs-c-top" :points="ROOF_POINTS" />
+      </g>
+      <g v-if="roof" class="qs-c-unseen-tag" transform="translate(444.4 121.96)">
+        <rect x="-56.5" y="-13" width="113" height="26" rx="4" />
+        <text x="0" y="1">Roof · Not seen</text>
+      </g>
+
+      <polygon class="qs-c-side" :points="SIDE_POINTS" />
+      <polygon
+        v-if="side.status === 'side-unknown'"
+        class="qs-c-face-edge"
+        :points="SIDE_POINTS"
+        stroke-dasharray="6 4"
+      />
+      <polygon
+        v-if="side.status === 'not-seen'"
+        class="qs-c-unseen-face"
+        :points="SIDE_POINTS"
+        :fill="`url(#${id}-hatch)`"
+      />
+      <text class="qs-c-label" x="54.95" y="297.07">{{ side.text }}</text>
+
+      <template v-if="end">
+        <polygon class="qs-c-end" :points="END_POINTS" />
+        <polygon
+          v-if="end.status === 'not-seen'"
+          class="qs-c-unseen-face"
+          :points="END_POINTS"
+          :fill="`url(#${id}-hatch)`"
+        />
+        <text class="qs-c-label" x="746.05" y="414.02">{{ end.text }}</text>
+      </template>
+
+      <g class="qs-c-regions">
+        <g
+          v-for="m in markers"
+          :key="`region-${m.id}`"
+          :class="['qs-region', `qs-region--${m.severity}`, { 'is-selected': m.id === selectedId }]"
+          :data-finding="m.id"
+        >
+          <polygon :points="regionPoints(m)" />
+        </g>
+      </g>
+
+      <g class="qs-c-pins">
+        <g
+          v-for="m in markers"
+          :key="`pin-${m.id}`"
+          :class="[...pinClass(m), { 'is-selected': m.id === selectedId }]"
+          :data-finding="m.id"
+          tabindex="0"
+          role="button"
+          :aria-pressed="m.id === selectedId ? 'true' : 'false'"
+          :aria-label="pinLabel(m)"
+          @click="select(m.id)"
+          @keydown.enter.prevent="select(m.id)"
+          @keydown.space.prevent="select(m.id)"
+        >
+          <circle class="qs-pin__halo" :cx="pinFoot(m)[0]" :cy="pinFoot(m)[1]" r="7" />
+          <circle class="qs-pin__foot" :cx="pinFoot(m)[0]" :cy="pinFoot(m)[1]" r="3.5" />
+          <g class="qs-pin__drop">
+            <line
+              class="qs-pin__stem"
+              :x1="pinFoot(m)[0]"
+              :y1="pinFoot(m)[1]"
+              :x2="pinFoot(m)[0]"
+              :y2="pinFoot(m)[1] - 40"
+            />
+            <circle class="qs-pin__head" :cx="pinFoot(m)[0]" :cy="pinFoot(m)[1] - 40" r="15" />
+            <text class="qs-pin__num" :x="pinFoot(m)[0]" :y="pinFoot(m)[1] - 40">{{ m.id }}</text>
+          </g>
+        </g>
+      </g>
+    </svg>
+  </figure>
+</template>

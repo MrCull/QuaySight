@@ -1,0 +1,47 @@
+/* Damage-specific rules layered on design-system/components/bundle.css. Tokens only. */
+
+/* Region tints are polygons here (the bundle styles rects), so mirror its fill and stroke. */
+.qs-region polygon {
+  fill-opacity: 0.22;
+  stroke-width: 2;
+  vector-effect: non-scaling-stroke;
+  transition: fill-opacity var(--duration-base);
+}
+.qs-region--minor polygon {
+  fill: var(--sev-minor);
+  stroke: var(--sev-minor);
+}
+.qs-region--moderate polygon {
+  fill: var(--sev-moderate);
+  stroke: var(--sev-moderate);
+}
+.qs-region--major polygon {
+  fill: var(--sev-major);
+  stroke: var(--sev-major);
+}
+.qs-region.is-selected polygon {
+  fill-opacity: 0.42;
+}
+
+.damage-summary {
+  font: 400 14px/20px var(--font-sans);
+  color: var(--ink-muted);
+}
+.damage-type {
+  display: grid;
+  gap: 4px;
+}
+.damage-type__name {
+  font: 600 13px/18px var(--font-mono);
+  color: var(--ink);
+}
+.damage-unavailable {
+  font: 400 13px/18px var(--font-sans);
+  color: var(--ink-muted);
+}
+.damage-caveats {
+  display: grid;
+  gap: var(--space-1);
+  font: 400 13px/18px var(--font-sans);
+  color: var(--ink-muted);
+}

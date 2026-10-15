@@ -40,3 +40,13 @@ describe('recorded inspection run', () => {
     }
   })
 })
+
+describe('recorded damage assessment', () => {
+  it('replays the side-damage fixture for Luna and no damage for Jev, which captured none', async () => {
+    const luna = await runRecordedInspection('luna', { delayMs: 0 })
+    expect(luna.damage?.findings).toHaveLength(1)
+    expect(luna.damage?.photos).toEqual([{ photo: 'side-dented-grey.jpg', face: 'long-side' }])
+    const jev = await runRecordedInspection('jev', { delayMs: 0 })
+    expect(jev.damage).toBeNull()
+  })
+})

@@ -1,4 +1,6 @@
 import type { CertaintyLabel, ProviderId } from '../domain/inspection'
+import type { DamageAssessment } from '../domain/damage'
+import { recordedSideDamage } from './recordedDamage'
 
 /**
  * Recorded results for the walking skeleton. They replay saved readings with no network and no key.
@@ -16,6 +18,8 @@ export interface RecordedFixture {
   containerNumber: string
   observedCheckDigit: number | null
   certainty: CertaintyLabel
+  /** Side-damage assessment replayed with the ID reading. Null when none was recorded. */
+  damage: DamageAssessment | null
 }
 
 export const recordedFixtures: Record<ProviderId, RecordedFixture> = {
@@ -25,6 +29,7 @@ export const recordedFixtures: Record<ProviderId, RecordedFixture> = {
     containerNumber: 'APHU658684',
     observedCheckDigit: 7,
     certainty: 'Confident',
+    damage: recordedSideDamage,
   },
   jev: {
     provider: 'jev',
@@ -32,5 +37,6 @@ export const recordedFixtures: Record<ProviderId, RecordedFixture> = {
     containerNumber: 'APHU658684',
     observedCheckDigit: 7,
     certainty: 'Likely',
+    damage: null,
   },
 }

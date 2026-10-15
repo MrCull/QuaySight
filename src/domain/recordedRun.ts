@@ -44,5 +44,6 @@ export async function runRecordedInspection(
       certainty: fixture.certainty,
       provenance: 'printed',
     },
+    damage: fixture.damage,
   }
 }
