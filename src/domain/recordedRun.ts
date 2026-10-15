@@ -1,6 +1,8 @@
 import { recordedFixtures } from '../fixtures/recorded'
-import { calculateCheckDigit, checkDigitMatches } from './iso6346'
+import { buildContainerIdReading } from './containerId'
+import { decodeSizeCode } from './isoSizeCode'
 import { INSPECTION_SCHEMA_VERSION, type InspectionRecord, type ProviderId } from './inspection'
+import { checkWeights } from './weights'
 
 /** 'unidentified' replays a sample whose container ID could not be read (opens the manifest retry). */
 export type SampleScenario = 'identified' | 'unidentified'
@@ -27,12 +29,10 @@ export async function runRecordedInspection(
   if (delayMs > 0) await new Promise((resolve) => setTimeout(resolve, delayMs))
 
   const printed = fixture.containerNumber.replace(/\s+/g, '').toUpperCase()
-  const calculated = calculateCheckDigit(printed.slice(0, 10))
-  const value =
+  const characters =
     fixture.observedCheckDigit === null ? printed : `${printed}${fixture.observedCheckDigit}`
 
   counter += 1
-  const unidentified = options.scenario === 'unidentified'
   return {
     schemaVersion: INSPECTION_SCHEMA_VERSION,
     id: options.id ?? `recorded-${providerId}-${counter}`,
@@ -41,15 +41,19 @@ export async function runRecordedInspection(
     source: 'recorded',
     status: 'complete',
     photo: null,
-    containerId: unidentified
-      ? null
-      : {
-          value,
-          observedCheckDigit: fixture.observedCheckDigit,
-          calculatedCheckDigit: calculated,
-          checkDigitValid: checkDigitMatches(value),
-          certainty: fixture.certainty,
-          provenance: 'printed',
-        },
+    containerId:
+      options.scenario === 'unidentified'
+        ? null
+        : buildContainerIdReading({
+            printed: characters,
+            certainty: fixture.certainty,
+          }),
+    sizeCode: decodeSizeCode(fixture.sizeCode, fixture.detailCertainty),
+    weights: checkWeights({
+      maxGrossKg: fixture.maxGrossKg,
+      tareKg: fixture.tareKg,
+      printedNetKg: fixture.printedNetKg,
+      certainty: fixture.detailCertainty,
+    }),
   }
 }

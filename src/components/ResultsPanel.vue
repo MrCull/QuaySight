@@ -5,6 +5,7 @@ import { getProvider } from '../domain/providers'
 import CertaintyChip from './CertaintyChip.vue'
 import ContainerId from './ContainerId.vue'
 import ManifestRetry from './ManifestRetry.vue'
+import ContainerDetails from './ContainerDetails.vue'
 
 const store = useInspectionStore()
 const record = computed(() => store.record)
@@ -60,6 +61,8 @@ const recordedLabel = computed(() => {
     </div>
 
     <ManifestRetry v-if="record" />
+
+    <ContainerDetails v-if="record" :record="record" />
 
     <div
       v-if="record?.source === 'recorded'"
