@@ -16,6 +16,8 @@ export interface RecordedFixture {
   containerNumber: string
   observedCheckDigit: number | null
   certainty: CertaintyLabel
+  /** Provider message shown when the recorded manifest check fails (spec 3.2). */
+  retryFailureMessage: string
 }
 
 export const recordedFixtures: Record<ProviderId, RecordedFixture> = {
@@ -25,6 +27,7 @@ export const recordedFixtures: Record<ProviderId, RecordedFixture> = {
     containerNumber: 'APHU658684',
     observedCheckDigit: 7,
     certainty: 'Confident',
+    retryFailureMessage: 'Rate limit reached for requests. Please try again in 20s.',
   },
   jev: {
     provider: 'jev',
@@ -32,5 +35,6 @@ export const recordedFixtures: Record<ProviderId, RecordedFixture> = {
     containerNumber: 'APHU658684',
     observedCheckDigit: 7,
     certainty: 'Likely',
+    retryFailureMessage: 'Service is busy. Please try again in 20s.',
   },
 }

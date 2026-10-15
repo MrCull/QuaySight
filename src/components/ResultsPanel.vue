@@ -4,6 +4,7 @@ import { useInspectionStore } from '../stores/inspection'
 import { getProvider } from '../domain/providers'
 import CertaintyChip from './CertaintyChip.vue'
 import ContainerId from './ContainerId.vue'
+import ManifestRetry from './ManifestRetry.vue'
 
 const store = useInspectionStore()
 const record = computed(() => store.record)
@@ -48,6 +49,45 @@ const recordedLabel = computed(() => {
         <CertaintyChip :level="record.containerId.certainty" />
       </div>
       <ContainerId :reading="record.containerId" />
+    </div>
+
+    <div v-else-if="record" class="rs-card qs-rise" style="--i: 0">
+      <div class="rs-card__head">
+        <span class="rs-k">Container ID</span>
+        <CertaintyChip level="Can't tell" />
+      </div>
+      <p class="rs-note">The container ID could not be read from this photo.</p>
+    </div>
+
+    <ManifestRetry v-if="record" />
+
+    <div
+      v-if="record?.source === 'recorded'"
+      class="rs-sample"
+      role="group"
+      aria-label="Recorded sample options"
+    >
+      <span class="rs-sample__title">Sample options (next run)</span>
+      <label
+        ><input
+          type="checkbox"
+          :checked="store.scenario === 'unidentified'"
+          @change="
+            store.scenario = ($event.target as HTMLInputElement).checked
+              ? 'unidentified'
+              : 'identified'
+          "
+        />
+        Container ID not visible in this sample</label
+      >
+      <label
+        ><input
+          type="checkbox"
+          :checked="store.retryFails"
+          @change="store.retryFails = ($event.target as HTMLInputElement).checked"
+        />
+        Make the manifest check fail</label
+      >
     </div>
   </section>
 </template>

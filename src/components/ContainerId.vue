@@ -24,6 +24,12 @@ function charState(level: CertaintyLabel): string | undefined {
   return 'unknown'
 }
 
+// Provenance tag: a manifest match, a reading from the image after a manifest check, or the first printed reading.
+const origin = computed(() => {
+  if (props.reading.provenance === 'manifest') return 'manifest'
+  return props.reading.manifestChecked ? 'image' : 'printed'
+})
+
 const spelled = computed(() => {
   const r = props.reading
   const body = r.value.slice(0, 10).split('').join(' ')
@@ -51,7 +57,10 @@ const spelled = computed(() => {
       <span class="qs-id__check" :style="{ '--c': 10 }">{{ layout.check }}</span>
     </div>
     <div class="qs-id__meta">
-      <span class="qs-prov">Printed</span>
+      <span v-if="origin === 'manifest'" class="qs-prov qs-prov--manifest"
+        >Matched against manifest</span
+      >
+      <span v-else class="qs-prov">{{ origin === 'image' ? 'Read from image' : 'Printed' }}</span>
       <span :class="['qs-prov', { 'qs-prov--calculated': reading.checkDigitValid }]">
         {{ reading.checkDigitValid ? 'Check digit valid' : 'Check digit does not match' }}
       </span>

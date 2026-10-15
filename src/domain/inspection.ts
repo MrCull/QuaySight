@@ -28,6 +28,8 @@ export interface ContainerIdReading {
   checkDigitValid: boolean
   certainty: CertaintyLabel
   provenance: Provenance
+  /** True after the optional manifest check (spec 3.2), whatever the outcome; the reading itself came from the photo unless provenance is manifest. */
+  manifestChecked?: boolean
 }
 
 export interface PhotoRef {
