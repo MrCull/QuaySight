@@ -57,7 +57,7 @@ Quay Sight inspects photographs of freight containers. It reads the ID and marki
 - Never animate a fake progress bar or a ticking cost meter.
 
 ### Layout
-- **Desktop.** See the `ResultsScreen` card. A top bar with the name, the run's provider and model, and the `CostIndicator`. Below it, the photo stage and summary on the left, beside a 540px readings column (`ContainerId`, `FieldRow`s, `MarkingBadge`s). The damage view spans the full width beneath, with the `ContainerSchematic` and `FindingCard`s side by side.
+- **Desktop.** See the `ResultsScreen` and `AnalysingScreen` cards in the Screens group. A top bar with the name, the run's provider and model, and the `CostIndicator`. Below it, the photo stage and summary on the left, beside a 540px readings column (`ContainerId`, `FieldRow`s, `MarkingBadge`s). The damage view spans the full width beneath: the `ContainerSchematic`'s two views (rear and right side, front and left side, roof greyed out) side by side, with a row of `FindingCard`s under them. `AnalysingScreen` shows the same screen while results are pending.
 - **Phone.** The same order, stacked. The cost ledger opens as a bottom sheet over `scrim`.
 - **States.** Every surface needs designed empty (`PhotoDrop`), in-progress (`StageProgress`), confident, uncertain, insufficient-evidence and error (`Notice`) states.
 
@@ -73,7 +73,7 @@ Quay Sight inspects photographs of freight containers. It reads the ID and marki
 
 ## Using the components
 
-The repository is a Vue 3 app, so components ship as framework-agnostic CSS classes (`qs-*`) in `components/bundle.css`, built on `tokens.css` custom properties. Wrap the app in `.qs-root`, then follow each component's guidelines: `Button`, `CertaintyChip`, `SeverityBadge`, `ProvenanceTag`, `FieldRow`, `ContainerId`, `MarkingBadge`, `FindingCard`, `ContainerSchematic`, `CostIndicator`, `ProviderSelect`, `PhotoDrop`, `StageProgress`, `Notice`. `ResultsScreen` shows them assembled into the main screen. Turn each into a Vue SFC that renders the documented markup. Don't re-colour them locally.
+The repository is a Vue 3 app, so components ship as framework-agnostic CSS classes (`qs-*`) in `components/bundle.css`, built on `tokens.css` custom properties. Wrap the app in `.qs-root`, then follow each component's guidelines: `Button`, `CertaintyChip`, `SeverityBadge`, `ProvenanceTag`, `FieldRow`, `ContainerId`, `MarkingBadge`, `FindingCard`, `ContainerSchematic`, `CostIndicator`, `ProviderSelect`, `PhotoDrop`, `StageProgress`, `Notice`. `AnalysingScreen` and `ResultsScreen` show them assembled into the main screen, before and after the results land. Turn each into a Vue SFC that renders the documented markup. Don't re-colour them locally.
 
 ## Not synced
 

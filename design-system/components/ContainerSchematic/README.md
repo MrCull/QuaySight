@@ -1,14 +1,20 @@
 # ContainerSchematic
 
-The schematic is a neutral 3D drawing of the container: corrugated side, door end with locking bars and castings, roof. Tinted zones and drop pins on it show where the suspected damage is.
+The schematic is a neutral 3D drawing of the container, shown as **two fixed views side by side**. Each view shows one end, one long side and the roof:
+
+- **Rear and right side**: the door end with locking bars and castings, and the right side.
+- **Front and left side**: the plain corrugated front wall, and the left side.
+
+Together they show all six faces. The roof appears in both views but is always **greyed out** (`.qs-c-roof`, lower opacity): it is rarely photographed and must never compete with the faces that were. Tinted zones and drop pins show where the suspected damage is.
 
 ## Encoding: four channels, never mixed
 - **Where**: a tinted zone (`.qs-region`) over the classified region of the face, plus a pin standing on it.
 - **Severity**: the zone tint and the pin head fill, `sev-minor`, `sev-moderate` or `sev-major`.
 - **Certainty**: the pin head outline. Solid is confident, dashed (`qs-pin--likely`) is likely, dotted (`qs-pin--uncertain`) is uncertain.
-- **Coverage**: a face that wasn't photographed is hatched and tagged *not seen* on the drawing. Faces the drawing can't show (left side, front end) are listed in the `.qs-coverage` strip below it. A face is never shown as clear.
+- **Coverage**: a face that wasn't photographed is hatched and tagged *not seen* in its view, and listed in the `.qs-coverage` strip under both views. A view with no photographed faces says *No photos* in its caption. A face is never shown as clear.
 
 ## Drawing
+- Both views use the same projection, so they read as one object turned round: in the front-and-left view the long face is the left side and the end on the right is the front wall. Each finding is drawn in the one view that holds its face. Wrap the views in `.qs-schem__views` (two columns, stacking below about 900px), each in a `figure.qs-schem__view` with a `figcaption`.
 - An oblique projection with the length axis at about 10° and depth at about 26°. The faces are drawn flat in their own coordinates (feet) under a `matrix()` transform, so ribs, rails and stencils stay true to the face.
 - The long side is `schem-side` with `schem-side-rib` corrugations and `schem-rail` rails and corner posts. The door end is a step darker (`schem-end`, `schem-end-rib`) with `schem-detail` locking bars, keepers and hinges. The roof is the lightest face (`schem-top`). Outer edges and castings use `schem-stroke`. A blurred `schem-shadow` grounds it.
 - The 10 × 2 region grid (`schem-grid`, dashed) appears on hover or with `qs-schem--show-grid`, so the drawing stays clean until someone looks closer.
