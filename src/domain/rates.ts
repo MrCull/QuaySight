@@ -38,17 +38,17 @@ export const rateSchedules: RateSchedule[] = [
     inputUsdPerMillionTokens: 0.1,
     outputUsdPerMillionTokens: 0,
   },
-  {
+  ...['jev-latest', 'jev-1.13.0', 'jev-1.14.0'].map((model): RateSchedule => ({
     provider: 'jev',
-    model: 'jev-1.14.0',
+    model,
     endpoint: 'system-one',
     effectiveFrom: '2026-10-01',
     source:
-      'PLACEHOLDER: no verified TypeSafe rate. Left unknown (null) so costs show as a partial estimate, not zero.',
-    placeholder: true,
-    inputUsdPerMillionTokens: null,
-    outputUsdPerMillionTokens: null,
-  },
+      'docs.typesafe.ai/models, checked 16 Oct 2026: $42 per Btok ($0.042 per Mtok) input, output free. The page is undated; re-check before a demo.',
+    placeholder: false,
+    inputUsdPerMillionTokens: 0.042,
+    outputUsdPerMillionTokens: 0,
+  })),
 ]
 
 /** Per-inspection cap (spec 8.3, 11.5). PLACEHOLDER values, to be set by the presenter. */

@@ -4,6 +4,10 @@ import { runRecordedInspection, type SampleScenario } from '../domain/recordedRu
 import { runRecordedManifestRetry } from '../domain/manifest'
 import { LUNA_MODEL, LunaError } from '../domain/luna'
 import { callLuna } from '../services/luna'
+import { callJev } from '../services/jev'
+import { JEV_ENDPOINT_ID, JevError } from '../domain/jev'
+import type { ContainerIdReading } from '../domain/inspection'
+import type { Usage } from '../domain/ledger'
 import { useLedgerStore } from './ledger'
 import { INSPECTION_SCHEMA_VERSION, type InspectionRecord, type ProviderId } from '../domain/inspection'
 
@@ -17,6 +21,17 @@ export interface SelectedPhoto {
 }
 
 export type RunStatus = 'idle' | 'running' | 'complete' | 'failed'
+
+/** One live provider call, normalised for the record and the ledger. */
+interface LiveReading {
+  containerId: ContainerIdReading
+  resolvedModel: string
+  usage: Usage | null
+  latencyMs: number
+  raw: unknown
+  /** Cost the response itself reports, or null. Never zero when absent. */
+  reportedCostUsd: number | null
+}
 
 export interface ManifestRetryState {
   status: 'idle' | 'checking' | 'error'
@@ -58,25 +73,29 @@ export const useInspectionStore = defineStore('inspection', {
     retryFails: false,
     retry: freshRetry() as ManifestRetryState,
     /**
-     * The presenter's OpenAI key. Memory only: no persistence plugin, no storage write, cleared on request.
-     * It is sent only by callLuna, only to the Luna endpoint.
+     * The presenter's keys, one per provider. Memory only: no persistence plugin, no storage write, cleared on request.
+     * Each key is read only for its own provider's call (callLuna or callJev); switching provider never moves a key.
      */
-    apiKey: '' as string,
+    apiKeys: { luna: '', jev: '' } as Record<ProviderId, string>,
     /** Actionable message for the last failed run. The provider's text is never the key. */
     errorMessage: null as string | null,
   }),
   getters: {
-    /** Live only for Luna with a key entered. Jev has no live path yet, so it always replays its sample. */
+    /** The key for the selected provider only. */
+    apiKey(): string {
+      return this.apiKeys[this.provider]
+    },
+    /** Live for the selected provider once that provider's key is entered. Otherwise it replays its sample. */
     mode(): 'live' | 'recorded' {
-      return this.provider === 'luna' && this.apiKey.trim() !== '' ? 'live' : 'recorded'
+      return this.apiKey.trim() !== '' ? 'live' : 'recorded'
     },
   },
   actions: {
     setApiKey(key: string) {
-      this.apiKey = key
+      this.apiKeys[this.provider] = key
     },
     clearApiKey() {
-      this.apiKey = ''
+      this.apiKeys[this.provider] = ''
     },
     setProvider(provider: ProviderId) {
       this.provider = provider
@@ -131,7 +150,8 @@ export const useInspectionStore = defineStore('inspection', {
       return run
     },
     /**
-     * One live Luna call for the chosen photo, through the cost ledger and its per-inspection cap (spec 8.5, 11.5).
+     * One live call for the chosen photo, through the cost ledger and its per-inspection cap (spec 8.5, 11.5).
+     * Luna and Jev share this path; each provider\'s key goes only to its own call.
      * A failure keeps the photo and the ledger line; a partial reading from a successful call is kept.
      */
     startLive(): Promise<void> {
@@ -146,9 +166,12 @@ export const useInspectionStore = defineStore('inspection', {
 
       this.runToken += 1
       const token = this.runToken
+      const provider = this.provider
       const apiKey = this.apiKey
       const file = photo.file
-      const inspectionId = `live-luna-${(liveCounter += 1)}`
+      const requestedModel = provider === 'luna' ? LUNA_MODEL : this.model
+      const endpoint = provider === 'luna' ? 'decisions' : JEV_ENDPOINT_ID
+      const inspectionId = `live-${provider}-${(liveCounter += 1)}`
       this.status = 'running'
       this.record = null
       this.retry = freshRetry()
@@ -156,20 +179,24 @@ export const useInspectionStore = defineStore('inspection', {
 
       const ledger = useLedgerStore()
       const run: Promise<void> = (async () => {
-        let reading = null as Awaited<ReturnType<typeof callLuna>> | null
+        let reading = null as LiveReading | null
         const result = await ledger.run({
           id: `${inspectionId}-read`,
           inspectionId,
           purpose: 'Reading markings',
-          provider: 'luna',
-          endpoint: 'decisions',
-          model: LUNA_MODEL,
+          provider,
+          endpoint,
+          model: requestedModel,
           call: async () => {
-            reading = await callLuna({ apiKey, photo: file })
+            reading =
+              provider === 'luna'
+                ? { ...(await callLuna({ apiKey, photo: file })), reportedCostUsd: null }
+                : await callJev({ apiKey, photo: file, model: requestedModel })
             return {
               resolvedModel: reading.resolvedModel,
               usage: reading.usage,
               latencyMs: reading.latencyMs,
+              reportedCostUsd: reading.reportedCostUsd,
             }
           },
         })
@@ -179,14 +206,14 @@ export const useInspectionStore = defineStore('inspection', {
           const live: InspectionRecord = {
             schemaVersion: INSPECTION_SCHEMA_VERSION,
             id: inspectionId,
-            provider: 'luna',
-            model: LUNA_MODEL,
+            provider,
+            model: requestedModel,
             resolvedVersion: reading.resolvedModel,
             rawResponses: [
               {
                 passId: inspectionId,
-                provider: 'luna',
-                model: LUNA_MODEL,
+                provider,
+                model: requestedModel,
                 capturedFrom: 'provider',
                 body: reading.raw,
               },
@@ -210,7 +237,7 @@ export const useInspectionStore = defineStore('inspection', {
         } else {
           this.status = 'failed'
           this.errorMessage =
-            result.status === 'failed' && result.error instanceof LunaError
+            result.status === 'failed' && (result.error instanceof LunaError || result.error instanceof JevError)
               ? result.error.message
               : 'The live inspection could not be completed. Try again.'
         }

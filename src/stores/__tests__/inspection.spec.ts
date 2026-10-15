@@ -58,7 +58,7 @@ describe('inspection store', () => {
   it('switching provider selects that provider recommended model', () => {
     const store = useInspectionStore()
     store.setProvider('jev')
-    expect(store.model).toBe('jev-1.14.0')
+    expect(store.model).toBe('jev-latest')
   })
 
   it('replacing the photo replaces the single photo', () => {

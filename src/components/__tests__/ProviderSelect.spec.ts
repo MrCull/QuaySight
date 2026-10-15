@@ -18,7 +18,7 @@ describe('ProviderSelect', () => {
     ])
     await options[1]!.trigger('click')
     expect(store.provider).toBe('jev')
-    expect(store.model).toBe('jev-1.14.0')
+    expect(store.model).toBe('jev-latest')
   })
 
   it('does not ask for an API key for recorded samples', () => {
@@ -32,5 +32,17 @@ describe('ProviderSelect', () => {
     const wrapper = mount(ProviderSelect)
     expect(wrapper.find('.qs-combo__button').attributes('disabled')).toBeDefined()
     expect(wrapper.find('select').attributes('disabled')).toBeDefined()
+  })
+
+  it('asks for a TypeSafe key, not an OpenAI key, when Jev runs live', async () => {
+    const store = useInspectionStore()
+    store.setProvider('jev')
+    const wrapper = mount(ProviderSelect)
+    await wrapper.find('button.qs-btn').trigger('click')
+    const input = wrapper.find('input[type="password"]')
+    expect(input.exists()).toBe(true)
+    expect(input.attributes('aria-label')).toBe('TypeSafe API key')
+    expect(wrapper.text()).not.toContain('OpenAI')
+    expect(wrapper.text()).toContain('Moving target')
   })
 })

@@ -45,6 +45,8 @@ export interface ChargeableOutcome {
   resolvedModel: string
   usage: Usage | null
   latencyMs: number
+  /** Cost the provider reported in its own response, when it does. Null means not reported, never zero. */
+  reportedCostUsd?: number | null
 }
 
 export function estimateCost(
@@ -178,7 +180,9 @@ export async function runChargeable(
   ledger.reserve(request.inspectionId)
   try {
     const outcome = await request.call()
-    const { costUsd, costState } = estimateCost(outcome.usage, rate)
+    const reported = typeof outcome.reportedCostUsd === 'number' ? outcome.reportedCostUsd : null
+    const { costUsd, costState } =
+      reported !== null ? { costUsd: reported, costState: 'estimated' as CostState } : estimateCost(outcome.usage, rate)
     const entry: LedgerEntry = {
       ...base,
       resolvedModel: outcome.resolvedModel,

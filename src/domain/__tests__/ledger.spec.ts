@@ -66,7 +66,8 @@ describe('rates configuration', () => {
   it('does not apply Luna pricing to Jev', () => {
     const rate = findRate(rateSchedules, 'jev', 'jev-1.14.0', 'system-one', NOW)
     expect(rate?.provider).toBe('jev')
-    expect(rate?.inputUsdPerMillionTokens).toBeNull()
+    expect(rate?.inputUsdPerMillionTokens).toBe(0.042)
+    expect(rate?.inputUsdPerMillionTokens).not.toBe(0.1)
   })
 
   it('ignores a rate that is not yet effective', () => {

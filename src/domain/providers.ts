@@ -32,7 +32,11 @@ export const providers: ProviderInfo[] = [
     vendor: 'TypeSafe',
     api: 'System One API',
     monogram: 'TS',
-    models: [{ id: 'jev-1.14.0', label: 'jev-1.14.0 (pinned)', recommended: true }],
+    models: [
+      { id: 'jev-latest', label: 'jev-latest (moving target)', recommended: true },
+      { id: 'jev-1.14.0', label: 'jev-1.14.0 (pinned, experimental box)', recommended: false },
+      { id: 'jev-1.13.0', label: 'jev-1.13.0 (pinned)', recommended: false },
+    ],
   },
 ]
 

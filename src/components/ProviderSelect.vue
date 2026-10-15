@@ -3,6 +3,24 @@ import { computed, ref } from 'vue'
 import { useInspectionStore } from '../stores/inspection'
 import { providers, getProvider } from '../domain/providers'
 import type { ProviderId } from '../domain/inspection'
+import { isMovingAlias } from '../domain/jev'
+
+/** Key field copy per provider. Each key is labelled for the one endpoint that receives it. */
+const keyCopy: Record<ProviderId, { button: string; label: string; placeholder: string; hint: string }> = {
+  luna: {
+    button: 'Run live with an OpenAI key',
+    label: 'OpenAI API key',
+    placeholder: 'Paste your OpenAI key',
+    hint: "Kept in this tab's memory only, cleared on request, and sent only to OpenAI's Luna endpoint. Leave it empty to replay the recorded sample.",
+  },
+  jev: {
+    button: 'Run live with a TypeSafe key',
+    label: 'TypeSafe API key',
+    placeholder: 'Paste your TypeSafe console key',
+    hint: "Kept in this tab's memory only, cleared on request, and sent only to TypeSafe's System One endpoint. It needs a TypeSafe console key from console.typesafe.ai. Leave it empty to replay the recorded sample.",
+  },
+}
+const copy = computed(() => keyCopy[store.provider])
 
 const store = useInspectionStore()
 const open = ref(false)
@@ -71,23 +89,27 @@ function choose(id: ProviderId) {
         </select>
       </label>
       <span class="qs-hint">Recorded samples need no key and make no network call.</span>
+      <span v-if="isMovingAlias(store.model)" class="qs-hint"
+        >Moving target: TypeSafe points this alias at its newest release. The version that answers is recorded with each result.</span
+      >
     </div>
-    <div v-if="store.provider === 'luna' && !keyVisible" class="qs-fieldset">
+    <div v-if="!keyVisible" class="qs-fieldset">
       <button type="button" class="qs-btn qs-btn--ghost qs-btn--sm" @click="keyRequested = true">
-        Run live with an OpenAI key
+        {{ copy.button }}
       </button>
     </div>
-    <div v-if="store.provider === 'luna' && keyVisible" class="qs-fieldset">
-      <label class="qs-fieldset__label" for="luna-key">OpenAI API key</label>
+    <div v-if="keyVisible" class="qs-fieldset">
+      <label class="qs-fieldset__label" :for="`${store.provider}-key`">{{ copy.label }}</label>
       <label class="qs-input">
         <input
-          id="luna-key"
-          v-model="store.apiKey"
+          :id="`${store.provider}-key`"
+          :value="store.apiKey"
+          @input="store.setApiKey(($event.target as HTMLInputElement).value)"
           :type="revealed ? 'text' : 'password'"
           autocomplete="off"
           spellcheck="false"
-          placeholder="Paste your OpenAI key"
-          aria-label="OpenAI API key"
+          :placeholder="copy.placeholder"
+          :aria-label="copy.label"
           :disabled="busy"
         />
         <button
@@ -109,8 +131,7 @@ function choose(id: ProviderId) {
         </button>
       </label>
       <span class="qs-hint"
-        >Kept in this tab's memory only, cleared on request, and sent only to OpenAI's Luna endpoint.
-        Leave it empty to replay the recorded sample.</span
+        >{{ copy.hint }}</span
       >
     </div>
   </div>

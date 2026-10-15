@@ -2,6 +2,7 @@
 import { computed } from 'vue'
 import { useInspectionStore } from '../stores/inspection'
 import { getProvider } from '../domain/providers'
+import { isMovingAlias } from '../domain/jev'
 import { idResultState, visibleAlternatives } from '../domain/certainty'
 import CertaintyChip from './CertaintyChip.vue'
 import ContainerId from './ContainerId.vue'
@@ -23,7 +24,11 @@ const recordedLabel = computed(() => {
 const liveLabel = computed(() => {
   const r = record.value
   if (!r || r.source !== 'live') return null
-  return `Live result: ${getProvider(r.provider).name} / ${r.resolvedVersion}`
+  const moving = isMovingAlias(r.model)
+  // A moving alias shows what was asked for and what answered, so the presenter can see the target moved.
+  return moving
+    ? `Live result: ${getProvider(r.provider).name} / ${r.resolvedVersion} (requested ${r.model}, a moving target)`
+    : `Live result: ${getProvider(r.provider).name} / ${r.resolvedVersion}`
 })
 
 // Plain explanation for the uncertain, partial and insufficient-evidence states (spec 5.4, 8.4).

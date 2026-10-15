@@ -48,7 +48,7 @@ describe('live Luna inspection in the store', () => {
     expect(store.mode).toBe('live')
   })
 
-  it('never goes live for Jev, and never sends the Luna key to it', async () => {
+  it('does not send the Luna key to Jev, and stays on the recorded sample without a Jev key', async () => {
     const store = useInspectionStore()
     store.setApiKey(KEY)
     store.setProvider('jev')
