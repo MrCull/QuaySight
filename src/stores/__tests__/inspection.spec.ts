@@ -26,7 +26,9 @@ function recordFor(provider: 'luna' | 'jev'): InspectionRecord {
       certainty: 'Confident',
       provenance: 'printed',
     },
-    damage: null,
+      damage: null,
+      sizeCode: null,
+      weights: null,
   }
 }
 

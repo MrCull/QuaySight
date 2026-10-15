@@ -1,3 +1,6 @@
+import type { DecodedSizeCode } from './isoSizeCode'
+import type { WeightChecks } from './weights'
+
 // Shared inspection record (spec 11.2). Provider-independent: every adapter, recorded or live,
 // normalises into this shape. Later tickets extend it (checks, findings, costs) without changing
 // the fields below, so schemaVersion bumps only on breaking changes.
@@ -30,6 +33,12 @@ export interface ContainerIdReading {
   checkDigitValid: boolean
   certainty: CertaintyLabel
   provenance: Provenance
+  /** Optional per-position certainty (11 entries). Defaults to the overall certainty for every position. */
+  positionCertainty?: CertaintyLabel[]
+  /** Plausible alternative IDs. Only the first two are ever shown, as "Also possible". */
+  alternatives?: string[]
+  /** Plain-words note on what remains uncertain, shown beside the best interpretation. */
+  uncertainty?: string
 }
 
 export interface PhotoRef {
@@ -50,4 +59,8 @@ export interface InspectionRecord {
   containerId: ContainerIdReading | null
   /** Damage assessment for the neutral schematic (ticket #8). Null when the run assessed no damage. */
   damage: DamageAssessment | null
+  /** Decoded ISO size/type code (provenance: decoded), or null when not visible or not recognised. */
+  sizeCode: DecodedSizeCode | null
+  /** Printed maximum gross and tare, calculated payload, and any printed-versus-arithmetic conflict. */
+  weights: WeightChecks | null
 }

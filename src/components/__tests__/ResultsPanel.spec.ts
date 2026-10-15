@@ -41,3 +41,18 @@ describe('ResultsPanel', () => {
     expect(wrapper.text()).toContain('could not be loaded')
   })
 })
+
+describe('ResultsPanel deterministic checks', () => {
+  beforeEach(() => setActivePinia(createPinia()))
+
+  it('shows decoded size, printed maximum gross and tare, and calculated payload for Luna', async () => {
+    const store = useInspectionStore()
+    store.record = await runRecordedInspection('luna', { delayMs: 0 })
+    store.status = 'complete'
+    const wrapper = mount(ResultsPanel)
+    expect(wrapper.text()).toContain('40 ft High Cube')
+    expect(wrapper.text()).toContain('32,500 kg')
+    expect(wrapper.text()).toContain('28,630 kg')
+    expect(wrapper.text()).toContain('Calculated')
+  })
+})
