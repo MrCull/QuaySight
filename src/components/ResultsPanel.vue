@@ -6,6 +6,7 @@ import { idResultState, visibleAlternatives } from '../domain/certainty'
 import CertaintyChip from './CertaintyChip.vue'
 import ContainerId from './ContainerId.vue'
 import ContainerDetails from './ContainerDetails.vue'
+import ExportActions from './ExportActions.vue'
 
 const store = useInspectionStore()
 const record = computed(() => store.record)
@@ -96,5 +97,7 @@ const showInsufficient = computed(() => idState.value === 'insufficient')
     </div>
 
     <ContainerDetails v-if="record" :record="record" />
+
+    <ExportActions />
   </section>
 </template>
