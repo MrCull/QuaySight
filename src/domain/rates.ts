@@ -1,0 +1,78 @@
+import type { ProviderId } from './inspection'
+
+// Separately maintained cost configuration (spec 8.5, 11.6). Edit here, not in code.
+// Every schedule is timestamped by effectiveFrom and keyed by provider, model and endpoint.
+//
+// PLACEHOLDER VALUES: none of these numbers has been verified against live provider billing pages
+// in this change. Verify each one against the provider's pricing documentation before any live demo,
+// then set placeholder to false and update source and effectiveFrom.
+// A null rate means "unknown": the ledger shows a partial estimate, never zero.
+
+export interface RateSchedule {
+  provider: ProviderId
+  model: string
+  endpoint: string
+  /** ISO date (YYYY-MM-DD) from which this schedule applies. */
+  effectiveFrom: string
+  /** Where the number came from, for the maintainer. */
+  source: string
+  placeholder: boolean
+  inputUsdPerMillionTokens: number | null
+  outputUsdPerMillionTokens: number | null
+}
+
+export interface SpendCaps {
+  maxRequestsPerInspection: number
+  maxSpendUsdPerInspection: number
+}
+
+export const rateSchedules: RateSchedule[] = [
+  {
+    provider: 'luna',
+    model: 'gpt-6-luna',
+    endpoint: 'decisions',
+    effectiveFrom: '2026-10-01',
+    source:
+      'PLACEHOLDER: spec 8.5/11.6 documented baseline (US$0.10 per 1M input tokens, no output charge at Decisions). Not re-verified against OpenAI pricing.',
+    placeholder: true,
+    inputUsdPerMillionTokens: 0.1,
+    outputUsdPerMillionTokens: 0,
+  },
+  {
+    provider: 'jev',
+    model: 'jev-1.14.0',
+    endpoint: 'system-one',
+    effectiveFrom: '2026-10-01',
+    source:
+      'PLACEHOLDER: no verified TypeSafe rate. Left unknown (null) so costs show as a partial estimate, not zero.',
+    placeholder: true,
+    inputUsdPerMillionTokens: null,
+    outputUsdPerMillionTokens: null,
+  },
+]
+
+/** Per-inspection cap (spec 8.3, 11.5). PLACEHOLDER values, to be set by the presenter. */
+export const spendCaps: SpendCaps = {
+  maxRequestsPerInspection: 6,
+  maxSpendUsdPerInspection: 0.05,
+}
+
+/** Latest schedule for provider/model/endpoint that is effective on or before `at`. */
+export function findRate(
+  schedules: RateSchedule[],
+  provider: ProviderId,
+  model: string,
+  endpoint: string,
+  at: Date,
+): RateSchedule | undefined {
+  const day = at.toISOString().slice(0, 10)
+  return schedules
+    .filter(
+      (s) =>
+        s.provider === provider &&
+        s.model === model &&
+        s.endpoint === endpoint &&
+        s.effectiveFrom <= day,
+    )
+    .sort((a, b) => (a.effectiveFrom < b.effectiveFrom ? 1 : -1))[0]
+}
