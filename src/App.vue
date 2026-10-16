@@ -45,6 +45,13 @@ const stageClass = computed(() => {
   return ''
 })
 
+// The damage view shows once damage has run to the end. After Cancel or a failed damage request it is left out:
+// the partial or error notice names damage as not finished, and "not assessed in this inspection" would be untrue.
+const showDamageView = computed(() => {
+  const state = store.stages.find((s) => s.id === 'damage')?.state
+  return store.landed('damage') && state !== 'cancelled' && state !== 'failed'
+})
+
 function start() {
   void store.start()
 }
@@ -128,7 +135,7 @@ function start() {
       </section>
       <ResultsPanel />
       <DamageView
-        v-if="store.record && store.landed('damage')"
+        v-if="showDamageView && store.record"
         :assessment="store.record.damage"
         :selected="store.selectedFinding"
         @update:selected="store.selectFinding"

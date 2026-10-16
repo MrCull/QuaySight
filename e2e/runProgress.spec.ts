@@ -98,6 +98,24 @@ test.describe('Live run progress and Cancel', () => {
     await expect(line).toContainText('Cost unknown')
   })
 
+  test('Cancel while the damage checks are in flight names damage as not finished and draws no damage view', async ({
+    page,
+  }) => {
+    // The survey (call 1) answers; the long-side and door-end damage requests (calls 2 and 3) are held, then cancelled.
+    const edge = await decisions(page, [2, 3])
+    await startLive(page)
+    await expect.poll(() => edge.held.length).toBe(2)
+    await expect(stage(page, 'Reading the ID')).toHaveClass(/qs-stage--done/)
+
+    await page.getByRole('button', { name: 'Cancel' }).click()
+
+    await page.locator('#stage.qs-arrived').waitFor()
+    await expect(page.locator('.qs-notice--partial')).toContainText('Not finished: damage.')
+    await expect(page.locator('.qs-id')).toBeVisible()
+    // Damage never ran to the end, so the view must not say it was "not assessed in this inspection".
+    await expect(page.getByRole('region', { name: 'Damage view' })).toHaveCount(0)
+  })
+
   test('Cancel during a run keeps what already arrived, marked partial', async ({ page }) => {
     // The reading and the damage checks answer; the closer look at the unread position (call 4) is held, then cancelled.
     const edge = await decisions(page, [4])
