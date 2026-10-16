@@ -155,7 +155,9 @@ describe('live Jev through OpenRouter in the store', () => {
       A: 'Letter A',
       unreadable: expect.any(String),
     })
-    expect(body.questions.id_char_11?.instructions).toContain('check digit')
+    expect(body.questions.id_char_11?.instructions).toContain(
+      'Read only the single digit in the drawn box, exactly as printed.',
+    )
     expect(body.questions.legibility).toMatchObject({ type: 'score', criteria: expect.any(Array) })
     expect(body.questions.full_number_visible).toMatchObject({ type: 'noul' })
     expect(Object.keys(body.questions)).toHaveLength(11 + 3)

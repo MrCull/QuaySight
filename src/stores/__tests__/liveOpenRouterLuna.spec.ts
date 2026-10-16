@@ -13,9 +13,12 @@ const KEY = 'test-only-openrouter-key-0000'
 const OPENAI_KEY = 'test-only-openai-key-0000'
 const MODEL = 'openai/gpt-6-luna-decisions'
 
-/** Spec 4.2, verbatim: the check-digit guidance Luna's identification instructions carry. */
-const CHECK_DIGIT_GUIDANCE =
-  'A standard container number has three owner-code letters, one equipment-category letter, six serial digits and one check digit. To calculate the check digit, assign numeric values to letters starting at A=10 and skipping multiples of 11 (for example B=12, K=21, L=23, U=32). Digits retain their numeric value. Multiply the first ten values by 1, 2, 4, 8, 16, 32, 64, 128, 256 and 512; sum and take the remainder modulo 11. Remainder 10 is displayed as 0. Use this as a consistency constraint when comparing visually plausible numbers, but do not invent or change clearly visible characters just to satisfy it.'
+/** The printed layout every character question describes (ticket #29). */
+const LAYOUT =
+  'The container number on this photo is printed as four capital letters, a gap, a six-digit group, then a single digit in a drawn box.'
+
+/** Any trace of the check-digit calculation, which is never put in front of the model. */
+const CHECK_DIGIT_ALGORITHM = /modulo|remainder|A=10|multiply/i
 
 interface SentRequest {
   url: string
@@ -129,7 +132,7 @@ describe('live GPT-6 Luna Decisions through OpenRouter in the store', () => {
     return store
   }
 
-  it("sends the Luna question set, with the check-digit guidance, in OpenRouter's question format and with no box question", async () => {
+  it("sends the Luna question set, with no check-digit calculation, in OpenRouter's question format and with no box question", async () => {
     fetchMock.mockResolvedValue(json(lunaBody()))
     const store = liveStore()
 
@@ -143,7 +146,8 @@ describe('live GPT-6 Luna Decisions through OpenRouter in the store', () => {
 
     const { body } = request
     expect(body.model).toBe(MODEL)
-    expect(body.state[0]).toContain(CHECK_DIGIT_GUIDANCE)
+    expect(body.state[0]).toContain('Read the container identification')
+    expect(request.rawBody).not.toMatch(CHECK_DIGIT_ALGORITHM)
     expect(body.state[1].type).toBe('image_url')
     const [, type = '', data = ''] =
       /^data:([^;]+);base64,(.*)$/.exec(body.state[1].image_url.url) ?? []
@@ -156,15 +160,17 @@ describe('live GPT-6 Luna Decisions through OpenRouter in the store', () => {
     )
     expect(body.questions.id_char_01).toEqual({
       type: 'choice',
-      instructions: 'Position 1 of 11 (owner code letter).',
+      instructions: `${LAYOUT} Read only the first letter of the four-letter group.`,
       criteria: Object.fromEntries(
-        'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('').map((letter) => [letter, letter]),
+        'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('').map((letter) => [letter, `Letter ${letter}`]),
       ),
     })
     expect(body.questions.id_char_11).toEqual({
       type: 'choice',
-      instructions: 'Position 11 of 11 (check digit).',
-      criteria: Object.fromEntries('0123456789'.split('').map((digit) => [digit, digit])),
+      instructions: `${LAYOUT} Read only the single digit in the drawn box, exactly as printed.`,
+      criteria: Object.fromEntries(
+        '0123456789'.split('').map((digit) => [digit, `Digit ${digit}`]),
+      ),
     })
     expect(Object.values(body.questions).some((q) => q.type === 'box')).toBe(false)
   })
@@ -276,7 +282,7 @@ describe('live GPT-6 Luna Decisions through OpenRouter in the store', () => {
     expect(again.url).toBe('https://openrouter.ai/api/alpha/decisions')
     expect(again.headers.authorization).toBe(`Bearer ${KEY}`)
     expect(again.body.model).toBe(MODEL)
-    expect(again.body.state[0]).toContain(CHECK_DIGIT_GUIDANCE)
+    expect(again.rawBody).not.toMatch(CHECK_DIGIT_ALGORITHM)
     expect(Object.keys(again.body.questions)).toEqual(['id_char_07', 'id_char_09'])
 
     expect(store.record?.containerId?.value).toBe('APHU6586847')

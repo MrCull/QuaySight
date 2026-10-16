@@ -21,7 +21,11 @@ const SET: SharedQuestionSet = {
       role: 'user',
       content: [
         { type: 'input_text', text: 'Freight container photo.' },
-        { type: 'input_image', image_url: 'data:image/jpeg;base64,{{imageBase64}}', detail: 'original' },
+        {
+          type: 'input_image',
+          image_url: 'data:image/jpeg;base64,{{imageBase64}}',
+          detail: 'original',
+        },
       ],
     },
   ],
@@ -48,7 +52,9 @@ const SET: SharedQuestionSet = {
 
 describe('toWireRequest for OpenAI Decisions', () => {
   it('sends the authored request with the photo in place and the image detail kept', () => {
-    expect(toWireRequest('openai-decisions', SET, { model: 'gpt-6-luna', imageDataUrl: PHOTO })).toEqual({
+    expect(
+      toWireRequest('openai-decisions', SET, { model: 'gpt-6-luna', imageDataUrl: PHOTO }),
+    ).toEqual({
       model: 'gpt-6-luna',
       input: [
         {
@@ -68,9 +74,9 @@ describe('toWireRequest for OpenAI Decisions', () => {
       ...SET,
       questions: [...SET.questions, { type: 'box', name: 'id_box', instructions: 'The ID.' }],
     }
-    expect(() => toWireRequest('openai-decisions', withBox, { model: 'm', imageDataUrl: PHOTO })).toThrow(
-      QuestionSetError,
-    )
+    expect(() =>
+      toWireRequest('openai-decisions', withBox, { model: 'm', imageDataUrl: PHOTO }),
+    ).toThrow(QuestionSetError)
   })
 })
 
@@ -81,7 +87,10 @@ describe('toWireRequest for OpenRouter Decisions', () => {
       questions: [...SET.questions, { type: 'box', name: 'id_box', instructions: 'The ID.' }],
     }
     expect(
-      toWireRequest('openrouter-decisions', withBox, { model: '~typesafe/jev-latest', imageDataUrl: PHOTO }),
+      toWireRequest('openrouter-decisions', withBox, {
+        model: '~typesafe/jev-latest',
+        imageDataUrl: PHOTO,
+      }),
     ).toEqual({
       model: '~typesafe/jev-latest',
       state: ['Freight container photo.', { type: 'image_url', image_url: { url: PHOTO } }],
@@ -116,8 +125,14 @@ describe('toWireRequest for OpenRouter Decisions', () => {
         },
       ],
     }
-    const request = toWireRequest('openrouter-decisions', twoTexts, { model: 'm', imageDataUrl: PHOTO })
-    expect(request.state).toEqual(['First.\n\nSecond.', { type: 'image_url', image_url: { url: PHOTO } }])
+    const request = toWireRequest('openrouter-decisions', twoTexts, {
+      model: 'm',
+      imageDataUrl: PHOTO,
+    })
+    expect(request.state).toEqual([
+      'First.\n\nSecond.',
+      { type: 'image_url', image_url: { url: PHOTO } },
+    ])
   })
 })
 
@@ -141,7 +156,10 @@ function choiceWith(n: number): SharedQuestionSet {
         type: 'choice',
         name: 'many',
         instructions: 'Which?',
-        choices: Array.from({ length: n }, (_, i) => ({ value: `v${i}`, description: `Option ${i}` })),
+        choices: Array.from({ length: n }, (_, i) => ({
+          value: `v${i}`,
+          description: `Option ${i}`,
+        })),
       },
     ],
   }
@@ -185,9 +203,9 @@ describe('request limits', () => {
 
   it('refuses duplicate question names, which would overwrite each other in OpenRouter’s map', () => {
     const dup = { ...SET, questions: [SET.questions[0]!, SET.questions[0]!] }
-    expect(() => toWireRequest('openrouter-decisions', dup, { model: 'm', imageDataUrl: PHOTO })).toThrow(
-      /door_end/,
-    )
+    expect(() =>
+      toWireRequest('openrouter-decisions', dup, { model: 'm', imageDataUrl: PHOTO }),
+    ).toThrow(/door_end/)
   })
 })
 
@@ -274,7 +292,12 @@ describe('readAnswers from OpenRouter Decisions', () => {
     model: 'typesafe/jev-1.14-20261014',
     answers: {
       door_end: { type: 'noul', noul: 0.98 },
-      quality: { type: 'choice', choice: 'good', probabilities: { good: 1, poor: 0 }, confidence: 1 },
+      quality: {
+        type: 'choice',
+        choice: 'good',
+        probabilities: { good: 1, poor: 0 },
+        confidence: 1,
+      },
       severity: {
         type: 'score',
         score: 0.4,
@@ -295,7 +318,12 @@ describe('readAnswers from OpenRouter Decisions', () => {
     expect(readAnswers('openrouter-decisions', response, withBox, '~typesafe/jev-latest')).toEqual({
       answers: {
         door_end: { type: 'predicate', probability: 0.98 },
-        quality: { type: 'choice', value: 'good', probabilities: { good: 1, poor: 0 }, confidence: 1 },
+        quality: {
+          type: 'choice',
+          value: 'good',
+          probabilities: { good: 1, poor: 0 },
+          confidence: 1,
+        },
         severity: {
           type: 'score',
           level: 0,
@@ -318,7 +346,13 @@ describe('readAnswers from OpenRouter Decisions', () => {
 
   it('drops a box whose edges are outside the photo or crossed', () => {
     const bad = {
-      answers: { id_box: { type: 'box', box: { top: 0.5, bottom: 0.2, left: 0.1, right: 1.4 }, confidence: 1 } },
+      answers: {
+        id_box: {
+          type: 'box',
+          box: { top: 0.5, bottom: 0.2, left: 0.1, right: 1.4 },
+          confidence: 1,
+        },
+      },
     }
     expect(readAnswers('openrouter-decisions', bad, withBox, 'm').answers).toEqual({})
   })
@@ -335,7 +369,13 @@ describe('readAnswers from OpenRouter Decisions', () => {
 
 describe('parseQuestionSet', () => {
   const sideSet = JSON.parse(
-    readFileSync(resolve(dirname(fileURLToPath(import.meta.url)), '../../../docs/research/question-sets/side-damage-v2.json'), 'utf8'),
+    readFileSync(
+      resolve(
+        dirname(fileURLToPath(import.meta.url)),
+        '../../../docs/research/question-sets/side-damage-v2.json',
+      ),
+      'utf8',
+    ),
   ) as unknown
 
   it('reads the product owner’s side damage set: 132 questions of the three OpenAI types', () => {
@@ -349,7 +389,11 @@ describe('parseQuestionSet', () => {
     const set = parseQuestionSet(sideSet)
     const opts = { model: 'm', imageDataUrl: PHOTO }
     const openai = toWireRequest('openai-decisions', set, opts)
-    expect(openai.input[0]!.content[1]).toEqual({ type: 'input_image', image_url: PHOTO, detail: 'original' })
+    expect(openai.input[0]!.content[1]).toEqual({
+      type: 'input_image',
+      image_url: PHOTO,
+      detail: 'original',
+    })
 
     const openrouter = toWireRequest('openrouter-decisions', set, opts)
     expect(Object.keys(openrouter.questions)).toHaveLength(132)

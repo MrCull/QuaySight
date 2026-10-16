@@ -89,7 +89,11 @@ export class QuestionSetError extends Error {
 /** A reply that is not a Decisions reply, or carries no answers. Each provider adapter words it for the presenter. */
 export class UnreadableReplyError extends Error {
   constructor(readonly kind: 'unrecognised' | 'no-answers') {
-    super(kind === 'unrecognised' ? 'The reply is not in a recognised shape.' : 'The reply has no answers.')
+    super(
+      kind === 'unrecognised'
+        ? 'The reply is not in a recognised shape.'
+        : 'The reply has no answers.',
+    )
     this.name = 'UnreadableReplyError'
   }
 }
@@ -130,7 +134,8 @@ function optionalText(value: unknown): { description?: string } {
 
 function parsePart(raw: unknown): InputPart {
   const part = asRecord(raw)
-  if (part?.type === 'input_text') return { type: 'input_text', text: text(part.text, 'A text part') }
+  if (part?.type === 'input_text')
+    return { type: 'input_text', text: text(part.text, 'A text part') }
   if (part?.type === 'input_image') {
     return {
       type: 'input_image',
@@ -157,7 +162,10 @@ function parseQuestion(raw: unknown): SharedQuestion {
         instructions,
         choices: q.choices.map((c) => {
           const choice = asRecord(c)
-          return { value: text(choice?.value, `A choice of ${name}`), ...optionalText(choice?.description) }
+          return {
+            value: text(choice?.value, `A choice of ${name}`),
+            ...optionalText(choice?.description),
+          }
         }),
       }
     }
@@ -169,7 +177,10 @@ function parseQuestion(raw: unknown): SharedQuestion {
         instructions,
         levels: q.levels.map((l) => {
           const level = asRecord(l)
-          return { label: text(level?.label, `A level of ${name}`), ...optionalText(level?.description) }
+          return {
+            label: text(level?.label, `A level of ${name}`),
+            ...optionalText(level?.description),
+          }
         }),
       }
     }
@@ -244,7 +255,10 @@ function checkLimits(set: SharedQuestionSet, wire: QuestionWireFormat): void {
   }
   if (wire === 'openai-decisions') {
     const box = set.questions.find((q) => q.type === 'box')
-    if (box) throw new QuestionSetError(`Question ${box.name} is a box question, which OpenAI does not take.`)
+    if (box)
+      throw new QuestionSetError(
+        `Question ${box.name} is a box question, which OpenAI does not take.`,
+      )
   }
 }
 
@@ -253,7 +267,10 @@ function checkLimits(set: SharedQuestionSet, wire: QuestionWireFormat): void {
  * input. A choice question over the choice limit is refused: splitting its options would change what
  * it asks (the manifest check splits its own entries, saying so in each part).
  */
-export function splitQuestionSet(set: SharedQuestionSet, wire: QuestionWireFormat): SharedQuestionSet[] {
+export function splitQuestionSet(
+  set: SharedQuestionSet,
+  wire: QuestionWireFormat,
+): SharedQuestionSet[] {
   checkNames(set)
   checkChoices(set, wire)
   const { maxQuestions } = REQUEST_LIMITS[wire]
@@ -298,7 +315,9 @@ export interface WireRequestOptions {
 }
 
 /** The questions in OpenRouter's (and TypeSafe System One's) format: a map by name. */
-export function toOpenRouterQuestions(questions: SharedQuestion[]): Record<string, OpenRouterQuestion> {
+export function toOpenRouterQuestions(
+  questions: SharedQuestion[],
+): Record<string, OpenRouterQuestion> {
   return Object.fromEntries(
     questions.map((q): [string, OpenRouterQuestion] => {
       switch (q.type) {
@@ -319,7 +338,9 @@ export function toOpenRouterQuestions(questions: SharedQuestion[]): Record<strin
             {
               type: 'score',
               instructions: q.instructions,
-              criteria: q.levels.map((l) => (l.description ? `${l.label}: ${l.description}` : l.label)),
+              criteria: q.levels.map((l) =>
+                l.description ? `${l.label}: ${l.description}` : l.label,
+              ),
             },
           ]
         case 'box':
@@ -342,7 +363,10 @@ function toOpenAi(set: SharedQuestionSet, options: WireRequestOptions): OpenAiDe
   }
 }
 
-function toOpenRouter(set: SharedQuestionSet, options: WireRequestOptions): OpenRouterDecisionsRequest {
+function toOpenRouter(
+  set: SharedQuestionSet,
+  options: WireRequestOptions,
+): OpenRouterDecisionsRequest {
   // Text parts in a row become one text; image parts lose fields OpenRouter does not take (detail).
   const state: (string | OpenRouterImagePart)[] = []
   for (const part of set.input.flatMap((m) => m.content)) {
@@ -532,7 +556,14 @@ function answerTo(question: SharedQuestion, raw: RawAnswer): SharedAnswer | null
       }
       const label = question.levels[level]?.label
       if (label === undefined) return null
-      return { type: 'score', level, label, score: raw.score, probabilities, confidence: raw.confidence }
+      return {
+        type: 'score',
+        level,
+        label,
+        score: raw.score,
+        probabilities,
+        confidence: raw.confidence,
+      }
     }
     case 'box': {
       if (raw.type !== 'box') return null
@@ -547,7 +578,10 @@ function readUsage(raw: unknown): Usage | null {
   if (!record) return null
   const inputTokens = finite(record.input_tokens) ?? finite(record.prompt_tokens)
   if (inputTokens === null) return null
-  return { inputTokens, outputTokens: finite(record.output_tokens) ?? finite(record.completion_tokens) }
+  return {
+    inputTokens,
+    outputTokens: finite(record.output_tokens) ?? finite(record.completion_tokens),
+  }
 }
 
 /**
@@ -589,7 +623,8 @@ export function readAnswers(
     if (answer) answers[question.name] = answer
   }
 
-  const model = typeof body.model === 'string' && body.model.trim() ? body.model.trim() : requestedModel
+  const model =
+    typeof body.model === 'string' && body.model.trim() ? body.model.trim() : requestedModel
   return {
     answers,
     resolvedModel: model,

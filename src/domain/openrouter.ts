@@ -7,16 +7,20 @@
 // headers, so every failed status is readable in the browser and gets its own message.
 import { classifyFailedCall, type ProviderErrorTraits } from './failedCall'
 import { ProviderError, providerMessage, redact } from './providerErrors'
-import { JevError, jevQuestions, mapJevResponse, type JevMapping, type JevQuestion } from './jev'
+import { JevError, mapJevResponse, type JevMapping } from './jev'
+import { JEV_STATE_INSTRUCTIONS, jevIdQuestionSet, lunaIdQuestionSet } from './idQuestions'
+import { lunaMappingOf, manifestMappingOf, type LunaMapping, type ManifestMapping } from './luna'
+import { manifestQuestionSet, type ManifestQuestion } from './manifest'
 import {
-  LUNA_IDENTIFICATION_INSTRUCTIONS,
-  buildIdQuestions,
-  mapLunaManifestResponse,
-  mapLunaResponse,
-  type LunaMapping,
-  type ManifestMapping,
-} from './luna'
-import { MANIFEST_STATE_INSTRUCTIONS, type ManifestQuestion } from './manifest'
+  UnreadableReplyError,
+  readAnswers,
+  toWireRequest,
+  type AnswersReading,
+  type OpenRouterDecisionsRequest,
+  type SharedQuestionSet,
+} from './questionSet'
+
+export { JEV_STATE_INSTRUCTIONS }
 
 export const OPENROUTER_ENDPOINT = 'https://openrouter.ai/api/alpha/decisions'
 /** Endpoint family key used by the rate schedules and ledger. */
@@ -30,98 +34,58 @@ export const OPENROUTER_ATTRIBUTION_HEADERS = {
 /** OpenRouter sends CORS headers on errors as well as on success (checked live 16 Oct 2026). */
 export const OPENROUTER_ERROR_TRAITS: ProviderErrorTraits = { errorsCarryCors: true }
 
-export interface OpenRouterImagePart {
-  type: 'image_url'
-  image_url: { url: string }
-}
-
-export interface OpenRouterRequestBody {
-  model: string
-  state: [string, OpenRouterImagePart]
-  /** OpenRouter's question format: the same noul, choice (criteria map), score (criteria list) and box types Jev uses. */
-  questions: Record<string, JevQuestion>
-}
-
-/** The text part sent ahead of the photo. */
-export const JEV_STATE_INSTRUCTIONS =
-  'Freight container photo. Judge only what is visible in the photo. Answer every question about this one photo.'
+/** OpenRouter's request: `state` holds the text and the photo part; `questions` is a map by name. */
+export type OpenRouterRequestBody = OpenRouterDecisionsRequest
 
 /**
- * The request for one photo on a Jev model. The key is never part of the body. The box question is
- * asked only when the catalogue declares the model box-capable (the caller passes that flag).
+ * The request for one photo on a Jev model: the Jev ID set, translated for OpenRouter. The key is never
+ * part of the body. The box question is asked only when the catalogue declares the model box-capable
+ * (the caller passes that flag).
  */
 export function buildOpenRouterJevRequest(
   model: string,
   imageDataUrl: string,
   options: { box: boolean },
 ): OpenRouterRequestBody {
-  return {
-    model,
-    state: [JEV_STATE_INSTRUCTIONS, { type: 'image_url', image_url: { url: imageDataUrl } }],
-    questions: jevQuestions({ image: 'the photo', box: options.box }),
-  }
-}
-
-/** A choice question in OpenAI's shape: a list of options, each with a value and a description. */
-interface ListedChoice {
-  name: string
-  instructions: string
-  options: { value: string; description: string }[]
-}
-
-/** OpenAI's choice lists translated into OpenRouter's criteria map (value to description), by question name. */
-function choiceQuestions(questions: ListedChoice[]): Record<string, JevQuestion> {
-  return Object.fromEntries(
-    questions.map((q) => [
-      q.name,
-      {
-        type: 'choice',
-        instructions: q.instructions,
-        criteria: Object.fromEntries(q.options.map((o) => [o.value, o.description])),
-      },
-    ]),
+  return toWireRequest(
+    'openrouter-decisions',
+    jevIdQuestionSet({ image: 'the photo', box: options.box }),
+    {
+      model,
+      imageDataUrl,
+    },
   )
 }
 
 /**
- * The request for one photo on a Luna Decisions model (ticket #23). The Luna question set is reused as
- * it is, check-digit guidance included: its instruction text goes ahead of the photo, and each
- * position question is translated from OpenAI's choice array into OpenRouter's criteria map. Luna
- * takes no box question. With positions, only those (1-based) are asked, as for the direct re-check.
+ * The request for one photo on a Luna Decisions model (ticket #23): the same Luna ID set the direct
+ * route asks, translated for OpenRouter. Luna takes no box question. With positions, only those
+ * (1-based) are asked, as for the direct re-check.
  */
 export function buildOpenRouterLunaRequest(
   model: string,
   imageDataUrl: string,
   positions?: number[],
 ): OpenRouterRequestBody {
-  const questions = choiceQuestions(
-    buildIdQuestions(positions).map((q) => ({ ...q, options: q.choices })),
-  )
-  return {
+  return toWireRequest('openrouter-decisions', lunaIdQuestionSet(positions), {
     model,
-    state: [
-      LUNA_IDENTIFICATION_INSTRUCTIONS,
-      { type: 'image_url', image_url: { url: imageDataUrl } },
-    ],
-    questions,
-  }
+    imageDataUrl,
+  })
 }
 
 /**
  * The manifest check for one photo on any OpenRouter Decisions model (spec 3.2): the pasted entries
- * as choice questions, each with "not listed", translated into OpenRouter's criteria map. The same
- * request shape for Jev and Luna Decisions models; no box question.
+ * as choice questions, each with "not listed", translated for OpenRouter. No box question.
  */
 export function buildOpenRouterManifestRequest(
   model: string,
   imageDataUrl: string,
   questions: ManifestQuestion[],
 ): OpenRouterRequestBody {
-  return {
+  return toWireRequest('openrouter-decisions', manifestQuestionSet(questions), {
     model,
-    state: [MANIFEST_STATE_INSTRUCTIONS, { type: 'image_url', image_url: { url: imageDataUrl } }],
-    questions: choiceQuestions(questions),
-  }
+    imageDataUrl,
+  })
 }
 
 export type OpenRouterErrorKind =
@@ -247,66 +211,39 @@ export interface OpenRouterLunaMapping extends LunaMapping {
   reportedCostUsd: number | null
 }
 
-function asRecord(value: unknown): Record<string, unknown> | null {
-  return typeof value === 'object' && value !== null && !Array.isArray(value)
-    ? (value as Record<string, unknown>)
-    : null
-}
-
-function readCost(usage: unknown): number | null {
-  const cost = asRecord(usage)?.cost
-  return typeof cost === 'number' && Number.isFinite(cost) ? cost : null
+/** Reads an OpenRouter Decisions reply by meaning, with OpenRouter's wording for a reply it cannot read. */
+export function readOpenRouterReply(
+  response: unknown,
+  set: SharedQuestionSet,
+  requestedModel: string,
+): AnswersReading {
+  try {
+    return readAnswers('openrouter-decisions', response, set, requestedModel)
+  } catch (error) {
+    if (error instanceof UnreadableReplyError) {
+      throw new OpenRouterError(
+        'bad-response',
+        error.kind === 'no-answers'
+          ? 'OpenRouter replied without answers. Try again.'
+          : 'OpenRouter replied in a shape the app does not recognise.',
+      )
+    }
+    throw error
+  }
 }
 
 /**
- * Maps a Decisions response for the Luna question set onto the shared container-ID reading. OpenRouter's
- * answers (a map by question name, probabilities a map by option) are translated into OpenAI's shape
- * (an array of named answers, probabilities a list) and read by the direct Luna mapping, so the same
- * answers give the same record on either route. The resolved model and usage.cost come from the response.
+ * Maps a Decisions response for the Luna ID set onto the shared container-ID reading, by meaning, with
+ * the same reading rules as the direct route: the same answers give the same record on either route.
+ * The resolved model and usage.cost come from the response.
  */
 export function mapOpenRouterLunaResponse(
   response: unknown,
   requestedModel: string,
   positions?: number[],
 ): OpenRouterLunaMapping {
-  const { body, translated } = toOpenAiShape(response)
-  return {
-    ...mapLunaResponse(translated, requestedModel, positions),
-    reportedCostUsd: readCost(body.usage),
-  }
-}
-
-/**
- * OpenRouter's answers (a map by question name, probabilities a map by option) in OpenAI's shape (a
- * list of named answers, probabilities a list), so the direct Luna mappings read either route alike.
- */
-function toOpenAiShape(response: unknown): {
-  body: Record<string, unknown>
-  translated: Record<string, unknown>
-} {
-  const body = asRecord(response)
-  if (!body) {
-    throw new OpenRouterError(
-      'bad-response',
-      'OpenRouter replied in a shape the app does not recognise.',
-    )
-  }
-  const answers = asRecord(body.answers)
-  if (!answers)
-    throw new OpenRouterError('bad-response', 'OpenRouter replied without answers. Try again.')
-
-  const list = Object.entries(answers).map(([name, answer]) => {
-    const record = asRecord(answer) ?? {}
-    const probabilities = asRecord(record.probabilities)
-    return {
-      ...record,
-      name,
-      probabilities: probabilities
-        ? Object.entries(probabilities).map(([value, probability]) => ({ value, probability }))
-        : [],
-    }
-  })
-  return { body, translated: { ...body, answers: list } }
+  const reply = readOpenRouterReply(response, lunaIdQuestionSet(positions), requestedModel)
+  return { ...lunaMappingOf(reply, positions), reportedCostUsd: reply.reportedCostUsd }
 }
 
 export interface OpenRouterManifestMapping extends ManifestMapping {
@@ -320,9 +257,6 @@ export function mapOpenRouterManifestResponse(
   requestedModel: string,
   questions: ManifestQuestion[],
 ): OpenRouterManifestMapping {
-  const { body, translated } = toOpenAiShape(response)
-  return {
-    ...mapLunaManifestResponse(translated, requestedModel, questions),
-    reportedCostUsd: readCost(body.usage),
-  }
+  const reply = readOpenRouterReply(response, manifestQuestionSet(questions), requestedModel)
+  return { ...manifestMappingOf(reply, questions), reportedCostUsd: reply.reportedCostUsd }
 }

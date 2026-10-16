@@ -1,102 +1,57 @@
 // OpenAI Decisions API adapter for GPT-6 Luna (spec 11.4, 11.5, 11.6). Pure functions: no fetch, no storage.
 // Endpoint and request shape follow the live OpenAI Decisions guide (developers.openai.com/api/docs/guides/decisions):
 // POST /v1/decisions, input as user messages with input_text and input_image parts (inline base64 data URLs),
-// and named questions of type predicate, choice or score. The guide documents no response model/version or
-// usage fields; the mapper reads them defensively and reports what is absent rather than inventing it.
+// and named questions of type predicate, choice or score. Question sets are written once in the shared
+// format (questionSet.ts) and translated here; answers come back by meaning. The guide documents no
+// response model/version or usage fields; the mapper reads them defensively and reports what is absent.
 import { calculateCheckDigit } from './iso6346'
 import { buildContainerIdReading } from './containerId'
-import { CERTAINTY_LABELS, UNREAD, applyMargin } from './certainty'
+import { CERTAINTY_LABELS, UNREAD } from './certainty'
 import type { CertaintyLabel, ContainerIdReading } from './inspection'
 import type { Usage } from './ledger'
 import { classifyFailedCall, type ProviderErrorTraits } from './failedCall'
 import { ProviderError, providerMessage, redact } from './providerErrors'
 import {
-  MANIFEST_STATE_INSTRUCTIONS,
+  manifestAnswersOf,
+  manifestQuestionSet,
   readManifestAnswers,
-  type ManifestChoiceAnswer,
   type ManifestQuestion,
 } from './manifest'
+import {
+  LUNA_IDENTIFICATION_INSTRUCTIONS,
+  lunaIdQuestionSet,
+  readIdCharacters,
+  type ChoiceReading,
+} from './idQuestions'
+import {
+  UnreadableReplyError,
+  readAnswers,
+  toWireRequest,
+  type AnswersReading,
+  type OpenAiDecisionsRequest,
+  type SharedQuestionSet,
+} from './questionSet'
+
+export { LUNA_IDENTIFICATION_INSTRUCTIONS }
+export type { ChoiceReading }
 
 export const LUNA_MODEL = 'gpt-6-luna'
 export const LUNA_ENDPOINT = 'https://api.openai.com/v1/decisions'
 /** Endpoint family key used by the rate schedules and ledger. */
 export const LUNA_ENDPOINT_ID = 'decisions'
 
-/** Spec 4.2: the check-digit guidance included in the identification instructions. Verbatim. */
-export const CHECK_DIGIT_GUIDANCE =
-  'A standard container number has three owner-code letters, one equipment-category letter, six serial digits and one check digit. To calculate the check digit, assign numeric values to letters starting at A=10 and skipping multiples of 11 (for example B=12, K=21, L=23, U=32). Digits retain their numeric value. Multiply the first ten values by 1, 2, 4, 8, 16, 32, 64, 128, 256 and 512; sum and take the remainder modulo 11. Remainder 10 is displayed as 0. Use this as a consistency constraint when comparing visually plausible numbers, but do not invent or change clearly visible characters just to satisfy it.'
-
-/** The instruction text sent ahead of the photo, on every route that asks the Luna question set. */
-export const LUNA_IDENTIFICATION_INSTRUCTIONS =
-  'Read the container identification (ISO 6346 owner code, category, serial number and check digit) printed on this freight container photo. Answer each numbered position with the one character you can see. If a position is not visible or cannot be read, give a low probability for every choice rather than a clear character. ' +
-  CHECK_DIGIT_GUIDANCE
-
-const LETTERS = Array.from({ length: 26 }, (_, i) => String.fromCharCode(65 + i))
-const DIGITS = Array.from({ length: 10 }, (_, i) => String(i))
-
-export interface LunaChoiceQuestion {
-  type: 'choice'
-  name: string
-  instructions: string
-  choices: { value: string; description: string }[]
-}
-
-export interface LunaRequestBody {
-  model: typeof LUNA_MODEL
-  input: {
-    role: 'user'
-    content: ({ type: 'input_text'; text: string } | { type: 'input_image'; image_url: string })[]
-  }[]
-  questions: LunaChoiceQuestion[]
-}
-
-const ID_POSITIONS = 11
-const LETTER_POSITIONS = 4
-
-function questionName(position: number): string {
-  return `id_char_${String(position).padStart(2, '0')}`
-}
+export type LunaRequestBody = OpenAiDecisionsRequest
 
 /**
- * One choice question per character position: letters for owner code and category, digits for serial and check digit.
- * With positions, only those (1-based) are asked; the re-check uses this for the unread ones.
+ * Builds the Decisions request for one photo: the Luna ID set, translated for OpenAI. The data URL must
+ * carry the photo's real MIME type. With positions (1-based), only those are asked; the re-check uses
+ * this for the unread ones.
  */
-export function buildIdQuestions(positions?: number[]): LunaChoiceQuestion[] {
-  const wanted = positions ?? Array.from({ length: ID_POSITIONS }, (_, i) => i + 1)
-  return wanted.map((position) => {
-    const isLetter = position <= LETTER_POSITIONS
-    const values = isLetter ? LETTERS : DIGITS
-    const role = isLetter
-      ? position <= 3
-        ? 'owner code letter'
-        : 'equipment category letter'
-      : position === ID_POSITIONS
-        ? 'check digit'
-        : 'serial digit'
-    return {
-      type: 'choice',
-      name: questionName(position),
-      instructions: `Position ${position} of 11 (${role}).`,
-      choices: values.map((value) => ({ value, description: value })),
-    }
-  })
-}
-
-/** Builds the Decisions request for one photo. The data URL must carry the photo's real MIME type. */
 export function buildLunaRequest(imageDataUrl: string, positions?: number[]): LunaRequestBody {
-  return {
+  return toWireRequest('openai-decisions', lunaIdQuestionSet(positions), {
     model: LUNA_MODEL,
-    input: [
-      {
-        role: 'user',
-        content: [
-          { type: 'input_text', text: LUNA_IDENTIFICATION_INSTRUCTIONS },
-          { type: 'input_image', image_url: imageDataUrl },
-        ],
-      },
-    ],
-    questions: buildIdQuestions(positions),
-  }
+    imageDataUrl,
+  })
 }
 
 /**
@@ -176,57 +131,42 @@ export interface LunaMapping {
   usage: Usage | null
 }
 
-export interface ChoiceReading {
-  value: string | null
-  certainty: CertaintyLabel
-  runnerUp: string | null
-}
-
-const POSITION_CONFIDENT = 0.9
-const POSITION_LIKELY = 0.6
-const POSITION_UNCERTAIN = 0.3
-const RUNNER_UP_MIN = 0.15
-
-function certaintyOf(probability: number): CertaintyLabel {
-  if (probability >= POSITION_CONFIDENT) return 'Confident'
-  if (probability >= POSITION_LIKELY) return 'Likely'
-  if (probability >= POSITION_UNCERTAIN) return 'Uncertain'
-  return "Can't tell"
-}
-
-function readChoice(answer: unknown, allowed: string[]): ChoiceReading {
-  const unread: ChoiceReading = { value: null, certainty: "Can't tell", runnerUp: null }
-  if (typeof answer !== 'object' || answer === null) return unread
-  const record = answer as Record<string, unknown>
-  if (record.type !== 'choice' || typeof record.choice !== 'string') return unread
-  const probabilities = Array.isArray(record.probabilities) ? record.probabilities : []
-  const scored = probabilities
-    .map((entry) => {
-      const e = entry as { value?: unknown; probability?: unknown }
-      return {
-        value: typeof e.value === 'string' ? e.value : null,
-        probability: typeof e.probability === 'number' ? e.probability : NaN,
-      }
-    })
-    .filter((e) => e.value !== null && allowed.includes(e.value) && Number.isFinite(e.probability))
-    .sort((a, b) => b.probability - a.probability)
-  const chosen = scored.find((e) => e.value === record.choice)
-  if (!chosen || !allowed.includes(record.choice)) return unread
-  const best = scored.find((e) => e.value !== chosen.value)
-  const certainty = applyMargin(
-    certaintyOf(chosen.probability),
-    chosen.probability,
-    best?.probability ?? null,
-  )
-  if (certainty === "Can't tell") return unread
-  const runner = scored.find((e) => e.value !== chosen.value && e.probability >= RUNNER_UP_MIN)
-  return { value: chosen.value, certainty, runnerUp: runner?.value ?? null }
-}
-
 function worstOf(labels: CertaintyLabel[]): CertaintyLabel {
   let worst = 0
   for (const label of labels) worst = Math.max(worst, CERTAINTY_LABELS.indexOf(label))
   return CERTAINTY_LABELS[worst] ?? "Can't tell"
+}
+
+/** Reads an OpenAI Decisions reply by meaning, with OpenAI's wording for a reply it cannot read. */
+export function readOpenAiReply(
+  response: unknown,
+  set: SharedQuestionSet,
+  requestedModel: string,
+): AnswersReading {
+  try {
+    return readAnswers('openai-decisions', response, set, requestedModel)
+  } catch (error) {
+    if (error instanceof UnreadableReplyError) {
+      throw new LunaError(
+        'bad-response',
+        error.kind === 'no-answers'
+          ? 'OpenAI replied without answers. Try again.'
+          : 'OpenAI replied in a shape the app does not recognise.',
+      )
+    }
+    throw error
+  }
+}
+
+/** A Luna ID-set reply, read by meaning, as the shared container-ID reading. The same on either route. */
+export function lunaMappingOf(reply: AnswersReading, positions?: number[]): LunaMapping {
+  const readings = readIdCharacters(reply.answers, positions)
+  return {
+    containerId: assembleLunaReading(readings),
+    readings,
+    resolvedModel: reply.resolvedModel,
+    usage: reply.usage,
+  }
 }
 
 /**
@@ -239,37 +179,8 @@ export function mapLunaResponse(
   requestedModel: string,
   positions?: number[],
 ): LunaMapping {
-  if (typeof response !== 'object' || response === null) {
-    throw new LunaError('bad-response', 'OpenAI replied in a shape the app does not recognise.')
-  }
-  const body = response as Record<string, unknown>
-  if (!Array.isArray(body.answers)) {
-    throw new LunaError('bad-response', 'OpenAI replied without answers. Try again.')
-  }
-  const answers = body.answers as unknown[]
-  const byName = new Map<string, unknown>()
-  for (const answer of answers) {
-    const name = (answer as { name?: unknown } | null)?.name
-    if (typeof name === 'string') byName.set(name, answer)
-  }
-
-  const asked = new Set(positions ?? Array.from({ length: ID_POSITIONS }, (_, i) => i + 1))
-  const readings = Array.from({ length: ID_POSITIONS }, (_, i) => {
-    const position = i + 1
-    if (!asked.has(position))
-      return { value: null, certainty: "Can't tell" as const, runnerUp: null }
-    const allowed = position <= LETTER_POSITIONS ? LETTERS : DIGITS
-    return readChoice(byName.get(questionName(position)), allowed)
-  })
-
-  const resolvedModel =
-    typeof body.model === 'string' && body.model.trim() ? body.model.trim() : requestedModel
-  return {
-    containerId: assembleLunaReading(readings),
-    readings,
-    resolvedModel,
-    usage: readUsage(body.usage),
-  }
+  const reply = readOpenAiReply(response, lunaIdQuestionSet(positions), requestedModel)
+  return lunaMappingOf(reply, positions)
 }
 
 /** Builds the shared container-ID reading from one reading per position. Pure; used by the first pass and any re-check merge. */
@@ -318,51 +229,18 @@ export function assembleLunaReading(readings: ChoiceReading[]): ContainerIdReadi
   return containerId
 }
 
-function numberField(record: Record<string, unknown>, keys: string[]): number | null {
-  for (const key of keys) {
-    const value = record[key]
-    if (typeof value === 'number' && Number.isFinite(value)) return value
-  }
-  return null
-}
-
-function readUsage(raw: unknown): Usage | null {
-  if (typeof raw !== 'object' || raw === null) return null
-  const record = raw as Record<string, unknown>
-  const inputTokens = numberField(record, ['input_tokens', 'prompt_tokens'])
-  if (inputTokens === null) return null
-  return {
-    inputTokens,
-    outputTokens: numberField(record, ['output_tokens', 'completion_tokens']),
-  }
-}
-
 /**
  * The manifest check for one photo (spec 3.2): the pasted entries as choice questions with "not
- * listed", on the same Decisions request shape. The key is never part of the body.
+ * listed", translated for OpenAI. The key is never part of the body.
  */
 export function buildLunaManifestRequest(
   imageDataUrl: string,
   questions: ManifestQuestion[],
 ): LunaRequestBody {
-  return {
+  return toWireRequest('openai-decisions', manifestQuestionSet(questions), {
     model: LUNA_MODEL,
-    input: [
-      {
-        role: 'user',
-        content: [
-          { type: 'input_text', text: MANIFEST_STATE_INSTRUCTIONS },
-          { type: 'input_image', image_url: imageDataUrl },
-        ],
-      },
-    ],
-    questions: questions.map((q) => ({
-      type: 'choice',
-      name: q.name,
-      instructions: q.instructions,
-      choices: q.options,
-    })),
-  }
+    imageDataUrl,
+  })
 }
 
 export interface ManifestMapping {
@@ -374,39 +252,24 @@ export interface ManifestMapping {
   usage: Usage | null
 }
 
-/** Maps an OpenAI-shaped Decisions response (answers as a named list) for the manifest check. */
+/** A manifest-check reply, read by meaning, as the manifest reading. The same on either route. */
+export function manifestMappingOf(
+  reply: AnswersReading,
+  questions: ManifestQuestion[],
+): ManifestMapping {
+  return {
+    reading: readManifestAnswers(manifestAnswersOf(reply.answers), questions),
+    resolvedModel: reply.resolvedModel,
+    usage: reply.usage,
+  }
+}
+
+/** Maps an OpenAI Decisions response for the manifest check. */
 export function mapLunaManifestResponse(
   response: unknown,
   requestedModel: string,
   questions: ManifestQuestion[],
 ): ManifestMapping {
-  if (typeof response !== 'object' || response === null) {
-    throw new LunaError('bad-response', 'OpenAI replied in a shape the app does not recognise.')
-  }
-  const body = response as Record<string, unknown>
-  if (!Array.isArray(body.answers)) {
-    throw new LunaError('bad-response', 'OpenAI replied without answers. Try again.')
-  }
-  const answers: Record<string, ManifestChoiceAnswer> = {}
-  for (const answer of body.answers as unknown[]) {
-    if (typeof answer !== 'object' || answer === null) continue
-    const record = answer as Record<string, unknown>
-    if (typeof record.name !== 'string' || record.type !== 'choice') continue
-    if (typeof record.choice !== 'string') continue
-    const probabilities: Record<string, number> = {}
-    for (const entry of Array.isArray(record.probabilities) ? record.probabilities : []) {
-      const e = entry as { value?: unknown; probability?: unknown }
-      if (typeof e.value === 'string' && typeof e.probability === 'number') {
-        probabilities[e.value] = e.probability
-      }
-    }
-    answers[record.name] = { choice: record.choice, probabilities }
-  }
-  const resolvedModel =
-    typeof body.model === 'string' && body.model.trim() ? body.model.trim() : requestedModel
-  return {
-    reading: readManifestAnswers(answers, questions),
-    resolvedModel,
-    usage: readUsage(body.usage),
-  }
+  const reply = readOpenAiReply(response, manifestQuestionSet(questions), requestedModel)
+  return manifestMappingOf(reply, questions)
 }

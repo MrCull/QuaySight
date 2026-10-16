@@ -1,6 +1,5 @@
 import { describe, it, expect } from 'vitest'
 import {
-  CHECK_DIGIT_GUIDANCE,
   LUNA_ENDPOINT,
   LUNA_MODEL,
   buildLunaRequest,
@@ -47,13 +46,13 @@ describe('Luna request', () => {
     })
   })
 
-  it('includes the spec check-digit guidance verbatim in the identification instructions', () => {
+  it('asks for a low probability on every choice when a character cannot be read, and leaves the check digit to the app', () => {
     const text = buildLunaRequest(DATA_URL).input[0]!.content.find(
       (part) => part.type === 'input_text',
     )
-    expect(text?.type === 'input_text' && text.text).toContain(CHECK_DIGIT_GUIDANCE)
-    expect(CHECK_DIGIT_GUIDANCE).toContain('Remainder 10 is displayed as 0.')
-    expect(CHECK_DIGIT_GUIDANCE).toContain('do not invent or change clearly visible characters')
+    const instructions = text?.type === 'input_text' ? text.text : ''
+    expect(instructions).toContain('give a low probability for every choice')
+    expect(instructions).not.toMatch(/modulo|A=10/)
   })
 
   it('asks eleven named choice questions: letters for positions 1-4, digits for 5-11', () => {
