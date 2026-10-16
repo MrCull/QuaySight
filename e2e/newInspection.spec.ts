@@ -143,7 +143,7 @@ test.describe('New inspection', () => {
     await release()
 
     await expect(page.getByText('Drop a container photo here')).toBeVisible()
-    // The cancelled call settles (it was sent, so its charge reaches the session total) and its result does not land.
+    // The call is aborted: it was sent, so the session counts it as cancelled with unknown cost, and its result never lands.
     await expect(costLine(page)).not.toContainText('Session None yet')
     await expect(page.locator('#stage')).not.toHaveClass(/qs-arrived|qs-arriving/)
     await expect(page.locator('.rs-photo__img')).toHaveCount(0)

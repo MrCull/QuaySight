@@ -112,11 +112,20 @@ function start() {
                   : 'Start inspection'
             }}
           </button>
+          <!-- Stops what is still in flight; whatever already arrived stays, marked partial. -->
+          <button
+            v-if="running"
+            type="button"
+            class="qs-btn qs-btn--secondary"
+            @click="store.cancel()"
+          >
+            Cancel
+          </button>
         </div>
       </section>
       <ResultsPanel />
       <DamageView
-        v-if="store.record"
+        v-if="store.record && store.landed('damage')"
         :assessment="store.record.damage"
         :selected="store.selectedFinding"
         @update:selected="store.selectFinding"

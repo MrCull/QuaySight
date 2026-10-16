@@ -1,12 +1,24 @@
-<!-- @dsCard group="Progress" height=330 subtitle="Honest stages, no fake percentages" -->
+<!-- @dsCard group="Progress" height=620 subtitle="Honest stages, no fake percentages" -->
 <!doctype html>
 <html><head><link rel="stylesheet" href="../../tokens.css"><link rel="stylesheet" href="../bundle.css"><meta charset="utf-8"><title>Stage progress</title>
 <style>body{margin:0;padding:24px;background:var(--surface);max-width:520px}</style></head>
 <body class="qs-root">
+<p class="qs-type-label" style="margin:0 0 8px;color:var(--ink-muted)">While running</p>
 <ol class="qs-stages" aria-live="polite">
-  <li class="qs-stage qs-stage--done"><span class="qs-stage__dot"><i class="qs-glyph qs-glyph--check"></i></span><span class="qs-stage__title">Reading markings</span><span class="qs-stage__time">2.4 s</span></li>
-  <li class="qs-stage qs-stage--done"><span class="qs-stage__dot"><i class="qs-glyph qs-glyph--check"></i></span><span class="qs-stage__title">Looking for damage</span><span class="qs-stage__time">3.1 s</span></li>
-  <li class="qs-stage qs-stage--active"><span class="qs-stage__dot"></span><span class="qs-stage__title">Checking the details</span><span class="qs-stage__time">0.8 s</span><span class="qs-stage__detail">Taking a closer look at characters that were hard to read</span></li>
-  <li class="qs-stage"><span class="qs-stage__dot"></span><span class="qs-stage__title">Putting the results together</span><span class="qs-stage__time"></span></li>
+  <li class="qs-stage qs-stage--done"><span class="qs-stage__dot"><i class="qs-glyph qs-glyph--check"></i></span><span class="qs-stage__title">Reading the ID</span><span class="qs-stage__time">1.2 s</span></li>
+  <li class="qs-stage qs-stage--active"><span class="qs-stage__dot"></span><span class="qs-stage__title">Reading container details</span><span class="qs-stage__time"></span></li>
+  <li class="qs-stage qs-stage--active"><span class="qs-stage__dot"></span><span class="qs-stage__title">Checking for damage</span><span class="qs-stage__time"></span></li>
+</ol>
+<p class="qs-type-label" style="margin:16px 0 8px;color:var(--ink-muted)">A part failed, one is not in this run</p>
+<ol class="qs-stages" aria-live="polite">
+  <li class="qs-stage qs-stage--done"><span class="qs-stage__dot"><i class="qs-glyph qs-glyph--check"></i></span><span class="qs-stage__title">Reading the ID</span><span class="qs-stage__time">0.9 s</span></li>
+  <li class="qs-stage qs-stage--failed"><span class="qs-stage__dot"><i class="qs-glyph qs-glyph--error"></i></span><span class="qs-stage__title">Reading container details</span><span class="qs-stage__time"></span><span class="qs-stage__detail">Could not be completed. Everything else is kept.</span></li>
+  <li class="qs-stage qs-stage--skipped"><span class="qs-stage__dot"></span><span class="qs-stage__title">Checking for damage</span><span class="qs-stage__time"></span><span class="qs-stage__detail">Not part of this run</span></li>
+</ol>
+<p class="qs-type-label" style="margin:16px 0 8px;color:var(--ink-muted)">Cancelled</p>
+<ol class="qs-stages" aria-live="polite">
+  <li class="qs-stage qs-stage--done"><span class="qs-stage__dot"><i class="qs-glyph qs-glyph--check"></i></span><span class="qs-stage__title">Reading the ID</span><span class="qs-stage__time">1.1 s</span></li>
+  <li class="qs-stage qs-stage--cancelled"><span class="qs-stage__dot"><i class="qs-glyph qs-glyph--cross"></i></span><span class="qs-stage__title">Reading container details</span><span class="qs-stage__time"></span><span class="qs-stage__detail">Cancelled</span></li>
+  <li class="qs-stage qs-stage--cancelled"><span class="qs-stage__dot"><i class="qs-glyph qs-glyph--cross"></i></span><span class="qs-stage__title">Checking for damage</span><span class="qs-stage__time"></span><span class="qs-stage__detail">Cancelled</span></li>
 </ol>
 </body></html>

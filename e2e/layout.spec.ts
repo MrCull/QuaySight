@@ -62,7 +62,7 @@ test.describe('reduced motion', () => {
     const sweep = page.locator('.rs-sweep')
     await expect(sweep).toBeHidden()
     await expect(page.locator('.rs-stagecard .qs-stage__title').first()).toHaveText(
-      'Reading markings',
+      'Reading the ID',
     )
   })
 })

@@ -195,6 +195,52 @@ describe('automatic re-check of unresolved container ID positions (live Luna)', 
     expect(store.errorMessage).toBeNull()
   })
 
+  it('keeps the ID stage at work until the re-check settles, so the first reading never shows on its own', async () => {
+    let answerRecheck: (value: unknown) => void = () => {}
+    callLunaMock
+      .mockResolvedValueOnce(firstResult())
+      .mockReturnValueOnce(new Promise((resolve) => (answerRecheck = resolve)))
+    const store = useInspectionStore()
+    store.setProvider('luna')
+    store.setApiKey(KEY)
+    choosePhoto(store)
+
+    const run = store.start()
+    await vi.waitFor(() => expect(callLunaMock).toHaveBeenCalledTimes(2))
+    expect(store.stages[0]?.state).toBe('active')
+    expect(store.landed('id')).toBe(false)
+
+    answerRecheck(recheckReply({ 7: '8', 9: '8' }))
+    await run
+    expect(store.landed('id')).toBe(true)
+    expect(store.record?.containerId?.value).toBe(FULL_ID)
+  })
+
+  it('Cancel during the re-check keeps the first reading, marked partial', async () => {
+    callLunaMock.mockResolvedValueOnce(firstResult()).mockReturnValueOnce(new Promise(() => {}))
+    const store = useInspectionStore()
+    store.setProvider('luna')
+    store.setApiKey(KEY)
+    choosePhoto(store)
+
+    const run = store.start()
+    await vi.waitFor(() => expect(callLunaMock).toHaveBeenCalledTimes(2))
+    store.cancel()
+    await run
+
+    const signal = (callLunaMock.mock.calls[1]![0] as { signal: AbortSignal }).signal
+    expect(signal.aborted).toBe(true)
+    expect(store.status).toBe('complete')
+    expect(store.record?.status).toBe('partial')
+    expect(store.record?.containerId?.value).toBe(FIRST_PRINTED)
+    expect(store.record?.rechecks?.[0]).toMatchObject({ outcome: 'cancelled', positions: [7, 9] })
+    expect(
+      useLedgerStore()
+        .entries()
+        .map((e) => e.status),
+    ).toEqual(['complete', 'cancelled'])
+  })
+
   it('makes no re-check when the first pass read every position', async () => {
     callLunaMock.mockResolvedValueOnce({
       ...firstResult(),

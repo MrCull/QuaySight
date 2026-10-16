@@ -1,9 +1,10 @@
-<!-- @dsCard group="Feedback" height=300 subtitle="Suggestion, recorded sample, error" -->
+<!-- @dsCard group="Feedback" height=390 subtitle="Suggestion, recorded sample, partial, error" -->
 <!doctype html>
 <html><head><link rel="stylesheet" href="../../tokens.css"><link rel="stylesheet" href="../bundle.css"><meta charset="utf-8"><title>Notice</title>
 <style>body{margin:0;padding:24px;background:var(--bg);display:grid;gap:12px;max-width:640px}</style></head>
 <body class="qs-root">
 <div class="qs-notice qs-notice--suggestion" role="note"><i class="qs-glyph qs-glyph--photo"></i><div><div class="qs-notice__title">A closer photo of the top-left door markings may help.</div><div class="qs-notice__body">The tare and the fifth serial digit are hard to read at this distance. The inspection is complete without it.</div></div><span class="qs-notice__kicker">Optional</span></div>
 <div class="qs-notice qs-notice--recorded" role="note"><i class="qs-glyph qs-glyph--recorded"></i><div><div class="qs-notice__title">Recorded demonstration: TypeSafe Jev 1.14</div><div class="qs-notice__body">You opened a sample container. This is a result saved from an earlier real inspection, replayed offline: no live API call, no key and no charge.</div></div><span class="qs-notice__kicker">Sample</span></div>
+<div class="qs-notice qs-notice--partial" role="status"><i class="qs-glyph qs-glyph--cross"></i><div><div class="qs-notice__title">Partial result: cancelled before every part finished.</div><div class="qs-notice__body">What had arrived is shown. Not finished: container details, damage.</div></div><span class="qs-notice__kicker">Partial</span></div>
 <div class="qs-notice qs-notice--error" role="alert"><i class="qs-glyph qs-glyph--error"></i><div><div class="qs-notice__title">A request to Jev failed</div><div class="qs-notice__body">Jev returned 503 while taking a closer look at the dented area. Everything found so far is kept and shown. Retry once, or continue as is.</div></div><button class="qs-btn qs-btn--secondary qs-btn--sm">Retry once</button></div>
 </body></html>

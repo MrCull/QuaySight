@@ -3,6 +3,7 @@ import { computed } from 'vue'
 import { useInspectionStore } from '../stores/inspection'
 import { isMovingTarget, labelsFor, recordedDemonstrationLabel } from '../domain/providers'
 import { idResultState, UNREAD, visibleAlternatives } from '../domain/certainty'
+import type { StageId } from '../domain/runStages'
 import CertaintyChip from './CertaintyChip.vue'
 import ContainerId from './ContainerId.vue'
 import ManifestRetry from './ManifestRetry.vue'
@@ -33,6 +34,35 @@ const liveLabel = computed(() => {
       : `Answered by ${r.resolvedVersion}.`,
   }
 })
+
+// Each part of the result lands on its own once its stage has settled, ahead of the rest of the run.
+const running = computed(() => store.status === 'running')
+const idLanded = computed(() => store.landed('id'))
+// A part that lands while the run is still going plays its own arrival inside the arriving screen.
+const arrivedEarly = computed(() => running.value && idLanded.value)
+
+// The parts a stage stands for, in plain words, for the partial and failure notices.
+const PART: Record<StageId, string> = {
+  id: 'the container ID',
+  details: 'container details',
+  damage: 'damage',
+}
+const FAILED_TITLE: Record<StageId, string> = {
+  id: 'The container ID could not be read.',
+  details: 'Container details could not be read.',
+  damage: 'Damage could not be checked.',
+}
+const partial = computed(() => store.status === 'complete' && record.value?.status === 'partial')
+/** After Cancel: the parts that did not finish. */
+const unfinished = computed(() =>
+  partial.value && store.cancelRequested
+    ? store.stages.filter((s) => s.state === 'cancelled').map((s) => PART[s.id])
+    : [],
+)
+/** The parts whose request failed while others answered. */
+const failedParts = computed(() =>
+  partial.value ? store.stages.filter((s) => s.state === 'failed').map((s) => s.id) : [],
+)
 
 // Stagger position of each card in the arrival choreography (read by .qs-rise as --i).
 const STAGGER = { card: 0, alternative: 1, explanation: 2 } as const
@@ -104,12 +134,44 @@ const showInsufficient = computed(() => idState.value === 'insufficient')
       </div>
     </div>
 
-    <div v-if="store.status === 'running'" class="rs-card" aria-busy="true">
+    <div v-if="store.status === 'cancelled'" class="qs-notice qs-notice--partial" role="status">
+      <i class="qs-glyph qs-glyph--cross" aria-hidden="true"></i>
+      <div>
+        <div class="qs-notice__title">Inspection cancelled before any result arrived.</div>
+        <div class="qs-notice__body">Run the inspection again when you are ready.</div>
+      </div>
+      <span class="qs-notice__kicker">Partial</span>
+    </div>
+
+    <div v-if="unfinished.length" class="qs-notice qs-notice--partial" role="status">
+      <i class="qs-glyph qs-glyph--cross" aria-hidden="true"></i>
+      <div>
+        <div class="qs-notice__title">Partial result: cancelled before every part finished.</div>
+        <div class="qs-notice__body">
+          What had arrived is shown. Not finished: {{ unfinished.join(', ') }}.
+        </div>
+      </div>
+      <span class="qs-notice__kicker">Partial</span>
+    </div>
+
+    <div v-for="part in failedParts" :key="part" class="qs-notice qs-notice--error" role="alert">
+      <i class="qs-glyph qs-glyph--error" aria-hidden="true"></i>
+      <div>
+        <div class="qs-notice__title">{{ FAILED_TITLE[part] }}</div>
+        <div class="qs-notice__body">Everything else found is shown.</div>
+      </div>
+    </div>
+
+    <div v-if="running && !idLanded" class="rs-card" aria-busy="true">
       <div class="rs-card__head"><span class="rs-k">Container ID</span></div>
       <div class="qs-skeleton rs-id-skeleton"></div>
     </div>
 
-    <div v-if="record?.containerId" class="rs-card qs-rise" :style="{ '--i': STAGGER.card }">
+    <div
+      v-if="idLanded && record?.containerId"
+      :class="['rs-card', 'qs-rise', { 'qs-arrived': arrivedEarly }]"
+      :style="{ '--i': STAGGER.card }"
+    >
       <div class="rs-card__head">
         <span class="rs-k">Container ID</span>
         <CertaintyChip :level="record.containerId.certainty" />
@@ -151,7 +213,11 @@ const showInsufficient = computed(() => idState.value === 'insufficient')
       </div>
     </div>
 
-    <div v-else-if="record" class="rs-card qs-rise" :style="{ '--i': STAGGER.card }">
+    <div
+      v-else-if="idLanded && record"
+      :class="['rs-card', 'qs-rise', { 'qs-arrived': arrivedEarly }]"
+      :style="{ '--i': STAGGER.card }"
+    >
       <div class="rs-card__head">
         <span class="rs-k">Container ID</span>
         <CertaintyChip level="Can't tell" />
@@ -162,8 +228,8 @@ const showInsufficient = computed(() => idState.value === 'insufficient')
     <!-- Live: a live call on the same model. Demo: the sample's own recorded check. Never a replay against another photo. -->
     <ManifestRetry v-if="store.canCheckManifest" />
 
-    <ContainerDetails v-if="record" :record="record" />
+    <ContainerDetails v-if="record && store.landed('details')" :record="record" />
 
-    <ExportActions />
+    <ExportActions v-if="!running" />
   </section>
 </template>

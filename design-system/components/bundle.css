@@ -448,6 +448,11 @@
 .qs-stage--active .qs-stage__title { color: var(--ink); }
 .qs-stage__pass { display: inline-flex; margin-left: var(--space-2); padding: 0 6px; height: 18px; align-items: center; border: 1px solid var(--line-strong); border-radius: var(--radius-xs); font: 500 11px/1 var(--font-mono); letter-spacing: 0.06em; text-transform: uppercase; color: var(--ink-muted); vertical-align: 2px; }
 .qs-stage--skipped .qs-stage__dot { border-style: dashed; }
+.qs-stage--skipped .qs-stage__title { font-weight: 400; }
+.qs-stage--failed .qs-stage__dot { border-color: var(--error-fg); background: var(--error-bg); color: var(--error-fg); }
+.qs-stage--failed .qs-stage__title { color: var(--ink); }
+.qs-stage--failed .qs-stage__detail { color: var(--error-fg); }
+.qs-stage--cancelled .qs-stage__dot { border-style: dashed; }
 @keyframes qs-pulse { 0%, 100% { opacity: 1; transform: scale(1); } 50% { opacity: 0.35; transform: scale(0.7); } }
 
 /* ---------- Notice ---------- */
@@ -460,6 +465,7 @@
 .qs-notice--recorded { border-style: dashed; border-color: var(--line-strong); background: repeating-linear-gradient(135deg, var(--surface) 0 10px, var(--cert-unseen-bg) 10px 11px); }
 .qs-notice--live { grid-template-columns: 1fr auto; }
 .qs-notice--error { border-color: var(--error-fg); background: var(--error-bg); }
+.qs-notice--partial { border-style: dashed; border-color: var(--line-strong); }
 .qs-notice--error > .qs-glyph { color: var(--error-fg); }
 
 /* ---------- Arrival choreography ----------

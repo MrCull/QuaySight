@@ -10,7 +10,7 @@ The results screen is the main inspection screen once photos are uploaded and re
 - **Phone**: the same order stacked, the photo first.
 
 ## Arrival choreography
-1. **Analysing** (`.qs-arriving`): the photo is shown at once. A soft brand sweep passes over it, a `StageProgress` card lists plain stages (*Reading markings*, *Looking for damage*, *Checking the details*) with their measured times, and the right column shows `qs-skeleton` shimmer. Nothing shows a percentage.
+1. **Analysing** (`.qs-arriving`): the photo is shown at once. A soft brand sweep passes over it, a `StageProgress` card lists plain stages (*Reading the ID*, *Reading container details*, *Checking for damage*) with their measured times, and the right column shows `qs-skeleton` shimmer. Nothing shows a percentage.
 2. **Landing** (`.qs-arrived`, triggered when the response is parsed):
    - The stage card lifts away.
    - Photo areas draw their dashed outlines one by one, about 180ms apart.
@@ -32,10 +32,11 @@ The preview shows the whole intended screen. The app already ships the top bar, 
 Other app details the preview does not show:
 - A live result carries a `qs-notice--live` above the ID (see `Notice`), the counterpart of *Recorded demonstration*.
 - A run that never read the size code or the weights (every live run today reads the ID only) shows *Container details* with one sentence, *Not assessed in this inspection*, not a column of *Not seen* chips: *Not seen* means "in no photo". The damage view says *Damage not assessed in this inspection* in the same way.
-- Before the result lands, the one primary action sits under the photo (`qs-btn--lg`: *Start inspection* in demo mode, *Run live inspection* live; *Analysing…* while busy). Once the result lands it is gone; *New inspection* is the next step.
+- Before the result lands, the one primary action sits under the photo (`qs-btn--lg`: *Start inspection* in demo mode, *Run live inspection* live; *Analysing…* while busy, with *Cancel* beside it). Once the result lands it is gone; *New inspection* is the next step.
+- A result that is missing a part (cancelled, or one part's request failed) carries a notice above the ID: `qs-notice--partial` after Cancel, `qs-notice--error` naming the part that failed. Everything that arrived is shown.
 - The stage card is titled with the model: *Analysing with Jev latest*.
 
 ## Rules
-- Never surface passes, refinement or candidate generation. Any re-check happens inside *Checking the details*, and only its outcome lands.
+- Never surface passes, refinement or candidate generation. Any re-check happens inside the stage it serves, and only its outcome lands.
 - The order of arrival follows importance: identity, then readings, then damage. Never animate a value that isn't real yet.
 - In sample mode, the `Notice` *Recorded demonstration* sits above the summary and the cost pill reads *Sample*.
