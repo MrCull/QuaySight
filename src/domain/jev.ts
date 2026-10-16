@@ -7,6 +7,7 @@
 // question format, so the same translation and answer mapping serve both.
 import { calculateCheckDigit } from './iso6346'
 import { buildContainerIdReading } from './containerId'
+import { combineOwnerReading, readOwnerPick, type OwnerPick } from './ownerPick'
 import { rankIdCandidates, withCategoryLetter } from './idCandidates'
 import { CERTAINTY_LABELS, UNREAD } from './certainty'
 import type { CertaintyLabel, ContainerIdReading } from './inspection'
@@ -238,13 +239,15 @@ export function jevCaveatsOf(answers: Record<string, SharedAnswer>): JevCaveats 
 export function jevIdReading(
   rawReadings: ChoiceReading[],
   caveats: JevCaveats,
+  ownerPick?: OwnerPick | null,
 ): ContainerIdReading {
-  const readings = withCategoryLetter(rawReadings)
+  const owner = combineOwnerReading(rawReadings, ownerPick)
+  const readings = withCategoryLetter(owner.readings)
   const { hardToRead, partlyOutOfFrame } = caveats
   const positionCertainty = readings.map((r) => r.certainty)
   let certainty = worstOf(positionCertainty)
   if (hardToRead || partlyOutOfFrame) certainty = atLeastUncertain(certainty)
-  const ranked = rankIdCandidates(readings, certainty)
+  const ranked = rankIdCandidates(readings, certainty, owner.alternatives)
   const chars = ranked.chars
   const printed = chars.join('')
 
@@ -326,6 +329,8 @@ export function mapJevResponse(
 export interface JevIdReading {
   containerId: ContainerIdReading
   readings: ChoiceReading[]
+  /** The model's pick from the owner-code list, or null when it was not asked or did not answer. */
+  ownerPick: OwnerPick | null
   caveats: JevCaveats
   box: JevBox | null
 }
@@ -337,9 +342,11 @@ export interface JevIdReading {
 export function jevIdReadingOf(answers: Record<string, SharedAnswer>): JevIdReading {
   const readings = readIdCharacters(answers)
   const caveats = jevCaveatsOf(answers)
+  const ownerPick = readOwnerPick(answers)
   return {
-    containerId: jevIdReading(readings, caveats),
+    containerId: jevIdReading(readings, caveats, ownerPick),
     readings,
+    ownerPick,
     caveats,
     box: boxOf(answers.container_box),
   }

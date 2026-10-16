@@ -9,6 +9,8 @@ import type { ChoiceReading } from './idQuestions'
 /** The equipment-category letter (4th character) is always U for this product. */
 const CATEGORY_POSITION = 4
 const CATEGORY_LETTER = 'U'
+/** The first three characters are the owner letters. */
+const OWNER_LETTERS = 3
 
 /** Sets position 4 to U whatever came back. A position that was not read at all stays unread. */
 export function withCategoryLetter(readings: ChoiceReading[]): ChoiceReading[] {
@@ -43,24 +45,54 @@ function compareSwaps(a: number[], b: number[]): number {
 /**
  * Builds every candidate from the readings and their runner-ups, ranks the passing ones first (then
  * fewer swaps, then earlier positions), and picks the best. When the best is Likely or Confident, passes,
- * and no other candidate passes, there are no alternatives to show.
+ * and no other candidate passes, there are no alternatives to show. `ownerAlternatives` are other
+ * three-letter owner prefixes (the losing owner reading, near matches in the owner-code list) that
+ * compete as candidates on the same terms; the first counts as one swap, the rest one swap per letter changed, plus one.
  */
-export function rankIdCandidates(readings: ChoiceReading[], certainty: CertaintyLabel): RankedIds {
+export function rankIdCandidates(
+  readings: ChoiceReading[],
+  certainty: CertaintyLabel,
+  ownerAlternatives: string[] = [],
+): RankedIds {
   const chars = readings.map((r) => r.value ?? UNREAD)
   const swappable = readings
     .flatMap((r, i) => (r.runnerUp === null ? [] : [i]))
     .slice(0, SWAP_LIMIT)
 
-  const candidates = Array.from({ length: 1 << swappable.length }, (_, mask) => {
-    const swapped = swappable.filter((_, bit) => (mask >> bit) & 1)
-    const candidate = [...chars]
-    for (const index of swapped) candidate[index] = readings[index]!.runnerUp!
-    return { chars: candidate, swapped, passes: passes(candidate) }
-  }).sort((a, b) => {
-    if (a.passes !== b.passes) return a.passes ? -1 : 1
-    if (a.swapped.length !== b.swapped.length) return a.swapped.length - b.swapped.length
-    return compareSwaps(a.swapped, b.swapped)
-  })
+  const variants = [
+    { start: chars, changed: [] as number[], swappable },
+    ...ownerAlternatives.map((prefix, n) => {
+      const start = chars.map((ch, i) => (i < OWNER_LETTERS ? (prefix[i] ?? ch) : ch))
+      const letters = start.flatMap((ch, i) => (ch === chars[i] ? [] : [i]))
+      // The first alternative is the losing reading: one swap, ahead of near matches, which cost a swap
+      // per letter they change on top of that.
+      const changed = n === 0 ? [0] : [0, ...letters]
+      return { start, changed, swappable: swappable.filter((i) => i >= OWNER_LETTERS) }
+    }),
+  ]
+
+  const seen = new Set<string>()
+  const candidates = variants
+    .flatMap(({ start, changed, swappable: free }) =>
+      Array.from({ length: 1 << free.length }, (_, mask) => {
+        const swapped = free.filter((_, bit) => (mask >> bit) & 1)
+        const candidate = [...start]
+        for (const index of swapped) candidate[index] = readings[index]!.runnerUp!
+        const all = [...changed, ...swapped].sort((a, b) => a - b)
+        return { chars: candidate, swapped: all, passes: passes(candidate) }
+      }),
+    )
+    .sort((a, b) => {
+      if (a.passes !== b.passes) return a.passes ? -1 : 1
+      if (a.swapped.length !== b.swapped.length) return a.swapped.length - b.swapped.length
+      return compareSwaps(a.swapped, b.swapped)
+    })
+    .filter((c) => {
+      const key = c.chars.join('')
+      if (seen.has(key)) return false
+      seen.add(key)
+      return true
+    })
 
   const [best, ...rest] = candidates
   const settled = best!.passes && (certainty === 'Confident' || certainty === 'Likely')
