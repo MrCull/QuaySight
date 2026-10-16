@@ -6,6 +6,7 @@
 // response model/version or usage fields; the mapper reads them defensively and reports what is absent.
 import { calculateCheckDigit } from './iso6346'
 import { buildContainerIdReading } from './containerId'
+import { rankIdCandidates, withCategoryLetter } from './idCandidates'
 import { CERTAINTY_LABELS, UNREAD } from './certainty'
 import type { CertaintyLabel, ContainerIdReading } from './inspection'
 import type { Usage } from './ledger'
@@ -184,11 +185,13 @@ export function mapLunaResponse(
 }
 
 /** Builds the shared container-ID reading from one reading per position. Pure; used by the first pass and any re-check merge. */
-export function assembleLunaReading(readings: ChoiceReading[]): ContainerIdReading {
-  const chars = readings.map((r) => r.value ?? UNREAD)
+export function assembleLunaReading(rawReadings: ChoiceReading[]): ContainerIdReading {
+  const readings = withCategoryLetter(rawReadings)
   const positionCertainty = readings.map((r) => r.certainty)
-  const printed = chars.join('')
   const certainty = worstOf(positionCertainty)
+  const ranked = rankIdCandidates(readings, certainty)
+  const chars = ranked.chars
+  const printed = chars.join('')
 
   let containerId: ContainerIdReading
   if (!printed.includes(UNREAD)) {
@@ -211,14 +214,7 @@ export function assembleLunaReading(readings: ChoiceReading[]): ContainerIdReadi
     }
   }
 
-  const alternatives: string[] = []
-  readings.forEach((reading, index) => {
-    if (reading.runnerUp === null || alternatives.length >= 2) return
-    const swapped = [...chars]
-    swapped[index] = reading.runnerUp
-    alternatives.push(swapped.join(''))
-  })
-  if (alternatives.length > 0) containerId.alternatives = alternatives
+  if (ranked.alternatives.length > 0) containerId.alternatives = ranked.alternatives
 
   const uncertainPositions = readings
     .map((r, i) => (r.certainty === 'Confident' ? null : i + 1))

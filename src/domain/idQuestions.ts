@@ -74,7 +74,7 @@ function allPositions(): number[] {
 
 /** The text ahead of the photo on every route that asks the Luna ID set. No check-digit calculation. */
 export const LUNA_IDENTIFICATION_INSTRUCTIONS =
-  'Read the container identification printed on this freight container photo. Answer each question with the one character you can see at that place. If a character is not visible or cannot be read, give a low probability for every choice rather than a clear character.'
+  'Read the container identification printed on this freight container photo. The fourth letter of the four-letter group is always U. Answer each question with the one character you can see at that place. If a character is not visible or cannot be read, give a low probability for every choice rather than a clear character.'
 
 /**
  * The Luna ID set: one choice per character. With positions (1-based), only those are asked; the
@@ -90,7 +90,7 @@ export function lunaIdQuestionSet(positions?: number[]): SharedQuestionSet {
 
 /** The text sent ahead of the photo for the Jev ID set through OpenRouter. */
 export const JEV_STATE_INSTRUCTIONS =
-  'Freight container photo. Judge only what is visible in the photo. Answer every question about this one photo.'
+  'Freight container photo. Judge only what is visible in the photo. The fourth letter of the four-letter group is always U. Answer every question about this one photo.'
 
 export interface JevIdOptions {
   /** How the instructions name the photo, e.g. "the image referenced as `photo_1`" or "the photo". */
