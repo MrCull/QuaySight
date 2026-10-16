@@ -7,6 +7,7 @@ import PhotoPanel from './components/PhotoPanel.vue'
 import ResultsPanel from './components/ResultsPanel.vue'
 import DamageView from './components/damage/DamageView.vue'
 import CostIndicator from './components/CostIndicator.vue'
+import NewInspectionAction from './components/NewInspectionAction.vue'
 
 const store = useInspectionStore()
 
@@ -39,6 +40,7 @@ function start() {
       <span v-if="store.status !== 'idle'" class="rs-run">{{ runLabel }}</span>
       <span class="rs-spacer"></span>
       <CostIndicator />
+      <NewInspectionAction />
     </header>
 
     <main id="stage" :class="['rs-main', stageClass]">
@@ -95,7 +97,12 @@ function start() {
         </div>
       </section>
       <ResultsPanel />
-      <DamageView v-if="store.record" :assessment="store.record.damage" />
+      <DamageView
+        v-if="store.record"
+        :assessment="store.record.damage"
+        :selected="store.selectedFinding"
+        @update:selected="store.selectFinding"
+      />
     </main>
   </div>
 </template>

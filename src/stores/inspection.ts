@@ -28,7 +28,7 @@ import {
 
 export interface SelectedPhoto {
   name: string
-  /** Object URL for display. The view owns its lifecycle (revoke when replaced). */
+  /** Object URL for display. The view revokes it when the photo is replaced; New inspection revokes it when dropped. */
   url: string
   orientation: 'landscape' | 'portrait' | 'square' | 'unknown'
   /** The photo as chosen, sent to a live provider. Absent for a photo that was not read from a file. */
@@ -87,6 +87,8 @@ export const useInspectionStore = defineStore('inspection', {
     /** Sample-only control: the recorded manifest check fails. */
     retryFails: false,
     retry: freshRetry() as ManifestRetryState,
+    /** The damage finding whose marker, area and card are selected together, or null. */
+    selectedFinding: null as number | null,
     /**
      * The presenter's keys, one per provider. Memory only: no persistence plugin, no storage write, cleared on request.
      * Each key is read only for its own provider's call (callLuna or callJev); switching provider never moves a key.
@@ -141,6 +143,29 @@ export const useInspectionStore = defineStore('inspection', {
       this.record = null
       this.retry = freshRetry()
       this.errorMessage = null
+      this.selectedFinding = null
+    },
+    selectFinding(id: number | null) {
+      this.selectedFinding = id
+    },
+    /**
+     * New inspection: a blank screen for the next container, with no confirmation (spec #16).
+     * Clears the photo, the result, the run status and its error, the manifest retry and the
+     * selected damage marker. A run or manifest check in flight is cancelled: its token goes stale,
+     * so whatever it returns is dropped. Keeps the provider, model, every key and the session ledger.
+     * Later flows reuse this one action (a provider or model change, leaving demo mode).
+     */
+    newInspection() {
+      const dropped = this.photo?.url
+      if (dropped?.startsWith('blob:')) URL.revokeObjectURL(dropped)
+      this.runToken += 1
+      this.inFlight = null
+      this.photo = null
+      this.status = 'idle'
+      this.record = null
+      this.retry = freshRetry()
+      this.errorMessage = null
+      this.selectedFinding = null
     },
     start(): Promise<void> {
       // Single-flight: repeated clicks while a run is in progress share it.
