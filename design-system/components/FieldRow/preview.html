@@ -1,4 +1,4 @@
-<!-- @dsCard group="Evidence" height=440 subtitle="A read-only reading: value, provenance, certainty" -->
+<!-- @dsCard group="Evidence" height=760 subtitle="A read-only reading: value, provenance, certainty" -->
 <!doctype html>
 <html><head><link rel="stylesheet" href="../../tokens.css"><link rel="stylesheet" href="../bundle.css"><meta charset="utf-8"><title>Field row</title>
 <style>body{margin:0;padding:8px 24px 16px;background:var(--surface)}</style></head>
@@ -30,6 +30,30 @@
     <span class="qs-field__value">No <span class="qs-prov qs-prov--model">Model-selected</span></span>
     <span class="qs-cert qs-cert--uncertain"><i class="qs-glyph qs-glyph--uncertain"></i>Uncertain</span>
     <span class="qs-field__note">The size/type code 42R1 is a reefer code, but the photo was read as not a reefer.</span>
+  </div>
+  <div class="qs-field">
+    <span class="qs-field__label">Max gross</span>
+    <span class="qs-field__value">30,480 kg <span class="qs-prov">Printed</span></span>
+    <span class="qs-cert qs-cert--confident"><i class="qs-glyph qs-glyph--confident"></i>Confident</span>
+    <span class="qs-field__note">kg and lb agree. A maximum rating, not the cargo weight.</span>
+  </div>
+  <div class="qs-field">
+    <span class="qs-field__label">Tare</span>
+    <span class="qs-field__value">2,180 kg <span class="qs-prov">Printed</span></span>
+    <span class="qs-cert qs-cert--uncertain"><i class="qs-glyph qs-glyph--uncertain"></i>Uncertain</span>
+    <span class="qs-field__note">kg and lb disagree: read as 2,180 kg and 4,610 lb, which do not match after conversion.</span>
+  </div>
+  <div class="qs-field">
+    <span class="qs-field__label">Payload (calculated)</span>
+    <span class="qs-field__value">62,390 lb <span class="qs-prov qs-prov--calculated">Calculated</span></span>
+    <span class="qs-cert qs-cert--uncertain"><i class="qs-glyph qs-glyph--uncertain"></i>Uncertain</span>
+    <span class="qs-field__note">Printed payload 62,500 lb does not match maximum gross minus tare, 62,390 lb.</span>
+  </div>
+  <div class="qs-field">
+    <span class="qs-field__label">Cubic capacity</span>
+    <span class="qs-field__value">1,173 cu ft <span class="qs-prov qs-prov--calculated">Calculated</span></span>
+    <span class="qs-cert qs-cert--likely"><i class="qs-glyph qs-glyph--likely"></i>Likely</span>
+    <span class="qs-field__note">Converted from m³ (1 m³ = 35.3147 cu ft): the cu ft figure was not read.</span>
   </div>
   <div class="qs-field">
     <span class="qs-field__label">Cubic capacity</span>
