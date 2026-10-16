@@ -1,0 +1,313 @@
+{
+  "recordedAt": "2026-10-16T16:28:51.820Z",
+  "photo": "samples/rear-door-coyu-22g1.jpg",
+  "endpoint": "https://openrouter.ai/api/alpha/decisions",
+  "requestedModel": "~typesafe/jev-latest",
+  "response": {
+    "model": "typesafe/jev-1.14-20261014",
+    "answers": {
+      "id_char_01": {
+        "type": "choice",
+        "choice": "C",
+        "probabilities": {
+          "A": 0,
+          "B": 0,
+          "C": 0.99,
+          "D": 0,
+          "E": 0,
+          "F": 0,
+          "G": 0,
+          "H": 0,
+          "I": 0,
+          "J": 0,
+          "K": 0,
+          "L": 0,
+          "M": 0,
+          "N": 0,
+          "O": 0.01,
+          "P": 0,
+          "Q": 0,
+          "R": 0,
+          "S": 0,
+          "T": 0,
+          "U": 0,
+          "V": 0,
+          "W": 0,
+          "X": 0,
+          "Y": 0,
+          "Z": 0,
+          "unreadable": 0
+        },
+        "confidence": 0.99
+      },
+      "id_char_02": {
+        "type": "choice",
+        "choice": "O",
+        "probabilities": {
+          "A": 0,
+          "B": 0,
+          "C": 0,
+          "D": 0,
+          "E": 0,
+          "F": 0,
+          "G": 0,
+          "H": 0,
+          "I": 0,
+          "J": 0,
+          "K": 0,
+          "L": 0,
+          "M": 0,
+          "N": 0,
+          "O": 1,
+          "P": 0,
+          "Q": 0,
+          "R": 0,
+          "S": 0,
+          "T": 0,
+          "U": 0,
+          "V": 0,
+          "W": 0,
+          "X": 0,
+          "Y": 0,
+          "Z": 0,
+          "unreadable": 0
+        },
+        "confidence": 1
+      },
+      "id_char_03": {
+        "type": "choice",
+        "choice": "Y",
+        "probabilities": {
+          "A": 0,
+          "B": 0,
+          "C": 0,
+          "D": 0,
+          "E": 0,
+          "F": 0,
+          "G": 0,
+          "H": 0,
+          "I": 0,
+          "J": 0,
+          "K": 0,
+          "L": 0,
+          "M": 0,
+          "N": 0,
+          "O": 0.03,
+          "P": 0,
+          "Q": 0,
+          "R": 0,
+          "S": 0,
+          "T": 0,
+          "U": 0.26,
+          "V": 0,
+          "W": 0,
+          "X": 0,
+          "Y": 0.71,
+          "Z": 0,
+          "unreadable": 0
+        },
+        "confidence": 0.7
+      },
+      "id_char_04": {
+        "type": "choice",
+        "choice": "U",
+        "probabilities": {
+          "A": 0,
+          "B": 0,
+          "C": 0,
+          "D": 0,
+          "E": 0,
+          "F": 0,
+          "G": 0,
+          "H": 0,
+          "I": 0,
+          "J": 0,
+          "K": 0,
+          "L": 0,
+          "M": 0,
+          "N": 0,
+          "O": 0.060000000000000005,
+          "P": 0,
+          "Q": 0,
+          "R": 0,
+          "S": 0,
+          "T": 0,
+          "U": 0.85,
+          "V": 0.02,
+          "W": 0,
+          "X": 0,
+          "Y": 0.06999999999999999,
+          "Z": 0,
+          "unreadable": 0
+        },
+        "confidence": 0.84
+      },
+      "id_char_05": {
+        "type": "choice",
+        "choice": "2",
+        "probabilities": {
+          "0": 0.01,
+          "1": 0,
+          "2": 0.99,
+          "3": 0,
+          "4": 0,
+          "5": 0,
+          "6": 0,
+          "7": 0,
+          "8": 0,
+          "9": 0,
+          "unreadable": 0
+        },
+        "confidence": 0.99
+      },
+      "id_char_06": {
+        "type": "choice",
+        "choice": "6",
+        "probabilities": {
+          "0": 0.01,
+          "1": 0,
+          "2": 0.04,
+          "3": 0.01,
+          "4": 0,
+          "5": 0,
+          "6": 0.93,
+          "7": 0,
+          "8": 0,
+          "9": 0,
+          "unreadable": 0
+        },
+        "confidence": 0.92
+      },
+      "id_char_07": {
+        "type": "choice",
+        "choice": "6",
+        "probabilities": {
+          "0": 0,
+          "1": 0.01,
+          "2": 0.01,
+          "3": 0.01,
+          "4": 0.01,
+          "5": 0,
+          "6": 0.87,
+          "7": 0.01,
+          "8": 0.08,
+          "9": 0,
+          "unreadable": 0
+        },
+        "confidence": 0.86
+      },
+      "id_char_08": {
+        "type": "choice",
+        "choice": "8",
+        "probabilities": {
+          "0": 0,
+          "1": 0.09,
+          "2": 0.01,
+          "3": 0.01,
+          "4": 0.01,
+          "5": 0,
+          "6": 0.03,
+          "7": 0.01,
+          "8": 0.84,
+          "9": 0,
+          "unreadable": 0
+        },
+        "confidence": 0.82
+      },
+      "id_char_09": {
+        "type": "choice",
+        "choice": "1",
+        "probabilities": {
+          "0": 0,
+          "1": 0.91,
+          "2": 0,
+          "3": 0.07,
+          "4": 0,
+          "5": 0,
+          "6": 0,
+          "7": 0.01,
+          "8": 0.01,
+          "9": 0,
+          "unreadable": 0
+        },
+        "confidence": 0.9
+      },
+      "id_char_10": {
+        "type": "choice",
+        "choice": "3",
+        "probabilities": {
+          "0": 0,
+          "1": 0,
+          "2": 0,
+          "3": 1,
+          "4": 0,
+          "5": 0,
+          "6": 0,
+          "7": 0,
+          "8": 0,
+          "9": 0,
+          "unreadable": 0
+        },
+        "confidence": 1
+      },
+      "id_char_11": {
+        "type": "choice",
+        "choice": "0",
+        "probabilities": {
+          "0": 1,
+          "1": 0,
+          "2": 0,
+          "3": 0,
+          "4": 0,
+          "5": 0,
+          "6": 0,
+          "7": 0,
+          "8": 0,
+          "9": 0,
+          "unreadable": 0
+        },
+        "confidence": 1
+      },
+      "legibility": {
+        "type": "score",
+        "score": 3.84,
+        "legend": {
+          "0": "Not visible at all",
+          "1": "Mostly unreadable",
+          "2": "Partly readable, with several positions unclear",
+          "3": "Mostly readable, with one or two positions unclear",
+          "4": "Fully readable and sharp"
+        },
+        "probabilities": {
+          "0": 0,
+          "1": 0,
+          "2": 0.01,
+          "3": 0.13,
+          "4": 0.86
+        },
+        "confidence": 0.88
+      },
+      "full_number_visible": {
+        "type": "noul",
+        "noul": 0.9
+      },
+      "container_box": {
+        "type": "box",
+        "box": {
+          "top": 0.1,
+          "bottom": 0.14,
+          "left": 0.61,
+          "right": 0.79
+        },
+        "confidence": 0.77
+      }
+    },
+    "usage": {
+      "input_tokens": 6777,
+      "output_tokens": 1569,
+      "cost": 0.000284634
+    },
+    "id": "gen-dec-1792168131-FYhO93VLNovw6kQJLJND",
+    "provider": "TypeSafe"
+  }
+}

@@ -103,3 +103,43 @@ Error bodies are `{ "error": { "message": "…", "code": <status> } }`. Seen liv
 for a bad key; 400 for a box question on Jev 1.13 (above); 400 with a JSON list of schema issues in
 `message` for a malformed body. The OpenAPI document also lists 402 (insufficient credits, "Add more using
 https://openrouter.ai/credits"), 403, 404, 413, 429, 500, 502, 503, 524 and 529.
+
+## Question format and ID wording (ticket #29, checked 16 Oct 2026)
+
+Checked by `curl`-equivalent Node requests and the opt-in smoke test
+`src/services/__tests__/coyu.live.spec.ts`, on `samples/rear-door-coyu-22g1.jpg` (1079 × 1080). Fixtures:
+`src/fixtures/live/coyu-*.json` (no key, no headers).
+
+**OpenAI Decisions answer shapes** (one question of each type):
+
+```
+{ "type": "predicate", "name": "…", "probability": 1.0 }
+{ "type": "choice", "name": "…", "choice": "C", "probabilities": [{ "value": "C", "probability": 1.0 }, …], "confidence": 1.0 }
+{ "type": "score", "name": "…", "score": 1.96,
+  "probabilities": [{ "value": 0, "label": "unreadable", "probability": 0.01 }, …], "confidence": 0.94 }
+```
+
+- A `box` question is refused: 400 `Invalid value: 'box'. Supported values are: 'predicate', 'choice', and 'score'.`
+- Choices without a `description` are accepted (`{ "value": "other" }`).
+- `detail: "original"` on the image part made no difference to the answers on this 1079 px photo.
+
+**OpenRouter** takes a choice criterion of `null` (`{ "other": null }`), and score criteria as plain
+strings; its score answer carries `legend` and `probabilities` keyed by level index. The same Luna request
+gives identical answers on OpenAI direct and through OpenRouter.
+
+**ID wording.** Character questions describe the layout and name the character by its place in its group,
+with no check-digit calculation. The digits are named from both ends ("the second digit of the six-digit
+group, which is the fifth from its right-hand end"): naming them from the left only let Luna slip a place
+along the repeated digits (`COYU2266130`, `COYU2268130`, depending on small wording changes).
+
+| Route, photo as the app sends it (1079 px) | Reading |
+| --- | --- |
+| Jev latest via OpenRouter (resolved `typesafe/jev-1.14-20261014`) | `COYU2668130`, check digit valid, box `{top 0.10, bottom 0.14, left 0.61, right 0.79}` |
+| GPT-6 Luna, OpenAI direct | `COYU2?68130`: the 2nd serial digit is a tie (6 0.44, 2 0.43), left unread; the re-check of it is also a tie |
+| GPT-6 Luna Decisions via OpenRouter | the same as direct |
+
+No variant of about twenty wordings tried read all eleven on Luna at 1079 px without misreading another
+position; Luna's position answers on this photo are near coin tosses. **Upscaled to Luna's 2,048 px**
+(Lanczos, outside the app), the same wording reads `COYU2668130` with clear margins (at least 0.34 over the runner-up on positions 2 to 10). The
+app never enlarges a photo (spec #16, `photoFit.ts`), so this is not used; the crop read (spec #27, D)
+is the planned route to full detail.

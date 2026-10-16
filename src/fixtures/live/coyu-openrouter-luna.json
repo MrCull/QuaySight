@@ -1,0 +1,301 @@
+{
+  "recordedAt": "2026-10-16T16:28:51.502Z",
+  "photo": "samples/rear-door-coyu-22g1.jpg",
+  "endpoint": "https://openrouter.ai/api/alpha/decisions",
+  "requestedModel": "openai/gpt-6-luna-decisions",
+  "response": {
+    "model": "openai/gpt-6-luna-decisions-20261006",
+    "answers": {
+      "id_char_01": {
+        "type": "choice",
+        "choice": "C",
+        "probabilities": {
+          "A": 0,
+          "B": 0,
+          "C": 0.99,
+          "D": 0.01,
+          "E": 0,
+          "F": 0,
+          "G": 0,
+          "H": 0,
+          "I": 0,
+          "J": 0,
+          "K": 0,
+          "L": 0,
+          "M": 0,
+          "N": 0,
+          "O": 0,
+          "P": 0,
+          "Q": 0,
+          "R": 0,
+          "S": 0,
+          "T": 0,
+          "U": 0,
+          "V": 0,
+          "W": 0,
+          "X": 0,
+          "Y": 0,
+          "Z": 0
+        },
+        "confidence": 0.99
+      },
+      "id_char_02": {
+        "type": "choice",
+        "choice": "O",
+        "probabilities": {
+          "A": 0.01,
+          "B": 0,
+          "C": 0.01,
+          "D": 0,
+          "E": 0.01,
+          "F": 0,
+          "G": 0,
+          "H": 0,
+          "I": 0.01,
+          "J": 0,
+          "K": 0,
+          "L": 0,
+          "M": 0.01,
+          "N": 0.01,
+          "O": 0.78,
+          "P": 0.01,
+          "Q": 0.01,
+          "R": 0.01,
+          "S": 0.01,
+          "T": 0.02,
+          "U": 0.04,
+          "V": 0.01,
+          "W": 0.01,
+          "X": 0.01,
+          "Y": 0.02,
+          "Z": 0.01
+        },
+        "confidence": 0.77
+      },
+      "id_char_03": {
+        "type": "choice",
+        "choice": "Y",
+        "probabilities": {
+          "A": 0.01,
+          "B": 0,
+          "C": 0.01,
+          "D": 0.01,
+          "E": 0.01,
+          "F": 0,
+          "G": 0,
+          "H": 0,
+          "I": 0.01,
+          "J": 0,
+          "K": 0,
+          "L": 0,
+          "M": 0,
+          "N": 0,
+          "O": 0.01,
+          "P": 0,
+          "Q": 0,
+          "R": 0,
+          "S": 0,
+          "T": 0.02,
+          "U": 0.32,
+          "V": 0.01,
+          "W": 0.01,
+          "X": 0.01,
+          "Y": 0.56,
+          "Z": 0.01
+        },
+        "confidence": 0.54
+      },
+      "id_char_04": {
+        "type": "choice",
+        "choice": "U",
+        "probabilities": {
+          "A": 0.01,
+          "B": 0.01,
+          "C": 0.02,
+          "D": 0.01,
+          "E": 0.02,
+          "F": 0,
+          "G": 0.01,
+          "H": 0.01,
+          "I": 0.02,
+          "J": 0.01,
+          "K": 0.01,
+          "L": 0,
+          "M": 0,
+          "N": 0,
+          "O": 0.01,
+          "P": 0,
+          "Q": 0,
+          "R": 0,
+          "S": 0.01,
+          "T": 0.02,
+          "U": 0.61,
+          "V": 0.01,
+          "W": 0.01,
+          "X": 0.01,
+          "Y": 0.18,
+          "Z": 0.01
+        },
+        "confidence": 0.59
+      },
+      "id_char_05": {
+        "type": "choice",
+        "choice": "2",
+        "probabilities": {
+          "0": 0,
+          "1": 0,
+          "2": 1,
+          "3": 0,
+          "4": 0,
+          "5": 0,
+          "6": 0,
+          "7": 0,
+          "8": 0,
+          "9": 0
+        },
+        "confidence": 1
+      },
+      "id_char_06": {
+        "type": "choice",
+        "choice": "6",
+        "probabilities": {
+          "0": 0.03,
+          "1": 0.04,
+          "2": 0.43,
+          "3": 0.01,
+          "4": 0.01,
+          "5": 0.02,
+          "6": 0.44,
+          "7": 0.01,
+          "8": 0,
+          "9": 0.01
+        },
+        "confidence": 0.38
+      },
+      "id_char_07": {
+        "type": "choice",
+        "choice": "6",
+        "probabilities": {
+          "0": 0.02,
+          "1": 0.03,
+          "2": 0.28,
+          "3": 0.03,
+          "4": 0.01,
+          "5": 0.04,
+          "6": 0.55,
+          "7": 0.02,
+          "8": 0.02,
+          "9": 0
+        },
+        "confidence": 0.5
+      },
+      "id_char_08": {
+        "type": "choice",
+        "choice": "8",
+        "probabilities": {
+          "0": 0.05,
+          "1": 0.12,
+          "2": 0.05,
+          "3": 0.05,
+          "4": 0.02,
+          "5": 0.01,
+          "6": 0.11,
+          "7": 0.05,
+          "8": 0.52,
+          "9": 0.02
+        },
+        "confidence": 0.47
+      },
+      "id_char_09": {
+        "type": "choice",
+        "choice": "1",
+        "probabilities": {
+          "0": 0.02,
+          "1": 0.65,
+          "2": 0.03,
+          "3": 0.03,
+          "4": 0.01,
+          "5": 0.01,
+          "6": 0.01,
+          "7": 0.02,
+          "8": 0.21,
+          "9": 0.01
+        },
+        "confidence": 0.61
+      },
+      "id_char_10": {
+        "type": "choice",
+        "choice": "3",
+        "probabilities": {
+          "0": 0,
+          "1": 0.01,
+          "2": 0.01,
+          "3": 0.97,
+          "4": 0,
+          "5": 0.01,
+          "6": 0,
+          "7": 0,
+          "8": 0,
+          "9": 0
+        },
+        "confidence": 0.97
+      },
+      "id_char_11": {
+        "type": "choice",
+        "choice": "0",
+        "probabilities": {
+          "0": 0.99,
+          "1": 0.01,
+          "2": 0,
+          "3": 0,
+          "4": 0,
+          "5": 0,
+          "6": 0,
+          "7": 0,
+          "8": 0,
+          "9": 0
+        },
+        "confidence": 0.99
+      }
+    },
+    "usage": {
+      "input_tokens": 4061,
+      "output_tokens": 0,
+      "cost": 0.0004061
+    },
+    "id": "gen-dec-1792168128-TWnojv6blS6hIJtawvqP",
+    "provider": "OpenAI"
+  },
+  "recheck": {
+    "positions": [6],
+    "response": {
+      "model": "openai/gpt-6-luna-decisions-20261006",
+      "answers": {
+        "id_char_06": {
+          "type": "choice",
+          "choice": "6",
+          "probabilities": {
+            "0": 0.03,
+            "1": 0.04,
+            "2": 0.43,
+            "3": 0.01,
+            "4": 0.01,
+            "5": 0.02,
+            "6": 0.44,
+            "7": 0.01,
+            "8": 0,
+            "9": 0.01
+          },
+          "confidence": 0.38
+        }
+      },
+      "usage": {
+        "input_tokens": 1440,
+        "output_tokens": 0,
+        "cost": 0.000144
+      },
+      "id": "gen-dec-1792168130-L2VdAnKFF8xFmRuVsRHL",
+      "provider": "OpenAI"
+    }
+  }
+}

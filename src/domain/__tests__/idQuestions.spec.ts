@@ -43,9 +43,18 @@ describe('ID character questions', () => {
     [1, 'Read only the first letter of the four-letter group.'],
     [3, 'Read only the third letter of the four-letter group.'],
     [4, 'Read only the fourth letter of the four-letter group.'],
-    [5, 'Read only the first digit of the six-digit group.'],
-    [7, 'Read only the third digit of the six-digit group.'],
-    [10, 'Read only the sixth digit of the six-digit group.'],
+    [
+      5,
+      'Read only the first digit of the six-digit group, which is the sixth from its right-hand end.',
+    ],
+    [
+      7,
+      'Read only the third digit of the six-digit group, which is the fourth from its right-hand end.',
+    ],
+    [
+      10,
+      'Read only the sixth digit of the six-digit group, which is the first from its right-hand end.',
+    ],
     [11, 'Read only the single digit in the drawn box, exactly as printed.'],
   ])('name position %i by its place in its group', (position, place) => {
     for (const text of instructionsOf(position)) expect(text).toContain(place)

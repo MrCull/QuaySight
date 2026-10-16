@@ -38,7 +38,11 @@ function place(position: number): string {
     return `Read only the ${ORDINALS[position - 1]} letter of the four-letter group.`
   }
   if (position < ID_POSITIONS) {
-    return `Read only the ${ORDINALS[position - LETTER_POSITIONS - 1]} digit of the six-digit group.`
+    // Naming the digit from both ends of the group stops Luna slipping a place along a run of
+    // repeated digits (COYU 266813 0 read as 2266130 or 2268130 without it, 16 Oct 2026).
+    const fromLeft = ORDINALS[position - LETTER_POSITIONS - 1]
+    const fromRight = ORDINALS[ID_POSITIONS - 1 - position]
+    return `Read only the ${fromLeft} digit of the six-digit group, which is the ${fromRight} from its right-hand end.`
   }
   return 'Read only the single digit in the drawn box, exactly as printed.'
 }
