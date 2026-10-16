@@ -8,7 +8,6 @@ import {
   jevFailure,
   jevPhotoFormat,
   mapJevResponse,
-  supportsBox,
 } from '../jev'
 import { UNREAD } from '../certainty'
 
@@ -81,13 +80,15 @@ describe('buildJevRequest', () => {
     expect(questions.full_number_visible?.type).toBe('noul')
   })
 
-  it('adds the box question only for box-capable models', () => {
-    expect(supportsBox('jev-1.14.0')).toBe(true)
-    expect(supportsBox('jev-preview')).toBe(true)
-    expect(supportsBox('jev-1.13.0')).toBe(false)
-    expect(supportsBox('jev-latest')).toBe(false)
-    const withBox = buildJevRequest('jev-1.14.0', 'jpeg')
-    expect(withBox.questions.container_box?.type).toBe('box')
+  it('adds the box question only for models the catalogue declares box-capable', () => {
+    expect(buildJevRequest('jev-1.14.0', 'jpeg').questions.container_box?.type).toBe('box')
+    expect(buildJevRequest('jev-1.13.0', 'jpeg').questions.container_box).toBeUndefined()
+    expect(buildJevRequest('jev-latest', 'jpeg').questions.container_box).toBeUndefined()
+  })
+
+  it('never adds the box question for a model id the catalogue does not list', () => {
+    expect(buildJevRequest('jev-preview', 'jpeg').questions.container_box).toBeUndefined()
+    expect(buildJevRequest('jev-1.14.9', 'jpeg').questions.container_box).toBeUndefined()
   })
 })
 

@@ -1,7 +1,7 @@
 // Exports for an inspection (spec 8.3, 11.2): consolidated JSON, raw provider responses and a
 // shareable plain-text summary. Every builder takes only the InspectionRecord. No key, header or
 // credential can reach an export because none is an input.
-import { getProvider } from './providers'
+import { labelsFor } from './providers'
 import { faceStatus, type DamageFace, type FaceStatus, type FindingZone } from './damage'
 import type { CertaintyLabel, InspectionRecord, Provenance, RecheckRecord } from './inspection'
 
@@ -243,7 +243,7 @@ export function buildInspectionExport(record: InspectionRecord): InspectionExpor
     inspection: {
       id: record.id,
       provider: record.provider,
-      providerName: getProvider(record.provider).name,
+      providerName: labelsFor(record.provider, record.model).provider,
       model: record.model,
       resolvedVersion: record.resolvedVersion,
       source: record.source,
