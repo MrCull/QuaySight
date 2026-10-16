@@ -20,7 +20,7 @@ The demo banner says, the whole time a visitor is in demo mode, that what they s
 - The `PhotoDrop` gives way to the sample picker (`.qs-samples` with three `.qs-sample` tiles: *Rear doors with markings*, *Damaged grey side*, *Clean grey rear doors*). Its explanation adds that inspecting your own photos needs an API provider; there is no drop zone and no file picker.
 - Each result keeps the `Notice` *Recorded demonstration: [provider/model]*, naming who answered when that sample was recorded. A sample's result is only ever shown against its own photo.
 - The `CostIndicator` reads *Saved result · no live API charge*. Demo mode never adds to the live ledger and makes no request to any provider.
-- `NewInspection` returns to the sample picker. The `SettingsChip` is not shown; the banner's action is the way to a provider. In its place, once a sample runs, the top bar names who answered when it was recorded: the monogram, the model's name and, in mono, the maker or route and the model id (*GPT-6 Luna · OpenAI · gpt-6-luna*). On phones only the name shows.
+- `NewInspection` returns to the sample picker. The `SettingsChip` is not shown; the banner's action is the way to a provider. In its place, once a sample runs, the `RunChip` names who answered when it was recorded: the monogram, the model's name and, in mono, the maker or route and the model id (*GPT-6 Luna · OpenAI · gpt-6-luna*). On phones only the name shows.
 
 ## Rules
 - Neutral ink only: `surface-raised`, `ink`, `ink-muted` and `ink` rules top and bottom. Never certainty, severity or hazard colours, and never `brand` as a status. Nothing is green.

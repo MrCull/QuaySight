@@ -104,6 +104,7 @@ describe('provider catalogue: model declarations', () => {
   it('labels a direct run by its maker and model', () => {
     expect(labelsFor('luna', 'gpt-6-luna')).toEqual({
       option: 'GPT-6 Luna (OpenAI) direct · pinned',
+      route: 'OpenAI',
       provider: 'GPT-6 Luna',
       ledger: 'OpenAI · GPT-6 Luna',
       prose: 'OpenAI GPT-6 Luna',
@@ -114,6 +115,7 @@ describe('provider catalogue: model declarations', () => {
   it('labels an OpenRouter run by model, maker and route on every screen', () => {
     expect(labelsFor('openrouter', 'typesafe/jev-1.14')).toEqual({
       option: 'Jev 1.14 (TypeSafe) via OpenRouter · pinned',
+      route: 'TypeSafe via OpenRouter',
       provider: 'Jev 1.14 (TypeSafe) via OpenRouter',
       ledger: 'Jev 1.14 (TypeSafe) via OpenRouter',
       prose: 'Jev 1.14 (TypeSafe) via OpenRouter',
@@ -124,6 +126,7 @@ describe('provider catalogue: model declarations', () => {
     )
     expect(labelsFor('openrouter', 'openai/gpt-6-luna-decisions')).toEqual({
       option: 'GPT-6 Luna Decisions (OpenAI) via OpenRouter',
+      route: 'OpenAI via OpenRouter',
       provider: 'GPT-6 Luna Decisions (OpenAI) via OpenRouter',
       ledger: 'GPT-6 Luna Decisions (OpenAI) via OpenRouter',
       prose: 'GPT-6 Luna Decisions (OpenAI) via OpenRouter',
@@ -134,6 +137,7 @@ describe('provider catalogue: model declarations', () => {
   it('still names the provider for a model the catalogue no longer lists', () => {
     expect(labelsFor('openrouter', 'typesafe/jev-0.9')).toEqual({
       option: 'typesafe/jev-0.9 via OpenRouter',
+      route: 'OpenRouter',
       provider: 'typesafe/jev-0.9 via OpenRouter',
       ledger: 'typesafe/jev-0.9 via OpenRouter',
       prose: 'typesafe/jev-0.9 via OpenRouter',

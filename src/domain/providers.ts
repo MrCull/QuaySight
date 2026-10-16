@@ -210,6 +210,8 @@ export function isMovingTarget(provider: ProviderId, model: string): boolean {
 export interface ModelLabels {
   /** The model selector's option, by maker and route, e.g. "Jev 1.14 (TypeSafe) via OpenRouter · pinned". */
   option: string
+  /** Who made the model and how it was reached, e.g. "OpenAI" (direct) or "TypeSafe via OpenRouter". */
+  route: string
   /** The name a run is attributed to on result labels and exports, e.g. "GPT-6 Luna" or "Jev 1.14 (TypeSafe) via OpenRouter". */
   provider: string
   /** The ledger's provider column, e.g. "OpenAI · GPT-6 Luna". */
@@ -235,6 +237,7 @@ export function labelsFor(provider: ProviderId, model: string): ModelLabels {
       : `${model} via ${info.name}`
     return {
       option: withNote(attributed),
+      route: entry ? `${entry.maker} via ${info.name}` : info.name,
       provider: attributed,
       ledger: attributed,
       prose: attributed,
@@ -245,6 +248,7 @@ export function labelsFor(provider: ProviderId, model: string): ModelLabels {
   const name = entry?.displayName ?? model
   return {
     option: withNote(`${name} (${maker}) direct`),
+    route: maker,
     provider: name,
     ledger: `${maker} · ${name}`,
     prose: `${maker} ${name}`,

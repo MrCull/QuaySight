@@ -1,6 +1,6 @@
 # SetupCard
 
-The setup card is the first screen. It holds the `ProviderSelect` form (provider, model, key) and one primary **Continue**, centred on `bg`. Nothing else from the inspection screen shows: no photo drop, no Inspect button, no result panels. The top bar keeps only the brand.
+The setup card is the first screen. It holds the `ProviderSelect` form (provider, model, key) and one primary **Continue**, centred on `bg`. Nothing else from the inspection screen shows: no photo drop, no Inspect button, no result panels. The top bar keeps the brand and the crumb *Container inspection* (the crumb hides on phones); the `SettingsChip`, `CostIndicator` and `NewInspection` appear only after Continue.
 
 ## Use
 - `section.qs-setupcard` (`role="region"`, `aria-labelledby` its title) holding `.qs-setupcard__head` (the title *Set up a provider* in `.qs-setupcard__title`, one line of `.qs-setupcard__lede`), the `.qs-setup` form from `ProviderSelect`, then `.qs-setupcard__actions` with `button.qs-btn.qs-btn--primary.qs-btn--lg` **Continue**.

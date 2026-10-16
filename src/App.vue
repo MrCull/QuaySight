@@ -2,7 +2,6 @@
 import { computed } from 'vue'
 import { useInspectionStore } from './stores/inspection'
 import { useSetupStore } from './stores/setup'
-import { findModel, getProvider, labelsFor } from './domain/providers'
 import { findSample } from './domain/demoSamples'
 import SetupCard from './components/SetupCard.vue'
 import SettingsChip from './components/SettingsChip.vue'
@@ -14,6 +13,7 @@ import CostIndicator from './components/CostIndicator.vue'
 import NewInspectionAction from './components/NewInspectionAction.vue'
 import DemoBanner from './components/DemoBanner.vue'
 import SamplePicker from './components/SamplePicker.vue'
+import RunChip from './components/RunChip.vue'
 
 const store = useInspectionStore()
 const setup = useSetupStore()
@@ -26,21 +26,11 @@ const needsKey = computed(() => !store.demo && !!store.photo && !store.canStart 
 const showSampleOptions = computed(
   () => store.demo && store.record?.source === 'recorded' && store.record.containerId === null,
 )
-// Demo mode has no settings chip, so the top bar names who answered when the sample was recorded.
+// Demo mode has no settings chip, so the run chip names who answered when the sample was recorded.
 // A live run is named by the settings chip: changing provider or model blanks the screen, so they agree.
-const runChip = computed(() => {
-  if (!store.demo || !store.sample || store.status === 'idle') return null
-  const run = findSample(store.sample)
-  const provider = getProvider(run.provider)
-  const entry = findModel(run.provider, run.model)
-  const route =
-    entry?.route === 'openrouter' ? `${entry.maker} via ${provider.name}` : provider.vendor
-  return {
-    monogram: provider.monogram,
-    name: labelsFor(run.provider, run.model).model,
-    detail: `${route} · ${run.model}`,
-  }
-})
+const recordedRun = computed(() =>
+  store.demo && store.sample && store.status !== 'idle' ? findSample(store.sample) : null,
+)
 // After the result lands, the next step is New inspection, not a second charge on the same photo.
 const showStart = computed(() => (!store.demo || !!store.photo) && store.status !== 'complete')
 // Before any photo, the drop zone or the sample picker has the whole width.
@@ -68,11 +58,7 @@ function start() {
         <template v-if="setup.view === 'inspection'">
           <!-- Demo mode has no provider settings: the banner's Connect a provider is the way to one. -->
           <SettingsChip v-if="!store.demo" />
-          <span v-if="runChip" class="rs-run" :title="`${runChip.name} · ${runChip.detail}`">
-            <span class="qs-mono" aria-hidden="true">{{ runChip.monogram }}</span>
-            <span class="rs-run__name">{{ runChip.name }}</span>
-            <small>{{ runChip.detail }}</small>
-          </span>
+          <RunChip v-if="recordedRun" :provider="recordedRun.provider" :model="recordedRun.model" />
           <span class="rs-spacer"></span>
           <CostIndicator />
           <NewInspectionAction />

@@ -67,18 +67,31 @@ test.describe('demo mode', () => {
     const cost = page.locator('.rs-top .qs-cost__toggle')
 
     const samples = [
-      ['Rear doors with markings', 'rear-door-aphu-45g1.jpg', 'Recorded demonstration: GPT-6 Luna / gpt-6-luna'],
-      ['Damaged grey side', 'side-dented-grey.jpg', 'Recorded demonstration: GPT-6 Luna / gpt-6-luna'],
+      [
+        'Rear doors with markings',
+        'rear-door-aphu-45g1.jpg',
+        'Recorded demonstration: GPT-6 Luna / gpt-6-luna',
+        'OpenAI · gpt-6-luna',
+      ],
+      [
+        'Damaged grey side',
+        'side-dented-grey.jpg',
+        'Recorded demonstration: GPT-6 Luna / gpt-6-luna',
+        'OpenAI · gpt-6-luna',
+      ],
       [
         'Clean grey rear doors',
         'rear-door-chsu-22g1.jpg',
         'Recorded demonstration: Jev latest (TypeSafe) via OpenRouter / ~typesafe/jev-latest',
+        'TypeSafe via OpenRouter · ~typesafe/jev-latest',
       ],
     ] as const
-    for (const [name, photo, label] of samples) {
+    for (const [name, photo, label, run] of samples) {
       await inspectSample(page, name)
       await expect(page.locator('.rs-photo__img')).toHaveAttribute('alt', `Container photo: ${photo}`)
       await expect(page.getByText(label)).toBeVisible()
+      // The run chip names who answered the recording, where the settings chip would be.
+      await expect(page.locator('.rs-top .qs-runchip__detail')).toHaveText(run)
       await expect(banner(page)).toBeVisible()
       await expect(cost).toContainText('Saved result · no live API charge')
       await expect(page.getByRole('button', { name: 'Replace photo' })).toHaveCount(0)

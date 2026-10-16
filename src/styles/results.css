@@ -24,35 +24,6 @@ body {
   color: var(--ink-muted);
   font-weight: 400;
 }
-.rs-run {
-  display: inline-flex;
-  align-items: center;
-  gap: var(--space-2);
-  height: 36px;
-  padding: 0 var(--space-3) 0 var(--space-1);
-  border: 1px solid var(--line);
-  border-radius: var(--radius-sm);
-  font: 600 14px/1 var(--font-sans);
-  color: var(--ink);
-}
-.rs-run .qs-mono {
-  width: 28px;
-  height: 28px;
-  font-size: 11px;
-}
-.rs-run small {
-  font: 400 12px/1 var(--font-mono);
-  color: var(--ink-muted);
-}
-.rs-run .qs-mono,
-.rs-run__name {
-  flex: none;
-}
-.rs-run small {
-  min-width: 0;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
 .rs-spacer {
   flex: 1;
 }
@@ -335,13 +306,13 @@ body {
     height: 0;
   }
   .rs-top .qs-settingschip,
-  .rs-top .rs-run,
+  .rs-top .qs-runchip,
   .rs-top .qs-cost {
     order: 3;
     min-width: 0;
     margin-top: var(--space-3);
   }
-  .rs-top .rs-run {
+  .rs-top .qs-runchip {
     flex: none;
   }
   .rs-top .qs-cost {
@@ -350,7 +321,8 @@ body {
   .rs-top .rs-spacer {
     display: none;
   }
-  .rs-run small {
+  /* design-system RunChip: on phones only the monogram and the name show. */
+  .rs-top .qs-runchip__detail {
     display: none;
   }
   .rs-top .qs-cost,

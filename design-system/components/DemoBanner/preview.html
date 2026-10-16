@@ -9,10 +9,8 @@ body{margin:0;padding:var(--space-6);background:var(--bg)}
 .spacer{flex:1}
 .body{padding:var(--space-5)}
 .phone{max-width:390px}
-.run{display:inline-flex;align-items:center;gap:var(--space-2);height:36px;padding:0 var(--space-3) 0 var(--space-1);border:1px solid var(--line);border-radius:var(--radius-sm);font:600 14px/1 var(--font-sans);color:var(--ink)}
-.run .qs-mono{width:28px;height:28px;font-size:11px}.run small{font:400 12px/1 var(--font-mono);color:var(--ink-muted)}
 .pbar{display:flex;flex-wrap:wrap;align-items:center;gap:var(--space-3);padding:var(--space-3) var(--space-4);background:var(--surface);border-bottom:1px solid var(--line)}
-.pbar .qs-newinsp{margin-left:auto}.pbar .run small{display:none}.pbar .qs-cost{flex:1 1 0;min-width:0}.pbar .qs-cost__toggle{white-space:normal}
+.pbar .qs-newinsp{margin-left:auto}.pbar .qs-runchip__detail{display:none}.pbar .qs-cost{flex:1 1 0;min-width:0}.pbar .qs-cost__toggle{white-space:normal}
 .cap{margin:0 0 var(--space-2);color:var(--ink-muted);font:400 12px/16px var(--font-sans)}
 </style></head>
 <body class="qs-root">
@@ -23,7 +21,7 @@ body{margin:0;padding:var(--space-6);background:var(--bg)}
     <div class="frame">
       <header class="bar">
         <span class="qs-brand"><i class="qs-logo" aria-hidden="true"></i>Quay Sight</span>
-        <span class="run"><span class="qs-mono" aria-hidden="true">OA</span>GPT-6 Luna <small>OpenAI · gpt-6-luna</small></span>
+        <span class="qs-runchip" title="GPT-6 Luna · OpenAI · gpt-6-luna"><span class="qs-mono" aria-hidden="true">OA</span><span class="qs-runchip__name">GPT-6 Luna</span><small class="qs-runchip__detail">OpenAI · gpt-6-luna</small></span>
         <span class="spacer"></span>
         <div class="qs-cost qs-cost--quiet"><button class="qs-cost__toggle" aria-expanded="false">Saved result · no live API charge<i class="qs-glyph qs-glyph--chevron" aria-hidden="true"></i></button></div>
         <button type="button" class="qs-btn qs-btn--secondary qs-btn--sm qs-newinsp">New inspection</button>
@@ -58,7 +56,7 @@ body{margin:0;padding:var(--space-6);background:var(--bg)}
       <header class="pbar">
         <span class="qs-brand"><i class="qs-logo" aria-hidden="true"></i>Quay Sight</span>
         <button type="button" class="qs-btn qs-btn--secondary qs-btn--sm qs-newinsp">New inspection</button>
-        <span class="run"><span class="qs-mono" aria-hidden="true">OA</span>GPT-6 Luna <small>OpenAI · gpt-6-luna</small></span>
+        <span class="qs-runchip" title="GPT-6 Luna · OpenAI · gpt-6-luna"><span class="qs-mono" aria-hidden="true">OA</span><span class="qs-runchip__name">GPT-6 Luna</span><small class="qs-runchip__detail">OpenAI · gpt-6-luna</small></span>
         <div class="qs-cost qs-cost--quiet"><button class="qs-cost__toggle" aria-expanded="false">Saved result · no live API charge<i class="qs-glyph qs-glyph--chevron" aria-hidden="true"></i></button></div>
       </header>
       <section class="qs-demobanner" role="region" aria-label="Demo mode">
