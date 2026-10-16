@@ -62,7 +62,7 @@ function amount(totals: { costUsd: number | null; requests: number } | null): st
       <template v-if="isSample">
         <span class="qs-cost__mode qs-cost__mode--recorded">Sample</span>
         <span class="qs-cost__sep"></span>
-        Saved result · no charge
+        Saved result · no live API charge
       </template>
       <template v-else>
         <span class="qs-cost__mode">Live</span>

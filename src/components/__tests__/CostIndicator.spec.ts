@@ -27,7 +27,7 @@ function liveRequest(overrides: Partial<ChargeableRequest> = {}): ChargeableRequ
 describe('CostIndicator', () => {
   beforeEach(() => setActivePinia(createPinia()))
 
-  it('shows "no charge" for a recorded sample and adds nothing to the live ledger', async () => {
+  it('shows "no live API charge" for a recorded sample and adds nothing to the live ledger', async () => {
     const inspection = useInspectionStore()
     const ledger = useLedgerStore()
     inspection.record = await runRecordedInspection('luna', { delayMs: 0 })
@@ -35,7 +35,7 @@ describe('CostIndicator', () => {
 
     const wrapper = mount(CostIndicator)
     expect(wrapper.text()).toContain('Sample')
-    expect(wrapper.text()).toContain('Saved result · no charge')
+    expect(wrapper.text()).toContain('Saved result · no live API charge')
     expect(wrapper.text()).not.toContain('This container')
     expect(ledger.session.requests).toBe(0)
     expect(ledger.entries()).toHaveLength(0)
