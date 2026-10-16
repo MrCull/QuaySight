@@ -133,6 +133,8 @@ export interface DamageAssessment {
    * when the doors do not settle it. Absent for any other face.
    */
   sideInference?: SideInference
+  /** The container length the schematic is drawn to (20, 40 or 45 ft); 40 when absent. */
+  lengthFt?: 20 | 40 | 45
   /** Set when no face in the photo could be assessed: "Damage not assessed for this view", and why. */
   notAssessed?: { reason: string }
   /** The raw response the assessment came from (live), for the export. */

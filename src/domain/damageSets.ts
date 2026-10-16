@@ -19,6 +19,7 @@ import type {
   ZoneCoverage,
 } from './damage'
 import type { InspectionRecord } from './inspection'
+import { chosenLength, type LengthReading } from './chosenLength'
 import type { FaceReading, PhotoFace } from './photoFace'
 
 declare module './inspection' {
@@ -177,10 +178,20 @@ export function assessDamage(
 }
 
 function reassess(record: InspectionRecord): InspectionRecord {
-  return {
-    ...record,
-    damage: assessDamage(record.photoFace, record.damageReadings ?? [], record.photo?.name ?? null),
-  }
+  const damage = assessDamage(
+    record.photoFace,
+    record.damageReadings ?? [],
+    record.photo?.name ?? null,
+  )
+  return { ...record, damage: damage && { ...damage, lengthFt: chosenLength(record).feet } }
+}
+
+/** The model's length answer folded in: the drawing's length is chosen again. */
+export function withModelLength(
+  record: InspectionRecord,
+  reading: LengthReading | null,
+): InspectionRecord {
+  return reassess({ ...record, modelLength: reading })
 }
 
 /** The survey's face folded in: the damage is chosen again. */
