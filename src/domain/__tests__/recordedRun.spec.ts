@@ -4,7 +4,7 @@ import { runRecordedInspection } from '../recordedRun'
 
 describe('provider catalogue', () => {
   it('lists OpenRouter and OpenAI, each with exactly one recommended default model', () => {
-    expect(providers.map((p) => p.name)).toEqual(['OpenRouter', 'GPT-6 Luna'])
+    expect(providers.map((p) => p.name)).toEqual(['OpenRouter', 'OpenAI'])
     for (const provider of providers) {
       const recommended = provider.models.filter((m) => m.recommended)
       expect(recommended).toHaveLength(1)

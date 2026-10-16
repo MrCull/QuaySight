@@ -145,7 +145,7 @@ export const providers: ProviderInfo[] = [
   },
   {
     id: 'luna',
-    name: 'GPT-6 Luna',
+    name: 'OpenAI',
     vendor: 'OpenAI',
     api: 'Decisions API',
     monogram: 'OA',
@@ -236,11 +236,12 @@ export function labelsFor(provider: ProviderId, model: string): ModelLabels {
     }
   }
   const maker = entry?.maker ?? info.vendor
+  const name = entry?.displayName ?? model
   return {
-    provider: info.name,
-    ledger: `${maker} · ${info.name}`,
-    prose: `${maker} ${info.name}`,
-    model: entry?.displayName ?? info.name,
+    provider: name,
+    ledger: `${maker} · ${name}`,
+    prose: `${maker} ${name}`,
+    model: name,
   }
 }
 

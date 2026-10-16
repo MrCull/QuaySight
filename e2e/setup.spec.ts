@@ -167,7 +167,11 @@ test.describe('header chip and settings drawer', () => {
     // A new provider: a blank screen, the new provider in the chip, and its own empty key.
     await chip(page).click()
     await drawer(page).locator('#provider-button').click()
+    await expect(drawer(page).getByTestId('provider-option-luna').locator('strong')).toHaveText(
+      'OpenAI',
+    )
     await drawer(page).getByTestId('provider-option-luna').click()
+    await expect(drawer(page).locator('#provider-button strong')).toHaveText('OpenAI')
     await expect(page.locator('.rs-photo__img')).toHaveCount(0)
     await expect(page.getByText('Drop a container photo here')).toBeVisible()
     await expect(drawer(page).getByLabel('OpenAI API key', { exact: true })).toHaveValue('')

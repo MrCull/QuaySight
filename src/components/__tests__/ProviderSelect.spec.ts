@@ -20,6 +20,7 @@ describe('ProviderSelect (the form in the setup card and the settings drawer)', 
       expect.stringContaining('OpenRouter'),
       expect.stringContaining('OpenAI'),
     ])
+    expect(options.map((o) => o.get('strong').text())).toEqual(['OpenRouter', 'OpenAI'])
     expect(options.map((o) => o.text()).join(' ')).not.toMatch(/TypeSafe|System One/)
     await options[1]!.trigger('click')
     expect(store.provider).toBe('luna')

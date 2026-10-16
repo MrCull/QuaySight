@@ -52,9 +52,9 @@ describe('provider catalogue: model declarations', () => {
   })
 
   it('offers OpenRouter first, then OpenAI', () => {
-    expect(providers.map((p) => [p.id, p.vendor])).toEqual([
-      ['openrouter', 'OpenRouter'],
-      ['luna', 'OpenAI'],
+    expect(providers.map((p) => [p.id, p.name, p.vendor])).toEqual([
+      ['openrouter', 'OpenRouter', 'OpenRouter'],
+      ['luna', 'OpenAI', 'OpenAI'],
     ])
   })
 
