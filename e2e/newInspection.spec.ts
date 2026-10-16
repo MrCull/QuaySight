@@ -38,13 +38,18 @@ const choosePhoto = (page: Page) => page.locator('input[type="file"]').setInputF
 const costLine = (page: Page) => page.locator('.rs-top .qs-cost__toggle')
 const newInspection = (page: Page) => page.getByRole('button', { name: 'New inspection' })
 
-async function liveRun(page: Page) {
-  await mockDecisions(page)
+/** Types the placeholder on the setup card and continues to the inspection screen. */
+async function continueWithKey(page: Page) {
   await page.goto('/')
-  await choosePhoto(page)
-  const key = page.getByLabel('OpenAI API key', { exact: true }).first()
+  const key = page.getByLabel('OpenAI API key', { exact: true })
   await key.fill(PLACEHOLDER_KEY)
   await key.press('Enter')
+}
+
+async function liveRun(page: Page) {
+  await mockDecisions(page)
+  await continueWithKey(page)
+  await choosePhoto(page)
   await page.getByRole('button', { name: 'Run live inspection' }).click()
   await page.locator('#stage.qs-arrived').waitFor()
 }
@@ -53,11 +58,12 @@ test.describe('New inspection', () => {
   test.use({ viewport: { width: 1440, height: 900 } })
 
   test('is in the header, reachable by keyboard with a visible focus ring', async ({ page }) => {
-    await page.goto('/')
+    await continueWithKey(page)
     const button = page.locator('.rs-top').getByRole('button', { name: 'New inspection' })
     await expect(button).toBeVisible()
 
-    // Tab order in the top bar: the cost indicator, then New inspection.
+    // Tab order in the top bar: the settings chip, the cost indicator, then New inspection.
+    await page.locator('.rs-top').getByRole('button', { name: /^Settings:/ }).focus()
     await page.keyboard.press('Tab')
     await page.keyboard.press('Tab')
     await expect(button).toBeFocused()
@@ -94,10 +100,10 @@ test.describe('New inspection', () => {
 
   test('clears the manifest retry panel', async ({ page }) => {
     await page.goto('/')
-    await choosePhoto(page)
-    await page.getByLabel('OpenAI API key', { exact: true }).first().fill(PLACEHOLDER_KEY)
+    await page.getByLabel('OpenAI API key', { exact: true }).fill(PLACEHOLDER_KEY)
     await page.getByRole('checkbox', { name: /Replay the recorded sample/ }).check()
-    await page.getByRole('button', { name: 'Done' }).click()
+    await page.getByRole('button', { name: 'Continue' }).click()
+    await choosePhoto(page)
     await page.getByRole('button', { name: 'Start inspection' }).click()
     await page.locator('#stage.qs-arrived').waitFor()
     await page.getByRole('checkbox', { name: 'Container ID not visible in this sample' }).check()
@@ -126,11 +132,8 @@ test.describe('New inspection', () => {
         hold(answer)
       })
     })
-    await page.goto('/')
+    await continueWithKey(page)
     await choosePhoto(page)
-    const key = page.getByLabel('OpenAI API key', { exact: true }).first()
-    await key.fill(PLACEHOLDER_KEY)
-    await key.press('Enter')
     await page.getByRole('button', { name: 'Run live inspection' }).click()
     const release = await held
     await expect(page.locator('#stage.qs-arriving')).toBeVisible()

@@ -3,11 +3,16 @@ import { nextTick } from 'vue'
 import { mount } from '@vue/test-utils'
 import { setActivePinia, createPinia } from 'pinia'
 import { useInspectionStore } from '../stores/inspection'
+import { useSetupStore } from '../stores/setup'
 import { runRecordedInspection } from '../domain/recordedRun'
 import App from '../App.vue'
 
 describe('result arrival choreography', () => {
-  beforeEach(() => setActivePinia(createPinia()))
+  beforeEach(() => {
+    setActivePinia(createPinia())
+    // Past the setup card: the inspection screen is showing.
+    useSetupStore().view = 'inspection'
+  })
 
   it('is .qs-arriving while analysing and .qs-arrived once the record lands', async () => {
     const store = useInspectionStore()

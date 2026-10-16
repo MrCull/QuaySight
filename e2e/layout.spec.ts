@@ -10,10 +10,10 @@ const samplePhoto = path.resolve(
 /** The key gate applies to recorded runs too: enter a placeholder key and choose replay (no network call). */
 async function prepareRecordedRun(page: Page) {
   await page.goto('/')
-  await page.locator('input[type="file"]').setInputFiles(samplePhoto)
-  await page.getByLabel('OpenAI API key', { exact: true }).first().fill('playwright-placeholder-not-a-key')
+  await page.getByLabel('OpenAI API key', { exact: true }).fill('playwright-placeholder-not-a-key')
   await page.getByRole('checkbox', { name: /Replay the recorded sample/ }).check()
-  await page.getByRole('button', { name: 'Done' }).click()
+  await page.getByRole('button', { name: 'Continue' }).click()
+  await page.locator('input[type="file"]').setInputFiles(samplePhoto)
 }
 
 async function runSample(page: Page) {

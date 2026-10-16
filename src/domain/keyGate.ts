@@ -25,15 +25,13 @@ export function canStart(input: {
 }
 
 /**
- * Which selector view shows. 'collapsed' is the single quiet summary row, shown only once a key is
- * entered and the selection is valid, and only while the presenter is not editing.
+ * The setup card gate: Continue opens once a key for the selected provider is entered and the
+ * model belongs to that provider. No photo is needed yet; the inspection screen comes next.
  */
-export function selectorView(input: {
+export function canContinue(input: {
   provider: ProviderId
   model: string
   apiKey: string
-  editing: boolean
-}): 'entry' | 'collapsed' {
-  const valid = hasKey(input.apiKey) && modelIsOffered(input.provider, input.model)
-  return valid && !input.editing ? 'collapsed' : 'entry'
+}): boolean {
+  return hasKey(input.apiKey) && modelIsOffered(input.provider, input.model)
 }

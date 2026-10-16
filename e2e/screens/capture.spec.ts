@@ -49,7 +49,7 @@ type Motion = 'frozen' | 'animated'
 
 interface Capture {
   state: string
-  screen: 'start' | 'analysing' | 'results' | 'manifest-retry'
+  screen: 'setup' | 'start' | 'analysing' | 'results' | 'manifest-retry'
   steps: string[]
   motion: Motion
   /** Limit to some viewports; default all three. */
@@ -67,12 +67,21 @@ const open = (page: Page) => page.goto('/')
 const choosePhoto = (page: Page) =>
   page.locator('input[type="file"]').setInputFiles(samplePhoto)
 
-/** Types the placeholder into the named key field, ticks replay and presses Done. */
+/** On the setup card: types the placeholder into the named key field, ticks replay and presses Continue. */
 async function replayKey(page: Page, label = 'OpenAI API key') {
-  await page.getByLabel(label, { exact: true }).first().fill(PLACEHOLDER_KEY)
+  await page.getByLabel(label, { exact: true }).fill(PLACEHOLDER_KEY)
   await page.getByRole('checkbox', { name: /Replay the recorded sample/ }).check()
-  await page.getByRole('button', { name: 'Done' }).click()
+  await page.getByRole('button', { name: 'Continue' }).click()
 }
+
+/** On the setup card: types the placeholder and presses Enter, which continues to the inspection screen. */
+async function liveKey(page: Page) {
+  const key = page.getByLabel('OpenAI API key', { exact: true })
+  await key.fill(PLACEHOLDER_KEY)
+  await key.press('Enter')
+}
+
+const settingsChip = (page: Page) => page.getByRole('button', { name: /^Settings:/ })
 
 /** Waits for the arriving stage, then for the arrived stage, then lets the choreography finish. */
 async function startAndSettle(page: Page, button = 'Start inspection') {
@@ -84,8 +93,8 @@ async function startAndSettle(page: Page, button = 'Start inspection') {
 
 async function recordedLuna(page: Page) {
   await open(page)
-  await choosePhoto(page)
   await replayKey(page)
+  await choosePhoto(page)
   await startAndSettle(page)
 }
 
@@ -105,10 +114,8 @@ async function typeManifest(page: Page) {
 /** A live run through the mocked Decisions endpoint (placeholder key, no replay). */
 async function liveRun(page: Page) {
   await open(page)
+  await liveKey(page)
   await choosePhoto(page)
-  const key = page.getByLabel('OpenAI API key', { exact: true }).first()
-  await key.fill(PLACEHOLDER_KEY)
-  await key.press('Enter')
   await startAndSettle(page, 'Run live inspection')
 }
 
@@ -142,66 +149,74 @@ function lunaVariant(kind: 'uncertain' | 'partial' | 'insufficient') {
 
 const CAPTURES: Capture[] = [
   {
-    state: 'first-load',
-    screen: 'start',
-    steps: ['Open / (no photo, no key)'],
+    state: 'setup-card',
+    screen: 'setup',
+    steps: ['Open / (first visit: only the setup card, no key)'],
     motion: 'frozen',
     run: open,
   },
   {
+    state: 'setup-key-focused',
+    screen: 'setup',
+    steps: ['Open /', 'Focus the OpenAI API key field on the setup card'],
+    motion: 'frozen',
+    run: async (page) => {
+      await open(page)
+      await page.getByLabel('OpenAI API key', { exact: true }).focus()
+    },
+  },
+  {
+    state: 'setup-key-entered',
+    screen: 'setup',
+    steps: ['Open /', "Type placeholder into 'OpenAI API key' (Continue enabled)"],
+    motion: 'frozen',
+    run: async (page) => {
+      await open(page)
+      await page.getByLabel('OpenAI API key', { exact: true }).fill(PLACEHOLDER_KEY)
+    },
+  },
+  {
+    state: 'settings-chip',
+    screen: 'start',
+    steps: ['Open /', 'Type placeholder key', 'Press Enter (setup folds into the header chip)'],
+    motion: 'frozen',
+    run: async (page) => {
+      await open(page)
+      await liveKey(page)
+    },
+  },
+  {
+    state: 'settings-drawer-open',
+    screen: 'start',
+    steps: ['Settings-chip steps', 'Click the settings chip (drawer open, focus on the provider)'],
+    motion: 'frozen',
+    run: async (page) => {
+      await open(page)
+      await liveKey(page)
+      await settingsChip(page).click()
+      await page.getByRole('dialog', { name: 'Settings' }).waitFor()
+    },
+  },
+  {
     state: 'photo-added',
     screen: 'start',
-    steps: ['Open /', 'Choose samples/rear-door-aphu-45g1.jpg (landscape)'],
+    steps: ['Settings-chip steps', 'Choose samples/rear-door-aphu-45g1.jpg (landscape)'],
     motion: 'frozen',
     run: async (page) => {
       await open(page)
+      await liveKey(page)
       await choosePhoto(page)
-    },
-  },
-  {
-    state: 'key-focused',
-    screen: 'start',
-    steps: ['Open /', 'Choose photo', 'Focus the OpenAI API key field'],
-    motion: 'frozen',
-    run: async (page) => {
-      await open(page)
-      await choosePhoto(page)
-      await page.getByLabel('OpenAI API key', { exact: true }).first().focus()
-    },
-  },
-  {
-    state: 'key-entered',
-    screen: 'start',
-    steps: ['Open /', 'Choose photo', "Type placeholder into 'OpenAI API key' (selector still expanded)"],
-    motion: 'frozen',
-    run: async (page) => {
-      await open(page)
-      await choosePhoto(page)
-      await page.getByLabel('OpenAI API key', { exact: true }).first().fill(PLACEHOLDER_KEY)
-    },
-  },
-  {
-    state: 'selector-collapsed',
-    screen: 'start',
-    steps: ['Open /', 'Choose photo', 'Type placeholder key', 'Press Enter (selector collapses)'],
-    motion: 'frozen',
-    run: async (page) => {
-      await open(page)
-      await choosePhoto(page)
-      const key = page.getByLabel('OpenAI API key', { exact: true }).first()
-      await key.fill(PLACEHOLDER_KEY)
-      await key.press('Enter')
     },
   },
   {
     state: 'ready-recorded',
     screen: 'start',
-    steps: ['Open /', 'Choose photo', 'Type placeholder key', 'Tick Replay the recorded sample', 'Click Done'],
+    steps: ['Open /', 'Type placeholder key', 'Tick Replay the recorded sample', 'Continue', 'Choose photo'],
     motion: 'frozen',
     run: async (page) => {
       await open(page)
-      await choosePhoto(page)
       await replayKey(page)
+      await choosePhoto(page)
     },
   },
   {
@@ -211,8 +226,8 @@ const CAPTURES: Capture[] = [
     motion: 'animated',
     run: async (page) => {
       await open(page)
-      await choosePhoto(page)
       await replayKey(page)
+      await choosePhoto(page)
       await page.getByRole('button', { name: 'Start inspection' }).click()
       await page.locator('.rs-analysing').waitFor()
       await page.waitForTimeout(500)
@@ -227,8 +242,8 @@ const CAPTURES: Capture[] = [
     reducedMotion: true,
     run: async (page) => {
       await open(page)
-      await choosePhoto(page)
       await replayKey(page)
+      await choosePhoto(page)
       await page.getByRole('button', { name: 'Start inspection' }).click()
       await page.locator('.rs-analysing').waitFor()
       await page.waitForTimeout(500)
@@ -276,25 +291,25 @@ const CAPTURES: Capture[] = [
     screen: 'results',
     steps: [
       'Open /',
+      'Choose provider Jev (TypeSafe) on the setup card',
+      "Type placeholder into 'TypeSafe API key', tick replay, Continue",
       'Choose photo',
-      'Choose provider Jev (TypeSafe)',
-      "Type placeholder into 'TypeSafe API key', tick replay, Done",
       'Start inspection, settle',
     ],
     motion: 'frozen',
     run: async (page) => {
       await open(page)
-      await choosePhoto(page)
       await page.locator('#provider-button').click()
       await page.getByRole('option', { name: /Jev/ }).click()
       await replayKey(page, 'TypeSafe API key')
+      await choosePhoto(page)
       await startAndSettle(page)
     },
   },
   {
     state: 'live-uncertain',
     screen: 'results',
-    steps: ['Open /', 'Choose photo', 'Type placeholder key, Enter', 'Run live inspection (mocked Decisions: uncertain)', 'settle'],
+    steps: ['Open /', 'Type placeholder key, Enter', 'Choose photo', 'Run live inspection (mocked Decisions: uncertain)', 'settle'],
     motion: 'frozen',
     liveBody: () => lunaVariant('uncertain'),
     run: liveRun,
@@ -302,7 +317,7 @@ const CAPTURES: Capture[] = [
   {
     state: 'live-partial',
     screen: 'results',
-    steps: ['Open /', 'Choose photo', 'Type placeholder key, Enter', 'Run live inspection (mocked Decisions: positions 5 and 9 unread)', 'settle'],
+    steps: ['Open /', 'Type placeholder key, Enter', 'Choose photo', 'Run live inspection (mocked Decisions: positions 5 and 9 unread)', 'settle'],
     motion: 'frozen',
     liveBody: () => lunaVariant('partial'),
     run: liveRun,
@@ -310,7 +325,7 @@ const CAPTURES: Capture[] = [
   {
     state: 'live-insufficient',
     screen: 'results',
-    steps: ['Open /', 'Choose photo', 'Type placeholder key, Enter', 'Run live inspection (mocked Decisions: nothing read)', 'settle'],
+    steps: ['Open /', 'Type placeholder key, Enter', 'Choose photo', 'Run live inspection (mocked Decisions: nothing read)', 'settle'],
     motion: 'frozen',
     liveBody: () => lunaVariant('insufficient'),
     run: liveRun,

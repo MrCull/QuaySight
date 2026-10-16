@@ -1,8 +1,11 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import { useInspectionStore } from './stores/inspection'
-import { getProvider } from './domain/providers'
-import ProviderSelect from './components/ProviderSelect.vue'
+import { useSetupStore } from './stores/setup'
+import { labelsFor } from './domain/providers'
+import SetupCard from './components/SetupCard.vue'
+import SettingsChip from './components/SettingsChip.vue'
+import SettingsDrawer from './components/SettingsDrawer.vue'
 import PhotoPanel from './components/PhotoPanel.vue'
 import ResultsPanel from './components/ResultsPanel.vue'
 import DamageView from './components/damage/DamageView.vue'
@@ -10,14 +13,15 @@ import CostIndicator from './components/CostIndicator.vue'
 import NewInspectionAction from './components/NewInspectionAction.vue'
 
 const store = useInspectionStore()
+const setup = useSetupStore()
 
 const running = computed(() => store.status === 'running')
 // The key gate lives in the store: a photo, a key for the selected provider and a valid model.
 const canStart = computed(() => store.canStart && !running.value)
 const needsKey = computed(() => !!store.photo && !store.canStart && !running.value)
 const runLabel = computed(() => {
-  const p = getProvider(store.provider)
-  return `${p.name} · ${store.model}${store.mode === 'live' ? ' · live' : ''}`
+  const name = labelsFor(store.provider, store.model).prose
+  return `${name} · ${store.model}${store.mode === 'live' ? ' · live' : ''}`
 })
 
 // Arrival choreography: .qs-arriving while analysing, .qs-arrived once the record lands.
@@ -37,15 +41,21 @@ function start() {
     <header class="rs-top">
       <span class="qs-brand"><i class="qs-logo" aria-hidden="true"></i>Quay Sight</span>
       <span class="rs-crumb">Container inspection <span>· recorded walking skeleton</span></span>
-      <span v-if="store.status !== 'idle'" class="rs-run">{{ runLabel }}</span>
-      <span class="rs-spacer"></span>
-      <CostIndicator />
-      <NewInspectionAction />
+      <template v-if="setup.view === 'inspection'">
+        <SettingsChip />
+        <span v-if="store.status !== 'idle'" class="rs-run">{{ runLabel }}</span>
+        <span class="rs-spacer"></span>
+        <CostIndicator />
+        <NewInspectionAction />
+      </template>
     </header>
 
-    <main id="stage" :class="['rs-main', stageClass]">
+    <main v-if="setup.view === 'setup'" class="rs-setupview">
+      <SetupCard />
+    </main>
+
+    <main v-else id="stage" :class="['rs-main', stageClass]">
       <section class="rs-left">
-        <ProviderSelect />
         <PhotoPanel />
         <div
           v-if="store.record?.source === 'recorded'"
@@ -77,7 +87,8 @@ function start() {
         </div>
         <div>
           <p v-if="needsKey" class="qs-hint rs-gate-hint">
-            Enter this provider's key to start. A key is needed even for a recorded sample.
+            Enter this provider's key in settings to start. A key is needed even for a recorded
+            sample.
           </p>
           <button
             type="button"
@@ -104,5 +115,6 @@ function start() {
         @update:selected="store.selectFinding"
       />
     </main>
+    <SettingsDrawer v-if="setup.view === 'inspection' && setup.drawerOpen" />
   </div>
 </template>

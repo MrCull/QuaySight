@@ -1,0 +1,58 @@
+<!-- @dsCard group="Setup" height=760 width=1200 subtitle="The setup form in a non-modal side panel: change provider, model or key, then close" -->
+<!doctype html>
+<html><head><link rel="stylesheet" href="../../tokens.css"><link rel="stylesheet" href="../bundle.css"><meta charset="utf-8"><title>Settings drawer</title>
+<style>
+body{margin:0;background:var(--bg)}
+/* The transform makes this frame the drawer's containing block, so the fixed panel shows inside the card. */
+.frame{position:relative;height:720px;overflow:hidden;transform:translateZ(0)}
+.bar{display:flex;align-items:center;gap:var(--space-5);height:64px;padding:0 var(--space-6);background:var(--surface);border-bottom:1px solid var(--line);white-space:nowrap}
+.spacer{flex:1}
+.page{padding:var(--space-5)}
+.photo{height:420px;border-radius:var(--radius-lg);background:var(--surface-sunken);border:1px solid var(--line)}
+</style></head>
+<body class="qs-root">
+<div class="frame">
+  <header class="bar">
+    <span class="qs-brand"><i class="qs-logo" aria-hidden="true"></i>Quay Sight</span>
+    <button type="button" class="qs-settingschip" aria-haspopup="dialog" aria-expanded="true" aria-controls="settings-drawer"><span class="qs-mono" aria-hidden="true">OA</span><span class="qs-settingschip__text">GPT-6 Luna · <span class="qs-settingschip__model">gpt-6-luna</span> · <span class="qs-settingschip__key">key set</span> · Live</span><i class="qs-glyph qs-glyph--chevron" aria-hidden="true"></i></button>
+    <span class="spacer"></span>
+    <button type="button" class="qs-btn qs-btn--secondary qs-btn--sm qs-newinsp">New inspection</button>
+  </header>
+  <div class="page"><div class="photo"></div></div>
+
+  <aside class="qs-drawer" id="settings-drawer" role="dialog" aria-modal="false" aria-labelledby="dt">
+    <div class="qs-drawer__head">
+      <h2 class="qs-drawer__title" id="dt">Settings</h2>
+      <button type="button" class="qs-btn qs-btn--ghost qs-btn--sm" aria-label="Close settings"><i class="qs-glyph qs-glyph--cross" aria-hidden="true"></i></button>
+    </div>
+    <div class="qs-drawer__body">
+      <div class="qs-setup">
+        <div class="qs-fieldset">
+          <span class="qs-fieldset__label" id="pl">AI provider</span>
+          <div class="qs-combo">
+            <button class="qs-combo__button" aria-haspopup="listbox" aria-expanded="false" aria-labelledby="pl">
+              <span class="qs-mono">OA</span>
+              <span class="qs-opt-text"><strong>GPT-6 Luna</strong><small>OpenAI · Decisions API</small></span>
+              <span class="qs-cap qs-cap--rec">Recommended</span>
+              <i class="qs-glyph qs-glyph--chevron" aria-hidden="true"></i>
+            </button>
+          </div>
+        </div>
+        <div class="qs-fieldset">
+          <span class="qs-fieldset__label">Model version</span>
+          <label class="qs-input"><select aria-label="Model version"><option>gpt-6-luna (pinned)</option></select></label>
+        </div>
+        <div class="qs-fieldset">
+          <label class="qs-fieldset__label" for="k">OpenAI API key</label>
+          <label class="qs-input"><input id="k" type="password" value="placeholder-not-a-key" autocomplete="off"><button class="qs-btn qs-btn--ghost qs-btn--sm" aria-label="Show key" aria-pressed="false"><i class="qs-glyph qs-glyph--eye" aria-hidden="true"></i></button><button class="qs-btn qs-btn--ghost qs-btn--sm">Clear</button></label>
+          <span class="qs-hint">The photo and this key go only to OpenAI's Decisions endpoint, and only for a live run. The key stays in this tab's memory and is never saved.</span>
+        </div>
+        <span class="qs-hint">Changing the provider or model starts a new inspection. Changing only the key keeps the screen as it is.</span>
+      </div>
+    </div>
+    <div class="qs-drawer__foot">
+      <button type="button" class="qs-btn qs-btn--secondary qs-btn--sm">Done</button>
+    </div>
+  </aside>
+</div>
+</body></html>

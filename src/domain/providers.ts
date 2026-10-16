@@ -34,17 +34,34 @@ export interface ModelOption {
   recommended: boolean
 }
 
+/** The key field's copy. Each key is labelled for, and sent to, its own provider's endpoint only. */
+export interface KeyFieldCopy {
+  /** e.g. "OpenAI API key". Also the field's accessible name. */
+  label: string
+  placeholder: string
+  /** Says whose endpoint receives the photo and the key. */
+  hint: string
+}
+
 export interface ProviderInfo {
   id: ProviderId
   name: string
   vendor: string
   api: string
   monogram: string
+  keyField: KeyFieldCopy
   models: ModelOption[]
 }
 
+const KEPT_IN_MEMORY = "The key stays in this tab's memory and is never saved."
+
 /** Jev (TypeSafe docs, checked 16 Oct 2026): 256–1,568 px per side, 78,400–2,458,624 px in total. */
-const JEV_LIMITS: PhotoLimits = { maxSide: 1568, minSide: 256, maxPixels: 2_458_624, minPixels: 78_400 }
+const JEV_LIMITS: PhotoLimits = {
+  maxSide: 1568,
+  minSide: 256,
+  maxPixels: 2_458_624,
+  minPixels: 78_400,
+}
 /** Luna: up to 2,048 px on the long side. */
 const LUNA_LIMITS: PhotoLimits = { maxSide: 2048, minSide: 0, maxPixels: null, minPixels: 0 }
 
@@ -64,6 +81,11 @@ export const providers: ProviderInfo[] = [
     vendor: 'OpenAI',
     api: 'Decisions API',
     monogram: 'OA',
+    keyField: {
+      label: 'OpenAI API key',
+      placeholder: 'Paste your OpenAI key',
+      hint: `The photo and this key go only to OpenAI's Decisions endpoint, and only for a live run. ${KEPT_IN_MEMORY}`,
+    },
     models: [
       {
         id: 'gpt-6-luna',
@@ -84,6 +106,11 @@ export const providers: ProviderInfo[] = [
     vendor: 'TypeSafe',
     api: 'System One API',
     monogram: 'TS',
+    keyField: {
+      label: 'TypeSafe API key',
+      placeholder: 'Paste your TypeSafe console key',
+      hint: `The photo and this key go only to TypeSafe's System One endpoint, and only for a live run. It needs a TypeSafe console key from console.typesafe.ai. ${KEPT_IN_MEMORY}`,
+    },
     models: [
       {
         ...JEV_DIRECT,

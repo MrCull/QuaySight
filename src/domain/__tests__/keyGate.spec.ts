@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { canStart, hasKey, selectorView } from '../keyGate'
+import { canContinue, canStart, hasKey } from '../keyGate'
 
 describe('hasKey', () => {
   it('is false for empty and whitespace-only keys', () => {
@@ -43,34 +43,20 @@ describe('canStart (key gate)', () => {
   })
 })
 
-describe('selectorView (collapse logic)', () => {
-  it('shows the full entry view before a key is entered', () => {
-    expect(
-      selectorView({ apiKey: '', model: 'gpt-6-luna', provider: 'luna', editing: false }),
-    ).toBe('entry')
+describe('canContinue (setup card gate)', () => {
+  const base = { provider: 'luna' as const, model: 'gpt-6-luna', apiKey: 'test-key' }
+
+  it('stays closed until a key is entered', () => {
+    expect(canContinue({ ...base, apiKey: '' })).toBe(false)
+    expect(canContinue({ ...base, apiKey: '   ' })).toBe(false)
   })
 
-  it('collapses to a summary once a key is entered and the selection is valid', () => {
-    expect(
-      selectorView({ apiKey: 'test-key', model: 'gpt-6-luna', provider: 'luna', editing: false }),
-    ).toBe('collapsed')
+  it('opens with a key and a model the provider offers, with no photo needed', () => {
+    expect(canContinue(base)).toBe(true)
+    expect(canContinue({ provider: 'jev', model: 'jev-1.13.0', apiKey: 'test-key' })).toBe(true)
   })
 
-  it('stays expanded while the presenter is editing, even with a valid key', () => {
-    expect(
-      selectorView({ apiKey: 'test-key', model: 'gpt-6-luna', provider: 'luna', editing: true }),
-    ).toBe('entry')
-  })
-
-  it('does not collapse when the model is not valid for the provider', () => {
-    expect(
-      selectorView({ apiKey: 'test-key', model: 'jev-latest', provider: 'luna', editing: false }),
-    ).toBe('entry')
-  })
-
-  it('returns to the entry view when the key is cleared', () => {
-    expect(
-      selectorView({ apiKey: '', model: 'gpt-6-luna', provider: 'luna', editing: false }),
-    ).toBe('entry')
+  it('stays closed for a model the provider does not offer', () => {
+    expect(canContinue({ ...base, model: 'jev-latest' })).toBe(false)
   })
 })

@@ -56,7 +56,7 @@ What the app looks like after photos are uploaded. Live, animated versions are i
 ### Space, radius, elevation
 - **Spacing.** A 4px scale, `space-1` to `space-8`. Panels pad `space-5`, major regions sit `space-6` apart, presentation displays keep a `space-8` margin, phones a `space-4` gutter.
 - **Radii.** Small, like steel: `radius-sm` for controls and chips, `radius-md` for panels, `radius-lg` for the photo and schematic wells, `radius-xs` for tags and the check-digit box. `radius-pill` is reserved for the cost indicator and stage dots.
-- **Elevation.** Panels sit flat on borders. `shadow-raised` is only for floating layers: the cost ledger and marker popovers.
+- **Elevation.** Panels sit flat on borders. `shadow-raised` is only for floating layers: the cost ledger, marker popovers and the settings drawer.
 - **Controls.** Heights are `control-sm` 32, `control-md` 40 and `control-lg` 52 (the Inspect button). Schematic markers are `marker` 28px.
 
 ### Motion
@@ -70,7 +70,8 @@ What the app looks like after photos are uploaded. Live, animated versions are i
 - Never animate a fake progress bar or a ticking cost meter.
 
 ### Layout
-- **Desktop.** See the `ResultsScreen` and `AnalysingScreen` cards in the Screens group. A top bar with the name, the run's provider and model, and the `CostIndicator`. Below it, the photo stage and summary on the left, beside a 540px readings column (`ContainerId`, `FieldRow`s, `MarkingBadge`s). The damage view spans the full width beneath: the `ContainerSchematic`'s two views (rear and right side, front and left side, roof greyed out) stacked, with the `FindingCard`s in a column beside them. On wide screens (1800px and up) the two views sit side by side and the cards form a row underneath. `AnalysingScreen` shows the same screen while results are pending.
+- **First visit.** Only the `SetupCard`, centred, under a top bar holding the brand. After Continue, the inspection screen below.
+- **Desktop.** See the `ResultsScreen` and `AnalysingScreen` cards in the Screens group. A top bar with the name, the `SettingsChip`, the run's provider and model, the `CostIndicator` and `NewInspection`. Below it, the photo stage and summary on the left, beside a 540px readings column (`ContainerId`, `FieldRow`s, `MarkingBadge`s). The damage view spans the full width beneath: the `ContainerSchematic`'s two views (rear and right side, front and left side, roof greyed out) stacked, with the `FindingCard`s in a column beside them. On wide screens (1800px and up) the two views sit side by side and the cards form a row underneath. `AnalysingScreen` shows the same screen while results are pending.
 - **Phone.** The same order, stacked. The cost ledger opens as a bottom sheet over `scrim`.
 - **States.** Every surface needs designed empty (`PhotoDrop`), in-progress (`StageProgress`), confident, uncertain, insufficient-evidence and error (`Notice`) states.
 
@@ -86,7 +87,7 @@ What the app looks like after photos are uploaded. Live, animated versions are i
 
 ## Using the components
 
-The repository is a Vue 3 app, so components ship as framework-agnostic CSS classes (`qs-*`) in `components/bundle.css`, built on `tokens.css` custom properties. Wrap the app in `.qs-root`, then follow each component's guidelines: `Button`, `CertaintyChip`, `SeverityBadge`, `ProvenanceTag`, `FieldRow`, `ContainerId`, `MarkingBadge`, `FindingCard`, `ManifestRetry`, `ContainerSchematic`, `CostIndicator`, `ProviderSelect`, `PhotoDrop`, `StageProgress`, `Notice`, `NewInspection`. `AnalysingScreen` and `ResultsScreen` show them assembled into the main screen, before and after the results land. Turn each into a Vue SFC that renders the documented markup. Don't re-colour them locally.
+The repository is a Vue 3 app, so components ship as framework-agnostic CSS classes (`qs-*`) in `components/bundle.css`, built on `tokens.css` custom properties. Wrap the app in `.qs-root`, then follow each component's guidelines: `Button`, `CertaintyChip`, `SeverityBadge`, `ProvenanceTag`, `FieldRow`, `ContainerId`, `MarkingBadge`, `FindingCard`, `ManifestRetry`, `ContainerSchematic`, `CostIndicator`, `ProviderSelect`, `SetupCard`, `SettingsChip`, `SettingsDrawer`, `PhotoDrop`, `StageProgress`, `Notice`, `NewInspection`. `AnalysingScreen` and `ResultsScreen` show them assembled into the main screen, before and after the results land. Turn each into a Vue SFC that renders the documented markup. Don't re-colour them locally.
 
 ## Not synced
 
