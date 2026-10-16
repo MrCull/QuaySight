@@ -141,7 +141,8 @@ const showInsufficient = computed(() => idState.value === 'insufficient')
       <p class="rs-note qs-type-body-sm">The container ID could not be read from this photo.</p>
     </div>
 
-    <ManifestRetry v-if="record?.source === 'recorded'" />
+    <!-- Live: a live call on the same model. Demo: the sample's own recorded check. Never a replay against another photo. -->
+    <ManifestRetry v-if="store.canCheckManifest" />
 
     <ContainerDetails v-if="record" :record="record" />
 

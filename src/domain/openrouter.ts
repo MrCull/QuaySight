@@ -10,9 +10,12 @@ import { JevError, jevQuestions, mapJevResponse, type JevMapping, type JevQuesti
 import {
   LUNA_IDENTIFICATION_INSTRUCTIONS,
   buildIdQuestions,
+  mapLunaManifestResponse,
   mapLunaResponse,
   type LunaMapping,
+  type ManifestMapping,
 } from './luna'
+import { MANIFEST_STATE_INSTRUCTIONS, type ManifestQuestion } from './manifest'
 
 export const OPENROUTER_ENDPOINT = 'https://openrouter.ai/api/alpha/decisions'
 /** Endpoint family key used by the rate schedules and ledger. */
@@ -84,6 +87,31 @@ export function buildOpenRouterLunaRequest(
       { type: 'image_url', image_url: { url: imageDataUrl } },
     ],
     questions,
+  }
+}
+
+/**
+ * The manifest check for one photo on any OpenRouter Decisions model (spec 3.2): the pasted entries
+ * as choice questions, each with "not listed", translated into OpenRouter's criteria map. The same
+ * request shape for Jev and Luna Decisions models; no box question.
+ */
+export function buildOpenRouterManifestRequest(
+  model: string,
+  imageDataUrl: string,
+  questions: ManifestQuestion[],
+): OpenRouterRequestBody {
+  const asked: Record<string, JevQuestion> = {}
+  for (const question of questions) {
+    asked[question.name] = {
+      type: 'choice',
+      instructions: question.instructions,
+      criteria: Object.fromEntries(question.options.map((o) => [o.value, o.description])),
+    }
+  }
+  return {
+    model,
+    state: [MANIFEST_STATE_INSTRUCTIONS, { type: 'image_url', image_url: { url: imageDataUrl } }],
+    questions: asked,
   }
 }
 
@@ -253,6 +281,21 @@ export function mapOpenRouterLunaResponse(
   requestedModel: string,
   positions?: number[],
 ): OpenRouterLunaMapping {
+  const { body, translated } = toOpenAiShape(response)
+  return {
+    ...mapLunaResponse(translated, requestedModel, positions),
+    reportedCostUsd: readCost(body.usage),
+  }
+}
+
+/**
+ * OpenRouter's answers (a map by question name, probabilities a map by option) in OpenAI's shape (a
+ * list of named answers, probabilities a list), so the direct Luna mappings read either route alike.
+ */
+function toOpenAiShape(response: unknown): {
+  body: Record<string, unknown>
+  translated: Record<string, unknown>
+} {
   const body = asRecord(response)
   if (!body) {
     throw new OpenRouterError(
@@ -264,7 +307,7 @@ export function mapOpenRouterLunaResponse(
   if (!answers)
     throw new OpenRouterError('bad-response', 'OpenRouter replied without answers. Try again.')
 
-  const translated = Object.entries(answers).map(([name, answer]) => {
+  const list = Object.entries(answers).map(([name, answer]) => {
     const record = asRecord(answer) ?? {}
     const probabilities = asRecord(record.probabilities)
     return {
@@ -275,8 +318,23 @@ export function mapOpenRouterLunaResponse(
         : [],
     }
   })
+  return { body, translated: { ...body, answers: list } }
+}
+
+export interface OpenRouterManifestMapping extends ManifestMapping {
+  /** Cost from the response's own usage.cost, or null. Never zero when absent. */
+  reportedCostUsd: number | null
+}
+
+/** Maps a Decisions response for the manifest check, on any OpenRouter model. */
+export function mapOpenRouterManifestResponse(
+  response: unknown,
+  requestedModel: string,
+  questions: ManifestQuestion[],
+): OpenRouterManifestMapping {
+  const { body, translated } = toOpenAiShape(response)
   return {
-    ...mapLunaResponse({ ...body, answers: translated }, requestedModel, positions),
+    ...mapLunaManifestResponse(translated, requestedModel, questions),
     reportedCostUsd: readCost(body.usage),
   }
 }

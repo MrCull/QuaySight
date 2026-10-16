@@ -9,6 +9,12 @@ import { CERTAINTY_LABELS, UNREAD, applyMargin } from './certainty'
 import type { CertaintyLabel, ContainerIdReading } from './inspection'
 import type { Usage } from './ledger'
 import { classifyFailedCall, type ProviderErrorTraits } from './failedCall'
+import {
+  MANIFEST_STATE_INSTRUCTIONS,
+  readManifestAnswers,
+  type ManifestChoiceAnswer,
+  type ManifestQuestion,
+} from './manifest'
 
 export const LUNA_MODEL = 'gpt-6-luna'
 export const LUNA_ENDPOINT = 'https://api.openai.com/v1/decisions'
@@ -352,5 +358,79 @@ function readUsage(raw: unknown): Usage | null {
   return {
     inputTokens,
     outputTokens: numberField(record, ['output_tokens', 'completion_tokens']),
+  }
+}
+
+/**
+ * The manifest check for one photo (spec 3.2): the pasted entries as choice questions with "not
+ * listed", on the same Decisions request shape. The key is never part of the body.
+ */
+export function buildLunaManifestRequest(
+  imageDataUrl: string,
+  questions: ManifestQuestion[],
+): LunaRequestBody {
+  return {
+    model: LUNA_MODEL,
+    input: [
+      {
+        role: 'user',
+        content: [
+          { type: 'input_text', text: MANIFEST_STATE_INSTRUCTIONS },
+          { type: 'input_image', image_url: imageDataUrl },
+        ],
+      },
+    ],
+    questions: questions.map((q) => ({
+      type: 'choice',
+      name: q.name,
+      instructions: q.instructions,
+      choices: q.options,
+    })),
+  }
+}
+
+export interface ManifestMapping {
+  /** The manifest entry the model chose, as a manifest reading; null for "not listed". */
+  reading: ContainerIdReading | null
+  /** The model the response reports, or the requested model when it reports none. */
+  resolvedModel: string
+  /** Usage from the response's own fields, or null when the response carries none. */
+  usage: Usage | null
+}
+
+/** Maps an OpenAI-shaped Decisions response (answers as a named list) for the manifest check. */
+export function mapLunaManifestResponse(
+  response: unknown,
+  requestedModel: string,
+  questions: ManifestQuestion[],
+): ManifestMapping {
+  if (typeof response !== 'object' || response === null) {
+    throw new LunaError('bad-response', 'OpenAI replied in a shape the app does not recognise.')
+  }
+  const body = response as Record<string, unknown>
+  if (!Array.isArray(body.answers)) {
+    throw new LunaError('bad-response', 'OpenAI replied without answers. Try again.')
+  }
+  const answers: Record<string, ManifestChoiceAnswer> = {}
+  for (const answer of body.answers as unknown[]) {
+    if (typeof answer !== 'object' || answer === null) continue
+    const record = answer as Record<string, unknown>
+    if (typeof record.name !== 'string' || record.type !== 'choice') continue
+    if (typeof record.choice !== 'string') continue
+    const probabilities: Record<string, number> = {}
+    for (const entry of Array.isArray(record.probabilities) ? record.probabilities : []) {
+      const e = entry as { value?: unknown; probability?: unknown }
+      if (typeof e.value === 'string' && typeof e.probability === 'number') {
+        probabilities[e.value] = e.probability
+      }
+    }
+    answers[record.name] = { choice: record.choice, probabilities }
+  }
+  const resolvedModel =
+    typeof body.model === 'string' && body.model.trim() ? body.model.trim() : requestedModel
+  return {
+    reading: readManifestAnswers(answers, questions),
+    resolvedModel,
+    usage: readUsage(body.usage),
   }
 }
