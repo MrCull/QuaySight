@@ -5,7 +5,7 @@
 **Product type:** AI-powered container recognition and damage inspection POC  
 
 **Product requirements specification**  
-**Version:** 1.5  
+**Version:** 1.6  
 **Status:** Multi-provider requirements for a live innovation-event demonstration  
 **Initial AI providers:** OpenAI GPT-6 Luna (Decisions API) and TypeSafe Jev (System One API)  
 **Additional providers:** Designed to be added later without redesigning inspection features  
@@ -151,8 +151,8 @@ Priority labels: **MUST** = core innovation-event POC; **SHOULD** = strongly des
 Use multiple complementary structured questions through the **selected provider** rather than one all-or-nothing OCR guess:
 
 - Is an ISO 6346-style ID visible, and how legible is it?
-- Four-character prefix as a whole, where a useful choice set can be formed.
-- Three owner-code letters and equipment-category letter as separate choices.
+- Four-character prefix as a whole, where a useful choice set can be formed. Every run asks one whole-prefix choice question, "which of these is the owner code?", over the app's list of the ~200 most common BIC owner codes plus "none of these".
+- Three owner-code letters and equipment-category letter as separate choices. The equipment-category letter (4th character) is always **U** for this product: the model is told so, and the app sets position 4 to U whatever comes back.
 - Six serial digits individually, with alternative probabilities retained.
 - Serial digits in logical groups (first three and last three), with an explicit 'other / unreadable' outcome.
 - Visible check digit, assessed independently.
@@ -164,13 +164,25 @@ When the exact text cannot be represented by a finite choice list, the app shoul
 
 **MUST** handle partially obscured, cropped, absent and nonstandard container numbers. 'Unknown' is acceptable and must not prevent the remainder of the inspection. No full-ID choice should imply certainty merely because the right answer was inserted as a candidate.
 
+**Picking the best owner-code reading.**
+
+- When the model is confident (Likely or Confident) in its pick from the owner-code list, that pick is the owner code.
+- Otherwise, use the letter-by-letter reading. Trust it less when its 4th character came back as something other than U.
+- Candidate IDs that pass the check digit rank above those that fail.
+- If one candidate is Likely or Confident and passes the check digit, and no other candidate passes, show no "Also possible".
+- Otherwise, the losing reading and near-matches stay as "Also possible".
+
 **MUST** retain the distinction between a number **visibly recognised**, a **generated candidate** constrained by the check digit, and a **manifest match**. A candidate winning a limited choice set does not turn it into observed text.
 
-### 4.2 ISO 6346 check digit: both model context and deterministic validation
+### 4.2 ISO 6346 check digit: deterministic validation only
 
-**MUST** include a concise, accurate description of the check digit in the relevant identification request instructions:
+**MUST NOT** give the check-digit calculation to the model in the identification request instructions. Reasons:
 
-> A standard container number has three owner-code letters, one equipment-category letter, six serial digits and one check digit. To calculate the check digit, assign numeric values to letters starting at A=10 and skipping multiples of 11 (for example B=12, K=21, L=23, U=32). Digits retain their numeric value. Multiply the first ten values by 1, 2, 4, 8, 16, 32, 64, 128, 256 and 512; sum and take the remainder modulo 11. Remainder 10 is displayed as 0. Use this as a consistency constraint when comparing visually plausible numbers, but do not invent or change clearly visible characters just to satisfy it.
+- the app validates every candidate exactly;
+- a model asked to do the maths may change a correctly read character to fit;
+- the one live test (COYU 266813 0, 16 Oct 2026) read worse with the calculation in the prompt.
+
+**Follow-up:** repeat that comparison (calculation in the prompt against not) on Jev with the sample photos.
 
 **MUST** calculate and validate check digits independently of the model's answer. Requirements:
 
@@ -190,7 +202,7 @@ When the exact text cannot be represented by a finite choice list, the app shoul
 | Field | Required treatment |
 | --- | --- |
 | ISO 6346 size/type code | Whole-code classification from common ISO codes, plus `other`, `unreadable`, `not visible`. |
-| Length | Standard industry categories, respecting the ISO size code. |
+| Length | Standard industry categories, respecting the ISO size code. A new survey question asks the model to choose 20, 40 or 45 ft; it is used for the damage schematic only when the size-type code is not Confident (see 6.3). |
 | Height / High Cube | Prefer consistent decoding of known ISO code over estimation from perspective. |
 | Width | Standard vs pallet-wide/other; do not infer unusual width without evidence. |
 | Equipment type | General purpose, reefer, open top, tank, flat rack, platform, insulated, ventilated, bulk, special/unknown. |
@@ -302,7 +314,7 @@ Definitions must explicitly distinguish **local dents in corrugated panels**, **
 - Record regions in an **image-relative** grid when face orientation is unknown. Never label a position as `RT3N` solely because it is third from the left of a photograph.
 - Use ISO 9897 / CEDEX **four-character location codes** only when face, door-end orientation, nominal length and affected zone can be established reliably.
 - Distinguish panels, rails, corner posts, corner castings, doors, door gear and other visible components, with CEDEX component codes when supported.
-- For long sides, use length-appropriate sections: 5 longitudinal sections for 20-foot and 10 for 40-foot, with appropriate upper/lower partitioning and edge components. For other sizes use the appropriate standard or mark mapping unavailable.
+- For long sides, use the standard CEDEX/IICL location sections: 5 longitudinal sections for 20-foot and 10 for 40-foot and 45-foot (no extra note for 45 ft), with appropriate upper/lower partitioning and edge components. For other sizes use the appropriate standard or mark mapping unavailable.
 - Adapt the inspection zones and damage/component questions to the **visible face**: a rear-door photograph requires door/locking-gear regions, not the long-side corrugation grid; a side photograph requires panels/rails/corner posts, not fabricated rear-door assessments.
 - Keep separate the broad decision grid used for the POC and any later official CEDEX location code, and show the mapping assumptions only when those are justified.
 - Support damage spanning neighbouring sections, without turning it into multiple confirmed defects simply because it crosses grid lines.
@@ -323,9 +335,11 @@ Definitions must explicitly distinguish **local dents in corrugated panels**, **
 **MUST** include a **neutral visual container representation** as the default location view:
 
 - An illustrative, generic container diagram or simplified 2D/3D schematic that clearly separates relevant faces (for example side, rear, front and roof where available).
-- Draw the container as **two fixed 3D views**, stacked one above the other (side by side only on wide screens), each showing one end, one long side and the roof: *rear doors and right side*, and *front end and left side*. Together they cover every face. The roof appears in both views but is always **greyed out**, so it never competes with the photographed faces. Each finding is drawn in the view that holds its face; a view with no photographed faces says so.
+- Draw the container as **two fixed 3D views**, stacked one above the other (side by side only on wide screens), each showing one end, one long side and the roof: *rear doors and right side*, and *front end and left side*. Together they cover every face. The roof appears in both views but is always **greyed out**, so it never competes with the photographed faces. Each finding is drawn in the view that holds its face. A fixed view with no photographed face is hidden and replaced by one line saying that side was not photographed.
+- When a long side is photographed, work out which side it is from where the doors are in the photo: doors at photo-left means the left side, doors at photo-right means the right side, and the damage is drawn on the matching fixed view. When the doors do not settle it, draw the damage on the top view ("Rear and right side") with a visible note that the side is not certain. There is no separate "Long side, image-relative" figure.
+- Draw the schematic to the container's length: 20, 40 or 45 ft. The length comes from the ISO size-type code when that is Confident, otherwise from the survey question asking the model to choose 20, 40 or 45 ft, otherwise 40 ft.
 - Place discrete **pointers, markers or highlighted zones** on the schematic to indicate approximate suspected damage locations; selecting a marker reveals its CEDEX candidate(s), plain-English description, visual severity, probability, evidence photograph and inspection-coverage caveats.
-- Indicate the correct face/relative area only where orientation is supported. If orientation is unknown, show an explicitly labelled *image-relative* face or strip instead of inventing which side of the real container is damaged.
+- Indicate the correct face only where orientation is supported. For a long side the doors decide the side (above); if they do not, use the top view with the visible uncertainty note rather than inventing which side of the real container is damaged.
 - Use visual treatments that distinguish **location**, **damage concern/severity** and **certainty**. Do not paint a fictional dent, hole, crack or rust patch onto the neutral representation.
 - Never suggest that marker placement is pixel-precise, measurement-grade or a certified CEDEX location when the source only gives broad regions.
 - Show multiple findings in a region accessibly (for example grouped markers) and indicate unseen/unassessed surfaces.
@@ -459,6 +473,7 @@ The consolidated record must retain distinctions between printed/visually classi
 
 - Be ready for a **short live innovation-event presentation**, with a simple obvious main action and no setup maze.
 - Show real analysis progress honestly; do not display fake percentages implying API-level progress that is unavailable.
+- While a run is in progress, no text overlays the photo. The "Analysing with [model]" stage list ("Reading the ID", "Reading container details", "Checking for damage") sits outside the photo. The soft scan sweep stays over the photo (hidden under reduced motion).
 - Run any automatic refinement silently within the normal progress. Progress uses a few plain stages (e.g. *Reading markings*, *Looking for damage*, *Checking the details*) and never mentions passes, refinement, candidates or retries. The app continues automatically and shows only outcomes, without asking the presenter to decide.
 - Offer **clearly labelled recorded sample results** so the presenter can still demonstrate a complete inspection if connectivity, credentials or the beta API fail.
 - Never masquerade recorded/simulated output as a live response from any provider.
