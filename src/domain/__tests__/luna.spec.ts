@@ -55,12 +55,13 @@ describe('Luna request', () => {
     expect(instructions).not.toMatch(/modulo|A=10/)
   })
 
-  it('asks eleven named choice questions: letters for positions 1-4, digits for 5-11', () => {
+  it('asks eleven named choice questions: letters for positions 1-4, digits for 5-11, then the face', () => {
     const { questions } = buildLunaRequest(DATA_URL)
-    expect(questions).toHaveLength(11)
-    expect(questions.map((q) => q.name)).toEqual(
-      Array.from({ length: 11 }, (_, i) => `id_char_${String(i + 1).padStart(2, '0')}`),
-    )
+    expect(questions).toHaveLength(12)
+    expect(questions.map((q) => q.name)).toEqual([
+      ...Array.from({ length: 11 }, (_, i) => `id_char_${String(i + 1).padStart(2, '0')}`),
+      'photo_face',
+    ])
     const letters = questions[0]!
     expect(letters.type).toBe('choice')
     expect(letters.type === 'choice' && letters.choices.map((c) => c.value)).toHaveLength(26)

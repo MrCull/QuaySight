@@ -372,7 +372,7 @@ describe('parseQuestionSet', () => {
     readFileSync(
       resolve(
         dirname(fileURLToPath(import.meta.url)),
-        '../../../docs/research/question-sets/side-damage-v2.json',
+        '../questionSets/side-damage-v2.json',
       ),
       'utf8',
     ),

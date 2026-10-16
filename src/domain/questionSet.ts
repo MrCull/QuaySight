@@ -191,7 +191,7 @@ function parseQuestion(raw: unknown): SharedQuestion {
 
 /**
  * Reads a question set authored as JSON in the OpenAI Decisions request shape (e.g.
- * docs/research/question-sets/side-damage-v2.json). Any `model` in the file is ignored: the catalogue
+ * src/domain/questionSets/side-damage-v2.json). Any `model` in the file is ignored: the catalogue
  * chooses the model. Throws QuestionSetError for anything it cannot send.
  */
 export function parseQuestionSet(json: unknown): SharedQuestionSet {

@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeEach, vi, afterEach } from 'vitest'
+import { describe, it, expect, beforeEach, vi, afterEach, beforeAll, afterAll } from 'vitest'
 import { setActivePinia, createPinia } from 'pinia'
 
 // jsdom has no image decoder or canvas; photo preparation runs on the fake codec.
@@ -6,7 +6,7 @@ vi.mock('../../services/imageCodec')
 
 import { useInspectionStore } from '../inspection'
 import type { PlanRequest } from '../../plan/requestPlan'
-import { registerRequest } from '../../plan/registry'
+import { registerRequest, onlyRequests } from '../../plan/registry'
 import { askDecisions } from '../../services/askDecisions'
 import { questionSetAsk } from '../../domain/questionSetAsk'
 import { questionSet, type SharedAnswer, type SharedQuestionSet } from '../../domain/questionSet'
@@ -123,6 +123,16 @@ function reply(route: 'openai' | 'openrouter', body: string): Response {
     usage: { input_tokens: 900, cost: 0.00004 },
   })
 }
+
+import { readId } from '../../plan/requests/readId'
+import { idRecheck } from '../../plan/requests/idRecheck'
+
+// This spec covers the ID requests; the other parts of a run (damage, …) have their own specs.
+let restoreRequests = () => {}
+beforeAll(() => {
+  restoreRequests = onlyRequests(readId, idRecheck)
+})
+afterAll(() => restoreRequests())
 
 describe('a request built from a shared-format question set', () => {
   let fetchMock: ReturnType<typeof vi.fn<typeof fetch>>

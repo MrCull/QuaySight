@@ -9,6 +9,7 @@ import { buildContainerIdReading } from './containerId'
 import { CERTAINTY_LABELS, UNREAD } from './certainty'
 import type { CertaintyLabel, ContainerIdReading } from './inspection'
 import type { Usage } from './ledger'
+import { withFaceQuestion } from './photoFace'
 import { classifyFailedCall, type ProviderErrorTraits } from './failedCall'
 import { ProviderError, providerMessage, redact } from './providerErrors'
 import {
@@ -35,6 +36,11 @@ import {
 export { LUNA_IDENTIFICATION_INSTRUCTIONS }
 export type { ChoiceReading }
 
+/** The full read is the run's survey: it also asks the face. A re-check of some positions asks only them. */
+export function surveySet(set: SharedQuestionSet, positions?: number[]): SharedQuestionSet {
+  return positions ? set : withFaceQuestion(set)
+}
+
 export const LUNA_MODEL = 'gpt-6-luna'
 export const LUNA_ENDPOINT = 'https://api.openai.com/v1/decisions'
 /** Endpoint family key used by the rate schedules and ledger. */
@@ -45,10 +51,10 @@ export type LunaRequestBody = OpenAiDecisionsRequest
 /**
  * Builds the Decisions request for one photo: the Luna ID set, translated for OpenAI. The data URL must
  * carry the photo's real MIME type. With positions (1-based), only those are asked; the re-check uses
- * this for the unread ones.
+ * this for the unread ones. The full read is the survey, so it also asks which face the photo shows.
  */
 export function buildLunaRequest(imageDataUrl: string, positions?: number[]): LunaRequestBody {
-  return toWireRequest('openai-decisions', lunaIdQuestionSet(positions), {
+  return toWireRequest('openai-decisions', surveySet(lunaIdQuestionSet(positions), positions), {
     model: LUNA_MODEL,
     imageDataUrl,
   })

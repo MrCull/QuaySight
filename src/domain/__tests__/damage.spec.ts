@@ -5,6 +5,8 @@ import {
   faceStatus,
   findingsInView,
   imageRelativeFindings,
+  SEVERITY_LEVELS,
+  severityOfLevel,
   sortFindings,
   viewHasPhotos,
   type DamageAssessment,
@@ -77,6 +79,28 @@ describe('finding order', () => {
       make(3, 'Confident', 'major'),
     ])
     expect(sorted.map((f) => f.id)).toEqual([3, 2, 1])
+  })
+
+  it('puts cosmetic findings after minor ones, and findings with no severity rating last', () => {
+    const [base] = recordedSideDamage.findings
+    const make = (id: number, severity: DamageFinding['severity']) => ({
+      ...base!,
+      id,
+      certainty: 'Likely' as const,
+      severity,
+    })
+    const sorted = sortFindings([make(1, null), make(2, 'cosmetic'), make(3, 'minor')])
+    expect(sorted.map((f) => f.id)).toEqual([3, 2, 1])
+  })
+})
+
+describe('severity scale', () => {
+  it('has five levels, lowest first; none is not a finding severity', () => {
+    expect(SEVERITY_LEVELS).toEqual(['none', 'cosmetic', 'minor', 'moderate', 'major'])
+    expect(severityOfLevel('none')).toBeNull()
+    expect(severityOfLevel('cosmetic')).toBe('cosmetic')
+    expect(severityOfLevel('Moderate')).toBe('moderate')
+    expect(severityOfLevel('severe')).toBeNull()
   })
 })
 

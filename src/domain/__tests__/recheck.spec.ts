@@ -37,8 +37,14 @@ describe('buildLunaRequest with positions', () => {
     expect(body.questions.map((q) => q.name)).toEqual(['id_char_07', 'id_char_09'])
   })
 
-  it('still asks every position when no subset is given', () => {
-    expect(buildLunaRequest('data:image/jpeg;base64,AAAA').questions).toHaveLength(11)
+  it('still asks every position (and the face) when no subset is given', () => {
+    const { questions } = buildLunaRequest('data:image/jpeg;base64,AAAA')
+    expect(questions.filter((q) => q.name.startsWith('id_char_'))).toHaveLength(11)
+  })
+
+  it('asks only the positions, never the face, on a re-check', () => {
+    const { questions } = buildLunaRequest('data:image/jpeg;base64,AAAA', [3, 7])
+    expect(questions.map((q) => q.name)).toEqual(['id_char_03', 'id_char_07'])
   })
 })
 

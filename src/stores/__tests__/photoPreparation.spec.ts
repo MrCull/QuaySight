@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeEach, vi, afterEach } from 'vitest'
+import { describe, it, expect, beforeEach, vi, afterEach, beforeAll, afterAll } from 'vitest'
 import { setActivePinia, createPinia } from 'pinia'
 
 // The browser's decoder and canvas are faked (see services/__mocks__/imageCodec.ts): a fake photo is a blob
@@ -64,6 +64,17 @@ async function lunaPhotoSent(
   const [, type = '', data = ''] = /^data:([^;]+);base64,(.*)$/.exec(url) ?? []
   return { text: atob(data), type }
 }
+
+import { onlyRequests } from '../../plan/registry'
+import { readId } from '../../plan/requests/readId'
+import { idRecheck } from '../../plan/requests/idRecheck'
+
+// This spec covers the ID requests; the other parts of a run (damage, …) have their own specs.
+let restoreRequests = () => {}
+beforeAll(() => {
+  restoreRequests = onlyRequests(readId, idRecheck)
+})
+afterAll(() => restoreRequests())
 
 describe('photo preparation before a live call', () => {
   let fetchMock: ReturnType<typeof vi.fn<typeof fetch>>
