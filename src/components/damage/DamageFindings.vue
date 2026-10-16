@@ -30,7 +30,9 @@ function uncertaintyClass(f: DamageFinding): string {
       :aria-pressed="f.id === selectedId ? 'true' : 'false'"
       @click="emit('select', f.id)"
     >
-      <span :class="['qs-finding__n', `qs-finding__n--${f.severity}`, uncertaintyClass(f)]">{{
+      <span
+        :class="['qs-finding__n', `qs-finding__n--${f.severity ?? 'unrated'}`, uncertaintyClass(f)]"
+        >{{
         f.id
       }}</span>
       <span>
