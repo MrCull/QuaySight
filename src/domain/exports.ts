@@ -17,6 +17,7 @@ import {
   type ZoneVisibility,
 } from './damage'
 import { chosenLength, type ChosenLength } from './chosenLength'
+import { sectionScheme, sectionsOfZone } from './sideSections'
 import type { FaceReading } from './photoFace'
 import type { CertaintyLabel, InspectionRecord, Provenance, RecheckRecord } from './inspection'
 import type { DetailSource } from './containerDetails'
@@ -75,6 +76,8 @@ export interface ExportFindingLink {
   certainty: string
   types: string[]
   region: { location: string; zone: FindingZone | null }
+  /** The CEDEX/IICL long-side sections the finding lies in, numbered from the door end; null off the long side or with no area. */
+  sections: number[] | null
   photo: string | null
   sourcePass: { passId: string; kind: 'recorded-run' | 'provider-call' }
 }
@@ -119,7 +122,21 @@ export interface InspectionExport {
     photos: { photo: string; face: DamageFace }[]
     faces: { face: 'rear' | 'front' | 'left' | 'right' | 'roof'; status: FaceExportStatus }[]
     /** Every photo-relative zone the set judged, with its visibility: an unseen zone is never clean. */
-    zones: { id: string; face: DamageFace; label: string; visibility: ZoneVisibility | null }[]
+    zones: {
+      id: string
+      face: DamageFace
+      label: string
+      visibility: ZoneVisibility | null
+      /** The CEDEX/IICL long-side sections the zone covers, numbered from the door end; null off the long side. */
+      sections: number[] | null
+    }[]
+    /** The long-side section scheme drawn: side, length and section count (5 for 20 ft, 10 for 40 and 45 ft); null off the long side. */
+    longSideSections: {
+      side: 'left' | 'right'
+      lengthFt: number
+      count: number
+      numberedFrom: 'door end'
+    } | null
     findings: ExportFindingLink[]
   }
 }
@@ -131,6 +148,16 @@ export interface RawResponsesExport {
   source: 'recorded demonstration, not a live provider response' | 'live provider response'
   inspectionId: string
   responses: InspectionRecord['rawResponses']
+}
+
+function sectionsOf(
+  scheme: ReturnType<typeof sectionScheme>,
+  face: DamageFace,
+  zone: FindingZone | null,
+): number[] | null {
+  return scheme && zone && (face === 'left' || face === 'right')
+    ? sectionsOfZone(zone, scheme.lengthFt, scheme.side)
+    : null
 }
 
 const FIXED_FACES = ['rear', 'front', 'left', 'right', 'roof'] as const
@@ -246,6 +273,7 @@ export function buildInspectionExport(record: InspectionRecord): InspectionExpor
   conflicts.push(...weights.conflicts)
 
   const assessment = record.damage?.notAssessed ? null : record.damage
+  const scheme = assessment ? sectionScheme(assessment) : null
   const notAssessedReason = record.damage?.notAssessed?.reason ?? null
   if (!assessment) {
     unresolved.push({
@@ -299,7 +327,9 @@ export function buildInspectionExport(record: InspectionRecord): InspectionExpor
         face: z.face,
         label: z.label,
         visibility: z.visibility,
+        sections: sectionsOf(scheme, z.face, z.zone),
       })),
+      longSideSections: scheme && { ...scheme, numberedFrom: 'door end' },
       findings: (assessment?.findings ?? []).map((f) => ({
         findingId: f.id,
         title: f.title,
@@ -315,6 +345,7 @@ export function buildInspectionExport(record: InspectionRecord): InspectionExpor
         certainty: f.certainty,
         types: f.types.map((t) => t.code),
         region: { location: f.location, zone: f.zone },
+        sections: sectionsOf(scheme, f.face, f.zone),
         photo: assessment?.photos.find((p) => p.face === f.face)?.photo ?? null,
         sourcePass: { passId: assessment?.passId ?? record.id, kind: sourcePassKind(record) },
       })),

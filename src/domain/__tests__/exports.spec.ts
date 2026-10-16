@@ -276,6 +276,16 @@ describe('live damage in the exports', () => {
     })
   })
 
+  it('carries the long-side section mapping, following the length and numbered from the door end', async () => {
+    const json = buildInspectionExport(await liveSideRecord())
+    const { longSideSections, zones } = json.damage
+    expect(longSideSections).toMatchObject({ numberedFrom: 'door end' })
+    expect(longSideSections!.count).toBe(longSideSections!.lengthFt === 20 ? 5 : 10)
+    const sections = zones.flatMap((z) => z.sections ?? [])
+    expect(new Set(sections).size).toBe(longSideSections!.count)
+    for (const f of json.damage.findings) expect(f).toHaveProperty('sections')
+  })
+
   it('says why a view was not assessed, in the JSON and the summary', async () => {
     const record = withPhotoFace(await liveSideRecord(), {
       face: 'roof',

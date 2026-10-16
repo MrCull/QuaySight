@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { computed } from 'vue'
+import { sectionCount } from '../../domain/sideSections'
 import type { DamageFinding, FaceStatus, FindingZone, ZoneCoverage } from '../../domain/damage'
 
 // One fixed view of the neutral container drawing, following
@@ -69,6 +70,15 @@ const endLabel = computed(() => endPt(0.1115, 1.2126))
 function quad(pt: Projection, u0: number, u1: number, v0: number, v1: number): string {
   return [pt(u0, v0), pt(u1, v0), pt(u1, v1), pt(u0, v1)].map(([x, y]) => `${x},${y}`).join(' ')
 }
+
+// The long side's CEDEX/IICL sections (5 for 20 ft, 10 for 40 and 45 ft), as columns along the face.
+const sectionShapes = computed(() => {
+  const n = sectionCount(feet.value)
+  return Array.from({ length: n }, (_, i) => ({
+    id: i,
+    points: quad(sidePt, i / n, (i + 1) / n, 0, 1),
+  }))
+})
 
 const SIDE_POINTS = computed(() => quad(sidePt, 0, 1, 0, 1))
 const END_POINTS = computed(() => quad(endPt, 0, 1, 0, 1))
@@ -192,6 +202,11 @@ function select(id: number) {
         :points="SIDE_POINTS"
         :fill="`url(#${id}-hatch)`"
       />
+      <g v-if="side.status !== 'not-seen'" class="qs-c-sections">
+        <g v-for="s in sectionShapes" :key="s.id" class="qs-c-section">
+          <polygon :points="s.points" />
+        </g>
+      </g>
       <text class="qs-c-label" :x="sideLabel[0]" :y="sideLabel[1]">{{ side.text }}</text>
 
       <template v-if="end">
