@@ -2,6 +2,8 @@
 
 Reference question sets supplied for spec #27. Each is in the OpenAI Decisions request shape
 (`choice`, `predicate`, `score` with `levels`); `{{imageBase64}}` marks where the photo goes.
+This is the app's one question format: `parseQuestionSet` in `src/domain/questionSet.ts` reads such a
+file, and `toWireRequest` / `readAnswers` translate it for OpenAI or OpenRouter and read the answers back.
 
 | File | Source | Used by |
 | --- | --- | --- |
