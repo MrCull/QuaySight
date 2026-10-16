@@ -77,6 +77,45 @@ test.describe('units toggle', () => {
     await expect(maxGross(page)).toContainText('30,480 kg')
   })
 
+  test('shows the keyboard focus ring on the option in focus, inside the group (not clipped)', async ({
+    page,
+  }) => {
+    await inspectRearDoors(page)
+    await units(page).getByRole('button', { name: 'Metric' }).focus()
+    await page.keyboard.press('Tab')
+    const imperial = units(page).getByRole('button', { name: 'Imperial' })
+    await expect(imperial).toBeFocused()
+
+    // The group clips what it draws outside its own edge: the ring must show inside the group's box.
+    const ring = await imperial.evaluate((el) => getComputedStyle(el).outlineColor)
+    const shot = await units(page).screenshot()
+    const [r, g, b] = ring.match(/\d+(\.\d+)?/g)!.map(Number) as [number, number, number]
+    // Count the ring-coloured pixels in the group's right half (the Imperial option): decode the PNG in the page.
+    const hits = await page.evaluate(
+      async ({ png, r, g, b }) => {
+        const image = new Image()
+        image.src = `data:image/png;base64,${png}`
+        await image.decode()
+        const canvas = document.createElement('canvas')
+        canvas.width = image.width
+        canvas.height = image.height
+        const ctx = canvas.getContext('2d')!
+        ctx.drawImage(image, 0, 0)
+        const { data, width, height } = ctx.getImageData(0, 0, image.width, image.height)
+        let count = 0
+        for (let y = 0; y < height; y++)
+          for (let x = Math.floor(width / 2); x < width; x++) {
+            const i = (width * y + x) * 4
+            const close = (a: number, c: number) => Math.abs(a - c) <= 3
+            if (close(data[i]!, r) && close(data[i + 1]!, g) && close(data[i + 2]!, b)) count++
+          }
+        return count
+      },
+      { png: shot.toString('base64'), r, g, b },
+    )
+    expect(hits).toBeGreaterThan(40)
+  })
+
   test('is in the Container details heading, and the exports still carry both units', async ({
     page,
   }) => {

@@ -14,6 +14,9 @@ How the damage view shows one damage set's assessment of one photo: the long sid
 - **Panel findings** tint their zone (`qs-region--{severity}`) and stand a pin on it. **Component findings** (rails, corner posts, castings; on the doors, locking bars, hinges, header, sill and corner posts, each a band on that part of the end; cams, gaskets and castings have no place on the drawing, so a card and no pin) tint a band along that part of the face, with `qs-region--unrated` and `qs-marker--unrated` when the photo gives the part no severity. A component whose place is not said (one of the castings, a cam, a gasket) has a card but no pin.
 - **Not assessed for this view**: when the photo shows no face a set covers (roof, close-up, unknown view, front end), or the set's own coverage check says its face is not inspectable, the view shows a `qs-notice` with the *unseen* glyph, the title *Damage not assessed for this view* and the reason as its body. No drawing, no cards.
 
+## In the app
+The previews show only the figure that carries the findings (the image-relative long side, or the *Rear and right side* view for the door end). The app always draws the two fixed views as well, so a long-side photo also shows *Rear and right side* and *Front and left side* captioned *No photos* above the image-relative figure, and the `.qs-coverage` strip under them. That is deliberate (coverage reads at a glance, and *Together they show all six faces*), and it is on the follow-up list: hide a fixed view that holds no photographed face.
+
 ## Copy
 - Locations are photo-relative words: "Photo column 2 of 5 from the left, lower half of the side sheet"; "Photo-right door leaf, bottom third". Never a CEDEX location code: orientation is unknown.
 - Damage types are CEDEX damage types with their names (DT Dent, BT Bent, BW Bowed, HO Holed, CK Cracked, CW Cracked weld, CO Corroded, CH Corroded and holed, BR Broken).

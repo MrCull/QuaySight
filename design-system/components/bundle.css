@@ -549,7 +549,7 @@
 .qs-seg__opt[aria-pressed="true"] { background: var(--brand); color: var(--on-brand); }
 .qs-seg__opt[aria-pressed="true"]:hover { background: var(--brand-hover); }
 .qs-seg__opt[aria-pressed="true"] .qs-glyph { display: inline-block; }
-.qs-seg__opt:focus-visible { position: relative; }
+.qs-seg__opt:focus-visible { position: relative; outline-offset: -2px; } /* inside: the group clips anything outside its edge */
 
 /* ---------- What we found (the summary at the top of every result) ---------- */
 .qs-found { display: grid; gap: var(--space-4); padding: var(--space-5); background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius-md); color: var(--ink); }

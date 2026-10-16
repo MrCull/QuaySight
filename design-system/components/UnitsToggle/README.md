@@ -14,7 +14,7 @@ The units toggle switches the Container details readings between **Metric** and 
 - A weight whose kg and lb readings disagree shows both readings in its note whichever unit is in force.
 
 ## Keyboard
-Tab to the group, then Tab between the two buttons; Space or Enter presses. Focus uses the shared 2px `focus-ring`.
+Tab to the group, then Tab between the two buttons; Space or Enter presses. Focus uses the shared 2px `focus-ring`, drawn inside the option (`outline-offset: -2px`) because the group clips anything outside its own edge.
 
 ## Rules
 - Brand teal marks the pressed option, as for any chosen control. It never means a status.
