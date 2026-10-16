@@ -154,10 +154,12 @@ describe('live GPT-6 Luna Decisions through OpenRouter in the store', () => {
     // Fitted to Luna's 2,048 px on the long side.
     expect({ type, text: atob(data) }).toEqual({ type: 'image/jpeg', text: 'jpeg 1536x2048' })
 
-    // Eleven position questions, each a choice with OpenRouter's criteria map; nothing else.
-    expect(Object.keys(body.questions)).toEqual(
-      Array.from({ length: 11 }, (_, i) => `id_char_${String(i + 1).padStart(2, '0')}`),
-    )
+    // The survey: eleven position questions first, each a choice with OpenRouter's criteria map, then the
+    // container details.
+    expect(Object.keys(body.questions).slice(0, 12)).toEqual([
+      ...Array.from({ length: 11 }, (_, i) => `id_char_${String(i + 1).padStart(2, '0')}`),
+      'size_type_code',
+    ])
     expect(body.questions.id_char_01).toEqual({
       type: 'choice',
       instructions: `${LAYOUT} Read only the first letter of the four-letter group.`,

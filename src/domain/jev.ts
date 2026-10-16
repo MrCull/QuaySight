@@ -11,7 +11,7 @@ import { CERTAINTY_LABELS, UNREAD } from './certainty'
 import type { CertaintyLabel, ContainerIdReading } from './inspection'
 import type { Usage } from './ledger'
 import { ProviderError, redact } from './providerErrors'
-import { jevIdQuestionSet, readIdCharacters } from './idQuestions'
+import { jevIdQuestionSet, readIdCharacters, type ChoiceReading } from './idQuestions'
 import {
   UnreadableReplyError,
   readAnswers,
@@ -207,12 +207,7 @@ function boxOf(answer: SharedAnswer | undefined): JevBox | null {
   return { ...answer.box, confidence: answer.confidence }
 }
 
-/**
- * Maps a System One response to the shared container-ID reading, by meaning. Missing, refused or
- * low-probability positions stay as UNREAD; they are never filled in. The check digit is calculated
- * here, not taken from the model. The legibility score and the full-number noul can only lower
- * certainty, never raise it.
- */
+/** Maps a System One response to the shared container-ID reading, by meaning (see jevIdReadingOf). */
 export function mapJevResponse(
   response: unknown,
   requestedModel: string,
@@ -237,7 +232,30 @@ export function mapJevResponse(
         : `${replier} replied in a shape the app does not recognise.`,
     )
   }
-  const { answers } = reply
+  const { containerId, box } = jevIdReadingOf(reply.answers)
+  return {
+    containerId,
+    resolvedModel: reply.resolvedModel,
+    usage: reply.usage,
+    reportedCostUsd: reply.reportedCostUsd,
+    box,
+  }
+}
+
+/** The Jev ID set's answers, by meaning: the reading, each position's reading, and the box when asked. */
+export interface JevIdReading {
+  containerId: ContainerIdReading
+  readings: ChoiceReading[]
+  box: JevBox | null
+}
+
+/**
+ * Reads the Jev ID set's answers (by question name) as the shared container-ID reading. Missing, refused
+ * or low-probability positions stay as UNREAD; they are never filled in. The check digit is calculated
+ * here, not taken from the model. The legibility score and the full-number noul can only lower
+ * certainty, never raise it. Other answers in the same reply (a survey's) are ignored.
+ */
+export function jevIdReadingOf(answers: Record<string, SharedAnswer>): JevIdReading {
   const readings = readIdCharacters(answers)
 
   const chars = readings.map((r) => r.value ?? UNREAD)
@@ -297,11 +315,5 @@ export function mapJevResponse(
   if (partlyOutOfFrame) notes.push('The complete identification may not be in frame.')
   if (notes.length > 0) containerId.uncertainty = notes.join(' ')
 
-  return {
-    containerId,
-    resolvedModel: reply.resolvedModel,
-    usage: reply.usage,
-    reportedCostUsd: reply.reportedCostUsd,
-    box: boxOf(answers.container_box),
-  }
+  return { containerId, readings, box: boxOf(answers.container_box) }
 }
