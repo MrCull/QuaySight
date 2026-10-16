@@ -159,14 +159,11 @@ describe('New inspection: manifest retry', () => {
     vi.useRealTimers()
   })
 
-  /** A recorded run whose container ID was not identified, so the manifest offer is open. */
+  /** The demo's damaged side: its container ID is not in view, so the manifest offer is open. */
   async function unidentifiedResult() {
     const store = useInspectionStore()
-    store.setPhoto({ name: 'a.jpg', url: 'blob:a', orientation: 'landscape' })
-    store.setProvider('luna')
-    store.setApiKey(LUNA_KEY)
-    store.replaySample = true
-    store.scenario = 'unidentified'
+    store.enterDemo()
+    store.chooseSample('side-dented')
     const run = store.start()
     await vi.advanceTimersByTimeAsync(1600)
     await run
@@ -185,7 +182,13 @@ describe('New inspection: manifest retry', () => {
 
     store.newInspection()
 
-    expect(store.retry).toEqual({ status: 'idle', message: null, ids: [], dismissed: false })
+    expect(store.retry).toEqual({
+      status: 'idle',
+      message: null,
+      ids: [],
+      dismissed: false,
+      noMatch: false,
+    })
   })
 
   it('drops a manifest check still in flight', async () => {

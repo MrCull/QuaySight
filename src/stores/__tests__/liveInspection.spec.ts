@@ -58,7 +58,7 @@ describe('live Luna inspection in the store', () => {
     vi.restoreAllMocks()
   })
 
-  it('will not start until a Luna key is entered, then runs live unless replay is chosen', () => {
+  it('will not start until a Luna key is entered, then runs live', () => {
     const store = useInspectionStore()
     store.setProvider('luna')
     choosePhoto(store)
@@ -66,8 +66,6 @@ describe('live Luna inspection in the store', () => {
     store.setApiKey(KEY)
     expect(store.canStart).toBe(true)
     expect(store.mode).toBe('live')
-    store.replaySample = true
-    expect(store.mode).toBe('recorded')
   })
 
   it('does not send the OpenAI key to OpenRouter, and will not start without an OpenRouter key', async () => {

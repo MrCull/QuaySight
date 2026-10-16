@@ -170,6 +170,10 @@ function keepFirstResult() {
           >
         </div>
       </div>
+      <p v-if="store.retry.noMatch" class="qs-manifest__nomatch" role="status">
+        <i class="qs-glyph qs-glyph--list" aria-hidden="true"></i>No entry in this manifest matches
+        what the photo shows. Your first result is unchanged.
+      </p>
       <div class="qs-manifest__actions">
         <button
           type="button"

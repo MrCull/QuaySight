@@ -29,7 +29,7 @@ What the app looks like after photos are uploaded. Live, animated versions are i
 - **The manifest retry is an offer, not a task.** "Container ID not identified. If you have the manifest, paste the container numbers and check again." Never ask the presenter to fix, confirm or enter the number.
 - **Caveat what isn't known.** "No DG placard visible", never "Non-hazardous". "Apparent moderate dent", never "Repair required". "Approximate area", never a precise position.
 - **Show outcomes, not machinery.** Never mention passes, refinement, candidates, questions or retries. Progress reads *Reading markings*, *Looking for damage*, *Checking the details*. A doubtful reading shows its best value, its certainty and any plausible alternative ("Also possible: QSIU 307478 1"). That detail belongs in the exported JSON, not on screen.
-- **Samples are explained, not jargon.** On the start screen, offer a **sample container** with a **saved result** ("works offline, no API key, no charge"). Once a sample is open, label it "Recorded demonstration: TypeSafe Jev 1.14" and say what that means in one sentence.
+- **Samples are explained, not jargon.** Visitors without a key choose **Enter as demo user** under the `SetupCard`. Demo mode offers the three bundled **sample containers**, each with the **saved result** recorded from that photo ("works offline, no API key, no charge"), under a `DemoBanner` that stays on screen: *DEMO — sample results, not a real inspection*, a line saying that inspecting your own photos needs an API provider, and **Connect a provider**. There is no photo upload in demo mode. Once a sample is open, label it "Recorded demonstration: [provider/model]" (e.g. "Recorded demonstration: GPT-6 Luna / gpt-6-luna") and say what that means in one sentence.
 - **Casing.** Sentence case for headings and buttons. UPPERCASE `label` style only for field names, echoing the door markings (MAX GROSS, TARE). No emoji, no exclamation marks.
 - **Numbers.** Set IDs, codes, weights and money in mono. Group thousands: `32,500 kg`. Show sub-cent costs to four decimals: `$0.0016`, never `$0.00`. Unknown cost is *Cost unavailable*, not zero.
 
@@ -70,7 +70,7 @@ What the app looks like after photos are uploaded. Live, animated versions are i
 - Never animate a fake progress bar or a ticking cost meter.
 
 ### Layout
-- **First visit.** Only the `SetupCard`, centred, under a top bar holding the brand. After Continue, the inspection screen below.
+- **First visit.** Only the `SetupCard`, centred, under a top bar holding the brand, with *Enter as demo user* beneath it. After Continue, the inspection screen below. In demo mode the `DemoBanner` sits under the top bar and the sample picker takes the place of the `PhotoDrop`.
 - **Desktop.** See the `ResultsScreen` and `AnalysingScreen` cards in the Screens group. A top bar with the name, the `SettingsChip`, the run's provider and model, the `CostIndicator` and `NewInspection`. Below it, the photo stage and summary on the left, beside a 540px readings column (`ContainerId`, `FieldRow`s, `MarkingBadge`s). The damage view spans the full width beneath: the `ContainerSchematic`'s two views (rear and right side, front and left side, roof greyed out) stacked, with the `FindingCard`s in a column beside them. On wide screens (1800px and up) the two views sit side by side and the cards form a row underneath. `AnalysingScreen` shows the same screen while results are pending.
 - **Phone.** The same order, stacked. The cost ledger opens as a bottom sheet over `scrim`.
 - **States.** Every surface needs designed empty (`PhotoDrop`), in-progress (`StageProgress`), confident, uncertain, insufficient-evidence and error (`Notice`) states.
@@ -87,7 +87,7 @@ What the app looks like after photos are uploaded. Live, animated versions are i
 
 ## Using the components
 
-The repository is a Vue 3 app, so components ship as framework-agnostic CSS classes (`qs-*`) in `components/bundle.css`, built on `tokens.css` custom properties. Wrap the app in `.qs-root`, then follow each component's guidelines: `Button`, `CertaintyChip`, `SeverityBadge`, `ProvenanceTag`, `FieldRow`, `ContainerId`, `MarkingBadge`, `FindingCard`, `ManifestRetry`, `ContainerSchematic`, `CostIndicator`, `ProviderSelect`, `SetupCard`, `SettingsChip`, `SettingsDrawer`, `PhotoDrop`, `StageProgress`, `Notice`, `NewInspection`. `AnalysingScreen` and `ResultsScreen` show them assembled into the main screen, before and after the results land. Turn each into a Vue SFC that renders the documented markup. Don't re-colour them locally.
+The repository is a Vue 3 app, so components ship as framework-agnostic CSS classes (`qs-*`) in `components/bundle.css`, built on `tokens.css` custom properties. Wrap the app in `.qs-root`, then follow each component's guidelines: `Button`, `CertaintyChip`, `SeverityBadge`, `ProvenanceTag`, `FieldRow`, `ContainerId`, `MarkingBadge`, `FindingCard`, `ManifestRetry`, `ContainerSchematic`, `CostIndicator`, `ProviderSelect`, `SetupCard`, `SettingsChip`, `SettingsDrawer`, `DemoBanner`, `PhotoDrop`, `StageProgress`, `Notice`, `NewInspection`. `AnalysingScreen` and `ResultsScreen` show them assembled into the main screen, before and after the results land. Turn each into a Vue SFC that renders the documented markup. Don't re-colour them locally.
 
 ## Not synced
 

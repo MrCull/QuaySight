@@ -11,7 +11,6 @@ async function setup(scenario: 'unidentified' | 'identified' = 'unidentified') {
   store.setProvider('luna')
   store.setPhoto({ name: 'a.jpg', url: 'blob:a', orientation: 'landscape' })
   store.setApiKey('test-only-key-0000')
-  store.replaySample = true
   store.record = await runRecordedInspection('luna', { delayMs: 0, scenario })
   store.status = 'complete'
   return store
@@ -198,6 +197,26 @@ describe('ManifestRetry', () => {
     await vi.advanceTimersByTimeAsync(300)
     await nextTick()
     expect(w.find('textarea').exists()).toBe(false)
+    w.unmount()
+  })
+
+  it('when no entry matches the photo, stays open with the entries and says the first result is unchanged', async () => {
+    const store = useInspectionStore()
+    store.enterDemo()
+    store.chooseSample('side-dented')
+    const run = store.start()
+    await vi.advanceTimersByTimeAsync(1600)
+    await run
+    const w = mount(ManifestRetry, { attachTo: document.body })
+    await field(w).setValue('APHU 658684 7')
+    await primary(w).trigger('click')
+    await vi.advanceTimersByTimeAsync(1600)
+    await nextTick()
+    expect(w.find('[role="status"].qs-manifest__nomatch').text()).toBe(
+      'No entry in this manifest matches what the photo shows. Your first result is unchanged.',
+    )
+    expect((field(w).element as HTMLTextAreaElement).value).toBe('APHU 658684 7')
+    expect(store.record?.containerId).toBeNull()
     w.unmount()
   })
 })

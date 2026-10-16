@@ -4,6 +4,7 @@ import { useSetupStore } from '../stores/setup'
 import ProviderSelect from './ProviderSelect.vue'
 
 // design-system/components/SetupCard: the first screen. Continue waits for a key; Enter in the key field continues.
+// Under the card, Enter as demo user needs no key.
 const setup = useSetupStore()
 const card = useTemplateRef<HTMLElement>('card')
 
@@ -31,4 +32,10 @@ onMounted(() => card.value?.querySelector<HTMLElement>('#provider-button')?.focu
       </button>
     </div>
   </section>
+  <!-- Visitors without a key: demo mode, the bundled samples only (design-system DemoBanner). -->
+  <div class="qs-setupcard__after">
+    <button type="button" class="qs-setupcard__demo" @click="setup.enterDemo()">
+      Enter as demo user
+    </button>
+  </div>
 </template>

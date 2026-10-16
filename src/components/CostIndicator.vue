@@ -10,7 +10,8 @@ const ledgerStore = useLedgerStore()
 const expanded = ref(false)
 const panelId = 'cost-ledger-panel'
 
-const isSample = computed(() => inspection.record?.source === 'recorded')
+// Demo mode and recorded results never reach the live ledger (spec 8.5): they show no live API charge.
+const isSample = computed(() => inspection.demo || inspection.record?.source === 'recorded')
 const containerId = computed(() => (isSample.value ? null : (inspection.record?.id ?? null)))
 
 const container = computed(() =>
@@ -119,8 +120,8 @@ function amount(totals: { costUsd: number | null; requests: number } | null): st
         </tbody>
       </table>
       <div class="qs-cost__foot">
-        API usage as each provider reported it, or estimated at its configured rates where it reports
-        none, not an invoice. Recorded samples are never added to live totals.
+        API usage as each provider reported it, or estimated at its configured rates where it
+        reports none, not an invoice. Recorded samples are never added to live totals.
       </div>
     </div>
   </div>

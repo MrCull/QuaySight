@@ -150,28 +150,6 @@ describe('photo preparation before a live call', () => {
     expect(store.record?.photo).toEqual({ name: 'rear.jpg', orientation: 'portrait' })
   })
 
-  it('leaves recorded runs alone: a photo too small for live still replays the recorded sample', async () => {
-    vi.useFakeTimers()
-    try {
-      const store = useInspectionStore()
-      store.setProvider('openrouter')
-      store.setApiKey(KEY)
-      store.replaySample = true
-      choosePhoto(store, fakePhoto(200, 150))
-
-      const run = store.start()
-      await vi.runAllTimersAsync()
-      await run
-
-      expect(fetchMock).not.toHaveBeenCalled()
-      expect(store.status).toBe('complete')
-      expect(store.record?.source).toBe('recorded')
-      expect(store.errorMessage).toBeNull()
-    } finally {
-      vi.useRealTimers()
-    }
-  })
-
   it('refuses a photo too long and narrow to fit, naming its size', async () => {
     const store = useInspectionStore()
     store.setProvider('openrouter')

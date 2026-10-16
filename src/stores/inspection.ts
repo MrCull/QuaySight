@@ -1,7 +1,12 @@
 import { defineStore } from 'pinia'
 import { defaultModelFor, findModel, labelsFor } from '../domain/providers'
 import { canStart as keyGateOpen, hasKey } from '../domain/keyGate'
-import { runRecordedInspection, type SampleScenario } from '../domain/recordedRun'
+import {
+  findSample,
+  runDemoManifestRetry,
+  runDemoSample,
+  type DemoSampleId,
+} from '../domain/demoSamples'
 import { runRecordedManifestRetry } from '../domain/manifest'
 import { assembleLunaReading, LUNA_MODEL, LunaError } from '../domain/luna'
 import { callLuna, type LunaCallResult } from '../services/luna'
@@ -57,6 +62,8 @@ export interface ManifestRetryState {
   ids: string[]
   /** The presenter chose Keep first result for this run. */
   dismissed: boolean
+  /** The last check finished and no manifest entry matched the photo; the first result is kept. */
+  noMatch: boolean
 }
 
 /** Pause before a recorded result lands, so the staged progress can read. Within the 1.6s arrival budget. */
@@ -71,6 +78,7 @@ const freshRetry = (): ManifestRetryState => ({
   message: null,
   ids: [],
   dismissed: false,
+  noMatch: false,
 })
 
 export const useInspectionStore = defineStore('inspection', {
@@ -84,8 +92,8 @@ export const useInspectionStore = defineStore('inspection', {
     /** Bumped on every photo change; a run whose token is stale must not write its result. */
     runToken: 0,
     inFlight: null as Promise<void> | null,
-    /** Recorded sample to replay on the next run (sample-only control). */
-    scenario: 'identified' as SampleScenario,
+    /** Demo mode: the bundled sample on screen, or null while the sample picker shows. */
+    sample: null as DemoSampleId | null,
     /** Sample-only control: the recorded manifest check fails. */
     retryFails: false,
     retry: freshRetry() as ManifestRetryState,
@@ -96,11 +104,8 @@ export const useInspectionStore = defineStore('inspection', {
      * Each key is read only for its own provider's call (callLuna or callOpenRouterJev); switching provider never moves a key.
      */
     apiKeys: { luna: '', openrouter: '' } as Record<ProviderId, string>,
-    /**
-     * Presenter choice, made only once a key is entered: replay the recorded sample (no network call)
-     * instead of a live run. A key is required to start either way.
-     */
-    replaySample: false,
+    /** Demo mode (spec #16): the bundled samples replay recorded results; no key, no upload, no network. Never persisted. */
+    demo: false,
     /** Actionable message for the last failed run. The provider's text is never the key. */
     errorMessage: null as string | null,
   }),
@@ -109,12 +114,16 @@ export const useInspectionStore = defineStore('inspection', {
     apiKey(): string {
       return this.apiKeys[this.provider]
     },
-    /** Recorded only when the presenter chose replay; otherwise live (which needs the key). */
+    /** Recorded in demo mode only; every other run is live (and needs the key). */
     mode(): 'live' | 'recorded' {
-      return this.replaySample ? 'recorded' : 'live'
+      return this.demo ? 'recorded' : 'live'
     },
-    /** The key gate: a photo, a key for the selected provider and a model that provider offers. */
+    /**
+     * Demo: a bundled sample is on screen (no key). Live, the key gate: a photo, a key for the selected
+     * provider and a model that provider offers.
+     */
     canStart(): boolean {
+      if (this.demo) return this.sample !== null && this.photo !== null
       return keyGateOpen({
         hasPhoto: this.photo !== null,
         provider: this.provider,
@@ -137,7 +146,21 @@ export const useInspectionStore = defineStore('inspection', {
     setModel(model: string) {
       this.model = model
     },
+    /** A chosen photo, for a live run. Demo mode has no upload: its results belong to the bundled samples only. */
     setPhoto(photo: SelectedPhoto) {
+      if (this.demo) return
+      this.showPhoto(photo)
+      this.sample = null
+    },
+    /** Demo mode: puts a bundled sample on screen, ready to start. */
+    chooseSample(id: DemoSampleId) {
+      if (!this.demo) return
+      const { photo } = findSample(id)
+      this.showPhoto({ name: photo.name, url: photo.url, orientation: photo.orientation })
+      this.sample = id
+    },
+    /** Shared by setPhoto and chooseSample: a new photo on screen drops any run, result and selection. */
+    showPhoto(photo: SelectedPhoto) {
       this.runToken += 1
       this.inFlight = null
       this.photo = photo
@@ -163,37 +186,44 @@ export const useInspectionStore = defineStore('inspection', {
       this.runToken += 1
       this.inFlight = null
       this.photo = null
+      this.sample = null
       this.status = 'idle'
       this.record = null
       this.retry = freshRetry()
       this.errorMessage = null
       this.selectedFinding = null
     },
+    /** Enters demo mode on a blank screen, ready to choose a sample. */
+    enterDemo() {
+      this.newInspection()
+      this.demo = true
+    },
+    /** Leaves demo mode (Connect a provider) on a blank screen: the next run is live and needs a key. */
+    leaveDemo() {
+      this.newInspection()
+      this.demo = false
+    },
     start(): Promise<void> {
       // Single-flight: repeated clicks while a run is in progress share it.
       if (this.inFlight) return this.inFlight
-      // Key gate: nothing starts, recorded or live, without a key for the selected provider.
+      // Live needs the key gate; demo needs a bundled sample on screen.
       if (!this.photo || !this.canStart) return Promise.resolve()
-      if (this.mode === 'live') return this.startLive()
+      if (!this.demo) return this.startLive()
+      const sample = this.sample
+      if (!sample) return Promise.resolve()
 
+      // Demo: the sample's own recorded result. No network call, nothing on the cost ledger.
       this.runToken += 1
       const token = this.runToken
-      const photo = this.photo
       this.status = 'running'
       this.record = null
       this.retry = freshRetry()
       this.errorMessage = null
 
-      const run: Promise<void> = runRecordedInspection(this.provider, {
-        delayMs: RECORDED_STAGE_DELAY_MS,
-        scenario: this.scenario,
-      })
+      const run: Promise<void> = runDemoSample(sample, { delayMs: RECORDED_STAGE_DELAY_MS })
         .then((record) => {
           if (token !== this.runToken) return
-          this.record = {
-            ...record,
-            photo: { name: photo.name, orientation: photo.orientation },
-          }
+          this.record = record
           this.status = 'complete'
         })
         .catch(() => {
@@ -438,6 +468,7 @@ export const useInspectionStore = defineStore('inspection', {
       const record = this.record
       if (!record || record.containerId !== null) return
       if (this.retry.status === 'checking' || ids.length === 0) return
+      if (this.demo) return this.retryDemoManifest(ids)
       if (!hasKey(this.apiKey)) return
 
       const token = this.runToken
@@ -450,6 +481,30 @@ export const useInspectionStore = defineStore('inspection', {
         if (token !== this.runToken || this.record !== record) return
         this.record = { ...record, containerId: reading }
         this.retry = { ...this.retry, status: 'idle' }
+      } catch (error) {
+        if (token !== this.runToken) return
+        this.retry = {
+          ...this.retry,
+          status: 'error',
+          message: error instanceof Error ? error.message : String(error),
+        }
+      }
+    },
+    /** Demo mode: the sample's own recorded manifest check. No key, no network, no ledger entry. */
+    async retryDemoManifest(ids: string[]): Promise<void> {
+      const record = this.record
+      const sample = this.sample
+      if (!record || !sample) return
+      const token = this.runToken
+      this.retry = { ...this.retry, status: 'checking', message: null, ids: [...ids], noMatch: false }
+      try {
+        const reading = await runDemoManifestRetry(sample, ids, {
+          delayMs: RECORDED_RETRY_DELAY_MS,
+          fail: this.retryFails,
+        })
+        if (token !== this.runToken || this.record !== record) return
+        if (reading) this.record = { ...record, containerId: reading }
+        this.retry = { ...this.retry, status: 'idle', noMatch: reading === null }
       } catch (error) {
         if (token !== this.runToken) return
         this.retry = {

@@ -4,7 +4,6 @@ import { useInspectionStore } from '../stores/inspection'
 import { useSetupStore } from '../stores/setup'
 import { providers, getProvider, findModel } from '../domain/providers'
 import type { ProviderId } from '../domain/inspection'
-import { hasKey } from '../domain/keyGate'
 
 /**
  * design-system/components/ProviderSelect: provider, model and key. The same form renders in the
@@ -119,9 +118,5 @@ function choose(id: ProviderId) {
       </label>
       <span class="qs-hint">{{ copy.hint }}</span>
     </div>
-    <label v-if="hasKey(store.apiKey)" class="rs-setup__replay">
-      <input v-model="store.replaySample" type="checkbox" />
-      Replay the recorded sample instead (no network call)
-    </label>
   </div>
 </template>

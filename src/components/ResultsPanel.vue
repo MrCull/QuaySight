@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import { useInspectionStore } from '../stores/inspection'
-import { isMovingTarget, labelsFor } from '../domain/providers'
+import { isMovingTarget, labelsFor, recordedDemonstrationLabel } from '../domain/providers'
 import { idResultState, visibleAlternatives } from '../domain/certainty'
 import CertaintyChip from './CertaintyChip.vue'
 import ContainerId from './ContainerId.vue'
@@ -16,7 +16,7 @@ const record = computed(() => store.record)
 const recordedLabel = computed(() => {
   const r = record.value
   if (!r || r.source !== 'recorded') return null
-  return `Recorded demonstration: ${labelsFor(r.provider, r.model).provider} / ${r.model}`
+  return recordedDemonstrationLabel(r)
 })
 
 // "Live: [provider/model]" for a result from a live call (spec 8.5). Never shown with the recorded label.

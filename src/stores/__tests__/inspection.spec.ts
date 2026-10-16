@@ -2,9 +2,11 @@ import { describe, it, expect, beforeEach, vi } from 'vitest'
 import { setActivePinia, createPinia } from 'pinia'
 import type { InspectionRecord } from '../../domain/inspection'
 
-const runMock = vi.fn<(provider: string, options?: unknown) => Promise<InspectionRecord>>()
-vi.mock('../../domain/recordedRun', () => ({
-  runRecordedInspection: (...args: [string, unknown?]) => runMock(...args),
+// Demo runs replay a sample's recording; the mock holds or releases each one.
+const runMock = vi.fn<(sample: string, options?: unknown) => Promise<InspectionRecord>>()
+vi.mock('../../domain/demoSamples', async (importOriginal) => ({
+  ...(await importOriginal<typeof import('../../domain/demoSamples')>()),
+  runDemoSample: (...args: [string, unknown?]) => runMock(...args),
 }))
 
 import { useInspectionStore } from '../inspection'
@@ -76,28 +78,24 @@ describe('inspection store', () => {
     expect(store.status).toBe('idle')
   })
 
-  it('runs the recorded fixture for the chosen provider and stores the record', async () => {
+  it('in demo mode, runs the chosen sample\'s recording and stores the record', async () => {
     runMock.mockResolvedValueOnce(recordFor('luna'))
     const store = useInspectionStore()
-    store.setPhoto({ name: 'a.jpg', url: 'blob:a', orientation: 'landscape' })
-    store.setProvider('luna')
-    store.setApiKey('test-only-key-0000')
-    store.replaySample = true
+    store.enterDemo()
+    store.chooseSample('rear-aphu')
     await store.start()
     expect(runMock).toHaveBeenCalledTimes(1)
-    expect(runMock.mock.calls[0]?.[0]).toBe('luna')
+    expect(runMock.mock.calls[0]?.[0]).toBe('rear-aphu')
     expect(store.status).toBe('complete')
     expect(store.record?.provider).toBe('luna')
-    expect(store.record?.photo?.name).toBe('a.jpg')
   })
 
   it('repeated start clicks while running do not start a second run', async () => {
     const pending = deferred<InspectionRecord>()
     runMock.mockReturnValueOnce(pending.promise)
     const store = useInspectionStore()
-    store.setPhoto({ name: 'a.jpg', url: 'blob:a', orientation: 'landscape' })
-    store.setApiKey('test-only-key-0000')
-    store.replaySample = true
+    store.enterDemo()
+    store.chooseSample('rear-aphu')
     const first = store.start()
     const second = store.start()
     const third = store.start()
@@ -109,33 +107,31 @@ describe('inspection store', () => {
     expect(store.status).toBe('complete')
   })
 
-  it('replacing the photo mid-run cancels the run so its result is ignored', async () => {
+  it('choosing another sample mid-run cancels the run so its result is ignored', async () => {
     const pending = deferred<InspectionRecord>()
     runMock.mockReturnValueOnce(pending.promise)
     const store = useInspectionStore()
-    store.setPhoto({ name: 'a.jpg', url: 'blob:a', orientation: 'landscape' })
-    store.setApiKey('test-only-key-0000')
-    store.replaySample = true
+    store.enterDemo()
+    store.chooseSample('rear-aphu')
     const run = store.start()
-    store.setPhoto({ name: 'b.jpg', url: 'blob:b', orientation: 'portrait' })
+    store.chooseSample('side-dented')
     pending.resolve(recordFor('luna'))
     await run
     expect(store.status).toBe('idle')
     expect(store.record).toBeNull()
   })
 
-  it('after a cancelled run, starting again on the new photo works', async () => {
+  it('after a cancelled run, starting again on the new sample works', async () => {
     runMock.mockResolvedValueOnce(recordFor('luna')).mockResolvedValueOnce(recordFor('luna'))
     const store = useInspectionStore()
-    store.setPhoto({ name: 'a.jpg', url: 'blob:a', orientation: 'landscape' })
-    store.setApiKey('test-only-key-0000')
-    store.replaySample = true
+    store.enterDemo()
+    store.chooseSample('rear-aphu')
     await store.start()
-    store.setPhoto({ name: 'b.jpg', url: 'blob:b', orientation: 'portrait' })
+    store.chooseSample('rear-chsu')
     expect(store.status).toBe('idle')
     await store.start()
     expect(runMock).toHaveBeenCalledTimes(2)
-    expect(store.record?.photo?.name).toBe('b.jpg')
+    expect(runMock.mock.calls[1]?.[0]).toBe('rear-chsu')
   })
 })
 
@@ -147,7 +143,7 @@ describe('inspection store: key gate', () => {
     runMock.mockReset()
   })
 
-  it('does not start a recorded run without a key for the selected provider', async () => {
+  it('does not start without a key for the selected provider', async () => {
     const store = useInspectionStore()
     store.setPhoto(photo)
     expect(store.canStart).toBe(false)
@@ -167,19 +163,7 @@ describe('inspection store: key gate', () => {
     expect(store.status).toBe('idle')
   })
 
-  it('starts a recorded replay with a key entered and replay selected, with no network call', async () => {
-    runMock.mockResolvedValueOnce(recordFor('luna'))
-    const store = useInspectionStore()
-    store.setPhoto(photo)
-    store.setApiKey('test-key')
-    store.replaySample = true
-    expect(store.mode).toBe('recorded')
-    await store.start()
-    expect(runMock).toHaveBeenCalledTimes(1)
-    expect(store.status).toBe('complete')
-  })
-
-  it('a key entered but replay not selected runs live, not recorded', () => {
+  it('a key entered outside demo mode runs live, never recorded', () => {
     const store = useInspectionStore()
     store.setPhoto(photo)
     store.setApiKey('test-key')

@@ -2,14 +2,15 @@ import { describe, it, expect, beforeEach, vi } from 'vitest'
 import { setActivePinia, createPinia } from 'pinia'
 import { useInspectionStore } from '../inspection'
 import { useLedgerStore } from '../ledger'
+import { runRecordedInspection } from '../../domain/recordedRun'
 
+// The manifest check outside demo mode, after a first result whose container ID was not identified.
+// (Demo mode's own check is in demoMode.spec.ts.)
 function startUnidentified() {
   const store = useInspectionStore()
   store.setProvider('luna')
   store.setPhoto({ name: 'a.jpg', url: 'blob:a', orientation: 'landscape' })
   store.setApiKey('test-only-key-0000')
-  store.replaySample = true
-  store.scenario = 'unidentified'
   return store
 }
 
@@ -26,9 +27,8 @@ describe('inspection store: manifest retry', () => {
   }
 
   async function runFirst(store: ReturnType<typeof useInspectionStore>) {
-    const pending = store.start()
-    await vi.advanceTimersByTimeAsync(1600)
-    await pending
+    store.record = await runRecordedInspection('luna', { delayMs: 0, scenario: 'unidentified' })
+    store.status = 'complete'
   }
 
   it('replaces the ID in place and keeps the other findings', async () => {

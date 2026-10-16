@@ -54,7 +54,9 @@ function openPicker() {
 
 <template>
   <div class="rs-left">
+    <!-- Demo mode has no upload: its recorded results belong to the bundled samples only. -->
     <input
+      v-if="!store.demo"
       ref="picker"
       type="file"
       class="photo-picker"
@@ -97,7 +99,7 @@ function openPicker() {
           <AnalysingStages />
         </div>
       </div>
-      <div>
+      <div v-if="!store.demo">
         <button
           type="button"
           class="qs-btn qs-btn--secondary qs-btn--sm"

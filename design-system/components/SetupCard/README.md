@@ -5,7 +5,7 @@ The setup card is the first screen. It holds the `ProviderSelect` form (provider
 ## Use
 - `section.qs-setupcard` (`role="region"`, `aria-labelledby` its title) holding `.qs-setupcard__head` (the title *Set up a provider* in `.qs-setupcard__title`, one line of `.qs-setupcard__lede`), the `.qs-setup` form from `ProviderSelect`, then `.qs-setupcard__actions` with `button.qs-btn.qs-btn--primary.qs-btn--lg` **Continue**.
 - Centre it on the page: `max-width` 520px, a `space-8` margin on displays and the `space-4` gutter on phones. At phone width it fills the gutter with no horizontal scroll.
-- `.qs-setupcard__after` sits under the card for one secondary link (the demo entry), centred.
+- `.qs-setupcard__after` sits under the card for one secondary link, centred: `button.qs-setupcard__demo` **Enter as demo user**. It is a button styled as a quiet underlined link (`ink-muted`, `ink` on hover), always enabled, and needs no key. It opens demo mode (see `DemoBanner`).
 
 ## Behaviour
 - The recommended provider and model are chosen on first visit, so a presenter only pastes a key.
@@ -15,7 +15,7 @@ The setup card is the first screen. It holds the `ProviderSelect` form (provider
 - A refresh shows the card again, with the provider and model remembered and the key empty. Keys are never stored.
 
 ## Accessibility
-- Focus starts on the first control (the provider button) and moves provider, model, key, show/hide, Clear, Continue.
+- Focus starts on the first control (the provider button) and moves provider, model, key, show/hide, Clear, Continue, then Enter as demo user.
 - Use the shared 2px `focus-ring`. A disabled Continue keeps the native `disabled` attribute.
 
 ## Don't

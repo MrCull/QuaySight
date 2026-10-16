@@ -66,12 +66,12 @@ describe('ProviderSelect (the form in the setup card and the settings drawer)', 
     expect(wrapper.emitted('submit')).toHaveLength(1)
   })
 
-  it('offers the recorded sample replay only once a key is entered', async () => {
+  it('offers no recorded replay, with or without a key: demo mode replaces it', async () => {
     const store = useInspectionStore()
     const wrapper = mount(ProviderSelect)
-    expect(wrapper.text()).not.toContain('Replay the recorded sample')
     store.setApiKey(KEY)
     await wrapper.vm.$nextTick()
-    expect(wrapper.text()).toContain('Replay the recorded sample instead (no network call)')
+    expect(wrapper.text()).not.toMatch(/replay|recorded sample/i)
+    expect(wrapper.find('input[type="checkbox"]').exists()).toBe(false)
   })
 })

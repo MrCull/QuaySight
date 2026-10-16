@@ -1,7 +1,7 @@
 // Exports for an inspection (spec 8.3, 11.2): consolidated JSON, raw provider responses and a
 // shareable plain-text summary. Every builder takes only the InspectionRecord. No key, header or
 // credential can reach an export because none is an input.
-import { labelsFor } from './providers'
+import { labelsFor, recordedDemonstrationLabel } from './providers'
 import { faceStatus, type DamageFace, type FaceStatus, type FindingZone } from './damage'
 import type { CertaintyLabel, InspectionRecord, Provenance, RecheckRecord } from './inspection'
 
@@ -313,7 +313,7 @@ export function buildSummaryText(record: InspectionRecord): string {
 
   if (record.source === 'recorded') {
     lines.push(
-      `Recorded demonstration: ${json.inspection.providerName} / ${record.model}`,
+      recordedDemonstrationLabel(record),
       'Replayed from a saved sample: no live API call and no charge.',
       '',
     )

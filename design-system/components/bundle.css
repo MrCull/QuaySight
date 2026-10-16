@@ -129,6 +129,8 @@
 .qs-manifest__actions { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-2) var(--space-3); }
 .qs-manifest__cost { margin: 0; font: 400 13px/18px var(--font-sans); color: var(--ink-muted); }
 .qs-manifest__cost b { font-weight: 600; color: var(--ink); }
+.qs-manifest__nomatch { display: flex; align-items: flex-start; gap: var(--space-2); margin: 0; font: 400 14px/20px var(--font-sans); color: var(--ink-muted); }
+.qs-manifest__nomatch .qs-glyph { margin-top: 2px; }
 .qs-manifest .qs-stages { padding: var(--space-1) 0 0; }
 .qs-manifest .qs-notice { margin: 0; }
 .qs-manifest[hidden] { display: none; }
@@ -326,7 +328,24 @@
 .qs-setupcard__actions { display: grid; gap: var(--space-2); }
 .qs-setupcard__actions .qs-btn { width: 100%; }
 .qs-setupcard__after { display: flex; justify-content: center; margin-top: var(--space-4); }
+.qs-setupcard__demo { padding: var(--space-2) var(--space-3); border: 0; border-radius: var(--radius-sm); background: transparent; color: var(--ink-muted); font: 500 15px/20px var(--font-sans); text-decoration: underline; text-underline-offset: 3px; cursor: pointer; transition: color var(--duration-fast); }
+.qs-setupcard__demo:hover { color: var(--ink); }
+.qs-setupcard__demo:focus-visible { outline: 2px solid var(--focus-ring); outline-offset: 2px; }
 @media (max-width: 480px) { .qs-setupcard { padding: var(--space-4); gap: var(--space-4); } }
+
+/* ---------- Demo banner: on screen for the whole of demo mode ---------- */
+/* Neutral ink only. Never certainty, severity or hazard colours, never brand as a status, nothing green. */
+.qs-demobanner { position: sticky; top: 0; z-index: 20; display: grid; grid-template-columns: auto 1fr auto; align-items: center; gap: var(--space-2) var(--space-4); padding: var(--space-4) var(--space-5); background: var(--surface-raised); color: var(--ink); border-top: 2px solid var(--ink); border-bottom: 2px solid var(--ink); }
+.qs-demobanner > .qs-glyph { width: 24px; height: 24px; color: var(--ink); }
+.qs-demobanner__text { display: grid; gap: var(--space-1); min-width: 0; }
+.qs-demobanner__title { margin: 0; font: 600 28px/32px var(--font-display); letter-spacing: 0.02em; color: var(--ink); }
+.qs-demobanner__title b { font-weight: 700; letter-spacing: 0.08em; }
+.qs-demobanner__body { margin: 0; font: 400 15px/22px var(--font-sans); color: var(--ink-muted); }
+@media (max-width: 640px) {
+  .qs-demobanner { grid-template-columns: auto 1fr; padding: var(--space-3) var(--space-4); }
+  .qs-demobanner__title { font-size: 22px; line-height: 26px; }
+  .qs-demobanner__action { grid-column: 1 / -1; width: 100%; }
+}
 
 /* ---------- Settings chip: the setup folded into the top bar ---------- */
 /* A quiet button: monogram, provider, model, key status. Never any part of the key. */
@@ -369,7 +388,8 @@
 .qs-sample:hover { border-color: var(--brand); transform: translateY(-2px); }
 .qs-sample:focus-visible { outline: 2px solid var(--focus-ring); outline-offset: 2px; }
 .qs-sample__img { position: relative; aspect-ratio: 16 / 10; background: var(--surface-sunken); }
-.qs-sample__img svg { display: block; width: 100%; height: 100%; }
+.qs-sample__img svg, .qs-sample__img img { display: block; width: 100%; height: 100%; }
+.qs-sample__img img { object-fit: cover; }
 .qs-sample__badge { position: absolute; left: var(--space-2); top: var(--space-2); display: inline-flex; align-items: center; gap: 4px; height: 22px; padding: 0 var(--space-2); border-radius: var(--radius-xs); background: var(--scrim); color: #ffffff; font: 600 11px/1 var(--font-sans); letter-spacing: 0.06em; text-transform: uppercase; }
 .qs-sample__badge .qs-glyph { width: 12px; height: 12px; }
 .qs-sample__body { display: grid; gap: 2px; padding: var(--space-3); }

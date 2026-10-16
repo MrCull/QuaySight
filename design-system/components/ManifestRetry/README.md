@@ -19,7 +19,8 @@ The manifest retry panel is an optional card that lets the presenter paste conta
 1. **Ready**: head, field, count, actions, cost note.
 2. **Checking**: replace the field and actions with `StageProgress`: *Checking against manifest*, *Reading the container ID again*, *Updating the result*. No passes, retries or candidates.
 3. **Done**: the panel closes (`.is-leaving`, then `hidden`) and the new reading replaces the earlier `ContainerId` in place, landing with the usual `.qs-arrived` settle. Its `ProvenanceTag` reads **Matched against manifest** (`qs-prov--manifest`) when a manifest entry matched, or **Read from image** when the reading came from the photo. The earlier ID result is not kept on screen; it stays in the exported JSON.
-4. **Error**: an error `Notice` inside the panel with the provider's message (*OpenAI said: "…"*) and *Your first result is unchanged.*, then **Try again** and **Keep first result**, and the cost note for trying again.
+4. **No match** (the model's *not listed* answer, spec 12): the check finished and no manifest entry matched what the photo shows. The panel stays open with the field, the actions and the entries as pasted, and a `p.qs-manifest__nomatch` (`role="status"`, list glyph, `ink-muted`) above the actions: *No entry in this manifest matches what the photo shows. Your first result is unchanged.* Never substitute a near-match.
+5. **Error**: an error `Notice` inside the panel with the provider's message (*OpenAI said: "…"*) and *Your first result is unchanged.*, then **Try again** and **Keep first result**, and the cost note for trying again.
 
 ## Rules
 - Tokens only. The panel is neutral (`surface`, `line-strong`, `ink`, `ink-muted`, `brand` for the action and the list glyph). Never use certainty, severity or hazard colours on it; the `ContainerId` beside it keeps its own certainty styling.

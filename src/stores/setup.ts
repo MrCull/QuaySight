@@ -62,6 +62,17 @@ export const useSetupStore = defineStore('setup', {
       this.view = 'inspection'
       return true
     },
+    /** Enters demo mode: no key, the bundled samples only, recorded results. */
+    enterDemo() {
+      useInspectionStore().enterDemo()
+      this.view = 'inspection'
+    },
+    /** Connect a provider, from the demo banner: leaves demo mode for the setup card. */
+    connectProvider() {
+      useInspectionStore().leaveDemo()
+      this.drawerOpen = false
+      this.view = 'setup'
+    },
     /** A new provider blanks the screen (New inspection), then takes that provider's recommended model. */
     chooseProvider(provider: ProviderId) {
       const inspection = useInspectionStore()
