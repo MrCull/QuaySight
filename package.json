@@ -11,9 +11,16 @@
     "test:e2e": "playwright test",
     "build-only": "vite build",
     "type-check": "vue-tsc --build",
-    "lint": "run-s \"lint:*\"",
+    "prepare": "node scripts/setup-hooks.mjs",
+    "lint": "run-s lint:oxlint lint:eslint",
     "lint:oxlint": "oxlint . --fix",
     "lint:eslint": "eslint . --fix --cache",
+    "lint:check": "run-s lint:oxlint:check lint:eslint:check",
+    "lint:oxlint:check": "oxlint .",
+    "lint:eslint:check": "eslint .",
+    "check:tokens": "node scripts/check-tokens.mjs",
+    "check:secrets": "node scripts/check-secrets.mjs",
+    "check": "npm run lint:check && npm run check:tokens && npm run type-check && npx vitest run --run && npm run build && npx playwright test --project=chromium",
     "format": "oxfmt src/"
   },
   "dependencies": {
