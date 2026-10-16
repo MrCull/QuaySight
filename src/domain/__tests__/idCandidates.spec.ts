@@ -41,4 +41,21 @@ describe('ranking candidate container IDs', () => {
     expect(ranked.chars.join('')).toBe('COYU2668130')
     expect(ranked.alternatives).toEqual(['COUU2668130'])
   })
+
+  it("judges the winning candidate's own certainty, not the worst of the original reading", () => {
+    // Top owner letter U is Uncertain and fails the check digit; the runner-up Y is Likely and passes.
+    const readings = read('COUU2668130', { 3: 'Y' }).map((r, i) =>
+      i === 2 ? { ...r, certainty: 'Uncertain' as const, runnerUpCertainty: 'Likely' as const } : r,
+    )
+    const ranked = rankIdCandidates(readings, 'Confident')
+    expect(ranked.chars.join('')).toBe('COYU2668130')
+    expect(ranked.alternatives).toEqual([])
+  })
+
+  it('keeps the alternatives when the winning swap is itself only Uncertain', () => {
+    const readings = read('COUU2668130', { 3: 'Y' }).map((r, i) =>
+      i === 2 ? { ...r, runnerUpCertainty: 'Uncertain' as const } : r,
+    )
+    expect(rankIdCandidates(readings, 'Confident').alternatives).toEqual(['COUU2668130'])
+  })
 })

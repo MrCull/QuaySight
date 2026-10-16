@@ -151,6 +151,8 @@ export interface ChoiceReading {
   value: string | null
   certainty: CertaintyLabel
   runnerUp: string | null
+  /** How certain the runner-up is, when the reply gave its probability. Judges a candidate built from it. */
+  runnerUpCertainty?: CertaintyLabel
   /** The chosen character's probability, when the reply gave one. Compares two readings of a character. */
   probability?: number
 }
@@ -178,6 +180,7 @@ function readCharacter(answer: SharedAnswer | undefined, allowed: string[]): Cho
     value: chosen.value,
     certainty,
     runnerUp: runner?.value ?? null,
+    ...(runner ? { runnerUpCertainty: certaintyOfProbability(runner.probability) } : {}),
     probability: chosen.probability,
   }
 }

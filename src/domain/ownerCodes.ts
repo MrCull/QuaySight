@@ -1,10 +1,11 @@
 // The common BIC owner codes (spec 4.1): the list the whole-prefix question offers the model. Plain data.
 //
-// Source and date: compiled on 16 Oct 2026 from the public BIC owner-code register (bic-code.org) as the
-// author knew it, covering the big shipping lines and the leasing and container-owning companies. It was not
-// re-checked against the live register, so treat it as a working list: a code missing here costs one
-// letter-by-letter reading, not a wrong answer ("none of these" is always offered). Every code is three
-// owner letters and the equipment-category letter U.
+// UNVERIFIED (16 Oct 2026): this list was written from memory. It was not copied from, and has not been
+// checked against, the BIC owner-code register (bic-code.org) or any other source, so some codes may be wrong
+// and real ones are missing. It should be verified against the register: see
+// docs/research/owner-code-list-unchecked.md. A code missing here costs one letter-by-letter reading, not a
+// wrong answer ("none of these" is always offered). Every code is three owner letters and the
+// equipment-category letter U.
 
 const SHIPPING_LINES = `
 MSCU MEDU MSMU MSNU MSDU MSWU MAEU MRKU MSKU MWCU MCAU MCRU MRSU MMAU CMAU CGMU CMNU ANNU APHU APZU APLU

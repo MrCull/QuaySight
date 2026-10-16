@@ -198,7 +198,7 @@ export function assembleLunaReading(
   const readings = withCategoryLetter(owner.readings)
   const positionCertainty = readings.map((r) => r.certainty)
   const certainty = worstOf(positionCertainty)
-  const ranked = rankIdCandidates(readings, certainty, owner.alternatives)
+  const ranked = rankIdCandidates(readings, 'Confident', owner.alternatives)
   const chars = ranked.chars
   const printed = chars.join('')
 

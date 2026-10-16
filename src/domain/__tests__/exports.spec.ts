@@ -279,11 +279,35 @@ describe('live damage in the exports', () => {
   it('carries the long-side section mapping, following the length and numbered from the door end', async () => {
     const json = buildInspectionExport(await liveSideRecord())
     const { longSideSections, zones } = json.damage
-    expect(longSideSections).toMatchObject({ numberedFrom: 'door end' })
+    expect(longSideSections!.numberedFrom).toMatch(/door end/)
     expect(longSideSections!.count).toBe(longSideSections!.lengthFt === 20 ? 5 : 10)
     const sections = zones.flatMap((z) => z.sections ?? [])
     expect(new Set(sections).size).toBe(longSideSections!.count)
     for (const f of json.damage.findings) expect(f).toHaveProperty('sections')
+  })
+
+  it('records that the door end is assumed when the side was defaulted', async () => {
+    const record = await liveSideRecord()
+    const defaulted: InspectionRecord = {
+      ...record,
+      damage: record.damage && {
+        ...record.damage,
+        sideInference: { side: 'right', basis: 'defaulted' },
+      },
+    }
+    expect(buildInspectionExport(defaulted).damage.longSideSections).toMatchObject({
+      numberedFrom: 'assumed door end',
+    })
+    const inferred: InspectionRecord = {
+      ...record,
+      damage: record.damage && {
+        ...record.damage,
+        sideInference: { side: 'left', basis: 'inferred' },
+      },
+    }
+    expect(buildInspectionExport(inferred).damage.longSideSections).toMatchObject({
+      numberedFrom: 'door end',
+    })
   })
 
   it('says why a view was not assessed, in the JSON and the summary', async () => {

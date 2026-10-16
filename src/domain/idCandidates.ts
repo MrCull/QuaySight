@@ -1,7 +1,7 @@
 // Ranks candidate container IDs built from per-character readings (spec 4.1, 4.2). Pure.
 // A candidate is the best reading with some characters swapped for their runner-ups. Candidates that
 // pass the check digit rank above those that fail; the app calculates the check digit, never the model.
-import { MAX_ALTERNATIVES, UNREAD } from './certainty'
+import { CERTAINTY_LABELS, MAX_ALTERNATIVES, UNREAD } from './certainty'
 import { checkDigitMatches } from './iso6346'
 import type { CertaintyLabel } from './inspection'
 import type { ChoiceReading } from './idQuestions'
@@ -30,6 +30,10 @@ export interface RankedIds {
 
 const SWAP_LIMIT = 12
 
+function worstOf(labels: CertaintyLabel[]): CertaintyLabel {
+  return CERTAINTY_LABELS[Math.max(...labels.map((l) => CERTAINTY_LABELS.indexOf(l)))]!
+}
+
 function passes(chars: string[]): boolean {
   return !chars.includes(UNREAD) && checkDigitMatches(chars.join(''))
 }
@@ -45,13 +49,15 @@ function compareSwaps(a: number[], b: number[]): number {
 /**
  * Builds every candidate from the readings and their runner-ups, ranks the passing ones first (then
  * fewer swaps, then earlier positions), and picks the best. When the best is Likely or Confident, passes,
- * and no other candidate passes, there are no alternatives to show. `ownerAlternatives` are other
+ * and no other candidate passes, there are no alternatives to show. "Likely or Confident" is judged on the
+ * winning candidate's own certainty: the worst across its positions, taking a swapped position's runner-up
+ * certainty, and no better than `ceiling` (the caveats on the whole photo). `ownerAlternatives` are other
  * three-letter owner prefixes (the losing owner reading, near matches in the owner-code list) that
  * compete as candidates on the same terms; the first counts as one swap, the rest one swap per letter changed, plus one.
  */
 export function rankIdCandidates(
   readings: ChoiceReading[],
-  certainty: CertaintyLabel,
+  ceiling: CertaintyLabel,
   ownerAlternatives: string[] = [],
 ): RankedIds {
   const chars = readings.map((r) => r.value ?? UNREAD)
@@ -79,7 +85,7 @@ export function rankIdCandidates(
         const candidate = [...start]
         for (const index of swapped) candidate[index] = readings[index]!.runnerUp!
         const all = [...changed, ...swapped].sort((a, b) => a - b)
-        return { chars: candidate, swapped: all, passes: passes(candidate) }
+        return { chars: candidate, swapped: all, passes: passes(candidate), runnerSwaps: swapped }
       }),
     )
     .sort((a, b) => {
@@ -95,6 +101,12 @@ export function rankIdCandidates(
     })
 
   const [best, ...rest] = candidates
+  const certainty = worstOf([
+    ceiling,
+    ...readings.map((r, i) =>
+      best!.runnerSwaps.includes(i) ? (r.runnerUpCertainty ?? r.certainty) : r.certainty,
+    ),
+  ])
   const settled = best!.passes && (certainty === 'Confident' || certainty === 'Likely')
   const alone = settled && !rest.some((c) => c.passes)
   return {
