@@ -114,6 +114,7 @@ const hasZones = computed(() => (props.assessment.zones ?? []).length > 0)
             :roof="true"
             :markers="v.markers"
             :zones="v.zones"
+            :length-ft="assessment.lengthFt"
             :selected-id="selectedId"
             @select="emit('select', $event)"
           />

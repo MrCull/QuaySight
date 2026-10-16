@@ -16,6 +16,7 @@ import {
   type SideInference,
   type ZoneVisibility,
 } from './damage'
+import { chosenLength, type ChosenLength } from './chosenLength'
 import type { FaceReading } from './photoFace'
 import type { CertaintyLabel, InspectionRecord, Provenance, RecheckRecord } from './inspection'
 import type { DetailSource } from './containerDetails'
@@ -98,6 +99,8 @@ export interface InspectionExport {
   rechecks: RecheckRecord[]
   /** Jev's crop read of the container ID: the crop and any character it disagreed on. Never shown in the UI. */
   idCropRead: IdCropReadRecord | null
+  /** The container length the drawing used and where it came from (ISO code, model, or default). */
+  containerLength: ChosenLength
   damage: {
     assessed: boolean
     /** Why the photo's view was not assessed (roof, close-up, unknown view, a face not inspectable), or null. */
@@ -272,6 +275,7 @@ export function buildInspectionExport(record: InspectionRecord): InspectionExpor
     conflicts,
     rechecks: record.rechecks ?? [],
     idCropRead: record.idCropRead ?? null,
+    containerLength: chosenLength(record),
     damage: {
       assessed: assessment !== null,
       notAssessedReason,
