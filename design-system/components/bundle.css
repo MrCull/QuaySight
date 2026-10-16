@@ -550,3 +550,19 @@
 .qs-seg__opt[aria-pressed="true"]:hover { background: var(--brand-hover); }
 .qs-seg__opt[aria-pressed="true"] .qs-glyph { display: inline-block; }
 .qs-seg__opt:focus-visible { position: relative; }
+
+/* ---------- What we found (the summary at the top of every result) ---------- */
+.qs-found { display: grid; gap: var(--space-4); padding: var(--space-5); background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius-md); color: var(--ink); }
+.qs-found__k { margin: 0; color: var(--ink-muted); }
+.qs-found__headline { margin: 0; color: var(--ink); }
+.qs-found__block { display: grid; gap: var(--space-2); padding: var(--space-3) var(--space-4); border-radius: var(--radius-sm); background: var(--surface-sunken); }
+.qs-found__label { color: var(--ink-muted); }
+.qs-found__list { margin: 0; padding: 0 0 0 var(--space-4); display: grid; gap: var(--space-2); list-style: disc; }
+.qs-found__facts { margin: 0; padding: 0; display: grid; gap: var(--space-3); list-style: none; }
+.qs-found__fact { display: grid; grid-template-columns: 112px minmax(0, 1fr); column-gap: var(--space-3); align-items: baseline; }
+.qs-found__topic { color: var(--ink-muted); }
+.qs-found__fact > p { margin: 0; max-width: 72ch; }
+@media (max-width: 480px) {
+  .qs-found { padding: var(--space-4); }
+  .qs-found__fact { grid-template-columns: minmax(0, 1fr); row-gap: var(--space-1); }
+}
