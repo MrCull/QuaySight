@@ -2,7 +2,13 @@
 import { computed, nextTick, ref, useTemplateRef } from 'vue'
 import { useInspectionStore } from '../stores/inspection'
 import { useSetupStore } from '../stores/setup'
-import { providers, getProvider, findModel, type ProviderInfo } from '../domain/providers'
+import {
+  providers,
+  getProvider,
+  findModel,
+  labelsFor,
+  type ProviderInfo,
+} from '../domain/providers'
 import type { ProviderId } from '../domain/inspection'
 
 /**
@@ -152,7 +158,9 @@ function onListKey(event: KeyboardEvent) {
           aria-label="Model version"
           @change="setup.chooseModel(($event.target as HTMLSelectElement).value)"
         >
-          <option v-for="m in selected.models" :key="m.id" :value="m.id">{{ m.label }}</option>
+          <option v-for="m in selected.models" :key="m.id" :value="m.id">
+            {{ labelsFor(store.provider, m.id).option }}
+          </option>
         </select>
       </label>
       <span v-if="model?.movingTarget" class="qs-hint"

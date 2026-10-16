@@ -28,13 +28,13 @@ describe('ProviderSelect (the form in the setup card and the settings drawer)', 
     expect(store.photo).toBeNull()
   })
 
-  it('lists Jev latest (recommended, moving target), Jev 1.14, Jev 1.13 and GPT-6 Luna Decisions for OpenRouter', () => {
+  it('lists Jev latest (recommended, moving target), Jev 1.14, Jev 1.13 and GPT-6 Luna Decisions for OpenRouter, each by maker and route', () => {
     const wrapper = mount(ProviderSelect)
     expect(wrapper.findAll('select option').map((o) => [o.attributes('value'), o.text()])).toEqual([
-      ['~typesafe/jev-latest', 'Jev latest (recommended, moving target)'],
-      ['typesafe/jev-1.14', 'Jev 1.14 (pinned)'],
-      ['typesafe/jev-1.13', 'Jev 1.13 (pinned)'],
-      ['openai/gpt-6-luna-decisions', 'GPT-6 Luna Decisions'],
+      ['~typesafe/jev-latest', 'Jev latest (TypeSafe) via OpenRouter · recommended, moving target'],
+      ['typesafe/jev-1.14', 'Jev 1.14 (TypeSafe) via OpenRouter · pinned'],
+      ['typesafe/jev-1.13', 'Jev 1.13 (TypeSafe) via OpenRouter · pinned'],
+      ['openai/gpt-6-luna-decisions', 'GPT-6 Luna Decisions (OpenAI) via OpenRouter'],
     ])
   })
 
@@ -58,7 +58,9 @@ describe('ProviderSelect (the form in the setup card and the settings drawer)', 
     expect(wrapper.text()).toContain(
       "The photo and this key go only to OpenRouter's Decisions endpoint",
     )
-    expect(wrapper.text()).not.toContain('OpenAI')
+    // The key's copy names only OpenRouter; OpenAI appears only as a model's maker in the select.
+    const keyCopy = wrapper.findAll('.qs-fieldset').pop()!.text()
+    expect(keyCopy).not.toContain('OpenAI')
     expect(wrapper.text()).toContain('Moving target: TypeSafe points this alias')
   })
 

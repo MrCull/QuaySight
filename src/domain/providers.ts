@@ -18,15 +18,17 @@ export interface PhotoLimits {
   minPixels: number
 }
 
+/** Who makes a model. The maker, not the route, decides the question set (see questionSetOf). */
+export type ModelMaker = 'OpenAI' | 'TypeSafe'
+
 export interface ModelOption {
   /** The model id sent on the wire, exactly as the endpoint expects it. */
   id: string
-  /** Shown in the model selector. */
-  label: string
   /** The model's own name on result labels, ledger lines and exports, e.g. "Jev 1.14". */
   displayName: string
-  /** Who makes the model, e.g. OpenAI or TypeSafe. */
-  maker: string
+  /** Added after the maker and route in the model selector, e.g. "pinned". Null for none. */
+  note: string | null
+  maker: ModelMaker
   route: ModelRoute
   wireFormat: WireFormat
   /** Whether the model accepts the box question. Nothing else decides this. */
@@ -100,7 +102,7 @@ export const providers: ProviderInfo[] = [
       {
         ...JEV_VIA_OPENROUTER,
         id: '~typesafe/jev-latest',
-        label: 'Jev latest (recommended, moving target)',
+        note: 'recommended, moving target',
         displayName: 'Jev latest',
         // Resolved to typesafe/jev-1.14-20261014 on 16 Oct 2026, which answers the box question.
         box: true,
@@ -110,7 +112,7 @@ export const providers: ProviderInfo[] = [
       {
         ...JEV_VIA_OPENROUTER,
         id: 'typesafe/jev-1.14',
-        label: 'Jev 1.14 (pinned)',
+        note: 'pinned',
         displayName: 'Jev 1.14',
         box: true,
         movingTarget: false,
@@ -119,7 +121,7 @@ export const providers: ProviderInfo[] = [
       {
         ...JEV_VIA_OPENROUTER,
         id: 'typesafe/jev-1.13',
-        label: 'Jev 1.13 (pinned)',
+        note: 'pinned',
         displayName: 'Jev 1.13',
         // Answers a box question with 400 "Invalid request." (checked 16 Oct 2026).
         box: false,
@@ -130,7 +132,7 @@ export const providers: ProviderInfo[] = [
         // GPT-6 Luna on OpenRouter's Decisions endpoint (ticket #23). Asked the Luna question set, not
         // Jev's (see questionSetOf). Resolved to openai/gpt-6-luna-decisions-20261006 on 16 Oct 2026.
         id: 'openai/gpt-6-luna-decisions',
-        label: 'GPT-6 Luna Decisions',
+        note: null,
         displayName: 'GPT-6 Luna Decisions',
         maker: 'OpenAI',
         route: 'openrouter',
@@ -158,7 +160,7 @@ export const providers: ProviderInfo[] = [
     models: [
       {
         id: 'gpt-6-luna',
-        label: 'gpt-6-luna (pinned)',
+        note: 'pinned',
         displayName: 'GPT-6 Luna',
         maker: 'OpenAI',
         route: 'direct',
@@ -204,8 +206,10 @@ export function isMovingTarget(provider: ProviderId, model: string): boolean {
   return findModel(provider, model)?.movingTarget ?? false
 }
 
-/** The names a result label, ledger line or export shows for a run. The selector reads ModelOption.label. */
+/** The names the model selector, a result label, ledger line or export shows for a model. */
 export interface ModelLabels {
+  /** The model selector's option, by maker and route, e.g. "Jev 1.14 (TypeSafe) via OpenRouter · pinned". */
+  option: string
   /** The name a run is attributed to on result labels and exports, e.g. "GPT-6 Luna" or "Jev 1.14 (TypeSafe) via OpenRouter". */
   provider: string
   /** The ledger's provider column, e.g. "OpenAI · GPT-6 Luna". */
@@ -224,11 +228,13 @@ export interface ModelLabels {
 export function labelsFor(provider: ProviderId, model: string): ModelLabels {
   const info = getProvider(provider)
   const entry = findModel(provider, model)
+  const withNote = (text: string) => (entry?.note ? `${text} · ${entry.note}` : text)
   if (entry?.route === 'openrouter' || (!entry && info.id === 'openrouter')) {
     const attributed = entry
       ? `${entry.displayName} (${entry.maker}) via ${info.name}`
       : `${model} via ${info.name}`
     return {
+      option: withNote(attributed),
       provider: attributed,
       ledger: attributed,
       prose: attributed,
@@ -238,6 +244,7 @@ export function labelsFor(provider: ProviderId, model: string): ModelLabels {
   const maker = entry?.maker ?? info.vendor
   const name = entry?.displayName ?? model
   return {
+    option: withNote(`${name} (${maker}) direct`),
     provider: name,
     ledger: `${maker} · ${name}`,
     prose: `${maker} ${name}`,
