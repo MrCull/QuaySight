@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeEach, vi, afterEach } from 'vitest'
+import { describe, it, expect, beforeEach, vi, afterEach, beforeAll, afterAll } from 'vitest'
 import { setActivePinia, createPinia } from 'pinia'
 
 // jsdom has no image decoder or canvas; photo preparation runs on the fake codec.
@@ -109,6 +109,17 @@ function sent(fetchMock: ReturnType<typeof vi.fn<typeof fetch>>, call = 0): Sent
   }
 }
 
+import { onlyRequests } from '../../plan/registry'
+import { readId } from '../../plan/requests/readId'
+import { idRecheck } from '../../plan/requests/idRecheck'
+
+// This spec covers the ID requests; the other parts of a run (damage, …) have their own specs.
+let restoreRequests = () => {}
+beforeAll(() => {
+  restoreRequests = onlyRequests(readId, idRecheck)
+})
+afterAll(() => restoreRequests())
+
 describe('live GPT-6 Luna Decisions through OpenRouter in the store', () => {
   let fetchMock: ReturnType<typeof vi.fn<typeof fetch>>
 
@@ -154,10 +165,11 @@ describe('live GPT-6 Luna Decisions through OpenRouter in the store', () => {
     // Fitted to Luna's 2,048 px on the long side.
     expect({ type, text: atob(data) }).toEqual({ type: 'image/jpeg', text: 'jpeg 1536x2048' })
 
-    // Eleven position questions, each a choice with OpenRouter's criteria map; nothing else.
-    expect(Object.keys(body.questions)).toEqual(
-      Array.from({ length: 11 }, (_, i) => `id_char_${String(i + 1).padStart(2, '0')}`),
-    )
+    // Eleven position questions, each a choice with OpenRouter's criteria map, then the face question.
+    expect(Object.keys(body.questions)).toEqual([
+      ...Array.from({ length: 11 }, (_, i) => `id_char_${String(i + 1).padStart(2, '0')}`),
+      'photo_face',
+    ])
     expect(body.questions.id_char_01).toEqual({
       type: 'choice',
       instructions: `${LAYOUT} Read only the first letter of the four-letter group.`,

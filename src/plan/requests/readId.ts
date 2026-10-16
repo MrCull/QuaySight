@@ -1,5 +1,7 @@
+import { withPhotoFace } from '../../domain/damageSets'
 import type { ContainerIdReading } from '../../domain/inspection'
 import type { ChoiceReading } from '../../domain/luna'
+import { readPhotoFace, type FaceReading } from '../../domain/photoFace'
 import { questionSetOf } from '../../domain/providers'
 import { callLuna } from '../../services/luna'
 import { callOpenRouterJev, callOpenRouterLuna } from '../../services/openrouter'
@@ -10,6 +12,8 @@ export interface IdAnswer {
   containerId: ContainerIdReading
   /** Per-position readings, for the Luna question set's re-check; null for Jev's. */
   readings: ChoiceReading[] | null
+  /** Which face the photo shows (the survey's face question), or null when unanswered. */
+  face: FaceReading | null
 }
 
 /**
@@ -33,7 +37,14 @@ export async function readLuna(
         })
       : { ...(await callLuna({ apiKey, photo, positions, signal })), reportedCostUsd: null }
   return {
-    answer: { containerId: call.containerId, readings: call.readings },
+    answer: {
+      containerId: call.containerId,
+      readings: call.readings,
+      face: readPhotoFace(
+        route.entry.wireFormat === 'openrouter-decisions' ? 'openrouter-decisions' : 'openai-decisions',
+        call.raw,
+      ),
+    },
     resolvedModel: call.resolvedModel,
     usage: call.usage,
     latencyMs: call.latencyMs,
@@ -65,7 +76,11 @@ export const readId: PlanRequest<IdAnswer> = {
       signal: ctx.signal,
     })
     return {
-      answer: { containerId: call.containerId, readings: null },
+      answer: {
+        containerId: call.containerId,
+        readings: null,
+        face: readPhotoFace('openrouter-decisions', call.raw),
+      },
       resolvedModel: call.resolvedModel,
       usage: call.usage,
       latencyMs: call.latencyMs,
@@ -74,5 +89,7 @@ export const readId: PlanRequest<IdAnswer> = {
     }
   },
   apply: (record, outcome) =>
-    outcome.status === 'answered' ? { ...record, containerId: outcome.answer.containerId } : record,
+    outcome.status === 'answered'
+      ? withPhotoFace({ ...record, containerId: outcome.answer.containerId }, outcome.answer.face)
+      : record,
 }

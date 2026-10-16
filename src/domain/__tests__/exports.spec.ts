@@ -9,6 +9,9 @@ import {
   EXPORT_NOTICE,
 } from '../exports'
 import type { InspectionRecord } from '../inspection'
+import { withDamageReading, withPhotoFace } from '../damageSets'
+import { readSideDamage } from '../sideDamage'
+import type { SharedAnswer } from '../questionSet'
 
 async function lunaRecord(): Promise<InspectionRecord> {
   return recordedInspection('luna', { delayMs: 0, id: 'run-luna-1' })
@@ -193,6 +196,98 @@ describe('consolidated inspection JSON', () => {
     expect(json.unresolved.map((u) => u.field)).toEqual(
       expect.arrayContaining(['sizeCode', 'maxGross', 'tare', 'payload']),
     )
+  })
+})
+
+describe('live damage in the exports', () => {
+  const pred = (probability: number): SharedAnswer => ({ type: 'predicate', probability })
+  const pick = (value: string): SharedAnswer => ({
+    type: 'choice',
+    value,
+    probabilities: { [value]: 0.9 },
+    confidence: null,
+  })
+
+  async function liveSideRecord(): Promise<InspectionRecord> {
+    const base = await jevRecord()
+    const record: InspectionRecord = {
+      ...base,
+      id: 'live-openrouter-1',
+      source: 'live',
+      photo: { name: 'side.jpg', orientation: 'landscape' },
+      damage: null,
+    }
+    const reading = readSideDamage({
+      image_quality: pick('good'),
+      side_panel_coverage: pick('most'),
+      potentially_significant_damage: pred(0.8),
+      Z2B_visibility: pick('clear'),
+      Z2B_DT: pred(0.92),
+      Z2B_severity: {
+        type: 'score',
+        level: 3,
+        label: 'moderate',
+        score: 2.5,
+        probabilities: [0.02, 0.03, 0.3, 0.6, 0.05],
+        confidence: null,
+      },
+      Z5T_visibility: pick('not_visible'),
+      bottom_rail_bent: pred(0.7),
+    })
+    return withPhotoFace(
+      withDamageReading(record, { ...reading, passId: 'live-openrouter-1-side-damage' }),
+      { face: 'long-side', probability: 0.95, certainty: 'Confident' },
+    )
+  }
+
+  it('carries the finding’s component, zone visibility and severity distribution, linked to the side request', async () => {
+    const json = buildInspectionExport(await liveSideRecord())
+    const [dent, rail] = json.damage.findings
+    expect(dent).toMatchObject({
+      component: 'panel',
+      visibility: 'clear',
+      severity: 'moderate',
+      severityProbabilities: { none: 0.02, cosmetic: 0.03, minor: 0.3, moderate: 0.6, major: 0.05 },
+      types: ['DT'],
+      photo: 'side.jpg',
+      sourcePass: { passId: 'live-openrouter-1-side-damage', kind: 'provider-call' },
+    })
+    expect(rail).toMatchObject({ component: 'rail', severity: 'not rated', visibility: null })
+  })
+
+  it('carries the face, the photo checks, the significance flag and every zone’s visibility', async () => {
+    const json = buildInspectionExport(await liveSideRecord())
+    expect(json.damage).toMatchObject({
+      assessed: true,
+      photoFace: { face: 'long-side', certainty: 'Confident' },
+      imageQuality: 'good',
+      coverage: 'most',
+      potentiallySignificant: true,
+      notAssessedReason: null,
+    })
+    expect(json.damage.zones).toHaveLength(10)
+    expect(json.damage.zones.find((z) => z.id === 'Z5T')).toMatchObject({
+      visibility: 'not-visible',
+    })
+  })
+
+  it('says why a view was not assessed, in the JSON and the summary', async () => {
+    const record = withPhotoFace(await liveSideRecord(), {
+      face: 'roof',
+      probability: 0.9,
+      certainty: 'Confident',
+    })
+    const json = buildInspectionExport(record)
+    expect(json.damage.assessed).toBe(false)
+    expect(json.damage.notAssessedReason).toMatch(/roof/)
+    expect(buildSummaryText(record)).toMatch(/Damage: not assessed for this view\. The photo shows the roof/)
+  })
+
+  it('puts the significance flag and the unrated component in the summary, never as a repair verdict', async () => {
+    const summary = buildSummaryText(await liveSideRecord())
+    expect(summary).toContain('Potentially significant damage, closer inspection advised.')
+    expect(summary).toContain('- Damage to the bottom side rail - Likely, severity not rated')
+    expect(summary).not.toMatch(/repair required|unserviceable/i)
   })
 })
 

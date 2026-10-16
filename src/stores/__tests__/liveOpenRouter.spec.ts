@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeEach, vi, afterEach } from 'vitest'
+import { describe, it, expect, beforeEach, vi, afterEach, beforeAll, afterAll } from 'vitest'
 import { setActivePinia, createPinia } from 'pinia'
 
 // jsdom has no image decoder or canvas; photo preparation runs on the fake codec.
@@ -85,6 +85,17 @@ function sent(fetchMock: ReturnType<typeof vi.fn<typeof fetch>>, call = 0): Sent
   }
 }
 
+import { onlyRequests } from '../../plan/registry'
+import { readId } from '../../plan/requests/readId'
+import { idRecheck } from '../../plan/requests/idRecheck'
+
+// This spec covers the ID requests; the other parts of a run (damage, …) have their own specs.
+let restoreRequests = () => {}
+beforeAll(() => {
+  restoreRequests = onlyRequests(readId, idRecheck)
+})
+afterAll(() => restoreRequests())
+
 describe('live Jev through OpenRouter in the store', () => {
   let fetchMock: ReturnType<typeof vi.fn<typeof fetch>>
 
@@ -160,7 +171,9 @@ describe('live Jev through OpenRouter in the store', () => {
     )
     expect(body.questions.legibility).toMatchObject({ type: 'score', criteria: expect.any(Array) })
     expect(body.questions.full_number_visible).toMatchObject({ type: 'noul' })
-    expect(Object.keys(body.questions)).toHaveLength(11 + 3)
+    // The survey also asks which face the photo shows.
+    expect(body.questions.photo_face).toMatchObject({ type: 'choice' })
+    expect(Object.keys(body.questions)).toHaveLength(11 + 3 + 1)
   })
 
   it('asks the box question only on box-capable models', async () => {

@@ -68,10 +68,14 @@ const views = computed(() =>
 
 const imageFindings = computed(() => imageRelativeFindings(props.assessment))
 const showImage = computed(() => props.assessment.photos.some((p) => p.face === 'long-side'))
+// The long side's photo-relative zone grid (a live long-side assessment), with each zone's visibility.
+const imageZones = computed(() =>
+  (props.assessment.zones ?? []).filter((z) => z.face === 'long-side'),
+)
 </script>
 
 <template>
-  <div class="qs-schem">
+  <div :class="['qs-schem', { 'qs-schem--show-grid': imageZones.length > 0 }]">
     <div class="qs-schem__views">
       <div class="qs-schem__views-in">
         <SchematicFigure
@@ -100,6 +104,7 @@ const showImage = computed(() => props.assessment.photos.some((p) => p.face === 
           :end="null"
           :roof="false"
           :markers="imageFindings"
+          :zones="imageZones"
           :selected-id="selectedId"
           @select="emit('select', $event)"
         />

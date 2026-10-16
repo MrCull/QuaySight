@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeEach, vi, afterEach } from 'vitest'
+import { describe, it, expect, beforeEach, vi, afterEach, beforeAll, afterAll } from 'vitest'
 import { setActivePinia, createPinia } from 'pinia'
 
 // jsdom has no image decoder or canvas; photo preparation runs on the fake codec.
@@ -8,9 +8,10 @@ import { useInspectionStore } from '../inspection'
 import { useLedgerStore } from '../ledger'
 import { useSetupStore } from '../setup'
 import type { PlanRequest } from '../../plan/requestPlan'
-import { registerRequest } from '../../plan/registry'
+import { registerRequest, onlyRequests } from '../../plan/registry'
 import { readId } from '../../plan/requests/readId'
 import { askDecisions } from '../../services/askDecisions'
+import { spendCaps } from '../../domain/rates'
 
 // A test-only part of the record, added the way a request module adds its own (no edit to the record type).
 declare module '../../domain/inspection' {
@@ -133,6 +134,15 @@ function networkEdge() {
 
 /** Lets pending promise chains run (photo preparation, the plan, the ledger). */
 const settle = () => new Promise((resolve) => setTimeout(resolve, 0))
+
+import { idRecheck } from '../../plan/requests/idRecheck'
+
+// This spec covers the ID requests; the other parts of a run (damage, …) have their own specs.
+let restoreRequests = () => {}
+beforeAll(() => {
+  restoreRequests = onlyRequests(readId, idRecheck)
+})
+afterAll(() => restoreRequests())
 
 describe('a live run as a request plan', () => {
   let edge: ReturnType<typeof networkEdge>
@@ -353,8 +363,9 @@ describe('a live run as a request plan', () => {
   })
 
   it('applies the per-inspection cost cap across all of a run’s requests', async () => {
-    // Seven requests at once against a cap of six: the in-flight ones count, so the last is never sent.
-    for (let i = 0; i < 6; i += 1) {
+    // One request more than the cap, all at once: the in-flight ones count, so the last is never sent.
+    const cap = spendCaps.maxRequestsPerInspection
+    for (let i = 0; i < cap; i += 1) {
       add(sealRequest({ id: `test-seal-${i}`, purpose: `Test seal check ${i}` }))
     }
     edge.answer('id', () => json(jevBody()))
@@ -363,8 +374,8 @@ describe('a live run as a request plan', () => {
 
     await store.start()
 
-    expect(edge.fetchMock).toHaveBeenCalledTimes(6)
-    expect(useLedgerStore().inspectionTotals(store.record!.id).requests).toBe(6)
+    expect(edge.fetchMock).toHaveBeenCalledTimes(cap)
+    expect(useLedgerStore().inspectionTotals(store.record!.id).requests).toBe(cap)
     expect(store.record?.status).toBe('partial')
     expect(store.stages[1]?.state).toBe('failed')
   })

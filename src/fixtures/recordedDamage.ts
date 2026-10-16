@@ -20,6 +20,8 @@ export const recordedSideDamage: DamageAssessment = {
       id: 1,
       face: 'long-side',
       zone: { u0: 0.27, u1: 0.7, v0: 0.62, v1: 0.78 },
+      component: 'panel',
+      visibility: null,
       location: 'Approximate area on the lower middle of the long side',
       title: 'Dents in the side panel',
       description:

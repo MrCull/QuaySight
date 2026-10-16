@@ -2,7 +2,20 @@
 // shareable plain-text summary. Every builder takes only the InspectionRecord. No key, header or
 // credential can reach an export because none is an input.
 import { labelsFor, recordedDemonstrationLabel } from './providers'
-import { faceStatus, type DamageFace, type FaceStatus, type FindingZone } from './damage'
+import {
+  SEVERITY_LEVELS,
+  faceStatus,
+  potentiallySignificant,
+  type DamageComponent,
+  type DamageFace,
+  type FaceCoverage,
+  type FaceStatus,
+  type FindingZone,
+  type ImageQuality,
+  type SeverityLevel,
+  type ZoneVisibility,
+} from './damage'
+import type { FaceReading } from './photoFace'
 import type { CertaintyLabel, InspectionRecord, Provenance, RecheckRecord } from './inspection'
 
 export const EXPORT_SCHEMA_VERSION = 1
@@ -44,10 +57,17 @@ export interface ExportFindingLink {
   findingId: number
   title: string
   face: DamageFace
+  /** Panel zone or structural component. */
+  component: DamageComponent
+  /** How well the finding's zone was seen, or null when the set did not say. */
+  visibility: ZoneVisibility | null
+  /** Apparent visual severity, or 'not rated' for a component the photo gives no severity for. */
   severity: string
+  /** The model's probability for each severity level, when it gave them. */
+  severityProbabilities: Partial<Record<SeverityLevel, number>> | null
   certainty: string
   types: string[]
-  region: { location: string; zone: FindingZone }
+  region: { location: string; zone: FindingZone | null }
   photo: string | null
   sourcePass: { passId: string; kind: 'recorded-run' | 'provider-call' }
 }
@@ -72,8 +92,21 @@ export interface InspectionExport {
   rechecks: RecheckRecord[]
   damage: {
     assessed: boolean
+    /** Why the photo's view was not assessed (roof, close-up, unknown view, a face not inspectable), or null. */
+    notAssessedReason: string | null
+    /** The face the survey says the photo shows, or null when it did not say (or the run is recorded). */
+    photoFace: FaceReading | null
+    imageQuality: ImageQuality | null
+    coverage: FaceCoverage | null
+    /** "Potentially significant damage, closer inspection advised" (never a repair verdict); null when unread. */
+    potentiallySignificant: boolean | null
+    significantProbability: number | null
+    /** Which edge of the photo the door end is at, only when the photo shows it directly. */
+    doorEnd: 'image-left' | 'image-right' | null
     photos: { photo: string; face: DamageFace }[]
     faces: { face: 'rear' | 'front' | 'left' | 'right' | 'roof'; status: FaceExportStatus }[]
+    /** Every photo-relative zone the set judged, with its visibility: an unseen zone is never clean. */
+    zones: { id: string; face: DamageFace; label: string; visibility: ZoneVisibility | null }[]
     findings: ExportFindingLink[]
   }
 }
@@ -233,9 +266,15 @@ export function buildInspectionExport(record: InspectionRecord): InspectionExpor
   }
   if (weights?.conflict) conflicts.push(weights.conflict)
 
-  const assessment = record.damage
-  if (!assessment)
-    unresolved.push({ field: 'damage', category: 'unresolved', reason: 'Not assessed.' })
+  const assessment = record.damage?.notAssessed ? null : record.damage
+  const notAssessedReason = record.damage?.notAssessed?.reason ?? null
+  if (!assessment) {
+    unresolved.push({
+      field: 'damage',
+      category: 'unresolved',
+      reason: notAssessedReason ? `Not assessed for this view. ${notAssessedReason}` : 'Not assessed.',
+    })
+  }
 
   return {
     schemaVersion: record.schemaVersion,
@@ -256,21 +295,44 @@ export function buildInspectionExport(record: InspectionRecord): InspectionExpor
     rechecks: record.rechecks ?? [],
     damage: {
       assessed: assessment !== null,
+      notAssessedReason,
+      photoFace: record.photoFace ?? null,
+      imageQuality: assessment?.imageQuality ?? null,
+      coverage: assessment?.coverage ?? null,
+      potentiallySignificant:
+        assessment && assessment.significantProbability != null
+          ? potentiallySignificant(assessment)
+          : null,
+      significantProbability: assessment?.significantProbability ?? null,
+      doorEnd: assessment?.doorEnd ?? null,
       photos: assessment?.photos ?? [],
       faces: FIXED_FACES.map((face) => ({
         face,
         status: assessment ? faceStatus(assessment, face) : 'not-assessed',
       })),
+      zones: (assessment?.zones ?? []).map((z) => ({
+        id: z.id,
+        face: z.face,
+        label: z.label,
+        visibility: z.visibility,
+      })),
       findings: (assessment?.findings ?? []).map((f) => ({
         findingId: f.id,
         title: f.title,
         face: f.face,
-        severity: f.severity,
+        component: f.component,
+        visibility: f.visibility,
+        severity: f.severity ?? 'not rated',
+        severityProbabilities: f.severityProbabilities
+          ? Object.fromEntries(
+              SEVERITY_LEVELS.map((level, i) => [level, f.severityProbabilities![i] ?? 0]),
+            )
+          : null,
         certainty: f.certainty,
         types: f.types.map((t) => t.code),
         region: { location: f.location, zone: f.zone },
         photo: assessment?.photos.find((p) => p.face === f.face)?.photo ?? null,
-        sourcePass: { passId: record.id, kind: sourcePassKind(record) },
+        sourcePass: { passId: assessment?.passId ?? record.id, kind: sourcePassKind(record) },
       })),
     },
   }
@@ -360,13 +422,19 @@ export function buildSummaryText(record: InspectionRecord): string {
   for (const conflict of json.conflicts) lines.push(`Conflict: ${conflict}`)
   lines.push('')
 
-  if (!json.damage.assessed) {
+  if (json.damage.notAssessedReason) {
+    lines.push(`Damage: not assessed for this view. ${json.damage.notAssessedReason}`)
+  } else if (!json.damage.assessed) {
     lines.push('Damage: not assessed.')
   } else {
     const n = json.damage.findings.length
     lines.push(`Suspected damage: ${n} finding${n === 1 ? '' : 's'}`)
+    if (json.damage.potentiallySignificant) {
+      lines.push('Potentially significant damage, closer inspection advised.')
+    }
     for (const f of json.damage.findings) {
-      lines.push(`- ${f.title} - ${f.certainty}, ${f.severity}`)
+      const severity = f.severity === 'not rated' ? 'severity not rated' : f.severity
+      lines.push(`- ${f.title} - ${f.certainty}, ${severity}`)
       lines.push(
         `  Photo: ${f.photo ?? 'not linked'}, region: ${f.region.location}, source pass: ${f.sourcePass.passId} (${f.sourcePass.kind})`,
       )

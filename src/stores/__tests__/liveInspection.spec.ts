@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeEach, vi, afterEach } from 'vitest'
+import { describe, it, expect, beforeEach, vi, afterEach, beforeAll, afterAll } from 'vitest'
 import { setActivePinia, createPinia } from 'pinia'
 
 // jsdom has no image decoder or canvas; photo preparation runs on the fake codec.
@@ -47,6 +47,17 @@ function liveResult(overrides: Partial<{ resolvedModel: string }> = {}) {
     latencyMs: 812,
   }
 }
+
+import { onlyRequests } from '../../plan/registry'
+import { readId } from '../../plan/requests/readId'
+import { idRecheck } from '../../plan/requests/idRecheck'
+
+// This spec covers the ID requests; the other parts of a run (damage, …) have their own specs.
+let restoreRequests = () => {}
+beforeAll(() => {
+  restoreRequests = onlyRequests(readId, idRecheck)
+})
+afterAll(() => restoreRequests())
 
 describe('live Luna inspection in the store', () => {
   beforeEach(() => {
