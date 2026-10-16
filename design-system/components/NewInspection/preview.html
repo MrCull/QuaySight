@@ -1,0 +1,30 @@
+<!-- @dsCard group="Actions" height=200 subtitle="Blank screen for the next container" -->
+<!doctype html>
+<html><head><link rel="stylesheet" href="../../tokens.css"><link rel="stylesheet" href="../bundle.css"><meta charset="utf-8"><title>New inspection</title>
+<style>
+body{margin:0;padding:var(--space-6);background:var(--bg)}
+.stack{display:grid;gap:var(--space-5)}
+.bar{display:flex;align-items:center;gap:var(--space-5);min-height:var(--control-lg);padding:var(--space-2) var(--space-5);background:var(--surface);border:1px solid var(--line);border-radius:var(--radius-md);white-space:nowrap}
+.spacer{flex:1}
+.row{display:flex;flex-wrap:wrap;gap:var(--space-4);align-items:center}
+.focus{outline:2px solid var(--focus-ring);outline-offset:2px}
+</style></head>
+<body class="qs-root">
+<div class="stack">
+  <!-- In the top bar: after the cost indicator, at the end of the bar. -->
+  <header class="bar">
+    <span class="qs-brand"><i class="qs-logo" aria-hidden="true"></i>Quay Sight</span>
+    <span class="spacer"></span>
+    <div class="qs-cost"><button class="qs-cost__toggle" aria-expanded="false">This container <b>$0.0042</b> · Session <b>$0.0187</b><i class="qs-glyph qs-glyph--chevron" aria-hidden="true"></i></button></div>
+    <button type="button" class="qs-btn qs-btn--secondary qs-btn--sm qs-newinsp">New inspection</button>
+  </header>
+
+  <!-- States: rest, keyboard focus (the shared focus ring), and while an inspection runs (still enabled). -->
+  <div class="row">
+    <button type="button" class="qs-btn qs-btn--secondary qs-btn--sm qs-newinsp">New inspection</button>
+    <button type="button" class="qs-btn qs-btn--secondary qs-btn--sm qs-newinsp focus">New inspection</button>
+    <button type="button" class="qs-btn qs-btn--primary" aria-busy="true" disabled>Analysing…</button>
+    <button type="button" class="qs-btn qs-btn--secondary qs-btn--sm qs-newinsp">New inspection</button>
+  </div>
+</div>
+</body></html>

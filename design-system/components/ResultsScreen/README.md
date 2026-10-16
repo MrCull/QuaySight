@@ -3,7 +3,7 @@
 The results screen is the main inspection screen once photos are uploaded and results are back. It shows the photo as hero, the readings beside it, and the damage view below. It also defines how results arrive; use *Replay result arrival* in the preview to watch it again. The `AnalysingScreen` card shows the same screen while the analysis is still running.
 
 ## Layout (desktop, 1440)
-- **Top bar** (`surface`, 64px): the name in `display`, the inspection crumb, the run's provider and model chip, the `CostIndicator`, *Export* and *New inspection*.
+- **Top bar** (`surface`, 64px): the name in `display`, the inspection crumb, the run's provider and model chip, the `CostIndicator`, *Export* and *New inspection* (`NewInspection`).
 - **Left**: the photo stage (`surface-sunken`, `radius-lg`) with image-relative areas drawn on the photo, the face pill and the stand-in or zoom controls; the thumbnail strip with an *Add photo* tile; then **What we found**, with a `display-lg` headline, a plain-English paragraph and a stat row.
 - **Right** (540px): `ContainerId` with any plausible alternative ("Also possible …"). If the ID was not identified, the optional `ManifestRetry` panel sits directly under it. Then Equipment `FieldRow`s, Markings, and an optional suggestion `Notice`.
 - **Full width**: the damage view. The `ContainerSchematic`'s two views (rear and right side, front and left side) are stacked one above the other, with a column of `FindingCard`s beside them. On wide screens (viewport 1800px and up) the views sit side by side and the cards form a row beneath. Selecting a pin, a card or a photo area selects all three.

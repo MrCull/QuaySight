@@ -42,6 +42,11 @@
 .qs-btn[disabled], .qs-btn[aria-busy="true"], .qs-btn[aria-disabled="true"] { cursor: not-allowed; opacity: 0.55; }
 .qs-btn--primary[aria-disabled="true"]:hover { background: var(--brand); } .qs-btn--secondary[aria-disabled="true"]:hover { border-color: var(--line-strong); background: transparent; }
 
+/* ---------- New inspection (header action) ---------- */
+/* A secondary button that keeps its size in the top bar. Always enabled: during a run it cancels the run. */
+.qs-newinsp { flex: none; }
+.qs-newinsp:active { background: var(--surface-sunken); }
+
 /* ---------- Certainty chip ---------- */
 .qs-cert { display: inline-flex; align-items: center; gap: 6px; height: 26px; padding: 0 var(--space-2) 0 6px; border: 1px solid; border-radius: var(--radius-sm); font: 600 13px/1 var(--font-sans); letter-spacing: 0.01em; white-space: nowrap; }
 .qs-cert .qs-glyph { width: 14px; height: 14px; }

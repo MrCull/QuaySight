@@ -5,7 +5,7 @@ Buttons start, export or reset an inspection. They never ask anyone to confirm, 
 ## Use
 - `qs-btn qs-btn--primary qs-btn--lg` for the one main action, **Inspect container**. Keep exactly one primary button per screen.
 - `qs-btn--secondary` for alternatives at the same level: *Try a sample container*, *Export JSON*, *Download raw response*.
-- `qs-btn--ghost` for low-weight resets: *New inspection*, *Clear key*.
+- `qs-btn--ghost` for low-weight resets: *Clear key*. The top-bar *New inspection* action has its own component, `NewInspection`.
 - `qs-btn--sm` inside dense panels (cost ledger, marker popover).
 
 ## Consumer provides
