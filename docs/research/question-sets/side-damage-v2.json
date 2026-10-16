@@ -1,0 +1,1307 @@
+{
+  "model": "gpt-6-luna",
+  "input": [
+    {
+      "role": "user",
+      "content": [
+        {
+          "type": "input_text",
+          "text": "TASK: Inspect this photograph of the EXTERIOR long side of a 20-foot general-purpose shipping container. Classify visible damage independently for each photo-relative grid region using ISO 9897 CEDEX damage terminology. Only use what is visible; do not infer defects behind the wall, under paint, inside the container or on unseen faces. Do not automatically regard scratches, small cosmetic blemishes, rust-coloured dirt, shadows, logos, light reflections, normal vertical corrugations, paint scuffs or welded manufacturing features as structural damage. GRID: consider ONLY the MAIN SIDE SHEET, bounded by left/right corner posts and upper/lower side rails. Divide that sheet visually into five EQUAL horizontal-length columns Z1 to Z5 from PHOTO LEFT to PHOTO RIGHT, and top/bottom halves T/B using the sheet's vertical midpoint; e.g. Z2B is second fifth from photo left, bottom half. Rails, corner posts and castings are OUTSIDE the sheet zones and have separate questions. All Z-codes are photo-relative APPLICATION zone IDs, NOT CEDEX location codes. The camera-facing side and door-end orientation are unknown. Don't assume either; assign the official CEDEX location later, in software, if orientation is established. Visible defects crossing boundaries may legitimately appear in multiple regions; classify each zone using the evidence within that region, not elsewhere. DAMAGE TYPE RUBRIC: DT = DENT: a local inward or outward indentation, impact depression, dimple, pushed-in corrugation or crumpled patch of the SHEET. An impact dent often bends several adjacent corrugations or creates curved creases; DO classify it DT when a local area is pressed out of its intended profile, EVEN IF THE PANEL METAL IS ALSO CURVED OR CREASED. Do not require a round shape. Normal evenly spaced corrugations are NOT DT. BT = BENT: a recognisable sharp change of angle, kink, fold, or displaced component axis, rather than simply a locally depressed corrugation. BT can occur on a sheet, post or rail, but don't mark BT merely because a DT has curved or wrinkled metal; require distinct bending evidence. BW = BOWED: a broad, smooth, gradual displacement/curvature of a component over an extended distance, not a local dent or abrupt kink. HO = HOLED: an actual opening/puncture through the container component, not a dark shadow, ventilation opening or fork-lift pocket. CK = CRACKED: visible material fracture/tear (not merely a paint line or crease). CW = CRACKED WELD: visible separation of a weld seam; don't flag if the seam is too small to assess. CO = CORRODED/RUSTY: credible orange-brown oxidation, rust deposits, flaking or pitting on container metal; do not call harmless paint discoloration, stains or dirt corrosion without evidence. CH = CORRODED/HOLED: actual perforation visibly associated with corrosion; corrosion alone is not CH. BR = BROKEN/SPLIT: component fractured or separated; an intact dented sheet is not BR. These are ISO CEDEX terms; DT, BT and BW are not guaranteed mutually exclusive, but avoid marking several merely as synonyms. CLASSIFICATION ORDER FOR YOUR REASONING: identify intended straight/corrugated profile; identify local inward/outward surface displacement; look for distinct sharp kink or extended smooth bow; then check for perforation, cracks and corrosion. When more than one defect TYPE is independently evidenced in a zone, multiple predicates may be true. Do not confuse severe visual appearance with confirmed loss of structural strength. IMAGE UNCERTAINTY: low resolution or occlusion must lower certainty; a low damage probability on an uninspectable region is not proof of no damage. Score visible severity only and do not assume compliance with IICL repair criteria, dimensional tolerances or cargo-worthiness. No container, defect or location has been prelabelled as damaged; inspect this photo without assuming the result."
+        },
+        {
+          "type": "input_image",
+          "image_url": "data:image/jpeg;base64,{{imageBase64}}",
+          "detail": "original"
+        }
+      ]
+    }
+  ],
+  "questions": [
+    {
+      "type": "choice",
+      "name": "image_quality",
+      "instructions": "For the container metal, is focus, lighting and resolution sufficient to evaluate obvious dents and major distortions? This is photo suitability, not defect severity.",
+      "choices": [
+        {
+          "value": "good"
+        },
+        {
+          "value": "limited"
+        },
+        {
+          "value": "poor"
+        }
+      ]
+    },
+    {
+      "type": "choice",
+      "name": "side_panel_coverage",
+      "instructions": "What proportion of the complete long side SHEET excluding framing is visible?",
+      "choices": [
+        {
+          "value": "full"
+        },
+        {
+          "value": "most"
+        },
+        {
+          "value": "partial"
+        },
+        {
+          "value": "not_inspectable"
+        }
+      ]
+    },
+    {
+      "type": "choice",
+      "name": "door_end_in_image",
+      "instructions": "Is the actual door end clearly identifiable from direct evidence in THIS view (door panels, hinges, locking bars)? Side-wall markings or container ID location alone are NOT reliable evidence.",
+      "choices": [
+        {
+          "value": "image_left"
+        },
+        {
+          "value": "image_right"
+        },
+        {
+          "value": "not_identifiable"
+        }
+      ]
+    },
+    {
+      "type": "predicate",
+      "name": "any_visible_defect",
+      "instructions": "Does ANY exterior container component visibly show physical damage or credible metal corrosion (including minor defects), excluding ordinary wear, dirt, paint variations and factory corrugations?"
+    },
+    {
+      "type": "predicate",
+      "name": "potentially_significant_damage",
+      "instructions": "Is there clearly visible metal deformation, rupture or other noncosmetic defect that reasonably warrants closer inspection? Do not assert serviceability or definite need for repair."
+    },
+    {
+      "type": "choice",
+      "name": "Z1T_visibility",
+      "instructions": "For ONLY Z1T: PHOTO column 1 of 5 from LEFT, TOP half of main side SHEET (do not include top/bottom rails or corner posts), is the region visible sharply enough to evaluate its surface? Judge focus and occlusion, not whether it is damaged.",
+      "choices": [
+        {
+          "value": "clear"
+        },
+        {
+          "value": "partial"
+        },
+        {
+          "value": "not_visible"
+        }
+      ]
+    },
+    {
+      "type": "choice",
+      "name": "Z1T_deformation_shape",
+      "instructions": "For ONLY Z1T: PHOTO column 1 of 5 from LEFT, TOP half of main side SHEET (do not include top/bottom rails or corner posts), choose the MOST visually supported deformation shape. Use the defined differences between local impact dent, sharp bend and broad bow; if clearly separate defects coexist choose mixed. Choose none for normal corrugations and uncertain when geometry cannot be judged.",
+      "choices": [
+        {
+          "value": "none",
+          "description": "No distinct deformation; sheet retains its intended regular corrugated shape."
+        },
+        {
+          "value": "local_dent",
+          "description": "Local impact indentation or pushed-in/crumpled corrugations, even if locally creased (typically DT)."
+        },
+        {
+          "value": "sharp_bend",
+          "description": "Distinct abnormal sharp kink, fold or change in material angle/axis, not just an indentation (typically BT)."
+        },
+        {
+          "value": "broad_bow",
+          "description": "Smooth progressive curvature across a large span (typically BW)."
+        },
+        {
+          "value": "mixed",
+          "description": "Two or more clearly DIFFERENT deformation types present with distinct visual evidence."
+        },
+        {
+          "value": "uncertain",
+          "description": "Image does not resolve the local geometry clearly enough to tell."
+        }
+      ]
+    },
+    {
+      "type": "predicate",
+      "name": "Z1T_DT",
+      "instructions": "For ONLY Z1T: PHOTO column 1 of 5 from LEFT, TOP half of main side SHEET (do not include top/bottom rails or corner posts): Does this zone contain a TRUE LOCAL DENT in the sheet: an inward/outward pushed-in area, crumpled patch or irregularly displaced corrugations compared with neighbouring intact ribs? Local impact dents may look angular, wavy or sharply creased. They STILL count as DT if the underlying damage is a local indentation; DO NOT reclassify them solely as BT because the corrugation is bent. Exclude uniform factory corrugations, shadow bands and paint marks. Ignore defects in other grid regions."
+    },
+    {
+      "type": "predicate",
+      "name": "Z1T_BT",
+      "instructions": "For ONLY Z1T: PHOTO column 1 of 5 from LEFT, TOP half of main side SHEET (do not include top/bottom rails or corner posts): Does this zone show DISTINCT BENDING: a definite abnormal sharp kink, folded angle or displaced axis of sheet material, apart from mere local impact indentation? A dent may contain small wrinkles, but do not treat those wrinkles alone as proof of an independent BT defect. Compare the geometry with adjacent undamaged corrugations. Ignore defects in other grid regions."
+    },
+    {
+      "type": "predicate",
+      "name": "Z1T_BW",
+      "instructions": "For ONLY Z1T: PHOTO column 1 of 5 from LEFT, TOP half of main side SHEET (do not include top/bottom rails or corner posts): Does this zone show a broad, relatively SMOOTH BOW extending over a substantial portion of a panel/component, distinct from a discrete pushed-in dent and distinct from a sharp kink? Do not count normal corrugations. Ignore defects in other grid regions."
+    },
+    {
+      "type": "predicate",
+      "name": "Z1T_HO",
+      "instructions": "For ONLY Z1T: PHOTO column 1 of 5 from LEFT, TOP half of main side SHEET (do not include top/bottom rails or corner posts): Is there an actual visibly open hole or puncture THROUGH the side sheet in this zone, rather than a dark paint patch, shadow or normal construction feature? Ignore defects in other grid regions."
+    },
+    {
+      "type": "predicate",
+      "name": "Z1T_CK",
+      "instructions": "For ONLY Z1T: PHOTO column 1 of 5 from LEFT, TOP half of main side SHEET (do not include top/bottom rails or corner posts): Is there a visible split, tear or crack IN the sheet material in this zone, not simply a fold, shallow dent, welded seam or scratch in paint? Ignore defects in other grid regions."
+    },
+    {
+      "type": "predicate",
+      "name": "Z1T_CW",
+      "instructions": "For ONLY Z1T: PHOTO column 1 of 5 from LEFT, TOP half of main side SHEET (do not include top/bottom rails or corner posts): Is an actual weld seam within this zone clearly visible with a visible crack or split of the WELD itself? Answer conservatively when a weld cannot be inspected at this image resolution. Ignore defects in other grid regions."
+    },
+    {
+      "type": "predicate",
+      "name": "Z1T_CO",
+      "instructions": "For ONLY Z1T: PHOTO column 1 of 5 from LEFT, TOP half of main side SHEET (do not include top/bottom rails or corner posts): Is there identifiable rust/corrosion on the METAL in this zone, supported by oxidation colour, flaking, pitting or similar evidence? Dirt, painted graphics, bare abrasion marks and brown stains alone are insufficient. Ignore defects in other grid regions."
+    },
+    {
+      "type": "predicate",
+      "name": "Z1T_CH",
+      "instructions": "For ONLY Z1T: PHOTO column 1 of 5 from LEFT, TOP half of main side SHEET (do not include top/bottom rails or corner posts): Is there an actual visible THROUGH-HOLE resulting from corrosion in this zone? Do not label CH for non-perforating rust or generic dents. Ignore defects in other grid regions."
+    },
+    {
+      "type": "predicate",
+      "name": "Z1T_BR",
+      "instructions": "For ONLY Z1T: PHOTO column 1 of 5 from LEFT, TOP half of main side SHEET (do not include top/bottom rails or corner posts): Is a portion of the panel actually BROKEN, physically separated, or visibly split apart in this zone? An intact crumpled or indented corrugation is not broken. Ignore defects in other grid regions."
+    },
+    {
+      "type": "score",
+      "name": "Z1T_severity",
+      "instructions": "For ONLY Z1T: PHOTO column 1 of 5 from LEFT, TOP half of main side SHEET (do not include top/bottom rails or corner posts), score the strongest clearly VISIBLE and supported defect, not hypothetical structural risk. If clearly intact, none. If visibility is inadequate, do not manufacture damage. This is NOT a repairability or IICL compliance rating.",
+      "levels": [
+        {
+          "label": "none",
+          "description": "No reliably observed physical defect in the target region."
+        },
+        {
+          "label": "cosmetic",
+          "description": "Superficial deterioration only, e.g. small isolated rust or paint damage without discernible metal deformation."
+        },
+        {
+          "label": "minor",
+          "description": "Visible local metal dent, crease or deformation of limited extent with no evident rupture."
+        },
+        {
+          "label": "moderate",
+          "description": "Clearly substantial deformation affecting multiple corrugations or an extended part of the visible sheet."
+        },
+        {
+          "label": "major",
+          "description": "Very extensive severe distortion or obvious sheet rupture/perforation; visual assessment only, NOT repair acceptance criteria."
+        }
+      ]
+    },
+    {
+      "type": "choice",
+      "name": "Z1B_visibility",
+      "instructions": "For ONLY Z1B: PHOTO column 1 of 5 from LEFT, BOTTOM half of main side SHEET (do not include top/bottom rails or corner posts), is the region visible sharply enough to evaluate its surface? Judge focus and occlusion, not whether it is damaged.",
+      "choices": [
+        {
+          "value": "clear"
+        },
+        {
+          "value": "partial"
+        },
+        {
+          "value": "not_visible"
+        }
+      ]
+    },
+    {
+      "type": "choice",
+      "name": "Z1B_deformation_shape",
+      "instructions": "For ONLY Z1B: PHOTO column 1 of 5 from LEFT, BOTTOM half of main side SHEET (do not include top/bottom rails or corner posts), choose the MOST visually supported deformation shape. Use the defined differences between local impact dent, sharp bend and broad bow; if clearly separate defects coexist choose mixed. Choose none for normal corrugations and uncertain when geometry cannot be judged.",
+      "choices": [
+        {
+          "value": "none",
+          "description": "No distinct deformation; sheet retains its intended regular corrugated shape."
+        },
+        {
+          "value": "local_dent",
+          "description": "Local impact indentation or pushed-in/crumpled corrugations, even if locally creased (typically DT)."
+        },
+        {
+          "value": "sharp_bend",
+          "description": "Distinct abnormal sharp kink, fold or change in material angle/axis, not just an indentation (typically BT)."
+        },
+        {
+          "value": "broad_bow",
+          "description": "Smooth progressive curvature across a large span (typically BW)."
+        },
+        {
+          "value": "mixed",
+          "description": "Two or more clearly DIFFERENT deformation types present with distinct visual evidence."
+        },
+        {
+          "value": "uncertain",
+          "description": "Image does not resolve the local geometry clearly enough to tell."
+        }
+      ]
+    },
+    {
+      "type": "predicate",
+      "name": "Z1B_DT",
+      "instructions": "For ONLY Z1B: PHOTO column 1 of 5 from LEFT, BOTTOM half of main side SHEET (do not include top/bottom rails or corner posts): Does this zone contain a TRUE LOCAL DENT in the sheet: an inward/outward pushed-in area, crumpled patch or irregularly displaced corrugations compared with neighbouring intact ribs? Local impact dents may look angular, wavy or sharply creased. They STILL count as DT if the underlying damage is a local indentation; DO NOT reclassify them solely as BT because the corrugation is bent. Exclude uniform factory corrugations, shadow bands and paint marks. Ignore defects in other grid regions."
+    },
+    {
+      "type": "predicate",
+      "name": "Z1B_BT",
+      "instructions": "For ONLY Z1B: PHOTO column 1 of 5 from LEFT, BOTTOM half of main side SHEET (do not include top/bottom rails or corner posts): Does this zone show DISTINCT BENDING: a definite abnormal sharp kink, folded angle or displaced axis of sheet material, apart from mere local impact indentation? A dent may contain small wrinkles, but do not treat those wrinkles alone as proof of an independent BT defect. Compare the geometry with adjacent undamaged corrugations. Ignore defects in other grid regions."
+    },
+    {
+      "type": "predicate",
+      "name": "Z1B_BW",
+      "instructions": "For ONLY Z1B: PHOTO column 1 of 5 from LEFT, BOTTOM half of main side SHEET (do not include top/bottom rails or corner posts): Does this zone show a broad, relatively SMOOTH BOW extending over a substantial portion of a panel/component, distinct from a discrete pushed-in dent and distinct from a sharp kink? Do not count normal corrugations. Ignore defects in other grid regions."
+    },
+    {
+      "type": "predicate",
+      "name": "Z1B_HO",
+      "instructions": "For ONLY Z1B: PHOTO column 1 of 5 from LEFT, BOTTOM half of main side SHEET (do not include top/bottom rails or corner posts): Is there an actual visibly open hole or puncture THROUGH the side sheet in this zone, rather than a dark paint patch, shadow or normal construction feature? Ignore defects in other grid regions."
+    },
+    {
+      "type": "predicate",
+      "name": "Z1B_CK",
+      "instructions": "For ONLY Z1B: PHOTO column 1 of 5 from LEFT, BOTTOM half of main side SHEET (do not include top/bottom rails or corner posts): Is there a visible split, tear or crack IN the sheet material in this zone, not simply a fold, shallow dent, welded seam or scratch in paint? Ignore defects in other grid regions."
+    },
+    {
+      "type": "predicate",
+      "name": "Z1B_CW",
+      "instructions": "For ONLY Z1B: PHOTO column 1 of 5 from LEFT, BOTTOM half of main side SHEET (do not include top/bottom rails or corner posts): Is an actual weld seam within this zone clearly visible with a visible crack or split of the WELD itself? Answer conservatively when a weld cannot be inspected at this image resolution. Ignore defects in other grid regions."
+    },
+    {
+      "type": "predicate",
+      "name": "Z1B_CO",
+      "instructions": "For ONLY Z1B: PHOTO column 1 of 5 from LEFT, BOTTOM half of main side SHEET (do not include top/bottom rails or corner posts): Is there identifiable rust/corrosion on the METAL in this zone, supported by oxidation colour, flaking, pitting or similar evidence? Dirt, painted graphics, bare abrasion marks and brown stains alone are insufficient. Ignore defects in other grid regions."
+    },
+    {
+      "type": "predicate",
+      "name": "Z1B_CH",
+      "instructions": "For ONLY Z1B: PHOTO column 1 of 5 from LEFT, BOTTOM half of main side SHEET (do not include top/bottom rails or corner posts): Is there an actual visible THROUGH-HOLE resulting from corrosion in this zone? Do not label CH for non-perforating rust or generic dents. Ignore defects in other grid regions."
+    },
+    {
+      "type": "predicate",
+      "name": "Z1B_BR",
+      "instructions": "For ONLY Z1B: PHOTO column 1 of 5 from LEFT, BOTTOM half of main side SHEET (do not include top/bottom rails or corner posts): Is a portion of the panel actually BROKEN, physically separated, or visibly split apart in this zone? An intact crumpled or indented corrugation is not broken. Ignore defects in other grid regions."
+    },
+    {
+      "type": "score",
+      "name": "Z1B_severity",
+      "instructions": "For ONLY Z1B: PHOTO column 1 of 5 from LEFT, BOTTOM half of main side SHEET (do not include top/bottom rails or corner posts), score the strongest clearly VISIBLE and supported defect, not hypothetical structural risk. If clearly intact, none. If visibility is inadequate, do not manufacture damage. This is NOT a repairability or IICL compliance rating.",
+      "levels": [
+        {
+          "label": "none",
+          "description": "No reliably observed physical defect in the target region."
+        },
+        {
+          "label": "cosmetic",
+          "description": "Superficial deterioration only, e.g. small isolated rust or paint damage without discernible metal deformation."
+        },
+        {
+          "label": "minor",
+          "description": "Visible local metal dent, crease or deformation of limited extent with no evident rupture."
+        },
+        {
+          "label": "moderate",
+          "description": "Clearly substantial deformation affecting multiple corrugations or an extended part of the visible sheet."
+        },
+        {
+          "label": "major",
+          "description": "Very extensive severe distortion or obvious sheet rupture/perforation; visual assessment only, NOT repair acceptance criteria."
+        }
+      ]
+    },
+    {
+      "type": "choice",
+      "name": "Z2T_visibility",
+      "instructions": "For ONLY Z2T: PHOTO column 2 of 5 from LEFT, TOP half of main side SHEET (do not include top/bottom rails or corner posts), is the region visible sharply enough to evaluate its surface? Judge focus and occlusion, not whether it is damaged.",
+      "choices": [
+        {
+          "value": "clear"
+        },
+        {
+          "value": "partial"
+        },
+        {
+          "value": "not_visible"
+        }
+      ]
+    },
+    {
+      "type": "choice",
+      "name": "Z2T_deformation_shape",
+      "instructions": "For ONLY Z2T: PHOTO column 2 of 5 from LEFT, TOP half of main side SHEET (do not include top/bottom rails or corner posts), choose the MOST visually supported deformation shape. Use the defined differences between local impact dent, sharp bend and broad bow; if clearly separate defects coexist choose mixed. Choose none for normal corrugations and uncertain when geometry cannot be judged.",
+      "choices": [
+        {
+          "value": "none",
+          "description": "No distinct deformation; sheet retains its intended regular corrugated shape."
+        },
+        {
+          "value": "local_dent",
+          "description": "Local impact indentation or pushed-in/crumpled corrugations, even if locally creased (typically DT)."
+        },
+        {
+          "value": "sharp_bend",
+          "description": "Distinct abnormal sharp kink, fold or change in material angle/axis, not just an indentation (typically BT)."
+        },
+        {
+          "value": "broad_bow",
+          "description": "Smooth progressive curvature across a large span (typically BW)."
+        },
+        {
+          "value": "mixed",
+          "description": "Two or more clearly DIFFERENT deformation types present with distinct visual evidence."
+        },
+        {
+          "value": "uncertain",
+          "description": "Image does not resolve the local geometry clearly enough to tell."
+        }
+      ]
+    },
+    {
+      "type": "predicate",
+      "name": "Z2T_DT",
+      "instructions": "For ONLY Z2T: PHOTO column 2 of 5 from LEFT, TOP half of main side SHEET (do not include top/bottom rails or corner posts): Does this zone contain a TRUE LOCAL DENT in the sheet: an inward/outward pushed-in area, crumpled patch or irregularly displaced corrugations compared with neighbouring intact ribs? Local impact dents may look angular, wavy or sharply creased. They STILL count as DT if the underlying damage is a local indentation; DO NOT reclassify them solely as BT because the corrugation is bent. Exclude uniform factory corrugations, shadow bands and paint marks. Ignore defects in other grid regions."
+    },
+    {
+      "type": "predicate",
+      "name": "Z2T_BT",
+      "instructions": "For ONLY Z2T: PHOTO column 2 of 5 from LEFT, TOP half of main side SHEET (do not include top/bottom rails or corner posts): Does this zone show DISTINCT BENDING: a definite abnormal sharp kink, folded angle or displaced axis of sheet material, apart from mere local impact indentation? A dent may contain small wrinkles, but do not treat those wrinkles alone as proof of an independent BT defect. Compare the geometry with adjacent undamaged corrugations. Ignore defects in other grid regions."
+    },
+    {
+      "type": "predicate",
+      "name": "Z2T_BW",
+      "instructions": "For ONLY Z2T: PHOTO column 2 of 5 from LEFT, TOP half of main side SHEET (do not include top/bottom rails or corner posts): Does this zone show a broad, relatively SMOOTH BOW extending over a substantial portion of a panel/component, distinct from a discrete pushed-in dent and distinct from a sharp kink? Do not count normal corrugations. Ignore defects in other grid regions."
+    },
+    {
+      "type": "predicate",
+      "name": "Z2T_HO",
+      "instructions": "For ONLY Z2T: PHOTO column 2 of 5 from LEFT, TOP half of main side SHEET (do not include top/bottom rails or corner posts): Is there an actual visibly open hole or puncture THROUGH the side sheet in this zone, rather than a dark paint patch, shadow or normal construction feature? Ignore defects in other grid regions."
+    },
+    {
+      "type": "predicate",
+      "name": "Z2T_CK",
+      "instructions": "For ONLY Z2T: PHOTO column 2 of 5 from LEFT, TOP half of main side SHEET (do not include top/bottom rails or corner posts): Is there a visible split, tear or crack IN the sheet material in this zone, not simply a fold, shallow dent, welded seam or scratch in paint? Ignore defects in other grid regions."
+    },
+    {
+      "type": "predicate",
+      "name": "Z2T_CW",
+      "instructions": "For ONLY Z2T: PHOTO column 2 of 5 from LEFT, TOP half of main side SHEET (do not include top/bottom rails or corner posts): Is an actual weld seam within this zone clearly visible with a visible crack or split of the WELD itself? Answer conservatively when a weld cannot be inspected at this image resolution. Ignore defects in other grid regions."
+    },
+    {
+      "type": "predicate",
+      "name": "Z2T_CO",
+      "instructions": "For ONLY Z2T: PHOTO column 2 of 5 from LEFT, TOP half of main side SHEET (do not include top/bottom rails or corner posts): Is there identifiable rust/corrosion on the METAL in this zone, supported by oxidation colour, flaking, pitting or similar evidence? Dirt, painted graphics, bare abrasion marks and brown stains alone are insufficient. Ignore defects in other grid regions."
+    },
+    {
+      "type": "predicate",
+      "name": "Z2T_CH",
+      "instructions": "For ONLY Z2T: PHOTO column 2 of 5 from LEFT, TOP half of main side SHEET (do not include top/bottom rails or corner posts): Is there an actual visible THROUGH-HOLE resulting from corrosion in this zone? Do not label CH for non-perforating rust or generic dents. Ignore defects in other grid regions."
+    },
+    {
+      "type": "predicate",
+      "name": "Z2T_BR",
+      "instructions": "For ONLY Z2T: PHOTO column 2 of 5 from LEFT, TOP half of main side SHEET (do not include top/bottom rails or corner posts): Is a portion of the panel actually BROKEN, physically separated, or visibly split apart in this zone? An intact crumpled or indented corrugation is not broken. Ignore defects in other grid regions."
+    },
+    {
+      "type": "score",
+      "name": "Z2T_severity",
+      "instructions": "For ONLY Z2T: PHOTO column 2 of 5 from LEFT, TOP half of main side SHEET (do not include top/bottom rails or corner posts), score the strongest clearly VISIBLE and supported defect, not hypothetical structural risk. If clearly intact, none. If visibility is inadequate, do not manufacture damage. This is NOT a repairability or IICL compliance rating.",
+      "levels": [
+        {
+          "label": "none",
+          "description": "No reliably observed physical defect in the target region."
+        },
+        {
+          "label": "cosmetic",
+          "description": "Superficial deterioration only, e.g. small isolated rust or paint damage without discernible metal deformation."
+        },
+        {
+          "label": "minor",
+          "description": "Visible local metal dent, crease or deformation of limited extent with no evident rupture."
+        },
+        {
+          "label": "moderate",
+          "description": "Clearly substantial deformation affecting multiple corrugations or an extended part of the visible sheet."
+        },
+        {
+          "label": "major",
+          "description": "Very extensive severe distortion or obvious sheet rupture/perforation; visual assessment only, NOT repair acceptance criteria."
+        }
+      ]
+    },
+    {
+      "type": "choice",
+      "name": "Z2B_visibility",
+      "instructions": "For ONLY Z2B: PHOTO column 2 of 5 from LEFT, BOTTOM half of main side SHEET (do not include top/bottom rails or corner posts), is the region visible sharply enough to evaluate its surface? Judge focus and occlusion, not whether it is damaged.",
+      "choices": [
+        {
+          "value": "clear"
+        },
+        {
+          "value": "partial"
+        },
+        {
+          "value": "not_visible"
+        }
+      ]
+    },
+    {
+      "type": "choice",
+      "name": "Z2B_deformation_shape",
+      "instructions": "For ONLY Z2B: PHOTO column 2 of 5 from LEFT, BOTTOM half of main side SHEET (do not include top/bottom rails or corner posts), choose the MOST visually supported deformation shape. Use the defined differences between local impact dent, sharp bend and broad bow; if clearly separate defects coexist choose mixed. Choose none for normal corrugations and uncertain when geometry cannot be judged.",
+      "choices": [
+        {
+          "value": "none",
+          "description": "No distinct deformation; sheet retains its intended regular corrugated shape."
+        },
+        {
+          "value": "local_dent",
+          "description": "Local impact indentation or pushed-in/crumpled corrugations, even if locally creased (typically DT)."
+        },
+        {
+          "value": "sharp_bend",
+          "description": "Distinct abnormal sharp kink, fold or change in material angle/axis, not just an indentation (typically BT)."
+        },
+        {
+          "value": "broad_bow",
+          "description": "Smooth progressive curvature across a large span (typically BW)."
+        },
+        {
+          "value": "mixed",
+          "description": "Two or more clearly DIFFERENT deformation types present with distinct visual evidence."
+        },
+        {
+          "value": "uncertain",
+          "description": "Image does not resolve the local geometry clearly enough to tell."
+        }
+      ]
+    },
+    {
+      "type": "predicate",
+      "name": "Z2B_DT",
+      "instructions": "For ONLY Z2B: PHOTO column 2 of 5 from LEFT, BOTTOM half of main side SHEET (do not include top/bottom rails or corner posts): Does this zone contain a TRUE LOCAL DENT in the sheet: an inward/outward pushed-in area, crumpled patch or irregularly displaced corrugations compared with neighbouring intact ribs? Local impact dents may look angular, wavy or sharply creased. They STILL count as DT if the underlying damage is a local indentation; DO NOT reclassify them solely as BT because the corrugation is bent. Exclude uniform factory corrugations, shadow bands and paint marks. Ignore defects in other grid regions."
+    },
+    {
+      "type": "predicate",
+      "name": "Z2B_BT",
+      "instructions": "For ONLY Z2B: PHOTO column 2 of 5 from LEFT, BOTTOM half of main side SHEET (do not include top/bottom rails or corner posts): Does this zone show DISTINCT BENDING: a definite abnormal sharp kink, folded angle or displaced axis of sheet material, apart from mere local impact indentation? A dent may contain small wrinkles, but do not treat those wrinkles alone as proof of an independent BT defect. Compare the geometry with adjacent undamaged corrugations. Ignore defects in other grid regions."
+    },
+    {
+      "type": "predicate",
+      "name": "Z2B_BW",
+      "instructions": "For ONLY Z2B: PHOTO column 2 of 5 from LEFT, BOTTOM half of main side SHEET (do not include top/bottom rails or corner posts): Does this zone show a broad, relatively SMOOTH BOW extending over a substantial portion of a panel/component, distinct from a discrete pushed-in dent and distinct from a sharp kink? Do not count normal corrugations. Ignore defects in other grid regions."
+    },
+    {
+      "type": "predicate",
+      "name": "Z2B_HO",
+      "instructions": "For ONLY Z2B: PHOTO column 2 of 5 from LEFT, BOTTOM half of main side SHEET (do not include top/bottom rails or corner posts): Is there an actual visibly open hole or puncture THROUGH the side sheet in this zone, rather than a dark paint patch, shadow or normal construction feature? Ignore defects in other grid regions."
+    },
+    {
+      "type": "predicate",
+      "name": "Z2B_CK",
+      "instructions": "For ONLY Z2B: PHOTO column 2 of 5 from LEFT, BOTTOM half of main side SHEET (do not include top/bottom rails or corner posts): Is there a visible split, tear or crack IN the sheet material in this zone, not simply a fold, shallow dent, welded seam or scratch in paint? Ignore defects in other grid regions."
+    },
+    {
+      "type": "predicate",
+      "name": "Z2B_CW",
+      "instructions": "For ONLY Z2B: PHOTO column 2 of 5 from LEFT, BOTTOM half of main side SHEET (do not include top/bottom rails or corner posts): Is an actual weld seam within this zone clearly visible with a visible crack or split of the WELD itself? Answer conservatively when a weld cannot be inspected at this image resolution. Ignore defects in other grid regions."
+    },
+    {
+      "type": "predicate",
+      "name": "Z2B_CO",
+      "instructions": "For ONLY Z2B: PHOTO column 2 of 5 from LEFT, BOTTOM half of main side SHEET (do not include top/bottom rails or corner posts): Is there identifiable rust/corrosion on the METAL in this zone, supported by oxidation colour, flaking, pitting or similar evidence? Dirt, painted graphics, bare abrasion marks and brown stains alone are insufficient. Ignore defects in other grid regions."
+    },
+    {
+      "type": "predicate",
+      "name": "Z2B_CH",
+      "instructions": "For ONLY Z2B: PHOTO column 2 of 5 from LEFT, BOTTOM half of main side SHEET (do not include top/bottom rails or corner posts): Is there an actual visible THROUGH-HOLE resulting from corrosion in this zone? Do not label CH for non-perforating rust or generic dents. Ignore defects in other grid regions."
+    },
+    {
+      "type": "predicate",
+      "name": "Z2B_BR",
+      "instructions": "For ONLY Z2B: PHOTO column 2 of 5 from LEFT, BOTTOM half of main side SHEET (do not include top/bottom rails or corner posts): Is a portion of the panel actually BROKEN, physically separated, or visibly split apart in this zone? An intact crumpled or indented corrugation is not broken. Ignore defects in other grid regions."
+    },
+    {
+      "type": "score",
+      "name": "Z2B_severity",
+      "instructions": "For ONLY Z2B: PHOTO column 2 of 5 from LEFT, BOTTOM half of main side SHEET (do not include top/bottom rails or corner posts), score the strongest clearly VISIBLE and supported defect, not hypothetical structural risk. If clearly intact, none. If visibility is inadequate, do not manufacture damage. This is NOT a repairability or IICL compliance rating.",
+      "levels": [
+        {
+          "label": "none",
+          "description": "No reliably observed physical defect in the target region."
+        },
+        {
+          "label": "cosmetic",
+          "description": "Superficial deterioration only, e.g. small isolated rust or paint damage without discernible metal deformation."
+        },
+        {
+          "label": "minor",
+          "description": "Visible local metal dent, crease or deformation of limited extent with no evident rupture."
+        },
+        {
+          "label": "moderate",
+          "description": "Clearly substantial deformation affecting multiple corrugations or an extended part of the visible sheet."
+        },
+        {
+          "label": "major",
+          "description": "Very extensive severe distortion or obvious sheet rupture/perforation; visual assessment only, NOT repair acceptance criteria."
+        }
+      ]
+    },
+    {
+      "type": "choice",
+      "name": "Z3T_visibility",
+      "instructions": "For ONLY Z3T: PHOTO column 3 of 5 from LEFT, TOP half of main side SHEET (do not include top/bottom rails or corner posts), is the region visible sharply enough to evaluate its surface? Judge focus and occlusion, not whether it is damaged.",
+      "choices": [
+        {
+          "value": "clear"
+        },
+        {
+          "value": "partial"
+        },
+        {
+          "value": "not_visible"
+        }
+      ]
+    },
+    {
+      "type": "choice",
+      "name": "Z3T_deformation_shape",
+      "instructions": "For ONLY Z3T: PHOTO column 3 of 5 from LEFT, TOP half of main side SHEET (do not include top/bottom rails or corner posts), choose the MOST visually supported deformation shape. Use the defined differences between local impact dent, sharp bend and broad bow; if clearly separate defects coexist choose mixed. Choose none for normal corrugations and uncertain when geometry cannot be judged.",
+      "choices": [
+        {
+          "value": "none",
+          "description": "No distinct deformation; sheet retains its intended regular corrugated shape."
+        },
+        {
+          "value": "local_dent",
+          "description": "Local impact indentation or pushed-in/crumpled corrugations, even if locally creased (typically DT)."
+        },
+        {
+          "value": "sharp_bend",
+          "description": "Distinct abnormal sharp kink, fold or change in material angle/axis, not just an indentation (typically BT)."
+        },
+        {
+          "value": "broad_bow",
+          "description": "Smooth progressive curvature across a large span (typically BW)."
+        },
+        {
+          "value": "mixed",
+          "description": "Two or more clearly DIFFERENT deformation types present with distinct visual evidence."
+        },
+        {
+          "value": "uncertain",
+          "description": "Image does not resolve the local geometry clearly enough to tell."
+        }
+      ]
+    },
+    {
+      "type": "predicate",
+      "name": "Z3T_DT",
+      "instructions": "For ONLY Z3T: PHOTO column 3 of 5 from LEFT, TOP half of main side SHEET (do not include top/bottom rails or corner posts): Does this zone contain a TRUE LOCAL DENT in the sheet: an inward/outward pushed-in area, crumpled patch or irregularly displaced corrugations compared with neighbouring intact ribs? Local impact dents may look angular, wavy or sharply creased. They STILL count as DT if the underlying damage is a local indentation; DO NOT reclassify them solely as BT because the corrugation is bent. Exclude uniform factory corrugations, shadow bands and paint marks. Ignore defects in other grid regions."
+    },
+    {
+      "type": "predicate",
+      "name": "Z3T_BT",
+      "instructions": "For ONLY Z3T: PHOTO column 3 of 5 from LEFT, TOP half of main side SHEET (do not include top/bottom rails or corner posts): Does this zone show DISTINCT BENDING: a definite abnormal sharp kink, folded angle or displaced axis of sheet material, apart from mere local impact indentation? A dent may contain small wrinkles, but do not treat those wrinkles alone as proof of an independent BT defect. Compare the geometry with adjacent undamaged corrugations. Ignore defects in other grid regions."
+    },
+    {
+      "type": "predicate",
+      "name": "Z3T_BW",
+      "instructions": "For ONLY Z3T: PHOTO column 3 of 5 from LEFT, TOP half of main side SHEET (do not include top/bottom rails or corner posts): Does this zone show a broad, relatively SMOOTH BOW extending over a substantial portion of a panel/component, distinct from a discrete pushed-in dent and distinct from a sharp kink? Do not count normal corrugations. Ignore defects in other grid regions."
+    },
+    {
+      "type": "predicate",
+      "name": "Z3T_HO",
+      "instructions": "For ONLY Z3T: PHOTO column 3 of 5 from LEFT, TOP half of main side SHEET (do not include top/bottom rails or corner posts): Is there an actual visibly open hole or puncture THROUGH the side sheet in this zone, rather than a dark paint patch, shadow or normal construction feature? Ignore defects in other grid regions."
+    },
+    {
+      "type": "predicate",
+      "name": "Z3T_CK",
+      "instructions": "For ONLY Z3T: PHOTO column 3 of 5 from LEFT, TOP half of main side SHEET (do not include top/bottom rails or corner posts): Is there a visible split, tear or crack IN the sheet material in this zone, not simply a fold, shallow dent, welded seam or scratch in paint? Ignore defects in other grid regions."
+    },
+    {
+      "type": "predicate",
+      "name": "Z3T_CW",
+      "instructions": "For ONLY Z3T: PHOTO column 3 of 5 from LEFT, TOP half of main side SHEET (do not include top/bottom rails or corner posts): Is an actual weld seam within this zone clearly visible with a visible crack or split of the WELD itself? Answer conservatively when a weld cannot be inspected at this image resolution. Ignore defects in other grid regions."
+    },
+    {
+      "type": "predicate",
+      "name": "Z3T_CO",
+      "instructions": "For ONLY Z3T: PHOTO column 3 of 5 from LEFT, TOP half of main side SHEET (do not include top/bottom rails or corner posts): Is there identifiable rust/corrosion on the METAL in this zone, supported by oxidation colour, flaking, pitting or similar evidence? Dirt, painted graphics, bare abrasion marks and brown stains alone are insufficient. Ignore defects in other grid regions."
+    },
+    {
+      "type": "predicate",
+      "name": "Z3T_CH",
+      "instructions": "For ONLY Z3T: PHOTO column 3 of 5 from LEFT, TOP half of main side SHEET (do not include top/bottom rails or corner posts): Is there an actual visible THROUGH-HOLE resulting from corrosion in this zone? Do not label CH for non-perforating rust or generic dents. Ignore defects in other grid regions."
+    },
+    {
+      "type": "predicate",
+      "name": "Z3T_BR",
+      "instructions": "For ONLY Z3T: PHOTO column 3 of 5 from LEFT, TOP half of main side SHEET (do not include top/bottom rails or corner posts): Is a portion of the panel actually BROKEN, physically separated, or visibly split apart in this zone? An intact crumpled or indented corrugation is not broken. Ignore defects in other grid regions."
+    },
+    {
+      "type": "score",
+      "name": "Z3T_severity",
+      "instructions": "For ONLY Z3T: PHOTO column 3 of 5 from LEFT, TOP half of main side SHEET (do not include top/bottom rails or corner posts), score the strongest clearly VISIBLE and supported defect, not hypothetical structural risk. If clearly intact, none. If visibility is inadequate, do not manufacture damage. This is NOT a repairability or IICL compliance rating.",
+      "levels": [
+        {
+          "label": "none",
+          "description": "No reliably observed physical defect in the target region."
+        },
+        {
+          "label": "cosmetic",
+          "description": "Superficial deterioration only, e.g. small isolated rust or paint damage without discernible metal deformation."
+        },
+        {
+          "label": "minor",
+          "description": "Visible local metal dent, crease or deformation of limited extent with no evident rupture."
+        },
+        {
+          "label": "moderate",
+          "description": "Clearly substantial deformation affecting multiple corrugations or an extended part of the visible sheet."
+        },
+        {
+          "label": "major",
+          "description": "Very extensive severe distortion or obvious sheet rupture/perforation; visual assessment only, NOT repair acceptance criteria."
+        }
+      ]
+    },
+    {
+      "type": "choice",
+      "name": "Z3B_visibility",
+      "instructions": "For ONLY Z3B: PHOTO column 3 of 5 from LEFT, BOTTOM half of main side SHEET (do not include top/bottom rails or corner posts), is the region visible sharply enough to evaluate its surface? Judge focus and occlusion, not whether it is damaged.",
+      "choices": [
+        {
+          "value": "clear"
+        },
+        {
+          "value": "partial"
+        },
+        {
+          "value": "not_visible"
+        }
+      ]
+    },
+    {
+      "type": "choice",
+      "name": "Z3B_deformation_shape",
+      "instructions": "For ONLY Z3B: PHOTO column 3 of 5 from LEFT, BOTTOM half of main side SHEET (do not include top/bottom rails or corner posts), choose the MOST visually supported deformation shape. Use the defined differences between local impact dent, sharp bend and broad bow; if clearly separate defects coexist choose mixed. Choose none for normal corrugations and uncertain when geometry cannot be judged.",
+      "choices": [
+        {
+          "value": "none",
+          "description": "No distinct deformation; sheet retains its intended regular corrugated shape."
+        },
+        {
+          "value": "local_dent",
+          "description": "Local impact indentation or pushed-in/crumpled corrugations, even if locally creased (typically DT)."
+        },
+        {
+          "value": "sharp_bend",
+          "description": "Distinct abnormal sharp kink, fold or change in material angle/axis, not just an indentation (typically BT)."
+        },
+        {
+          "value": "broad_bow",
+          "description": "Smooth progressive curvature across a large span (typically BW)."
+        },
+        {
+          "value": "mixed",
+          "description": "Two or more clearly DIFFERENT deformation types present with distinct visual evidence."
+        },
+        {
+          "value": "uncertain",
+          "description": "Image does not resolve the local geometry clearly enough to tell."
+        }
+      ]
+    },
+    {
+      "type": "predicate",
+      "name": "Z3B_DT",
+      "instructions": "For ONLY Z3B: PHOTO column 3 of 5 from LEFT, BOTTOM half of main side SHEET (do not include top/bottom rails or corner posts): Does this zone contain a TRUE LOCAL DENT in the sheet: an inward/outward pushed-in area, crumpled patch or irregularly displaced corrugations compared with neighbouring intact ribs? Local impact dents may look angular, wavy or sharply creased. They STILL count as DT if the underlying damage is a local indentation; DO NOT reclassify them solely as BT because the corrugation is bent. Exclude uniform factory corrugations, shadow bands and paint marks. Ignore defects in other grid regions."
+    },
+    {
+      "type": "predicate",
+      "name": "Z3B_BT",
+      "instructions": "For ONLY Z3B: PHOTO column 3 of 5 from LEFT, BOTTOM half of main side SHEET (do not include top/bottom rails or corner posts): Does this zone show DISTINCT BENDING: a definite abnormal sharp kink, folded angle or displaced axis of sheet material, apart from mere local impact indentation? A dent may contain small wrinkles, but do not treat those wrinkles alone as proof of an independent BT defect. Compare the geometry with adjacent undamaged corrugations. Ignore defects in other grid regions."
+    },
+    {
+      "type": "predicate",
+      "name": "Z3B_BW",
+      "instructions": "For ONLY Z3B: PHOTO column 3 of 5 from LEFT, BOTTOM half of main side SHEET (do not include top/bottom rails or corner posts): Does this zone show a broad, relatively SMOOTH BOW extending over a substantial portion of a panel/component, distinct from a discrete pushed-in dent and distinct from a sharp kink? Do not count normal corrugations. Ignore defects in other grid regions."
+    },
+    {
+      "type": "predicate",
+      "name": "Z3B_HO",
+      "instructions": "For ONLY Z3B: PHOTO column 3 of 5 from LEFT, BOTTOM half of main side SHEET (do not include top/bottom rails or corner posts): Is there an actual visibly open hole or puncture THROUGH the side sheet in this zone, rather than a dark paint patch, shadow or normal construction feature? Ignore defects in other grid regions."
+    },
+    {
+      "type": "predicate",
+      "name": "Z3B_CK",
+      "instructions": "For ONLY Z3B: PHOTO column 3 of 5 from LEFT, BOTTOM half of main side SHEET (do not include top/bottom rails or corner posts): Is there a visible split, tear or crack IN the sheet material in this zone, not simply a fold, shallow dent, welded seam or scratch in paint? Ignore defects in other grid regions."
+    },
+    {
+      "type": "predicate",
+      "name": "Z3B_CW",
+      "instructions": "For ONLY Z3B: PHOTO column 3 of 5 from LEFT, BOTTOM half of main side SHEET (do not include top/bottom rails or corner posts): Is an actual weld seam within this zone clearly visible with a visible crack or split of the WELD itself? Answer conservatively when a weld cannot be inspected at this image resolution. Ignore defects in other grid regions."
+    },
+    {
+      "type": "predicate",
+      "name": "Z3B_CO",
+      "instructions": "For ONLY Z3B: PHOTO column 3 of 5 from LEFT, BOTTOM half of main side SHEET (do not include top/bottom rails or corner posts): Is there identifiable rust/corrosion on the METAL in this zone, supported by oxidation colour, flaking, pitting or similar evidence? Dirt, painted graphics, bare abrasion marks and brown stains alone are insufficient. Ignore defects in other grid regions."
+    },
+    {
+      "type": "predicate",
+      "name": "Z3B_CH",
+      "instructions": "For ONLY Z3B: PHOTO column 3 of 5 from LEFT, BOTTOM half of main side SHEET (do not include top/bottom rails or corner posts): Is there an actual visible THROUGH-HOLE resulting from corrosion in this zone? Do not label CH for non-perforating rust or generic dents. Ignore defects in other grid regions."
+    },
+    {
+      "type": "predicate",
+      "name": "Z3B_BR",
+      "instructions": "For ONLY Z3B: PHOTO column 3 of 5 from LEFT, BOTTOM half of main side SHEET (do not include top/bottom rails or corner posts): Is a portion of the panel actually BROKEN, physically separated, or visibly split apart in this zone? An intact crumpled or indented corrugation is not broken. Ignore defects in other grid regions."
+    },
+    {
+      "type": "score",
+      "name": "Z3B_severity",
+      "instructions": "For ONLY Z3B: PHOTO column 3 of 5 from LEFT, BOTTOM half of main side SHEET (do not include top/bottom rails or corner posts), score the strongest clearly VISIBLE and supported defect, not hypothetical structural risk. If clearly intact, none. If visibility is inadequate, do not manufacture damage. This is NOT a repairability or IICL compliance rating.",
+      "levels": [
+        {
+          "label": "none",
+          "description": "No reliably observed physical defect in the target region."
+        },
+        {
+          "label": "cosmetic",
+          "description": "Superficial deterioration only, e.g. small isolated rust or paint damage without discernible metal deformation."
+        },
+        {
+          "label": "minor",
+          "description": "Visible local metal dent, crease or deformation of limited extent with no evident rupture."
+        },
+        {
+          "label": "moderate",
+          "description": "Clearly substantial deformation affecting multiple corrugations or an extended part of the visible sheet."
+        },
+        {
+          "label": "major",
+          "description": "Very extensive severe distortion or obvious sheet rupture/perforation; visual assessment only, NOT repair acceptance criteria."
+        }
+      ]
+    },
+    {
+      "type": "choice",
+      "name": "Z4T_visibility",
+      "instructions": "For ONLY Z4T: PHOTO column 4 of 5 from LEFT, TOP half of main side SHEET (do not include top/bottom rails or corner posts), is the region visible sharply enough to evaluate its surface? Judge focus and occlusion, not whether it is damaged.",
+      "choices": [
+        {
+          "value": "clear"
+        },
+        {
+          "value": "partial"
+        },
+        {
+          "value": "not_visible"
+        }
+      ]
+    },
+    {
+      "type": "choice",
+      "name": "Z4T_deformation_shape",
+      "instructions": "For ONLY Z4T: PHOTO column 4 of 5 from LEFT, TOP half of main side SHEET (do not include top/bottom rails or corner posts), choose the MOST visually supported deformation shape. Use the defined differences between local impact dent, sharp bend and broad bow; if clearly separate defects coexist choose mixed. Choose none for normal corrugations and uncertain when geometry cannot be judged.",
+      "choices": [
+        {
+          "value": "none",
+          "description": "No distinct deformation; sheet retains its intended regular corrugated shape."
+        },
+        {
+          "value": "local_dent",
+          "description": "Local impact indentation or pushed-in/crumpled corrugations, even if locally creased (typically DT)."
+        },
+        {
+          "value": "sharp_bend",
+          "description": "Distinct abnormal sharp kink, fold or change in material angle/axis, not just an indentation (typically BT)."
+        },
+        {
+          "value": "broad_bow",
+          "description": "Smooth progressive curvature across a large span (typically BW)."
+        },
+        {
+          "value": "mixed",
+          "description": "Two or more clearly DIFFERENT deformation types present with distinct visual evidence."
+        },
+        {
+          "value": "uncertain",
+          "description": "Image does not resolve the local geometry clearly enough to tell."
+        }
+      ]
+    },
+    {
+      "type": "predicate",
+      "name": "Z4T_DT",
+      "instructions": "For ONLY Z4T: PHOTO column 4 of 5 from LEFT, TOP half of main side SHEET (do not include top/bottom rails or corner posts): Does this zone contain a TRUE LOCAL DENT in the sheet: an inward/outward pushed-in area, crumpled patch or irregularly displaced corrugations compared with neighbouring intact ribs? Local impact dents may look angular, wavy or sharply creased. They STILL count as DT if the underlying damage is a local indentation; DO NOT reclassify them solely as BT because the corrugation is bent. Exclude uniform factory corrugations, shadow bands and paint marks. Ignore defects in other grid regions."
+    },
+    {
+      "type": "predicate",
+      "name": "Z4T_BT",
+      "instructions": "For ONLY Z4T: PHOTO column 4 of 5 from LEFT, TOP half of main side SHEET (do not include top/bottom rails or corner posts): Does this zone show DISTINCT BENDING: a definite abnormal sharp kink, folded angle or displaced axis of sheet material, apart from mere local impact indentation? A dent may contain small wrinkles, but do not treat those wrinkles alone as proof of an independent BT defect. Compare the geometry with adjacent undamaged corrugations. Ignore defects in other grid regions."
+    },
+    {
+      "type": "predicate",
+      "name": "Z4T_BW",
+      "instructions": "For ONLY Z4T: PHOTO column 4 of 5 from LEFT, TOP half of main side SHEET (do not include top/bottom rails or corner posts): Does this zone show a broad, relatively SMOOTH BOW extending over a substantial portion of a panel/component, distinct from a discrete pushed-in dent and distinct from a sharp kink? Do not count normal corrugations. Ignore defects in other grid regions."
+    },
+    {
+      "type": "predicate",
+      "name": "Z4T_HO",
+      "instructions": "For ONLY Z4T: PHOTO column 4 of 5 from LEFT, TOP half of main side SHEET (do not include top/bottom rails or corner posts): Is there an actual visibly open hole or puncture THROUGH the side sheet in this zone, rather than a dark paint patch, shadow or normal construction feature? Ignore defects in other grid regions."
+    },
+    {
+      "type": "predicate",
+      "name": "Z4T_CK",
+      "instructions": "For ONLY Z4T: PHOTO column 4 of 5 from LEFT, TOP half of main side SHEET (do not include top/bottom rails or corner posts): Is there a visible split, tear or crack IN the sheet material in this zone, not simply a fold, shallow dent, welded seam or scratch in paint? Ignore defects in other grid regions."
+    },
+    {
+      "type": "predicate",
+      "name": "Z4T_CW",
+      "instructions": "For ONLY Z4T: PHOTO column 4 of 5 from LEFT, TOP half of main side SHEET (do not include top/bottom rails or corner posts): Is an actual weld seam within this zone clearly visible with a visible crack or split of the WELD itself? Answer conservatively when a weld cannot be inspected at this image resolution. Ignore defects in other grid regions."
+    },
+    {
+      "type": "predicate",
+      "name": "Z4T_CO",
+      "instructions": "For ONLY Z4T: PHOTO column 4 of 5 from LEFT, TOP half of main side SHEET (do not include top/bottom rails or corner posts): Is there identifiable rust/corrosion on the METAL in this zone, supported by oxidation colour, flaking, pitting or similar evidence? Dirt, painted graphics, bare abrasion marks and brown stains alone are insufficient. Ignore defects in other grid regions."
+    },
+    {
+      "type": "predicate",
+      "name": "Z4T_CH",
+      "instructions": "For ONLY Z4T: PHOTO column 4 of 5 from LEFT, TOP half of main side SHEET (do not include top/bottom rails or corner posts): Is there an actual visible THROUGH-HOLE resulting from corrosion in this zone? Do not label CH for non-perforating rust or generic dents. Ignore defects in other grid regions."
+    },
+    {
+      "type": "predicate",
+      "name": "Z4T_BR",
+      "instructions": "For ONLY Z4T: PHOTO column 4 of 5 from LEFT, TOP half of main side SHEET (do not include top/bottom rails or corner posts): Is a portion of the panel actually BROKEN, physically separated, or visibly split apart in this zone? An intact crumpled or indented corrugation is not broken. Ignore defects in other grid regions."
+    },
+    {
+      "type": "score",
+      "name": "Z4T_severity",
+      "instructions": "For ONLY Z4T: PHOTO column 4 of 5 from LEFT, TOP half of main side SHEET (do not include top/bottom rails or corner posts), score the strongest clearly VISIBLE and supported defect, not hypothetical structural risk. If clearly intact, none. If visibility is inadequate, do not manufacture damage. This is NOT a repairability or IICL compliance rating.",
+      "levels": [
+        {
+          "label": "none",
+          "description": "No reliably observed physical defect in the target region."
+        },
+        {
+          "label": "cosmetic",
+          "description": "Superficial deterioration only, e.g. small isolated rust or paint damage without discernible metal deformation."
+        },
+        {
+          "label": "minor",
+          "description": "Visible local metal dent, crease or deformation of limited extent with no evident rupture."
+        },
+        {
+          "label": "moderate",
+          "description": "Clearly substantial deformation affecting multiple corrugations or an extended part of the visible sheet."
+        },
+        {
+          "label": "major",
+          "description": "Very extensive severe distortion or obvious sheet rupture/perforation; visual assessment only, NOT repair acceptance criteria."
+        }
+      ]
+    },
+    {
+      "type": "choice",
+      "name": "Z4B_visibility",
+      "instructions": "For ONLY Z4B: PHOTO column 4 of 5 from LEFT, BOTTOM half of main side SHEET (do not include top/bottom rails or corner posts), is the region visible sharply enough to evaluate its surface? Judge focus and occlusion, not whether it is damaged.",
+      "choices": [
+        {
+          "value": "clear"
+        },
+        {
+          "value": "partial"
+        },
+        {
+          "value": "not_visible"
+        }
+      ]
+    },
+    {
+      "type": "choice",
+      "name": "Z4B_deformation_shape",
+      "instructions": "For ONLY Z4B: PHOTO column 4 of 5 from LEFT, BOTTOM half of main side SHEET (do not include top/bottom rails or corner posts), choose the MOST visually supported deformation shape. Use the defined differences between local impact dent, sharp bend and broad bow; if clearly separate defects coexist choose mixed. Choose none for normal corrugations and uncertain when geometry cannot be judged.",
+      "choices": [
+        {
+          "value": "none",
+          "description": "No distinct deformation; sheet retains its intended regular corrugated shape."
+        },
+        {
+          "value": "local_dent",
+          "description": "Local impact indentation or pushed-in/crumpled corrugations, even if locally creased (typically DT)."
+        },
+        {
+          "value": "sharp_bend",
+          "description": "Distinct abnormal sharp kink, fold or change in material angle/axis, not just an indentation (typically BT)."
+        },
+        {
+          "value": "broad_bow",
+          "description": "Smooth progressive curvature across a large span (typically BW)."
+        },
+        {
+          "value": "mixed",
+          "description": "Two or more clearly DIFFERENT deformation types present with distinct visual evidence."
+        },
+        {
+          "value": "uncertain",
+          "description": "Image does not resolve the local geometry clearly enough to tell."
+        }
+      ]
+    },
+    {
+      "type": "predicate",
+      "name": "Z4B_DT",
+      "instructions": "For ONLY Z4B: PHOTO column 4 of 5 from LEFT, BOTTOM half of main side SHEET (do not include top/bottom rails or corner posts): Does this zone contain a TRUE LOCAL DENT in the sheet: an inward/outward pushed-in area, crumpled patch or irregularly displaced corrugations compared with neighbouring intact ribs? Local impact dents may look angular, wavy or sharply creased. They STILL count as DT if the underlying damage is a local indentation; DO NOT reclassify them solely as BT because the corrugation is bent. Exclude uniform factory corrugations, shadow bands and paint marks. Ignore defects in other grid regions."
+    },
+    {
+      "type": "predicate",
+      "name": "Z4B_BT",
+      "instructions": "For ONLY Z4B: PHOTO column 4 of 5 from LEFT, BOTTOM half of main side SHEET (do not include top/bottom rails or corner posts): Does this zone show DISTINCT BENDING: a definite abnormal sharp kink, folded angle or displaced axis of sheet material, apart from mere local impact indentation? A dent may contain small wrinkles, but do not treat those wrinkles alone as proof of an independent BT defect. Compare the geometry with adjacent undamaged corrugations. Ignore defects in other grid regions."
+    },
+    {
+      "type": "predicate",
+      "name": "Z4B_BW",
+      "instructions": "For ONLY Z4B: PHOTO column 4 of 5 from LEFT, BOTTOM half of main side SHEET (do not include top/bottom rails or corner posts): Does this zone show a broad, relatively SMOOTH BOW extending over a substantial portion of a panel/component, distinct from a discrete pushed-in dent and distinct from a sharp kink? Do not count normal corrugations. Ignore defects in other grid regions."
+    },
+    {
+      "type": "predicate",
+      "name": "Z4B_HO",
+      "instructions": "For ONLY Z4B: PHOTO column 4 of 5 from LEFT, BOTTOM half of main side SHEET (do not include top/bottom rails or corner posts): Is there an actual visibly open hole or puncture THROUGH the side sheet in this zone, rather than a dark paint patch, shadow or normal construction feature? Ignore defects in other grid regions."
+    },
+    {
+      "type": "predicate",
+      "name": "Z4B_CK",
+      "instructions": "For ONLY Z4B: PHOTO column 4 of 5 from LEFT, BOTTOM half of main side SHEET (do not include top/bottom rails or corner posts): Is there a visible split, tear or crack IN the sheet material in this zone, not simply a fold, shallow dent, welded seam or scratch in paint? Ignore defects in other grid regions."
+    },
+    {
+      "type": "predicate",
+      "name": "Z4B_CW",
+      "instructions": "For ONLY Z4B: PHOTO column 4 of 5 from LEFT, BOTTOM half of main side SHEET (do not include top/bottom rails or corner posts): Is an actual weld seam within this zone clearly visible with a visible crack or split of the WELD itself? Answer conservatively when a weld cannot be inspected at this image resolution. Ignore defects in other grid regions."
+    },
+    {
+      "type": "predicate",
+      "name": "Z4B_CO",
+      "instructions": "For ONLY Z4B: PHOTO column 4 of 5 from LEFT, BOTTOM half of main side SHEET (do not include top/bottom rails or corner posts): Is there identifiable rust/corrosion on the METAL in this zone, supported by oxidation colour, flaking, pitting or similar evidence? Dirt, painted graphics, bare abrasion marks and brown stains alone are insufficient. Ignore defects in other grid regions."
+    },
+    {
+      "type": "predicate",
+      "name": "Z4B_CH",
+      "instructions": "For ONLY Z4B: PHOTO column 4 of 5 from LEFT, BOTTOM half of main side SHEET (do not include top/bottom rails or corner posts): Is there an actual visible THROUGH-HOLE resulting from corrosion in this zone? Do not label CH for non-perforating rust or generic dents. Ignore defects in other grid regions."
+    },
+    {
+      "type": "predicate",
+      "name": "Z4B_BR",
+      "instructions": "For ONLY Z4B: PHOTO column 4 of 5 from LEFT, BOTTOM half of main side SHEET (do not include top/bottom rails or corner posts): Is a portion of the panel actually BROKEN, physically separated, or visibly split apart in this zone? An intact crumpled or indented corrugation is not broken. Ignore defects in other grid regions."
+    },
+    {
+      "type": "score",
+      "name": "Z4B_severity",
+      "instructions": "For ONLY Z4B: PHOTO column 4 of 5 from LEFT, BOTTOM half of main side SHEET (do not include top/bottom rails or corner posts), score the strongest clearly VISIBLE and supported defect, not hypothetical structural risk. If clearly intact, none. If visibility is inadequate, do not manufacture damage. This is NOT a repairability or IICL compliance rating.",
+      "levels": [
+        {
+          "label": "none",
+          "description": "No reliably observed physical defect in the target region."
+        },
+        {
+          "label": "cosmetic",
+          "description": "Superficial deterioration only, e.g. small isolated rust or paint damage without discernible metal deformation."
+        },
+        {
+          "label": "minor",
+          "description": "Visible local metal dent, crease or deformation of limited extent with no evident rupture."
+        },
+        {
+          "label": "moderate",
+          "description": "Clearly substantial deformation affecting multiple corrugations or an extended part of the visible sheet."
+        },
+        {
+          "label": "major",
+          "description": "Very extensive severe distortion or obvious sheet rupture/perforation; visual assessment only, NOT repair acceptance criteria."
+        }
+      ]
+    },
+    {
+      "type": "choice",
+      "name": "Z5T_visibility",
+      "instructions": "For ONLY Z5T: PHOTO column 5 of 5 from LEFT, TOP half of main side SHEET (do not include top/bottom rails or corner posts), is the region visible sharply enough to evaluate its surface? Judge focus and occlusion, not whether it is damaged.",
+      "choices": [
+        {
+          "value": "clear"
+        },
+        {
+          "value": "partial"
+        },
+        {
+          "value": "not_visible"
+        }
+      ]
+    },
+    {
+      "type": "choice",
+      "name": "Z5T_deformation_shape",
+      "instructions": "For ONLY Z5T: PHOTO column 5 of 5 from LEFT, TOP half of main side SHEET (do not include top/bottom rails or corner posts), choose the MOST visually supported deformation shape. Use the defined differences between local impact dent, sharp bend and broad bow; if clearly separate defects coexist choose mixed. Choose none for normal corrugations and uncertain when geometry cannot be judged.",
+      "choices": [
+        {
+          "value": "none",
+          "description": "No distinct deformation; sheet retains its intended regular corrugated shape."
+        },
+        {
+          "value": "local_dent",
+          "description": "Local impact indentation or pushed-in/crumpled corrugations, even if locally creased (typically DT)."
+        },
+        {
+          "value": "sharp_bend",
+          "description": "Distinct abnormal sharp kink, fold or change in material angle/axis, not just an indentation (typically BT)."
+        },
+        {
+          "value": "broad_bow",
+          "description": "Smooth progressive curvature across a large span (typically BW)."
+        },
+        {
+          "value": "mixed",
+          "description": "Two or more clearly DIFFERENT deformation types present with distinct visual evidence."
+        },
+        {
+          "value": "uncertain",
+          "description": "Image does not resolve the local geometry clearly enough to tell."
+        }
+      ]
+    },
+    {
+      "type": "predicate",
+      "name": "Z5T_DT",
+      "instructions": "For ONLY Z5T: PHOTO column 5 of 5 from LEFT, TOP half of main side SHEET (do not include top/bottom rails or corner posts): Does this zone contain a TRUE LOCAL DENT in the sheet: an inward/outward pushed-in area, crumpled patch or irregularly displaced corrugations compared with neighbouring intact ribs? Local impact dents may look angular, wavy or sharply creased. They STILL count as DT if the underlying damage is a local indentation; DO NOT reclassify them solely as BT because the corrugation is bent. Exclude uniform factory corrugations, shadow bands and paint marks. Ignore defects in other grid regions."
+    },
+    {
+      "type": "predicate",
+      "name": "Z5T_BT",
+      "instructions": "For ONLY Z5T: PHOTO column 5 of 5 from LEFT, TOP half of main side SHEET (do not include top/bottom rails or corner posts): Does this zone show DISTINCT BENDING: a definite abnormal sharp kink, folded angle or displaced axis of sheet material, apart from mere local impact indentation? A dent may contain small wrinkles, but do not treat those wrinkles alone as proof of an independent BT defect. Compare the geometry with adjacent undamaged corrugations. Ignore defects in other grid regions."
+    },
+    {
+      "type": "predicate",
+      "name": "Z5T_BW",
+      "instructions": "For ONLY Z5T: PHOTO column 5 of 5 from LEFT, TOP half of main side SHEET (do not include top/bottom rails or corner posts): Does this zone show a broad, relatively SMOOTH BOW extending over a substantial portion of a panel/component, distinct from a discrete pushed-in dent and distinct from a sharp kink? Do not count normal corrugations. Ignore defects in other grid regions."
+    },
+    {
+      "type": "predicate",
+      "name": "Z5T_HO",
+      "instructions": "For ONLY Z5T: PHOTO column 5 of 5 from LEFT, TOP half of main side SHEET (do not include top/bottom rails or corner posts): Is there an actual visibly open hole or puncture THROUGH the side sheet in this zone, rather than a dark paint patch, shadow or normal construction feature? Ignore defects in other grid regions."
+    },
+    {
+      "type": "predicate",
+      "name": "Z5T_CK",
+      "instructions": "For ONLY Z5T: PHOTO column 5 of 5 from LEFT, TOP half of main side SHEET (do not include top/bottom rails or corner posts): Is there a visible split, tear or crack IN the sheet material in this zone, not simply a fold, shallow dent, welded seam or scratch in paint? Ignore defects in other grid regions."
+    },
+    {
+      "type": "predicate",
+      "name": "Z5T_CW",
+      "instructions": "For ONLY Z5T: PHOTO column 5 of 5 from LEFT, TOP half of main side SHEET (do not include top/bottom rails or corner posts): Is an actual weld seam within this zone clearly visible with a visible crack or split of the WELD itself? Answer conservatively when a weld cannot be inspected at this image resolution. Ignore defects in other grid regions."
+    },
+    {
+      "type": "predicate",
+      "name": "Z5T_CO",
+      "instructions": "For ONLY Z5T: PHOTO column 5 of 5 from LEFT, TOP half of main side SHEET (do not include top/bottom rails or corner posts): Is there identifiable rust/corrosion on the METAL in this zone, supported by oxidation colour, flaking, pitting or similar evidence? Dirt, painted graphics, bare abrasion marks and brown stains alone are insufficient. Ignore defects in other grid regions."
+    },
+    {
+      "type": "predicate",
+      "name": "Z5T_CH",
+      "instructions": "For ONLY Z5T: PHOTO column 5 of 5 from LEFT, TOP half of main side SHEET (do not include top/bottom rails or corner posts): Is there an actual visible THROUGH-HOLE resulting from corrosion in this zone? Do not label CH for non-perforating rust or generic dents. Ignore defects in other grid regions."
+    },
+    {
+      "type": "predicate",
+      "name": "Z5T_BR",
+      "instructions": "For ONLY Z5T: PHOTO column 5 of 5 from LEFT, TOP half of main side SHEET (do not include top/bottom rails or corner posts): Is a portion of the panel actually BROKEN, physically separated, or visibly split apart in this zone? An intact crumpled or indented corrugation is not broken. Ignore defects in other grid regions."
+    },
+    {
+      "type": "score",
+      "name": "Z5T_severity",
+      "instructions": "For ONLY Z5T: PHOTO column 5 of 5 from LEFT, TOP half of main side SHEET (do not include top/bottom rails or corner posts), score the strongest clearly VISIBLE and supported defect, not hypothetical structural risk. If clearly intact, none. If visibility is inadequate, do not manufacture damage. This is NOT a repairability or IICL compliance rating.",
+      "levels": [
+        {
+          "label": "none",
+          "description": "No reliably observed physical defect in the target region."
+        },
+        {
+          "label": "cosmetic",
+          "description": "Superficial deterioration only, e.g. small isolated rust or paint damage without discernible metal deformation."
+        },
+        {
+          "label": "minor",
+          "description": "Visible local metal dent, crease or deformation of limited extent with no evident rupture."
+        },
+        {
+          "label": "moderate",
+          "description": "Clearly substantial deformation affecting multiple corrugations or an extended part of the visible sheet."
+        },
+        {
+          "label": "major",
+          "description": "Very extensive severe distortion or obvious sheet rupture/perforation; visual assessment only, NOT repair acceptance criteria."
+        }
+      ]
+    },
+    {
+      "type": "choice",
+      "name": "Z5B_visibility",
+      "instructions": "For ONLY Z5B: PHOTO column 5 of 5 from LEFT, BOTTOM half of main side SHEET (do not include top/bottom rails or corner posts), is the region visible sharply enough to evaluate its surface? Judge focus and occlusion, not whether it is damaged.",
+      "choices": [
+        {
+          "value": "clear"
+        },
+        {
+          "value": "partial"
+        },
+        {
+          "value": "not_visible"
+        }
+      ]
+    },
+    {
+      "type": "choice",
+      "name": "Z5B_deformation_shape",
+      "instructions": "For ONLY Z5B: PHOTO column 5 of 5 from LEFT, BOTTOM half of main side SHEET (do not include top/bottom rails or corner posts), choose the MOST visually supported deformation shape. Use the defined differences between local impact dent, sharp bend and broad bow; if clearly separate defects coexist choose mixed. Choose none for normal corrugations and uncertain when geometry cannot be judged.",
+      "choices": [
+        {
+          "value": "none",
+          "description": "No distinct deformation; sheet retains its intended regular corrugated shape."
+        },
+        {
+          "value": "local_dent",
+          "description": "Local impact indentation or pushed-in/crumpled corrugations, even if locally creased (typically DT)."
+        },
+        {
+          "value": "sharp_bend",
+          "description": "Distinct abnormal sharp kink, fold or change in material angle/axis, not just an indentation (typically BT)."
+        },
+        {
+          "value": "broad_bow",
+          "description": "Smooth progressive curvature across a large span (typically BW)."
+        },
+        {
+          "value": "mixed",
+          "description": "Two or more clearly DIFFERENT deformation types present with distinct visual evidence."
+        },
+        {
+          "value": "uncertain",
+          "description": "Image does not resolve the local geometry clearly enough to tell."
+        }
+      ]
+    },
+    {
+      "type": "predicate",
+      "name": "Z5B_DT",
+      "instructions": "For ONLY Z5B: PHOTO column 5 of 5 from LEFT, BOTTOM half of main side SHEET (do not include top/bottom rails or corner posts): Does this zone contain a TRUE LOCAL DENT in the sheet: an inward/outward pushed-in area, crumpled patch or irregularly displaced corrugations compared with neighbouring intact ribs? Local impact dents may look angular, wavy or sharply creased. They STILL count as DT if the underlying damage is a local indentation; DO NOT reclassify them solely as BT because the corrugation is bent. Exclude uniform factory corrugations, shadow bands and paint marks. Ignore defects in other grid regions."
+    },
+    {
+      "type": "predicate",
+      "name": "Z5B_BT",
+      "instructions": "For ONLY Z5B: PHOTO column 5 of 5 from LEFT, BOTTOM half of main side SHEET (do not include top/bottom rails or corner posts): Does this zone show DISTINCT BENDING: a definite abnormal sharp kink, folded angle or displaced axis of sheet material, apart from mere local impact indentation? A dent may contain small wrinkles, but do not treat those wrinkles alone as proof of an independent BT defect. Compare the geometry with adjacent undamaged corrugations. Ignore defects in other grid regions."
+    },
+    {
+      "type": "predicate",
+      "name": "Z5B_BW",
+      "instructions": "For ONLY Z5B: PHOTO column 5 of 5 from LEFT, BOTTOM half of main side SHEET (do not include top/bottom rails or corner posts): Does this zone show a broad, relatively SMOOTH BOW extending over a substantial portion of a panel/component, distinct from a discrete pushed-in dent and distinct from a sharp kink? Do not count normal corrugations. Ignore defects in other grid regions."
+    },
+    {
+      "type": "predicate",
+      "name": "Z5B_HO",
+      "instructions": "For ONLY Z5B: PHOTO column 5 of 5 from LEFT, BOTTOM half of main side SHEET (do not include top/bottom rails or corner posts): Is there an actual visibly open hole or puncture THROUGH the side sheet in this zone, rather than a dark paint patch, shadow or normal construction feature? Ignore defects in other grid regions."
+    },
+    {
+      "type": "predicate",
+      "name": "Z5B_CK",
+      "instructions": "For ONLY Z5B: PHOTO column 5 of 5 from LEFT, BOTTOM half of main side SHEET (do not include top/bottom rails or corner posts): Is there a visible split, tear or crack IN the sheet material in this zone, not simply a fold, shallow dent, welded seam or scratch in paint? Ignore defects in other grid regions."
+    },
+    {
+      "type": "predicate",
+      "name": "Z5B_CW",
+      "instructions": "For ONLY Z5B: PHOTO column 5 of 5 from LEFT, BOTTOM half of main side SHEET (do not include top/bottom rails or corner posts): Is an actual weld seam within this zone clearly visible with a visible crack or split of the WELD itself? Answer conservatively when a weld cannot be inspected at this image resolution. Ignore defects in other grid regions."
+    },
+    {
+      "type": "predicate",
+      "name": "Z5B_CO",
+      "instructions": "For ONLY Z5B: PHOTO column 5 of 5 from LEFT, BOTTOM half of main side SHEET (do not include top/bottom rails or corner posts): Is there identifiable rust/corrosion on the METAL in this zone, supported by oxidation colour, flaking, pitting or similar evidence? Dirt, painted graphics, bare abrasion marks and brown stains alone are insufficient. Ignore defects in other grid regions."
+    },
+    {
+      "type": "predicate",
+      "name": "Z5B_CH",
+      "instructions": "For ONLY Z5B: PHOTO column 5 of 5 from LEFT, BOTTOM half of main side SHEET (do not include top/bottom rails or corner posts): Is there an actual visible THROUGH-HOLE resulting from corrosion in this zone? Do not label CH for non-perforating rust or generic dents. Ignore defects in other grid regions."
+    },
+    {
+      "type": "predicate",
+      "name": "Z5B_BR",
+      "instructions": "For ONLY Z5B: PHOTO column 5 of 5 from LEFT, BOTTOM half of main side SHEET (do not include top/bottom rails or corner posts): Is a portion of the panel actually BROKEN, physically separated, or visibly split apart in this zone? An intact crumpled or indented corrugation is not broken. Ignore defects in other grid regions."
+    },
+    {
+      "type": "score",
+      "name": "Z5B_severity",
+      "instructions": "For ONLY Z5B: PHOTO column 5 of 5 from LEFT, BOTTOM half of main side SHEET (do not include top/bottom rails or corner posts), score the strongest clearly VISIBLE and supported defect, not hypothetical structural risk. If clearly intact, none. If visibility is inadequate, do not manufacture damage. This is NOT a repairability or IICL compliance rating.",
+      "levels": [
+        {
+          "label": "none",
+          "description": "No reliably observed physical defect in the target region."
+        },
+        {
+          "label": "cosmetic",
+          "description": "Superficial deterioration only, e.g. small isolated rust or paint damage without discernible metal deformation."
+        },
+        {
+          "label": "minor",
+          "description": "Visible local metal dent, crease or deformation of limited extent with no evident rupture."
+        },
+        {
+          "label": "moderate",
+          "description": "Clearly substantial deformation affecting multiple corrugations or an extended part of the visible sheet."
+        },
+        {
+          "label": "major",
+          "description": "Very extensive severe distortion or obvious sheet rupture/perforation; visual assessment only, NOT repair acceptance criteria."
+        }
+      ]
+    },
+    {
+      "type": "predicate",
+      "name": "bottom_rail_bent",
+      "instructions": "Does the continuous BOTTOM SIDE RAIL itself have abnormal sharp kinks or displaced sections, excluding dented sheet immediately above it? A wavy sheet-to-rail boundary caused by a dent in the SHEET is not necessarily a bent rail."
+    },
+    {
+      "type": "predicate",
+      "name": "bottom_rail_corrosion",
+      "instructions": "Does the BOTTOM SIDE RAIL itself visibly exhibit metal rust or corrosion? Do not infer oxidation from dirt or paint scuffs."
+    },
+    {
+      "type": "predicate",
+      "name": "bottom_rail_broken",
+      "instructions": "Is the BOTTOM SIDE RAIL itself visibly broken, cracked or separated? Do not count forklift pockets and designed openings."
+    },
+    {
+      "type": "predicate",
+      "name": "top_rail_bent",
+      "instructions": "Does the TOP SIDE RAIL itself show a distinctly abnormal kink, bend or damaged alignment independent of adjacent panel dents?"
+    },
+    {
+      "type": "predicate",
+      "name": "left_end_corner_post_damage",
+      "instructions": "Is the exterior corner post at PHOTO LEFT itself visibly dented, bent, cracked or broken? Ignore ordinary paint scuffs and damage to the adjacent sheet."
+    },
+    {
+      "type": "predicate",
+      "name": "right_end_corner_post_damage",
+      "instructions": "Is the exterior corner post at PHOTO RIGHT itself visibly dented, bent, cracked or broken? Ignore ordinary paint scuffs and damage to the adjacent sheet."
+    },
+    {
+      "type": "predicate",
+      "name": "corner_casting_damage",
+      "instructions": "Is any of the four visible corner castings physically cracked, fractured or distorted? Normal lifting apertures, paint wear and minor corrosion do not alone count."
+    }
+  ]
+}
