@@ -2,6 +2,7 @@
 import { computed, ref } from 'vue'
 import { useInspectionStore } from '../stores/inspection'
 import { readPhotoFile, PHOTO_ACCEPT } from '../services/readPhoto'
+import AnalysingStages from './AnalysingStages.vue'
 
 const store = useInspectionStore()
 const picker = ref<HTMLInputElement | null>(null)
@@ -90,6 +91,10 @@ function openPicker() {
           <span class="rs-pill">
             <i class="qs-glyph qs-glyph--photo" aria-hidden="true"></i>{{ orientationLabel }}
           </span>
+        </div>
+        <div class="rs-analysing">
+          <div class="rs-sweep" aria-hidden="true"></div>
+          <AnalysingStages />
         </div>
       </div>
       <div>
