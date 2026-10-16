@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { computed, nextTick, ref, useId, watch } from 'vue'
 import { useInspectionStore } from '../stores/inspection'
-import { getProvider } from '../domain/providers'
+import { getProvider, labelsFor } from '../domain/providers'
 import { MANIFEST_LIMIT, parseManifest } from '../domain/manifest'
 
 // Optional manifest paste when the container ID was not identified (spec 3.2, design-system ManifestRetry).
@@ -28,7 +28,7 @@ const canCheck = computed(() => count.value > 0 && !overLimit.value)
 const checking = computed(() => store.retry.status === 'checking')
 const failed = computed(() => store.retry.status === 'error')
 const provider = computed(() => getProvider(store.provider))
-const runName = computed(() => `${provider.value.vendor} ${provider.value.name}`)
+const runName = computed(() => labelsFor(store.provider, store.model).prose)
 
 // Offered only while the ID is not identified and the presenter has not chosen Keep first result.
 const offering = computed(

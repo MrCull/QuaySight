@@ -1,8 +1,7 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import { useInspectionStore } from '../stores/inspection'
-import { getProvider } from '../domain/providers'
-import { isMovingAlias } from '../domain/jev'
+import { isMovingTarget, labelsFor } from '../domain/providers'
 import { idResultState, visibleAlternatives } from '../domain/certainty'
 import CertaintyChip from './CertaintyChip.vue'
 import ContainerId from './ContainerId.vue'
@@ -17,18 +16,19 @@ const record = computed(() => store.record)
 const recordedLabel = computed(() => {
   const r = record.value
   if (!r || r.source !== 'recorded') return null
-  return `Recorded demonstration: ${getProvider(r.provider).name} / ${r.model}`
+  return `Recorded demonstration: ${labelsFor(r.provider, r.model).provider} / ${r.model}`
 })
 
 // "Live: [provider/model]" for a result from a live call (spec 8.5). Never shown with the recorded label.
 const liveLabel = computed(() => {
   const r = record.value
   if (!r || r.source !== 'live') return null
-  const moving = isMovingAlias(r.model)
+  const moving = isMovingTarget(r.provider, r.model)
+  const name = labelsFor(r.provider, r.model).provider
   // A moving alias shows what was asked for and what answered, so the presenter can see the target moved.
   return moving
-    ? `Live result: ${getProvider(r.provider).name} / ${r.resolvedVersion} (requested ${r.model}, a moving target)`
-    : `Live result: ${getProvider(r.provider).name} / ${r.resolvedVersion}`
+    ? `Live result: ${name} / ${r.resolvedVersion} (requested ${r.model}, a moving target)`
+    : `Live result: ${name} / ${r.resolvedVersion}`
 })
 
 // Stagger position of each card in the arrival choreography (read by .qs-rise as --i).

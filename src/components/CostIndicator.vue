@@ -3,7 +3,7 @@ import { computed, ref } from 'vue'
 import { useInspectionStore } from '../stores/inspection'
 import { useLedgerStore } from '../stores/ledger'
 import { formatUsd, type LedgerEntry } from '../domain/ledger'
-import { getProvider } from '../domain/providers'
+import { labelsFor } from '../domain/providers'
 
 const inspection = useInspectionStore()
 const ledgerStore = useLedgerStore()
@@ -20,8 +20,7 @@ const session = computed(() => ledgerStore.session)
 const rows = computed(() => ledgerStore.entries())
 
 function providerLabel(entry: LedgerEntry): string {
-  const p = getProvider(entry.provider)
-  return `${p.vendor} · ${p.name}`
+  return labelsFor(entry.provider, entry.model).ledger
 }
 
 function timeLabel(iso: string): string {
