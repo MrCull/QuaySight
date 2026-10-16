@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { recordedSideDamage } from '../../fixtures/recordedDamage'
+import { recordedSideDamage } from '../../__tests__/handWrittenDamage'
 import {
   VIEWS,
   faceStatus,

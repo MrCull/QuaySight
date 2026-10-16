@@ -1,12 +1,14 @@
 <script setup lang="ts">
 import { useInspectionStore } from '../stores/inspection'
-import { DEMO_SAMPLES, type DemoSampleId } from '../domain/demoSamples'
+import { demoSamples, type DemoSampleId } from '../domain/demoSamples'
 import { focusNextStep } from './nextStepFocus'
 
-// design-system/components/PhotoDrop (demo mode): the three bundled samples take the place of the drop zone.
+// design-system/components/PhotoDrop (demo mode): the bundled samples take the place of the drop zone.
 // There is no upload: a visitor's own photo would have no recorded result.
 // The first tile takes focus after New inspection; choosing a sample moves focus to Start.
 const store = useInspectionStore()
+// The samples that have a recording; a photo with none yet is not offered.
+const samples = demoSamples()
 
 function choose(id: DemoSampleId) {
   store.chooseSample(id)
@@ -25,7 +27,7 @@ function choose(id: DemoSampleId) {
     </div>
     <div class="qs-samples__grid" role="group" aria-labelledby="samples-title">
       <button
-        v-for="(sample, index) in DEMO_SAMPLES"
+        v-for="(sample, index) in samples"
         :key="sample.id"
         type="button"
         class="qs-sample"

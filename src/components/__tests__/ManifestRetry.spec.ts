@@ -5,6 +5,10 @@ import { setActivePinia, createPinia } from 'pinia'
 import { useInspectionStore } from '../../stores/inspection'
 import { INSPECTION_SCHEMA_VERSION } from '../../domain/inspection'
 import ManifestRetry from '../ManifestRetry.vue'
+import { readNothingOfId, withAllSampleRecordings } from '../../__tests__/planRecordings'
+
+// The side photo has no shipped recording yet: a test recording stands in so the sample can be chosen.
+withAllSampleRecordings()
 
 /** Demo mode: the damaged side (no ID read) or the APHU rear doors (ID read), with their own recorded check. */
 async function setup(scenario: 'unidentified' | 'identified' = 'unidentified') {
@@ -271,7 +275,7 @@ describe('ManifestRetry', () => {
     await vi.advanceTimersByTimeAsync(300)
     await nextTick()
     expect(w.find('textarea').exists()).toBe(false)
-    expect(store.record?.containerId).toBeNull()
+    expect(readNothingOfId(store.record)).toBe(true)
     w.unmount()
   })
 
@@ -314,7 +318,7 @@ describe('ManifestRetry', () => {
       'No entry in this manifest matches what the photo shows. Your first result is unchanged.',
     )
     expect((field(w).element as HTMLTextAreaElement).value).toBe('APHU 658684 7')
-    expect(store.record?.containerId).toBeNull()
+    expect(readNothingOfId(store.record)).toBe(true)
     w.unmount()
   })
 })

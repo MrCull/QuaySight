@@ -11,6 +11,7 @@ import { replayRecording } from '../replay'
 import { weightChoices, COYU_WEIGHTS } from '../../__tests__/weightReplies'
 import { openRouterSurveyReply, openAiSurveyReply } from '../../__tests__/surveyReplies'
 import type { SurveyChoice } from '../../__tests__/surveyReplies'
+import { doorReply, notASideReply, openAiShape } from '../../__tests__/planReplies'
 
 // Replaying a recording (spec #27, ticket #37). A recording is the raw responses of one live run of the
 // whole plan, one per request. Replaying it must give the record the live run gave, through the same
@@ -45,80 +46,6 @@ function json(body: unknown, status = 200): Response {
     status,
     headers: { 'Content-Type': 'application/json' },
   })
-}
-
-/** An OpenRouter reply to a question set, with each answer named by what it asks (no box, no cost). */
-function keyedReply(answers: Record<string, unknown>) {
-  return {
-    model: 'typesafe/jev-1.14-20261014',
-    answers,
-    usage: { input_tokens: 21000, output_tokens: 0, cost: 0.0005 },
-  }
-}
-
-const CLEAN_SEVERITY = { '0': 0.94, '1': 0.04, '2': 0.01, '3': 0.005, '4': 0.005 }
-
-/** The door set's answers on OpenRouter: a dented photo-right leaf, bottom third. */
-function doorReply() {
-  const answers: Record<string, unknown> = {
-    image_quality: { type: 'choice', choice: 'good', probabilities: { good: 0.95 } },
-    door_end_coverage: { type: 'choice', choice: 'most', probabilities: { most: 0.9 } },
-    potentially_significant_damage: { type: 'noul', noul: 0.6 },
-  }
-  for (const leaf of [1, 2]) {
-    for (const band of ['T', 'M', 'B']) {
-      const zone = `D${leaf}${band}`
-      const dented = zone === 'D2B'
-      answers[`${zone}_visibility`] = {
-        type: 'choice',
-        choice: 'clear',
-        probabilities: { clear: 0.95 },
-      }
-      answers[`${zone}_DT`] = { type: 'noul', noul: dented ? 0.9 : 0.03 }
-      answers[`${zone}_severity`] = {
-        type: 'score',
-        probabilities: dented
-          ? { '0': 0.03, '1': 0.07, '2': 0.6, '3': 0.25, '4': 0.05 }
-          : CLEAN_SEVERITY,
-      }
-    }
-  }
-  return keyedReply(answers)
-}
-
-/** The side set's reply for a photo that is no long side: its own coverage says not inspectable. */
-function sideReply() {
-  return keyedReply({
-    side_panel_coverage: {
-      type: 'choice',
-      choice: 'not_inspectable',
-      probabilities: { not_inspectable: 0.95 },
-    },
-  })
-}
-
-/** The same answers in OpenAI's own shape: a list, with predicates and score levels spelt out. */
-function openAiShape(reply: ReturnType<typeof keyedReply>) {
-  type Keyed = {
-    type: string
-    noul?: number
-    choice?: string
-    probabilities?: Record<string, number>
-  }
-  return {
-    model: 'gpt-6-luna',
-    usage: { input_tokens: 21000, output_tokens: 0 },
-    answers: Object.entries(reply.answers as Record<string, Keyed>).map(([name, a]) => {
-      if (a.type === 'noul') return { type: 'predicate', name, probability: a.noul }
-      const probabilities = Object.entries(a.probabilities ?? {}).map(([value, probability]) => ({
-        value: a.type === 'score' ? Number(value) : value,
-        probability,
-      }))
-      return a.type === 'score'
-        ? { type: 'score', name, probabilities }
-        : { type: 'choice', name, choice: a.choice, probabilities }
-    }),
-  }
 }
 
 type Replies = Partial<Record<'survey' | 'side' | 'door' | 'crop' | 'weights', unknown>>
@@ -160,7 +87,7 @@ describe('replaying a recorded run of the whole plan', () => {
                 }),
           )
         case 'side':
-          return json(provider === 'luna' ? openAiShape(sideReply()) : sideReply())
+          return json(provider === 'luna' ? openAiShape(notASideReply()) : notASideReply())
         case 'door':
           return json(provider === 'luna' ? openAiShape(doorReply()) : doorReply())
         default:

@@ -1,16 +1,16 @@
 import type { CertaintyLabel, ProviderId } from '../domain/inspection'
 import type { DamageAssessment } from '../domain/damage'
-import { recordedSideDamage } from './recordedDamage'
+import { recordedSideDamage } from './handWrittenDamage'
 
 /**
- * Recorded results for the walking skeleton. They replay saved readings with no network and no key.
+ * HAND-WRITTEN test data, not a recording. Nothing here was answered by a model, and nothing here is ever
+ * shown as a recorded demonstration: demo mode replays only real recordings (src/fixtures/demoRecordings.ts).
+ * Tests use these to build records without a network (see recordedInspection.ts).
  *
- * Source: the printed ID visible in samples/rear-door-aphu-45g1.jpg (APHU 658684, check digit 7).
- * The check digit is not stored as "valid": the domain recalculates it from the characters.
+ * Source: the printed ID visible in samples/rear-door-aphu-45g1.jpg (APHU 658684, check digit 7), read by
+ * eye. The check digit is not stored as "valid": the domain recalculates it from the characters.
  *
- * Luna: a fuller recorded reading of the clear rear door.
- * Jev (through OpenRouter): MINIMAL fixture. No captured Jev response exists yet (spec 11.4 requires live calibration),
- * so only the ID reading is recorded, at a lower certainty. Replace after a live smoke test.
+ * `luna` stands in for a full Luna reading of the clear rear door; `openrouter` for a minimal Jev one.
  */
 export interface RecordedFixture {
   provider: ProviderId
@@ -48,7 +48,7 @@ export const recordedFixtures: Record<ProviderId, RecordedFixture> = {
     detailCertainty: 'Confident',
     retryFailureMessage: 'Rate limit reached for requests. Please try again in 20s.',
   },
-  // Jev through OpenRouter (docs/adr/0001). Still the minimal hand-made Jev reading, not a capture.
+  // Jev through OpenRouter (docs/adr/0001): a minimal hand-written reading, not a capture.
   openrouter: {
     provider: 'openrouter',
     model: 'typesafe/jev-1.14',

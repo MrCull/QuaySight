@@ -1,11 +1,12 @@
 import type { DamageAssessment } from '../domain/damage'
 
 /**
- * Recorded side-damage assessment for the walking skeleton (ticket #8).
+ * HAND-WRITTEN side-damage assessment from the walking skeleton (ticket #8), kept as test data only.
  *
- * Source: samples/side-dented-grey.jpg only. This is NOT a captured provider response: no provider
- * returned it. It was written by reading the photo, so the probability is unavailable and the
- * certainty and severity are the author's reading of how the dents look at this resolution.
+ * Retired from demo mode (spec #27, ticket #37): demo mode replays real recordings only, and this is NOT
+ * a captured provider response. No provider returned it. It was written by reading samples/side-dented-grey.jpg,
+ * so the probability is unavailable and the certainty and severity are the author's reading of how the
+ * dents look at this resolution. Never shown as a recorded demonstration.
  *
  * What the photo shows: a grey container's long side with a row of shallow dents or creases across
  * the lower middle of the panel. The rear-door end is only partly visible at the left edge, and a

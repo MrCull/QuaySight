@@ -136,3 +136,36 @@ export function parsePlanRecording(json: unknown): PlanRecording {
     throw new Error('A plan recording must never hold a key or an authorization header.')
   return json as unknown as PlanRecording
 }
+
+/** A live fixture recorded before the survey existed: one raw response to the container-ID questions. */
+export interface PreSurveyFixture {
+  recordedAt: string
+  endpoint: string
+  requestedModel: string
+  photo: string
+  response: unknown
+}
+
+/**
+ * A recording of a live fixture from the first smoke runs, which asked only the container ID. Its response
+ * is real; it just did not ask the details, weights, face or damage, and the entry says so (`asked`), so a
+ * replay fills the ID and leaves every other part "not assessed" rather than "unread".
+ */
+export function preSurveyRecording(fixture: PreSurveyFixture): PlanRecording {
+  return {
+    format: PLAN_RECORDING_FORMAT,
+    recordedAt: fixture.recordedAt,
+    photo: fixture.photo,
+    provider: new URL(fixture.endpoint).hostname === 'api.openai.com' ? 'luna' : 'openrouter',
+    model: fixture.requestedModel,
+    entries: [
+      {
+        request: 'read',
+        response: fixture.response,
+        latencyMs: null,
+        costUsd: null,
+        asked: 'id-only',
+      },
+    ],
+  }
+}
