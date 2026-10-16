@@ -1,5 +1,14 @@
 import { describe, it, expect } from 'vitest'
-import { CU_FT_PER_M3, LB_PER_KG, capacityAgrees, payloadAgrees, unitsAgree } from '../weights'
+import {
+  CU_FT_PER_M3,
+  LB_PER_KG,
+  capacityAgrees,
+  evaluateWeights,
+  payloadAgrees,
+  rereadQuantities,
+  unitsAgree,
+} from '../weights'
+import { NOT_VISIBLE, UNCLEAR, coyuReading as coyu, read } from '../../__tests__/liveWeights'
 
 // The COYU 266813 0 door (22G1), the worked example for the weights ticket (#34):
 // MAX GROSS 30,480 KG 67,200 LB, TARE 2,180 KG 4,810 LB, NET 28,300 KG 62,390 LB, CU. CAP. 33.2 M3 1,173 CU.FT.
@@ -62,27 +71,6 @@ describe('printed payload against maximum gross minus tare', () => {
     expect(payloadAgrees(26300, 28300)).toBe(false)
   })
 })
-
-import { evaluateWeights, rereadQuantities, type Figure, type WeightsReading } from '../weights'
-
-const read = (value: number, certainty: Figure['certainty'] = 'Likely'): Figure => ({
-  state: 'read',
-  value,
-  certainty,
-})
-const UNCLEAR: Figure = { state: 'unclear', value: null, certainty: "Can't tell" }
-const NOT_VISIBLE: Figure = { state: 'not-visible', value: null, certainty: 'Not seen' }
-
-/** The COYU door as a careful reader sees it. */
-function coyu(overrides: WeightsReading = {}): WeightsReading {
-  return {
-    maxGross: { metric: read(30480), imperial: read(67200) },
-    tare: { metric: read(2180), imperial: read(4810) },
-    payload: { metric: read(28300), imperial: read(62390) },
-    capacity: { metric: read(33.2), imperial: read(1173) },
-    ...overrides,
-  }
-}
 
 describe('what two units say about one weight', () => {
   it('records "kg and lb agree" and raises certainty one step when the readings match', () => {

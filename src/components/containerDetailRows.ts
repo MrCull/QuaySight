@@ -7,6 +7,14 @@
 import type { CheckReading, EquipmentCheck, MarkingCheck } from '../domain/containerDetails'
 import { dgClassName, EQUIPMENT_CHECKS } from '../domain/containerDetails'
 import type { CertaintyLabel, InspectionRecord } from '../domain/inspection'
+import type { Units } from '../domain/unitPreference'
+import {
+  payloadConflictText,
+  toImperial,
+  type CapacityRow,
+  type Unread,
+  type WeightRow,
+} from '../domain/weights'
 
 export interface DetailRow {
   label: string
@@ -127,46 +135,146 @@ export function sizeGroup(record: InspectionRecord): DetailGroup {
   }
 }
 
-const kg = (value: number) => `${value.toLocaleString('en-GB')} kg`
+const fmt = (value: number) => value.toLocaleString('en-GB')
 
-/** Printed maximum gross and tare, and payload calculated from them (spec 4.3, 4.4). */
-export function weightGroup(record: InspectionRecord): DetailGroup {
+const MAXIMUM_NOTE = 'A maximum rating, not the cargo weight.'
+const PAYLOAD_NOTE = 'The most the container may carry, not a cargo weight.'
+const joinNotes = (...notes: (string | null)[]) => notes.filter(Boolean).join(' ') || null
+
+/** One weight in the unit in force: the value, and whether it is converted from the other unit. */
+function weightIn(row: WeightRow, units: Units): { text: string; converted: boolean } {
+  if (units === 'metric') {
+    return {
+      text: `${fmt(row.valueKg)} kg`,
+      converted: row.printed ? row.printed.kg === null : false,
+    }
+  }
+  const lb = row.valueLb ?? Math.round(toImperial('weight', row.valueKg))
+  return { text: `${fmt(lb)} lb`, converted: row.printed ? row.printed.lb === null : true }
+}
+
+/** What the two units say about a weight, as evidence: agreement, a disagreement with both readings, or a conversion. */
+function unitEvidence(row: WeightRow, units: Units, converted: boolean): string | null {
+  if (row.units === 'agree') return 'kg and lb agree.'
+  if (row.units === 'conflict') {
+    return `kg and lb disagree: read as ${fmt(row.printed?.kg ?? row.valueKg)} kg and ${fmt(row.printed?.lb ?? row.valueLb ?? 0)} lb, which do not match after conversion.`
+  }
+  if (converted) {
+    return units === 'imperial'
+      ? 'Converted from kg (1 kg = 2.20462 lb): the lb figure was not read.'
+      : 'Converted from lb (1 kg = 2.20462 lb): the kg figure was not read.'
+  }
+  return null
+}
+
+function weightRow(
+  label: string,
+  row: WeightRow | null,
+  unread: Unread | undefined,
+  units: Units,
+  options: { note: string | null; calculated?: boolean; absentText?: string },
+): DetailRow {
+  if (!row) {
+    return absent(
+      label,
+      unread === 'unclear' ? NOT_CLEAR : (options.absentText ?? NOT_VISIBLE),
+      unread === 'unclear' ? "Can't tell" : 'Not seen',
+    )
+  }
+  const shown = weightIn(row, units)
+  const calculated = options.calculated || shown.converted
+  return {
+    label,
+    value: shown.text,
+    absentText: NOT_VISIBLE,
+    ...(calculated ? CALCULATED : PRINTED),
+    certainty: row.certainty,
+    note: joinNotes(
+      options.calculated ? null : unitEvidence(row, units, shown.converted),
+      options.note,
+    ),
+  }
+}
+
+function capacityRow(
+  capacity: CapacityRow | null,
+  unread: Unread | undefined,
+  units: Units,
+): DetailRow {
+  if (!capacity) {
+    return absent(
+      'CUBIC CAPACITY',
+      unread === 'unclear' ? NOT_CLEAR : NOT_VISIBLE,
+      unread === 'unclear' ? "Can't tell" : 'Not seen',
+    )
+  }
+  const metric = units === 'metric'
+  const converted = metric ? capacity.printed.m3 === null : capacity.printed.cuFt === null
+  const evidence =
+    capacity.units === 'agree'
+      ? 'm³ and cu ft agree.'
+      : capacity.units === 'conflict'
+        ? `m³ and cu ft disagree: read as ${fmt(capacity.valueM3)} m³ and ${fmt(capacity.valueCuFt)} cu ft, which do not match after conversion.`
+        : converted
+          ? `Converted from ${metric ? 'cu ft' : 'm³'} (1 m³ = 35.3147 cu ft): the ${metric ? 'm³' : 'cu ft'} figure was not read.`
+          : null
+  return {
+    label: 'CUBIC CAPACITY',
+    value: metric ? `${fmt(capacity.valueM3)} m³` : `${fmt(capacity.valueCuFt)} cu ft`,
+    absentText: NOT_VISIBLE,
+    ...(converted ? CALCULATED : PRINTED),
+    certainty: capacity.certainty,
+    note: evidence,
+  }
+}
+
+/**
+ * Printed maximum gross, tare and payload, payload calculated from them, and the cubic capacity (spec
+ * 4.3, 4.4), in the units in force. A live run read each in both units: the evidence (agreement, a
+ * disagreement with both readings, a conversion) is the row's note. A recorded sample carries kg only;
+ * its lb is converted and tagged Calculated.
+ */
+export function weightGroup(record: InspectionRecord, units: Units = 'metric'): DetailGroup {
   const weights = record.weights
   // A live survey that did not ask the weights: not assessed, never Not seen.
   if (!weights && record.details) {
     return { id: 'weights', rows: [], notAssessed: 'Weights: not assessed in this inspection.' }
   }
-  const payload = weights?.payload ?? null
-  return {
-    id: 'weights',
-    notAssessed: null,
-    rows: [
-      {
-        label: 'MAX GROSS',
-        value: weights?.maxGross ? kg(weights.maxGross.valueKg) : null,
-        absentText: NOT_VISIBLE,
-        ...PRINTED,
-        certainty: weights?.maxGross?.certainty ?? 'Not seen',
-        note: 'A maximum rating, not the cargo weight.',
-      },
-      {
-        label: 'TARE',
-        value: weights?.tare ? kg(weights.tare.valueKg) : null,
-        absentText: NOT_VISIBLE,
-        ...PRINTED,
-        certainty: weights?.tare?.certainty ?? 'Not seen',
-        note: null,
-      },
-      {
-        label: 'PAYLOAD',
-        value: payload ? kg(payload.valueKg) : null,
-        absentText: 'Not calculated: needs maximum gross and tare',
-        ...CALCULATED,
-        certainty: payload?.certainty ?? 'Not seen',
-        note: weights?.conflict ?? (payload ? 'Maximum gross minus tare.' : null),
-      },
-    ],
+  const live = weights?.printedPayload !== undefined
+  const conflict = weights?.payloadConflict
+    ? payloadConflictText(weights.payloadConflict, units)
+    : (weights?.conflict ?? null)
+  const rows: DetailRow[] = [
+    weightRow('MAX GROSS', weights?.maxGross ?? null, weights?.unread?.maxGross, units, {
+      note: MAXIMUM_NOTE,
+    }),
+    weightRow('TARE', weights?.tare ?? null, weights?.unread?.tare, units, { note: null }),
+  ]
+  if (live) {
+    rows.push(
+      weightRow(
+        'PAYLOAD',
+        weights?.printedPayload ?? null,
+        weights?.unread?.printedPayload,
+        units,
+        {
+          note: PAYLOAD_NOTE,
+        },
+      ),
+    )
   }
+  const payload = weights?.payload ?? null
+  rows.push(
+    weightRow(live ? 'PAYLOAD (CALCULATED)' : 'PAYLOAD', payload, undefined, units, {
+      calculated: true,
+      absentText: 'Not calculated: needs maximum gross and tare',
+      note: joinNotes(conflict, payload && !conflict ? 'Maximum gross minus tare.' : null),
+    }),
+  )
+  if (weights?.capacity !== undefined) {
+    rows.push(capacityRow(weights.capacity, weights.unread?.capacity, units))
+  }
+  return { id: 'weights', notAssessed: null, rows }
 }
 
 const EQUIPMENT_LABEL: Record<EquipmentCheck, string> = {
@@ -206,8 +314,8 @@ export function equipmentGroup(record: InspectionRecord): DetailGroup {
 }
 
 /** Every group, in panel order. */
-export function detailGroups(record: InspectionRecord): DetailGroup[] {
-  return [sizeGroup(record), weightGroup(record), equipmentGroup(record)]
+export function detailGroups(record: InspectionRecord, units: Units = 'metric'): DetailGroup[] {
+  return [sizeGroup(record), weightGroup(record, units), equipmentGroup(record)]
 }
 
 // ---------------------------------------------------------------------------------------------------

@@ -314,12 +314,26 @@ const both = (kgValue: number | null, lbValue: number | null) =>
     .filter(Boolean)
     .join(' / ')
 
-/** The sentence for a payload conflict, naming both units where both were read. */
-export function payloadConflictText(c: PayloadConflict): string {
+/**
+ * The sentence for a payload conflict, in the units asked for: both by default (exports), or one unit
+ * system for the screen. Falls back to both where the asked unit was not read.
+ */
+export function payloadConflictText(
+  c: PayloadConflict,
+  units: 'both' | 'metric' | 'imperial' = 'both',
+): string {
   if (c.kind === 'impossible') {
     return 'Tare is not below maximum gross, so payload cannot be calculated from them.'
   }
-  return `Printed payload ${both(c.printedKg, c.printedLb)} does not match maximum gross minus tare, ${both(c.calculatedKg, c.calculatedLb)}.`
+  const metric = units !== 'imperial' && c.printedKg !== null && c.calculatedKg !== null
+  const imperial = units !== 'metric' && c.printedLb !== null && c.calculatedLb !== null
+  const useKg = units === 'both' ? c.printedKg !== null : metric
+  const useLb = units === 'both' ? c.printedLb !== null : imperial
+  const showKg = useKg || (!useLb && c.printedKg !== null)
+  const showLb = useLb || (!useKg && !showKg && c.printedLb !== null)
+  const printed = both(showKg ? c.printedKg : null, showLb ? c.printedLb : null)
+  const calculated = both(showKg ? c.calculatedKg : null, showLb ? c.calculatedLb : null)
+  return `Printed payload ${printed} does not match maximum gross minus tare, ${calculated}.`
 }
 
 function evaluate(first: WeightsReading, second: WeightsReading | null | undefined) {
