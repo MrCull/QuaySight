@@ -2,12 +2,13 @@
 // Endpoint, auth, image and model rules follow the live TypeSafe docs checked on 16 October 2026
 // (docs.typesafe.ai/api, /models, /images, /primitives/box). The re-check is in docs/research/jev-guide-recheck.md.
 // Images go in a top-level `assets` map and are sent as multipart file parts; the experimental image
-// opt-in header is applied by the service. Jev has no image-capable box except jev-1.14.x.
+// opt-in header is applied by the service. Which models take the box question is declared in the catalogue.
 import { calculateCheckDigit } from './iso6346'
 import { buildContainerIdReading } from './containerId'
 import { CERTAINTY_LABELS, UNREAD, applyMargin } from './certainty'
 import type { CertaintyLabel, ContainerIdReading } from './inspection'
 import type { Usage } from './ledger'
+import { supportsBox } from './providers'
 
 export const JEV_ENDPOINT = 'https://api.typesafe.ai/v1/systemone'
 /** Endpoint family key used by the rate schedules and ledger. */
@@ -16,18 +17,6 @@ export const JEV_ENDPOINT_ID = 'system-one'
 export const JEV_IMAGE_HEADER = 'TypeSafe-Danger-Zone-Images'
 /** The reference the request uses to point at the single photo, and the multipart part name. */
 export const JEV_IMAGE_REF = 'photo_1'
-/** Moving aliases. The response `model` field reports the versioned ID that answered. */
-export const JEV_MOVING_ALIASES = ['jev-latest', 'jev-preview'] as const
-
-/** Jev 1.14 (and its preview alias) offers the experimental box question. jev-1.13.0 does not. */
-export function supportsBox(model: string): boolean {
-  return model === 'jev-preview' || model === 'jev-1.14.0' || model.startsWith('jev-1.14.')
-}
-
-/** Moving aliases are shown to the presenter as moving targets. */
-export function isMovingAlias(model: string): boolean {
-  return (JEV_MOVING_ALIASES as readonly string[]).includes(model)
-}
 
 /** Spec 4.2 check-digit guidance, as for Luna. Kept verbatim so both providers get the same constraint. */
 export const CHECK_DIGIT_GUIDANCE =
@@ -135,7 +124,8 @@ export function buildJevRequest(model: string, format: JevPhotoFormat): JevReque
       instructions: `Is the complete 11-character container identification visible within the image referenced as \`${JEV_IMAGE_REF}\`, with no part cut off?`,
     },
   }
-  if (supportsBox(model)) {
+  // Box support comes from the provider catalogue only (moving aliases report the version that answered).
+  if (supportsBox('jev', model)) {
     questions.container_box = {
       type: 'box',
       instructions: `The container identification number printed on the container in the image referenced as \`${JEV_IMAGE_REF}\`.`,

@@ -1,9 +1,8 @@
 <script setup lang="ts">
 import { computed, ref, watch } from 'vue'
 import { useInspectionStore } from '../stores/inspection'
-import { providers, getProvider } from '../domain/providers'
+import { providers, getProvider, isMovingTarget } from '../domain/providers'
 import type { ProviderId } from '../domain/inspection'
-import { isMovingAlias } from '../domain/jev'
 import { hasKey, selectorView } from '../domain/keyGate'
 
 /** Key field copy per provider. Each key is labelled for the one endpoint that receives it. */
@@ -152,7 +151,7 @@ function onFocusOut(event: FocusEvent) {
             <option v-for="m in selected.models" :key="m.id" :value="m.id">{{ m.label }}</option>
           </select>
         </label>
-        <span v-if="isMovingAlias(store.model)" class="qs-hint"
+        <span v-if="isMovingTarget(store.provider, store.model)" class="qs-hint"
           >Moving target: TypeSafe points this alias at its newest release. The version that answers
           is recorded with each result.</span
         >
