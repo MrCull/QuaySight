@@ -1,4 +1,5 @@
 import type { PlanRequest } from './requestPlan'
+import { idCropRead } from './requests/idCropRead'
 import { idRecheck } from './requests/idRecheck'
 import { survey } from './requests/survey'
 
@@ -7,7 +8,7 @@ import { survey } from './requests/survey'
  * together. A new request is one more entry here, defined in its own module; whether a run includes
  * it is the request's own appliesTo and needed.
  */
-const registered: PlanRequest[] = [survey, idRecheck]
+const registered: PlanRequest[] = [survey, idRecheck, idCropRead]
 
 export function planRequests(): readonly PlanRequest[] {
   return registered

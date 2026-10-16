@@ -183,7 +183,10 @@ export interface JevMapping {
   usage: Usage | null
   /** Cost from the response's own usage.cost, or null. Never zero when absent. */
   reportedCostUsd: number | null
-  /** Experimental box, when the model returned one. Retained for the raw record; not drawn (no box-based damage). */
+  /** One reading per position (11): the crop read combines these with its own. */
+  readings: ChoiceReading[]
+  caveats: JevCaveats
+  /** Where the model located the ID, when it was asked and answered: the crop read starts from it. Not drawn. */
   box: JevBox | null
 }
 
@@ -207,71 +210,36 @@ function boxOf(answer: SharedAnswer | undefined): JevBox | null {
   return { ...answer.box, confidence: answer.confidence }
 }
 
-/** Maps a System One response to the shared container-ID reading, by meaning (see jevIdReadingOf). */
-export function mapJevResponse(
-  response: unknown,
-  requestedModel: string,
-  /** Who replied, for the bad-response message: TypeSafe direct, or OpenRouter. */
-  replier = 'TypeSafe',
-): JevMapping {
-  let reply
-  try {
-    // System One answers in OpenRouter's format: a map by question name.
-    reply = readAnswers(
-      'openrouter-decisions',
-      response,
-      jevIdQuestionSet({ image: 'the photo', box: true }),
-      requestedModel,
-    )
-  } catch (error) {
-    if (!(error instanceof UnreadableReplyError)) throw error
-    throw new JevError(
-      'bad-response',
-      error.kind === 'no-answers'
-        ? `${replier} replied without answers. Try again.`
-        : `${replier} replied in a shape the app does not recognise.`,
-    )
-  }
-  const { containerId, box } = jevIdReadingOf(reply.answers)
-  return {
-    containerId,
-    resolvedModel: reply.resolvedModel,
-    usage: reply.usage,
-    reportedCostUsd: reply.reportedCostUsd,
-    box,
-  }
+/** What the legibility score and the full-number noul say about a reading. They only ever lower certainty. */
+export interface JevCaveats {
+  hardToRead: boolean
+  partlyOutOfFrame: boolean
 }
 
-/** The Jev ID set's answers, by meaning: the reading, each position's reading, and the box when asked. */
-export interface JevIdReading {
-  containerId: ContainerIdReading
-  readings: ChoiceReading[]
-  box: JevBox | null
+/** The caveats in a Jev ID answer set, read by meaning. An unanswered question raises none. */
+export function jevCaveatsOf(answers: Record<string, SharedAnswer>): JevCaveats {
+  const legibility = answers.legibility
+  const legibilityScore = legibility?.type === 'score' ? legibility.score : null
+  const fullNumber = answers.full_number_visible
+  const fullNumberProbability = fullNumber?.type === 'predicate' ? fullNumber.probability : null
+  return {
+    hardToRead: typeof legibilityScore === 'number' && legibilityScore < LEGIBILITY_FLOOR,
+    partlyOutOfFrame:
+      typeof fullNumberProbability === 'number' && fullNumberProbability < FULL_NUMBER_MIN,
+  }
 }
 
 /**
- * Reads the Jev ID set's answers (by question name) as the shared container-ID reading. Missing, refused
- * or low-probability positions stay as UNREAD; they are never filled in. The check digit is calculated
- * here, not taken from the model. The legibility score and the full-number noul can only lower
- * certainty, never raise it. Other answers in the same reply (a survey's) are ignored.
+ * The shared container-ID reading from one reading per position and the caveats. Missing positions stay
+ * UNREAD; the check digit is calculated here, not taken from the model; a caveat makes the reading at
+ * most Uncertain. Used for the full-photo reading and for the full-photo and crop readings combined.
  */
-export function jevIdReadingOf(answers: Record<string, SharedAnswer>): JevIdReading {
-  const readings = readIdCharacters(answers)
-
+export function jevIdReading(readings: ChoiceReading[], caveats: JevCaveats): ContainerIdReading {
+  const { hardToRead, partlyOutOfFrame } = caveats
   const chars = readings.map((r) => r.value ?? UNREAD)
   const positionCertainty = readings.map((r) => r.certainty)
   const printed = chars.join('')
   let certainty = worstOf(positionCertainty)
-
-  const legibility = answers.legibility
-  const legibilityScore = legibility?.type === 'score' ? legibility.score : null
-  const hardToRead = typeof legibilityScore === 'number' && legibilityScore < LEGIBILITY_FLOOR
-
-  const fullNumber = answers.full_number_visible
-  const fullNumberProbability = fullNumber?.type === 'predicate' ? fullNumber.probability : null
-  const partlyOutOfFrame =
-    typeof fullNumberProbability === 'number' && fullNumberProbability < FULL_NUMBER_MIN
-
   if (hardToRead || partlyOutOfFrame) certainty = atLeastUncertain(certainty)
 
   let containerId: ContainerIdReading
@@ -314,6 +282,66 @@ export function jevIdReadingOf(answers: Record<string, SharedAnswer>): JevIdRead
   if (hardToRead) notes.push('The identification is hard to read in this photo.')
   if (partlyOutOfFrame) notes.push('The complete identification may not be in frame.')
   if (notes.length > 0) containerId.uncertainty = notes.join(' ')
+  return containerId
+}
 
-  return { containerId, readings, box: boxOf(answers.container_box) }
+/**
+ * Maps a System One response to the shared container-ID reading, by meaning. Missing, refused or
+ * low-probability positions stay as UNREAD; they are never filled in. The check digit is calculated
+ * here, not taken from the model. The legibility score and the full-number noul can only lower
+ * certainty, never raise it.
+ */
+export function mapJevResponse(
+  response: unknown,
+  requestedModel: string,
+  /** Who replied, for the bad-response message: TypeSafe direct, or OpenRouter. */
+  replier = 'TypeSafe',
+): JevMapping {
+  let reply
+  try {
+    // System One answers in OpenRouter's format: a map by question name.
+    reply = readAnswers(
+      'openrouter-decisions',
+      response,
+      jevIdQuestionSet({ image: 'the photo', box: true }),
+      requestedModel,
+    )
+  } catch (error) {
+    if (!(error instanceof UnreadableReplyError)) throw error
+    throw new JevError(
+      'bad-response',
+      error.kind === 'no-answers'
+        ? `${replier} replied without answers. Try again.`
+        : `${replier} replied in a shape the app does not recognise.`,
+    )
+  }
+  return {
+    ...jevIdReadingOf(reply.answers),
+    resolvedModel: reply.resolvedModel,
+    usage: reply.usage,
+    reportedCostUsd: reply.reportedCostUsd,
+  }
+}
+
+/** The Jev ID set's answers, by meaning: the reading, each position's reading, its caveats and the box. */
+export interface JevIdReading {
+  containerId: ContainerIdReading
+  readings: ChoiceReading[]
+  caveats: JevCaveats
+  box: JevBox | null
+}
+
+/**
+ * Reads the Jev ID set's answers (by question name) as the shared container-ID reading (see
+ * mapJevResponse). Other answers in the same reply (a survey's) are ignored.
+ */
+export function jevIdReadingOf(answers: Record<string, SharedAnswer>): JevIdReading {
+  const readings = readIdCharacters(answers)
+  const caveats = jevCaveatsOf(answers)
+  return {
+    containerId: jevIdReading(readings, caveats),
+    readings,
+    caveats,
+    box: boxOf(answers.container_box),
+  }
 }

@@ -80,7 +80,9 @@ describe('COYU 22G1 survey details live smoke test (opt-in, chargeable)', () => 
   it.skipIf(!openAiKey)(
     'GPT-6 Luna on OpenAI reads 22G1 and decodes it',
     async () => {
-      expectCoyuDetails(await surveyOn('luna', LUNA_MODEL, openAiKey))
+      const details = await surveyOn('luna', LUNA_MODEL, openAiKey)
+      expect(details.sizeCode.state).toBe('read')
+      expectCoyuDetails(details)
     },
     120_000,
   )
@@ -88,7 +90,9 @@ describe('COYU 22G1 survey details live smoke test (opt-in, chargeable)', () => 
   it.skipIf(!openRouterKey)(
     'GPT-6 Luna Decisions through OpenRouter reads 22G1 and decodes it',
     async () => {
-      expectCoyuDetails(await surveyOn('openrouter', 'openai/gpt-6-luna-decisions', openRouterKey))
+      const details = await surveyOn('openrouter', 'openai/gpt-6-luna-decisions', openRouterKey)
+      expect(details.sizeCode.state).toBe('read')
+      expectCoyuDetails(details)
     },
     120_000,
   )
@@ -96,7 +100,9 @@ describe('COYU 22G1 survey details live smoke test (opt-in, chargeable)', () => 
   it.skipIf(!openRouterKey)(
     'Jev latest through OpenRouter reads 22G1 and decodes it',
     async () => {
-      expectCoyuDetails(await surveyOn('openrouter', '~typesafe/jev-latest', openRouterKey))
+      const details = await surveyOn('openrouter', '~typesafe/jev-latest', openRouterKey)
+      expect(details.sizeCode.state).toBe('read')
+      expectCoyuDetails(details)
     },
     120_000,
   )
