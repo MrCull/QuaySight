@@ -1,6 +1,9 @@
 import { describe, it, expect, beforeEach, vi, afterEach } from 'vitest'
 import { setActivePinia, createPinia } from 'pinia'
 
+// jsdom has no image decoder or canvas; photo preparation runs on the fake codec.
+vi.mock('../../services/imageCodec')
+
 const callLunaMock = vi.fn<(...args: unknown[]) => unknown>()
 vi.mock('../../services/luna', () => ({
   callLuna: (...args: unknown[]) => callLunaMock(...args),

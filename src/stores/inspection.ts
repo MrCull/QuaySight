@@ -1,11 +1,12 @@
 import { defineStore } from 'pinia'
-import { defaultModelFor } from '../domain/providers'
+import { defaultModelFor, findModel, labelsFor } from '../domain/providers'
 import { canStart as keyGateOpen, hasKey } from '../domain/keyGate'
 import { runRecordedInspection, type SampleScenario } from '../domain/recordedRun'
 import { runRecordedManifestRetry } from '../domain/manifest'
 import { assembleLunaReading, LUNA_MODEL, LunaError } from '../domain/luna'
 import { callLuna, type LunaCallResult } from '../services/luna'
 import { callJev } from '../services/jev'
+import { preparePhoto, PhotoPreparationError } from '../services/preparePhoto'
 import { JEV_ENDPOINT_ID, JevError } from '../domain/jev'
 import {
   mergeRecheck,
@@ -235,6 +236,24 @@ export const useInspectionStore = defineStore('inspection', {
 
       const ledger = useLedgerStore()
       const run: Promise<void> = (async () => {
+        // The photo as sent: upright and fitted to the model. A photo the model would refuse stops here,
+        // before any request or charge. The chosen photo stays the one on screen.
+        let sent: Blob
+        try {
+          const limits = findModel(provider, requestedModel)?.photoLimits
+          if (!limits) throw new PhotoPreparationError('Choose a model to run a live inspection.')
+          sent = await preparePhoto(file, limits, labelsFor(provider, requestedModel).provider)
+        } catch (error) {
+          if (token !== this.runToken) return
+          this.status = 'failed'
+          this.errorMessage =
+            error instanceof PhotoPreparationError
+              ? error.message
+              : 'That photo could not be prepared for sending. Choose another photo.'
+          return
+        }
+        if (token !== this.runToken) return
+
         let reading = null as LiveReading | null
         let lunaFirst = null as LunaCallResult | null
         const result = await ledger.run({
@@ -246,11 +265,11 @@ export const useInspectionStore = defineStore('inspection', {
           model: requestedModel,
           call: async () => {
             if (provider === 'luna') {
-              const call = await callLuna({ apiKey, photo: file })
+              const call = await callLuna({ apiKey, photo: sent })
               lunaFirst = call
               reading = { ...call, reportedCostUsd: null }
             } else {
-              reading = await callJev({ apiKey, photo: file, model: requestedModel })
+              reading = await callJev({ apiKey, photo: sent, model: requestedModel })
             }
             const done = reading as LiveReading
             return {
@@ -293,7 +312,7 @@ export const useInspectionStore = defineStore('inspection', {
                 endpoint: 'decisions',
                 model: LUNA_MODEL,
                 call: async () => {
-                  again = await callLuna({ apiKey, photo: file, positions: asked })
+                  again = await callLuna({ apiKey, photo: sent, positions: asked })
                   return {
                     resolvedModel: again.resolvedModel,
                     usage: again.usage,
