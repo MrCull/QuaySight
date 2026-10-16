@@ -26,7 +26,10 @@ export interface ModelOption {
   id: string
   /** The model's own name on result labels, ledger lines and exports, e.g. "Jev 1.14". */
   displayName: string
-  /** Added after the maker and route in the model selector, e.g. "pinned". Null for none. */
+  /**
+   * Added after the maker and route in the model selector, e.g. "pinned". Null for none.
+   * "moving target" is never written here: labelsFor adds it from movingTarget.
+   */
   note: string | null
   maker: ModelMaker
   route: ModelRoute
@@ -48,6 +51,8 @@ export interface KeyFieldCopy {
   placeholder: string
   /** Says whose endpoint receives the photo and the key. */
   hint: string
+  /** How this provider's keys start, e.g. "sk-or-". A key that doesn't is warned about, never refused. */
+  prefix: string
 }
 
 export interface ProviderInfo {
@@ -99,12 +104,13 @@ export const providers: ProviderInfo[] = [
       label: 'OpenRouter API key',
       placeholder: 'Paste your OpenRouter key (sk-or-…)',
       hint: `The photo and this key go only to OpenRouter's Decisions endpoint, and only for a live run. OpenRouter passes the photo, never your key, on to the model's maker. ${KEPT_IN_MEMORY}`,
+      prefix: 'sk-or-',
     },
     models: [
       {
         ...JEV_VIA_OPENROUTER,
         id: '~typesafe/jev-latest',
-        note: 'moving target, recommended',
+        note: 'recommended',
         displayName: 'Jev latest',
         // Resolved to typesafe/jev-1.14-20261014 on 16 Oct 2026, which answers the box question.
         probabilities: true,
@@ -135,7 +141,8 @@ export const providers: ProviderInfo[] = [
       },
       {
         // GPT-6 Luna on OpenRouter's Decisions endpoint (ticket #23). Asked the Luna question set, not
-        // Jev's (see questionSetOf). Resolved to openai/gpt-6-luna-decisions-20261006 on 16 Oct 2026.
+        // Jev's (see questionSetOf). A moving alias: it resolved to the dated snapshot
+        // openai/gpt-6-luna-decisions-20261006 on 16 Oct 2026 (spec #27).
         id: 'openai/gpt-6-luna-decisions',
         note: null,
         displayName: 'GPT-6 Luna Decisions',
@@ -146,7 +153,7 @@ export const providers: ProviderInfo[] = [
         probabilities: true,
         box: false,
         photoLimits: LUNA_LIMITS,
-        movingTarget: false,
+        movingTarget: true,
         recommended: false,
       },
     ],
@@ -162,6 +169,7 @@ export const providers: ProviderInfo[] = [
       label: 'OpenAI API key',
       placeholder: 'Paste your OpenAI key',
       hint: `The photo and this key go only to OpenAI's Decisions endpoint, and only for a live run. ${KEPT_IN_MEMORY}`,
+      prefix: 'sk-',
     },
     models: [
       {
@@ -249,7 +257,9 @@ export interface ModelLabels {
 export function labelsFor(provider: ProviderId, model: string): ModelLabels {
   const info = getProvider(provider)
   const entry = findModel(provider, model)
-  const withNote = (text: string) => (entry?.note ? `${text} · ${entry.note}` : text)
+  // A moving alias says so first, so an option cut off at the select's edge still does.
+  const notes = [entry?.movingTarget ? 'moving target' : null, entry?.note ?? null].filter(Boolean)
+  const withNote = (text: string) => (notes.length ? `${text} · ${notes.join(', ')}` : text)
   if (entry?.route === 'openrouter' || (!entry && info.id === 'openrouter')) {
     const attributed = entry
       ? `${entry.displayName} (${entry.maker}) via ${info.name}`

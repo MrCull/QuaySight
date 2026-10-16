@@ -10,6 +10,7 @@ import {
   labelsFor,
   type ProviderInfo,
 } from '../domain/providers'
+import { keyFormatWarning } from '../domain/keyGate'
 import type { ProviderId } from '../domain/inspection'
 
 /**
@@ -24,6 +25,9 @@ const setup = useSetupStore()
 const selected = computed(() => getProvider(store.provider))
 const copy = computed(() => selected.value.keyField)
 const model = computed(() => findModel(store.provider, store.model))
+// Advice only (design-system ProviderSelect): it never closes the gate and never repeats the key.
+const keyWarning = computed(() => keyFormatWarning(store.provider, store.apiKey))
+const keyWarningId = computed(() => `${store.provider}-key-format`)
 const open = ref(false)
 const revealed = ref(false)
 /** The option the arrow keys are on while the list is open (an index into the catalogue). */
@@ -176,6 +180,7 @@ function onListKey(event: KeyboardEvent) {
           spellcheck="false"
           :placeholder="copy.placeholder"
           :aria-label="copy.label"
+          :aria-describedby="keyWarning ? keyWarningId : undefined"
         />
         <button
           type="button"
@@ -195,6 +200,16 @@ function onListKey(event: KeyboardEvent) {
           Clear
         </button>
       </label>
+      <p v-if="keyWarning" :id="keyWarningId" class="qs-keywarn" role="status">
+        <span class="qs-keywarn__title"
+          >This doesn't look like an {{ keyWarning.provider }} key.</span
+        >
+        <span
+          >{{ keyWarning.provider }} keys start with
+          <span class="qs-keywarn__prefix">{{ keyWarning.prefix }}</span
+          >. If yours is right, you can still continue.</span
+        >
+      </p>
       <span class="qs-hint">{{ copy.hint }}</span>
     </div>
   </div>

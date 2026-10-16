@@ -70,6 +70,7 @@ function openPicker() {
       v-if="!store.photo"
       :class="['qs-drop', { 'qs-drop--over': dragging }]"
       tabindex="0"
+      data-next-step="photo"
       @click="openPicker"
       @dragover.prevent="dragging = true"
       @dragleave="dragging = false"

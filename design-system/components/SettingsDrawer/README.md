@@ -14,6 +14,7 @@ The settings drawer reopens the setup form from the `SettingsChip` without leavi
 - Focus moves to the first control (the provider button) when it opens and back to the `SettingsChip` when it closes.
 - **Changing the provider or model** runs `NewInspection`: a blank screen, with the next run attributed to the new choice. **Changing only the key** resets nothing.
 - The presenter can reveal, hide, edit or clear the key. A cleared key stops live runs until a key is entered again; the chip then reads *no key*.
+- A key that doesn't start the way the provider's keys do shows the `ProviderSelect` key-format warning; Done and Enter still close the drawer and the key is kept.
 - A key entered for one provider stays with that provider. Switching provider shows that provider's own key field.
 
 ## Don't

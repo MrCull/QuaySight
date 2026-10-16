@@ -100,6 +100,7 @@ function start() {
           <button
             type="button"
             class="qs-btn qs-btn--primary qs-btn--lg"
+            data-next-step="start"
             :disabled="!canStart"
             :aria-busy="running ? 'true' : 'false'"
             @click="start"
