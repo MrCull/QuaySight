@@ -56,10 +56,7 @@ describe('fitPhoto', () => {
 
   it('rejects a photo below the minimum total pixels', () => {
     const limits: PhotoLimits = { maxSide: 4000, minSide: 100, maxPixels: null, minPixels: 50_000 }
-    expect(fitPhoto({ width: 200, height: 200 }, limits)).toEqual({
-      fits: false,
-      reason: 'too-small',
-    })
+    expect(fitPhoto({ width: 200, height: 200 }, limits)).toEqual({ fits: false, reason: 'too-small' })
   })
 
   it('names the total-pixel minimum when each side is long enough but the photo is still too small', () => {
