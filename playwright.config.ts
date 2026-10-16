@@ -7,6 +7,10 @@ import { defineConfig, devices } from '@playwright/test'
  */
 // require('dotenv').config();
 
+/* PW_PORT lets parallel checkouts run e2e side by side; PW_CHROMIUM_PATH points at a preinstalled browser. */
+const port = Number(process.env.PW_PORT) || (process.env.CI ? 4173 : 5173)
+const chromiumPath = process.env.PW_CHROMIUM_PATH
+
 /**
  * See https://playwright.dev/docs/test-configuration.
  */
@@ -36,7 +40,7 @@ export default defineConfig({
     /* Maximum time each action such as `click()` can take. Defaults to 0 (no limit). */
     actionTimeout: 0,
     /* Base URL to use in actions like `await page.goto('/')`. */
-    baseURL: process.env.CI ? 'http://localhost:4173' : 'http://localhost:5173',
+    baseURL: `http://localhost:${port}`,
 
     /* Collect trace when retrying the failed test. See https://playwright.dev/docs/trace-viewer */
     trace: 'on-first-retry',
@@ -51,6 +55,7 @@ export default defineConfig({
       name: 'chromium',
       use: {
         ...devices['Desktop Chrome'],
+        ...(chromiumPath ? { launchOptions: { executablePath: chromiumPath } } : {}),
       },
     },
     {
@@ -105,8 +110,8 @@ export default defineConfig({
      * Use the preview server on CI for more realistic testing.
      * Playwright will re-use the local server if there is already a dev-server running.
      */
-    command: process.env.CI ? 'npm run preview' : 'npm run dev',
-    port: process.env.CI ? 4173 : 5173,
+    command: `${process.env.CI ? 'npm run preview' : 'npm run dev'} -- --port ${port} --strictPort`,
+    port,
     reuseExistingServer: !process.env.CI,
   },
 })
