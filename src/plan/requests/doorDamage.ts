@@ -9,15 +9,14 @@ import type { PlanRequest } from '../requestPlan'
  * wire format. Its reading is folded in beside the side set's; the face the survey detects chooses which
  * one the record shows (domain/damageSets.ts).
  */
+const ASK = questionSetAsk(DOOR_DAMAGE_SET, (reply) => readDoorDamage(reply.answers))
+
 export const doorDamage: PlanRequest<DamageSetReading> = {
   id: 'door-damage',
   purpose: 'Checking the door end for damage',
   stages: ['damage'],
-  send: (ctx) =>
-    askDecisions(
-      ctx,
-      questionSetAsk(DOOR_DAMAGE_SET, (reply) => readDoorDamage(reply.answers)),
-    ),
+  send: (ctx) => askDecisions(ctx, ASK),
+  replay: (raw, plan) => ASK.map(raw, plan.route),
   apply: (record, outcome) =>
     outcome.status === 'answered'
       ? withDamageReading(record, { ...outcome.answer, passId: `${record.id}-${doorDamage.id}` })

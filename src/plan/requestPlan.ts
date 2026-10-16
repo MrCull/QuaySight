@@ -1,3 +1,4 @@
+import type { CropRegion } from '../domain/cropRead'
 import type { InspectionRecord, ProviderId } from '../domain/inspection'
 import type { CapReason, ChargeableRequest, ChargeableResult, Usage } from '../domain/ledger'
 import type { FailureModel } from '../domain/openrouter'
@@ -59,6 +60,14 @@ export type RequestOutcome<A> =
   | { status: 'blocked'; reason: CapReason }
   | { status: 'cancelled' }
 
+/** What a recording keeps of a request beside its raw response (./recording.ts), for a replay that needs it. */
+export interface ReplayExtras {
+  /** The crop read's region. */
+  crop?: CropRegion
+  /** The recorded request asked only the container ID (made before the survey existed). */
+  asked?: 'id-only'
+}
+
 export interface PlanRequest<A = unknown> {
   /** Unique within the registry. The ledger line and raw response are `<inspection id>-<id>`. */
   id: string
@@ -76,6 +85,11 @@ export interface PlanRequest<A = unknown> {
   optional?: boolean
   /** Builds the questions, sends them on the route with ctx.signal and maps the answer. Throws a ProviderError on failure. */
   send(ctx: RequestContext): Promise<RequestReply<A>>
+  /**
+   * Reads a recorded raw response as the answer its live reply would have given, through the same mapper
+   * `send` uses, for demo mode's replay (./replay.ts). Absent: the request cannot be replayed.
+   */
+  replay?(raw: unknown, plan: PlanView, extras: ReplayExtras): A
   /**
    * Folds the outcome into the record: the answer mapper's result into this request's own fields, or a
    * note of what did not happen. Called once for every request that was started, in the order they

@@ -127,7 +127,8 @@ export function applySurvey(
     const apply = part.apply as
       | ((record: InspectionRecord, finding: unknown) => InspectionRecord)
       | undefined
-    if (apply) next = apply(next, answer.findings[part.key])
+    // A part the survey did not ask has no finding: nothing to fold in (an unread answer is not the same thing).
+    if (apply && part.key in answer.findings) next = apply(next, answer.findings[part.key])
   }
   return next
 }

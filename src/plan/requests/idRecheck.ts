@@ -1,4 +1,5 @@
-import { assembleLunaReading } from '../../domain/luna'
+import { assembleLunaReading, mapLunaResponse } from '../../domain/luna'
+import { mapOpenRouterLunaResponse } from '../../domain/openrouter'
 import { questionSetOf } from '../../domain/providers'
 import {
   mergeRecheck,
@@ -64,6 +65,15 @@ export const idRecheck: PlanRequest<IdAnswer> = {
   appliesTo: (route) => questionSetOf(route.entry) === 'luna',
   needed: (plan) => askedOf(plan).length > 0,
   send: (ctx) => readLuna(ctx, askedOf(ctx)),
+  replay(raw, plan) {
+    const { route } = plan
+    const asked = askedOf(plan)
+    const mapped =
+      route.entry.wireFormat === 'openrouter-decisions'
+        ? mapOpenRouterLunaResponse(raw, route.model, asked)
+        : mapLunaResponse(raw, route.model, asked)
+    return { containerId: mapped.containerId, readings: mapped.readings }
+  },
   apply(record, outcome, plan) {
     const first = plan.answer(survey)
     const asked = askedOf(plan)

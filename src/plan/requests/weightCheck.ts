@@ -26,6 +26,16 @@ export const WEIGHT_CHECK_PURPOSE = 'Checking the weights'
 const INSTRUCTIONS =
   'Read the weight markings printed on this freight container photo, digit by digit. Answer each question from what is visible; if a digit cannot be read, answer unreadable rather than guessing.'
 
+/** The second look's questions for these weights, and how its reply is read. */
+function weightsAsk(quantities: WeightQuantity[], crop: CropRegion | null) {
+  const set = questionSet(INSTRUCTIONS, weightQuestions(quantities, { box: false }))
+  return questionSetAsk(set, ({ answers }) => ({
+    quantities,
+    readings: readWeights(answers, quantities),
+    crop,
+  }))
+}
+
 /** The weights the first reading left in disagreement. */
 function askedOf(plan: PlanView): WeightQuantity[] {
   const first = plan.answer(survey)?.findings.weights
@@ -59,17 +69,10 @@ export const weightCheck: PlanRequest<WeightCheckAnswer> = {
         // No crop fits the model's limits: the whole photo is still a fair look.
       }
     }
-    const set = questionSet(INSTRUCTIONS, weightQuestions(quantities, { box: false }))
-    const reply = await askDecisions(
-      { ...ctx, photo },
-      questionSetAsk(set, ({ answers }) => ({
-        quantities,
-        readings: readWeights(answers, quantities),
-        crop,
-      })),
-    )
-    return reply
+    return askDecisions({ ...ctx, photo }, weightsAsk(quantities, crop))
   },
+  // The crop is not kept on the record, so a replay does not need it.
+  replay: (raw, plan) => weightsAsk(askedOf(plan), null).map(raw, plan.route),
   apply(record, outcome, plan) {
     const first = plan.answer(survey)?.findings.weights
     if (!first) return record

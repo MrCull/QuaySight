@@ -23,6 +23,11 @@ export interface CropAnswer {
 /** The same group-position character questions as the full-photo read, without asking for the box again. */
 const CROP_QUESTIONS = jevIdQuestionSet({ image: 'the photo', box: false })
 
+const CROP_ASK = questionSetAsk(CROP_QUESTIONS, ({ answers }) => ({
+  readings: readIdCharacters(answers),
+  caveats: jevCaveatsOf(answers),
+}))
+
 /** The box from the full-photo read, when a crop can be made from it. */
 function boxOf(plan: PlanView): IdBox | null {
   return usableIdBox(plan.answer(survey)?.box)
@@ -46,14 +51,12 @@ export const idCropRead: PlanRequest<CropAnswer> = {
     const box = boxOf(ctx)
     if (!box) throw new Error('No box to crop the ID from.')
     const { photo, region } = await cropPhoto(ctx.photo, box, ctx.route.entry.photoLimits)
-    const reply = await askDecisions(
-      { ...ctx, photo },
-      questionSetAsk(CROP_QUESTIONS, ({ answers }) => ({
-        readings: readIdCharacters(answers),
-        caveats: jevCaveatsOf(answers),
-      })),
-    )
+    const reply = await askDecisions({ ...ctx, photo }, CROP_ASK)
     return { ...reply, answer: { ...reply.answer, region } }
+  },
+  replay(raw, plan, { crop }) {
+    if (!crop) throw new Error('A recorded crop read names the region it was cut from.')
+    return { ...CROP_ASK.map(raw, plan.route), region: crop }
   },
   apply(record, outcome, plan) {
     const first = plan.answer(survey)

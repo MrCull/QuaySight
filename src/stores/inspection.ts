@@ -18,11 +18,7 @@ import { OPENROUTER_ENDPOINT_ID } from '../domain/openrouter'
 import type { ContainerIdReading } from '../domain/inspection'
 import type { Usage } from '../domain/ledger'
 import { useLedgerStore } from './ledger'
-import {
-  INSPECTION_SCHEMA_VERSION,
-  type InspectionRecord,
-  type ProviderId,
-} from '../domain/inspection'
+import type { InspectionRecord, ProviderId } from '../domain/inspection'
 import {
   RUN_STAGES,
   stageProgress,
@@ -39,6 +35,7 @@ import {
   type RunRoute,
   type SettledRequest,
 } from '../plan/requestPlan'
+import { draftRecord } from '../plan/draftRecord'
 import { planRequests } from '../plan/registry'
 
 export interface SelectedPhoto {
@@ -460,22 +457,13 @@ export const useInspectionStore = defineStore('inspection', {
           return
         }
 
-        let draft: InspectionRecord = {
-          schemaVersion: INSPECTION_SCHEMA_VERSION,
+        let draft = draftRecord({
           id: inspectionId,
           provider,
           model: requestedModel,
-          resolvedVersion: '',
-          rawResponses: [],
           source: 'live',
-          status: 'running',
           photo: { name: photo.name, orientation: photo.orientation },
-          containerId: null,
-          damage: null,
-          sizeCode: null,
-          weights: null,
-          rechecks: [],
-        }
+        })
         const settled: SettledRequest[] = []
         const live = runPlan({
           requests: plan,
