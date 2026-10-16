@@ -104,12 +104,13 @@ async function runLuna(page: Page, photo: Buffer): Promise<string> {
     if (image) sent.push(image)
     return route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify(lunaSmoke) })
   })
+  // The setup card first: the placeholder key, then Enter continues to the inspection screen.
+  const key = page.getByLabel('OpenAI API key', { exact: true })
+  await key.fill(PLACEHOLDER_KEY)
+  await key.press('Enter')
   await page
     .locator('input[type="file"]')
     .setInputFiles({ name: 'phone.jpg', mimeType: 'image/jpeg', buffer: photo })
-  const key = page.getByLabel('OpenAI API key', { exact: true }).first()
-  await key.fill(PLACEHOLDER_KEY)
-  await key.press('Enter')
   await page.getByRole('button', { name: 'Run live inspection' }).click()
   await page.locator('#stage.qs-arrived').waitFor()
   expect(sent.length).toBeGreaterThan(0)
