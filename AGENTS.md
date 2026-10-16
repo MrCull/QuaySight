@@ -13,7 +13,8 @@ Quay Sight is a Vue 3 + Vite + TypeScript app that inspects photos of freight co
 - `npm run test:e2e` — Playwright
 - `npm run lint` — oxlint and ESLint (both apply `--fix`)
 - `npm run format` — oxfmt on `src/`
-- `npm run check` — the full gate CI runs (lint:check, token ratchet, type-check, unit, build, e2e). Pre-commit hooks live in `.githooks/`, enabled by `pnpm install`.
+- `npm run check` — the gate CI runs: lint:check, token ratchet, type-check, build. Tests are off for now; `npm run check:tests` runs unit and e2e, `npm run check:all` runs everything. Pre-commit hooks live in `.githooks/`, enabled by `pnpm install`.
+- Running agents cheaply and quickly: `docs/agents/fast-and-cheap.md`.
 
 ## Shared hotspots
 

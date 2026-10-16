@@ -20,7 +20,9 @@
     "lint:eslint:check": "eslint .",
     "check:tokens": "node scripts/check-tokens.mjs",
     "check:secrets": "node scripts/check-secrets.mjs",
-    "check": "npm run lint:check && npm run check:tokens && npm run type-check && npx vitest run --run && npm run build && npx playwright test --project=chromium",
+    "check": "npm run lint:check && npm run check:tokens && npm run type-check && npm run build",
+    "check:tests": "npx vitest run --run && npx playwright test --project=chromium",
+    "check:all": "npm run check && npm run check:tests",
     "format": "oxfmt src/",
     "screenshots": "node e2e/screens/run-screenshots.mjs"
   },
