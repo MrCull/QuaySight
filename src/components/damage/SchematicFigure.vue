@@ -2,7 +2,7 @@
 import { computed } from 'vue'
 import type { DamageFinding, FaceStatus, FindingZone, ZoneCoverage } from '../../domain/damage'
 
-// One fixed view (or the image-relative long side) of the neutral container drawing, following
+// One fixed view of the neutral container drawing, following
 // design-system/components/ContainerSchematic. Markers are approximate areas on a flat face, drawn
 // with the same oblique projection in both views so they read as one object turned round.
 const props = defineProps<{

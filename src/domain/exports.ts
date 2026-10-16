@@ -13,6 +13,7 @@ import {
   type FindingZone,
   type ImageQuality,
   type SeverityLevel,
+  type SideInference,
   type ZoneVisibility,
 } from './damage'
 import type { FaceReading } from './photoFace'
@@ -110,6 +111,8 @@ export interface InspectionExport {
     significantProbability: number | null
     /** Which edge of the photo the door end is at, only when the photo shows it directly. */
     doorEnd: 'image-left' | 'image-right' | null
+    /** The long side a long-side photo was drawn on, and whether the doors inferred it or it was defaulted; null for other faces. */
+    sideInference: SideInference | null
     photos: { photo: string; face: DamageFace }[]
     faces: { face: 'rear' | 'front' | 'left' | 'right' | 'roof'; status: FaceExportStatus }[]
     /** Every photo-relative zone the set judged, with its visibility: an unseen zone is never clean. */
@@ -281,6 +284,7 @@ export function buildInspectionExport(record: InspectionRecord): InspectionExpor
           : null,
       significantProbability: assessment?.significantProbability ?? null,
       doorEnd: assessment?.doorEnd ?? null,
+      sideInference: assessment?.sideInference ?? null,
       photos: assessment?.photos ?? [],
       faces: FIXED_FACES.map((face) => ({
         face,

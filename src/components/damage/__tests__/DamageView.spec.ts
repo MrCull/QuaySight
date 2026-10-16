@@ -8,9 +8,7 @@ const FORBIDDEN = /\b(clear|undamaged|safe|verified|supported|green|passed|confi
 describe('DamageView schematic', () => {
   it('draws two fixed views, stacked by default, each with its own caption', () => {
     const wrapper = mount(DamageView, { props: { assessment: recordedSideDamage } })
-    const views = wrapper.findAll(
-      '.qs-schem__views-in > figure.qs-schem__view:not([data-view="image-relative"])',
-    )
+    const views = wrapper.findAll('.qs-schem__views-in > figure.qs-schem__view')
     expect(views).toHaveLength(2)
     expect(views[0]!.find('figcaption').text()).toContain('Rear and right side')
     expect(views[1]!.find('figcaption').text()).toContain('Front and left side')
@@ -21,29 +19,26 @@ describe('DamageView schematic', () => {
     expect(wrapper.findAll('.qs-schem__views-in .qs-c-roof')).toHaveLength(2)
   })
 
-  it('says a view with no photographed faces has no photos, and puts no marker in it', () => {
+  it('says the view with no photographed faces has no photos, and puts no marker in it', () => {
     const wrapper = mount(DamageView, { props: { assessment: recordedSideDamage } })
-    const views = wrapper.findAll(
-      '.qs-schem__views-in > figure.qs-schem__view:not([data-view="image-relative"])',
-    )
-    for (const view of views) {
-      expect(view.find('figcaption').text()).toContain('No photos')
-      expect(view.findAll('.qs-pin')).toHaveLength(0)
-    }
+    const left = wrapper.find('figure[data-view="front-left"]')
+    expect(left.find('figcaption').text()).toContain('No photos')
+    expect(left.findAll('.qs-pin')).toHaveLength(0)
   })
 
-  it('draws the long-side finding once, in the image-relative figure', () => {
+  it('draws the long-side finding once, on the side it was drawn on, and never on a third figure', () => {
     const wrapper = mount(DamageView, { props: { assessment: recordedSideDamage } })
-    const image = wrapper.find('figure[data-view="image-relative"]')
-    expect(image.exists()).toBe(true)
-    expect(image.findAll('.qs-pin')).toHaveLength(1)
-    expect(image.find('.qs-pin').attributes('aria-label')).toContain('Finding 1')
+    expect(wrapper.find('figure[data-view="image-relative"]').exists()).toBe(false)
+    expect(wrapper.findAll('.qs-schem__view')).toHaveLength(2)
+    const right = wrapper.find('figure[data-view="rear-right"]')
+    expect(right.findAll('.qs-pin')).toHaveLength(1)
+    expect(right.find('.qs-pin').attributes('aria-label')).toContain('Finding 1')
   })
 
-  it("shows Not seen for unphotographed faces and Can't tell for the unestablished side, never clear", () => {
+  it('shows Not seen for unphotographed faces and side Uncertain for the defaulted side, never clear', () => {
     const wrapper = mount(DamageView, { props: { assessment: recordedSideDamage } })
     expect(wrapper.text()).toContain('Not seen')
-    expect(wrapper.text()).toContain("Can't tell")
+    expect(wrapper.text()).toContain('side Uncertain')
     expect(wrapper.text()).not.toMatch(FORBIDDEN)
   })
 
