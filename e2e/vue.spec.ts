@@ -15,6 +15,10 @@ test('recorded run shows the container ID and the recorded label', async ({ page
   await expect(start).toBeEnabled()
   await start.click()
   await expect(page.getByText('Recorded demonstration: GPT-6 Luna / gpt-6-luna')).toBeVisible()
-  await expect(page.locator('.qs-cert').filter({ hasText: 'Confident' })).toBeVisible()
+  // Scope to the Container ID card: other cards (details, checks) also carry certainty chips.
+  const idCard = page
+    .locator('.rs-card')
+    .filter({ has: page.locator('.rs-k', { hasText: 'Container ID' }) })
+  await expect(idCard.locator('.qs-cert', { hasText: 'Confident' })).toBeVisible()
   await expect(page.locator('input[type="password"]')).toHaveCount(0)
 })
