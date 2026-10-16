@@ -1,12 +1,12 @@
 import { describe, it, expect } from 'vitest'
-import { runRecordedInspection } from '../recordedRun'
+import { recordedInspection } from '../../__tests__/recordedInspection'
 import { buildContainerIdReading } from '../containerId'
 import { buildInspectionExport, buildRawResponsesExport, buildSummaryText } from '../exports'
 import type { InspectionRecord, RecheckRecord } from '../inspection'
 
 // Hand-written expectations: the re-check resolved positions 7 and 9 of APHU6586847 (check digit 7).
 async function liveRecordWithRecheck(): Promise<InspectionRecord> {
-  const base = await runRecordedInspection('luna', { delayMs: 0, id: 'live-luna-7' })
+  const base = await recordedInspection('luna', { delayMs: 0, id: 'live-luna-7' })
   const recheck: RecheckRecord = {
     id: 'live-luna-7-recheck',
     field: 'containerId',
@@ -69,7 +69,7 @@ describe('re-check in the exports', () => {
 
   it('has no re-check entries when none ran', async () => {
     const json = buildInspectionExport(
-      await runRecordedInspection('luna', { delayMs: 0, id: 'run-luna-2' }),
+      await recordedInspection('luna', { delayMs: 0, id: 'run-luna-2' }),
     )
     expect(json.rechecks).toEqual([])
   })

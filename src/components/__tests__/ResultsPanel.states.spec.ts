@@ -2,7 +2,7 @@ import { describe, it, expect, beforeEach } from 'vitest'
 import { mount } from '@vue/test-utils'
 import { setActivePinia, createPinia } from 'pinia'
 import { useInspectionStore } from '../../stores/inspection'
-import { runRecordedInspection } from '../../domain/recordedRun'
+import { recordedInspection } from '../../__tests__/recordedInspection'
 import type { ContainerIdReading, InspectionRecord } from '../../domain/inspection'
 import ResultsPanel from '../ResultsPanel.vue'
 
@@ -11,7 +11,7 @@ const FORBIDDEN =
 
 async function withReading(containerId: Partial<ContainerIdReading>) {
   const store = useInspectionStore()
-  const base = await runRecordedInspection('luna', { delayMs: 0 })
+  const base = await recordedInspection('luna', { delayMs: 0 })
   const record: InspectionRecord = {
     ...base,
     containerId: { ...base.containerId!, ...containerId },

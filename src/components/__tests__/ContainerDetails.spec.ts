@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest'
 import { mount } from '@vue/test-utils'
-import { runRecordedInspection } from '../../domain/recordedRun'
+import { recordedInspection } from '../../__tests__/recordedInspection'
 import ContainerDetails from '../ContainerDetails.vue'
 
 const FORBIDDEN =
@@ -8,7 +8,7 @@ const FORBIDDEN =
 
 describe('ContainerDetails', () => {
   it('shows the printed ISO code and its decoded meaning as a 40 ft High Cube, not a 45 ft container', async () => {
-    const record = await runRecordedInspection('luna', { delayMs: 0 })
+    const record = await recordedInspection('luna', { delayMs: 0 })
     const wrapper = mount(ContainerDetails, { props: { record } })
     expect(wrapper.text()).toContain('45G1')
     expect(wrapper.text()).toContain('40 ft')
@@ -18,7 +18,7 @@ describe('ContainerDetails', () => {
   })
 
   it('keeps maximum gross and tare as separate printed rows, and payload as a calculated row', async () => {
-    const record = await runRecordedInspection('luna', { delayMs: 0 })
+    const record = await recordedInspection('luna', { delayMs: 0 })
     const wrapper = mount(ContainerDetails, { props: { record } })
     const rows = wrapper.findAll('.qs-field')
     const labels = rows.map((r) => r.find('.qs-field__label').text())
@@ -43,7 +43,7 @@ describe('ContainerDetails', () => {
   })
 
   it('shows a flagged conflict when printed NET disagrees with the arithmetic', async () => {
-    const record = await runRecordedInspection('luna', { delayMs: 0 })
+    const record = await recordedInspection('luna', { delayMs: 0 })
     record.weights = {
       ...record.weights!,
       conflict: 'Printed NET 28,000 kg does not match maximum gross minus tare, 28,630 kg.',
@@ -55,7 +55,7 @@ describe('ContainerDetails', () => {
   })
 
   it('marks absent readings as not visible rather than zero, and keeps Jev honest', async () => {
-    const record = await runRecordedInspection('openrouter', { delayMs: 0 })
+    const record = await recordedInspection('openrouter', { delayMs: 0 })
     const wrapper = mount(ContainerDetails, { props: { record } })
     expect(wrapper.text()).toContain('Not visible in this photo')
     expect(wrapper.text()).not.toContain('0 kg')
@@ -64,7 +64,7 @@ describe('ContainerDetails', () => {
 
   it('says the details were not assessed when the run never read them, with no Not seen chips', async () => {
     // A run that read only the container ID (every live run today): no size code, no weights.
-    const record = await runRecordedInspection('luna', { delayMs: 0 })
+    const record = await recordedInspection('luna', { delayMs: 0 })
     record.sizeCode = null
     record.weights = null
     const wrapper = mount(ContainerDetails, { props: { record } })
@@ -75,7 +75,7 @@ describe('ContainerDetails', () => {
   })
 
   it('uses only the approved status and provenance vocabulary', async () => {
-    const record = await runRecordedInspection('luna', { delayMs: 0 })
+    const record = await recordedInspection('luna', { delayMs: 0 })
     const wrapper = mount(ContainerDetails, { props: { record } })
     expect(wrapper.text()).not.toMatch(FORBIDDEN)
   })

@@ -2,7 +2,7 @@ import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest'
 import { setActivePinia, createPinia } from 'pinia'
 import { useInspectionStore } from '../inspection'
 import { useLedgerStore } from '../ledger'
-import { runRecordedInspection } from '../../domain/recordedRun'
+import { recordedInspection } from '../../__tests__/recordedInspection'
 
 // Outside demo mode a manifest check is only ever a live call (liveManifestRetry.spec.ts). A recorded
 // result never gets a recorded check against the photo on screen (spec #16, Demo mode).
@@ -25,7 +25,7 @@ describe('inspection store: manifest retry outside demo mode', () => {
     store.setProvider('luna')
     store.setPhoto({ name: 'a.jpg', url: 'blob:a', orientation: 'landscape' })
     store.setApiKey('test-only-key-0000')
-    store.record = await runRecordedInspection('luna', { delayMs: 0, scenario: 'unidentified' })
+    store.record = await recordedInspection('luna', { delayMs: 0, scenario: 'unidentified' })
     store.status = 'complete'
     return store
   }

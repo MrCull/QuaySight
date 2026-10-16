@@ -2,7 +2,7 @@ import { describe, it, expect, beforeEach } from 'vitest'
 import { mount } from '@vue/test-utils'
 import { setActivePinia, createPinia } from 'pinia'
 import { useInspectionStore } from '../../stores/inspection'
-import { runRecordedInspection } from '../../domain/recordedRun'
+import { recordedInspection } from '../../__tests__/recordedInspection'
 import ResultsPanel from '../ResultsPanel.vue'
 
 describe('ResultsPanel', () => {
@@ -10,7 +10,7 @@ describe('ResultsPanel', () => {
 
   it('shows the container ID with its certainty label and the recorded sample label for Luna', async () => {
     const store = useInspectionStore()
-    store.record = await runRecordedInspection('luna', { delayMs: 0 })
+    store.record = await recordedInspection('luna', { delayMs: 0 })
     store.status = 'complete'
     const wrapper = mount(ResultsPanel)
     expect(wrapper.text()).toContain('Recorded demonstration: GPT-6 Luna / gpt-6-luna')
@@ -21,7 +21,7 @@ describe('ResultsPanel', () => {
 
   it('labels a Jev recorded result with the model, maker and route', async () => {
     const store = useInspectionStore()
-    store.record = await runRecordedInspection('openrouter', { delayMs: 0 })
+    store.record = await recordedInspection('openrouter', { delayMs: 0 })
     store.status = 'complete'
     const wrapper = mount(ResultsPanel)
     expect(wrapper.text()).toContain(
@@ -32,7 +32,7 @@ describe('ResultsPanel', () => {
 
   it('attributes a live OpenRouter result to model, maker and route, with the version that answered', async () => {
     const store = useInspectionStore()
-    const recorded = await runRecordedInspection('openrouter', { delayMs: 0 })
+    const recorded = await recordedInspection('openrouter', { delayMs: 0 })
     store.record = {
       ...recorded,
       source: 'live',
@@ -70,7 +70,7 @@ describe('ResultsPanel deterministic checks', () => {
 
   it('shows decoded size, printed maximum gross and tare, and calculated payload for Luna', async () => {
     const store = useInspectionStore()
-    store.record = await runRecordedInspection('luna', { delayMs: 0 })
+    store.record = await recordedInspection('luna', { delayMs: 0 })
     store.status = 'complete'
     const wrapper = mount(ResultsPanel)
     expect(wrapper.text()).toContain('40 ft High Cube')

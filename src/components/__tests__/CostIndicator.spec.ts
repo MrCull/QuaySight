@@ -3,7 +3,7 @@ import { mount } from '@vue/test-utils'
 import { setActivePinia, createPinia } from 'pinia'
 import { useInspectionStore } from '../../stores/inspection'
 import { useLedgerStore } from '../../stores/ledger'
-import { runRecordedInspection } from '../../domain/recordedRun'
+import { recordedInspection } from '../../__tests__/recordedInspection'
 import type { ChargeableRequest } from '../../domain/ledger'
 import CostIndicator from '../CostIndicator.vue'
 
@@ -30,7 +30,7 @@ describe('CostIndicator', () => {
   it('shows "no live API charge" for a recorded sample and adds nothing to the live ledger', async () => {
     const inspection = useInspectionStore()
     const ledger = useLedgerStore()
-    inspection.record = await runRecordedInspection('luna', { delayMs: 0 })
+    inspection.record = await recordedInspection('luna', { delayMs: 0 })
     inspection.status = 'complete'
 
     const wrapper = mount(CostIndicator)

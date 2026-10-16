@@ -1,8 +1,14 @@
+// Test support only: a complete recorded InspectionRecord for a provider, built from the recorded
+// fixtures. The app replays recorded results through domain/demoSamples; nothing in src uses this.
 import { recordedFixtures } from '../fixtures/recorded'
-import { buildContainerIdReading } from './containerId'
-import { decodeSizeCode } from './isoSizeCode'
-import { INSPECTION_SCHEMA_VERSION, type InspectionRecord, type ProviderId } from './inspection'
-import { checkWeights } from './weights'
+import { buildContainerIdReading } from '../domain/containerId'
+import { decodeSizeCode } from '../domain/isoSizeCode'
+import {
+  INSPECTION_SCHEMA_VERSION,
+  type InspectionRecord,
+  type ProviderId,
+} from '../domain/inspection'
+import { checkWeights } from '../domain/weights'
 
 /** 'unidentified' replays a sample whose container ID could not be read (opens the manifest retry). */
 export type SampleScenario = 'identified' | 'unidentified'
@@ -18,7 +24,7 @@ export interface RecordedRunOptions {
 let counter = 0
 
 /** Replays the recorded fixture for a provider through the shared inspection record. */
-export async function runRecordedInspection(
+export async function recordedInspection(
   providerId: ProviderId,
   options: RecordedRunOptions = {},
 ): Promise<InspectionRecord> {

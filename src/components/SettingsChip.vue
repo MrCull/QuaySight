@@ -19,10 +19,8 @@ const vendor = computed(() => provider.value.vendor)
 const modelName = computed(() => labelsFor(store.provider, store.model).model)
 const keySet = computed(() => hasKey(store.apiKey))
 const keyLabel = computed(() => (keySet.value ? 'key set' : 'no key'))
-const modeLabel = computed(() => (store.mode === 'recorded' ? 'Recorded sample' : 'Live'))
-const summary = computed(
-  () => `${vendor.value} · ${modelName.value} · ${keyLabel.value} · ${modeLabel.value}`,
-)
+// Demo mode has no chip (the demo banner stands in for it), so what the chip names always runs live.
+const summary = computed(() => `${vendor.value} · ${modelName.value} · ${keyLabel.value} · Live`)
 
 // Focus comes back here when the drawer closes, unless a click outside already put it on another control.
 watch(
@@ -56,7 +54,7 @@ function toggle() {
     <span class="qs-mono" aria-hidden="true">{{ provider.monogram }}</span>
     <span class="qs-settingschip__text"
       >{{ vendor }} · <span class="qs-settingschip__model">{{ modelName }}</span> ·
-      <span class="qs-settingschip__key">{{ keyLabel }}</span> · {{ modeLabel }}</span
+      <span class="qs-settingschip__key">{{ keyLabel }}</span> · Live</span
     >
     <i class="qs-glyph qs-glyph--chevron" aria-hidden="true"></i>
   </button>
