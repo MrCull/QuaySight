@@ -78,4 +78,30 @@ describe('SchematicFigure length', () => {
     }
     expect(run(wide) / run(wrapper)).toBeCloseTo(45 / 20, 2)
   })
+
+  it('draws 5 sections on a 20 ft long side and 10 on a 40 or 45 ft one', () => {
+    const count = (ft?: number) =>
+      mount(SchematicFigure, { props: { ...base, lengthFt: ft } as never }).findAll('.qs-c-section')
+        .length
+    expect(count(20)).toBe(5)
+    expect(count(40)).toBe(10)
+    expect(count(45)).toBe(10)
+    expect(count(undefined)).toBe(10)
+  })
+
+  it('draws the sections in the damage view when the side is defaulted', () => {
+    const sections = (ft: 20 | 40) =>
+      mount(DamageView, { props: { assessment: { ...recordedSideDamage, lengthFt: ft } } }).findAll(
+        'figure[data-view="rear-right"] .qs-c-section',
+      ).length
+    expect(sections(20)).toBe(5)
+    expect(sections(40)).toBe(10)
+  })
+
+  it('draws no sections on a long side that was not seen', () => {
+    const wrapper = mount(SchematicFigure, {
+      props: { ...base, side: { text: 'Left side · Not seen', status: 'not-seen' } } as never,
+    })
+    expect(wrapper.findAll('.qs-c-section')).toHaveLength(0)
+  })
 })
