@@ -2,6 +2,8 @@ import { test, expect, type Page } from '@playwright/test'
 import fs from 'node:fs'
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
+import { COYU_WEIGHTS, weightChoices } from '../src/__tests__/weightReplies'
+import { openAiSurveyReply } from '../src/__tests__/surveyReplies'
 
 /**
  * "What we found" (spec 8.1, spec #27 ticket #36): the summary at the top of every result, live and
@@ -73,20 +75,53 @@ test.describe('What we found', () => {
     expect((await card.innerText()).match(BANNED)).toBeNull()
   })
 
-  test('a recorded result opens with the summary, and it follows the units toggle', async ({
+  test('a recorded result opens with the summary: the earlier recording leaves an ID position unread', async ({
     page,
   }) => {
+    // The demo's APHU recording is Luna's earlier read of that photo (spec #27, ticket #37): the ID only.
     await runDemo(page)
 
     const card = found(page)
-    await expect(card.locator('.qs-found__headline')).toHaveText(/^APHU 658684 7: /)
-    await expect(card.locator('.qs-found__block')).toHaveCount(0)
-    await expect(card).toContainText('Maximum gross 32,500 kg, a rating, not the cargo weight')
+    await expect(card.locator('.qs-found__headline')).toHaveText('Some of what we found is uncertain')
+    await expect(card.locator('.qs-found__block .qs-found__label').first()).toHaveText(
+      'What remains uncertain',
+    )
     await expect(card).toContainText('Markings and DG placards were not assessed in this inspection.')
+    expect((await card.innerText()).match(BANNED)).toBeNull()
+  })
+
+  test('it follows the units toggle: the weights a live run read are said in the unit on screen', async ({
+    page,
+  }) => {
+    // A live run answered with the COYU door's weights in both units (digit by digit).
+    const weighed = JSON.stringify(
+      openAiSurveyReply('COYU2668130', {
+        details: {
+          size_type_code: [['22G1', 0.95]],
+          photo_face: [['rear_doors', 0.96]],
+          ...weightChoices(COYU_WEIGHTS),
+        },
+      }),
+    )
+    await page.route(/api\.openai\.com\/v1\/decisions/, (route) =>
+      route.fulfill({ status: 200, contentType: 'application/json', body: weighed }),
+    )
+    await page.goto('/')
+    await page.locator('#provider-button').click()
+    await page.getByTestId('provider-option-luna').click()
+    const key = page.getByLabel('OpenAI API key', { exact: true })
+    await key.fill(PLACEHOLDER_KEY)
+    await key.press('Enter')
+    await page.locator('input[type="file"]').setInputFiles(samplePhoto)
+    await page.getByRole('button', { name: 'Run live inspection' }).click()
+    await page.locator('#stage.qs-arrived').waitFor()
+
+    const card = found(page)
+    await expect(card).toContainText('Maximum gross 30,480 kg, a rating, not the cargo weight')
 
     await page.getByRole('group', { name: 'Units' }).getByRole('button', { name: 'Imperial' }).click()
-    await expect(card).toContainText('Maximum gross 71,650 lb, a rating, not the cargo weight')
-    await expect(card).not.toContainText('32,500 kg')
+    await expect(card).toContainText('Maximum gross 67,200 lb, a rating, not the cargo weight')
+    await expect(card).not.toContainText('30,480 kg')
     expect((await card.innerText()).match(BANNED)).toBeNull()
   })
 

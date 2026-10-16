@@ -20,18 +20,17 @@ describe('every shipped demo recording', () => {
     expect(SHIPPED_RECORDINGS.length).toBeGreaterThan(0)
     for (const recording of SHIPPED_RECORDINGS) {
       expect(() => parsePlanRecording(JSON.parse(JSON.stringify(recording)))).not.toThrow()
-      expect(existsSync(resolve(root, recording.photo)), recording.photo).toBe(true)
+      expect(existsSync(resolve(root, recording.photo))).toBe(true)
     }
   })
 
   it('asks only requests the plan makes, and replays to a complete record', () => {
     const known = new Set(planRequests().map((r) => r.id))
     for (const recording of SHIPPED_RECORDINGS) {
-      for (const entry of recording.entries)
-        expect(known.has(entry.request), entry.request).toBe(true)
+      for (const entry of recording.entries) expect([...known]).toContain(entry.request)
       const record = replayRecording(recording, { id: 'check', photo: null })
       expect(record).toMatchObject({ source: 'recorded', status: 'complete' })
-      expect(record.containerId, `${recording.photo} on ${recording.model}`).not.toBeNull()
+      expect(record.containerId).not.toBeNull()
     }
   })
 
