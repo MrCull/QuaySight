@@ -41,6 +41,9 @@ const newInspection = (page: Page) => page.getByRole('button', { name: 'New insp
 /** Types the placeholder on the setup card and continues to the inspection screen. */
 async function continueWithKey(page: Page) {
   await page.goto('/')
+  // OpenRouter is pre-selected; these runs use OpenAI's recorded Luna responses.
+  await page.locator('#provider-button').click()
+  await page.getByRole('option', { name: /GPT-6 Luna/ }).click()
   const key = page.getByLabel('OpenAI API key', { exact: true })
   await key.fill(PLACEHOLDER_KEY)
   await key.press('Enter')
@@ -100,6 +103,9 @@ test.describe('New inspection', () => {
 
   test('clears the manifest retry panel', async ({ page }) => {
     await page.goto('/')
+    // OpenRouter is pre-selected; these runs use OpenAI's recorded Luna responses.
+    await page.locator('#provider-button').click()
+    await page.getByRole('option', { name: /GPT-6 Luna/ }).click()
     await page.getByLabel('OpenAI API key', { exact: true }).fill(PLACEHOLDER_KEY)
     await page.getByRole('checkbox', { name: /Replay the recorded sample/ }).check()
     await page.getByRole('button', { name: 'Continue' }).click()

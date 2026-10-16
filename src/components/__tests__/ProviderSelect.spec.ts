@@ -10,44 +10,51 @@ const photo = { name: 'a.jpg', url: 'blob:a', orientation: 'landscape' as const 
 describe('ProviderSelect (the form in the setup card and the settings drawer)', () => {
   beforeEach(() => setActivePinia(createPinia()))
 
-  it('offers Luna and Jev, and choosing Jev takes its recommended model and blanks the screen', async () => {
+  it('offers OpenRouter and OpenAI, and choosing OpenAI takes its recommended model and blanks the screen', async () => {
     const store = useInspectionStore()
     store.setPhoto(photo)
     const wrapper = mount(ProviderSelect)
     await wrapper.find('.qs-combo__button').trigger('click')
     const options = wrapper.findAll('.qs-option')
     expect(options.map((o) => o.text())).toEqual([
-      expect.stringContaining('GPT-6 Luna'),
-      expect.stringContaining('Jev'),
+      expect.stringContaining('OpenRouter'),
+      expect.stringContaining('OpenAI'),
     ])
+    expect(options.map((o) => o.text()).join(' ')).not.toMatch(/TypeSafe|System One/)
     await options[1]!.trigger('click')
-    expect(store.provider).toBe('jev')
-    expect(store.model).toBe('jev-latest')
+    expect(store.provider).toBe('luna')
+    expect(store.model).toBe('gpt-6-luna')
     expect(store.photo).toBeNull()
+  })
+
+  it('lists Jev latest (recommended, moving target), Jev 1.14 and Jev 1.13 for OpenRouter', () => {
+    const wrapper = mount(ProviderSelect)
+    expect(wrapper.findAll('select option').map((o) => [o.attributes('value'), o.text()])).toEqual([
+      ['~typesafe/jev-latest', 'Jev latest (recommended, moving target)'],
+      ['typesafe/jev-1.14', 'Jev 1.14 (pinned)'],
+      ['typesafe/jev-1.13', 'Jev 1.13 (pinned)'],
+    ])
   })
 
   it('a new model blanks the screen; typing a key does not', async () => {
     const store = useInspectionStore()
-    store.setProvider('jev')
     store.setPhoto(photo)
     const wrapper = mount(ProviderSelect)
     await wrapper.find('input[type="password"]').setValue(KEY)
     expect(store.apiKey).toBe(KEY)
     expect(store.photo).not.toBeNull()
 
-    await wrapper.find('select').setValue('jev-1.13.0')
-    expect(store.model).toBe('jev-1.13.0')
+    await wrapper.find('select').setValue('typesafe/jev-1.13')
+    expect(store.model).toBe('typesafe/jev-1.13')
     expect(store.photo).toBeNull()
   })
 
   it('labels the key for the chosen provider and says whose endpoint receives the photo and key', () => {
-    const store = useInspectionStore()
-    store.setProvider('jev')
     const wrapper = mount(ProviderSelect)
     const input = wrapper.find('input[type="password"]')
-    expect(input.attributes('aria-label')).toBe('TypeSafe API key')
+    expect(input.attributes('aria-label')).toBe('OpenRouter API key')
     expect(wrapper.text()).toContain(
-      "The photo and this key go only to TypeSafe's System One endpoint",
+      "The photo and this key go only to OpenRouter's Decisions endpoint",
     )
     expect(wrapper.text()).not.toContain('OpenAI')
     expect(wrapper.text()).toContain('Moving target: TypeSafe points this alias')

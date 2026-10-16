@@ -1,4 +1,6 @@
 import type { ProviderId } from './inspection'
+import { OPENROUTER_ENDPOINT_ID } from './openrouter'
+import { getProvider } from './providers'
 
 // Separately maintained cost configuration (spec 8.5, 11.6). Edit here, not in code.
 // Every schedule is timestamped by effectiveFrom and keyed by provider, model and endpoint.
@@ -38,17 +40,21 @@ export const rateSchedules: RateSchedule[] = [
     inputUsdPerMillionTokens: 0.1,
     outputUsdPerMillionTokens: 0,
   },
-  ...['jev-latest', 'jev-1.13.0', 'jev-1.14.0'].map((model): RateSchedule => ({
-    provider: 'jev',
-    model,
-    endpoint: 'system-one',
-    effectiveFrom: '2026-10-01',
-    source:
-      'docs.typesafe.ai/models, checked 16 Oct 2026: $42 per Btok ($0.042 per Mtok) input, output free. The page is undated; re-check before a demo.',
-    placeholder: false,
-    inputUsdPerMillionTokens: 0.042,
-    outputUsdPerMillionTokens: 0,
-  })),
+  // Jev through OpenRouter: every TypeSafe model the catalogue lists under OpenRouter. Used only when a
+  // response carries no usage.cost; OpenRouter's reported cost is preferred (spec #16, Cost).
+  ...getProvider('openrouter')
+    .models.filter((m) => m.maker === 'TypeSafe')
+    .map((m): RateSchedule => ({
+      provider: 'openrouter',
+      model: m.id,
+      endpoint: OPENROUTER_ENDPOINT_ID,
+      effectiveFrom: '2026-10-16',
+      source:
+        'OpenRouter usage.cost on live Jev calls, 16 Oct 2026: 1,844 input + 75 output tokens cost $0.000077448, i.e. $0.042 per Mtok input and output free. Matches docs.typesafe.ai/models ($42 per Btok). Re-check before a demo.',
+      placeholder: false,
+      inputUsdPerMillionTokens: 0.042,
+      outputUsdPerMillionTokens: 0,
+    })),
 ]
 
 /** Per-inspection cap (spec 8.3, 11.5). PLACEHOLDER values, to be set by the presenter. */

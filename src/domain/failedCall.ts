@@ -29,6 +29,8 @@ export type FailedCallClass =
   | 'unreachable'
   /** 401 or 403: the key was rejected. */
   | 'bad-key'
+  /** 402: the key has no credit or quota left (OpenRouter). */
+  | 'no-credit'
   /** 404: the endpoint or model is not available to this key. */
   | 'not-found'
   /** 429: too many requests. */
@@ -45,6 +47,7 @@ export function classifyFailedCall(call: FailedCall, traits: ProviderErrorTraits
   }
   const { status } = call
   if (status === 401 || status === 403) return 'bad-key'
+  if (status === 402) return 'no-credit'
   if (status === 404) return 'not-found'
   if (status === 429) return 'rate-limited'
   if (status >= 500) return 'unavailable'

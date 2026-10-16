@@ -29,7 +29,7 @@ describe('runRecordedManifestRetry', () => {
   })
 
   it('uses the Jev recorded fixture for Jev', async () => {
-    const reading = await runRecordedManifestRetry('jev', [], { delayMs: 0 })
+    const reading = await runRecordedManifestRetry('openrouter', [], { delayMs: 0 })
     expect(reading.certainty).toBe('Likely')
   })
 })

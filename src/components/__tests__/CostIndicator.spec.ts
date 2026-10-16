@@ -113,9 +113,9 @@ describe('CostIndicator', () => {
     inspection.record = {
       schemaVersion: 1,
       id: 'live-insp-2',
-      provider: 'jev',
-      model: 'jev-1.14.0',
-      resolvedVersion: 'jev-1.14.0',
+      provider: 'openrouter',
+      model: 'typesafe/jev-1.14',
+      resolvedVersion: 'typesafe/jev-1.14',
       rawResponses: [],
       source: 'live',
       status: 'complete',
@@ -129,10 +129,10 @@ describe('CostIndicator', () => {
       liveRequest({
         id: 'req-jev',
         inspectionId: 'live-insp-2',
-        provider: 'jev',
-        endpoint: 'system-one',
-        model: 'jev-1.14.0',
-        call: async () => ({ resolvedModel: 'jev-1.14.0', usage: null, latencyMs: 1200 }),
+        provider: 'openrouter',
+        endpoint: 'decisions',
+        model: 'typesafe/jev-1.14',
+        call: async () => ({ resolvedModel: 'typesafe/jev-1.14', usage: null, latencyMs: 1200 }),
       }),
     )
 
@@ -142,6 +142,51 @@ describe('CostIndicator', () => {
 
     await wrapper.get('button.qs-cost__toggle').trigger('click')
     expect(wrapper.get('.qs-cost__table tbody').text()).toContain('Cost unavailable')
+  })
+
+  it('marks a provider-reported cost as reported and a rate-table cost as an estimate', async () => {
+    const inspection = useInspectionStore()
+    const ledger = useLedgerStore()
+    inspection.record = {
+      schemaVersion: 1,
+      id: 'live-insp-3',
+      provider: 'openrouter',
+      model: '~typesafe/jev-latest',
+      resolvedVersion: 'typesafe/jev-1.14-20261014',
+      rawResponses: [],
+      source: 'live',
+      status: 'complete',
+      photo: null,
+      containerId: null,
+      damage: null,
+      sizeCode: null,
+      weights: null,
+    }
+    await ledger.run(
+      liveRequest({
+        id: 'req-or',
+        inspectionId: 'live-insp-3',
+        provider: 'openrouter',
+        model: '~typesafe/jev-latest',
+        call: async () => ({
+          resolvedModel: 'typesafe/jev-1.14-20261014',
+          usage: { inputTokens: 1844, outputTokens: 75 },
+          latencyMs: 900,
+          reportedCostUsd: 0.000077448,
+        }),
+      }),
+    )
+    await ledger.run(liveRequest({ id: 'req-luna', inspectionId: 'live-insp-3' }))
+
+    const wrapper = mount(CostIndicator)
+    await wrapper.get('button.qs-cost__toggle').trigger('click')
+    const [reported, estimated] = wrapper.findAll('.qs-cost__table tbody tr')
+    expect(reported!.text()).toContain(
+      'Jev latest (TypeSafe) via OpenRouter · typesafe/jev-1.14-20261014',
+    )
+    expect(reported!.text()).toContain('$0.0001 reported')
+    expect(estimated!.text()).toContain('$0.0016 estimate')
+    expect(wrapper.text()).not.toContain('Partial estimate')
   })
 
   it('labels the totals as estimates, not an invoice, in the expanded panel', async () => {

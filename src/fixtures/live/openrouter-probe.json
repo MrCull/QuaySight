@@ -1,0 +1,129 @@
+{
+  "recordedAt": "2026-10-16",
+  "endpoint": "https://openrouter.ai/api/alpha/decisions",
+  "note": "Raw OpenRouter Decisions responses from the 16 Oct 2026 live probe (curl; no key, no headers). Probe questions, not the app's question set. See docs/research/live-api-findings-2026-10-16.md.",
+  "jevLatest": {
+    "requestedModel": "~typesafe/jev-latest",
+    "status": 200,
+    "response": {
+      "model": "typesafe/jev-1.14-20261014",
+      "answers": {
+        "id_visible": {
+          "type": "noul",
+          "noul": 0.57
+        },
+        "owner": {
+          "type": "choice",
+          "choice": "other",
+          "probabilities": {
+            "APHU": 0.33,
+            "CHSU": 0.28,
+            "other": 0.39
+          },
+          "confidence": 0.09
+        },
+        "dents": {
+          "type": "noul",
+          "noul": 0.96
+        }
+      },
+      "usage": {
+        "input_tokens": 1844,
+        "output_tokens": 75,
+        "cost": 7.7448e-5
+      },
+      "id": "gen-dec-1792141171-tesKkER2g8aouZcGrOnY",
+      "provider": "TypeSafe"
+    }
+  },
+  "jevScoreAndBox": {
+    "requestedModel": null,
+    "status": 200,
+    "response": {
+      "model": "typesafe/jev-1.14-20261014",
+      "answers": {
+        "dent_severity": {
+          "type": "score",
+          "score": 1.34,
+          "legend": {
+            "0": "None",
+            "1": "Cosmetic",
+            "2": "Structural"
+          },
+          "probabilities": {
+            "0": 0.01,
+            "1": 0.64,
+            "2": 0.35
+          },
+          "confidence": 0.46
+        },
+        "dent_box": {
+          "type": "box",
+          "box": {
+            "top": 0.51,
+            "bottom": 0.57,
+            "left": 0.31,
+            "right": 0.45
+          },
+          "confidence": 0.42
+        }
+      },
+      "usage": {
+        "input_tokens": 1814,
+        "output_tokens": 37,
+        "cost": 7.6188e-5
+      },
+      "id": "gen-dec-1792141209-93deJV8KHSuob9Iq2d5U",
+      "provider": "TypeSafe"
+    }
+  },
+  "lunaDecisions": {
+    "requestedModel": "openai/gpt-6-luna-decisions",
+    "status": 200,
+    "response": {
+      "model": "openai/gpt-6-luna-decisions-20261006",
+      "answers": {
+        "id_visible": {
+          "type": "noul",
+          "noul": 1
+        },
+        "owner": {
+          "type": "choice",
+          "choice": "APHU",
+          "probabilities": {
+            "APHU": 1,
+            "CHSU": 0,
+            "other": 0
+          },
+          "confidence": 1
+        }
+      },
+      "usage": {
+        "input_tokens": 3355,
+        "output_tokens": 0,
+        "cost": 0.0003355
+      },
+      "id": "gen-dec-1792141171-Xv8S0rkapId4oGPiCi9A",
+      "provider": "OpenAI"
+    }
+  },
+  "badKey": {
+    "status": 401,
+    "response": {
+      "error": {
+        "message": "User not found.",
+        "code": 401
+      }
+    }
+  },
+  "boxOnJev113": {
+    "requestedModel": "typesafe/jev-1.13",
+    "status": 400,
+    "response": {
+      "error": {
+        "message": "HTTP 400: {\"detail\":{\"error_type\":\"api_usage_error\",\"message\":\"Invalid request.\"}}",
+        "code": 400
+      }
+    }
+  }
+}

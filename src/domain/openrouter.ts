@@ -1,0 +1,192 @@
+// OpenRouter Decisions adapter (spec #16, ticket #22; docs/adr/0001). Pure functions: no fetch, no storage.
+// Request and response shapes, model ids, image limits, CORS and error bodies were checked live on
+// 16 October 2026; see docs/research/live-api-findings-2026-10-16.md.
+//
+// One JSON body: `state` holds an instruction text part and the photo as a base64 data-URL part;
+// `questions` is a map of typed questions (noul, choice, score, box). OpenRouter's errors carry CORS
+// headers, so every failed status is readable in the browser and gets its own message.
+import { classifyFailedCall, type ProviderErrorTraits } from './failedCall'
+import { JevError, jevQuestions, mapJevResponse, type JevMapping, type JevQuestion } from './jev'
+
+export const OPENROUTER_ENDPOINT = 'https://openrouter.ai/api/alpha/decisions'
+/** Endpoint family key used by the rate schedules and ledger. */
+export const OPENROUTER_ENDPOINT_ID = 'decisions'
+/** Optional attribution headers OpenRouter reads to name the calling app. They carry nothing secret. */
+export const OPENROUTER_ATTRIBUTION_HEADERS = {
+  'HTTP-Referer': 'https://quay-sight.com',
+  'X-Title': 'Quay Sight',
+} as const
+
+/** OpenRouter sends CORS headers on errors as well as on success (checked live 16 Oct 2026). */
+export const OPENROUTER_ERROR_TRAITS: ProviderErrorTraits = { errorsCarryCors: true }
+
+export interface OpenRouterImagePart {
+  type: 'image_url'
+  image_url: { url: string }
+}
+
+export interface OpenRouterRequestBody {
+  model: string
+  state: [string, OpenRouterImagePart]
+  /** OpenRouter's question format: the same noul, choice (criteria map), score (criteria list) and box types Jev uses. */
+  questions: Record<string, JevQuestion>
+}
+
+/** The text part sent ahead of the photo. */
+export const JEV_STATE_INSTRUCTIONS =
+  'Freight container photo. Judge only what is visible in the photo. Answer every question about this one photo.'
+
+/**
+ * The request for one photo on a Jev model. The key is never part of the body. The box question is
+ * asked only when the catalogue declares the model box-capable (the caller passes that flag).
+ */
+export function buildOpenRouterJevRequest(
+  model: string,
+  imageDataUrl: string,
+  options: { box: boolean },
+): OpenRouterRequestBody {
+  return {
+    model,
+    state: [JEV_STATE_INSTRUCTIONS, { type: 'image_url', image_url: { url: imageDataUrl } }],
+    questions: jevQuestions({ image: 'the photo', box: options.box }),
+  }
+}
+
+export type OpenRouterErrorKind =
+  | 'unreachable'
+  | 'bad-key'
+  | 'no-credit'
+  | 'not-found'
+  | 'rate-limited'
+  | 'photo-rejected'
+  | 'unavailable'
+  | 'rejected'
+  | 'bad-response'
+  | 'photo'
+
+/** An error with a message fit to show the presenter. Never carries the key. */
+export class OpenRouterError extends Error {
+  readonly kind: OpenRouterErrorKind
+  readonly status: number | null
+
+  constructor(kind: OpenRouterErrorKind, message: string, status: number | null = null) {
+    super(message)
+    this.name = 'OpenRouterError'
+    this.kind = kind
+    this.status = status
+  }
+}
+
+const KEY_PATTERN = /sk-[A-Za-z0-9_-]+/g
+
+function redact(text: string, apiKey: string): string {
+  let safe = text
+  if (apiKey) safe = safe.split(apiKey).join('[key removed]')
+  return safe.replace(KEY_PATTERN, '[key removed]').slice(0, 200)
+}
+
+function providerMessage(body: unknown): string | null {
+  if (typeof body !== 'object' || body === null) return null
+  const error = (body as { error?: unknown }).error
+  if (typeof error !== 'object' || error === null) return null
+  const message = (error as { message?: unknown }).message
+  return typeof message === 'string' && message.trim() ? message.trim() : null
+}
+
+/** A 400 whose text says the image itself was refused (e.g. Jev's "Invalid image dimensions"). */
+function isPhotoComplaint(message: string | null): boolean {
+  return message !== null && /\bimage\b/i.test(message)
+}
+
+/**
+ * A fetch that threw, with no readable response. OpenRouter's errors carry CORS headers, so a thrown
+ * fetch is classified unreachable whether or not the browser reports itself online.
+ */
+export function openRouterFetchFailure(): OpenRouterError {
+  return new OpenRouterError(
+    'unreachable',
+    'Could not reach OpenRouter. Check your connection, then try again. Any partial result is kept.',
+  )
+}
+
+/** What the messages say about the model: its catalogue display name and longest accepted side. */
+export interface FailureModel {
+  /** e.g. "Jev latest". */
+  name: string
+  maxSide: number
+}
+
+/**
+ * Turns a non-2xx Decisions response into an actionable message, by status. The key is removed from
+ * any echoed provider text.
+ */
+export function openRouterFailure(
+  status: number,
+  body: unknown,
+  apiKey: string,
+  model: FailureModel,
+): OpenRouterError {
+  const detail = providerMessage(body)
+  const modelName = model.name
+  if (status === 413 || (status === 400 && isPhotoComplaint(detail))) {
+    return new OpenRouterError(
+      'photo-rejected',
+      `${modelName} rejected the photo for its size or dimensions. It takes photos up to ${model.maxSide.toLocaleString('en-US')} px per side. Try another photo. Any partial result is kept.`,
+      status,
+    )
+  }
+  switch (classifyFailedCall({ kind: 'status', status }, OPENROUTER_ERROR_TRAITS)) {
+    case 'bad-key':
+      return new OpenRouterError(
+        'bad-key',
+        'OpenRouter rejected the key. Check that it is an OpenRouter key (it starts sk-or-) and is still active, then try again. The key is not stored.',
+        status,
+      )
+    case 'no-credit':
+      return new OpenRouterError(
+        'no-credit',
+        'This OpenRouter key is out of credit. Add credit at openrouter.ai/credits, then try again. Any partial result is kept.',
+        status,
+      )
+    case 'not-found':
+      return new OpenRouterError(
+        'not-found',
+        `OpenRouter does not offer ${modelName} to this key right now. Choose another model, then try again.`,
+        status,
+      )
+    case 'rate-limited':
+      return new OpenRouterError(
+        'rate-limited',
+        'OpenRouter rate limit reached. Wait a minute, then try again. Nothing was retried for you.',
+        status,
+      )
+    case 'unavailable':
+      return new OpenRouterError(
+        'unavailable',
+        `OpenRouter or ${modelName}'s provider is unavailable right now. Try again shortly. Any partial result is kept.`,
+        status,
+      )
+    default:
+      return new OpenRouterError(
+        'rejected',
+        detail
+          ? `OpenRouter rejected the request (${status}): ${redact(detail, apiKey)}`
+          : `OpenRouter rejected the request (${status}). Check the photo and model, then try again.`,
+        status,
+      )
+  }
+}
+
+/**
+ * Maps a Decisions response for the Jev question set onto the shared container-ID reading, by meaning.
+ * The answer formats are those of System One, so the Jev mapping is reused. The resolved model the
+ * response reports (e.g. typesafe/jev-1.14-20261014) and usage.cost are read from the response.
+ */
+export function mapOpenRouterJevResponse(response: unknown, requestedModel: string): JevMapping {
+  try {
+    return mapJevResponse(response, requestedModel, 'OpenRouter')
+  } catch (error) {
+    if (error instanceof JevError) throw new OpenRouterError('bad-response', error.message)
+    throw error
+  }
+}

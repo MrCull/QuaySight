@@ -15,7 +15,7 @@ async function lunaRecord(): Promise<InspectionRecord> {
 }
 
 async function jevRecord(): Promise<InspectionRecord> {
-  return runRecordedInspection('jev', { delayMs: 0, id: 'run-jev-1' })
+  return runRecordedInspection('openrouter', { delayMs: 0, id: 'run-jev-1' })
 }
 
 describe('consolidated inspection JSON', () => {

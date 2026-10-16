@@ -8,9 +8,10 @@
  * Output: screenshots/<state>-<width>x<height>.png (full page) and screenshots/index.json.
  *         screenshots/ is generated and git-ignored; never commit it.
  *
- * Network: every external request is aborted, so nothing leaves the machine. The only "live" call is
+ * Network: every external request is aborted, so nothing leaves the machine. The only "live" calls are
  * OpenAI's Decisions endpoint, answered by a route with a copy of the recorded smoke response (variants
- * for uncertain, partial and insufficient readings). The key is a placeholder typed into the real field.
+ * for uncertain, partial and insufficient readings), and OpenRouter's Decisions endpoint, answered with a
+ * Jev reading in the shape seen live on 16 Oct 2026. The key is a placeholder typed into the real field.
  * Motion: non-animation captures freeze CSS animations; mid-animation captures and the reduced-motion
  * capture are taken live, after a fixed pause during the staged progress.
  */
@@ -30,7 +31,7 @@ const lunaSmoke = JSON.parse(
 
 // A placeholder typed through the real field. It is not a credential and no provider receives it.
 const PLACEHOLDER_KEY = 'playwright-placeholder-not-a-key'
-const PROVIDER_HOSTS = /openai\.com|typesafe\.ai/
+const PROVIDER_HOSTS = /openai\.com|openrouter\.ai|typesafe\.ai/
 
 const VIEWPORTS = [
   { width: 1440, height: 900 },
@@ -55,7 +56,7 @@ interface Capture {
   /** Limit to some viewports; default all three. */
   viewports?: Array<{ width: number; height: number }>
   reducedMotion?: boolean
-  /** Mocked OpenAI Decisions body for live captures. */
+  /** Mocked Decisions body (OpenAI or OpenRouter) for live captures. */
   liveBody?: () => unknown
   run: (page: Page) => Promise<void>
 }
@@ -67,16 +68,24 @@ const open = (page: Page) => page.goto('/')
 const choosePhoto = (page: Page) =>
   page.locator('input[type="file"]').setInputFiles(samplePhoto)
 
+/** On the setup card: picks OpenAI. OpenRouter is pre-selected; the Luna captures replay OpenAI responses. */
+async function chooseOpenAI(page: Page) {
+  await page.locator('#provider-button').click()
+  await page.getByRole('option', { name: /GPT-6 Luna/ }).click()
+}
+
 /** On the setup card: types the placeholder into the named key field, ticks replay and presses Continue. */
 async function replayKey(page: Page, label = 'OpenAI API key') {
+  if (label === 'OpenAI API key') await chooseOpenAI(page)
   await page.getByLabel(label, { exact: true }).fill(PLACEHOLDER_KEY)
   await page.getByRole('checkbox', { name: /Replay the recorded sample/ }).check()
   await page.getByRole('button', { name: 'Continue' }).click()
 }
 
 /** On the setup card: types the placeholder and presses Enter, which continues to the inspection screen. */
-async function liveKey(page: Page) {
-  const key = page.getByLabel('OpenAI API key', { exact: true })
+async function liveKey(page: Page, label = 'OpenAI API key') {
+  if (label === 'OpenAI API key') await chooseOpenAI(page)
+  const key = page.getByLabel(label, { exact: true })
   await key.fill(PLACEHOLDER_KEY)
   await key.press('Enter')
 }
@@ -119,6 +128,27 @@ async function liveRun(page: Page) {
   await startAndSettle(page, 'Run live inspection')
 }
 
+/** A Jev reading of the APHU sample through OpenRouter, in the response shape seen live on 16 Oct 2026. */
+function openRouterJevBody() {
+  const answers: Record<string, unknown> = {}
+  'APHU6586847'.split('').forEach((ch, i) => {
+    answers[`id_char_${String(i + 1).padStart(2, '0')}`] = {
+      type: 'choice',
+      choice: ch,
+      probabilities: { [ch]: 0.93, unreadable: 0.07 },
+      confidence: 0.9,
+    }
+  })
+  answers.full_number_visible = { type: 'noul', noul: 0.97 }
+  return {
+    model: 'typesafe/jev-1.14-20261014',
+    answers,
+    usage: { input_tokens: 1844, output_tokens: 75, cost: 0.000077448 },
+    id: 'gen-dec-screenshot',
+    provider: 'TypeSafe',
+  }
+}
+
 /**
  * Variants of the recorded Luna smoke response, for states the recorded fixtures never reach.
  * uncertain: every position read at 45%, with a 30% runner-up (Uncertain, alternatives shown).
@@ -158,21 +188,21 @@ const CAPTURES: Capture[] = [
   {
     state: 'setup-key-focused',
     screen: 'setup',
-    steps: ['Open /', 'Focus the OpenAI API key field on the setup card'],
+    steps: ['Open /', 'Focus the OpenRouter API key field on the setup card'],
     motion: 'frozen',
     run: async (page) => {
       await open(page)
-      await page.getByLabel('OpenAI API key', { exact: true }).focus()
+      await page.getByLabel('OpenRouter API key', { exact: true }).focus()
     },
   },
   {
     state: 'setup-key-entered',
     screen: 'setup',
-    steps: ['Open /', "Type placeholder into 'OpenAI API key' (Continue enabled)"],
+    steps: ['Open /', "Type placeholder into 'OpenRouter API key' (Continue enabled)"],
     motion: 'frozen',
     run: async (page) => {
       await open(page)
-      await page.getByLabel('OpenAI API key', { exact: true }).fill(PLACEHOLDER_KEY)
+      await page.getByLabel('OpenRouter API key', { exact: true }).fill(PLACEHOLDER_KEY)
     },
   },
   {
@@ -290,20 +320,36 @@ const CAPTURES: Capture[] = [
     state: 'jev-result',
     screen: 'results',
     steps: [
-      'Open /',
-      'Choose provider Jev (TypeSafe) on the setup card',
-      "Type placeholder into 'TypeSafe API key', tick replay, Continue",
+      'Open / (OpenRouter, Jev latest pre-selected)',
+      "Type placeholder into 'OpenRouter API key', tick replay, Continue",
       'Choose photo',
       'Start inspection, settle',
     ],
     motion: 'frozen',
     run: async (page) => {
       await open(page)
-      await page.locator('#provider-button').click()
-      await page.getByRole('option', { name: /Jev/ }).click()
-      await replayKey(page, 'TypeSafe API key')
+      await replayKey(page, 'OpenRouter API key')
       await choosePhoto(page)
       await startAndSettle(page)
+    },
+  },
+  {
+    state: 'openrouter-live-result',
+    screen: 'results',
+    steps: [
+      'Open / (OpenRouter, Jev latest pre-selected)',
+      "Type placeholder into 'OpenRouter API key', Enter",
+      'Choose photo',
+      'Run live inspection (mocked OpenRouter Decisions: Jev reading)',
+      'settle',
+    ],
+    motion: 'frozen',
+    liveBody: openRouterJevBody,
+    run: async (page) => {
+      await open(page)
+      await liveKey(page, 'OpenRouter API key')
+      await choosePhoto(page)
+      await startAndSettle(page, 'Run live inspection')
     },
   },
   {
@@ -402,7 +448,8 @@ async function guardNetwork(page: Page, origin: string, liveBody: unknown, block
     const url = route.request().url()
     if (!/^https?:/.test(url)) return route.continue()
     if (url.startsWith(origin)) return route.continue()
-    if (liveBody !== undefined && /api\.openai\.com\/v1\/decisions/.test(url)) {
+    const decisions = /api\.openai\.com\/v1\/decisions|openrouter\.ai\/api\/alpha\/decisions/
+    if (liveBody !== undefined && decisions.test(url)) {
       return route.fulfill({
         status: 200,
         contentType: 'application/json',

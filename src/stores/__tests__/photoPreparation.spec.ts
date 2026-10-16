@@ -7,7 +7,6 @@ vi.mock('../../services/imageCodec')
 
 import { useInspectionStore } from '../inspection'
 import { useLedgerStore } from '../ledger'
-import { JEV_IMAGE_REF } from '../../domain/jev'
 import lunaSmoke from '../../fixtures/live/luna-smoke.json'
 
 const KEY = 'test-only-key-value-0000'
@@ -37,17 +36,27 @@ function jevBody() {
       confidence: 0.95,
     }
   })
-  return { model: 'jev-1.13.0', answers, usage: { input_tokens: 1234, output_tokens: 0 } }
+  return {
+    model: 'typesafe/jev-1.14-20261014',
+    answers,
+    usage: { input_tokens: 1234, output_tokens: 0 },
+  }
 }
 
-/** The photo part of a Jev multipart request, as the fake encoder wrote it. */
-async function jevPhotoSent(init: RequestInit | undefined): Promise<{ text: string; type: string }> {
-  const part = (init!.body as FormData).get(JEV_IMAGE_REF) as Blob
-  return { text: await part.text(), type: part.type }
+/** The photo in an OpenRouter Jev JSON request, decoded from its data-URL part. */
+function jevPhotoSent(init: RequestInit | undefined): { text: string; type: string } {
+  const body = JSON.parse(String(init?.body)) as {
+    state: [string, { image_url: { url: string } }]
+  }
+  const [, type = '', data = ''] =
+    /^data:([^;]+);base64,(.*)$/.exec(body.state[1].image_url.url) ?? []
+  return { text: atob(data), type }
 }
 
 /** The photo in a Luna JSON request, decoded from its data URL. */
-async function lunaPhotoSent(init: RequestInit | undefined): Promise<{ text: string; type: string }> {
+async function lunaPhotoSent(
+  init: RequestInit | undefined,
+): Promise<{ text: string; type: string }> {
   const body = JSON.parse(String(init?.body)) as {
     input: Array<{ content: Array<{ type: string; image_url?: string }> }>
   }
@@ -70,17 +79,17 @@ describe('photo preparation before a live call', () => {
     vi.restoreAllMocks()
   })
 
-  it('sends Jev the photo shrunk to 1,568 px on its long side, as a JPEG', async () => {
+  it('sends Jev through OpenRouter the photo shrunk to 1,568 px on its long side, as a JPEG', async () => {
     fetchMock.mockResolvedValue(jsonResponse(jevBody()))
     const store = useInspectionStore()
-    store.setProvider('jev')
+    store.setProvider('openrouter')
     store.setApiKey(KEY)
     choosePhoto(store, fakePhoto(1536, 2048))
 
     await store.start()
 
     expect(fetchMock).toHaveBeenCalledTimes(1)
-    expect(await jevPhotoSent(fetchMock.mock.calls[0]?.[1])).toEqual({
+    expect(jevPhotoSent(fetchMock.mock.calls[0]?.[1])).toEqual({
       text: 'jpeg 1176x1568',
       type: 'image/jpeg',
     })
@@ -90,6 +99,7 @@ describe('photo preparation before a live call', () => {
   it('sends Luna a phone photo shrunk to 2,048 px on its long side, as a JPEG', async () => {
     fetchMock.mockImplementation(async () => jsonResponse(lunaSmoke.response))
     const store = useInspectionStore()
+    store.setProvider('luna')
     store.setApiKey(KEY)
     choosePhoto(store, fakePhoto(4032, 3024))
 
@@ -105,7 +115,7 @@ describe('photo preparation before a live call', () => {
   it('refuses a photo below the model minimum with a size-specific message, before any request or charge', async () => {
     const store = useInspectionStore()
     const ledger = useLedgerStore()
-    store.setProvider('jev')
+    store.setProvider('openrouter')
     store.setApiKey(KEY)
     choosePhoto(store, fakePhoto(200, 150))
 
@@ -115,7 +125,7 @@ describe('photo preparation before a live call', () => {
     expect(ledger.entries()).toHaveLength(0)
     expect(store.status).toBe('failed')
     expect(store.errorMessage).toBe(
-      'This photo is 200 × 150 px. Jev needs at least 256 px on each side. Choose a larger photo.',
+      'This photo is 200 × 150 px. Jev latest needs at least 256 px on each side. Choose a larger photo.',
     )
     expect(store.photo?.url).toBe('blob:original')
   })
@@ -123,7 +133,7 @@ describe('photo preparation before a live call', () => {
   it('keeps the chosen photo, not the one sent, as the photo on screen and in the result', async () => {
     fetchMock.mockResolvedValue(jsonResponse(jevBody()))
     const store = useInspectionStore()
-    store.setProvider('jev')
+    store.setProvider('openrouter')
     store.setApiKey(KEY)
     const original = fakePhoto(1536, 2048)
     choosePhoto(store, original)
@@ -144,7 +154,7 @@ describe('photo preparation before a live call', () => {
     vi.useFakeTimers()
     try {
       const store = useInspectionStore()
-      store.setProvider('jev')
+      store.setProvider('openrouter')
       store.setApiKey(KEY)
       store.replaySample = true
       choosePhoto(store, fakePhoto(200, 150))
@@ -164,7 +174,7 @@ describe('photo preparation before a live call', () => {
 
   it('refuses a photo too long and narrow to fit, naming its size', async () => {
     const store = useInspectionStore()
-    store.setProvider('jev')
+    store.setProvider('openrouter')
     store.setApiKey(KEY)
     choosePhoto(store, fakePhoto(6000, 400))
 
@@ -172,7 +182,7 @@ describe('photo preparation before a live call', () => {
 
     expect(fetchMock).not.toHaveBeenCalled()
     expect(store.errorMessage).toBe(
-      'This photo is 6000 × 400 px, too long and narrow for Jev: shrunk to 1568 px on its long side, its short side would be under 256 px. Crop it closer to the container, then try again.',
+      'This photo is 6000 × 400 px, too long and narrow for Jev latest: shrunk to 1568 px on its long side, its short side would be under 256 px. Crop it closer to the container, then try again.',
     )
   })
 })

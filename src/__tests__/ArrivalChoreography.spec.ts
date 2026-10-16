@@ -31,7 +31,7 @@ describe('result arrival choreography', () => {
 
   it('marks the landing items with .qs-rise so the design-system motion applies', async () => {
     const store = useInspectionStore()
-    store.record = await runRecordedInspection('jev', { delayMs: 0 })
+    store.record = await runRecordedInspection('openrouter', { delayMs: 0 })
     store.status = 'complete'
     const wrapper = mount(App)
     expect(wrapper.findAll('.qs-rise').length).toBeGreaterThan(0)

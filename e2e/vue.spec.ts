@@ -16,6 +16,9 @@ async function choosePhoto(page: Page) {
 
 /** Types the placeholder on the setup card, optionally ticks replay, then continues to the inspection screen. */
 async function enterKey(page: Page, { replay = false }: { replay?: boolean } = {}) {
+  // OpenRouter is pre-selected; these runs use OpenAI's recorded Luna responses.
+  await page.locator('#provider-button').click()
+  await page.getByRole('option', { name: /GPT-6 Luna/ }).click()
   const key = page.getByLabel('OpenAI API key', { exact: true })
   await key.fill(PLACEHOLDER_KEY)
   if (replay) {
@@ -29,7 +32,7 @@ async function enterKey(page: Page, { replay = false }: { replay?: boolean } = {
 function trackProviderRequests(page: Page): string[] {
   const hits: string[] = []
   page.on('request', (request) => {
-    if (/openai\.com|typesafe\.ai/.test(request.url())) hits.push(request.url())
+    if (/openai\.com|openrouter\.ai|typesafe\.ai/.test(request.url())) hits.push(request.url())
   })
   return hits
 }

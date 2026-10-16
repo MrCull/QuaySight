@@ -8,6 +8,7 @@ import ManifestRetry from '../ManifestRetry.vue'
 
 async function setup(scenario: 'unidentified' | 'identified' = 'unidentified') {
   const store = useInspectionStore()
+  store.setProvider('luna')
   store.setPhoto({ name: 'a.jpg', url: 'blob:a', orientation: 'landscape' })
   store.setApiKey('test-only-key-0000')
   store.replaySample = true

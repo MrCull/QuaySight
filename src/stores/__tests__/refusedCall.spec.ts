@@ -100,6 +100,7 @@ describe('a live Luna run whose call fails before a response is readable', () =>
     setOnline(true)
     fetchMock.mockImplementation(corsBlocked)
     const store = useInspectionStore()
+    store.setProvider('luna')
     store.setApiKey(KEY)
     choosePhoto(store)
 
@@ -117,6 +118,7 @@ describe('a live Luna run whose call fails before a response is readable', () =>
     setOnline(false)
     fetchMock.mockImplementation(corsBlocked)
     const store = useInspectionStore()
+    store.setProvider('luna')
     store.setApiKey(KEY)
     choosePhoto(store)
 
@@ -135,6 +137,7 @@ describe('a live Luna run whose call fails before a response is readable', () =>
       .mockImplementationOnce(async () => okResponse(decisionsBody([7, 9])))
       .mockImplementationOnce(corsBlocked)
     const store = useInspectionStore()
+    store.setProvider('luna')
     store.setApiKey(KEY)
     choosePhoto(store)
 
@@ -156,6 +159,7 @@ describe('a live Luna run whose call fails before a response is readable', () =>
         }),
     )
     const store = useInspectionStore()
+    store.setProvider('luna')
     store.setApiKey(KEY)
     choosePhoto(store)
 

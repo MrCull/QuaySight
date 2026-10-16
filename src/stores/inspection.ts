@@ -5,9 +5,9 @@ import { runRecordedInspection, type SampleScenario } from '../domain/recordedRu
 import { runRecordedManifestRetry } from '../domain/manifest'
 import { assembleLunaReading, LUNA_MODEL, LunaError } from '../domain/luna'
 import { callLuna, type LunaCallResult } from '../services/luna'
-import { callJev } from '../services/jev'
+import { callOpenRouterJev } from '../services/openrouter'
 import { preparePhoto, PhotoPreparationError } from '../services/preparePhoto'
-import { JEV_ENDPOINT_ID, JevError } from '../domain/jev'
+import { OPENROUTER_ENDPOINT_ID, OpenRouterError } from '../domain/openrouter'
 import {
   mergeRecheck,
   observationsOf,
@@ -75,8 +75,9 @@ const freshRetry = (): ManifestRetryState => ({
 
 export const useInspectionStore = defineStore('inspection', {
   state: () => ({
-    provider: 'luna' as ProviderId,
-    model: defaultModelFor('luna'),
+    // OpenRouter with Jev latest is pre-selected on a first visit (spec #16).
+    provider: 'openrouter' as ProviderId,
+    model: defaultModelFor('openrouter'),
     photo: null as SelectedPhoto | null,
     status: 'idle' as RunStatus,
     record: null as InspectionRecord | null,
@@ -92,9 +93,9 @@ export const useInspectionStore = defineStore('inspection', {
     selectedFinding: null as number | null,
     /**
      * The presenter's keys, one per provider. Memory only: no persistence plugin, no storage write, cleared on request.
-     * Each key is read only for its own provider's call (callLuna or callJev); switching provider never moves a key.
+     * Each key is read only for its own provider's call (callLuna or callOpenRouterJev); switching provider never moves a key.
      */
-    apiKeys: { luna: '', jev: '' } as Record<ProviderId, string>,
+    apiKeys: { luna: '', openrouter: '' } as Record<ProviderId, string>,
     /**
      * Presenter choice, made only once a key is entered: replay the recorded sample (no network call)
      * instead of a live run. A key is required to start either way.
@@ -207,8 +208,8 @@ export const useInspectionStore = defineStore('inspection', {
     },
     /**
      * One live call for the chosen photo, through the cost ledger and its per-inspection cap (spec 8.5, 11.5).
-     * Luna and Jev share this path; each provider's key goes only to its own call. Only Luna runs the
-     * position re-check (ticket #14); Jev makes one call.
+     * Luna (OpenAI) and Jev (OpenRouter) share this path; each provider's key goes only to its own call.
+     * Only Luna runs the position re-check (ticket #14); Jev makes one call.
      * A failure keeps the photo and the ledger line; a partial reading from a successful call is kept.
      */
     startLive(): Promise<void> {
@@ -227,7 +228,11 @@ export const useInspectionStore = defineStore('inspection', {
       const apiKey = this.apiKey
       const file = photo.file
       const requestedModel = provider === 'luna' ? LUNA_MODEL : this.model
-      const endpoint = provider === 'luna' ? 'decisions' : JEV_ENDPOINT_ID
+      // The catalogue entry decides the wire format, box support and photo limits; nothing else does.
+      const entry = findModel(provider, requestedModel)
+      const endpoint =
+        entry?.wireFormat === 'openrouter-decisions' ? OPENROUTER_ENDPOINT_ID : 'decisions'
+      const modelName = labelsFor(provider, requestedModel).model
       const inspectionId = `live-${provider}-${(liveCounter += 1)}`
       this.status = 'running'
       this.record = null
@@ -240,9 +245,9 @@ export const useInspectionStore = defineStore('inspection', {
         // before any request or charge. The chosen photo stays the one on screen.
         let sent: Blob
         try {
-          const limits = findModel(provider, requestedModel)?.photoLimits
+          const limits = entry?.photoLimits
           if (!limits) throw new PhotoPreparationError('Choose a model to run a live inspection.')
-          sent = await preparePhoto(file, limits, labelsFor(provider, requestedModel).provider)
+          sent = await preparePhoto(file, limits, modelName)
         } catch (error) {
           if (token !== this.runToken) return
           this.status = 'failed'
@@ -264,12 +269,20 @@ export const useInspectionStore = defineStore('inspection', {
           endpoint,
           model: requestedModel,
           call: async () => {
-            if (provider === 'luna') {
+            if (entry?.wireFormat === 'openai-decisions') {
               const call = await callLuna({ apiKey, photo: sent })
               lunaFirst = call
               reading = { ...call, reportedCostUsd: null }
+            } else if (entry?.wireFormat === 'openrouter-decisions') {
+              reading = await callOpenRouterJev({
+                apiKey,
+                photo: sent,
+                model: requestedModel,
+                box: entry.box,
+                describe: { name: modelName, maxSide: entry.photoLimits.maxSide },
+              })
             } else {
-              reading = await callJev({ apiKey, photo: sent, model: requestedModel })
+              throw new Error(`No live adapter for ${requestedModel}`)
             }
             const done = reading as LiveReading
             return {
@@ -405,7 +418,7 @@ export const useInspectionStore = defineStore('inspection', {
           this.status = 'failed'
           this.errorMessage =
             result.status === 'failed' &&
-            (result.error instanceof LunaError || result.error instanceof JevError)
+            (result.error instanceof LunaError || result.error instanceof OpenRouterError)
               ? result.error.message
               : 'The live inspection could not be completed. Try again.'
         }

@@ -9,7 +9,7 @@ import {
 } from '../ledger'
 import { findRate, rateSchedules, type RateSchedule } from '../rates'
 
-const NOW = new Date('2026-10-15T10:00:00Z')
+const NOW = new Date('2026-10-16T10:00:00Z')
 
 // Independent fixture rate: the spec's documented Luna baseline (US$0.10 per 1M input tokens).
 const lunaRate: RateSchedule = {
@@ -24,9 +24,9 @@ const lunaRate: RateSchedule = {
 }
 
 const jevNoRate: RateSchedule = {
-  provider: 'jev',
-  model: 'jev-1.14.0',
-  endpoint: 'system-one',
+  provider: 'openrouter',
+  model: 'typesafe/jev-1.14',
+  endpoint: 'decisions',
   effectiveFrom: '2026-10-01',
   source: 'test fixture',
   placeholder: true,
@@ -64,10 +64,27 @@ describe('rates configuration', () => {
   })
 
   it('does not apply Luna pricing to Jev', () => {
-    const rate = findRate(rateSchedules, 'jev', 'jev-1.14.0', 'system-one', NOW)
-    expect(rate?.provider).toBe('jev')
+    const rate = findRate(rateSchedules, 'openrouter', 'typesafe/jev-1.14', 'decisions', NOW)
+    expect(rate?.provider).toBe('openrouter')
     expect(rate?.inputUsdPerMillionTokens).toBe(0.042)
     expect(rate?.inputUsdPerMillionTokens).not.toBe(0.1)
+  })
+
+  it('has a timestamped rate for every Jev model OpenRouter offers', () => {
+    for (const model of ['~typesafe/jev-latest', 'typesafe/jev-1.14', 'typesafe/jev-1.13']) {
+      const rate = findRate(rateSchedules, 'openrouter', model, 'decisions', NOW)
+      expect(rate?.effectiveFrom).toBe('2026-10-16')
+      expect(rate?.placeholder).toBe(false)
+    }
+  })
+
+  it('reproduces the cost OpenRouter reported for a live Jev call (16 Oct 2026)', () => {
+    // resp-or-typesafe_jev-latest: 1,844 input and 75 output tokens, usage.cost 0.000077448.
+    const rate = findRate(rateSchedules, 'openrouter', '~typesafe/jev-latest', 'decisions', NOW)
+    expect(estimateCost({ inputTokens: 1844, outputTokens: 75 }, rate).costUsd).toBeCloseTo(
+      0.000077448,
+      12,
+    )
   })
 
   it('ignores a rate that is not yet effective', () => {
@@ -169,6 +186,29 @@ describe('CostLedger totals', () => {
     const ledger = new CostLedger(caps, [lunaRate], () => NOW)
     ledger.record(entry())
     expect(ledger.sessionTotals().incomplete).toBe(false)
+  })
+
+  it('keeps a provider-reported cost as reported, not as an estimate, and counts it as complete', async () => {
+    const ledger = new CostLedger(caps, [lunaRate], () => NOW)
+    const result = await runChargeable(ledger, {
+      id: 'or-1',
+      inspectionId: 'insp-1',
+      purpose: 'Reading markings',
+      provider: 'luna',
+      endpoint: 'decisions',
+      model: 'gpt-6-luna',
+      call: async () => ({
+        resolvedModel: 'gpt-6-luna-2026-10-01',
+        usage: { inputTokens: 15780, outputTokens: 0 },
+        latencyMs: 10,
+        reportedCostUsd: 0.000077448,
+      }),
+    })
+    expect(result.status === 'ran' && result.entry).toMatchObject({
+      costUsd: 0.000077448,
+      costState: 'reported',
+    })
+    expect(ledger.sessionTotals()).toMatchObject({ costUsd: 0.000077448, incomplete: false })
   })
 })
 

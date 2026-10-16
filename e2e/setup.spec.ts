@@ -19,11 +19,11 @@ test.describe('first visit', () => {
     await page.goto('/')
     const card = setupCard(page)
     await expect(card).toBeVisible()
-    await expect(card.locator('#provider-button')).toContainText('GPT-6 Luna')
+    await expect(card.locator('#provider-button')).toContainText('OpenRouter')
     await expect(card.locator('#provider-button')).toContainText('Recommended')
-    await expect(card.getByLabel('Model version')).toHaveValue('gpt-6-luna')
-    await expect(card.getByLabel('OpenAI API key', { exact: true })).toHaveValue('')
-    await expect(card.getByText("OpenAI's Decisions endpoint")).toBeVisible()
+    await expect(card.getByLabel('Model version')).toHaveValue('~typesafe/jev-latest')
+    await expect(card.getByLabel('OpenRouter API key', { exact: true })).toHaveValue('')
+    await expect(card.getByText("OpenRouter's Decisions endpoint")).toBeVisible()
 
     await expect(page.locator('input[type="file"]')).toHaveCount(0)
     await expect(page.getByText('Drop a container photo here')).toHaveCount(0)
@@ -35,7 +35,7 @@ test.describe('first visit', () => {
 
 async function continueWithKey(page: Page) {
   await page.goto('/')
-  const key = setupCard(page).getByLabel('OpenAI API key', { exact: true })
+  const key = setupCard(page).getByLabel('OpenRouter API key', { exact: true })
   await key.fill(PLACEHOLDER_KEY)
   await setupCard(page).getByRole('button', { name: 'Continue' }).click()
 }
@@ -49,7 +49,7 @@ test.describe('continue', () => {
   }) => {
     await page.goto('/')
     const continueButton = setupCard(page).getByRole('button', { name: 'Continue' })
-    const key = setupCard(page).getByLabel('OpenAI API key', { exact: true })
+    const key = setupCard(page).getByLabel('OpenRouter API key', { exact: true })
     await expect(continueButton).toBeDisabled()
     await key.fill('   ')
     await expect(continueButton).toBeDisabled()
@@ -68,7 +68,7 @@ test.describe('continue', () => {
     await page.keyboard.press('Tab')
     await expect(card.getByLabel('Model version')).toBeFocused()
     await page.keyboard.press('Tab')
-    await expect(card.getByLabel('OpenAI API key', { exact: true })).toBeFocused()
+    await expect(card.getByLabel('OpenRouter API key', { exact: true })).toBeFocused()
     await page.keyboard.type(PLACEHOLDER_KEY)
     await page.keyboard.press('Tab')
     await expect(card.getByRole('button', { name: 'Show key' })).toBeFocused()
@@ -85,8 +85,8 @@ test.describe('header chip and settings drawer', () => {
   test('the chip shows provider, model and key status, and no key characters', async ({ page }) => {
     await continueWithKey(page)
     await expect(chip(page)).toBeVisible()
-    await expect(chip(page)).toContainText('GPT-6 Luna')
-    await expect(chip(page)).toContainText('gpt-6-luna')
+    await expect(chip(page)).toContainText('OpenRouter')
+    await expect(chip(page)).toContainText('~typesafe/jev-latest')
     await expect(chip(page)).toContainText('key set')
     const shown =
       (await page.locator('.rs-top').innerText()) + (await chip(page).getAttribute('aria-label'))
@@ -128,7 +128,7 @@ test.describe('header chip and settings drawer', () => {
     await expect(page.getByRole('button', { name: 'Run live inspection' })).toBeEnabled()
 
     await chip(page).click()
-    const key = drawer(page).getByLabel('OpenAI API key', { exact: true })
+    const key = drawer(page).getByLabel('OpenRouter API key', { exact: true })
     await expect(key).toHaveAttribute('type', 'password')
     await drawer(page).getByRole('button', { name: 'Show key' }).click()
     await expect(key).toHaveAttribute('type', 'text')
@@ -158,35 +158,31 @@ test.describe('header chip and settings drawer', () => {
 
     // Only the key: the photo stays.
     await chip(page).click()
-    await drawer(page).getByLabel('OpenAI API key', { exact: true }).fill(`${PLACEHOLDER_KEY}-2`)
+    await drawer(page).getByLabel('OpenRouter API key', { exact: true }).fill(`${PLACEHOLDER_KEY}-2`)
     await page.keyboard.press('Escape')
     await expect(page.locator('.rs-photo__img')).toBeVisible()
 
     // A new provider: a blank screen, the new provider in the chip, and its own empty key.
     await chip(page).click()
     await drawer(page).locator('#provider-button').click()
-    await drawer(page).getByRole('option', { name: /Jev/ }).click()
+    await drawer(page).getByRole('option', { name: /GPT-6 Luna/ }).click()
     await expect(page.locator('.rs-photo__img')).toHaveCount(0)
     await expect(page.getByText('Drop a container photo here')).toBeVisible()
-    await expect(drawer(page).getByLabel('TypeSafe API key', { exact: true })).toHaveValue('')
-    await expect(chip(page)).toContainText('Jev')
-    await expect(chip(page)).toContainText('jev-latest')
+    await expect(drawer(page).getByLabel('OpenAI API key', { exact: true })).toHaveValue('')
+    await expect(chip(page)).toContainText('GPT-6 Luna')
+    await expect(chip(page)).toContainText('gpt-6-luna')
     await expect(chip(page)).toContainText('no key')
   })
 
   test('changing the model blanks the screen', async ({ page }) => {
-    await page.goto('/')
-    await setupCard(page).locator('#provider-button').click()
-    await setupCard(page).getByRole('option', { name: /Jev/ }).click()
-    await setupCard(page).getByLabel('TypeSafe API key', { exact: true }).fill(PLACEHOLDER_KEY)
-    await setupCard(page).getByRole('button', { name: 'Continue' }).click()
+    await continueWithKey(page)
     await page.locator('input[type="file"]').setInputFiles(samplePhoto)
     await expect(page.locator('.rs-photo__img')).toBeVisible()
 
     await chip(page).click()
-    await drawer(page).getByLabel('Model version').selectOption('jev-1.13.0')
+    await drawer(page).getByLabel('Model version').selectOption('typesafe/jev-1.13')
     await expect(page.locator('.rs-photo__img')).toHaveCount(0)
-    await expect(chip(page)).toContainText('jev-1.13.0')
+    await expect(chip(page)).toContainText('typesafe/jev-1.13')
     await expect(chip(page)).toContainText('key set')
   })
 })
@@ -194,24 +190,22 @@ test.describe('header chip and settings drawer', () => {
 test.describe('refresh', () => {
   test('remembers the provider and model, never the key', async ({ page }) => {
     await page.goto('/')
-    await setupCard(page).locator('#provider-button').click()
-    await setupCard(page).getByRole('option', { name: /Jev/ }).click()
-    await setupCard(page).getByLabel('Model version').selectOption('jev-1.14.0')
-    await setupCard(page).getByLabel('TypeSafe API key', { exact: true }).fill(PLACEHOLDER_KEY)
+    await setupCard(page).getByLabel('Model version').selectOption('typesafe/jev-1.14')
+    await setupCard(page).getByLabel('OpenRouter API key', { exact: true }).fill(PLACEHOLDER_KEY)
     await setupCard(page).getByRole('button', { name: 'Continue' }).click()
-    await expect(chip(page)).toContainText('jev-1.14.0')
+    await expect(chip(page)).toContainText('typesafe/jev-1.14')
 
     await page.reload()
     await expect(setupCard(page)).toBeVisible()
-    await expect(setupCard(page).locator('#provider-button')).toContainText('Jev')
-    await expect(setupCard(page).getByLabel('Model version')).toHaveValue('jev-1.14.0')
-    await expect(setupCard(page).getByLabel('TypeSafe API key', { exact: true })).toHaveValue('')
+    await expect(setupCard(page).locator('#provider-button')).toContainText('OpenRouter')
+    await expect(setupCard(page).getByLabel('Model version')).toHaveValue('typesafe/jev-1.14')
+    await expect(setupCard(page).getByLabel('OpenRouter API key', { exact: true })).toHaveValue('')
     await expect(setupCard(page).getByRole('button', { name: 'Continue' })).toBeDisabled()
 
     const stored = await page.evaluate(() =>
       JSON.stringify([{ ...localStorage }, { ...sessionStorage }]),
     )
-    expect(stored).toContain('jev-1.14.0')
+    expect(stored).toContain('typesafe/jev-1.14')
     expect(stored).not.toContain(PLACEHOLDER_KEY)
   })
 })
@@ -230,11 +224,11 @@ test.describe('phone width (390px)', () => {
   test('the setup card and the drawer fit without horizontal scroll', async ({ page }) => {
     await page.goto('/')
     await setupCard(page).locator('#provider-button').click()
-    await expect(setupCard(page).getByRole('option', { name: /Jev/ })).toBeVisible()
+    await expect(setupCard(page).getByRole('option', { name: /GPT-6 Luna/ })).toBeVisible()
     await noSideScroll(page)
     await setupCard(page).locator('#provider-button').click()
 
-    await setupCard(page).getByLabel('OpenAI API key', { exact: true }).fill(PLACEHOLDER_KEY)
+    await setupCard(page).getByLabel('OpenRouter API key', { exact: true }).fill(PLACEHOLDER_KEY)
     await setupCard(page).getByRole('button', { name: 'Continue' }).click()
     await noSideScroll(page)
     await chip(page).click()

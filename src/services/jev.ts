@@ -17,6 +17,8 @@ export interface CallJevOptions {
   photo: Blob
   /** The model as requested (for example jev-latest or jev-1.14.0). Sent as given. */
   model: string
+  /** Ask the box question. TypeSafe direct is not in the catalogue, so the caller decides (docs/adr/0001). */
+  box?: boolean
   /** Test seam. Defaults to the global fetch. */
   fetchImpl?: typeof fetch
 }
@@ -36,13 +38,18 @@ export async function callJev(options: CallJevOptions): Promise<JevCallResult> {
   const fetchImpl = options.fetchImpl ?? fetch
   const format = jevPhotoFormat(options.photo.type)
   if (!format) {
-    throw new JevError('photo', 'Jev takes JPEG or PNG photos. Choose a JPEG or PNG to run a live inspection.')
+    throw new JevError(
+      'photo',
+      'Jev takes JPEG or PNG photos. Choose a JPEG or PNG to run a live inspection.',
+    )
   }
 
   const form = new FormData()
   form.append(
     'request',
-    new Blob([JSON.stringify(buildJevRequest(options.model, format))], { type: 'application/json' }),
+    new Blob([JSON.stringify(buildJevRequest(options.model, format, { box: options.box }))], {
+      type: 'application/json',
+    }),
   )
   form.append(JEV_IMAGE_REF, options.photo, `${JEV_IMAGE_REF}.${format === 'jpeg' ? 'jpg' : 'png'}`)
 
@@ -58,7 +65,10 @@ export async function callJev(options: CallJevOptions): Promise<JevCallResult> {
       body: form,
     })
   } catch {
-    throw new JevError('network', 'Could not reach TypeSafe. Check your connection, then try again.')
+    throw new JevError(
+      'network',
+      'Could not reach TypeSafe. Check your connection, then try again.',
+    )
   }
   const latencyMs = Date.now() - started
 

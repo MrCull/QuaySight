@@ -55,7 +55,7 @@ describe('ContainerDetails', () => {
   })
 
   it('marks absent readings as not visible rather than zero, and keeps Jev honest', async () => {
-    const record = await runRecordedInspection('jev', { delayMs: 0 })
+    const record = await runRecordedInspection('openrouter', { delayMs: 0 })
     const wrapper = mount(ContainerDetails, { props: { record } })
     expect(wrapper.text()).toContain('Not visible in this photo')
     expect(wrapper.text()).not.toContain('0 kg')

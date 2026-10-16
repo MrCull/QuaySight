@@ -30,7 +30,7 @@ describe('canStart (key gate)', () => {
   })
 
   it('refuses when the model is not offered by the selected provider', () => {
-    expect(canStart({ ...base, model: 'jev-latest' })).toBe(false)
+    expect(canStart({ ...base, model: '~typesafe/jev-latest' })).toBe(false)
   })
 
   it('allows a start once a photo, a key and a valid model are present', () => {
@@ -38,8 +38,10 @@ describe('canStart (key gate)', () => {
   })
 
   it('checks the key for the provider in use, so a Jev run needs a Jev key', () => {
-    expect(canStart({ ...base, provider: 'jev', model: 'jev-latest', apiKey: '' })).toBe(false)
-    expect(canStart({ ...base, provider: 'jev', model: 'jev-latest' })).toBe(true)
+    expect(
+      canStart({ ...base, provider: 'openrouter', model: '~typesafe/jev-latest', apiKey: '' }),
+    ).toBe(false)
+    expect(canStart({ ...base, provider: 'openrouter', model: '~typesafe/jev-latest' })).toBe(true)
   })
 })
 
@@ -53,10 +55,12 @@ describe('canContinue (setup card gate)', () => {
 
   it('opens with a key and a model the provider offers, with no photo needed', () => {
     expect(canContinue(base)).toBe(true)
-    expect(canContinue({ provider: 'jev', model: 'jev-1.13.0', apiKey: 'test-key' })).toBe(true)
+    expect(
+      canContinue({ provider: 'openrouter', model: 'typesafe/jev-1.13', apiKey: 'test-key' }),
+    ).toBe(true)
   })
 
   it('stays closed for a model the provider does not offer', () => {
-    expect(canContinue({ ...base, model: 'jev-latest' })).toBe(false)
+    expect(canContinue({ ...base, model: '~typesafe/jev-latest' })).toBe(false)
   })
 })

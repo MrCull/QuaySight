@@ -9,13 +9,13 @@ vi.mock('../../domain/recordedRun', () => ({
 
 import { useInspectionStore } from '../inspection'
 
-function recordFor(provider: 'luna' | 'jev'): InspectionRecord {
+function recordFor(provider: 'luna' | 'openrouter'): InspectionRecord {
   return {
     schemaVersion: 1,
     id: `r-${provider}`,
     provider,
-    model: provider === 'luna' ? 'gpt-6-luna' : 'jev-1.14.0',
-    resolvedVersion: provider === 'luna' ? 'gpt-6-luna' : 'jev-1.14.0',
+    model: provider === 'luna' ? 'gpt-6-luna' : 'typesafe/jev-1.14',
+    resolvedVersion: provider === 'luna' ? 'gpt-6-luna' : 'typesafe/jev-1.14',
     rawResponses: [],
     source: 'recorded',
     status: 'complete',
@@ -46,10 +46,10 @@ describe('inspection store', () => {
     runMock.mockReset()
   })
 
-  it('starts on Luna with its recommended model, idle, no photo', () => {
+  it('starts on OpenRouter with its recommended model, Jev latest, idle, no photo', () => {
     const store = useInspectionStore()
-    expect(store.provider).toBe('luna')
-    expect(store.model).toBe('gpt-6-luna')
+    expect(store.provider).toBe('openrouter')
+    expect(store.model).toBe('~typesafe/jev-latest')
     expect(store.status).toBe('idle')
     expect(store.photo).toBeNull()
     expect(store.record).toBeNull()
@@ -57,8 +57,8 @@ describe('inspection store', () => {
 
   it('switching provider selects that provider recommended model', () => {
     const store = useInspectionStore()
-    store.setProvider('jev')
-    expect(store.model).toBe('jev-latest')
+    store.setProvider('luna')
+    expect(store.model).toBe('gpt-6-luna')
   })
 
   it('replacing the photo replaces the single photo', () => {
@@ -77,17 +77,17 @@ describe('inspection store', () => {
   })
 
   it('runs the recorded fixture for the chosen provider and stores the record', async () => {
-    runMock.mockResolvedValueOnce(recordFor('jev'))
+    runMock.mockResolvedValueOnce(recordFor('luna'))
     const store = useInspectionStore()
     store.setPhoto({ name: 'a.jpg', url: 'blob:a', orientation: 'landscape' })
-    store.setProvider('jev')
+    store.setProvider('luna')
     store.setApiKey('test-only-key-0000')
     store.replaySample = true
     await store.start()
     expect(runMock).toHaveBeenCalledTimes(1)
-    expect(runMock.mock.calls[0]?.[0]).toBe('jev')
+    expect(runMock.mock.calls[0]?.[0]).toBe('luna')
     expect(store.status).toBe('complete')
-    expect(store.record?.provider).toBe('jev')
+    expect(store.record?.provider).toBe('luna')
     expect(store.record?.photo?.name).toBe('a.jpg')
   })
 
@@ -159,9 +159,9 @@ describe('inspection store: key gate', () => {
   it('does not accept a key for another provider as the gate', async () => {
     const store = useInspectionStore()
     store.setPhoto(photo)
-    store.setProvider('jev')
-    store.setApiKey('test-key')
     store.setProvider('luna')
+    store.setApiKey('test-key')
+    store.setProvider('openrouter')
     expect(store.canStart).toBe(false)
     await store.start()
     expect(store.status).toBe('idle')

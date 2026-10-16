@@ -26,6 +26,7 @@ describe('classifying a failed provider call', () => {
     const cases: [number, string][] = [
       [401, 'bad-key'],
       [403, 'bad-key'],
+      [402, 'no-credit'],
       [404, 'not-found'],
       [429, 'rate-limited'],
       [500, 'unavailable'],

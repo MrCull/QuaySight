@@ -19,9 +19,12 @@ export interface PhotoLimits {
 }
 
 export interface ModelOption {
+  /** The model id sent on the wire, exactly as the endpoint expects it. */
   id: string
   /** Shown in the model selector. */
   label: string
+  /** The model's own name on result labels, ledger lines and exports, e.g. "Jev 1.14". */
+  displayName: string
   /** Who makes the model, e.g. OpenAI or TypeSafe. */
   maker: string
   route: ModelRoute
@@ -65,16 +68,63 @@ const JEV_LIMITS: PhotoLimits = {
 /** Luna: up to 2,048 px on the long side. */
 const LUNA_LIMITS: PhotoLimits = { maxSide: 2048, minSide: 0, maxPixels: null, minPixels: 0 }
 
-const JEV_DIRECT = {
+/** Jev through OpenRouter's Decisions endpoint: one JSON body, the photo as a data-URL part (docs/adr/0001). */
+const JEV_VIA_OPENROUTER = {
   maker: 'TypeSafe',
-  route: 'direct',
-  wireFormat: 'typesafe-system-one',
+  route: 'openrouter',
+  wireFormat: 'openrouter-decisions',
   photoLimits: JEV_LIMITS,
 } as const
 
 // Catalogue (spec 11.1): provider, endpoint family, model identifier and display name are separate.
 // Adding a provider here should not require changes to the results screen.
+// TypeSafe direct (System One) is not offered: browsers cannot reach it (its preflight is refused,
+// checked 16 Oct 2026). Its adapter stays in services/jev.ts. See docs/adr/0001.
+// OpenRouter with Jev latest comes first: it is the pre-selected choice on a first visit (spec #16).
 export const providers: ProviderInfo[] = [
+  {
+    id: 'openrouter',
+    name: 'OpenRouter',
+    vendor: 'OpenRouter',
+    api: 'Decisions API',
+    monogram: 'OR',
+    keyField: {
+      label: 'OpenRouter API key',
+      placeholder: 'Paste your OpenRouter key (sk-or-…)',
+      hint: `The photo and this key go only to OpenRouter's Decisions endpoint, and only for a live run. OpenRouter passes the photo, never your key, on to the model's maker. ${KEPT_IN_MEMORY}`,
+    },
+    models: [
+      {
+        ...JEV_VIA_OPENROUTER,
+        id: '~typesafe/jev-latest',
+        label: 'Jev latest (recommended, moving target)',
+        displayName: 'Jev latest',
+        // Resolved to typesafe/jev-1.14-20261014 on 16 Oct 2026, which answers the box question.
+        box: true,
+        movingTarget: true,
+        recommended: true,
+      },
+      {
+        ...JEV_VIA_OPENROUTER,
+        id: 'typesafe/jev-1.14',
+        label: 'Jev 1.14 (pinned)',
+        displayName: 'Jev 1.14',
+        box: true,
+        movingTarget: false,
+        recommended: false,
+      },
+      {
+        ...JEV_VIA_OPENROUTER,
+        id: 'typesafe/jev-1.13',
+        label: 'Jev 1.13 (pinned)',
+        displayName: 'Jev 1.13',
+        // Answers a box question with 400 "Invalid request." (checked 16 Oct 2026).
+        box: false,
+        movingTarget: false,
+        recommended: false,
+      },
+    ],
+  },
   {
     id: 'luna',
     name: 'GPT-6 Luna',
@@ -90,6 +140,7 @@ export const providers: ProviderInfo[] = [
       {
         id: 'gpt-6-luna',
         label: 'gpt-6-luna (pinned)',
+        displayName: 'GPT-6 Luna',
         maker: 'OpenAI',
         route: 'direct',
         wireFormat: 'openai-decisions',
@@ -97,44 +148,6 @@ export const providers: ProviderInfo[] = [
         photoLimits: LUNA_LIMITS,
         movingTarget: false,
         recommended: true,
-      },
-    ],
-  },
-  {
-    id: 'jev',
-    name: 'Jev',
-    vendor: 'TypeSafe',
-    api: 'System One API',
-    monogram: 'TS',
-    keyField: {
-      label: 'TypeSafe API key',
-      placeholder: 'Paste your TypeSafe console key',
-      hint: `The photo and this key go only to TypeSafe's System One endpoint, and only for a live run. It needs a TypeSafe console key from console.typesafe.ai. ${KEPT_IN_MEMORY}`,
-    },
-    models: [
-      {
-        ...JEV_DIRECT,
-        id: 'jev-latest',
-        label: 'jev-latest (moving target)',
-        box: false,
-        movingTarget: true,
-        recommended: true,
-      },
-      {
-        ...JEV_DIRECT,
-        id: 'jev-1.14.0',
-        label: 'jev-1.14.0 (pinned, experimental box)',
-        box: true,
-        movingTarget: false,
-        recommended: false,
-      },
-      {
-        ...JEV_DIRECT,
-        id: 'jev-1.13.0',
-        label: 'jev-1.13.0 (pinned)',
-        box: false,
-        movingTarget: false,
-        recommended: false,
       },
     ],
   },
@@ -161,25 +174,43 @@ export function isMovingTarget(provider: ProviderId, model: string): boolean {
   return findModel(provider, model)?.movingTarget ?? false
 }
 
-/** The provider names a result label, ledger line or export shows for a run. The selector reads ModelOption.label. */
+/** The names a result label, ledger line or export shows for a run. The selector reads ModelOption.label. */
 export interface ModelLabels {
-  /** The name a run is attributed to on result labels and exports, e.g. "GPT-6 Luna". */
+  /** The name a run is attributed to on result labels and exports, e.g. "GPT-6 Luna" or "Jev 1.14 (TypeSafe) via OpenRouter". */
   provider: string
   /** The ledger's provider column, e.g. "OpenAI · GPT-6 Luna". */
   ledger: string
   /** The provider in running text, e.g. "OpenAI GPT-6 Luna". */
   prose: string
+  /** The model alone, for messages about the model itself, e.g. "Jev 1.14". */
+  model: string
 }
 
-/** Labels for a provider and model. A model the catalogue no longer lists keeps its provider's names. */
+/**
+ * Labels for a provider and model. A direct model is named by its maker; a model reached through
+ * OpenRouter by model, maker and route (spec #16 stories 44-45). A model the catalogue no longer
+ * lists keeps its provider's names.
+ */
 export function labelsFor(provider: ProviderId, model: string): ModelLabels {
   const info = getProvider(provider)
   const entry = findModel(provider, model)
+  if (entry?.route === 'openrouter' || (!entry && info.id === 'openrouter')) {
+    const attributed = entry
+      ? `${entry.displayName} (${entry.maker}) via ${info.name}`
+      : `${model} via ${info.name}`
+    return {
+      provider: attributed,
+      ledger: attributed,
+      prose: attributed,
+      model: entry?.displayName ?? model,
+    }
+  }
   const maker = entry?.maker ?? info.vendor
   return {
     provider: info.name,
     ledger: `${maker} · ${info.name}`,
     prose: `${maker} ${info.name}`,
+    model: entry?.displayName ?? info.name,
   }
 }
 

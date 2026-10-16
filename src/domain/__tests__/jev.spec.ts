@@ -80,15 +80,14 @@ describe('buildJevRequest', () => {
     expect(questions.full_number_visible?.type).toBe('noul')
   })
 
-  it('adds the box question only for models the catalogue declares box-capable', () => {
-    expect(buildJevRequest('jev-1.14.0', 'jpeg').questions.container_box?.type).toBe('box')
-    expect(buildJevRequest('jev-1.13.0', 'jpeg').questions.container_box).toBeUndefined()
-    expect(buildJevRequest('jev-latest', 'jpeg').questions.container_box).toBeUndefined()
-  })
-
-  it('never adds the box question for a model id the catalogue does not list', () => {
-    expect(buildJevRequest('jev-preview', 'jpeg').questions.container_box).toBeUndefined()
-    expect(buildJevRequest('jev-1.14.9', 'jpeg').questions.container_box).toBeUndefined()
+  it('adds the box question only when the caller asks for it', () => {
+    expect(buildJevRequest('jev-1.14.0', 'jpeg', { box: true }).questions.container_box?.type).toBe(
+      'box',
+    )
+    expect(buildJevRequest('jev-1.14.0', 'jpeg').questions.container_box).toBeUndefined()
+    expect(
+      buildJevRequest('jev-1.13.0', 'jpeg', { box: false }).questions.container_box,
+    ).toBeUndefined()
   })
 })
 

@@ -9,7 +9,7 @@ import { useLedgerStore } from '../ledger'
 
 // Test-only placeholders. No provider ever receives them: fetch is stubbed at the network edge.
 const LUNA_KEY = 'test-only-luna-key-0000'
-const JEV_KEY = 'test-only-jev-key-0000'
+const OPENROUTER_KEY = 'test-only-openrouter-key-0000'
 
 const okResponse = () =>
   new Response(JSON.stringify(lunaSmoke.response), {
@@ -42,6 +42,7 @@ describe('New inspection', () => {
 
   it('after a completed live run, leaves no photo, result, run status or error', async () => {
     const store = useInspectionStore()
+    store.setProvider('luna')
     store.setApiKey(LUNA_KEY)
     choosePhoto(store)
     await store.start()
@@ -69,6 +70,7 @@ describe('New inspection', () => {
 
   it('clears the selected damage marker', async () => {
     const store = useInspectionStore()
+    store.setProvider('luna')
     store.setApiKey(LUNA_KEY)
     choosePhoto(store)
     await store.start()
@@ -83,8 +85,8 @@ describe('New inspection', () => {
   it('keeps the provider, model, every key and the session cost total', async () => {
     const store = useInspectionStore()
     const ledger = useLedgerStore()
-    store.setProvider('jev')
-    store.setApiKey(JEV_KEY)
+    store.setProvider('openrouter')
+    store.setApiKey(OPENROUTER_KEY)
     store.setProvider('luna')
     store.setApiKey(LUNA_KEY)
     choosePhoto(store)
@@ -98,8 +100,8 @@ describe('New inspection', () => {
     expect(store.provider).toBe('luna')
     expect(store.model).toBe(model)
     expect(store.apiKey).toBe(LUNA_KEY)
-    store.setProvider('jev')
-    expect(store.apiKey).toBe(JEV_KEY)
+    store.setProvider('openrouter')
+    expect(store.apiKey).toBe(OPENROUTER_KEY)
     expect(ledger.session).toEqual(session)
     expect(ledger.entries()).toHaveLength(session.requests)
   })
@@ -108,6 +110,7 @@ describe('New inspection', () => {
     let answer!: (response: Response) => void
     fetchMock.mockImplementationOnce(() => new Promise<Response>((resolve) => (answer = resolve)))
     const store = useInspectionStore()
+    store.setProvider('luna')
     store.setApiKey(LUNA_KEY)
     choosePhoto(store)
     const run = store.start()
@@ -129,6 +132,7 @@ describe('New inspection', () => {
     let answer!: (response: Response) => void
     fetchMock.mockImplementationOnce(() => new Promise<Response>((resolve) => (answer = resolve)))
     const store = useInspectionStore()
+    store.setProvider('luna')
     store.setApiKey(LUNA_KEY)
     choosePhoto(store)
     const stale = store.start()
@@ -159,6 +163,7 @@ describe('New inspection: manifest retry', () => {
   async function unidentifiedResult() {
     const store = useInspectionStore()
     store.setPhoto({ name: 'a.jpg', url: 'blob:a', orientation: 'landscape' })
+    store.setProvider('luna')
     store.setApiKey(LUNA_KEY)
     store.replaySample = true
     store.scenario = 'unidentified'

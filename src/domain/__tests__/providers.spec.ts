@@ -9,56 +9,72 @@ import {
 } from '../providers'
 
 describe('provider catalogue: box support', () => {
-  it('treats only jev-1.14.0 as box-capable among the offered models', () => {
-    expect(supportsBox('jev', 'jev-1.14.0')).toBe(true)
-    expect(supportsBox('jev', 'jev-1.13.0')).toBe(false)
-    expect(supportsBox('jev', 'jev-latest')).toBe(false)
+  it('treats Jev latest and Jev 1.14 through OpenRouter as box-capable, and nothing else', () => {
+    expect(supportsBox('openrouter', '~typesafe/jev-latest')).toBe(true)
+    expect(supportsBox('openrouter', 'typesafe/jev-1.14')).toBe(true)
+    expect(supportsBox('openrouter', 'typesafe/jev-1.13')).toBe(false)
     expect(supportsBox('luna', 'gpt-6-luna')).toBe(false)
   })
 
   it('never infers box support from a model id the catalogue does not list', () => {
-    expect(supportsBox('jev', 'jev-preview')).toBe(false)
-    expect(supportsBox('jev', 'jev-1.14.7')).toBe(false)
-    expect(supportsBox('luna', 'jev-1.14.0')).toBe(false)
+    expect(supportsBox('openrouter', 'typesafe/jev-1.14-20261014')).toBe(false)
+    expect(supportsBox('openrouter', 'jev-1.14.0')).toBe(false)
+    expect(supportsBox('luna', 'typesafe/jev-1.14')).toBe(false)
   })
 })
 
 describe('provider catalogue: moving targets', () => {
-  it('marks jev-latest as a moving target and the pinned models as fixed', () => {
-    expect(isMovingTarget('jev', 'jev-latest')).toBe(true)
-    expect(isMovingTarget('jev', 'jev-1.14.0')).toBe(false)
-    expect(isMovingTarget('jev', 'jev-1.13.0')).toBe(false)
+  it('marks Jev latest as a moving target and the pinned models as fixed', () => {
+    expect(isMovingTarget('openrouter', '~typesafe/jev-latest')).toBe(true)
+    expect(isMovingTarget('openrouter', 'typesafe/jev-1.14')).toBe(false)
+    expect(isMovingTarget('openrouter', 'typesafe/jev-1.13')).toBe(false)
     expect(isMovingTarget('luna', 'gpt-6-luna')).toBe(false)
   })
 
   it('does not call an unlisted model a moving target', () => {
-    expect(isMovingTarget('jev', 'jev-preview')).toBe(false)
+    expect(isMovingTarget('openrouter', '~typesafe/jev-preview')).toBe(false)
   })
 })
 
 describe('provider catalogue: model declarations', () => {
   const models = providers.flatMap((p) => p.models.map((m) => ({ provider: p.id, ...m })))
 
-  it('offers the same models as before, each with a maker, route and wire format', () => {
+  it('offers OpenAI direct and Jev through OpenRouter, and no direct TypeSafe route', () => {
     expect(models.map((m) => [m.provider, m.id, m.maker, m.route, m.wireFormat])).toEqual([
+      ['openrouter', '~typesafe/jev-latest', 'TypeSafe', 'openrouter', 'openrouter-decisions'],
+      ['openrouter', 'typesafe/jev-1.14', 'TypeSafe', 'openrouter', 'openrouter-decisions'],
+      ['openrouter', 'typesafe/jev-1.13', 'TypeSafe', 'openrouter', 'openrouter-decisions'],
       ['luna', 'gpt-6-luna', 'OpenAI', 'direct', 'openai-decisions'],
-      ['jev', 'jev-latest', 'TypeSafe', 'direct', 'typesafe-system-one'],
-      ['jev', 'jev-1.14.0', 'TypeSafe', 'direct', 'typesafe-system-one'],
-      ['jev', 'jev-1.13.0', 'TypeSafe', 'direct', 'typesafe-system-one'],
+    ])
+    expect(models.some((m) => m.wireFormat === 'typesafe-system-one')).toBe(false)
+  })
+
+  it('offers OpenRouter first, then OpenAI', () => {
+    expect(providers.map((p) => [p.id, p.vendor])).toEqual([
+      ['openrouter', 'OpenRouter'],
+      ['luna', 'OpenAI'],
     ])
   })
 
-  it('keeps the recommended default per provider: gpt-6-luna for Luna, jev-latest for Jev', () => {
+  it('labels the OpenRouter models in the selector, Jev latest as the moving target', () => {
+    expect(models.filter((m) => m.provider === 'openrouter').map((m) => m.label)).toEqual([
+      'Jev latest (recommended, moving target)',
+      'Jev 1.14 (pinned)',
+      'Jev 1.13 (pinned)',
+    ])
+  })
+
+  it('keeps the recommended default per provider: gpt-6-luna for OpenAI, Jev latest for OpenRouter', () => {
     expect(defaultModelFor('luna')).toBe('gpt-6-luna')
-    expect(defaultModelFor('jev')).toBe('jev-latest')
+    expect(defaultModelFor('openrouter')).toBe('~typesafe/jev-latest')
     for (const provider of providers) {
       expect(provider.models.filter((m) => m.recommended)).toHaveLength(1)
     }
   })
 
   it('gives every Jev model 256–1,568 px per side and 78,400–2,458,624 px in total', () => {
-    for (const id of ['jev-latest', 'jev-1.14.0', 'jev-1.13.0']) {
-      expect(findModel('jev', id)?.photoLimits).toEqual({
+    for (const id of ['~typesafe/jev-latest', 'typesafe/jev-1.14', 'typesafe/jev-1.13']) {
+      expect(findModel('openrouter', id)?.photoLimits).toEqual({
         maxSide: 1568,
         minSide: 256,
         maxPixels: 2_458_624,
@@ -76,29 +92,46 @@ describe('provider catalogue: model declarations', () => {
     })
   })
 
-  it('labels a run for each screen from the catalogue', () => {
+  it('labels a direct run by its maker and model', () => {
     expect(labelsFor('luna', 'gpt-6-luna')).toEqual({
       provider: 'GPT-6 Luna',
       ledger: 'OpenAI · GPT-6 Luna',
       prose: 'OpenAI GPT-6 Luna',
-    })
-    expect(labelsFor('jev', 'jev-1.14.0')).toEqual({
-      provider: 'Jev',
-      ledger: 'TypeSafe · Jev',
-      prose: 'TypeSafe Jev',
+      model: 'GPT-6 Luna',
     })
   })
 
+  it('labels an OpenRouter run by model, maker and route on every screen', () => {
+    expect(labelsFor('openrouter', 'typesafe/jev-1.14')).toEqual({
+      provider: 'Jev 1.14 (TypeSafe) via OpenRouter',
+      ledger: 'Jev 1.14 (TypeSafe) via OpenRouter',
+      prose: 'Jev 1.14 (TypeSafe) via OpenRouter',
+      model: 'Jev 1.14',
+    })
+    expect(labelsFor('openrouter', '~typesafe/jev-latest').provider).toBe(
+      'Jev latest (TypeSafe) via OpenRouter',
+    )
+  })
+
   it('still names the provider for a model the catalogue no longer lists', () => {
-    expect(labelsFor('jev', 'jev-preview')).toEqual({
-      provider: 'Jev',
-      ledger: 'TypeSafe · Jev',
-      prose: 'TypeSafe Jev',
+    expect(labelsFor('openrouter', 'typesafe/jev-0.9')).toEqual({
+      provider: 'typesafe/jev-0.9 via OpenRouter',
+      ledger: 'typesafe/jev-0.9 via OpenRouter',
+      prose: 'typesafe/jev-0.9 via OpenRouter',
+      model: 'typesafe/jev-0.9',
     })
   })
 
   it('finds only models the provider offers', () => {
-    expect(findModel('luna', 'jev-latest')).toBeUndefined()
-    expect(findModel('jev', 'jev-1.13.0')?.label).toBe('jev-1.13.0 (pinned)')
+    expect(findModel('luna', '~typesafe/jev-latest')).toBeUndefined()
+    expect(findModel('openrouter', 'typesafe/jev-1.13')?.label).toBe('Jev 1.13 (pinned)')
+  })
+
+  it('labels each key field for the one endpoint that receives it', () => {
+    const openrouter = providers.find((p) => p.id === 'openrouter')!
+    expect(openrouter.keyField.label).toBe('OpenRouter API key')
+    expect(openrouter.keyField.hint).toMatch(/go only to OpenRouter's Decisions endpoint/)
+    const luna = providers.find((p) => p.id === 'luna')!
+    expect(luna.keyField.label).toBe('OpenAI API key')
   })
 })

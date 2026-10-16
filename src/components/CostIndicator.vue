@@ -2,7 +2,7 @@
 import { computed, ref } from 'vue'
 import { useInspectionStore } from '../stores/inspection'
 import { useLedgerStore } from '../stores/ledger'
-import { formatUsd, type LedgerEntry } from '../domain/ledger'
+import { costKnown, formatUsd, type LedgerEntry } from '../domain/ledger'
 import { labelsFor } from '../domain/providers'
 
 const inspection = useInspectionStore()
@@ -34,8 +34,11 @@ function tokensLabel(entry: LedgerEntry): string {
   return total.toLocaleString('en-US')
 }
 
+// A cost the provider reported is named as such; a rate-table figure is named an estimate (spec #16, Cost).
 function costLabel(entry: LedgerEntry): string {
-  return entry.costState === 'estimated' ? formatUsd(entry.costUsd) : formatUsd(null)
+  if (entry.costState === 'reported') return `${formatUsd(entry.costUsd)} reported`
+  if (entry.costState === 'estimated') return `${formatUsd(entry.costUsd)} estimate`
+  return formatUsd(null)
 }
 
 function latencyLabel(entry: LedgerEntry): string {
@@ -96,7 +99,7 @@ function amount(totals: { costUsd: number | null; requests: number } | null): st
             <th>Status</th>
             <th>Time</th>
             <th class="num">Tokens</th>
-            <th class="num">Est. cost</th>
+            <th class="num">Cost</th>
             <th class="num">Latency</th>
           </tr>
         </thead>
@@ -108,7 +111,7 @@ function amount(totals: { costUsd: number | null; requests: number } | null): st
             <td>{{ entry.status }}</td>
             <td>{{ timeLabel(entry.startedAt) }}</td>
             <td class="num">{{ tokensLabel(entry) }}</td>
-            <td class="num" :class="{ 'qs-cost__unknown': entry.costState !== 'estimated' }">
+            <td class="num" :class="{ 'qs-cost__unknown': !costKnown(entry.costState) }">
               {{ costLabel(entry) }}
             </td>
             <td class="num">{{ latencyLabel(entry) }}</td>
@@ -116,8 +119,8 @@ function amount(totals: { costUsd: number | null; requests: number } | null): st
         </tbody>
       </table>
       <div class="qs-cost__foot">
-        Estimated API usage at each provider's configured rates, not an invoice. Recorded samples
-        are never added to live totals.
+        API usage as each provider reported it, or estimated at its configured rates where it reports
+        none, not an invoice. Recorded samples are never added to live totals.
       </div>
     </div>
   </div>

@@ -19,13 +19,31 @@ describe('ResultsPanel', () => {
     expect(wrapper.text()).toContain('Check digit valid')
   })
 
-  it('labels a Jev recorded result with the Jev provider and model', async () => {
+  it('labels a Jev recorded result with the model, maker and route', async () => {
     const store = useInspectionStore()
-    store.record = await runRecordedInspection('jev', { delayMs: 0 })
+    store.record = await runRecordedInspection('openrouter', { delayMs: 0 })
     store.status = 'complete'
     const wrapper = mount(ResultsPanel)
-    expect(wrapper.text()).toContain('Recorded demonstration: Jev / jev-1.14.0')
+    expect(wrapper.text()).toContain(
+      'Recorded demonstration: Jev 1.14 (TypeSafe) via OpenRouter / typesafe/jev-1.14',
+    )
     expect(wrapper.text()).toContain('Likely')
+  })
+
+  it('attributes a live OpenRouter result to model, maker and route, with the version that answered', async () => {
+    const store = useInspectionStore()
+    const recorded = await runRecordedInspection('openrouter', { delayMs: 0 })
+    store.record = {
+      ...recorded,
+      source: 'live',
+      model: '~typesafe/jev-latest',
+      resolvedVersion: 'typesafe/jev-1.14-20261014',
+    }
+    store.status = 'complete'
+    const wrapper = mount(ResultsPanel)
+    expect(wrapper.text()).toContain(
+      'Live result: Jev latest (TypeSafe) via OpenRouter / typesafe/jev-1.14-20261014 (requested ~typesafe/jev-latest, a moving target)',
+    )
   })
 
   it('shows no result or sample label before a run completes', () => {

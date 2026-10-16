@@ -3,8 +3,8 @@ import { providers, defaultModelFor } from '../providers'
 import { runRecordedInspection } from '../recordedRun'
 
 describe('provider catalogue', () => {
-  it('lists Luna and Jev, each with exactly one recommended default model', () => {
-    expect(providers.map((p) => p.name)).toEqual(['GPT-6 Luna', 'Jev'])
+  it('lists OpenRouter and OpenAI, each with exactly one recommended default model', () => {
+    expect(providers.map((p) => p.name)).toEqual(['OpenRouter', 'GPT-6 Luna'])
     for (const provider of providers) {
       const recommended = provider.models.filter((m) => m.recommended)
       expect(recommended).toHaveLength(1)
@@ -26,15 +26,15 @@ describe('recorded inspection run', () => {
   })
 
   it('uses the Jev fixture for Jev, not the Luna one', async () => {
-    const record = await runRecordedInspection('jev', { delayMs: 0 })
-    expect(record.provider).toBe('jev')
-    expect(record.model).toBe('jev-1.14.0')
+    const record = await runRecordedInspection('openrouter', { delayMs: 0 })
+    expect(record.provider).toBe('openrouter')
+    expect(record.model).toBe('typesafe/jev-1.14')
     expect(record.containerId?.certainty).toBe('Likely')
   })
 
   it('uses only the five fixed certainty words', async () => {
     const allowed = ['Confident', 'Likely', 'Uncertain', "Can't tell", 'Not seen']
-    for (const provider of ['luna', 'jev'] as const) {
+    for (const provider of ['luna', 'openrouter'] as const) {
       const record = await runRecordedInspection(provider, { delayMs: 0 })
       expect(allowed).toContain(record.containerId?.certainty)
     }
@@ -46,7 +46,7 @@ describe('recorded damage assessment', () => {
     const luna = await runRecordedInspection('luna', { delayMs: 0 })
     expect(luna.damage?.findings).toHaveLength(1)
     expect(luna.damage?.photos).toEqual([{ photo: 'side-dented-grey.jpg', face: 'long-side' }])
-    const jev = await runRecordedInspection('jev', { delayMs: 0 })
+    const jev = await runRecordedInspection('openrouter', { delayMs: 0 })
     expect(jev.damage).toBeNull()
   })
 })
@@ -80,7 +80,7 @@ describe('recorded run deterministic checks', () => {
   })
 
   it('shows no decoded size or weights for Jev, because no Jev response has been captured', async () => {
-    const record = await runRecordedInspection('jev', { delayMs: 0 })
+    const record = await runRecordedInspection('openrouter', { delayMs: 0 })
     expect(record.sizeCode).toBeNull()
     expect(record.weights?.maxGross).toBeNull()
     expect(record.weights?.payload).toBeNull()
