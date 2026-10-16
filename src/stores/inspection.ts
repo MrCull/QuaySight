@@ -1,5 +1,5 @@
 import { defineStore } from 'pinia'
-import { defaultModelFor, findModel, labelsFor } from '../domain/providers'
+import { defaultModelFor, findModel, labelsFor, questionSetOf } from '../domain/providers'
 import { canStart as keyGateOpen, hasKey } from '../domain/keyGate'
 import {
   findSample,
@@ -8,9 +8,9 @@ import {
   type DemoSampleId,
 } from '../domain/demoSamples'
 import { runRecordedManifestRetry } from '../domain/manifest'
-import { assembleLunaReading, LUNA_MODEL, LunaError } from '../domain/luna'
-import { callLuna, type LunaCallResult } from '../services/luna'
-import { callOpenRouterJev } from '../services/openrouter'
+import { assembleLunaReading, LUNA_MODEL, LunaError, type ChoiceReading } from '../domain/luna'
+import { callLuna } from '../services/luna'
+import { callOpenRouterJev, callOpenRouterLuna } from '../services/openrouter'
 import { preparePhoto, PhotoPreparationError } from '../services/preparePhoto'
 import { OPENROUTER_ENDPOINT_ID, OpenRouterError } from '../domain/openrouter'
 import {
@@ -52,6 +52,11 @@ interface LiveReading {
   raw: unknown
   /** Cost the response itself reports, or null. Never zero when absent. */
   reportedCostUsd: number | null
+}
+
+/** One Luna question-set call on either route: per-position readings, for the re-check. */
+interface LunaReading extends LiveReading {
+  readings: ChoiceReading[]
 }
 
 export interface ManifestRetryState {
@@ -238,8 +243,9 @@ export const useInspectionStore = defineStore('inspection', {
     },
     /**
      * One live call for the chosen photo, through the cost ledger and its per-inspection cap (spec 8.5, 11.5).
-     * Luna (OpenAI) and Jev (OpenRouter) share this path; each provider's key goes only to its own call.
-     * Only Luna runs the position re-check (ticket #14); Jev makes one call.
+     * Luna (OpenAI direct or OpenRouter) and Jev (OpenRouter) share this path; each provider's key goes
+     * only to its own call. Only the Luna question set runs the position re-check (ticket #14), on the
+     * same route and model as the first pass; Jev makes one call.
      * A failure keeps the photo and the ledger line; a partial reading from a successful call is kept.
      */
     startLive(): Promise<void> {
@@ -263,6 +269,7 @@ export const useInspectionStore = defineStore('inspection', {
       const endpoint =
         entry?.wireFormat === 'openrouter-decisions' ? OPENROUTER_ENDPOINT_ID : 'decisions'
       const modelName = labelsFor(provider, requestedModel).model
+      const describe = { name: modelName, maxSide: entry?.photoLimits.maxSide ?? 0 }
       const inspectionId = `live-${provider}-${(liveCounter += 1)}`
       this.status = 'running'
       this.record = null
@@ -289,8 +296,22 @@ export const useInspectionStore = defineStore('inspection', {
         }
         if (token !== this.runToken) return
 
+        // The Luna question set on this run's route: OpenAI direct, or OpenRouter (ticket #23).
+        const readLuna = async (positions?: number[]): Promise<LunaReading> => {
+          if (entry?.wireFormat === 'openrouter-decisions') {
+            return callOpenRouterLuna({
+              apiKey,
+              photo: sent,
+              model: requestedModel,
+              positions,
+              describe,
+            })
+          }
+          return { ...(await callLuna({ apiKey, photo: sent, positions })), reportedCostUsd: null }
+        }
+
         let reading = null as LiveReading | null
-        let lunaFirst = null as LunaCallResult | null
+        let lunaFirst = null as LunaReading | null
         const result = await ledger.run({
           id: `${inspectionId}-read`,
           inspectionId,
@@ -299,17 +320,17 @@ export const useInspectionStore = defineStore('inspection', {
           endpoint,
           model: requestedModel,
           call: async () => {
-            if (entry?.wireFormat === 'openai-decisions') {
-              const call = await callLuna({ apiKey, photo: sent })
+            if (entry && questionSetOf(entry) === 'luna') {
+              const call = await readLuna()
               lunaFirst = call
-              reading = { ...call, reportedCostUsd: null }
+              reading = call
             } else if (entry?.wireFormat === 'openrouter-decisions') {
               reading = await callOpenRouterJev({
                 apiKey,
                 photo: sent,
                 model: requestedModel,
                 box: entry.box,
-                describe: { name: modelName, maxSide: entry.photoLimits.maxSide },
+                describe,
               })
             } else {
               throw new Error(`No live adapter for ${requestedModel}`)
@@ -340,47 +361,48 @@ export const useInspectionStore = defineStore('inspection', {
           ]
           let rechecks: RecheckRecord[] = []
 
-          if (provider === 'luna' && lunaFirst) {
-            const lunaFirstCall = lunaFirst as LunaCallResult
+          if (lunaFirst) {
+            const lunaFirstCall = lunaFirst as LunaReading
             const asked = unresolvedPositions(lunaFirstCall.readings)
             if (asked.length > 0) {
               // One re-check for the unread positions, on the same provider and model, through the same cap (spec 5.1, 8.5).
               const recheckId = `${inspectionId}-recheck`
-              let again = null as LunaCallResult | null
+              let again = null as LunaReading | null
               const checked = await ledger.run({
                 id: recheckId,
                 inspectionId,
                 purpose: RECHECK_PURPOSE,
-                provider: 'luna',
-                endpoint: 'decisions',
-                model: LUNA_MODEL,
+                provider,
+                endpoint,
+                model: requestedModel,
                 call: async () => {
-                  again = await callLuna({ apiKey, photo: sent, positions: asked })
+                  again = await readLuna(asked)
                   return {
                     resolvedModel: again.resolvedModel,
                     usage: again.usage,
                     latencyMs: again.latencyMs,
+                    reportedCostUsd: again.reportedCostUsd,
                   }
                 },
               })
               if (token !== this.runToken) return
 
               if (checked.status === 'ran' && again) {
-                const second: LunaCallResult = again
+                const second: LunaReading = again
                 const merged = mergeRecheck(lunaFirstCall.readings, second.readings, asked)
                 containerId = assembleLunaReading(merged.readings)
                 rawResponses.push({
                   passId: recheckId,
-                  provider: 'luna',
-                  model: LUNA_MODEL,
+                  provider,
+                  model: requestedModel,
                   capturedFrom: 'provider',
                   body: second.raw,
                 })
                 rechecks = [
                   recheckRecord({
                     id: recheckId,
-                    provider: 'luna',
-                    model: LUNA_MODEL,
+                    provider,
+                    model: requestedModel,
                     asked,
                     resolvedVersion: second.resolvedModel,
                     outcome: recheckOutcome(asked, merged.resolved),
@@ -392,8 +414,8 @@ export const useInspectionStore = defineStore('inspection', {
                 rechecks = [
                   recheckRecord({
                     id: recheckId,
-                    provider: 'luna',
-                    model: LUNA_MODEL,
+                    provider,
+                    model: requestedModel,
                     asked,
                     resolvedVersion: null,
                     outcome: 'skipped-cap',
@@ -407,8 +429,8 @@ export const useInspectionStore = defineStore('inspection', {
                 rechecks = [
                   recheckRecord({
                     id: recheckId,
-                    provider: 'luna',
-                    model: LUNA_MODEL,
+                    provider,
+                    model: requestedModel,
                     asked,
                     resolvedVersion: null,
                     outcome: 'failed',

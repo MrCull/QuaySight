@@ -123,6 +123,21 @@ export const providers: ProviderInfo[] = [
         movingTarget: false,
         recommended: false,
       },
+      {
+        // GPT-6 Luna on OpenRouter's Decisions endpoint (ticket #23). Asked the Luna question set, not
+        // Jev's (see questionSetOf). Resolved to openai/gpt-6-luna-decisions-20261006 on 16 Oct 2026.
+        id: 'openai/gpt-6-luna-decisions',
+        label: 'GPT-6 Luna Decisions',
+        displayName: 'GPT-6 Luna Decisions',
+        maker: 'OpenAI',
+        route: 'openrouter',
+        wireFormat: 'openrouter-decisions',
+        // Luna takes no box question.
+        box: false,
+        photoLimits: LUNA_LIMITS,
+        movingTarget: false,
+        recommended: false,
+      },
     ],
   },
   {
@@ -167,6 +182,17 @@ export function findModel(provider: ProviderId, model: string): ModelOption | un
 /** Box-capable only when the catalogue says so. Unlisted models never are. */
 export function supportsBox(provider: ProviderId, model: string): boolean {
   return findModel(provider, model)?.box ?? false
+}
+
+/** The question set a model is asked. Fixed by the model's maker, whichever route reaches it. */
+export type QuestionSet = 'luna' | 'jev'
+
+/**
+ * OpenAI's models get the Luna question set (check-digit guidance, position re-check); TypeSafe's get
+ * Jev's. OpenRouter carries both under one wire format, so the wire format cannot decide this (ticket #23).
+ */
+export function questionSetOf(model: ModelOption): QuestionSet {
+  return model.maker === 'OpenAI' ? 'luna' : 'jev'
 }
 
 /** A moving alias only when the catalogue says so. The version that answers is recorded with each run. */

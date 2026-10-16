@@ -107,7 +107,7 @@ async function runLuna(page: Page, photo: Buffer): Promise<string> {
   // The setup card first: the placeholder key, then Enter continues to the inspection screen.
   // OpenRouter is pre-selected; these runs use OpenAI's recorded Luna responses.
   await page.locator('#provider-button').click()
-  await page.getByRole('option', { name: /GPT-6 Luna/ }).click()
+  await page.getByRole('option', { name: /GPT-6 Luna OpenAI/ }).click()
   const key = page.getByLabel('OpenAI API key', { exact: true })
   await key.fill(PLACEHOLDER_KEY)
   await key.press('Enter')

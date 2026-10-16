@@ -14,6 +14,7 @@ describe('provider catalogue: box support', () => {
     expect(supportsBox('openrouter', 'typesafe/jev-1.14')).toBe(true)
     expect(supportsBox('openrouter', 'typesafe/jev-1.13')).toBe(false)
     expect(supportsBox('luna', 'gpt-6-luna')).toBe(false)
+    expect(supportsBox('openrouter', 'openai/gpt-6-luna-decisions')).toBe(false)
   })
 
   it('never infers box support from a model id the catalogue does not list', () => {
@@ -39,11 +40,12 @@ describe('provider catalogue: moving targets', () => {
 describe('provider catalogue: model declarations', () => {
   const models = providers.flatMap((p) => p.models.map((m) => ({ provider: p.id, ...m })))
 
-  it('offers OpenAI direct and Jev through OpenRouter, and no direct TypeSafe route', () => {
+  it('offers OpenAI direct, and Jev and GPT-6 Luna Decisions through OpenRouter, and no direct TypeSafe route', () => {
     expect(models.map((m) => [m.provider, m.id, m.maker, m.route, m.wireFormat])).toEqual([
       ['openrouter', '~typesafe/jev-latest', 'TypeSafe', 'openrouter', 'openrouter-decisions'],
       ['openrouter', 'typesafe/jev-1.14', 'TypeSafe', 'openrouter', 'openrouter-decisions'],
       ['openrouter', 'typesafe/jev-1.13', 'TypeSafe', 'openrouter', 'openrouter-decisions'],
+      ['openrouter', 'openai/gpt-6-luna-decisions', 'OpenAI', 'openrouter', 'openrouter-decisions'],
       ['luna', 'gpt-6-luna', 'OpenAI', 'direct', 'openai-decisions'],
     ])
     expect(models.some((m) => m.wireFormat === 'typesafe-system-one')).toBe(false)
@@ -61,6 +63,7 @@ describe('provider catalogue: model declarations', () => {
       'Jev latest (recommended, moving target)',
       'Jev 1.14 (pinned)',
       'Jev 1.13 (pinned)',
+      'GPT-6 Luna Decisions',
     ])
   })
 
@@ -83,13 +86,18 @@ describe('provider catalogue: model declarations', () => {
     }
   })
 
-  it('gives Luna up to 2,048 px on the long side and no other limit', () => {
-    expect(findModel('luna', 'gpt-6-luna')?.photoLimits).toEqual({
-      maxSide: 2048,
-      minSide: 0,
-      maxPixels: null,
-      minPixels: 0,
-    })
+  it('gives Luna, direct or through OpenRouter, up to 2,048 px on the long side and no other limit', () => {
+    for (const [provider, id] of [
+      ['luna', 'gpt-6-luna'],
+      ['openrouter', 'openai/gpt-6-luna-decisions'],
+    ] as const) {
+      expect(findModel(provider, id)?.photoLimits).toEqual({
+        maxSide: 2048,
+        minSide: 0,
+        maxPixels: null,
+        minPixels: 0,
+      })
+    }
   })
 
   it('labels a direct run by its maker and model', () => {
@@ -111,6 +119,12 @@ describe('provider catalogue: model declarations', () => {
     expect(labelsFor('openrouter', '~typesafe/jev-latest').provider).toBe(
       'Jev latest (TypeSafe) via OpenRouter',
     )
+    expect(labelsFor('openrouter', 'openai/gpt-6-luna-decisions')).toEqual({
+      provider: 'GPT-6 Luna Decisions (OpenAI) via OpenRouter',
+      ledger: 'GPT-6 Luna Decisions (OpenAI) via OpenRouter',
+      prose: 'GPT-6 Luna Decisions (OpenAI) via OpenRouter',
+      model: 'GPT-6 Luna Decisions',
+    })
   })
 
   it('still names the provider for a model the catalogue no longer lists', () => {

@@ -71,7 +71,16 @@ X-Title: Quay Sight                       (optional attribution)
 | `~typesafe/jev-latest` (moving alias) | `typesafe/jev-1.14-20261014` | answered |
 | `typesafe/jev-1.14` | `typesafe/jev-1.14-20261014` | answered |
 | `typesafe/jev-1.13` | not recorded (the OpenAPI example shows `typesafe/jev-1.13-20260917`) | **400** `{"error":{"message":"HTTP 400: {\"detail\":{\"error_type\":\"api_usage_error\",\"message\":\"Invalid request.\"}}","code":400}}` |
-| `openai/gpt-6-luna-decisions` | `openai/gpt-6-luna-decisions-20261006` | not asked (ticket #23) |
+| `openai/gpt-6-luna-decisions` | `openai/gpt-6-luna-decisions-20261006` | not asked (the app never sends Luna a box question) |
+
+## Live smoke runs (16 Oct 2026)
+
+| Route | Photo | Result |
+| --- | --- | --- |
+| OpenAI direct, `gpt-6-luna` | `rear-door-aphu-45g1.jpg` (1536 × 2048) | 200; fixture `src/fixtures/live/luna-smoke.json` |
+| OpenRouter, `~typesafe/jev-latest` | `rear-door-chsu-22g1.jpg` (1312 × 984) | 200, resolved `typesafe/jev-1.14-20261014`, reported cost $0.000365; fixture `openrouter-jev-smoke.json` |
+| OpenRouter, `typesafe/jev-1.13` | `rear-door-chsu-22g1.jpg` | 200 |
+| OpenRouter, `openai/gpt-6-luna-decisions` | `rear-door-aphu-45g1.jpg` (1536 × 2048, full-size) | 200, resolved `openai/gpt-6-luna-decisions-20261006`, 5,570 input tokens, reported cost $0.000557; fixture `openrouter-luna-smoke.json` |
 
 ## Image limits (Jev)
 

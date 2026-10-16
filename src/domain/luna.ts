@@ -19,7 +19,8 @@ export const LUNA_ENDPOINT_ID = 'decisions'
 export const CHECK_DIGIT_GUIDANCE =
   'A standard container number has three owner-code letters, one equipment-category letter, six serial digits and one check digit. To calculate the check digit, assign numeric values to letters starting at A=10 and skipping multiples of 11 (for example B=12, K=21, L=23, U=32). Digits retain their numeric value. Multiply the first ten values by 1, 2, 4, 8, 16, 32, 64, 128, 256 and 512; sum and take the remainder modulo 11. Remainder 10 is displayed as 0. Use this as a consistency constraint when comparing visually plausible numbers, but do not invent or change clearly visible characters just to satisfy it.'
 
-const IDENTIFICATION_INSTRUCTIONS =
+/** The instruction text sent ahead of the photo, on every route that asks the Luna question set. */
+export const LUNA_IDENTIFICATION_INSTRUCTIONS =
   'Read the container identification (ISO 6346 owner code, category, serial number and check digit) printed on this freight container photo. Answer each numbered position with the one character you can see. If a position is not visible or cannot be read, give a low probability for every choice rather than a clear character. ' +
   CHECK_DIGIT_GUIDANCE
 
@@ -82,7 +83,7 @@ export function buildLunaRequest(imageDataUrl: string, positions?: number[]): Lu
       {
         role: 'user',
         content: [
-          { type: 'input_text', text: IDENTIFICATION_INSTRUCTIONS },
+          { type: 'input_text', text: LUNA_IDENTIFICATION_INSTRUCTIONS },
           { type: 'input_image', image_url: imageDataUrl },
         ],
       },

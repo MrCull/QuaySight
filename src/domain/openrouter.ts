@@ -7,6 +7,12 @@
 // headers, so every failed status is readable in the browser and gets its own message.
 import { classifyFailedCall, type ProviderErrorTraits } from './failedCall'
 import { JevError, jevQuestions, mapJevResponse, type JevMapping, type JevQuestion } from './jev'
+import {
+  LUNA_IDENTIFICATION_INSTRUCTIONS,
+  buildIdQuestions,
+  mapLunaResponse,
+  type LunaMapping,
+} from './luna'
 
 export const OPENROUTER_ENDPOINT = 'https://openrouter.ai/api/alpha/decisions'
 /** Endpoint family key used by the rate schedules and ledger. */
@@ -49,6 +55,35 @@ export function buildOpenRouterJevRequest(
     model,
     state: [JEV_STATE_INSTRUCTIONS, { type: 'image_url', image_url: { url: imageDataUrl } }],
     questions: jevQuestions({ image: 'the photo', box: options.box }),
+  }
+}
+
+/**
+ * The request for one photo on a Luna Decisions model (ticket #23). The Luna question set is reused as
+ * it is, check-digit guidance included: its instruction text goes ahead of the photo, and each
+ * position question is translated from OpenAI's choice array into OpenRouter's criteria map. Luna
+ * takes no box question. With positions, only those (1-based) are asked, as for the direct re-check.
+ */
+export function buildOpenRouterLunaRequest(
+  model: string,
+  imageDataUrl: string,
+  positions?: number[],
+): OpenRouterRequestBody {
+  const questions: Record<string, JevQuestion> = {}
+  for (const question of buildIdQuestions(positions)) {
+    questions[question.name] = {
+      type: 'choice',
+      instructions: question.instructions,
+      criteria: Object.fromEntries(question.choices.map((c) => [c.value, c.description])),
+    }
+  }
+  return {
+    model,
+    state: [
+      LUNA_IDENTIFICATION_INSTRUCTIONS,
+      { type: 'image_url', image_url: { url: imageDataUrl } },
+    ],
+    questions,
   }
 }
 
@@ -188,5 +223,60 @@ export function mapOpenRouterJevResponse(response: unknown, requestedModel: stri
   } catch (error) {
     if (error instanceof JevError) throw new OpenRouterError('bad-response', error.message)
     throw error
+  }
+}
+
+export interface OpenRouterLunaMapping extends LunaMapping {
+  /** Cost from the response's own usage.cost, or null. Never zero when absent. */
+  reportedCostUsd: number | null
+}
+
+function asRecord(value: unknown): Record<string, unknown> | null {
+  return typeof value === 'object' && value !== null && !Array.isArray(value)
+    ? (value as Record<string, unknown>)
+    : null
+}
+
+function readCost(usage: unknown): number | null {
+  const cost = asRecord(usage)?.cost
+  return typeof cost === 'number' && Number.isFinite(cost) ? cost : null
+}
+
+/**
+ * Maps a Decisions response for the Luna question set onto the shared container-ID reading. OpenRouter's
+ * answers (a map by question name, probabilities a map by option) are translated into OpenAI's shape
+ * (an array of named answers, probabilities a list) and read by the direct Luna mapping, so the same
+ * answers give the same record on either route. The resolved model and usage.cost come from the response.
+ */
+export function mapOpenRouterLunaResponse(
+  response: unknown,
+  requestedModel: string,
+  positions?: number[],
+): OpenRouterLunaMapping {
+  const body = asRecord(response)
+  if (!body) {
+    throw new OpenRouterError(
+      'bad-response',
+      'OpenRouter replied in a shape the app does not recognise.',
+    )
+  }
+  const answers = asRecord(body.answers)
+  if (!answers)
+    throw new OpenRouterError('bad-response', 'OpenRouter replied without answers. Try again.')
+
+  const translated = Object.entries(answers).map(([name, answer]) => {
+    const record = asRecord(answer) ?? {}
+    const probabilities = asRecord(record.probabilities)
+    return {
+      ...record,
+      name,
+      probabilities: probabilities
+        ? Object.entries(probabilities).map(([value, probability]) => ({ value, probability }))
+        : [],
+    }
+  })
+  return {
+    ...mapLunaResponse({ ...body, answers: translated }, requestedModel, positions),
+    reportedCostUsd: readCost(body.usage),
   }
 }
