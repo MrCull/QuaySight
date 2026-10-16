@@ -3,6 +3,9 @@
 // as a thrown fetch. Fetch is stubbed at the network edge; navigator.onLine is the only other input.
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest'
 import { setActivePinia, createPinia } from 'pinia'
+
+// jsdom has no image decoder or canvas; photo preparation runs on the fake codec.
+vi.mock('../../services/imageCodec')
 import { useInspectionStore } from '../inspection'
 import { useLedgerStore } from '../ledger'
 import {

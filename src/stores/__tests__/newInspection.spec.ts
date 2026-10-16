@@ -1,5 +1,8 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest'
 import { setActivePinia, createPinia } from 'pinia'
+
+// jsdom has no image decoder or canvas; photo preparation runs on the fake codec.
+vi.mock('../../services/imageCodec')
 import lunaSmoke from '../../fixtures/live/luna-smoke.json'
 import { useInspectionStore } from '../inspection'
 import { useLedgerStore } from '../ledger'
