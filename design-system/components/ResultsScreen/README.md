@@ -26,12 +26,13 @@ The preview shows the whole intended screen. The app already ships the top bar, 
 - **What we found** (headline, paragraph, stat row) under the photo.
 - The **thumbnail strip** with *Add photo* (multi-photo is deferred); a single photo shows a *Replace photo* button instead.
 - **Photo areas** drawn on the photo (photo-relative highlight is deferred), and the stand-in and zoom controls.
-- **Markings** (`MarkingBadge`s) and the suggestion `Notice`.
+- The suggestion `Notice`.
 - **Export** in the top bar: the app puts *Export JSON*, *Download raw response* and *Download summary* under the readings.
 
 Other app details the preview does not show:
 - A live result carries a `qs-notice--live` above the ID (see `Notice`), the counterpart of *Recorded demonstration*.
-- A run that never read the size code or the weights (every live run today reads the ID only) shows *Container details* with one sentence, *Not assessed in this inspection*, not a column of *Not seen* chips: *Not seen* means "in no photo". The damage view says *Damage not assessed in this inspection* in the same way.
+- *Container details* holds the preview's Equipment rows: the ISO code and what it decodes to, then the weights, then the four equipment checks (reefer, open top, tank, flat rack). *Markings* follows it as its own card, one `FieldRow` per marking with a `MarkingBadge` for each marking seen (see `MarkingBadge`).
+- A group a run never asked (the weights on a live run, until they are read; the equipment checks and markings on a recorded sample) says *Not assessed in this inspection* in one sentence, not a column of *Not seen* chips: *Not seen* means "in no photo". The damage view says *Damage not assessed in this inspection* in the same way.
 - Before the result lands, the one primary action sits under the photo (`qs-btn--lg`: *Start inspection* in demo mode, *Run live inspection* live; *Analysing…* while busy, with *Cancel* beside it). Once the result lands it is gone; *New inspection* is the next step.
 - A result that is missing a part (cancelled, or one part's request failed) carries a notice above the ID: `qs-notice--partial` after Cancel, `qs-notice--error` naming the part that failed. Everything that arrived is shown.
 - The stage card is titled with the model: *Analysing with Jev latest*.

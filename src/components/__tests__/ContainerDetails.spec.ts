@@ -1,6 +1,7 @@
 import { describe, it, expect } from 'vitest'
 import { mount } from '@vue/test-utils'
 import { recordedInspection } from '../../__tests__/recordedInspection'
+import { liveDetailsRecord } from '../../__tests__/liveDetails'
 import ContainerDetails from '../ContainerDetails.vue'
 
 const FORBIDDEN =
@@ -27,17 +28,18 @@ describe('ContainerDetails', () => {
       'LENGTH',
       'HEIGHT',
       'WIDTH',
+      'TYPE',
       'MAX GROSS',
       'TARE',
       'PAYLOAD',
     ])
-    const gross = rows[4]!
+    const gross = rows[5]!
     expect(gross.text()).toContain('32,500 kg')
     expect(gross.text()).toContain('Printed')
     expect(gross.text()).toContain('rating')
-    const tare = rows[5]!
+    const tare = rows[6]!
     expect(tare.text()).toContain('3,870 kg')
-    const payload = rows[6]!
+    const payload = rows[7]!
     expect(payload.text()).toContain('28,630 kg')
     expect(payload.find('.qs-prov--calculated').text()).toBe('Calculated')
   })
@@ -74,9 +76,97 @@ describe('ContainerDetails', () => {
     expect(wrapper.findAll('.qs-field')).toHaveLength(0)
   })
 
+  it('shows a live size/type code as printed, and what it decodes to as decoded', async () => {
+    const wrapper = mount(ContainerDetails, { props: { record: await liveDetailsRecord() } })
+    const row = (label: string) =>
+      wrapper.findAll('.qs-field').find((r) => r.find('.qs-field__label').text() === label)!
+    expect(row('ISO CODE').text()).toContain('22G1')
+    expect(row('ISO CODE').find('.qs-prov').text()).toBe('Printed')
+    expect(row('ISO CODE').text()).toContain('Confident')
+    expect(row('LENGTH').text()).toContain('20 ft')
+    expect(row('HEIGHT').text()).toContain('8 ft 6 in')
+    expect(row('WIDTH').text()).toContain('8 ft standard width')
+    expect(row('TYPE').text()).toContain('General purpose')
+    for (const label of ['LENGTH', 'HEIGHT', 'WIDTH', 'TYPE']) {
+      expect(row(label).find('.qs-prov').text()).toBe('Decoded from ISO')
+    }
+  })
+
+  it('shows each equipment check as its own row, with a conflict with the code explained', async () => {
+    const record = await liveDetailsRecord()
+    record.details!.equipment.reefer = {
+      answer: 'no',
+      certainty: 'Uncertain',
+      source: 'observed',
+      conflict: 'The size/type code 42R1 is a reefer code, but the photo was read as not a reefer.',
+    }
+    record.details!.equipment.tank = {
+      answer: null,
+      certainty: "Can't tell",
+      source: 'observed',
+      conflict: null,
+    }
+    const wrapper = mount(ContainerDetails, { props: { record } })
+    const row = (label: string) =>
+      wrapper.findAll('.qs-field').find((r) => r.find('.qs-field__label').text() === label)!
+    expect(row('REEFER').text()).toContain('No')
+    expect(row('REEFER').text()).toContain('Uncertain')
+    expect(row('REEFER').find('.qs-field__note').text()).toContain('42R1')
+    expect(row('OPEN TOP').text()).toContain('No')
+    expect(row('TANK').text()).toContain("Can't tell")
+    expect(row('FLAT RACK').text()).toContain('Confident')
+  })
+
+  it("keeps a code it cannot read honest: not visible is Not seen, unreadable is Can't tell", async () => {
+    const record = await liveDetailsRecord()
+    record.sizeCode = null
+    record.details!.sizeCode = {
+      state: 'not-visible',
+      code: null,
+      certainty: 'Not seen',
+      source: 'printed',
+      alternative: null,
+      decoded: null,
+    }
+    let wrapper = mount(ContainerDetails, { props: { record } })
+    const iso = () =>
+      wrapper.findAll('.qs-field').find((r) => r.find('.qs-field__label').text() === 'ISO CODE')!
+    expect(iso().text()).toContain('Not visible in this photo')
+    expect(iso().text()).toContain('Not seen')
+
+    record.details!.sizeCode = {
+      ...record.details!.sizeCode,
+      state: 'unreadable',
+      certainty: "Can't tell",
+    }
+    wrapper = mount(ContainerDetails, { props: { record } })
+    expect(iso().text()).toContain('not clear enough to read')
+    expect(iso().text()).toContain("Can't tell")
+  })
+
+  it('shows a plausible other code beside an uncertain one', async () => {
+    const record = await liveDetailsRecord()
+    record.details!.sizeCode = {
+      ...record.details!.sizeCode,
+      certainty: 'Uncertain',
+      alternative: '22G0',
+    }
+    const wrapper = mount(ContainerDetails, { props: { record } })
+    expect(wrapper.text()).toContain('Also possible: 22G0')
+  })
+
+  it('says the weights were not assessed on a live run that did not ask them, never Not seen', async () => {
+    const wrapper = mount(ContainerDetails, { props: { record: await liveDetailsRecord() } })
+    const labels = wrapper.findAll('.qs-field__label').map((l) => l.text())
+    expect(labels).not.toContain('MAX GROSS')
+    expect(wrapper.text()).toContain('Weights: not assessed in this inspection.')
+  })
+
   it('uses only the approved status and provenance vocabulary', async () => {
     const record = await recordedInspection('luna', { delayMs: 0 })
     const wrapper = mount(ContainerDetails, { props: { record } })
     expect(wrapper.text()).not.toMatch(FORBIDDEN)
+    const live = mount(ContainerDetails, { props: { record: await liveDetailsRecord() } })
+    expect(live.text()).not.toMatch(FORBIDDEN)
   })
 })

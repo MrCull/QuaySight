@@ -4,6 +4,8 @@
 import { labelsFor, recordedDemonstrationLabel } from './providers'
 import { faceStatus, type DamageFace, type FaceStatus, type FindingZone } from './damage'
 import type { CertaintyLabel, InspectionRecord, Provenance, RecheckRecord } from './inspection'
+import type { DetailSource } from './containerDetails'
+import { detailsExport } from './detailsExport'
 
 export const EXPORT_SCHEMA_VERSION = 1
 
@@ -20,7 +22,8 @@ export interface ExportValue {
   category: 'printed' | 'derived'
   value: string | number | null
   unit?: 'kg'
-  provenance: Provenance
+  /** observed: judged from the photo (an equipment check or a marking), not read as text. */
+  provenance: Provenance | DetailSource
   certainty: CertaintyLabel | null
   uncertainty: string | null
 }
@@ -162,7 +165,13 @@ export function buildInspectionExport(record: InspectionRecord): InspectionExpor
     value: alt,
   }))
 
-  if (record.sizeCode) {
+  if (record.details) {
+    // A live survey: the printed code, what it decodes to, the checks and the markings.
+    const details = detailsExport(record.details)
+    values.push(...details.values)
+    unresolved.push(...details.unresolved)
+    conflicts.push(...details.conflicts)
+  } else if (record.sizeCode) {
     values.push({
       field: 'sizeCode',
       category: 'derived',
@@ -342,7 +351,9 @@ export function buildSummaryText(record: InspectionRecord): string {
       `Re-check of container ID (positions ${check.positions.join(', ')}): ${check.outcome}${cap}`,
     )
   }
-  if (record.sizeCode) {
+  if (record.details) {
+    lines.push(...detailsExport(record.details).summary)
+  } else if (record.sizeCode) {
     lines.push(
       `Size code (decoded): ${record.sizeCode.code} - ${record.sizeCode.summary} - ${record.sizeCode.certainty}`,
     )
