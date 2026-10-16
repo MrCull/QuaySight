@@ -202,6 +202,71 @@ describe('CostLedger cap', () => {
     expect(ledger.sessionTotals().requests).toBe(2)
   })
 
+  it('stops further chargeable calls at the request cap when usage is unknown, as Luna usage is', async () => {
+    const ledger = new CostLedger(
+      { maxRequestsPerInspection: 2, maxSpendUsdPerInspection: 0.05 },
+      [lunaRate],
+      () => NOW,
+    )
+    const unknownUsage = vi.fn<() => Promise<ChargeableOutcome>>(async () => ({
+      resolvedModel: 'gpt-6-luna',
+      usage: null,
+      latencyMs: 10,
+    }))
+    const base = {
+      inspectionId: 'insp-1',
+      purpose: 'Reading markings',
+      provider: 'luna' as const,
+      endpoint: 'decisions',
+      model: 'gpt-6-luna',
+      call: unknownUsage,
+    }
+    const results = []
+    for (let i = 0; i < 3; i++) {
+      results.push(await runChargeable(ledger, { ...base, id: `unknown-${i}` }))
+    }
+    expect(results.map((r) => r.status)).toEqual(['ran', 'ran', 'blocked'])
+    expect(unknownUsage).toHaveBeenCalledTimes(2)
+    expect(results[2]).toMatchObject({ status: 'blocked', reason: 'requests' })
+    // Unknown cost is not zero: the totals stay incomplete and show no known cost.
+    expect(ledger.sessionTotals()).toMatchObject({ requests: 2, costUsd: null, incomplete: true })
+  })
+
+  it('counts failed calls with unknown cost against the request cap', async () => {
+    const ledger = new CostLedger(
+      { maxRequestsPerInspection: 2, maxSpendUsdPerInspection: 0.05 },
+      [lunaRate],
+      () => NOW,
+    )
+    const failing = vi.fn<() => Promise<ChargeableOutcome>>(async () => {
+      throw new Error('OpenAI is unavailable right now.')
+    })
+    const base = {
+      inspectionId: 'insp-1',
+      purpose: 'Reading markings',
+      provider: 'luna' as const,
+      endpoint: 'decisions',
+      model: 'gpt-6-luna',
+      call: failing,
+    }
+    await runChargeable(ledger, { ...base, id: 'fail-1' })
+    await runChargeable(ledger, { ...base, id: 'fail-2' })
+    const third = await runChargeable(ledger, { ...base, id: 'fail-3' })
+    expect(third).toMatchObject({ status: 'blocked', reason: 'requests' })
+    expect(failing).toHaveBeenCalledTimes(2)
+  })
+
+  it('unknown cost is not counted as spend and leaves the totals incomplete', () => {
+    const ledger = new CostLedger(
+      { maxRequestsPerInspection: 5, maxSpendUsdPerInspection: 0.0001 },
+      [lunaRate],
+      () => NOW,
+    )
+    ledger.record(entry({ id: 'u-1', usage: null, costUsd: null, costState: 'unavailable' }))
+    expect(ledger.capStatus('insp-1')).toEqual({ allowed: true })
+    expect(ledger.inspectionTotals('insp-1')).toMatchObject({ costUsd: null, incomplete: true })
+  })
+
   it('stops further chargeable calls once the per-inspection spend cap is reached', async () => {
     const ledger = new CostLedger(
       { maxRequestsPerInspection: 10, maxSpendUsdPerInspection: 0.0001 },

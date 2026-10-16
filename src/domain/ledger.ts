@@ -126,7 +126,10 @@ export class CostLedger {
     if (mine.length + inFlight >= this.caps.maxRequestsPerInspection) {
       return { allowed: false, reason: 'requests' }
     }
-    const spent = mine.reduce((sum, e) => sum + (e.costUsd ?? 0), 0)
+    // Every chargeable call counts toward the request cap above, known cost or not (spec 8.5).
+    // The spend cap applies to known cost only: unknown cost is not counted as zero here, and the
+    // totals show it as incomplete instead, so an unknown-usage provider is still limited by requests.
+    const spent = mine.reduce((sum, e) => (e.costUsd === null ? sum : sum + e.costUsd), 0)
     if (spent >= this.caps.maxSpendUsdPerInspection) {
       return { allowed: false, reason: 'spend' }
     }
