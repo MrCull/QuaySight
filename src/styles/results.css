@@ -224,3 +224,74 @@ body {
   flex-wrap: wrap;
   gap: var(--space-3);
 }
+
+/* ---------- Quiet cost line (top bar): low emphasis, no coloured status; the panel floats on expand ---------- */
+.rs-top .qs-cost__toggle {
+  height: auto;
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  color: var(--ink-muted);
+  font: 400 13px/20px var(--font-sans);
+}
+.rs-top .qs-cost__toggle b {
+  font-family: var(--font-mono);
+  font-weight: 500;
+  color: var(--ink);
+}
+.rs-cost__partial {
+  font-style: italic;
+  color: var(--ink-muted);
+}
+.rs-top .qs-cost__panel {
+  position: absolute;
+  top: 100%;
+  right: 0;
+  z-index: 10;
+  margin-top: var(--space-2);
+}
+
+/* ---------- Provider selector: compact entry, and one quiet summary row once a key is set ---------- */
+.rs-setup .qs-combo__button {
+  min-height: var(--control-md);
+  padding: 0 var(--space-3);
+}
+.rs-setup__summary {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  min-height: var(--control-md);
+  padding: var(--space-2) var(--space-3);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-sm);
+  background: var(--surface);
+  color: var(--ink-muted);
+}
+.rs-setup__mono {
+  width: 28px;
+  height: 28px;
+  font-size: 11px;
+  color: var(--ink-muted);
+}
+.rs-setup__text {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: var(--ink);
+}
+.rs-setup__options {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-2) var(--space-3);
+}
+.rs-setup__replay {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  color: var(--ink-muted);
+}

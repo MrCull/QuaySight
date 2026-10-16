@@ -1,5 +1,6 @@
 import { defineStore } from 'pinia'
 import { defaultModelFor } from '../domain/providers'
+import { canStart as keyGateOpen, hasKey } from '../domain/keyGate'
 import { runRecordedInspection, type SampleScenario } from '../domain/recordedRun'
 import { runRecordedManifestRetry } from '../domain/manifest'
 import { assembleLunaReading, LUNA_MODEL, LunaError } from '../domain/luna'
@@ -91,6 +92,11 @@ export const useInspectionStore = defineStore('inspection', {
      * Each key is read only for its own provider's call (callLuna or callJev); switching provider never moves a key.
      */
     apiKeys: { luna: '', jev: '' } as Record<ProviderId, string>,
+    /**
+     * Presenter choice, made only once a key is entered: replay the recorded sample (no network call)
+     * instead of a live run. A key is required to start either way.
+     */
+    replaySample: false,
     /** Actionable message for the last failed run. The provider's text is never the key. */
     errorMessage: null as string | null,
   }),
@@ -99,9 +105,18 @@ export const useInspectionStore = defineStore('inspection', {
     apiKey(): string {
       return this.apiKeys[this.provider]
     },
-    /** Live for the selected provider once that provider's key is entered. Otherwise it replays its sample. */
+    /** Recorded only when the presenter chose replay; otherwise live (which needs the key). */
     mode(): 'live' | 'recorded' {
-      return this.apiKey.trim() !== '' ? 'live' : 'recorded'
+      return this.replaySample ? 'recorded' : 'live'
+    },
+    /** The key gate: a photo, a key for the selected provider and a model that provider offers. */
+    canStart(): boolean {
+      return keyGateOpen({
+        hasPhoto: this.photo !== null,
+        provider: this.provider,
+        model: this.model,
+        apiKey: this.apiKey,
+      })
     },
   },
   actions: {
@@ -130,7 +145,8 @@ export const useInspectionStore = defineStore('inspection', {
     start(): Promise<void> {
       // Single-flight: repeated clicks while a run is in progress share it.
       if (this.inFlight) return this.inFlight
-      if (!this.photo) return Promise.resolve()
+      // Key gate: nothing starts, recorded or live, without a key for the selected provider.
+      if (!this.photo || !this.canStart) return Promise.resolve()
       if (this.mode === 'live') return this.startLive()
 
       this.runToken += 1
@@ -344,7 +360,8 @@ export const useInspectionStore = defineStore('inspection', {
         } else {
           this.status = 'failed'
           this.errorMessage =
-            result.status === 'failed' && (result.error instanceof LunaError || result.error instanceof JevError)
+            result.status === 'failed' &&
+            (result.error instanceof LunaError || result.error instanceof JevError)
               ? result.error.message
               : 'The live inspection could not be completed. Try again.'
         }
@@ -364,6 +381,7 @@ export const useInspectionStore = defineStore('inspection', {
       const record = this.record
       if (!record || record.containerId !== null) return
       if (this.retry.status === 'checking' || ids.length === 0) return
+      if (!hasKey(this.apiKey)) return
 
       const token = this.runToken
       this.retry = { ...this.retry, status: 'checking', message: null, ids: [...ids] }

@@ -9,6 +9,8 @@ import ManifestRetry from '../ManifestRetry.vue'
 async function setup(scenario: 'unidentified' | 'identified' = 'unidentified') {
   const store = useInspectionStore()
   store.setPhoto({ name: 'a.jpg', url: 'blob:a', orientation: 'landscape' })
+  store.setApiKey('test-only-key-0000')
+  store.replaySample = true
   store.record = await runRecordedInspection('luna', { delayMs: 0, scenario })
   store.status = 'complete'
   return store

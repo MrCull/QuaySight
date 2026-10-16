@@ -55,18 +55,22 @@ describe('live Luna inspection in the store', () => {
     vi.restoreAllMocks()
   })
 
-  it('stays on the recorded sample until a Luna key is entered', () => {
+  it('will not start until a Luna key is entered, then runs live unless replay is chosen', () => {
     const store = useInspectionStore()
-    expect(store.mode).toBe('recorded')
+    choosePhoto(store)
+    expect(store.canStart).toBe(false)
     store.setApiKey(KEY)
+    expect(store.canStart).toBe(true)
     expect(store.mode).toBe('live')
+    store.replaySample = true
+    expect(store.mode).toBe('recorded')
   })
 
-  it('does not send the Luna key to Jev, and stays on the recorded sample without a Jev key', async () => {
+  it('does not send the Luna key to Jev, and will not start without a Jev key', async () => {
     const store = useInspectionStore()
     store.setApiKey(KEY)
     store.setProvider('jev')
-    expect(store.mode).toBe('recorded')
+    expect(store.canStart).toBe(false)
     choosePhoto(store)
     await store.start()
     expect(callLunaMock).not.toHaveBeenCalled()
@@ -146,13 +150,13 @@ describe('live Luna inspection in the store', () => {
     expect(ledger.entries()[0]).toMatchObject({ status: 'failed', costState: 'unavailable' })
   })
 
-  it('clears the key on request and returns to the recorded sample', () => {
+  it('clears the key on request and closes the gate again', () => {
     const setItem = vi.spyOn(Storage.prototype, 'setItem')
     const store = useInspectionStore()
     store.setApiKey(KEY)
     store.clearApiKey()
     expect(store.apiKey).toBe('')
-    expect(store.mode).toBe('recorded')
+    expect(store.canStart).toBe(false)
     expect(setItem).not.toHaveBeenCalled()
   })
 

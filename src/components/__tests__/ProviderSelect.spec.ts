@@ -1,5 +1,6 @@
 import { describe, it, expect, beforeEach } from 'vitest'
 import { mount } from '@vue/test-utils'
+import { nextTick } from 'vue'
 import { setActivePinia, createPinia } from 'pinia'
 import { useInspectionStore } from '../../stores/inspection'
 import ProviderSelect from '../ProviderSelect.vue'
@@ -21,9 +22,14 @@ describe('ProviderSelect', () => {
     expect(store.model).toBe('jev-latest')
   })
 
-  it('does not ask for an API key for recorded samples', () => {
+  it('asks for a key even for a recorded sample, and says the replay makes no network call', async () => {
+    const store = useInspectionStore()
     const wrapper = mount(ProviderSelect)
-    expect(wrapper.find('input[type="password"]').exists()).toBe(false)
+    expect(wrapper.find('input[type="password"]').exists()).toBe(true)
+    expect(wrapper.text()).toContain('A key is needed to start, even for a recorded sample')
+    store.setApiKey('test-only-key-0000')
+    await nextTick()
+    expect(wrapper.text()).toContain('Replay the recorded sample instead (no network call)')
   })
 
   it('disables provider and model choice while a run is in progress', async () => {
@@ -38,7 +44,6 @@ describe('ProviderSelect', () => {
     const store = useInspectionStore()
     store.setProvider('jev')
     const wrapper = mount(ProviderSelect)
-    await wrapper.find('button.qs-btn').trigger('click')
     const input = wrapper.find('input[type="password"]')
     expect(input.exists()).toBe(true)
     expect(input.attributes('aria-label')).toBe('TypeSafe API key')

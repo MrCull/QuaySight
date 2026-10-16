@@ -34,8 +34,9 @@ describe('CostIndicator', () => {
     inspection.status = 'complete'
 
     const wrapper = mount(CostIndicator)
-    expect(wrapper.text()).toContain('Sample')
     expect(wrapper.text()).toContain('Saved result · no live API charge')
+    expect(wrapper.find('.qs-cost__mode').exists()).toBe(false)
+    expect(wrapper.find('.qs-cost__unknown').exists()).toBe(false)
     expect(wrapper.text()).not.toContain('This container')
     expect(ledger.session.requests).toBe(0)
     expect(ledger.entries()).toHaveLength(0)
@@ -62,7 +63,7 @@ describe('CostIndicator', () => {
     await ledger.run(liveRequest())
 
     const wrapper = mount(CostIndicator)
-    expect(wrapper.text()).toContain('Live')
+    expect(wrapper.find('.qs-cost__mode').exists()).toBe(false)
     expect(wrapper.text()).toContain('This container')
     expect(wrapper.text()).toContain('$0.0016')
     expect(wrapper.text()).toContain('Session')
