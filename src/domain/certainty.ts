@@ -13,6 +13,31 @@ export const CERTAINTY_LABELS: readonly CertaintyLabel[] = [
 /** At most this many plausible alternatives are shown ("Also possible: ..."). */
 export const MAX_ALTERNATIVES = 2
 
+/**
+ * Margin rule (parent spec, Certainty and testing: certainty rests on the margin between alternatives
+ * as well as the probability). When the best other character is within this many probability points
+ * of the chosen one, the reading is capped one level below what its probability alone gives:
+ * 0.90 against 0.88 reads Likely, not Confident. 0.10 is a judgement, not a measured constant: it is
+ * wide enough that two near-equal characters never read as settled, and narrow enough that a clear
+ * winner (for example 0.90 against 0.40) keeps its level.
+ */
+export const RUNNER_UP_MARGIN = 0.1
+
+/**
+ * Applies the margin rule to a level derived from the chosen probability. `runnerUp` is the best other
+ * allowed value's probability, or null when there is none. The cap never goes below "Can't tell".
+ */
+export function applyMargin(
+  label: CertaintyLabel,
+  chosen: number,
+  runnerUp: number | null,
+): CertaintyLabel {
+  if (runnerUp === null || chosen - runnerUp >= RUNNER_UP_MARGIN) return label
+  const floor = CERTAINTY_LABELS.indexOf("Can't tell")
+  const index = CERTAINTY_LABELS.indexOf(label)
+  return CERTAINTY_LABELS[Math.min(index + 1, floor)] ?? label
+}
+
 /** Marks a character position that was not read. Never filled in as fact. */
 export const UNREAD = '?'
 

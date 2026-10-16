@@ -5,7 +5,7 @@
 // opt-in header is applied by the service. Jev has no image-capable box except jev-1.14.x.
 import { calculateCheckDigit } from './iso6346'
 import { buildContainerIdReading } from './containerId'
-import { CERTAINTY_LABELS, UNREAD } from './certainty'
+import { CERTAINTY_LABELS, UNREAD, applyMargin } from './certainty'
 import type { CertaintyLabel, ContainerIdReading } from './inspection'
 import type { Usage } from './ledger'
 
@@ -316,7 +316,12 @@ function readChoice(answer: unknown, allowed: string[]): ChoiceReading {
     .sort((a, b) => b.probability - a.probability)
   const chosen = scored.find((e) => e.value === record.choice)
   if (!chosen) return unread
-  const certainty = certaintyOf(chosen.probability)
+  const best = scored.find((e) => e.value !== chosen.value)
+  const certainty = applyMargin(
+    certaintyOf(chosen.probability),
+    chosen.probability,
+    best?.probability ?? null,
+  )
   if (certainty === "Can't tell") return unread
   const runner = scored.find((e) => e.value !== chosen.value && e.probability >= RUNNER_UP_MIN)
   return { value: chosen.value, certainty, runnerUp: runner?.value ?? null }

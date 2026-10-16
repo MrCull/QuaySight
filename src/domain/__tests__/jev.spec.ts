@@ -137,6 +137,19 @@ describe('mapJevResponse', () => {
     expect(result.containerId.checkDigitValid).toBe(false)
   })
 
+  it('does not read a position as Confident when the runner-up is within the margin (0.90 against 0.88)', () => {
+    const answers = answersFor(ID) as Record<string, unknown>
+    answers.id_char_10 = {
+      type: 'choice',
+      choice: '4',
+      probabilities: { '4': 0.9, '1': 0.88 },
+      confidence: 0.9,
+    }
+    const result = mapJevResponse(okBody({ answers }), 'jev-latest')
+    expect(result.containerId.positionCertainty?.[9]).toBe('Likely')
+    expect(result.containerId.certainty).toBe('Likely')
+  })
+
   it('caps the certainty to Uncertain when the score says the identification is hard to read', () => {
     const body = okBody()
     ;(body.answers as Record<string, unknown>).legibility = {

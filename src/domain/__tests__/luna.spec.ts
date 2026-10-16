@@ -129,6 +129,32 @@ describe('Luna response mapping', () => {
     expect(mapped.containerId.alternatives).toEqual(['APHU65868' + '1' + '7'])
   })
 
+  it('does not read a position as Confident when the runner-up is within the margin (0.90 against 0.88)', () => {
+    const response = fullResponse({
+      9: choiceAnswer(9, '4', 0.9, [{ value: '1', probability: 0.88 }]),
+    })
+    const mapped = mapLunaResponse(response, 'gpt-6-luna')
+    expect(mapped.containerId.positionCertainty?.[9]).toBe('Likely')
+    expect(mapped.containerId.certainty).toBe('Likely')
+  })
+
+  it('keeps Confident when the runner-up is well outside the margin (0.90 against 0.40)', () => {
+    const response = fullResponse({
+      9: choiceAnswer(9, '4', 0.9, [{ value: '1', probability: 0.4 }]),
+    })
+    const mapped = mapLunaResponse(response, 'gpt-6-luna')
+    expect(mapped.containerId.positionCertainty?.[9]).toBe('Confident')
+  })
+
+  it('treats a near-tie at the Uncertain level as unread rather than reading it as a fact', () => {
+    const response = fullResponse({
+      9: choiceAnswer(9, '4', 0.32, [{ value: '1', probability: 0.3 }]),
+    })
+    const mapped = mapLunaResponse(response, 'gpt-6-luna')
+    expect(mapped.containerId.value.charAt(9)).toBe('?')
+    expect(mapped.containerId.positionCertainty?.[9]).toBe("Can't tell")
+  })
+
   it('reads the resolved model from the response when it reports one', () => {
     const mapped = mapLunaResponse({ ...fullResponse(), model: 'gpt-6-luna-20260922' }, 'gpt-6-luna')
     expect(mapped.resolvedModel).toBe('gpt-6-luna-20260922')
