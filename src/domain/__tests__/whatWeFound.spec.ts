@@ -417,7 +417,13 @@ describe('the damage verdict', () => {
       damage: assessed({
         photos: [{ photo: 'doors.jpg', face: 'rear' }],
         findings: [
-          { ...dent, face: 'rear', component: 'locking-bar', title: 'Bent locking bar', severity: null },
+          {
+            ...dent,
+            face: 'rear',
+            component: 'locking-bar',
+            title: 'Bent locking bar',
+            severity: null,
+          },
         ],
       }),
     })

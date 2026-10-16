@@ -210,7 +210,6 @@ describe('live GPT-6 Luna Decisions through OpenRouter in the store', () => {
       value: 'APHU6586847',
       checkDigitValid: true,
       certainty: 'Likely',
-      alternatives: ['APHU8586847'],
     })
     expect(store.record?.containerId).toEqual(directReading)
     expect(store.record).toMatchObject({

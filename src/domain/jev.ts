@@ -7,6 +7,7 @@
 // question format, so the same translation and answer mapping serve both.
 import { calculateCheckDigit } from './iso6346'
 import { buildContainerIdReading } from './containerId'
+import { rankIdCandidates, withCategoryLetter } from './idCandidates'
 import { CERTAINTY_LABELS, UNREAD } from './certainty'
 import type { CertaintyLabel, ContainerIdReading } from './inspection'
 import type { Usage } from './ledger'
@@ -234,13 +235,18 @@ export function jevCaveatsOf(answers: Record<string, SharedAnswer>): JevCaveats 
  * UNREAD; the check digit is calculated here, not taken from the model; a caveat makes the reading at
  * most Uncertain. Used for the full-photo reading and for the full-photo and crop readings combined.
  */
-export function jevIdReading(readings: ChoiceReading[], caveats: JevCaveats): ContainerIdReading {
+export function jevIdReading(
+  rawReadings: ChoiceReading[],
+  caveats: JevCaveats,
+): ContainerIdReading {
+  const readings = withCategoryLetter(rawReadings)
   const { hardToRead, partlyOutOfFrame } = caveats
-  const chars = readings.map((r) => r.value ?? UNREAD)
   const positionCertainty = readings.map((r) => r.certainty)
-  const printed = chars.join('')
   let certainty = worstOf(positionCertainty)
   if (hardToRead || partlyOutOfFrame) certainty = atLeastUncertain(certainty)
+  const ranked = rankIdCandidates(readings, certainty)
+  const chars = ranked.chars
+  const printed = chars.join('')
 
   let containerId: ContainerIdReading
   if (!printed.includes(UNREAD)) {
@@ -263,14 +269,7 @@ export function jevIdReading(readings: ChoiceReading[], caveats: JevCaveats): Co
     }
   }
 
-  const alternatives: string[] = []
-  readings.forEach((reading, index) => {
-    if (reading.runnerUp === null || alternatives.length >= 2) return
-    const swapped = [...chars]
-    swapped[index] = reading.runnerUp
-    alternatives.push(swapped.join(''))
-  })
-  if (alternatives.length > 0) containerId.alternatives = alternatives
+  if (ranked.alternatives.length > 0) containerId.alternatives = ranked.alternatives
 
   const notes: string[] = []
   const uncertainPositions = readings

@@ -126,7 +126,8 @@ describe('Luna response mapping', () => {
     const mapped = mapLunaResponse(response, 'gpt-6-luna')
     expect(mapped.containerId.positionCertainty?.[9]).toBe('Likely')
     expect(mapped.containerId.certainty).toBe('Likely')
-    expect(mapped.containerId.alternatives).toEqual(['APHU65868' + '1' + '7'])
+    // APHU6586847 passes the check digit and the swapped reading does not, so it stands alone.
+    expect(mapped.containerId.alternatives).toBeUndefined()
   })
 
   it('does not read a position as Confident when the runner-up is within the margin (0.90 against 0.88)', () => {
