@@ -2,9 +2,6 @@ body {
   margin: 0;
   background: var(--bg);
 }
-.rs {
-  min-width: 1280px;
-}
 .rs-top {
   position: sticky;
   top: 0;
@@ -52,8 +49,8 @@ body {
 .rs-main {
   display: grid;
   grid-template-columns: minmax(0, 1fr) 540px;
-  gap: var(--space-6);
-  padding: var(--space-6);
+  gap: var(--space-5);
+  padding: var(--space-5);
 }
 .rs-left {
   display: grid;
@@ -63,6 +60,8 @@ body {
 .rs-photo {
   position: relative;
   aspect-ratio: 1000/640;
+  /* Keeps the photo and its controls inside a laptop viewport; the photo stays contained, not cropped. */
+  max-height: 48vh;
   border-radius: var(--radius-lg);
   overflow: hidden;
   background: var(--surface-sunken);
@@ -100,6 +99,60 @@ body {
 .rs-photo__bar {
   transition: opacity var(--duration-base);
 }
+/* Analysing overlay on the photo (design-system AnalysingScreen). Shown only while .qs-arriving. */
+.rs-analysing {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  opacity: 0;
+  visibility: hidden;
+  transition:
+    opacity var(--duration-arrive) ease-in,
+    visibility 0s linear var(--duration-arrive);
+}
+.qs-arriving .rs-analysing {
+  opacity: 1;
+  visibility: visible;
+  transition: opacity var(--duration-base);
+}
+.rs-sweep {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 0;
+  height: 40%;
+  background: linear-gradient(180deg, transparent, var(--brand) 50%, transparent);
+  opacity: 0.18;
+  /* No duration token for the sweep: four arrival beats, so it loops at a token-derived pace. */
+  animation: qs-sweep calc(var(--duration-arrive) * 4) cubic-bezier(0.4, 0, 0.2, 1) infinite;
+}
+.rs-stagecard {
+  position: absolute;
+  left: var(--space-4);
+  top: var(--space-4);
+  width: min(330px, calc(100% - var(--space-8)));
+  padding: var(--space-3) var(--space-4) var(--space-1);
+  background: var(--surface-raised);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-raised);
+}
+.rs-stagecard__k {
+  margin-bottom: var(--space-1);
+  font: 600 12px/16px var(--font-sans);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--ink-muted);
+}
+@media (prefers-reduced-motion: reduce) {
+  .rs-sweep {
+    display: none;
+  }
+  .rs-analysing {
+    transition: none;
+  }
+}
+
 .rs-card {
   padding: var(--space-5);
   background: var(--surface);
@@ -223,4 +276,56 @@ body {
   display: flex;
   flex-wrap: wrap;
   gap: var(--space-3);
+}
+
+/* Laptop and phone widths: no fixed minimum width, one column, 16px gutter on phones (no horizontal scroll). */
+@media (max-width: 1100px) {
+  .rs-main {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .rs-damage__grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+@media (max-width: 960px) {
+  .rs-top {
+    flex-wrap: wrap;
+    height: auto;
+    min-height: 64px;
+    padding: var(--space-3) var(--space-4);
+    gap: var(--space-3);
+  }
+  .rs-crumb {
+    display: none;
+  }
+  .rs-top .qs-cost,
+  .rs-top .qs-cost__toggle {
+    max-width: 100%;
+    white-space: normal;
+  }
+  .rs-main {
+    gap: var(--space-4);
+    padding: var(--space-4);
+  }
+  .rs-card,
+  .rs-damage {
+    padding: var(--space-4);
+  }
+  .rs-findings {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .rs-left,
+  .rs-right {
+    grid-template-columns: minmax(0, 1fr);
+    min-width: 0;
+  }
+  .rs-card .qs-field {
+    grid-template-columns: 88px minmax(0, 1fr) auto;
+  }
+  /* The design system's medium container ID (qs-id--md) so ten characters fit a phone width. */
+  .rs-right .qs-id {
+    font-size: 28px;
+    line-height: 36px;
+    gap: var(--space-3);
+  }
 }
