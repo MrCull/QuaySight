@@ -6,6 +6,7 @@
 // (iso6346.ts, containerId.ts). On COYU 266813 0 (16 Oct 2026) the old wording, which numbered positions
 // 1 to 11 and carried the calculation, gave Luna COCI6361130; this wording gave COYU2668130.
 import { applyMargin, certaintyOfProbability } from './certainty'
+import { ownerQuestion } from './ownerPick'
 import type { CertaintyLabel } from './inspection'
 import type { ChoiceQuestion, SharedAnswer, SharedQuestion, SharedQuestionSet } from './questionSet'
 import { questionSet } from './questionSet'
@@ -82,10 +83,12 @@ export const LUNA_IDENTIFICATION_INSTRUCTIONS =
  */
 export function lunaIdQuestionSet(positions?: number[]): SharedQuestionSet {
   const wanted = positions ?? allPositions()
-  return questionSet(
-    LUNA_IDENTIFICATION_INSTRUCTIONS,
-    wanted.map((position) => characterQuestion(position, 'this photo')),
+  const questions: SharedQuestion[] = wanted.map((position) =>
+    characterQuestion(position, 'this photo'),
   )
+  // The whole-prefix owner-code question rides with a full ID read; a re-check asks only its positions.
+  if (!positions) questions.push(ownerQuestion('this photo'))
+  return questionSet(LUNA_IDENTIFICATION_INSTRUCTIONS, questions)
 }
 
 /** The text sent ahead of the photo for the Jev ID set through OpenRouter. */
@@ -97,13 +100,15 @@ export interface JevIdOptions {
   image: string
   /** Ask the box question. Only for models the catalogue declares box-capable; older models reject it. */
   box: boolean
+  /** Ask the whole-prefix owner-code question (default true). The crop read leaves it out. */
+  owner?: boolean
 }
 
 /**
  * The Jev ID set: the character questions with an explicit unreadable option, legibility, whether the
  * whole number is in frame and, on box-capable models only, where the number is.
  */
-export function jevIdQuestionSet({ image, box }: JevIdOptions): SharedQuestionSet {
+export function jevIdQuestionSet({ image, box, owner = true }: JevIdOptions): SharedQuestionSet {
   const unreadable = [
     {
       value: UNREADABLE_OPTION,
@@ -112,6 +117,7 @@ export function jevIdQuestionSet({ image, box }: JevIdOptions): SharedQuestionSe
   ]
   const questions: SharedQuestion[] = [
     ...allPositions().map((position) => characterQuestion(position, image, unreadable)),
+    ...(owner ? [ownerQuestion(image)] : []),
     {
       type: 'score',
       name: 'legibility',

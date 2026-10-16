@@ -21,7 +21,7 @@ export interface CropAnswer {
 }
 
 /** The same group-position character questions as the full-photo read, without asking for the box again. */
-const CROP_QUESTIONS = jevIdQuestionSet({ image: 'the photo', box: false })
+const CROP_QUESTIONS = jevIdQuestionSet({ image: 'the photo', box: false, owner: false })
 
 const CROP_ASK = questionSetAsk(CROP_QUESTIONS, ({ answers }) => ({
   readings: readIdCharacters(answers),
@@ -81,7 +81,7 @@ export const idCropRead: PlanRequest<CropAnswer> = {
         return {
           ...record,
           // The crop is the closer look at the same number: its legibility and framing answers stand.
-          containerId: jevIdReading(combined.readings, caveats),
+          containerId: jevIdReading(combined.readings, caveats, first.ownerPick),
           idCropRead: {
             outcome: 'combined',
             box,
