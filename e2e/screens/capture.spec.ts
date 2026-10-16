@@ -432,26 +432,9 @@ const CAPTURES: Capture[] = [
     motion: 'frozen',
     run: (page) => demoResult(page, 'Clean grey rear doors'),
   },
-  // 'found-demo-rear-imperial' and 'found-demo-side-caveats' (What we found with the demo's weights in lb, and
-  // on the damaged side) return when the demo photos are recorded with the whole plan (spec #27, ticket #37):
-  // the demo's recordings carry no weights or damage yet, and the damaged side has no recording.
-  {
-    state: 'found-live-partial-ids',
-    screen: 'results',
-    steps: [
-      'Open /',
-      'Type placeholder key, Enter',
-      'Choose photo',
-      'Run live inspection (mocked Decisions: positions 5 and 9 unread)',
-      'settle (What we found: caveat about the unread positions first)',
-    ],
-    motion: 'frozen',
-    script: () => idVariantScript('partial'),
-    run: async (page) => {
-      await liveRun(page)
-      await page.locator('.qs-found .qs-found__block').first().waitFor()
-    },
-  },
+  // The demo's recordings carry no weights, markings or damage yet, and the damaged side has no recording
+  // (spec #27, ticket #37): the states that need them (the demo in lb, the demo's side damage) are captured on
+  // live runs below (rear-door-damage-*, side-damage) until those photos are recorded with the whole plan.
   {
     state: 'found-reduced-motion',
     screen: 'results',

@@ -1,6 +1,6 @@
 # DemoBanner
 
-The demo banner says, the whole time a visitor is in demo mode, that what they see is sample data and not a real inspection. Demo mode is entered from the `SetupCard` with **Enter as demo user**: no API key, no network, the three bundled sample containers only.
+The demo banner says, the whole time a visitor is in demo mode, that what they see is sample data and not a real inspection. Demo mode is entered from the `SetupCard` with **Enter as demo user**: no API key, no network, the bundled sample containers that have a recording, and nothing else. Today that is two (*Rear doors with markings* and *Clean grey rear doors*); *Damaged grey side* is offered once its photo has been recorded with the whole plan, so the app never shows a hand-made result as a recording.
 
 ## Use
 - `section.qs-demobanner` (`role="region"`, `aria-label="Demo mode"`) directly under the top bar, full width, before the inspection screen. It is sticky (`top: 0`), so it stays on screen while the page scrolls.
@@ -17,10 +17,10 @@ The demo banner says, the whole time a visitor is in demo mode, that what they s
 - Never dismissible. Demo mode is never remembered: a refresh opens the `SetupCard`.
 
 ## Demo mode around it
-- The `PhotoDrop` gives way to the sample picker (`.qs-samples` with three `.qs-sample` tiles: *Rear doors with markings*, *Damaged grey side*, *Clean grey rear doors*). Its explanation adds that inspecting your own photos needs an API provider; there is no drop zone and no file picker.
+- The `PhotoDrop` gives way to the sample picker (`.qs-samples` with one `.qs-sample` tile per recorded sample: today *Rear doors with markings* and *Clean grey rear doors*; each tile's line describes the photo, never a result). Its explanation adds that inspecting your own photos needs an API provider; there is no drop zone and no file picker.
 - Each result keeps the `Notice` *Recorded demonstration: [provider/model]*, naming who answered when that sample was recorded. A sample's result is only ever shown against its own photo.
 - The `CostIndicator` reads *Saved result · no live API charge*. Demo mode never adds to the live ledger and makes no request to any provider.
-- `NewInspection` returns to the sample picker. The `SettingsChip` is not shown; the banner's action is the way to a provider. In its place, once a sample runs, the `RunChip` names who answered when it was recorded: the monogram, the model's name and, in mono, the maker or route and the model id (*GPT-6 Luna · OpenAI · gpt-6-luna*). On phones only the name shows.
+- `NewInspection` returns to the sample picker. The `SettingsChip` is not shown; the banner's action is the way to a provider. In its place, once a sample is open, the `RunChip` (not on the sample picker, where nothing has answered yet) names who answered when it was recorded: the monogram, the model's name and, in mono, the maker or route and the model id (*GPT-6 Luna · OpenAI · gpt-6-luna*). On phones only the name shows.
 
 ## Rules
 - Neutral ink only: `surface-raised`, `ink`, `ink-muted` and `ink` rules top and bottom. Never certainty, severity or hazard colours, and never `brand` as a status. Nothing is green.
