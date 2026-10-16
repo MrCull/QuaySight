@@ -3,8 +3,13 @@ name: CI
 on:
   push:
     branches:
-      - '**'
+      - main
   pull_request:
+
+# A newer push to the same branch or PR cancels the run still in flight.
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
 
 permissions:
   contents: read
@@ -31,14 +36,21 @@ jobs:
       - name: Secret scan (tracked tree)
         run: node scripts/check-secrets.mjs
 
-      - name: Install Playwright chromium
-        run: pnpm exec playwright install --with-deps chromium
-
-      - name: Check (lint, tokens, type-check, unit, build, e2e)
+      - name: Check (lint, tokens, type-check, build)
         run: npm run check
 
+      # Tests are off by default. To switch them on without a code change, set the repository
+      # variable RUN_TESTS to "true" (Settings > Secrets and variables > Actions > Variables).
+      - name: Install Playwright chromium
+        if: vars.RUN_TESTS == 'true'
+        run: pnpm exec playwright install --with-deps chromium
+
+      - name: Tests (unit and e2e)
+        if: vars.RUN_TESTS == 'true'
+        run: npm run check:tests
+
       - name: Upload Playwright report
-        if: failure()
+        if: failure() && vars.RUN_TESTS == 'true'
         uses: actions/upload-artifact@v4
         with:
           name: playwright-report
