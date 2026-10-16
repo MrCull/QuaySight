@@ -206,8 +206,8 @@ function onListKey(event: KeyboardEvent) {
         >
         <span
           >{{ keyWarning.provider }} keys start with
-          <span class="qs-keywarn__prefix">{{ keyWarning.prefix }}</span>. If yours is right, you
-          can still continue.</span
+          <span class="qs-keywarn__prefix">{{ keyWarning.prefix }}</span
+          >. If yours is right, you can still continue.</span
         >
       </p>
       <span class="qs-hint">{{ copy.hint }}</span>

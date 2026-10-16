@@ -46,7 +46,10 @@ describe('provider catalogue: moving targets', () => {
     for (const provider of providers) {
       for (const model of provider.models) {
         const option = labelsFor(provider.id, model.id).option
-        expect(option.includes('moving target'), option).toBe(model.movingTarget)
+        expect({ option, saysMoving: option.includes('moving target') }).toEqual({
+          option,
+          saysMoving: model.movingTarget,
+        })
       }
     }
   })
