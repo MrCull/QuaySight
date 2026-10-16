@@ -373,31 +373,9 @@ const CAPTURES: Capture[] = [
     motion: 'frozen',
     run: (page) => demoResult(page, 'Clean grey rear doors'),
   },
-  {
-    state: 'found-demo-rear-imperial',
-    screen: 'results',
-    steps: [
-      'Demo rear-doors result (What we found at the top of the readings)',
-      'Switch the Container details toggle to Imperial (the summary shows the weights in lb)',
-    ],
-    motion: 'frozen',
-    run: async (page) => {
-      await demoResult(page, 'Rear doors with markings')
-      await page.getByRole('group', { name: 'Units' }).getByRole('button', { name: 'Imperial' }).click()
-    },
-  },
-  {
-    state: 'found-demo-side-caveats',
-    screen: 'results',
-    steps: [
-      'Demo damaged-side result (no ID in view: the caveat comes first, then the damage verdict)',
-    ],
-    motion: 'frozen',
-    run: async (page) => {
-      await demoResult(page, 'Damaged grey side')
-      await page.locator('.qs-found').waitFor()
-    },
-  },
+  // 'found-demo-rear-imperial' and 'found-demo-side-caveats' (What we found with the demo's weights in lb, and
+  // on the damaged side) return when the demo photos are recorded with the whole plan (spec #27, ticket #37):
+  // the demo's recordings carry no weights or damage yet, and the damaged side has no recording.
   {
     state: 'found-live-partial-ids',
     screen: 'results',
