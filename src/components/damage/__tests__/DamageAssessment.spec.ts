@@ -98,7 +98,7 @@ describe('a live long-side assessment in the damage view', () => {
     const wrapper = mount(DamageView, {
       props: { assessment: liveSide((a) => delete a.Z1B_visibility) },
     })
-    const figure = wrapper.find('figure[data-view="image-relative"]')
+    const figure = wrapper.find('figure[data-view="rear-right"]')
     expect(figure.findAll('.qs-c-zone')).toHaveLength(10)
     expect(figure.findAll('.qs-c-zone--partial')).toHaveLength(1)
     const unseen = figure.findAll('.qs-c-zone--unseen')
@@ -148,10 +148,70 @@ describe('a live long-side assessment in the damage view', () => {
     const wrapper = mount(DamageView, { props: { assessment } })
     await cardFor(wrapper, dent).trigger('click')
     const card = cardFor(wrapper, dent)
-    expect(card.text()).toContain('Photo column 2 of 5 from the left, lower half of the side sheet')
+    expect(card.text()).toContain(
+      'Photo column 2 of 5 from the front end, lower half of the side sheet',
+    )
     expect(card.text()).toContain('Moderate')
     expect(card.text()).toContain('0.92')
     expect(wrapper.text()).not.toMatch(/location code|CEDEX location/i)
+  })
+})
+
+describe('which side a live long-side photo is drawn on', () => {
+  const door = (value: string) => liveSide((a) => (a.door_end_in_image = choice(value)))
+  const left = (w: ReturnType<typeof mount>) => w.find('figure[data-view="front-left"]')
+  const right = (w: ReturnType<typeof mount>) => w.find('figure[data-view="rear-right"]')
+  const coverage = (w: ReturnType<typeof mount>, name: string) =>
+    w
+      .findAll('.qs-coverage__item')
+      .find((li) => li.text().startsWith(name))!
+      .text()
+
+  it('draws doors at photo-left on the left side of Front and left side, with the right side Not seen', () => {
+    const wrapper = mount(DamageView, { props: { assessment: door('image_left') } })
+    expect(left(wrapper).findAll('.qs-pin').length).toBeGreaterThan(0)
+    expect(left(wrapper).findAll('.qs-c-zone')).toHaveLength(10)
+    expect(left(wrapper).text()).toContain('Left side')
+    expect(right(wrapper).findAll('.qs-pin')).toHaveLength(0)
+    expect(right(wrapper).text()).toContain('Right side · Not seen')
+    expect(coverage(wrapper, 'Left side')).toContain('Photo 1')
+    expect(coverage(wrapper, 'Right side')).toContain('Not seen')
+    expect(wrapper.text()).not.toContain('side Uncertain')
+    expect(wrapper.find('figure[data-view="image-relative"]').exists()).toBe(false)
+  })
+
+  it('draws doors at photo-right on the right side of Rear and right side', () => {
+    const wrapper = mount(DamageView, { props: { assessment: door('image_right') } })
+    expect(right(wrapper).findAll('.qs-pin').length).toBeGreaterThan(0)
+    expect(left(wrapper).findAll('.qs-pin')).toHaveLength(0)
+    expect(left(wrapper).text()).toContain('Left side · Not seen')
+    expect(wrapper.text()).not.toContain('side Uncertain')
+    expect(wrapper.find('figure[data-view="image-relative"]').exists()).toBe(false)
+  })
+
+  it('keeps photo-left at the start of the face on both sides, so the door end sits by the doors', () => {
+    const dentZone = (w: ReturnType<typeof mount>) =>
+      w.findAll('.qs-c-zone title').map((t) => t.text())
+    // Doors at photo-left: the first column is by the doors, at the far end from the front wall.
+    const l = mount(DamageView, { props: { assessment: door('image_left') } })
+    expect(dentZone(l)[0]).toContain('Photo column 1 of 5 from the door end')
+    // Doors at photo-right: the last column is by the doors, beside the rear end.
+    const r = mount(DamageView, { props: { assessment: door('image_right') } })
+    expect(dentZone(r)[0]).toContain('Photo column 1 of 5 from the front end')
+    const first = (a: DamageAssessment) => a.zones!.find((z) => z.id === 'Z1T')!.zone
+    expect(first(door('image_left'))).toEqual(first(door('image_right')))
+  })
+
+  it('draws an unclear door end on Rear and right side with a visible side-not-certain note', () => {
+    const wrapper = mount(DamageView, { props: { assessment: door('not_identifiable') } })
+    expect(right(wrapper).findAll('.qs-pin').length).toBeGreaterThan(0)
+    expect(left(wrapper).findAll('.qs-pin')).toHaveLength(0)
+    expect(right(wrapper).text()).toContain('Right side · side Uncertain')
+    expect(wrapper.find('.qs-notice').text()).toContain('Right side · side Uncertain')
+    expect(coverage(wrapper, 'Right side')).toContain('side Uncertain')
+    expect(coverage(wrapper, 'Left side')).toContain('Not seen')
+    expect(wrapper.find('figure[data-view="image-relative"]').exists()).toBe(false)
+    expect(wrapper.text()).not.toMatch(FORBIDDEN)
   })
 })
 

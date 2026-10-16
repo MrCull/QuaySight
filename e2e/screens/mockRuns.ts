@@ -130,7 +130,7 @@ export function sideReply() {
   const answers: Keyed = {
     image_quality: choice('good'),
     side_panel_coverage: choice('full'),
-    door_end_in_image: choice('not_identifiable'),
+    door_end_in_image: choice('image_left'),
     potentially_significant_damage: predicate(0.7),
     bottom_rail_bent: predicate(0.8),
   }

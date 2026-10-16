@@ -15,11 +15,13 @@ import type { DamageAssessment } from '../domain/damage'
  */
 export const recordedSideDamage: DamageAssessment = {
   source: 'recorded',
-  photos: [{ photo: 'side-dented-grey.jpg', face: 'long-side' }],
+  photos: [{ photo: 'side-dented-grey.jpg', face: 'right' }],
+  // The photo does not settle the side, so it is drawn on the right side and said to be uncertain.
+  sideInference: { side: 'right', basis: 'defaulted' },
   findings: [
     {
       id: 1,
-      face: 'long-side',
+      face: 'right',
       zone: { u0: 0.27, u1: 0.7, v0: 0.62, v1: 0.78 },
       component: 'panel',
       visibility: null,

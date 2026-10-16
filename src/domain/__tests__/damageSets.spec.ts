@@ -48,8 +48,9 @@ describe('choosing the damage for the face the photo shows', () => {
     const damage = assessDamage(seen('long-side'), [sideReading()], 'side.jpg')
     expect(damage).toMatchObject({
       source: 'live',
-      photos: [{ photo: 'side.jpg', face: 'long-side' }],
-      findings: [dent],
+      photos: [{ photo: 'side.jpg', face: 'right' }],
+      findings: [{ ...dent, face: 'right' }],
+      sideInference: { side: 'right', basis: 'defaulted' },
       imageQuality: 'good',
       coverage: 'most',
       significantProbability: 0.8,
@@ -93,7 +94,9 @@ describe('choosing the damage for the face the photo shows', () => {
   })
 
   it('without a detected face, uses the one set whose own coverage says its face is inspectable', () => {
-    expect(assessDamage(undefined, [sideReading()], 'side.jpg')?.findings).toEqual([dent])
+    expect(assessDamage(undefined, [sideReading()], 'side.jpg')?.findings).toEqual([
+      { ...dent, face: 'right' },
+    ])
     expect(
       assessDamage(undefined, [sideReading({ inspectable: false })], 'side.jpg')?.notAssessed
         ?.reason,
@@ -112,7 +115,7 @@ describe('folding into the record, whichever request answers first', () => {
   it('gives the same damage when the face lands before or after the set', () => {
     const faceFirst = withDamageReading(withPhotoFace(record, seen('long-side')), sideReading())
     const setFirst = withPhotoFace(withDamageReading(record, sideReading()), seen('long-side'))
-    expect(faceFirst.damage?.findings).toEqual([dent])
+    expect(faceFirst.damage?.findings).toEqual([{ ...dent, face: 'right' }])
     expect(setFirst.damage).toEqual(faceFirst.damage)
     expect(setFirst.photoFace).toEqual(seen('long-side'))
   })

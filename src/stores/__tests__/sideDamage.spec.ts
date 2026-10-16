@@ -10,6 +10,8 @@ import { onlyRequests } from '../../plan/registry'
 import { survey } from '../../plan/requests/survey'
 import { idRecheck } from '../../plan/requests/idRecheck'
 import { sideDamage } from '../../plan/requests/sideDamage'
+import { faceStatus } from '../../domain/damage'
+import { buildInspectionExport } from '../../domain/exports'
 import { SIDE_DAMAGE_SET } from '../../domain/sideDamage'
 
 // Long-side damage (#33) through the store, with fetch stubbed at the network edge: the side set goes
@@ -90,11 +92,11 @@ function surveyAnswers(face = 'long_side'): Record<string, Answer> {
 }
 
 /** The side set's answers for the dented side: a dent across Z2B and Z3B, every zone seen. */
-function dentedSide(): Record<string, Answer> {
+function dentedSide(doorEnd = 'not_identifiable'): Record<string, Answer> {
   const answers: Record<string, Answer> = {
     image_quality: { type: 'choice', value: 'good' },
     side_panel_coverage: { type: 'choice', value: 'most' },
-    door_end_in_image: { type: 'choice', value: 'not_identifiable' },
+    door_end_in_image: { type: 'choice', value: doorEnd },
     potentially_significant_damage: { type: 'predicate', p: 0.82 },
   }
   for (const n of [1, 2, 3, 4, 5]) {
@@ -173,14 +175,15 @@ describe('long-side damage on a live run', () => {
       'Photo column 3 of 5 from the left, lower half of the side sheet',
     ])
     expect(damage?.findings[0]).toMatchObject({
-      face: 'long-side',
+      face: 'right',
       component: 'panel',
       severity: 'moderate',
       visibility: 'clear',
       types: [{ code: 'DT', probability: 0.92 }],
     })
     expect(damage).toMatchObject({
-      photos: [{ photo: 'side-dented-grey.jpg', face: 'long-side' }],
+      photos: [{ photo: 'side-dented-grey.jpg', face: 'right' }],
+      sideInference: { side: 'right', basis: 'defaulted' },
       imageQuality: 'good',
       coverage: 'most',
       significantProbability: 0.82,
@@ -202,6 +205,32 @@ describe('long-side damage on a live run', () => {
       { u0: 0.4, u1: 0.6, v0: 0.5, v1: 1 },
     ])
   })
+
+  it.each([
+    ['image_left', 'left', 'inferred', 'from the door end'],
+    ['image_right', 'right', 'inferred', 'from the front end'],
+    ['not_identifiable', 'right', 'defaulted', 'from the left'],
+  ] as const)(
+    'with the door end %s, puts the findings on the %s side (%s)',
+    async (doorEnd, side, basis, words) => {
+      const { store } = run('openrouter', {
+        side: () => json(replyBody('openrouter', dentedSide(doorEnd))),
+      })
+
+      await store.start()
+
+      const damage = store.record?.damage
+      expect(damage?.photos).toEqual([{ photo: 'side-dented-grey.jpg', face: side }])
+      expect(damage?.sideInference).toEqual({ side, basis })
+      expect(damage?.findings.map((f) => f.face)).toEqual([side, side])
+      expect(damage?.findings[0]?.location).toContain(words)
+      expect(damage?.zones?.every((z) => z.face === side)).toBe(true)
+      const other = side === 'left' ? 'right' : 'left'
+      expect(faceStatus(damage!, side)).toBe('photographed')
+      expect(faceStatus(damage!, other)).toBe('not-seen')
+      expect(buildInspectionExport(store.record!).damage.sideInference).toEqual({ side, basis })
+    },
+  )
 
   it('records the side request as its own ledger line and raw response', async () => {
     const { store } = run('openrouter')

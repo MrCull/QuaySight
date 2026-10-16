@@ -18,7 +18,8 @@ How the damage view shows one damage set's assessment of one photo: the long sid
 The previews show only the figure that carries the findings. In the app, a long-side photo is drawn on the fixed view for its side, found from where the doors are in the photo (doors at photo-left: left side; doors at photo-right: right side). When the doors don't settle it, the damage is drawn on the *Rear and right side* view with a visible note that the side is not certain. A fixed view with no photographed face is hidden and replaced by one line saying that side was not photographed. The `.qs-coverage` strip stays under the views.
 
 ## Copy
-- Locations are photo-relative words: "Photo column 2 of 5 from the left, lower half of the side sheet"; "Photo-right door leaf, bottom third". Never a CEDEX location code: orientation is unknown.
+- Locations are photo-relative words: "Photo column 2 of 5 from the left, lower half of the side sheet"; "Photo-right door leaf, bottom third". Once the doors place a long side, the long side's "from the left" and "photo left/right" become the container's own ends: "from the door end", "from the front end". When the side is defaulted they stay photo-relative.
+- A defaulted side says so with a fixed status word: the side label reads "Right side · side Uncertain", the coverage strip "Photo 1 · side Uncertain", and a `qs-notice` with the *unknown* glyph repeats it. The other side is *Not seen*. Never a CEDEX location code: orientation is unknown.
 - Damage types are CEDEX damage types with their names (DT Dent, BT Bent, BW Bowed, HO Holed, CK Cracked, CW Cracked weld, CO Corroded, CH Corroded and holed, BR Broken).
 - Severity is *apparent*: "apparent moderate dent". Door panel findings read "Dent in the door panel", component findings "Damage to the door sill".
 

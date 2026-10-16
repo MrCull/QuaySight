@@ -10,6 +10,11 @@ import type { CertaintyLabel } from './inspection'
  */
 export type DamageFace = 'rear' | 'front' | 'left' | 'right' | 'roof' | 'long-side'
 
+export interface SideInference {
+  side: 'left' | 'right'
+  basis: 'inferred' | 'defaulted'
+}
+
 export type ViewId = 'rear-right' | 'front-left'
 export type FaceStatus = 'photographed' | 'side-unknown' | 'not-seen'
 
@@ -122,6 +127,12 @@ export interface DamageAssessment {
   significantProbability?: number | null
   /** Which edge of the photo the door end is at, only when the photo shows it directly. */
   doorEnd?: 'image-left' | 'image-right' | null
+  /**
+   * Which long side a long-side photo shows. 'inferred' when the doors are visible at one edge of the
+   * photo (doors at photo-left: left side; at photo-right: right side); 'defaulted' to the right side
+   * when the doors do not settle it. Absent for any other face.
+   */
+  sideInference?: SideInference
   /** Set when no face in the photo could be assessed: "Damage not assessed for this view", and why. */
   notAssessed?: { reason: string }
   /** The raw response the assessment came from (live), for the export. */
@@ -165,10 +176,6 @@ export function viewHasPhotos(assessment: DamageAssessment, view: ViewId): boole
 export function findingsInView(assessment: DamageAssessment, view: ViewId): DamageFinding[] {
   const spec = VIEWS[view]
   return assessment.findings.filter((f) => f.face === spec.end || f.face === spec.side)
-}
-
-export function imageRelativeFindings(assessment: DamageAssessment): DamageFinding[] {
-  return assessment.findings.filter((f) => f.face === 'long-side')
 }
 
 const CERTAINTY_RANK: Record<FindingCertainty, number> = { Confident: 0, Likely: 1, Uncertain: 2 }

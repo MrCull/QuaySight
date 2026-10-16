@@ -100,7 +100,7 @@ describe('a sample with no recording yet', () => {
     const record = await runDemoSample('side-dented')
 
     expect(idResultState(record.containerId!)).toBe('insufficient')
-    expect(record.damage?.photos).toEqual([{ photo: 'side-dented-grey.jpg', face: 'long-side' }])
+    expect(record.damage?.photos).toEqual([{ photo: 'side-dented-grey.jpg', face: 'right' }])
     expect(record.damage?.findings.map((f) => f.location)).toHaveLength(1)
     expect(recordedDemonstrationLabel(record)).toBe(
       'Recorded demonstration: GPT-6 Luna / gpt-6-luna',
