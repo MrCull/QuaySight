@@ -2,6 +2,7 @@
 // adapter normalises face, zone, severity and certainty into these shapes. Positions are approximate
 // fractions of a face, never measurements, and never CEDEX location codes.
 
+import type { ContainerLengthFt } from './chosenLength'
 import type { CertaintyLabel } from './inspection'
 
 /**
@@ -134,7 +135,7 @@ export interface DamageAssessment {
    */
   sideInference?: SideInference
   /** The container length the schematic is drawn to (20, 40 or 45 ft); 40 when absent. */
-  lengthFt?: 20 | 40 | 45
+  lengthFt?: ContainerLengthFt
   /** Set when no face in the photo could be assessed: "Damage not assessed for this view", and why. */
   notAssessed?: { reason: string }
   /** The raw response the assessment came from (live), for the export. */

@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import { sectionCount } from '../../domain/sideSections'
+import type { ContainerLengthFt } from '../../domain/chosenLength'
 import type { DamageFinding, FaceStatus, FindingZone, ZoneCoverage } from '../../domain/damage'
 
 // One fixed view of the neutral container drawing, following
@@ -18,7 +19,7 @@ const props = defineProps<{
   /** The damage set's photo-relative zones on this view's faces, with how well each was seen. */
   zones?: ZoneCoverage[]
   /** The container length the long side is drawn to: 20, 40 or 45 ft. 40 when not given. */
-  lengthFt?: number
+  lengthFt?: ContainerLengthFt
 }>()
 
 const emit = defineEmits<{ select: [id: number] }>()

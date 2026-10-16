@@ -16,7 +16,7 @@ import {
   type SideInference,
   type ZoneVisibility,
 } from './damage'
-import { chosenLength, type ChosenLength } from './chosenLength'
+import { chosenLength, type ChosenLength, type ContainerLengthFt } from './chosenLength'
 import { sectionScheme, sectionsOfZone } from './sideSections'
 import type { FaceReading } from './photoFace'
 import type { CertaintyLabel, InspectionRecord, Provenance, RecheckRecord } from './inspection'
@@ -133,9 +133,10 @@ export interface InspectionExport {
     /** The long-side section scheme drawn: side, length and section count (5 for 20 ft, 10 for 40 and 45 ft); null off the long side. */
     longSideSections: {
       side: 'left' | 'right'
-      lengthFt: number
+      lengthFt: ContainerLengthFt
       count: number
-      numberedFrom: 'door end'
+      /** 'assumed door end' when the side was defaulted, so the door end is not known. */
+      numberedFrom: 'door end' | 'assumed door end'
     } | null
     findings: ExportFindingLink[]
   }
@@ -329,7 +330,11 @@ export function buildInspectionExport(record: InspectionRecord): InspectionExpor
         visibility: z.visibility,
         sections: sectionsOf(scheme, z.face, z.zone),
       })),
-      longSideSections: scheme && { ...scheme, numberedFrom: 'door end' },
+      longSideSections: scheme && {
+        ...scheme,
+        numberedFrom:
+          assessment?.sideInference?.basis === 'defaulted' ? 'assumed door end' : 'door end',
+      },
       findings: (assessment?.findings ?? []).map((f) => ({
         findingId: f.id,
         title: f.title,

@@ -31,7 +31,7 @@ describe('CEDEX/IICL long-side sections', () => {
   })
 
   it('maps one photo zone to two sections at 40 and 45 ft', () => {
-    for (const ft of [40, 45]) {
+    for (const ft of [40, 45] as const) {
       expect(sectionsOfZone(column(1), ft, 'left')).toEqual([1, 2])
       expect(sectionsOfZone(column(5), ft, 'left')).toEqual([9, 10])
       expect(sectionsOfZone(column(5), ft, 'right')).toEqual([1, 2])

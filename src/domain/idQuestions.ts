@@ -151,6 +151,8 @@ export interface ChoiceReading {
   value: string | null
   certainty: CertaintyLabel
   runnerUp: string | null
+  /** How certain the runner-up is, when a producer knows it. Judges a candidate built from it; else the position's own certainty stands. */
+  runnerUpCertainty?: CertaintyLabel
   /** The chosen character's probability, when the reply gave one. Compares two readings of a character. */
   probability?: number
 }

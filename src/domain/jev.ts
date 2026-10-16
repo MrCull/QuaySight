@@ -247,7 +247,11 @@ export function jevIdReading(
   const positionCertainty = readings.map((r) => r.certainty)
   let certainty = worstOf(positionCertainty)
   if (hardToRead || partlyOutOfFrame) certainty = atLeastUncertain(certainty)
-  const ranked = rankIdCandidates(readings, certainty, owner.alternatives)
+  const ranked = rankIdCandidates(
+    readings,
+    hardToRead || partlyOutOfFrame ? atLeastUncertain('Confident') : 'Confident',
+    owner.alternatives,
+  )
   const chars = ranked.chars
   const printed = chars.join('')
 
