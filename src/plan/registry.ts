@@ -1,6 +1,7 @@
 import type { PlanRequest } from './requestPlan'
 import { idCropRead } from './requests/idCropRead'
 import { idRecheck } from './requests/idRecheck'
+import { sideDamage } from './requests/sideDamage'
 import { survey } from './requests/survey'
 import { weightCheck } from './requests/weightCheck'
 
@@ -9,7 +10,7 @@ import { weightCheck } from './requests/weightCheck'
  * together. A new request is one more entry here, defined in its own module; whether a run includes
  * it is the request's own appliesTo and needed.
  */
-const registered: PlanRequest[] = [survey, idRecheck, idCropRead, weightCheck]
+const registered: PlanRequest[] = [survey, idRecheck, idCropRead, sideDamage, weightCheck]
 
 export function planRequests(): readonly PlanRequest[] {
   return registered
@@ -24,5 +25,17 @@ export function registerRequest(request: PlanRequest): () => void {
   return () => {
     const at = registered.indexOf(request)
     if (at >= 0) registered.splice(at, 1)
+  }
+}
+
+/**
+ * Test seam: later runs make only these of the registered requests (a spec about one part of the run
+ * keeps the other parts' requests out of its fetch counts and ledger). Returns the restore.
+ */
+export function onlyRequests(...keep: PlanRequest[]): () => void {
+  const saved = [...registered]
+  registered.splice(0, registered.length, ...saved.filter((r) => keep.includes(r)))
+  return () => {
+    registered.splice(0, registered.length, ...saved)
   }
 }

@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeEach, vi, afterEach } from 'vitest'
+import { describe, it, expect, beforeEach, vi, afterEach, beforeAll, afterAll } from 'vitest'
 import { setActivePinia, createPinia } from 'pinia'
 
 // jsdom has no image decoder or canvas; photo preparation runs on the fake codec.
@@ -62,6 +62,17 @@ function choosePhoto(store: ReturnType<typeof useInspectionStore>) {
     file: new Blob(['x'], { type: 'image/jpeg' }),
   })
 }
+
+import { onlyRequests } from '../../plan/registry'
+import { survey } from '../../plan/requests/survey'
+import { idRecheck } from '../../plan/requests/idRecheck'
+
+// This spec covers the ID requests; the other parts of a run (damage, …) have their own specs.
+let restoreRequests = () => {}
+beforeAll(() => {
+  restoreRequests = onlyRequests(survey, idRecheck)
+})
+afterAll(() => restoreRequests())
 
 describe('automatic re-check of unresolved container ID positions (live Luna)', () => {
   let fetchMock: ReturnType<typeof vi.fn<typeof fetch>>

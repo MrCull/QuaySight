@@ -1,0 +1,132 @@
+import { describe, it, expect } from 'vitest'
+import type { DamageFinding } from '../damage'
+import {
+  assessDamage,
+  withDamageReading,
+  withPhotoFace,
+  type DamageSetReading,
+} from '../damageSets'
+import type { FaceReading, PhotoFace } from '../photoFace'
+import type { InspectionRecord } from '../inspection'
+
+const dent: DamageFinding = {
+  id: 1,
+  face: 'long-side',
+  zone: { u0: 0.2, u1: 0.4, v0: 0.5, v1: 1 },
+  component: 'panel',
+  visibility: 'clear',
+  location: 'Photo column 2 of 5 from the left, lower half of the side sheet',
+  title: 'Dent in the side sheet',
+  description: '',
+  bestInterpretation: '',
+  uncertainty: '',
+  types: [{ code: 'DT', name: 'Dent', probability: 0.92 }],
+  severity: 'moderate',
+  certainty: 'Confident',
+  caveats: [],
+}
+
+function sideReading(overrides: Partial<DamageSetReading> = {}): DamageSetReading {
+  return {
+    face: 'long-side',
+    inspectable: true,
+    findings: [dent],
+    zones: [],
+    imageQuality: 'good',
+    coverage: 'most',
+    significantProbability: 0.8,
+    doorEnd: null,
+    passId: 'live-1-side',
+    ...overrides,
+  }
+}
+
+const seen = (face: PhotoFace): FaceReading => ({ face, probability: 0.95, certainty: 'Confident' })
+
+describe('choosing the damage for the face the photo shows', () => {
+  it('takes the findings from the set written for the detected face', () => {
+    const damage = assessDamage(seen('long-side'), [sideReading()], 'side.jpg')
+    expect(damage).toMatchObject({
+      source: 'live',
+      photos: [{ photo: 'side.jpg', face: 'long-side' }],
+      findings: [dent],
+      imageQuality: 'good',
+      coverage: 'most',
+      significantProbability: 0.8,
+      passId: 'live-1-side',
+    })
+    expect(damage?.notAssessed).toBeUndefined()
+  })
+
+  it('takes nothing from a set whose own coverage says its face is not inspectable', () => {
+    const damage = assessDamage(
+      seen('long-side'),
+      [sideReading({ inspectable: false, coverage: 'not-inspectable' })],
+      'side.jpg',
+    )
+    expect(damage?.findings).toEqual([])
+    expect(damage?.photos).toEqual([])
+    expect(damage?.notAssessed?.reason).toMatch(/not inspectable/)
+  })
+
+  it.each([
+    ['roof', /roof/],
+    ['close-up', /close-up/],
+    ['unknown', /could not be identified/],
+    ['front-end', /front end/],
+  ] as const)('says a %s photo is not assessed for this view, with the reason', (face, reason) => {
+    const damage = assessDamage(seen(face), [sideReading()], 'p.jpg')
+    expect(damage?.findings).toEqual([])
+    expect(damage?.notAssessed?.reason).toMatch(reason)
+  })
+
+  it('never shows another face’s findings: a door photo does not take the side set', () => {
+    const damage = assessDamage(seen('rear-doors'), [sideReading()], 'doors.jpg')
+    expect(damage?.findings).toEqual([])
+    expect(damage?.notAssessed?.reason).toMatch(/door end/)
+  })
+
+  it('waits (null) while the set for the detected face has not answered', () => {
+    expect(assessDamage(seen('long-side'), [], 'side.jpg')).toBeNull()
+  })
+
+  it('without a detected face, uses the one set whose own coverage says its face is inspectable', () => {
+    expect(assessDamage(undefined, [sideReading()], 'side.jpg')?.findings).toEqual([dent])
+    expect(
+      assessDamage(undefined, [sideReading({ inspectable: false })], 'side.jpg')?.notAssessed
+        ?.reason,
+    ).toMatch(/could not be identified/)
+    expect(assessDamage(undefined, [], 'side.jpg')).toBeNull()
+  })
+})
+
+describe('folding into the record, whichever request answers first', () => {
+  const record = {
+    id: 'live-1',
+    photo: { name: 'side.jpg', orientation: 'landscape' },
+    damage: null,
+  } as unknown as InspectionRecord
+
+  it('gives the same damage when the face lands before or after the set', () => {
+    const faceFirst = withDamageReading(withPhotoFace(record, seen('long-side')), sideReading())
+    const setFirst = withPhotoFace(withDamageReading(record, sideReading()), seen('long-side'))
+    expect(faceFirst.damage?.findings).toEqual([dent])
+    expect(setFirst.damage).toEqual(faceFirst.damage)
+    expect(setFirst.photoFace).toEqual(seen('long-side'))
+  })
+
+  it('switches to not assessed when the face lands and is not the set’s face', () => {
+    const next = withPhotoFace(withDamageReading(record, sideReading()), seen('roof'))
+    expect(next.damage?.findings).toEqual([])
+    expect(next.damage?.notAssessed).toBeDefined()
+  })
+
+  it('keeps one reading per face', () => {
+    const twice = withDamageReading(
+      withDamageReading(record, sideReading()),
+      sideReading({ findings: [] }),
+    )
+    expect(twice.damageReadings).toHaveLength(1)
+    expect(twice.damage?.findings).toEqual([])
+  })
+})

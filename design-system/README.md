@@ -15,7 +15,7 @@ What the app looks like after photos are uploaded. Live, animated versions are i
 ## Principles
 
 1. **The photo leads.** The uploaded photograph and the neutral schematic take the most space. Chrome stays quiet: `bg`, `surface`, hairline `line`.
-2. **Three axes, never mixed.** *Certainty* (blue → amber → slate discs), *damage severity* (magenta, 1–3 bars) and *hazard markings* (orange diamond) each have their own colour, glyph and component. A reader can always tell "we're unsure" from "this looks bad" from "a DG placard is visible".
+2. **Three axes, never mixed.** *Certainty* (blue → amber → slate discs), *damage severity* (magenta, 1–4 bars on a five-level scale) and *hazard markings* (orange diamond) each have their own colour, glyph and component. A reader can always tell "we're unsure" from "this looks bad" from "a DG placard is visible".
 3. **No green.** Green reads as *safe*, *clear* or *passed*, and Quay Sight never claims any of those. Nothing in the palette is green, and nothing uses `brand` teal to mean a status.
 4. **Absence is not a result.** Unphotographed faces are hatched and labelled *Not seen*. Missing probabilities are *unavailable*, never 0 or 100%.
 5. **Read-only.** Results are observations and estimates. No edit icons, pickers, confirm buttons or "review required" banners.
@@ -41,7 +41,7 @@ What the app looks like after photos are uploaded. Live, animated versions are i
 - **Text.** `ink` for primary text and `ink-muted` for labels and captions. Both pass 4.5:1 on every ground in both themes.
 - **Action.** `brand` (signal teal) is the only action colour: primary button, selected provider, active stage, links. Text on it is `on-brand`. Focus is a solid 2px `focus-ring` outline offset 2px, 3:1 or better on every surface.
 - **Certainty.** Use `cert-{confident|likely|uncertain|unknown|unseen}-{fg|bg|line}` only through `CertaintyChip`, `ContainerId` underlines and schematic marker outlines. Confident and Likely share a blue hue and differ by glyph and fill. Uncertain is the only warm certainty colour. Not seen adds the `hatch` pattern.
-- **Severity.** `sev-minor`, `sev-moderate` and `sev-major` fill pins, region tints and severity bars. `damage-fg` on `damage-bg` for codes and labels.
+- **Severity.** Five levels: none, cosmetic, minor, moderate, major. *None* is no finding. `sev-cosmetic` (the lightest, least saturated step), `sev-minor`, `sev-moderate` and `sev-major` fill pins, region tints and severity bars. A component the photo gives no severity for is *Not rated*, in neutral ink. `damage-fg` on `damage-bg` for codes and labels.
 - **Container drawing.** The `schem-*` family lights the 3D drawing: `schem-top` lightest, `schem-side` (with `schem-side-rib`) in the middle, `schem-end` darkest, with `schem-rail` framing, `schem-detail` hardware and `schem-shadow` beneath. It stays neutral steel so the severity tints carry the colour.
 - **Hazard.** `hazard-fg` on `hazard-bg`, only inside the diamond `MarkingBadge` for DG placards and safety markings.
 - **Errors.** `error-fg` on `error-bg`, only for system failures, always with the octagon glyph.
@@ -87,7 +87,7 @@ What the app looks like after photos are uploaded. Live, animated versions are i
 
 ## Using the components
 
-The repository is a Vue 3 app, so components ship as framework-agnostic CSS classes (`qs-*`) in `components/bundle.css`, built on `tokens.css` custom properties. Wrap the app in `.qs-root`, then follow each component's guidelines: `Button`, `CertaintyChip`, `SeverityBadge`, `ProvenanceTag`, `FieldRow`, `ContainerId`, `MarkingBadge`, `FindingCard`, `ManifestRetry`, `ContainerSchematic`, `CostIndicator`, `ProviderSelect`, `SetupCard`, `SettingsChip`, `SettingsDrawer`, `DemoBanner`, `RunChip`, `PhotoDrop`, `StageProgress`, `Notice`, `NewInspection`, `UnitsToggle`. `AnalysingScreen` and `ResultsScreen` show them assembled into the main screen, before and after the results land. Turn each into a Vue SFC that renders the documented markup. Don't re-colour them locally.
+The repository is a Vue 3 app, so components ship as framework-agnostic CSS classes (`qs-*`) in `components/bundle.css`, built on `tokens.css` custom properties. Wrap the app in `.qs-root`, then follow each component's guidelines: `Button`, `CertaintyChip`, `SeverityBadge`, `ProvenanceTag`, `FieldRow`, `ContainerId`, `MarkingBadge`, `FindingCard`, `ManifestRetry`, `ContainerSchematic`, `CostIndicator`, `ProviderSelect`, `SetupCard`, `SettingsChip`, `SettingsDrawer`, `DemoBanner`, `RunChip`, `PhotoDrop`, `StageProgress`, `Notice`, `NewInspection`, `DamageAssessment`, `UnitsToggle`. `AnalysingScreen` and `ResultsScreen` show them assembled into the main screen, before and after the results land. Turn each into a Vue SFC that renders the documented markup. Don't re-colour them locally.
 
 ## Not synced
 

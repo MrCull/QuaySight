@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest'
+import { describe, it, expect, beforeEach, afterEach, vi, beforeAll, afterAll } from 'vitest'
 import { setActivePinia, createPinia } from 'pinia'
 import { readFileSync } from 'node:fs'
 import { dirname, resolve } from 'node:path'
@@ -61,6 +61,18 @@ function sentBody(fetchMock: ReturnType<typeof vi.fn<typeof fetch>>, call: numbe
 function misread(value: string): number[] {
   return [...value].flatMap((ch, i) => (ch !== '?' && ch !== 'COYU2668130'[i] ? [i + 1] : []))
 }
+
+import { onlyRequests } from '../../plan/registry'
+import { survey } from '../../plan/requests/survey'
+import { idRecheck } from '../../plan/requests/idRecheck'
+import { idCropRead } from '../../plan/requests/idCropRead'
+
+// This spec covers the ID requests; the other parts of a run (damage, …) have their own specs.
+let restoreRequests = () => {}
+beforeAll(() => {
+  restoreRequests = onlyRequests(survey, idRecheck, idCropRead)
+})
+afterAll(() => restoreRequests())
 
 describe('COYU 266813 0 through the store, from recorded replies', () => {
   let fetchMock: ReturnType<typeof vi.fn<typeof fetch>>

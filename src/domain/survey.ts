@@ -19,6 +19,7 @@ import {
   type ChoiceReading,
 } from './idQuestions'
 import type { ContainerIdReading, InspectionRecord } from './inspection'
+import { facePart } from './photoFace'
 import { jevIdReadingOf, type JevBox } from './jev'
 import { assembleLunaReading } from './luna'
 import type { QuestionSet } from './providers'
@@ -60,7 +61,7 @@ interface PartOf<K extends keyof SurveyFindings> {
 export type SurveyPart = { [K in keyof SurveyFindings]: PartOf<K> }[keyof SurveyFindings]
 
 /** Every part the survey asks, in question order after the ID. */
-export const SURVEY_PARTS: readonly SurveyPart[] = [containerDetailsPart, weightsPart]
+export const SURVEY_PARTS: readonly SurveyPart[] = [containerDetailsPart, facePart, weightsPart]
 
 /** The survey's answer: the ID as read, and each part's findings. */
 export interface SurveyAnswer {

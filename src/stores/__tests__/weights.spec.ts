@@ -7,6 +7,11 @@ vi.mock('../../services/imageCodec')
 import { useInspectionStore } from '../inspection'
 import { useLedgerStore } from '../ledger'
 import { buildInspectionExport } from '../../domain/exports'
+import { onlyRequests } from '../../plan/registry'
+import { idCropRead } from '../../plan/requests/idCropRead'
+import { idRecheck } from '../../plan/requests/idRecheck'
+import { survey } from '../../plan/requests/survey'
+import { weightCheck } from '../../plan/requests/weightCheck'
 import {
   COYU_WEIGHTS,
   openAiChoiceReply,
@@ -99,14 +104,18 @@ function withTare(tare: { kg: string; lb: string }): PrintedFigures {
 
 describe('the weights are read in the survey, in both units', () => {
   let edge: ReturnType<typeof networkEdge>
+  let restoreRequests: () => void
 
   beforeEach(() => {
     setActivePinia(createPinia())
+    // The damage requests are other tickets' business: keep them out of the fetch counts.
+    restoreRequests = onlyRequests(survey, idRecheck, idCropRead, weightCheck)
     edge = networkEdge()
     vi.stubGlobal('fetch', edge.fetchMock)
   })
 
   afterEach(() => {
+    restoreRequests()
     vi.unstubAllGlobals()
     vi.restoreAllMocks()
   })

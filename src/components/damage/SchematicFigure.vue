@@ -1,10 +1,11 @@
 <script setup lang="ts">
-import type { DamageFinding, FaceStatus } from '../../domain/damage'
+import { computed } from 'vue'
+import type { DamageFinding, FaceStatus, FindingZone, ZoneCoverage } from '../../domain/damage'
 
 // One fixed view (or the image-relative long side) of the neutral container drawing, following
 // design-system/components/ContainerSchematic. Markers are approximate areas on a flat face, drawn
 // with the same oblique projection in both views so they read as one object turned round.
-defineProps<{
+const props = defineProps<{
   id: string
   caption: string
   noPhotos: boolean
@@ -13,6 +14,8 @@ defineProps<{
   roof: boolean
   markers: DamageFinding[]
   selectedId: number | null
+  /** The damage set's photo-relative zones on the side face, with how well each was seen. */
+  zones?: ZoneCoverage[]
 }>()
 
 const emit = defineEmits<{ select: [id: number] }>()
@@ -32,19 +35,28 @@ function quad(pt: Projection, u0: number, u1: number, v0: number, v1: number): s
 const SIDE_POINTS = quad(sidePt, 0, 1, 0, 1)
 const END_POINTS = quad(endPt, 0, 1, 0, 1)
 
+type Placed = DamageFinding & { zone: FindingZone }
+
+// A finding whose place the set does not give (e.g. one of the castings) has a card but no pin.
+const placed = computed(() => props.markers.filter((m): m is Placed => m.zone !== null))
+
 function isEnd(f: DamageFinding): boolean {
   return f.face === 'rear' || f.face === 'front'
 }
 
-function regionPoints(f: DamageFinding): string {
+function regionPoints(f: Placed): string {
   const pt = isEnd(f) ? endPt : sidePt
   const z = f.zone
   return quad(pt, z.u0, z.u1, z.v0, z.v1)
 }
 
-function pinFoot(f: DamageFinding): Pt {
+function pinFoot(f: Placed): Pt {
   const pt = isEnd(f) ? endPt : sidePt
   return pt((f.zone.u0 + f.zone.u1) / 2, (f.zone.v0 + f.zone.v1) / 2)
+}
+
+function severityClass(f: DamageFinding): string {
+  return f.severity ?? 'unrated'
 }
 
 function pinClass(f: DamageFinding): string[] {
@@ -54,12 +66,39 @@ function pinClass(f: DamageFinding): string[] {
       : f.certainty === 'Uncertain'
         ? 'qs-pin--uncertain'
         : ''
-  return ['qs-pin', `qs-marker--${f.severity}`, cert].filter(Boolean)
+  return ['qs-pin', `qs-marker--${severityClass(f)}`, cert].filter(Boolean)
 }
 
 function pinLabel(f: DamageFinding): string {
-  return `Finding ${f.id}: ${f.title.toLowerCase()}, apparent ${f.severity}, ${f.certainty.toLowerCase()}. ${f.location}`
+  const severity = f.severity ? `apparent ${f.severity}` : 'severity not rated'
+  return `Finding ${f.id}: ${f.title.toLowerCase()}, ${severity}, ${f.certainty.toLowerCase()}. ${f.location}`
 }
+
+// Zone visibility: an unseen zone is hatched and tagged Not seen; one the reply did not judge is
+// hatched and tagged Can't tell. Never drawn as clean.
+const zoneShapes = computed(() =>
+  (props.zones ?? []).map((z) => {
+    const unseen = z.visibility === 'not-visible' || z.visibility === null
+    const [x, y] = sidePt((z.zone.u0 + z.zone.u1) / 2, (z.zone.v0 + z.zone.v1) / 2)
+    return {
+      id: z.id,
+      points: quad(sidePt, z.zone.u0, z.zone.u1, z.zone.v0, z.zone.v1),
+      unseen,
+      partial: z.visibility === 'partial',
+      tag: z.visibility === null ? "Can't tell" : 'Not seen',
+      centre: `translate(${x} ${y})`,
+      title: `${z.label}: ${
+        z.visibility === 'clear'
+          ? 'clearly visible'
+          : z.visibility === 'partial'
+            ? 'partly visible'
+            : z.visibility === 'not-visible'
+              ? 'not seen'
+              : "can't tell how well it was seen"
+      }`,
+    }
+  }),
+)
 
 function select(id: number) {
   emit('select', id)
@@ -124,11 +163,36 @@ function select(id: number) {
         <text class="qs-c-label" x="746.05" y="414.02">{{ end.text }}</text>
       </template>
 
+      <g v-if="zoneShapes.length > 0" class="qs-c-zones">
+        <g
+          v-for="z in zoneShapes"
+          :key="z.id"
+          :class="['qs-c-zone', { 'qs-c-zone--partial': z.partial, 'qs-c-zone--unseen': z.unseen }]"
+        >
+          <title>{{ z.title }}</title>
+          <polygon
+            v-if="z.unseen"
+            class="qs-c-unseen-face"
+            :points="z.points"
+            :fill="`url(#${id}-hatch)`"
+          />
+          <polygon :points="z.points" />
+          <g v-if="z.unseen" class="qs-c-zone__tag" :transform="z.centre">
+            <rect x="-34" y="-11" width="68" height="22" rx="4" />
+            <text x="0" y="1">{{ z.tag }}</text>
+          </g>
+        </g>
+      </g>
+
       <g class="qs-c-regions">
         <g
-          v-for="m in markers"
+          v-for="m in placed"
           :key="`region-${m.id}`"
-          :class="['qs-region', `qs-region--${m.severity}`, { 'is-selected': m.id === selectedId }]"
+          :class="[
+            'qs-region',
+            `qs-region--${severityClass(m)}`,
+            { 'is-selected': m.id === selectedId },
+          ]"
           :data-finding="m.id"
         >
           <polygon :points="regionPoints(m)" />
@@ -137,7 +201,7 @@ function select(id: number) {
 
       <g class="qs-c-pins">
         <g
-          v-for="m in markers"
+          v-for="m in placed"
           :key="`pin-${m.id}`"
           :class="[...pinClass(m), { 'is-selected': m.id === selectedId }]"
           :data-finding="m.id"

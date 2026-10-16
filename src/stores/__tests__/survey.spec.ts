@@ -6,7 +6,9 @@ vi.mock('../../services/imageCodec')
 
 import { useInspectionStore } from '../inspection'
 import { useLedgerStore } from '../ledger'
-import { registerRequest } from '../../plan/registry'
+import { registerRequest, onlyRequests } from '../../plan/registry'
+import { idRecheck } from '../../plan/requests/idRecheck'
+import { idCropRead } from '../../plan/requests/idCropRead'
 import { survey } from '../../plan/requests/survey'
 import type { SurveyAnswer } from '../../domain/survey'
 import {
@@ -86,13 +88,18 @@ function body<T>(fetchMock: ReturnType<typeof vi.fn<typeof fetch>>, call = 0): T
 describe('the survey request reads the container details with the ID', () => {
   let fetchMock: ReturnType<typeof vi.fn<typeof fetch>>
 
+  let restoreRequests = () => {}
+
   beforeEach(() => {
+    // This spec covers the survey; the damage request has its own spec.
+    restoreRequests = onlyRequests(survey, idRecheck, idCropRead)
     setActivePinia(createPinia())
     fetchMock = vi.fn<typeof fetch>()
     vi.stubGlobal('fetch', fetchMock)
   })
 
   afterEach(() => {
+    restoreRequests()
     vi.unstubAllGlobals()
   })
 

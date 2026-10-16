@@ -8,6 +8,10 @@ vi.mock('../../services/imageCodec')
 import { useInspectionStore } from '../inspection'
 import { useLedgerStore } from '../ledger'
 import { buildInspectionExport } from '../../domain/exports'
+import { onlyRequests } from '../../plan/registry'
+import { survey } from '../../plan/requests/survey'
+import { idRecheck } from '../../plan/requests/idRecheck'
+import { idCropRead } from '../../plan/requests/idCropRead'
 
 const KEY = 'test-only-openrouter-key-0000'
 // The box Jev latest gave for COYU 266813 0 on the 1079 x 1080 photo, 16 Oct 2026.
@@ -107,14 +111,18 @@ function sentImage(body: string): string {
 
 describe('the crop read of the container ID (Jev)', () => {
   let edge: ReturnType<typeof networkEdge>
+  let restoreRequests = () => {}
 
   beforeEach(() => {
+    // This spec covers the ID requests; the damage request has its own spec.
+    restoreRequests = onlyRequests(survey, idRecheck, idCropRead)
     setActivePinia(createPinia())
     edge = networkEdge()
     vi.stubGlobal('fetch', edge.fetchMock)
   })
 
   afterEach(() => {
+    restoreRequests()
     vi.unstubAllGlobals()
     vi.restoreAllMocks()
   })

@@ -103,7 +103,9 @@ describe('COYU 22G1 weights live smoke test (opt-in, chargeable)', () => {
   it.skipIf(!openRouterKey)(
     'GPT-6 Luna Decisions through OpenRouter reads the door weights or flags where it does not',
     async () =>
-      expectCoyuWeights(await weightsOn('openrouter', 'openai/gpt-6-luna-decisions', openRouterKey)),
+      expectCoyuWeights(
+        await weightsOn('openrouter', 'openai/gpt-6-luna-decisions', openRouterKey),
+      ),
     120_000,
   )
 
