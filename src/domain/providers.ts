@@ -104,7 +104,7 @@ export const providers: ProviderInfo[] = [
       {
         ...JEV_VIA_OPENROUTER,
         id: '~typesafe/jev-latest',
-        note: 'recommended, moving target',
+        note: 'moving target, recommended',
         displayName: 'Jev latest',
         // Resolved to typesafe/jev-1.14-20261014 on 16 Oct 2026, which answers the box question.
         probabilities: true,

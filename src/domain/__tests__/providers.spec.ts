@@ -68,7 +68,7 @@ describe('provider catalogue: model declarations', () => {
 
   it('labels every model in the selector by maker and route, Jev latest as the moving target', () => {
     expect(models.map((m) => labelsFor(m.provider, m.id).option)).toEqual([
-      'Jev latest (TypeSafe) via OpenRouter · recommended, moving target',
+      'Jev latest (TypeSafe) via OpenRouter · moving target, recommended',
       'Jev 1.14 (TypeSafe) via OpenRouter · pinned',
       'Jev 1.13 (TypeSafe) via OpenRouter · pinned',
       'GPT-6 Luna Decisions (OpenAI) via OpenRouter',

@@ -28,10 +28,10 @@ describe('ProviderSelect (the form in the setup card and the settings drawer)', 
     expect(store.photo).toBeNull()
   })
 
-  it('lists Jev latest (recommended, moving target), Jev 1.14, Jev 1.13 and GPT-6 Luna Decisions for OpenRouter, each by maker and route', () => {
+  it('lists Jev latest (moving target, recommended), Jev 1.14, Jev 1.13 and GPT-6 Luna Decisions for OpenRouter, each by maker and route', () => {
     const wrapper = mount(ProviderSelect)
     expect(wrapper.findAll('select option').map((o) => [o.attributes('value'), o.text()])).toEqual([
-      ['~typesafe/jev-latest', 'Jev latest (TypeSafe) via OpenRouter · recommended, moving target'],
+      ['~typesafe/jev-latest', 'Jev latest (TypeSafe) via OpenRouter · moving target, recommended'],
       ['typesafe/jev-1.14', 'Jev 1.14 (TypeSafe) via OpenRouter · pinned'],
       ['typesafe/jev-1.13', 'Jev 1.13 (TypeSafe) via OpenRouter · pinned'],
       ['openai/gpt-6-luna-decisions', 'GPT-6 Luna Decisions (OpenAI) via OpenRouter'],
