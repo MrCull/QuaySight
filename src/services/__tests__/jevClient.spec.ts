@@ -63,9 +63,12 @@ describe('callJev', () => {
   it('refuses a WebP photo before any network call, because Jev takes PNG or JPEG', async () => {
     const fetchImpl = vi.fn<typeof fetch>(async () => jsonResponse(200, okBody()))
     const webp = new Blob(['x'], { type: 'image/webp' })
-    const error = (await callJev({ apiKey: KEY, photo: webp, model: 'jev-latest', fetchImpl }).catch(
-      (e: unknown) => e,
-    )) as JevError
+    const error = (await callJev({
+      apiKey: KEY,
+      photo: webp,
+      model: 'jev-latest',
+      fetchImpl,
+    }).catch((e: unknown) => e)) as JevError
     expect(error).toBeInstanceOf(JevError)
     expect(error.kind).toBe('photo')
     expect(fetchImpl).not.toHaveBeenCalled()
@@ -84,7 +87,9 @@ describe('callJev', () => {
   })
 
   it('translates an invalid key without echoing it', async () => {
-    const fetchImpl = vi.fn<typeof fetch>(async () => jsonResponse(401, { error: { message: 'no' } }))
+    const fetchImpl = vi.fn<typeof fetch>(async () =>
+      jsonResponse(401, { error: { message: 'no' } }),
+    )
     const error = (await callJev({ apiKey: KEY, photo, model: 'jev-latest', fetchImpl }).catch(
       (e: unknown) => e,
     )) as JevError
@@ -94,7 +99,9 @@ describe('callJev', () => {
   })
 
   it('treats a non-JSON success body as a bad response', async () => {
-    const fetchImpl = vi.fn<typeof fetch>(async () => new Response('<html>oops</html>', { status: 200 }))
+    const fetchImpl = vi.fn<typeof fetch>(
+      async () => new Response('<html>oops</html>', { status: 200 }),
+    )
     const error = (await callJev({ apiKey: KEY, photo, model: 'jev-latest', fetchImpl }).catch(
       (e: unknown) => e,
     )) as JevError

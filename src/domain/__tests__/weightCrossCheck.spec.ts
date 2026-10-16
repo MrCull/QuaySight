@@ -1,11 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import {
-  CU_FT_PER_M3,
-  LB_PER_KG,
-  capacityAgrees,
-  payloadAgrees,
-  unitsAgree,
-} from '../weights'
+import { CU_FT_PER_M3, LB_PER_KG, capacityAgrees, payloadAgrees, unitsAgree } from '../weights'
 
 // The COYU 266813 0 door (22G1), the worked example for the weights ticket (#34):
 // MAX GROSS 30,480 KG 67,200 LB, TARE 2,180 KG 4,810 LB, NET 28,300 KG 62,390 LB, CU. CAP. 33.2 M3 1,173 CU.FT.
@@ -125,9 +119,7 @@ describe('what two units say about one weight', () => {
   })
 
   it('shows a weight read in one unit as read, with no agreement claimed', () => {
-    const w = evaluateWeights(
-      coyu({ tare: { metric: read(2180), imperial: UNCLEAR } }),
-    )
+    const w = evaluateWeights(coyu({ tare: { metric: read(2180), imperial: UNCLEAR } }))
     expect(w.tare).toMatchObject({
       valueKg: 2180,
       valueLb: 4806,
@@ -168,9 +160,9 @@ describe('what two units say about one weight', () => {
 
   it('asks for the weights that disagree to be read again, and only those', () => {
     expect(rereadQuantities(coyu())).toEqual([])
-    expect(
-      rereadQuantities(coyu({ tare: { metric: read(2180), imperial: read(4610) } })),
-    ).toEqual(['tare'])
+    expect(rereadQuantities(coyu({ tare: { metric: read(2180), imperial: read(4610) } }))).toEqual([
+      'tare',
+    ])
     expect(
       rereadQuantities(
         coyu({
@@ -196,9 +188,7 @@ describe('payload, printed and calculated', () => {
   })
 
   it('flags a printed payload that conflicts with the arithmetic, and lowers all three to Uncertain', () => {
-    const w = evaluateWeights(
-      coyu({ payload: { metric: read(28350), imperial: read(62500) } }),
-    )
+    const w = evaluateWeights(coyu({ payload: { metric: read(28350), imperial: read(62500) } }))
     expect(w.payloadConflict).toEqual({
       kind: 'differs',
       printedKg: 28350,
@@ -228,7 +218,11 @@ describe('payload, printed and calculated', () => {
         payload: { metric: UNCLEAR, imperial: read(62900) },
       }),
     )
-    expect(w.payloadConflict).toMatchObject({ kind: 'differs', printedLb: 62900, calculatedLb: 62390 })
+    expect(w.payloadConflict).toMatchObject({
+      kind: 'differs',
+      printedLb: 62900,
+      calculatedLb: 62390,
+    })
   })
 
   it('calculates a payload without a printed one, and a printed one without a calculation', () => {

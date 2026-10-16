@@ -2,13 +2,14 @@ import type { PlanRequest } from './requestPlan'
 import { idCropRead } from './requests/idCropRead'
 import { idRecheck } from './requests/idRecheck'
 import { survey } from './requests/survey'
+import { weightCheck } from './requests/weightCheck'
 
 /**
  * Every request a live run can make, in the order they are listed in the ledger when they start
  * together. A new request is one more entry here, defined in its own module; whether a run includes
  * it is the request's own appliesTo and needed.
  */
-const registered: PlanRequest[] = [survey, idRecheck, idCropRead]
+const registered: PlanRequest[] = [survey, idRecheck, idCropRead, weightCheck]
 
 export function planRequests(): readonly PlanRequest[] {
   return registered

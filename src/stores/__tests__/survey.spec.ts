@@ -186,8 +186,14 @@ describe('the survey request reads the container details with the ID', () => {
       symbol: null,
       certainty: 'Not seen',
     })
-    // Weights are asked by a later ticket: until then they are not assessed, never zero.
-    expect(record.weights).toBeNull()
+    // This reply answered no weight digit: the weights are asked and unread (Can't tell), never zero.
+    expect(record.weights).toMatchObject({
+      maxGross: null,
+      tare: null,
+      payload: null,
+      capacity: null,
+      unread: { maxGross: 'unclear', tare: 'unclear', capacity: 'unclear' },
+    })
     expect(store.stages.find((s) => s.id === 'details')?.state).toBe('done')
     expect(store.landed('details')).toBe(true)
   })

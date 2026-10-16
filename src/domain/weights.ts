@@ -167,7 +167,12 @@ export function checkWeights(input: WeightInputs): WeightChecks {
 // Live readings in two units (ticket #34)
 
 export type WeightQuantity = 'maxGross' | 'tare' | 'payload' | 'capacity'
-export const WEIGHT_QUANTITIES: readonly WeightQuantity[] = ['maxGross', 'tare', 'payload', 'capacity']
+export const WEIGHT_QUANTITIES: readonly WeightQuantity[] = [
+  'maxGross',
+  'tare',
+  'payload',
+  'capacity',
+]
 
 /** One printed figure as read: digit by digit, so its certainty is its weakest digit's. */
 export interface Figure {
@@ -224,7 +229,13 @@ function evalQuantity(kind: QuantityKind, q: QuantityReading | undefined): Quant
         unread: null,
       }
     }
-    return { metric: m.value, imperial: i.value, units: 'conflict', certainty: 'Uncertain', unread: null }
+    return {
+      metric: m.value,
+      imperial: i.value,
+      units: 'conflict',
+      certainty: 'Uncertain',
+      unread: null,
+    }
   }
   if (readOf(m) || readOf(i)) {
     const one = readOf(m) ? m : (i as Figure)
@@ -237,10 +248,23 @@ function evalQuantity(kind: QuantityKind, q: QuantityReading | undefined): Quant
     }
   }
   const seen = m?.state === 'not-visible' && i?.state === 'not-visible'
-  return { metric: null, imperial: null, units: null, certainty: seen ? 'Not seen' : "Can't tell", unread: seen ? 'not-visible' : 'unclear' }
+  return {
+    metric: null,
+    imperial: null,
+    units: null,
+    certainty: seen ? 'Not seen' : "Can't tell",
+    unread: seen ? 'not-visible' : 'unclear',
+  }
 }
 
 /** The reading to use: the second look's figure where it read one, otherwise the first's. */
+export function mergeWeightReadings(
+  first: WeightsReading,
+  second: WeightsReading | null | undefined,
+): WeightsReading {
+  return merged(first, second)
+}
+
 function merged(first: WeightsReading, second: WeightsReading | null | undefined): WeightsReading {
   const out: WeightsReading = {}
   for (const quantity of WEIGHT_QUANTITIES) {
@@ -412,4 +436,13 @@ export function rereadQuantities(first: WeightsReading): WeightQuantity[] {
   if (capacity.units === 'conflict') wanted.add('capacity')
   if (payloadConflict) for (const q of ['maxGross', 'tare', 'payload'] as const) wanted.add(q)
   return WEIGHT_QUANTITIES.filter((q) => wanted.has(q))
+}
+
+/**
+ * The weights once weights that disagreed have been looked at again: the second look's figures where it
+ * read them, the first's elsewhere. `reread` says whether the disagreement was settled.
+ */
+export function weightsAfterReread(first: WeightsReading, second: WeightsReading): WeightChecks {
+  const persists = rereadQuantities(merged(first, second)).length > 0
+  return evaluateWeights(first, second, persists ? 'still-disagrees' : 'settled')
 }

@@ -28,6 +28,7 @@ import {
   type SharedQuestion,
   type SharedQuestionSet,
 } from './questionSet'
+import { weightsPart } from './weightQuestions'
 
 /** What the survey asks depends on the route only through these. */
 export interface SurveyAsk {
@@ -59,7 +60,7 @@ interface PartOf<K extends keyof SurveyFindings> {
 export type SurveyPart = { [K in keyof SurveyFindings]: PartOf<K> }[keyof SurveyFindings]
 
 /** Every part the survey asks, in question order after the ID. */
-export const SURVEY_PARTS: readonly SurveyPart[] = [containerDetailsPart]
+export const SURVEY_PARTS: readonly SurveyPart[] = [containerDetailsPart, weightsPart]
 
 /** The survey's answer: the ID as read, and each part's findings. */
 export interface SurveyAnswer {

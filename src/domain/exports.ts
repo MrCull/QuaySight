@@ -6,6 +6,7 @@ import { faceStatus, type DamageFace, type FaceStatus, type FindingZone } from '
 import type { CertaintyLabel, InspectionRecord, Provenance, RecheckRecord } from './inspection'
 import type { DetailSource } from './containerDetails'
 import { detailsExport } from './detailsExport'
+import { weightsExport } from './weightsExport'
 import type { IdCropReadRecord } from './cropRead'
 
 export const EXPORT_SCHEMA_VERSION = 1
@@ -22,7 +23,7 @@ export interface ExportValue {
   /** Printed: read from the photo. Derived: decoded from a standard or calculated by arithmetic. */
   category: 'printed' | 'derived'
   value: string | number | null
-  unit?: 'kg'
+  unit?: 'kg' | 'lb' | 'm3' | 'cu ft'
   /** observed: judged from the photo (an equipment check or a marking), not read as text. */
   provenance: Provenance | DetailSource
   certainty: CertaintyLabel | null
@@ -199,51 +200,11 @@ export function buildInspectionExport(record: InspectionRecord): InspectionExpor
     })
   }
 
-  const weights = record.weights
-  if (weights?.maxGross) {
-    values.push({
-      field: 'maxGross',
-      category: 'printed',
-      value: weights.maxGross.valueKg,
-      unit: 'kg',
-      provenance: 'printed',
-      certainty: weights.maxGross.certainty,
-      uncertainty: 'Maximum gross is a rating, not a measured load.',
-    })
-  } else {
-    unresolved.push({ field: 'maxGross', category: 'unresolved', reason: 'Not read.' })
-  }
-  if (weights?.tare) {
-    values.push({
-      field: 'tare',
-      category: 'printed',
-      value: weights.tare.valueKg,
-      unit: 'kg',
-      provenance: 'printed',
-      certainty: weights.tare.certainty,
-      uncertainty: null,
-    })
-  } else {
-    unresolved.push({ field: 'tare', category: 'unresolved', reason: 'Not read.' })
-  }
-  if (weights?.payload) {
-    values.push({
-      field: 'payload',
-      category: 'derived',
-      value: weights.payload.valueKg,
-      unit: 'kg',
-      provenance: 'calculated',
-      certainty: weights.payload.certainty,
-      uncertainty: 'Maximum gross minus tare. Not a cargo weight.',
-    })
-  } else {
-    unresolved.push({
-      field: 'payload',
-      category: 'unresolved',
-      reason: 'Needs both maximum gross and tare.',
-    })
-  }
-  if (weights?.conflict) conflicts.push(weights.conflict)
+  // Weights, in both units whatever the display units are (weightsExport.ts).
+  const weights = weightsExport(record.weights)
+  values.push(...weights.values)
+  unresolved.push(...weights.unresolved)
+  conflicts.push(...weights.conflicts)
 
   const assessment = record.damage
   if (!assessment)
@@ -302,10 +263,6 @@ export function buildRawResponsesExport(record: InspectionRecord): RawResponsesE
   }
 }
 
-function formatKg(value: number): string {
-  return `${value.toLocaleString('en-GB')} kg`
-}
-
 const FACE_LABEL: Record<FaceExportStatus, string> = {
   photographed: 'photographed',
   'side-unknown': 'long side photographed, side not established',
@@ -362,16 +319,7 @@ export function buildSummaryText(record: InspectionRecord): string {
       `Size code (decoded): ${record.sizeCode.code} - ${record.sizeCode.summary} - ${record.sizeCode.certainty}`,
     )
   }
-  const weights = record.weights
-  if (weights?.maxGross) {
-    lines.push(
-      `Max gross (printed): ${formatKg(weights.maxGross.valueKg)} - a rating, not a measured load`,
-    )
-  }
-  if (weights?.tare) lines.push(`Tare (printed): ${formatKg(weights.tare.valueKg)}`)
-  if (weights?.payload) {
-    lines.push(`Payload (calculated): ${formatKg(weights.payload.valueKg)}`)
-  }
+  lines.push(...weightsExport(record.weights).summary)
   for (const conflict of json.conflicts) lines.push(`Conflict: ${conflict}`)
   lines.push('')
 
