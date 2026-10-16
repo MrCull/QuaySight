@@ -161,7 +161,11 @@ describe('demo mode', () => {
       await check(store, ['APHU6586847', 'CHSU2051831'])
 
       expect(store.record).toEqual(first)
-      expect(store.retry).toMatchObject({ status: 'idle', noMatch: true, ids: ['APHU6586847', 'CHSU2051831'] })
+      expect(store.retry).toMatchObject({
+        status: 'idle',
+        noMatch: true,
+        ids: ['APHU6586847', 'CHSU2051831'],
+      })
       expect(fetchMock).not.toHaveBeenCalled()
       expect(useLedgerStore().entries()).toEqual([])
     })

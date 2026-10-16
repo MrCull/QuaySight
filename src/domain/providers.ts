@@ -244,7 +244,10 @@ export function labelsFor(provider: ProviderId, model: string): ModelLabels {
  * "Recorded demonstration: [provider/model]" (spec 13): the one label every recorded result carries,
  * on screen and in the exports alike. The model is the one the recording names.
  */
-export function recordedDemonstrationLabel(record: { provider: ProviderId; model: string }): string {
+export function recordedDemonstrationLabel(record: {
+  provider: ProviderId
+  model: string
+}): string {
   return `Recorded demonstration: ${labelsFor(record.provider, record.model).provider} / ${record.model}`
 }
 

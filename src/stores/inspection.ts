@@ -518,7 +518,13 @@ export const useInspectionStore = defineStore('inspection', {
       const sample = this.sample
       if (!record || !sample) return
       const token = this.runToken
-      this.retry = { ...this.retry, status: 'checking', message: null, ids: [...ids], noMatch: false }
+      this.retry = {
+        ...this.retry,
+        status: 'checking',
+        message: null,
+        ids: [...ids],
+        noMatch: false,
+      }
       try {
         const reading = await runDemoManifestRetry(sample, ids, {
           delayMs: RECORDED_RETRY_DELAY_MS,

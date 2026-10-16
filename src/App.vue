@@ -3,6 +3,7 @@ import { computed } from 'vue'
 import { useInspectionStore } from './stores/inspection'
 import { useSetupStore } from './stores/setup'
 import { labelsFor } from './domain/providers'
+import { findSample } from './domain/demoSamples'
 import SetupCard from './components/SetupCard.vue'
 import SettingsChip from './components/SettingsChip.vue'
 import SettingsDrawer from './components/SettingsDrawer.vue'
@@ -26,8 +27,10 @@ const showSampleOptions = computed(
   () => store.demo && store.record?.source === 'recorded' && store.record.containerId === null,
 )
 const runLabel = computed(() => {
-  const name = labelsFor(store.provider, store.model).prose
-  return `${name} · ${store.model}${store.mode === 'live' ? ' · live' : ''}`
+  // A demo run names who answered when its sample was recorded, not the provider in settings.
+  const run = store.demo && store.sample ? findSample(store.sample) : store
+  const name = labelsFor(run.provider, run.model).prose
+  return `${name} · ${run.model}${store.mode === 'live' ? ' · live' : ''}`
 })
 
 // Arrival choreography: .qs-arriving while analysing, .qs-arrived once the record lands.

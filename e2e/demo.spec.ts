@@ -149,13 +149,26 @@ test.describe('demo mode', () => {
 test.describe('demo mode at phone width (390px)', () => {
   test.use({ viewport: { width: 390, height: 844 } })
 
-  test('the banner and the sample picker fit without horizontal scroll', async ({ page }) => {
-    await enterDemo(page)
-    await expect(banner(page)).toBeVisible()
+  const noSideScroll = async (page: Page) => {
     const size = await page.evaluate(() => ({
       scroll: document.documentElement.scrollWidth,
       client: document.documentElement.clientWidth,
     }))
     expect(size.scroll).toBeLessThanOrEqual(size.client)
+  }
+
+  test('the banner, the sample picker and a result fit without horizontal scroll', async ({
+    page,
+  }) => {
+    await enterDemo(page)
+    await expect(banner(page)).toBeVisible()
+    await noSideScroll(page)
+    // The longest run label: Jev latest reached through OpenRouter.
+    await sampleTile(page, 'Clean grey rear doors').click()
+    await page.getByRole('button', { name: 'Start inspection' }).click()
+    await expect(page.locator('#stage.qs-arriving')).toBeVisible()
+    await noSideScroll(page)
+    await page.locator('#stage.qs-arrived').waitFor()
+    await noSideScroll(page)
   })
 })

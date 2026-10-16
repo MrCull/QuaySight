@@ -29,7 +29,10 @@ describe.skipIf(!apiKey)('Jev live smoke test (opt-in, one chargeable call)', ()
     let rawBody: unknown = null
     const capturing: typeof fetch = async (input, init) => {
       const response = await fetch(input, init)
-      rawBody = await response.clone().json().catch(() => null)
+      rawBody = await response
+        .clone()
+        .json()
+        .catch(() => null)
       return response
     }
 

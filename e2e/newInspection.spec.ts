@@ -102,20 +102,15 @@ test.describe('New inspection', () => {
   })
 
   test('clears the manifest retry panel', async ({ page }) => {
+    // Demo mode: the damaged side shows no container ID, so the manifest offer opens.
     await page.goto('/')
-    // OpenRouter is pre-selected; these runs use OpenAI's recorded Luna responses.
-    await page.locator('#provider-button').click()
-    await page.getByRole('option', { name: /GPT-6 Luna OpenAI/ }).click()
-    await page.getByLabel('OpenAI API key', { exact: true }).fill(PLACEHOLDER_KEY)
-    await page.getByRole('checkbox', { name: /Replay the recorded sample/ }).check()
-    await page.getByRole('button', { name: 'Continue' }).click()
-    await choosePhoto(page)
+    await page.getByRole('button', { name: 'Enter as demo user' }).click()
+    await page.getByRole('button', { name: /Damaged grey side/ }).click()
     await page.getByRole('button', { name: 'Start inspection' }).click()
     await page.locator('#stage.qs-arrived').waitFor()
-    await page.getByRole('checkbox', { name: 'Container ID not visible in this sample' }).check()
-    await page.getByRole('button', { name: 'Start inspection' }).click()
     const offer = page.getByRole('heading', { name: 'Container ID not identified' })
     await expect(offer).toBeVisible()
+    await page.getByLabel('Container numbers from the manifest').fill('APHU 658684 7')
 
     await newInspection(page).click()
 

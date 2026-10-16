@@ -30,6 +30,7 @@ test.describe('first visit', () => {
     await expect(page.getByRole('button', { name: /Run live inspection|Start inspection/ })).toHaveCount(0)
     await expect(page.locator('#stage')).toHaveCount(0)
     await expect(page.getByRole('button', { name: 'New inspection' })).toHaveCount(0)
+    await expect(page.getByRole('button', { name: 'Enter as demo user' })).toBeVisible()
   })
 })
 
@@ -74,10 +75,11 @@ test.describe('continue', () => {
     await expect(card.getByRole('button', { name: 'Show key' })).toBeFocused()
     await page.keyboard.press('Tab')
     await expect(card.getByRole('button', { name: 'Clear' })).toBeFocused()
-    // The sample replay choice (until demo mode replaces it), then Continue.
-    await page.keyboard.press('Tab')
     await page.keyboard.press('Tab')
     await expect(card.getByRole('button', { name: 'Continue' })).toBeFocused()
+    // Then the demo entry under the card.
+    await page.keyboard.press('Tab')
+    await expect(page.getByRole('button', { name: 'Enter as demo user' })).toBeFocused()
   })
 })
 

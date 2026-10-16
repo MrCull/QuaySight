@@ -8,6 +8,7 @@
  * Output: screenshots/<state>-<width>x<height>.png (full page) and screenshots/index.json.
  *         screenshots/ is generated and git-ignored; never commit it.
  *
+ * Recorded states run in demo mode (Enter as demo user: no key, the three bundled samples).
  * Network: every external request is aborted, so nothing leaves the machine. The only "live" calls are
  * OpenAI's Decisions endpoint, answered by a route with a copy of the recorded smoke response (variants
  * for uncertain, partial and insufficient readings), and OpenRouter's Decisions endpoint, answered with a
@@ -50,7 +51,7 @@ type Motion = 'frozen' | 'animated'
 
 interface Capture {
   state: string
-  screen: 'setup' | 'start' | 'analysing' | 'results' | 'manifest-retry'
+  screen: 'setup' | 'start' | 'demo' | 'analysing' | 'results' | 'manifest-retry'
   steps: string[]
   motion: Motion
   /** Limit to some viewports; default all three. */
@@ -74,12 +75,18 @@ async function chooseOpenAI(page: Page) {
   await page.getByRole('option', { name: /GPT-6 Luna OpenAI/ }).click()
 }
 
-/** On the setup card: types the placeholder into the named key field, ticks replay and presses Continue. */
-async function replayKey(page: Page, label = 'OpenAI API key') {
-  if (label === 'OpenAI API key') await chooseOpenAI(page)
-  await page.getByLabel(label, { exact: true }).fill(PLACEHOLDER_KEY)
-  await page.getByRole('checkbox', { name: /Replay the recorded sample/ }).check()
-  await page.getByRole('button', { name: 'Continue' }).click()
+/** On the setup card: Enter as demo user (no key), then the sample picker. */
+async function enterDemo(page: Page) {
+  await page.getByRole('button', { name: 'Enter as demo user' }).click()
+  await page.getByRole('region', { name: 'Demo mode' }).waitFor()
+}
+
+type SampleName = 'Rear doors with markings' | 'Damaged grey side' | 'Clean grey rear doors'
+
+/** Demo mode: puts a bundled sample on the stage, ready to start. */
+async function openSample(page: Page, name: SampleName) {
+  await page.getByRole('button', { name: new RegExp(name) }).click()
+  await page.locator('.rs-photo__img').waitFor()
 }
 
 /** On the setup card: types the placeholder and presses Enter, which continues to the inspection screen. */
@@ -100,18 +107,17 @@ async function startAndSettle(page: Page, button = 'Start inspection') {
   await page.waitForTimeout(SETTLE_MS)
 }
 
-async function recordedLuna(page: Page) {
+/** Demo mode: a sample's recorded result, landed. */
+async function demoResult(page: Page, name: SampleName) {
   await open(page)
-  await replayKey(page)
-  await choosePhoto(page)
+  await enterDemo(page)
+  await openSample(page, name)
   await startAndSettle(page)
 }
 
-/** Recorded run with the container ID not visible: the manifest offer opens. */
+/** The damaged side in demo mode: no container ID in view, so the manifest offer opens. */
 async function unidentifiedRun(page: Page) {
-  await recordedLuna(page)
-  await page.getByRole('checkbox', { name: 'Container ID not visible in this sample' }).check()
-  await startAndSettle(page)
+  await demoResult(page, 'Damaged grey side')
   await expect(page.getByRole('heading', { name: 'Container ID not identified' })).toBeVisible()
 }
 
@@ -239,25 +245,46 @@ const CAPTURES: Capture[] = [
     },
   },
   {
-    state: 'ready-recorded',
-    screen: 'start',
-    steps: ['Open /', 'Type placeholder key', 'Tick Replay the recorded sample', 'Continue', 'Choose photo'],
+    state: 'demo-picker',
+    screen: 'demo',
+    steps: ['Open /', 'Click Enter as demo user (demo banner, sample picker, no upload)'],
     motion: 'frozen',
     run: async (page) => {
       await open(page)
-      await replayKey(page)
-      await choosePhoto(page)
+      await enterDemo(page)
+    },
+  },
+  {
+    state: 'demo-sample-ready',
+    screen: 'demo',
+    steps: ['Demo-picker steps', 'Choose Rear doors with markings (photo on the stage, Start inspection)'],
+    motion: 'frozen',
+    run: async (page) => {
+      await open(page)
+      await enterDemo(page)
+      await openSample(page, 'Rear doors with markings')
+    },
+  },
+  {
+    state: 'demo-after-new-inspection',
+    screen: 'demo',
+    steps: ['Demo rear-doors result', 'Click New inspection (back to the sample picker)'],
+    motion: 'frozen',
+    run: async (page) => {
+      await demoResult(page, 'Rear doors with markings')
+      await page.getByRole('button', { name: 'New inspection' }).click()
+      await page.getByRole('button', { name: /Damaged grey side/ }).waitFor()
     },
   },
   {
     state: 'analysing-mid',
     screen: 'analysing',
-    steps: ['Ready-recorded steps', "Click Start inspection", 'Capture 500ms in, during the staged progress (animations live)'],
+    steps: ['Demo-sample-ready steps', 'Click Start inspection', 'Capture 500ms in, during the staged progress (animations live)'],
     motion: 'animated',
     run: async (page) => {
       await open(page)
-      await replayKey(page)
-      await choosePhoto(page)
+      await enterDemo(page)
+      await openSample(page, 'Rear doors with markings')
       await page.getByRole('button', { name: 'Start inspection' }).click()
       await page.locator('.rs-analysing').waitFor()
       await page.waitForTimeout(500)
@@ -266,72 +293,69 @@ const CAPTURES: Capture[] = [
   {
     state: 'analysing-reduced-motion',
     screen: 'analysing',
-    steps: ['Reduced-motion emulation', 'Ready-recorded steps', 'Click Start inspection', 'Capture 500ms in'],
+    steps: ['Reduced-motion emulation', 'Demo-sample-ready steps', 'Click Start inspection', 'Capture 500ms in'],
     motion: 'animated',
     viewports: [{ width: 1440, height: 900 }],
     reducedMotion: true,
     run: async (page) => {
       await open(page)
-      await replayKey(page)
-      await choosePhoto(page)
+      await enterDemo(page)
+      await openSample(page, 'Rear doors with markings')
       await page.getByRole('button', { name: 'Start inspection' }).click()
       await page.locator('.rs-analysing').waitFor()
       await page.waitForTimeout(500)
     },
   },
   {
-    state: 'luna-result',
+    state: 'demo-rear-result',
     screen: 'results',
-    steps: ['Recorded Luna: photo, replay key, Start inspection, settle'],
+    steps: ['Demo mode', 'Rear doors with markings (recorded Luna)', 'Start inspection, settle'],
     motion: 'frozen',
-    run: recordedLuna,
+    run: (page) => demoResult(page, 'Rear doors with markings'),
   },
   {
-    state: 'luna-cost-expanded',
+    state: 'demo-cost-expanded',
     screen: 'results',
-    steps: ['Recorded Luna result', 'Click the cost line toggle'],
+    steps: ['Demo rear-doors result', 'Click the cost line toggle'],
     motion: 'frozen',
     run: async (page) => {
-      await recordedLuna(page)
+      await demoResult(page, 'Rear doors with markings')
       await page.locator('button.qs-cost__toggle').click()
     },
   },
   {
-    state: 'luna-damage-marker',
+    state: 'demo-side-result',
     screen: 'results',
-    steps: ['Recorded Luna result', 'Click the first damage marker (pin)'],
+    steps: ['Demo mode', 'Damaged grey side (recorded Luna: damage, no ID in view)', 'Start inspection, settle'],
+    motion: 'frozen',
+    run: (page) => demoResult(page, 'Damaged grey side'),
+  },
+  {
+    state: 'demo-damage-marker',
+    screen: 'results',
+    steps: ['Demo damaged-side result', 'Click the first damage marker (pin)'],
     motion: 'frozen',
     run: async (page) => {
-      await recordedLuna(page)
+      await demoResult(page, 'Damaged grey side')
       await page.locator('.qs-c-pins [role="button"]').first().click()
     },
   },
   {
-    state: 'luna-exports',
+    state: 'demo-exports',
     screen: 'results',
-    steps: ['Recorded Luna result', 'Focus the first export button (Export JSON)'],
+    steps: ['Demo rear-doors result', 'Focus the first export button (Export JSON)'],
     motion: 'frozen',
     run: async (page) => {
-      await recordedLuna(page)
+      await demoResult(page, 'Rear doors with markings')
       await page.locator('.rs-exports button').first().focus()
     },
   },
   {
-    state: 'jev-result',
+    state: 'demo-clean-result',
     screen: 'results',
-    steps: [
-      'Open / (OpenRouter, Jev latest pre-selected)',
-      "Type placeholder into 'OpenRouter API key', tick replay, Continue",
-      'Choose photo',
-      'Start inspection, settle',
-    ],
+    steps: ['Demo mode', 'Clean grey rear doors (recorded Jev latest through OpenRouter, uncertain digits)', 'Start inspection, settle'],
     motion: 'frozen',
-    run: async (page) => {
-      await open(page)
-      await replayKey(page, 'OpenRouter API key')
-      await choosePhoto(page)
-      await startAndSettle(page)
-    },
+    run: (page) => demoResult(page, 'Clean grey rear doors'),
   },
   {
     state: 'openrouter-live-result',
@@ -379,12 +403,7 @@ const CAPTURES: Capture[] = [
   {
     state: 'manifest-offer',
     screen: 'manifest-retry',
-    steps: [
-      'Recorded Luna, replay',
-      'Start, settle',
-      "Tick 'Container ID not visible in this sample', Start again",
-      'Manifest offer open',
-    ],
+    steps: ['Demo mode', 'Damaged grey side, Start, settle', 'Manifest offer open'],
     motion: 'frozen',
     run: unidentifiedRun,
   },
@@ -419,14 +438,14 @@ const CAPTURES: Capture[] = [
     },
   },
   {
-    state: 'manifest-resolved',
+    state: 'manifest-no-match',
     screen: 'manifest-retry',
-    steps: ['Manifest offer steps', 'Paste APHU 658684 and click Check again with this manifest', 'Panel closes, ID replaced'],
+    steps: ['Manifest offer steps', 'Paste APHU 658684 and click Check again with this manifest', 'No entry matches; the panel stays open'],
     motion: 'frozen',
     run: async (page) => {
       await unidentifiedRun(page)
       await typeManifest(page)
-      await expect(page.locator('.qs-manifest')).toHaveCount(0)
+      await expect(page.locator('.qs-manifest__nomatch')).toBeVisible()
       await page.waitForTimeout(300)
     },
   },

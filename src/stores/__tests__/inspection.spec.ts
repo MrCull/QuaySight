@@ -78,7 +78,7 @@ describe('inspection store', () => {
     expect(store.status).toBe('idle')
   })
 
-  it('in demo mode, runs the chosen sample\'s recording and stores the record', async () => {
+  it("in demo mode, runs the chosen sample's recording and stores the record", async () => {
     runMock.mockResolvedValueOnce(recordFor('luna'))
     const store = useInspectionStore()
     store.enterDemo()

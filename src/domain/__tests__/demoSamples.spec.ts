@@ -6,7 +6,9 @@ import { buildSummaryText } from '../exports'
 describe('demo samples: each result names its source', () => {
   it('labels every sample "Recorded demonstration: [provider/model]"', async () => {
     const labels = await Promise.all(
-      DEMO_SAMPLES.map(async (sample) => recordedDemonstrationLabel(await runDemoSample(sample.id))),
+      DEMO_SAMPLES.map(async (sample) =>
+        recordedDemonstrationLabel(await runDemoSample(sample.id)),
+      ),
     )
     expect(labels).toEqual([
       'Recorded demonstration: GPT-6 Luna / gpt-6-luna',

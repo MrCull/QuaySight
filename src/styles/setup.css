@@ -20,6 +20,14 @@
   margin: var(--space-4) 0 0;
 }
 
+/* A long run label (a model reached through OpenRouter) ends in an ellipsis rather than scrolling sideways. */
+.rs-top .rs-run {
+  min-width: 0;
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
 /* The chip gives way first when the top bar is short of room. */
 .rs-top .qs-settingschip {
   flex: 0 1 auto;

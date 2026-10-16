@@ -14,19 +14,20 @@ async function choosePhoto(page: Page) {
   await page.locator('input[type="file"]').setInputFiles(samplePhoto)
 }
 
-/** Types the placeholder on the setup card, optionally ticks replay, then continues to the inspection screen. */
-async function enterKey(page: Page, { replay = false }: { replay?: boolean } = {}) {
-  // OpenRouter is pre-selected; these runs use OpenAI's recorded Luna responses.
+/** Types the placeholder on the setup card, then continues to the inspection screen. */
+async function enterKey(page: Page) {
+  // OpenRouter is pre-selected; these runs use OpenAI's Luna.
   await page.locator('#provider-button').click()
   await page.getByRole('option', { name: /GPT-6 Luna OpenAI/ }).click()
   const key = page.getByLabel('OpenAI API key', { exact: true })
   await key.fill(PLACEHOLDER_KEY)
-  if (replay) {
-    await page.getByRole('checkbox', { name: /Replay the recorded sample/ }).check()
-    await page.getByRole('button', { name: 'Continue' }).click()
-  } else {
-    await key.press('Enter')
-  }
+  await key.press('Enter')
+}
+
+/** Demo mode with no key: the rear-doors sample on screen, ready to start. */
+async function openRearDoorsSample(page: Page) {
+  await page.getByRole('button', { name: 'Enter as demo user' }).click()
+  await page.getByRole('button', { name: /Rear doors with markings/ }).click()
 }
 
 function trackProviderRequests(page: Page): string[] {
@@ -37,7 +38,7 @@ function trackProviderRequests(page: Page): string[] {
   return hits
 }
 
-test('start is impossible without a key, for a recorded sample or a live run', async ({ page }) => {
+test('a live run cannot start without a key', async ({ page }) => {
   const providerRequests = trackProviderRequests(page)
   await page.goto('/')
   await expect(page.getByRole('button', { name: 'Continue' })).toBeDisabled()
@@ -56,8 +57,7 @@ test('start is impossible without a key, for a recorded sample or a live run', a
 
 test('the cost line is quiet and the detailed panel opens only on click', async ({ page }) => {
   await page.goto('/')
-  await enterKey(page, { replay: true })
-  await choosePhoto(page)
+  await openRearDoorsSample(page)
   await page.getByRole('button', { name: 'Start inspection' }).click()
   await expect(page.getByText('Recorded demonstration: GPT-6 Luna / gpt-6-luna')).toBeVisible()
 
@@ -72,12 +72,11 @@ test('the cost line is quiet and the detailed panel opens only on click', async 
   await expect(page.locator('.qs-cost__foot')).toContainText('not an invoice')
 })
 
-// Recorded-sample walking skeleton: key entered, replay chosen, no network call to any provider.
+// Recorded sample in demo mode: no key, no network call to any provider.
 test('recorded run shows the container ID and the recorded label', async ({ page }) => {
   const providerRequests = trackProviderRequests(page)
   await page.goto('/')
-  await enterKey(page, { replay: true })
-  await choosePhoto(page)
+  await openRearDoorsSample(page)
   const start = page.getByRole('button', { name: 'Start inspection' })
   await expect(start).toBeEnabled()
   await start.click()

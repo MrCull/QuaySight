@@ -86,7 +86,11 @@ function recordingFor(id: DemoSampleId): SampleRecording {
   switch (id) {
     // The fuller Luna reading of the APHU rear door. Its side damage belongs to the side photo, so none here.
     case 'rear-aphu': {
-      const body = { ...structuredClone(luna), damage: null, photo: 'samples/rear-door-aphu-45g1.jpg' }
+      const body = {
+        ...structuredClone(luna),
+        damage: null,
+        photo: 'samples/rear-door-aphu-45g1.jpg',
+      }
       return {
         resolvedVersion: luna.model,
         containerId: buildContainerIdReading({
