@@ -95,7 +95,6 @@ const hasZones = computed(() => (props.assessment.zones ?? []).length > 0)
   <div :class="['qs-schem', { 'qs-schem--show-grid': hasZones }]">
     <div class="qs-schem__views">
       <div class="qs-schem__views-in">
-=======
         <template v-for="v in views" :key="v.spec.id">
           <p
             v-if="hidden(v)"
