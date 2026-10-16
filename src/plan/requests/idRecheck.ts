@@ -103,7 +103,7 @@ export const idRecheck: PlanRequest<IdAnswer> = {
         const merged = mergeRecheck(first.readings, again, asked)
         return {
           ...record,
-          containerId: assembleLunaReading(merged.readings),
+          containerId: assembleLunaReading(merged.readings, first.ownerPick),
           rechecks: [
             recheckRecord({
               ...base,
