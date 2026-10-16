@@ -519,7 +519,8 @@
 .qs-skeleton { border-radius: var(--radius-sm); background: linear-gradient(90deg, var(--line) 0%, var(--surface-raised) 50%, var(--line) 100%); background-size: 200% 100%; animation: qs-shimmer 1.6s linear infinite; }
 
 .qs-arriving .qs-rise, .qs-arriving .qs-id__ch, .qs-arriving .qs-id__check, .qs-arriving .qs-pin, .qs-arriving .qs-region, .qs-arriving .qs-photo-region { opacity: 0; }
-.qs-arrived .qs-rise { animation: qs-rise var(--duration-arrive) cubic-bezier(.2,.8,.2,1) both; animation-delay: calc(var(--i, 0) * 70ms + var(--base, 0ms)); }
+/* A part that lands while the run is still going carries .qs-arrived on its own card (.qs-rise.qs-arrived), inside the still-arriving screen. */
+.qs-arrived .qs-rise, .qs-rise.qs-arrived { animation: qs-rise var(--duration-arrive) cubic-bezier(.2,.8,.2,1) both; animation-delay: calc(var(--i, 0) * 70ms + var(--base, 0ms)); }
 .qs-arrived .qs-id { perspective: 400px; }
 .qs-arrived .qs-id__ch, .qs-arrived .qs-id__check { animation: qs-settle var(--duration-arrive) cubic-bezier(.2,.8,.2,1) both; animation-delay: calc(var(--c, 0) * 45ms + var(--base, 0ms)); }
 .qs-arrived .qs-id__ch::after { transform-origin: left; animation: qs-underline var(--duration-arrive) cubic-bezier(.2,.8,.2,1) both; animation-delay: calc(var(--c, 0) * 45ms + var(--base, 0ms) + 220ms); }

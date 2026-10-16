@@ -98,6 +98,25 @@ test.describe('Live run progress and Cancel', () => {
     await expect(line).toContainText('Cost unknown')
   })
 
+  test('a part that lands early is visible while the rest is still in flight (opacity, not just in the DOM)', async ({
+    page,
+  }) => {
+    // The survey (call 1) answers; both damage requests (calls 2 and 3) stay held.
+    const edge = await decisions(page, [2, 3])
+    await startLive(page)
+    await expect.poll(() => edge.held.length).toBe(2)
+    await expect(stage(page, 'Reading the ID')).toHaveClass(/qs-stage--done/)
+    await expect(page.locator('#stage')).toHaveClass(/qs-arriving/)
+
+    // Each card plays its own arrival and ends fully drawn, inside the still-arriving screen.
+    await expect(page.locator('.qs-found')).toHaveCSS('opacity', '1')
+    await expect(page.locator('.rs-card', { has: page.locator('.qs-id') })).toHaveCSS('opacity', '1')
+    await expect(page.locator('.rs-card', { hasText: 'Container details' })).toHaveCSS('opacity', '1')
+    await expect(page.locator('.qs-id__ch').first()).toHaveCSS('opacity', '1')
+
+    await page.getByRole('button', { name: 'Cancel' }).click()
+  })
+
   test('Cancel while the damage checks are in flight names damage as not finished and draws no damage view', async ({
     page,
   }) => {
