@@ -11,7 +11,8 @@ The setup card is the first screen. It holds the `ProviderSelect` form (provider
 - The recommended provider and model are chosen on first visit, so a presenter only pastes a key.
 - The key field is labelled for the chosen provider ("OpenAI API key") and its hint says whose endpoint receives the photo and the key.
 - **Continue** stays disabled until a key is entered and the model belongs to the provider. Enter in the key field acts as Continue.
-- After Continue the card makes way for the inspection screen and the setup folds into the `SettingsChip`.
+- A key that doesn't start the way the provider's keys do shows the `ProviderSelect` key-format warning under the field. Continue stays enabled: the warning is advice, not a gate.
+- After Continue the card makes way for the inspection screen and the setup folds into the `SettingsChip`. Focus moves to the photo drop zone (the `PhotoDrop`), the next step.
 - A refresh shows the card again, with the provider and model remembered and the key empty. Keys are never stored.
 
 ## Accessibility
