@@ -39,10 +39,8 @@ const summary = computed(() => {
     <div v-else class="qs-notice" role="note">
       <i class="qs-glyph qs-glyph--unseen" aria-hidden="true"></i>
       <div>
-        <div class="qs-notice__title">Damage not assessed in this recording</div>
-        <div class="qs-notice__body">
-          Nothing is said about the faces of this container in this recording.
-        </div>
+        <div class="qs-notice__title">Damage not assessed in this inspection</div>
+        <div class="qs-notice__body">Nothing is said about any face of this container.</div>
       </div>
     </div>
   </section>

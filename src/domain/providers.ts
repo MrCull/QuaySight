@@ -52,6 +52,8 @@ export interface ProviderInfo {
   vendor: string
   api: string
   monogram: string
+  /** The provider chosen on a first visit, marked Recommended in the selector. Exactly one is. */
+  recommended: boolean
   keyField: KeyFieldCopy
   models: ModelOption[]
 }
@@ -88,6 +90,7 @@ export const providers: ProviderInfo[] = [
     vendor: 'OpenRouter',
     api: 'Decisions API',
     monogram: 'OR',
+    recommended: true,
     keyField: {
       label: 'OpenRouter API key',
       placeholder: 'Paste your OpenRouter key (sk-or-…)',
@@ -146,6 +149,7 @@ export const providers: ProviderInfo[] = [
     vendor: 'OpenAI',
     api: 'Decisions API',
     monogram: 'OA',
+    recommended: false,
     keyField: {
       label: 'OpenAI API key',
       placeholder: 'Paste your OpenAI key',

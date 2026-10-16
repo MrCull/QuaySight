@@ -2,7 +2,7 @@
 import { computed } from 'vue'
 import { useInspectionStore } from './stores/inspection'
 import { useSetupStore } from './stores/setup'
-import { labelsFor } from './domain/providers'
+import { findModel, getProvider, labelsFor } from './domain/providers'
 import { findSample } from './domain/demoSamples'
 import SetupCard from './components/SetupCard.vue'
 import SettingsChip from './components/SettingsChip.vue'
@@ -26,12 +26,25 @@ const needsKey = computed(() => !store.demo && !!store.photo && !store.canStart 
 const showSampleOptions = computed(
   () => store.demo && store.record?.source === 'recorded' && store.record.containerId === null,
 )
-const runLabel = computed(() => {
-  // A demo run names who answered when its sample was recorded, not the provider in settings.
-  const run = store.demo && store.sample ? findSample(store.sample) : store
-  const name = labelsFor(run.provider, run.model).prose
-  return `${name} · ${run.model}${store.mode === 'live' ? ' · live' : ''}`
+// Demo mode has no settings chip, so the top bar names who answered when the sample was recorded.
+// A live run is named by the settings chip: changing provider or model blanks the screen, so they agree.
+const runChip = computed(() => {
+  if (!store.demo || !store.sample || store.status === 'idle') return null
+  const run = findSample(store.sample)
+  const provider = getProvider(run.provider)
+  const entry = findModel(run.provider, run.model)
+  const route =
+    entry?.route === 'openrouter' ? `${entry.maker} via ${provider.name}` : provider.vendor
+  return {
+    monogram: provider.monogram,
+    name: labelsFor(run.provider, run.model).model,
+    detail: `${route} · ${run.model}`,
+  }
 })
+// After the result lands, the next step is New inspection, not a second charge on the same photo.
+const showStart = computed(() => (!store.demo || !!store.photo) && store.status !== 'complete')
+// Before any photo, the drop zone or the sample picker has the whole width.
+const startScreen = computed(() => !store.photo && !store.record && store.status === 'idle')
 
 // Arrival choreography: .qs-arriving while analysing, .qs-arrived once the record lands.
 const stageClass = computed(() => {
@@ -51,11 +64,15 @@ function start() {
     <div class="rs-chrome">
       <header class="rs-top">
         <span class="qs-brand"><i class="qs-logo" aria-hidden="true"></i>Quay Sight</span>
-        <span class="rs-crumb">Container inspection <span>· recorded walking skeleton</span></span>
+        <span class="rs-crumb">Container inspection</span>
         <template v-if="setup.view === 'inspection'">
           <!-- Demo mode has no provider settings: the banner's Connect a provider is the way to one. -->
           <SettingsChip v-if="!store.demo" />
-          <span v-if="store.status !== 'idle'" class="rs-run">{{ runLabel }}</span>
+          <span v-if="runChip" class="rs-run" :title="`${runChip.name} · ${runChip.detail}`">
+            <span class="qs-mono" aria-hidden="true">{{ runChip.monogram }}</span>
+            <span class="rs-run__name">{{ runChip.name }}</span>
+            <small>{{ runChip.detail }}</small>
+          </span>
           <span class="rs-spacer"></span>
           <CostIndicator />
           <NewInspectionAction />
@@ -68,7 +85,7 @@ function start() {
       <SetupCard />
     </main>
 
-    <main v-else id="stage" :class="['rs-main', stageClass]">
+    <main v-else id="stage" :class="['rs-main', stageClass, { 'rs-main--start': startScreen }]">
       <section class="rs-left">
         <SamplePicker v-if="store.demo && !store.photo" />
         <PhotoPanel v-else />
@@ -88,13 +105,15 @@ function start() {
             Make the manifest check fail</label
           >
         </div>
-        <div v-if="!store.demo || store.photo">
+        <div v-if="showStart" class="rs-startrow">
           <p v-if="needsKey" class="qs-hint rs-gate-hint">
-            Enter this provider's key in settings to start.
+            Enter this provider's key in
+            <button type="button" class="qs-link" @click="setup.openDrawer()">settings</button> to
+            start.
           </p>
           <button
             type="button"
-            class="qs-btn qs-btn--primary"
+            class="qs-btn qs-btn--primary qs-btn--lg"
             :disabled="!canStart"
             :aria-busy="running ? 'true' : 'false'"
             @click="start"

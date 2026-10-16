@@ -43,14 +43,30 @@ body {
   font: 400 12px/1 var(--font-mono);
   color: var(--ink-muted);
 }
+.rs-run .qs-mono,
+.rs-run__name {
+  flex: none;
+}
+.rs-run small {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
 .rs-spacer {
   flex: 1;
 }
 .rs-main {
   display: grid;
   grid-template-columns: minmax(0, 1fr) 540px;
-  gap: var(--space-5);
-  padding: var(--space-5);
+  gap: var(--space-6);
+  padding: var(--space-6);
+}
+/* Before any photo: the drop zone, or the demo sample picker, has the full width (design-system PhotoDrop). */
+.rs-main--start {
+  grid-template-columns: minmax(0, 1fr);
+}
+.rs-main--start > .rs-right:empty {
+  display: none;
 }
 .rs-left {
   display: grid;
@@ -59,6 +75,8 @@ body {
 }
 .rs-photo {
   position: relative;
+  /* Fills the column; at the height cap the photo letterboxes inside rather than the stage narrowing. */
+  width: 100%;
   aspect-ratio: 1000/640;
   /* Keeps the photo and its controls inside a laptop viewport; the photo stays contained, not cropped. */
   max-height: 48vh;
@@ -278,33 +296,6 @@ body {
   gap: var(--space-3);
 }
 
-/* ---------- Quiet cost line (top bar): low emphasis, no coloured status; the panel floats on expand ---------- */
-.rs-top .qs-cost__toggle {
-  height: auto;
-  padding: 0;
-  border: 0;
-  border-radius: 0;
-  background: transparent;
-  color: var(--ink-muted);
-  font: 400 13px/20px var(--font-sans);
-}
-.rs-top .qs-cost__toggle b {
-  font-family: var(--font-mono);
-  font-weight: 500;
-  color: var(--ink);
-}
-.rs-cost__partial {
-  font-style: italic;
-  color: var(--ink-muted);
-}
-.rs-top .qs-cost__panel {
-  position: absolute;
-  top: 100%;
-  right: 0;
-  z-index: 10;
-  margin-top: var(--space-2);
-}
-
 /* Laptop and phone widths: no fixed minimum width, one column, 16px gutter on phones (no horizontal scroll). */
 @media (max-width: 1100px) {
   .rs-main {
@@ -323,6 +314,22 @@ body {
     gap: var(--space-3);
   }
   .rs-crumb {
+    display: none;
+  }
+  /* Phone: brand and New inspection share the first row; the run, settings and cost wrap beneath. */
+  .rs-top .qs-newinsp {
+    order: 1;
+    margin-left: auto;
+  }
+  .rs-top .qs-settingschip,
+  .rs-top .rs-run,
+  .rs-top .qs-cost {
+    order: 3;
+  }
+  .rs-top .rs-spacer {
+    display: none;
+  }
+  .rs-run small {
     display: none;
   }
   .rs-top .qs-cost,

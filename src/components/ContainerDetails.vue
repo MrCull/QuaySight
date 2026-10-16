@@ -16,6 +16,10 @@ interface DetailRow {
   note: string | null
 }
 
+// A run that never read the size code or the weights (every live run today reads the ID only) has
+// nothing to say about them: one plain sentence, not a column of Not seen chips (Not seen means "in no photo").
+const assessed = computed(() => props.record.sizeCode !== null || props.record.weights !== null)
+
 const kg = (value: number) => `${value.toLocaleString('en-GB')} kg`
 
 // Each value keeps its source label: Printed, Decoded from ISO or Calculated (spec 4.3, 4.4).
@@ -96,7 +100,11 @@ const rows = computed<DetailRow[]>(() => {
 <template>
   <div class="rs-card qs-rise" style="--i: 1">
     <div class="rs-card__head"><span class="rs-k">Container details</span></div>
-    <div v-for="row in rows" :key="row.label" class="qs-field">
+    <p v-if="!assessed" class="rs-note qs-type-body-sm">
+      Not assessed in this inspection: this run read the container ID only. Nothing is said about
+      the size code or the weights.
+    </p>
+    <div v-for="row in assessed ? rows : []" :key="row.label" class="qs-field">
       <span class="qs-field__label">{{ row.label }}</span>
       <span :class="['qs-field__value', { 'qs-field__value--absent': row.value === null }]">
         <template v-if="row.value !== null">

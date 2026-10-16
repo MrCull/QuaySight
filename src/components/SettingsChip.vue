@@ -2,7 +2,7 @@
 import { computed, nextTick, useTemplateRef, watch } from 'vue'
 import { useInspectionStore } from '../stores/inspection'
 import { useSetupStore } from '../stores/setup'
-import { getProvider } from '../domain/providers'
+import { getProvider, labelsFor } from '../domain/providers'
 import { hasKey } from '../domain/keyGate'
 
 /**
@@ -14,11 +14,14 @@ const setup = useSetupStore()
 const button = useTemplateRef<HTMLButtonElement>('button')
 
 const provider = computed(() => getProvider(store.provider))
+// The company the key belongs to, and the model by its display name (spec #16: "OpenRouter · Jev latest").
+const vendor = computed(() => provider.value.vendor)
+const modelName = computed(() => labelsFor(store.provider, store.model).model)
 const keySet = computed(() => hasKey(store.apiKey))
 const keyLabel = computed(() => (keySet.value ? 'key set' : 'no key'))
 const modeLabel = computed(() => (store.mode === 'recorded' ? 'Recorded sample' : 'Live'))
 const summary = computed(
-  () => `${provider.value.name} · ${store.model} · ${keyLabel.value} · ${modeLabel.value}`,
+  () => `${vendor.value} · ${modelName.value} · ${keyLabel.value} · ${modeLabel.value}`,
 )
 
 // Focus comes back here when the drawer closes, unless a click outside already put it on another control.
@@ -52,7 +55,7 @@ function toggle() {
   >
     <span class="qs-mono" aria-hidden="true">{{ provider.monogram }}</span>
     <span class="qs-settingschip__text"
-      >{{ provider.name }} · <span class="qs-settingschip__model">{{ store.model }}</span> ·
+      >{{ vendor }} · <span class="qs-settingschip__model">{{ modelName }}</span> ·
       <span class="qs-settingschip__key">{{ keyLabel }}</span> · {{ modeLabel }}</span
     >
     <i class="qs-glyph qs-glyph--chevron" aria-hidden="true"></i>

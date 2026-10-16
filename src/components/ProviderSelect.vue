@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, ref } from 'vue'
+import { computed, nextTick, ref, useTemplateRef } from 'vue'
 import { useInspectionStore } from '../stores/inspection'
 import { useSetupStore } from '../stores/setup'
 import { providers, getProvider, findModel } from '../domain/providers'
@@ -19,10 +19,62 @@ const copy = computed(() => selected.value.keyField)
 const model = computed(() => findModel(store.provider, store.model))
 const open = ref(false)
 const revealed = ref(false)
+/** The option the arrow keys are on while the list is open (an index into the catalogue). */
+const active = ref(0)
+const button = useTemplateRef<HTMLButtonElement>('button')
+const listbox = useTemplateRef<HTMLElement>('listbox')
+
+const optionId = (id: ProviderId) => `provider-option-${id}`
+
+/** What a provider's models can do, from the catalogue, shown as caps on its option. */
+function capsOf(id: ProviderId): string[] {
+  const boxes = getProvider(id).models.some((m) => m.box)
+  return boxes ? ['Probabilities', 'Bounding boxes'] : ['Probabilities']
+}
+
+async function openList() {
+  active.value = Math.max(
+    0,
+    providers.findIndex((p) => p.id === store.provider),
+  )
+  open.value = true
+  await nextTick()
+  listbox.value?.focus()
+}
+
+async function closeList() {
+  open.value = false
+  await nextTick()
+  button.value?.focus()
+}
+
+function toggle() {
+  if (open.value) void closeList()
+  else void openList()
+}
 
 function choose(id: ProviderId) {
-  open.value = false
+  void closeList()
   setup.chooseProvider(id)
+}
+
+// Keyboard (design-system ProviderSelect): arrows move is-active, Enter selects, Esc closes.
+function onListKey(event: KeyboardEvent) {
+  const last = providers.length - 1
+  if (event.key === 'ArrowDown') active.value = Math.min(last, active.value + 1)
+  else if (event.key === 'ArrowUp') active.value = Math.max(0, active.value - 1)
+  else if (event.key === 'Home') active.value = 0
+  else if (event.key === 'End') active.value = last
+  else if (event.key === 'Enter' || event.key === ' ') choose(providers[active.value]!.id)
+  else if (event.key === 'Escape') {
+    // Only the list closes: a settings drawer around it stays open.
+    event.stopPropagation()
+    void closeList()
+  } else {
+    if (event.key === 'Tab') open.value = false
+    return
+  }
+  event.preventDefault()
 }
 </script>
 
@@ -33,38 +85,57 @@ function choose(id: ProviderId) {
       <div class="qs-combo">
         <button
           id="provider-button"
+          ref="button"
           class="qs-combo__button"
           type="button"
           aria-haspopup="listbox"
           :aria-expanded="open ? 'true' : 'false'"
           aria-labelledby="provider-label provider-button"
-          @click="open = !open"
+          @click="toggle"
+          @keydown.down.prevent="openList"
+          @keydown.up.prevent="openList"
         >
           <span class="qs-mono">{{ selected.monogram }}</span>
           <span class="qs-opt-text">
             <strong>{{ selected.name }}</strong>
             <small>{{ selected.vendor }} · {{ selected.api }}</small>
           </span>
-          <span class="qs-cap qs-cap--rec">Recommended</span>
+          <span v-if="selected.recommended" class="qs-cap qs-cap--rec">Recommended</span>
+          <span v-else aria-hidden="true"></span>
           <i class="qs-glyph qs-glyph--chevron" aria-hidden="true"></i>
         </button>
-        <div v-if="open" class="qs-listbox" role="listbox" aria-labelledby="provider-label">
+        <div
+          v-if="open"
+          ref="listbox"
+          class="qs-listbox"
+          role="listbox"
+          tabindex="0"
+          aria-labelledby="provider-label"
+          :aria-activedescendant="optionId(providers[active]!.id)"
+          @keydown="onListKey"
+        >
           <div class="qs-listbox__group">Ready for photos</div>
-          <button
-            v-for="p in providers"
+          <div
+            v-for="(p, index) in providers"
+            :id="optionId(p.id)"
             :key="p.id"
-            type="button"
             role="option"
-            class="qs-option"
+            :class="['qs-option', { 'is-active': index === active }]"
+            :data-testid="optionId(p.id)"
             :aria-selected="p.id === store.provider ? 'true' : 'false'"
             @click="choose(p.id)"
+            @mousemove="active = index"
           >
             <span class="qs-mono">{{ p.monogram }}</span>
             <span class="qs-opt-text">
               <strong>{{ p.name }}</strong>
               <small>{{ p.vendor }} · {{ p.api }}</small>
             </span>
-          </button>
+            <span class="qs-option__caps">
+              <span v-if="p.recommended" class="qs-cap qs-cap--rec">Recommended</span>
+              <span v-for="cap in capsOf(p.id)" :key="cap" class="qs-cap">{{ cap }}</span>
+            </span>
+          </div>
         </div>
       </div>
     </div>

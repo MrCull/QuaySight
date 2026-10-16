@@ -67,6 +67,62 @@ describe('ProviderSelect (the form in the setup card and the settings drawer)', 
     expect(wrapper.emitted('submit')).toHaveLength(1)
   })
 
+  it('moves through the providers with the arrow keys and chooses one with Enter', async () => {
+    const store = useInspectionStore()
+    const wrapper = mount(ProviderSelect, { attachTo: document.body })
+    const button = wrapper.get('#provider-button')
+    await button.trigger('keydown', { key: 'ArrowDown' })
+    const listbox = wrapper.get('[role="listbox"]')
+    expect(document.activeElement).toBe(listbox.element)
+    // The chosen provider is active first; ArrowDown moves on to OpenAI, ArrowUp back again.
+    expect(wrapper.get('.qs-option.is-active').text()).toContain('OpenRouter')
+    await listbox.trigger('keydown', { key: 'ArrowDown' })
+    expect(wrapper.get('.qs-option.is-active').text()).toContain('OpenAI')
+    expect(listbox.attributes('aria-activedescendant')).toBe(
+      wrapper.get('.qs-option.is-active').attributes('id'),
+    )
+    await listbox.trigger('keydown', { key: 'Enter' })
+    expect(store.provider).toBe('luna')
+    expect(wrapper.find('[role="listbox"]').exists()).toBe(false)
+    expect(document.activeElement).toBe(button.element)
+    wrapper.unmount()
+  })
+
+  it('closes the provider list with Escape, changing nothing', async () => {
+    const store = useInspectionStore()
+    const wrapper = mount(ProviderSelect, { attachTo: document.body })
+    const button = wrapper.get('#provider-button')
+    await button.trigger('click')
+    const listbox = wrapper.get('[role="listbox"]')
+    await listbox.trigger('keydown', { key: 'ArrowDown' })
+    await listbox.trigger('keydown', { key: 'Escape' })
+    expect(wrapper.find('[role="listbox"]').exists()).toBe(false)
+    expect(store.provider).toBe('openrouter')
+    expect(document.activeElement).toBe(button.element)
+    expect(button.attributes('aria-expanded')).toBe('false')
+    wrapper.unmount()
+  })
+
+  it('marks only the recommended provider as Recommended', async () => {
+    const wrapper = mount(ProviderSelect)
+    expect(wrapper.get('#provider-button').text()).toContain('Recommended')
+    await wrapper.get('#provider-button').trigger('click')
+    const options = wrapper.findAll('.qs-option')
+    expect(options[0]!.text()).toContain('Recommended')
+    expect(options[1]!.text()).not.toContain('Recommended')
+    await options[1]!.trigger('click')
+    expect(wrapper.get('#provider-button').text()).not.toContain('Recommended')
+  })
+
+  it('gives each provider option a stable test id', async () => {
+    const wrapper = mount(ProviderSelect)
+    await wrapper.get('#provider-button').trigger('click')
+    expect(wrapper.findAll('.qs-option').map((o) => o.attributes('data-testid'))).toEqual([
+      'provider-option-openrouter',
+      'provider-option-luna',
+    ])
+  })
+
   it('offers no recorded replay, with or without a key: demo mode replaces it', async () => {
     const store = useInspectionStore()
     const wrapper = mount(ProviderSelect)

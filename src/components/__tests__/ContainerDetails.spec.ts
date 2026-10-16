@@ -62,6 +62,18 @@ describe('ContainerDetails', () => {
     expect(wrapper.find('.qs-prov--calculated').exists()).toBe(false)
   })
 
+  it('says the details were not assessed when the run never read them, with no Not seen chips', async () => {
+    // A run that read only the container ID (every live run today): no size code, no weights.
+    const record = await runRecordedInspection('luna', { delayMs: 0 })
+    record.sizeCode = null
+    record.weights = null
+    const wrapper = mount(ContainerDetails, { props: { record } })
+    expect(wrapper.text()).toContain('Not assessed in this inspection')
+    expect(wrapper.text()).not.toContain('Not seen')
+    expect(wrapper.text()).not.toContain('Not visible in this photo')
+    expect(wrapper.findAll('.qs-field')).toHaveLength(0)
+  })
+
   it('uses only the approved status and provenance vocabulary', async () => {
     const record = await runRecordedInspection('luna', { delayMs: 0 })
     const wrapper = mount(ContainerDetails, { props: { record } })

@@ -68,4 +68,27 @@ describe('App', () => {
     expect(wrapper.text()).toContain('Analysing')
     expect(startButton(wrapper)?.attributes('disabled')).toBeDefined()
   })
+
+  it('opens the settings drawer from the word "settings" in the key hint', async () => {
+    const store = useInspectionStore()
+    store.setPhoto({ name: 'a.jpg', url: 'blob:a', orientation: 'landscape' })
+    const wrapper = mount(App)
+    const link = wrapper.get('.rs-gate-hint button')
+    expect(link.text()).toBe('settings')
+    await link.trigger('click')
+    expect(useSetupStore().drawerOpen).toBe(true)
+  })
+
+  it('offers no second run once the result has landed: New inspection is the next step', async () => {
+    const store = useInspectionStore()
+    store.setPhoto({ name: 'a.jpg', url: 'blob:a', orientation: 'landscape' })
+    store.setApiKey('test-only-key-0000')
+    const wrapper = mount(App)
+    store.status = 'complete'
+    await nextTick()
+    expect(startButton(wrapper)).toBeUndefined()
+    store.status = 'failed'
+    await nextTick()
+    expect(startButton(wrapper)?.attributes('disabled')).toBeUndefined()
+  })
 })

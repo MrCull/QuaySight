@@ -54,7 +54,7 @@ function amount(totals: { costUsd: number | null; requests: number } | null): st
 </script>
 
 <template>
-  <div class="qs-cost">
+  <div class="qs-cost qs-cost--quiet">
     <button
       type="button"
       class="qs-cost__toggle"
@@ -66,11 +66,11 @@ function amount(totals: { costUsd: number | null; requests: number } | null): st
       <template v-else>
         This container <b>{{ amount(container) }}</b>
         <template v-if="container?.incomplete">
-          <span class="rs-cost__partial">Partial estimate</span></template
+          <span class="qs-cost__partial">Partial estimate</span></template
         >
         · Session <b>{{ amount(session) }}</b>
         <template v-if="session.incomplete">
-          <span class="rs-cost__partial">Partial estimate</span></template
+          <span class="qs-cost__partial">Partial estimate</span></template
         >
       </template>
       <i class="qs-glyph qs-glyph--chevron" aria-hidden="true"></i>
