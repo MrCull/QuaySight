@@ -36,6 +36,16 @@ describe('ResultsPanel result states', () => {
     ])
   })
 
+  it('sets each alternative ID in the data face, grouped as owner, serial and check digit', async () => {
+    const wrapper = await withReading({
+      certainty: 'Likely',
+      alternatives: ['PPHH8888847'],
+    })
+    const id = wrapper.get('.rs-also .qs-type-data')
+    expect(id.text()).toBe('PPHH 888884 7')
+    expect(wrapper.get('.rs-also').text()).toBe('Also possible: PPHH 888884 7')
+  })
+
   it('shows the best interpretation and what remains uncertain for an uncertain result', async () => {
     const wrapper = await withReading({
       certainty: 'Uncertain',

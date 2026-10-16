@@ -44,6 +44,10 @@ const idState = computed(() =>
 const alternatives = computed(() =>
   record.value?.containerId ? visibleAlternatives(record.value.containerId) : [],
 )
+/** A full container number as it is printed: owner code, serial, check digit ("APHU 658684 7"). */
+function groupedId(id: string): string {
+  return id.length === 11 ? `${id.slice(0, 4)} ${id.slice(4, 10)} ${id.slice(10)}` : id
+}
 const bestInterpretation = computed(() =>
   (record.value?.containerId?.value ?? '').replace(/\s+/g, '').toUpperCase().replace(/\?/g, '·'),
 )
@@ -111,7 +115,7 @@ const showInsufficient = computed(() => idState.value === 'insufficient')
         class="rs-also qs-rise qs-type-body-sm"
         :style="{ '--i': STAGGER.alternative }"
       >
-        Also possible: {{ alt }}
+        Also possible: <span class="qs-type-data">{{ groupedId(alt) }}</span>
       </p>
 
       <div
@@ -119,7 +123,10 @@ const showInsufficient = computed(() => idState.value === 'insufficient')
         class="rs-explain qs-rise qs-type-body-sm"
         :style="{ '--i': STAGGER.explanation }"
       >
-        <p><b>Best interpretation:</b> {{ bestInterpretation }}</p>
+        <p>
+          <b>Best interpretation:</b>
+          <span class="qs-type-data">{{ groupedId(bestInterpretation) }}</span>
+        </p>
         <p><b>What remains uncertain:</b> {{ remainsUncertain }}</p>
       </div>
 
