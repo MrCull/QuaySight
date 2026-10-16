@@ -16,7 +16,7 @@ import {
 
 const KEY = 'test-only-key-value-0000'
 const REFUSED =
-  'OpenAI refused the request. Usually the key is wrong, out of credit, or has no access to gpt-6-luna. Check the key, then try again.'
+  'OpenAI refused the request. Usually the key is wrong, out of credit, or has no access to gpt-6-luna. Check the key, then try again. Any partial result is kept.'
 
 // Hand-written: APHU6586847 is the worked example. Positions 7 and 9 come back unread on the first pass.
 const ID = 'APHU6586847'
@@ -126,7 +126,7 @@ describe('a live Luna run whose call fails before a response is readable', () =>
 
     expect(store.status).toBe('failed')
     expect(store.errorMessage).toBe(
-      'Could not reach OpenAI. Check your connection, then try again.',
+      'Could not reach OpenAI. Check your connection, then try again. Any partial result is kept.',
     )
     expectNoKeyAnywhere(store)
   })
@@ -167,7 +167,7 @@ describe('a live Luna run whose call fails before a response is readable', () =>
 
     expect(store.status).toBe('failed')
     expect(store.errorMessage).toBe(
-      'OpenAI rate limit reached. Wait a minute, then try again. Nothing was retried for you.',
+      'OpenAI rate limit reached. Wait a minute, then try again. Nothing was retried for you. Any partial result is kept.',
     )
     expectNoKeyAnywhere(store)
   })

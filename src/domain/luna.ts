@@ -9,6 +9,7 @@ import { CERTAINTY_LABELS, UNREAD, applyMargin } from './certainty'
 import type { CertaintyLabel, ContainerIdReading } from './inspection'
 import type { Usage } from './ledger'
 import { classifyFailedCall, type ProviderErrorTraits } from './failedCall'
+import { ProviderError, providerMessage, redact } from './providerErrors'
 import {
   MANIFEST_STATE_INSTRUCTIONS,
   readManifestAnswers,
@@ -107,33 +108,12 @@ export const LUNA_ERROR_TRAITS: ProviderErrorTraits = { errorsCarryCors: false }
 /** `network`: the browser could not reach OpenAI. `refused`: OpenAI refused the call but the browser could not read why. */
 export type LunaErrorKind = 'http' | 'network' | 'refused' | 'bad-response'
 
-/** An error with a message fit to show the presenter. Never carries the key. */
-export class LunaError extends Error {
-  readonly kind: LunaErrorKind
-  readonly status: number | null
-
-  constructor(kind: LunaErrorKind, message: string, status: number | null = null) {
-    super(message)
+/** A failed OpenAI call, with a message fit to show the presenter. Never carries the key. */
+export class LunaError extends ProviderError<LunaErrorKind> {
+  constructor(kind: LunaErrorKind, advice: string, status: number | null = null) {
+    super(kind, advice, status)
     this.name = 'LunaError'
-    this.kind = kind
-    this.status = status
   }
-}
-
-const KEY_PATTERN = /sk-[A-Za-z0-9_-]+/g
-
-function redact(text: string, apiKey: string): string {
-  let safe = text
-  if (apiKey) safe = safe.split(apiKey).join('[key removed]')
-  return safe.replace(KEY_PATTERN, '[key removed]').slice(0, 200)
-}
-
-function providerMessage(body: unknown): string | null {
-  if (typeof body !== 'object' || body === null) return null
-  const error = (body as { error?: unknown }).error
-  if (typeof error !== 'object' || error === null) return null
-  const message = (error as { message?: unknown }).message
-  return typeof message === 'string' && message.trim() ? message.trim() : null
 }
 
 /**
@@ -172,11 +152,7 @@ export function lunaFailure(status: number, body: unknown, apiKey: string): Luna
         status,
       )
     case 'unavailable':
-      return new LunaError(
-        'http',
-        'OpenAI is unavailable right now. Try again shortly. Any partial result is kept.',
-        status,
-      )
+      return new LunaError('http', 'OpenAI is unavailable right now. Try again shortly.', status)
     default: {
       const detail = providerMessage(body)
       return new LunaError(

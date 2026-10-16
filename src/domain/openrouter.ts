@@ -6,6 +6,7 @@
 // `questions` is a map of typed questions (noul, choice, score, box). OpenRouter's errors carry CORS
 // headers, so every failed status is readable in the browser and gets its own message.
 import { classifyFailedCall, type ProviderErrorTraits } from './failedCall'
+import { ProviderError, providerMessage, redact } from './providerErrors'
 import { JevError, jevQuestions, mapJevResponse, type JevMapping, type JevQuestion } from './jev'
 import {
   LUNA_IDENTIFICATION_INSTRUCTIONS,
@@ -127,33 +128,12 @@ export type OpenRouterErrorKind =
   | 'bad-response'
   | 'photo'
 
-/** An error with a message fit to show the presenter. Never carries the key. */
-export class OpenRouterError extends Error {
-  readonly kind: OpenRouterErrorKind
-  readonly status: number | null
-
-  constructor(kind: OpenRouterErrorKind, message: string, status: number | null = null) {
-    super(message)
+/** A failed OpenRouter call, with a message fit to show the presenter. Never carries the key. */
+export class OpenRouterError extends ProviderError<OpenRouterErrorKind> {
+  constructor(kind: OpenRouterErrorKind, advice: string, status: number | null = null) {
+    super(kind, advice, status)
     this.name = 'OpenRouterError'
-    this.kind = kind
-    this.status = status
   }
-}
-
-const KEY_PATTERN = /sk-[A-Za-z0-9_-]+/g
-
-function redact(text: string, apiKey: string): string {
-  let safe = text
-  if (apiKey) safe = safe.split(apiKey).join('[key removed]')
-  return safe.replace(KEY_PATTERN, '[key removed]').slice(0, 200)
-}
-
-function providerMessage(body: unknown): string | null {
-  if (typeof body !== 'object' || body === null) return null
-  const error = (body as { error?: unknown }).error
-  if (typeof error !== 'object' || error === null) return null
-  const message = (error as { message?: unknown }).message
-  return typeof message === 'string' && message.trim() ? message.trim() : null
 }
 
 /** A 400 whose text says the image itself was refused (e.g. Jev's "Invalid image dimensions"). */
@@ -168,7 +148,7 @@ function isPhotoComplaint(message: string | null): boolean {
 export function openRouterFetchFailure(): OpenRouterError {
   return new OpenRouterError(
     'unreachable',
-    'Could not reach OpenRouter. Check your connection, then try again. Any partial result is kept.',
+    'Could not reach OpenRouter. Check your connection, then try again.',
   )
 }
 
@@ -194,7 +174,7 @@ export function openRouterFailure(
   if (status === 413 || (status === 400 && isPhotoComplaint(detail))) {
     return new OpenRouterError(
       'photo-rejected',
-      `${modelName} rejected the photo for its size or dimensions. It takes photos up to ${model.maxSide.toLocaleString('en-US')} px per side. Try another photo. Any partial result is kept.`,
+      `${modelName} rejected the photo for its size or dimensions. It takes photos up to ${model.maxSide.toLocaleString('en-US')} px per side. Try another photo.`,
       status,
     )
   }
@@ -208,7 +188,7 @@ export function openRouterFailure(
     case 'no-credit':
       return new OpenRouterError(
         'no-credit',
-        'This OpenRouter key is out of credit. Add credit at openrouter.ai/credits, then try again. Any partial result is kept.',
+        'This OpenRouter key is out of credit. Add credit at openrouter.ai/credits, then try again.',
         status,
       )
     case 'not-found':
@@ -226,7 +206,7 @@ export function openRouterFailure(
     case 'unavailable':
       return new OpenRouterError(
         'unavailable',
-        `OpenRouter or ${modelName}'s provider is unavailable right now. Try again shortly. Any partial result is kept.`,
+        `OpenRouter or ${modelName}'s provider is unavailable right now. Try again shortly.`,
         status,
       )
     default:
@@ -249,7 +229,7 @@ export function mapOpenRouterJevResponse(response: unknown, requestedModel: stri
   try {
     return mapJevResponse(response, requestedModel, 'OpenRouter')
   } catch (error) {
-    if (error instanceof JevError) throw new OpenRouterError('bad-response', error.message)
+    if (error instanceof JevError) throw new OpenRouterError('bad-response', error.advice)
     throw error
   }
 }

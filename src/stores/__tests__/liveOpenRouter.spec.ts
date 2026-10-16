@@ -381,6 +381,7 @@ describe('live Jev through OpenRouter in the store', () => {
 
         expect(store.status).toBe('failed')
         expect(store.errorMessage).toMatch(message)
+        expect(store.errorMessage).toMatch(/Any partial result is kept\.$/)
         expect(store.errorMessage).not.toContain(KEY)
         expect(store.photo?.url).toBe('blob:original')
         expect(ledger.entries()).toEqual([
@@ -410,6 +411,7 @@ describe('live Jev through OpenRouter in the store', () => {
 
       expect(store.status).toBe('failed')
       expect(store.errorMessage).toMatch(/Could not reach OpenRouter/)
+      expect(store.errorMessage).toMatch(/Any partial result is kept\.$/)
     })
 
     it('says the reply was not understood when OpenRouter answers without answers', async () => {
@@ -420,6 +422,7 @@ describe('live Jev through OpenRouter in the store', () => {
 
       expect(store.status).toBe('failed')
       expect(store.errorMessage).toMatch(/OpenRouter replied without answers/)
+      expect(store.errorMessage).toMatch(/Any partial result is kept\.$/)
     })
   })
 })

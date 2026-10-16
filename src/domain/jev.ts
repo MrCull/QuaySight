@@ -8,6 +8,7 @@ import { buildContainerIdReading } from './containerId'
 import { CERTAINTY_LABELS, UNREAD, applyMargin } from './certainty'
 import type { CertaintyLabel, ContainerIdReading } from './inspection'
 import type { Usage } from './ledger'
+import { ProviderError, redact } from './providerErrors'
 
 export const JEV_ENDPOINT = 'https://api.typesafe.ai/v1/systemone'
 /** Endpoint family key used by the rate schedules and ledger. */
@@ -171,25 +172,12 @@ export function buildJevRequest(
 
 export type JevErrorKind = 'http' | 'network' | 'bad-response' | 'photo'
 
-/** An error with a message fit to show the presenter. Never carries the key. */
-export class JevError extends Error {
-  readonly kind: JevErrorKind
-  readonly status: number | null
-
-  constructor(kind: JevErrorKind, message: string, status: number | null = null) {
-    super(message)
+/** A failed TypeSafe call, with a message fit to show the presenter. Never carries the key. */
+export class JevError extends ProviderError<JevErrorKind> {
+  constructor(kind: JevErrorKind, advice: string, status: number | null = null) {
+    super(kind, advice, status)
     this.name = 'JevError'
-    this.kind = kind
-    this.status = status
   }
-}
-
-const KEY_PATTERN = /sk-[A-Za-z0-9_-]+/g
-
-function redact(text: string, apiKey: string): string {
-  let safe = text
-  if (apiKey) safe = safe.split(apiKey).join('[key removed]')
-  return safe.replace(KEY_PATTERN, '[key removed]').slice(0, 200)
 }
 
 function providerError(body: unknown): { message: string | null; code: string | null } {
@@ -223,7 +211,7 @@ export function jevFailure(status: number, body: unknown, apiKey: string): JevEr
   if (status === 400) {
     return new JevError(
       'http',
-      'TypeSafe rejected the photo or request (400). Check that the photo is a PNG or JPEG, 280 to 1568 px per side, rotated upright, and up to 16 MB. Any partial result is kept.',
+      'TypeSafe rejected the photo or request (400). Check that the photo is a PNG or JPEG, 280 to 1568 px per side, rotated upright, and up to 16 MB.',
       status,
     )
   }
@@ -259,11 +247,7 @@ export function jevFailure(status: number, body: unknown, apiKey: string): JevEr
     return new JevError('http', 'TypeSafe is overloaded right now. Try again shortly.', status)
   }
   if (status >= 500) {
-    return new JevError(
-      'http',
-      'TypeSafe is unavailable right now. Try again shortly. Any partial result is kept.',
-      status,
-    )
+    return new JevError('http', 'TypeSafe is unavailable right now. Try again shortly.', status)
   }
   return new JevError(
     'http',

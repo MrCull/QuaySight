@@ -13,9 +13,9 @@ import {
   assembleLunaReading,
   LUNA_ENDPOINT_ID,
   LUNA_MODEL,
-  LunaError,
   type ChoiceReading,
 } from '../domain/luna'
+import { ProviderError } from '../domain/providerErrors'
 import { callLuna, callLunaManifest } from '../services/luna'
 import {
   callOpenRouterJev,
@@ -23,7 +23,7 @@ import {
   callOpenRouterManifest,
 } from '../services/openrouter'
 import { preparePhoto, PhotoPreparationError } from '../services/preparePhoto'
-import { OPENROUTER_ENDPOINT_ID, OpenRouterError } from '../domain/openrouter'
+import { OPENROUTER_ENDPOINT_ID } from '../domain/openrouter'
 import {
   mergeRecheck,
   observationsOf,
@@ -95,6 +95,14 @@ function capMessage(reason: 'requests' | 'spend'): string {
   return reason === 'requests'
     ? 'This inspection has reached its request limit. Start a new photo to run again.'
     : 'This inspection has reached its spend limit. Start a new photo to run again.'
+}
+
+/**
+ * What a failed live call says: a provider's own message (`advice` alone where the panel adds what is
+ * kept in its own words), or the fallback for anything else.
+ */
+function failureMessage(error: unknown, fallback: string, part: 'message' | 'advice'): string {
+  return error instanceof ProviderError ? error[part] : fallback
 }
 
 /** The live manifest call for a catalogue model's wire format, and its ledger endpoint. */
@@ -547,11 +555,11 @@ export const useInspectionStore = defineStore('inspection', {
           this.errorMessage = capMessage(result.reason)
         } else {
           this.status = 'failed'
-          this.errorMessage =
-            result.status === 'failed' &&
-            (result.error instanceof LunaError || result.error instanceof OpenRouterError)
-              ? result.error.message
-              : 'The live inspection could not be completed. Try again.'
+          this.errorMessage = failureMessage(
+            result.status === 'failed' ? result.error : null,
+            'The live inspection could not be completed. Try again.',
+            'message',
+          )
         }
       })().finally(() => {
         if (this.inFlight === run) this.inFlight = null
@@ -633,13 +641,15 @@ export const useInspectionStore = defineStore('inspection', {
         this.retry = {
           ...this.retry,
           status: 'error',
+          // The panel adds "Your first result is unchanged." itself.
           message:
             result.status === 'blocked'
               ? capMessage(result.reason)
-              : result.status === 'failed' &&
-                  (result.error instanceof LunaError || result.error instanceof OpenRouterError)
-                ? result.error.message
-                : 'The manifest check could not be completed. Try again.',
+              : failureMessage(
+                  result.status === 'failed' ? result.error : null,
+                  'The manifest check could not be completed. Try again.',
+                  'advice',
+                ),
         }
       }
     },
