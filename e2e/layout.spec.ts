@@ -7,9 +7,17 @@ const samplePhoto = path.resolve(
   '../samples/rear-door-aphu-45g1.jpg',
 )
 
-async function runSample(page: Page) {
+/** The key gate applies to recorded runs too: enter a placeholder key and choose replay (no network call). */
+async function prepareRecordedRun(page: Page) {
   await page.goto('/')
   await page.locator('input[type="file"]').setInputFiles(samplePhoto)
+  await page.getByLabel('OpenAI API key', { exact: true }).first().fill('playwright-placeholder-not-a-key')
+  await page.getByRole('checkbox', { name: /Replay the recorded sample/ }).check()
+  await page.getByRole('button', { name: 'Done' }).click()
+}
+
+async function runSample(page: Page) {
+  await prepareRecordedRun(page)
   await page.getByRole('button', { name: 'Start inspection' }).click()
   await expect(page.getByText('Recorded demonstration: GPT-6 Luna / gpt-6-luna')).toBeVisible()
 }
@@ -20,8 +28,7 @@ test.describe('phone width (390px)', () => {
   test('has no horizontal page scroll while analysing and after the result lands', async ({
     page,
   }) => {
-    await page.goto('/')
-    await page.locator('input[type="file"]').setInputFiles(samplePhoto)
+    await prepareRecordedRun(page)
     await page.getByRole('button', { name: 'Start inspection' }).click()
     const width = () =>
       page.evaluate(() => ({
@@ -59,8 +66,7 @@ test.describe('reduced motion', () => {
   test.use({ viewport: { width: 1440, height: 900 }, reducedMotion: 'reduce' })
 
   test('the analysing sweep is removed; the stage card is still shown', async ({ page }) => {
-    await page.goto('/')
-    await page.locator('input[type="file"]').setInputFiles(samplePhoto)
+    await prepareRecordedRun(page)
     await page.getByRole('button', { name: 'Start inspection' }).click()
     const sweep = page.locator('.rs-sweep')
     await expect(sweep).toBeHidden()
