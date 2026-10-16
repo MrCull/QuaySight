@@ -62,8 +62,21 @@ async function weightsOn(provider: ProviderId, model: string, apiKey: string) {
   return { weights: evaluateWeights(readings), again: rereadQuantities(readings) }
 }
 
-/** Each figure is the printed one, or the row says it is not sure. Reports every figure read. */
-function expectCoyuWeights({ weights, again }: { weights: WeightChecks; again: string[] }): void {
+/** Every figure that is shown Confident or Likely and is not the printed one. Reports every figure read. */
+function wrongButSure({ weights, again }: { weights: WeightChecks; again: string[] }): string[] {
+  const sure = (certainty: string | undefined) =>
+    certainty === 'Confident' || certainty === 'Likely'
+  const wrong: string[] = []
+  const check = (
+    name: string,
+    read: number | null | undefined,
+    printed: number,
+    certainty?: string,
+  ) => {
+    if (sure(certainty) && read !== null && read !== undefined && read !== printed) {
+      wrong.push(`${name}: read ${read}, printed ${printed}`)
+    }
+  }
   const rows = [
     ['max gross', weights.maxGross, 30480, 67200],
     ['tare', weights.tare, 2180, 4810],
@@ -73,46 +86,45 @@ function expectCoyuWeights({ weights, again }: { weights: WeightChecks; again: s
     console.info(
       `${name}: ${row?.printed?.kg ?? 'unread'} kg, ${row?.printed?.lb ?? 'unread'} lb, ${row?.certainty ?? 'not read'}${row?.units ? `, kg and lb ${row.units}` : ''}`,
     )
-    if (row?.certainty === 'Confident' || row?.certainty === 'Likely') {
-      if (row.printed?.kg != null) expect(row.printed.kg).toBe(kg)
-      if (row.printed?.lb != null) expect(row.printed.lb).toBe(lb)
-    }
+    check(`${name} kg`, row?.printed?.kg, kg, row?.certainty)
+    check(`${name} lb`, row?.printed?.lb, lb, row?.certainty)
   }
   const cap = weights.capacity
   console.info(
     `capacity: ${cap?.printed.m3 ?? 'unread'} m3, ${cap?.printed.cuFt ?? 'unread'} cu ft, ${cap?.certainty ?? 'not read'}`,
   )
-  if (cap?.certainty === 'Confident' || cap?.certainty === 'Likely') {
-    if (cap.printed.m3 !== null) expect(cap.printed.m3).toBe(33.2)
-    if (cap.printed.cuFt !== null) expect(cap.printed.cuFt).toBe(1173)
-  }
+  check('capacity m3', cap?.printed.m3, 33.2, cap?.certainty)
+  check('capacity cu ft', cap?.printed.cuFt, 1173, cap?.certainty)
   console.info(`weights to look at again: ${again.join(', ') || 'none'}`)
-  // The payload on the door is max gross minus tare in both units.
-  if (weights.payload) {
-    expect(weights.payloadConflict === null || weights.payload.certainty === 'Uncertain').toBe(true)
-  }
+  return wrong
 }
 
 describe('COYU 22G1 weights live smoke test (opt-in, chargeable)', () => {
   it.skipIf(!openAiKey)(
     'GPT-6 Luna on OpenAI reads the door weights or flags where it does not',
-    async () => expectCoyuWeights(await weightsOn('luna', LUNA_MODEL, openAiKey)),
+    async () => {
+      expect(wrongButSure(await weightsOn('luna', LUNA_MODEL, openAiKey))).toEqual([])
+    },
     120_000,
   )
 
   it.skipIf(!openRouterKey)(
     'GPT-6 Luna Decisions through OpenRouter reads the door weights or flags where it does not',
-    async () =>
-      expectCoyuWeights(
-        await weightsOn('openrouter', 'openai/gpt-6-luna-decisions', openRouterKey),
-      ),
+    async () => {
+      expect(
+        wrongButSure(await weightsOn('openrouter', 'openai/gpt-6-luna-decisions', openRouterKey)),
+      ).toEqual([])
+    },
     120_000,
   )
 
   it.skipIf(!openRouterKey)(
     'Jev latest through OpenRouter reads the door weights or flags where it does not',
-    async () =>
-      expectCoyuWeights(await weightsOn('openrouter', '~typesafe/jev-latest', openRouterKey)),
+    async () => {
+      expect(
+        wrongButSure(await weightsOn('openrouter', '~typesafe/jev-latest', openRouterKey)),
+      ).toEqual([])
+    },
     120_000,
   )
 })

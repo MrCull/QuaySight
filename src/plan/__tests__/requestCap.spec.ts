@@ -13,7 +13,10 @@ describe('the per-inspection request cap', () => {
   it('leaves room for every request the plan can make on any route, and the manifest check', () => {
     for (const provider of providers) {
       for (const entry of provider.models) {
-        if (entry.wireFormat !== 'openai-decisions' && entry.wireFormat !== 'openrouter-decisions') {
+        if (
+          entry.wireFormat !== 'openai-decisions' &&
+          entry.wireFormat !== 'openrouter-decisions'
+        ) {
           continue
         }
         const route: RunRoute = {
