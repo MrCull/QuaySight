@@ -156,7 +156,10 @@ describe('Luna response mapping', () => {
   })
 
   it('reads the resolved model from the response when it reports one', () => {
-    const mapped = mapLunaResponse({ ...fullResponse(), model: 'gpt-6-luna-20260922' }, 'gpt-6-luna')
+    const mapped = mapLunaResponse(
+      { ...fullResponse(), model: 'gpt-6-luna-20260922' },
+      'gpt-6-luna',
+    )
     expect(mapped.resolvedModel).toBe('gpt-6-luna-20260922')
   })
 

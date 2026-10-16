@@ -176,11 +176,11 @@
 .qs-c-unseen-tag text { fill: var(--cert-unseen-fg); font: 500 12px var(--font-sans); text-anchor: middle; dominant-baseline: central; }
 
 /* Region zones: severity tint on the affected section, never a painted defect */
-.qs-region rect { fill-opacity: 0.22; stroke-width: 2; vector-effect: non-scaling-stroke; transition: fill-opacity var(--duration-base); }
-.qs-region--minor rect { fill: var(--sev-minor); stroke: var(--sev-minor); }
-.qs-region--moderate rect { fill: var(--sev-moderate); stroke: var(--sev-moderate); }
-.qs-region--major rect { fill: var(--sev-major); stroke: var(--sev-major); }
-.qs-region.is-selected rect { fill-opacity: 0.42; }
+.qs-region rect, .qs-region polygon { fill-opacity: 0.22; stroke-width: 2; vector-effect: non-scaling-stroke; transition: fill-opacity var(--duration-base); }
+.qs-region--minor rect, .qs-region--minor polygon { fill: var(--sev-minor); stroke: var(--sev-minor); }
+.qs-region--moderate rect, .qs-region--moderate polygon { fill: var(--sev-moderate); stroke: var(--sev-moderate); }
+.qs-region--major rect, .qs-region--major polygon { fill: var(--sev-major); stroke: var(--sev-major); }
+.qs-region.is-selected rect, .qs-region.is-selected polygon { fill-opacity: 0.42; }
 
 /* Pins: head fill = severity, head outline = certainty, number = finding */
 .qs-pin { cursor: pointer; outline: none; }

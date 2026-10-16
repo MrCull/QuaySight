@@ -31,6 +31,9 @@ const liveLabel = computed(() => {
     : `Live result: ${getProvider(r.provider).name} / ${r.resolvedVersion}`
 })
 
+// Stagger position of each card in the arrival choreography (read by .qs-rise as --i).
+const STAGGER = { card: 0, alternative: 1, explanation: 2 } as const
+
 // Plain explanation for the uncertain, partial and insufficient-evidence states (spec 5.4, 8.4).
 const idState = computed(() =>
   record.value?.containerId ? idResultState(record.value.containerId) : null,
@@ -88,29 +91,38 @@ const showInsufficient = computed(() => idState.value === 'insufficient')
 
     <div v-if="store.status === 'running'" class="rs-card" aria-busy="true">
       <div class="rs-card__head"><span class="rs-k">Container ID</span></div>
-      <div class="qs-skeleton" style="height: 46px"></div>
+      <div class="qs-skeleton rs-id-skeleton"></div>
     </div>
 
-    <div v-if="record?.containerId" class="rs-card qs-rise" style="--i: 0">
+    <div v-if="record?.containerId" class="rs-card qs-rise" :style="{ '--i': STAGGER.card }">
       <div class="rs-card__head">
         <span class="rs-k">Container ID</span>
         <CertaintyChip :level="record.containerId.certainty" />
       </div>
       <ContainerId :reading="record.containerId" />
 
-      <p v-for="alt in alternatives" :key="alt" class="rs-also qs-rise" style="--i: 1">
+      <p
+        v-for="alt in alternatives"
+        :key="alt"
+        class="rs-also qs-rise qs-type-body-sm"
+        :style="{ '--i': STAGGER.alternative }"
+      >
         Also possible: {{ alt }}
       </p>
 
-      <div v-if="showExplanation" class="rs-explain qs-rise" style="--i: 2">
+      <div
+        v-if="showExplanation"
+        class="rs-explain qs-rise qs-type-body-sm"
+        :style="{ '--i': STAGGER.explanation }"
+      >
         <p><b>Best interpretation:</b> {{ bestInterpretation }}</p>
         <p><b>What remains uncertain:</b> {{ remainsUncertain }}</p>
       </div>
 
       <div
         v-if="showInsufficient"
-        class="qs-notice qs-notice--suggestion rs-explain qs-rise"
-        style="--i: 2"
+        class="qs-notice qs-notice--suggestion rs-explain qs-rise qs-type-body-sm"
+        :style="{ '--i': STAGGER.explanation }"
         role="status"
       >
         <i class="qs-glyph qs-glyph--unseen" aria-hidden="true"></i>
@@ -121,12 +133,12 @@ const showInsufficient = computed(() => idState.value === 'insufficient')
       </div>
     </div>
 
-    <div v-else-if="record" class="rs-card qs-rise" style="--i: 0">
+    <div v-else-if="record" class="rs-card qs-rise" :style="{ '--i': STAGGER.card }">
       <div class="rs-card__head">
         <span class="rs-k">Container ID</span>
         <CertaintyChip level="Can't tell" />
       </div>
-      <p class="rs-note">The container ID could not be read from this photo.</p>
+      <p class="rs-note qs-type-body-sm">The container ID could not be read from this photo.</p>
     </div>
 
     <ManifestRetry v-if="record?.source === 'recorded'" />

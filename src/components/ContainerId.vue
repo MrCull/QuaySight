@@ -5,6 +5,9 @@ import { UNREAD } from '../domain/certainty'
 
 const props = defineProps<{ reading: ContainerIdReading }>()
 
+/** Zero-based position of the check digit: the eleventh of the eleven ID characters. */
+const CHECK_DIGIT_INDEX = 10
+
 interface Cell {
   ch: string
   index: number
@@ -92,9 +95,12 @@ const spelled = computed(() => {
           >{{ c.ch }}</span
         >
       </span>
-      <span class="qs-id__check" :data-c="layout.check.state" :style="{ '--c': 10 }">{{
-        layout.check.ch
-      }}</span>
+      <span
+        class="qs-id__check"
+        :data-c="layout.check.state"
+        :style="{ '--c': CHECK_DIGIT_INDEX }"
+        >{{ layout.check.ch }}</span
+      >
     </div>
     <div class="qs-id__meta">
       <span v-if="origin === 'manifest'" class="qs-prov qs-prov--manifest"

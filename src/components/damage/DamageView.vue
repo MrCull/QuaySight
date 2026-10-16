@@ -27,7 +27,7 @@ const summary = computed(() => {
   <section class="rs-damage" aria-label="Damage view">
     <div class="rs-damage__head">
       <span class="rs-damage__title">Damage view</span>
-      <span v-if="assessment" class="damage-summary">{{ summary }}</span>
+      <span v-if="assessment" class="damage-summary qs-type-body-sm">{{ summary }}</span>
     </div>
 
     <div v-if="assessment" class="rs-damage__grid">

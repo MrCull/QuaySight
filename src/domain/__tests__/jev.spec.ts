@@ -199,7 +199,11 @@ describe('jevFailure', () => {
   })
 
   it('explains the context limit for max_tokens_exceeded', () => {
-    const error = jevFailure(400, { error: { code: 'max_tokens_exceeded', message: 'too long' } }, KEY)
+    const error = jevFailure(
+      400,
+      { error: { code: 'max_tokens_exceeded', message: 'too long' } },
+      KEY,
+    )
     expect(error.message).toMatch(/context/i)
   })
 

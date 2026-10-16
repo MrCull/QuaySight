@@ -201,7 +201,7 @@ export function jevFailure(status: number, body: unknown, apiKey: string): JevEr
   if (status === 400 && detail.code === 'max_tokens_exceeded') {
     return new JevError(
       'http',
-      'The request is larger than Jev\'s context limit. Use one photo at a time and try again.',
+      "The request is larger than Jev's context limit. Use one photo at a time and try again.",
       status,
     )
   }
@@ -220,7 +220,11 @@ export function jevFailure(status: number, body: unknown, apiKey: string): JevEr
     )
   }
   if (status === 415) {
-    return new JevError('http', 'TypeSafe could not read the upload format. Try again with a PNG or JPEG.', status)
+    return new JevError(
+      'http',
+      'TypeSafe could not read the upload format. Try again with a PNG or JPEG.',
+      status,
+    )
   }
   if (status === 422) {
     return new JevError(
@@ -361,7 +365,8 @@ function readBox(answer: unknown): JevBox | null {
  */
 export function mapJevResponse(response: unknown, requestedModel: string): JevMapping {
   const body = asRecord(response)
-  if (!body) throw new JevError('bad-response', 'TypeSafe replied in a shape the app does not recognise.')
+  if (!body)
+    throw new JevError('bad-response', 'TypeSafe replied in a shape the app does not recognise.')
   const answers = asRecord(body.answers)
   if (!answers) throw new JevError('bad-response', 'TypeSafe replied without answers. Try again.')
 

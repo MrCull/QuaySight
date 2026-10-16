@@ -52,8 +52,7 @@ function uncertaintyClass(f: DamageFinding): string {
             <span v-if="t.probability === null" class="damage-unavailable"
               >Probability unavailable</span
             >
-            <span v-else class="qs-prob">
-              <span>{{ t.code }}</span>
+            <span v-else class="qs-prob damage-type__prob">
               <span class="qs-prob__bar"
                 ><i :style="{ '--p': `${Math.round(t.probability * 100)}%` }"></i
               ></span>

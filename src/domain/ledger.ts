@@ -185,7 +185,9 @@ export async function runChargeable(
     const outcome = await request.call()
     const reported = typeof outcome.reportedCostUsd === 'number' ? outcome.reportedCostUsd : null
     const { costUsd, costState } =
-      reported !== null ? { costUsd: reported, costState: 'estimated' as CostState } : estimateCost(outcome.usage, rate)
+      reported !== null
+        ? { costUsd: reported, costState: 'estimated' as CostState }
+        : estimateCost(outcome.usage, rate)
     const entry: LedgerEntry = {
       ...base,
       resolvedModel: outcome.resolvedModel,
