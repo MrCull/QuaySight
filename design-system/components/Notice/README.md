@@ -5,6 +5,7 @@ A notice is an inline, non-blocking message: an optional suggestion, the recorde
 ## Variants
 - `qs-notice--suggestion`: photo glyph in `brand`, kicker *Optional*. For "A closer photo of … may help". Informational only; the result is already complete.
 - `qs-notice--recorded`: dashed border, faint hatch, cassette glyph, kicker *Sample*. Shown above every result opened from a sample container. The title keeps the spec's wording, *Recorded demonstration: [provider/model]*, and the body explains it in plain words: a result saved from an earlier real inspection, replayed offline, with no key and no charge.
+- `qs-notice--live`: no glyph, kicker *Live*. Shown above a live result. The title names who answered, by model, maker and route (*Live result: Jev latest (TypeSafe) via OpenRouter*); the body gives the exact version that answered (and, for a moving alias, the id that was requested) and says the cost is as the provider reported it, or an estimate where it reported none.
 - `qs-notice--error`: `error-fg` border and octagon glyph on `error-bg`, `role="alert"`. Only for system failures (request failed, key rejected, unsupported model). Say what was kept and offer at most one deliberate retry.
 
 ## Consumer provides

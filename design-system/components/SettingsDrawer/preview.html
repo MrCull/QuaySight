@@ -14,7 +14,7 @@ body{margin:0;background:var(--bg)}
 <div class="frame">
   <header class="bar">
     <span class="qs-brand"><i class="qs-logo" aria-hidden="true"></i>Quay Sight</span>
-    <button type="button" class="qs-settingschip" aria-haspopup="dialog" aria-expanded="true" aria-controls="settings-drawer"><span class="qs-mono" aria-hidden="true">OA</span><span class="qs-settingschip__text">GPT-6 Luna · <span class="qs-settingschip__model">gpt-6-luna</span> · <span class="qs-settingschip__key">key set</span> · Live</span><i class="qs-glyph qs-glyph--chevron" aria-hidden="true"></i></button>
+    <button type="button" class="qs-settingschip" aria-haspopup="dialog" aria-expanded="true" aria-controls="settings-drawer"><span class="qs-mono" aria-hidden="true">OR</span><span class="qs-settingschip__text">OpenRouter · <span class="qs-settingschip__model">Jev latest</span> · <span class="qs-settingschip__key">key set</span> · Live</span><i class="qs-glyph qs-glyph--chevron" aria-hidden="true"></i></button>
     <span class="spacer"></span>
     <button type="button" class="qs-btn qs-btn--secondary qs-btn--sm qs-newinsp">New inspection</button>
   </header>
@@ -31,8 +31,8 @@ body{margin:0;background:var(--bg)}
           <span class="qs-fieldset__label" id="pl">AI provider</span>
           <div class="qs-combo">
             <button class="qs-combo__button" aria-haspopup="listbox" aria-expanded="false" aria-labelledby="pl">
-              <span class="qs-mono">OA</span>
-              <span class="qs-opt-text"><strong>GPT-6 Luna</strong><small>OpenAI · Decisions API</small></span>
+              <span class="qs-mono">OR</span>
+              <span class="qs-opt-text"><strong>OpenRouter</strong><small>Decisions API</small></span>
               <span class="qs-cap qs-cap--rec">Recommended</span>
               <i class="qs-glyph qs-glyph--chevron" aria-hidden="true"></i>
             </button>
@@ -40,12 +40,13 @@ body{margin:0;background:var(--bg)}
         </div>
         <div class="qs-fieldset">
           <span class="qs-fieldset__label">Model version</span>
-          <label class="qs-input"><select aria-label="Model version"><option>gpt-6-luna (pinned)</option></select></label>
+          <label class="qs-input"><select aria-label="Model version"><option>Jev latest (recommended, moving target)</option><option>Jev 1.14 (pinned)</option><option>Jev 1.13 (pinned)</option><option>GPT-6 Luna Decisions</option></select></label>
+          <span class="qs-hint">Moving target: TypeSafe points this alias at its newest release. The version that answers is recorded with each result.</span>
         </div>
         <div class="qs-fieldset">
-          <label class="qs-fieldset__label" for="k">OpenAI API key</label>
+          <label class="qs-fieldset__label" for="k">OpenRouter API key</label>
           <label class="qs-input"><input id="k" type="password" value="placeholder-not-a-key" autocomplete="off"><button class="qs-btn qs-btn--ghost qs-btn--sm" aria-label="Show key" aria-pressed="false"><i class="qs-glyph qs-glyph--eye" aria-hidden="true"></i></button><button class="qs-btn qs-btn--ghost qs-btn--sm">Clear</button></label>
-          <span class="qs-hint">The photo and this key go only to OpenAI's Decisions endpoint, and only for a live run. The key stays in this tab's memory and is never saved.</span>
+          <span class="qs-hint">The photo and this key go only to OpenRouter's Decisions endpoint, and only for a live run. OpenRouter passes the photo, never your key, on to the model's maker. The key stays in this tab's memory and is never saved.</span>
         </div>
         <span class="qs-hint">Changing the provider or model starts a new inspection. Changing only the key keeps the screen as it is.</span>
       </div>

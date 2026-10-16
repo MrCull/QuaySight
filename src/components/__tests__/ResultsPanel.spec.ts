@@ -41,8 +41,13 @@ describe('ResultsPanel', () => {
     }
     store.status = 'complete'
     const wrapper = mount(ResultsPanel)
-    expect(wrapper.text()).toContain(
-      'Live result: Jev latest (TypeSafe) via OpenRouter / typesafe/jev-1.14-20261014 (requested ~typesafe/jev-latest, a moving target)',
+    // One plain title, and the exact version in the body so the title stays short on a projector.
+    const notice = wrapper.get('.qs-notice--live')
+    expect(notice.get('.qs-notice__title').text()).toBe(
+      'Live result: Jev latest (TypeSafe) via OpenRouter',
+    )
+    expect(notice.get('.qs-notice__body').text()).toContain(
+      'Answered by typesafe/jev-1.14-20261014 (requested ~typesafe/jev-latest, a moving target).',
     )
   })
 

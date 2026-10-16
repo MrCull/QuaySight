@@ -33,6 +33,17 @@
   flex: 0 1 auto;
 }
 
+/* Phone, demo mode: the top bar scrolls away and only the demo banner stays on screen, so the sticky
+   chrome takes a sixth of the screen rather than a third. Live mode keeps the whole top bar. */
+@media (max-width: 640px) {
+  .rs-chrome:has(.qs-demobanner) {
+    display: contents;
+  }
+  .rs-chrome:has(.qs-demobanner) .rs-top {
+    position: relative;
+  }
+}
+
 @media (max-width: 960px) {
   .rs-setupview {
     padding: var(--space-5) var(--space-4);

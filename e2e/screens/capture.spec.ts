@@ -552,6 +552,9 @@ for (const viewport of VIEWPORTS) {
 
       await capture.run(page)
       if (capture.motion === 'frozen') await page.addStyleTag({ content: FREEZE_CSS })
+      // A click or focus may have scrolled the page; a full-page shot from mid-page draws the sticky
+      // top bar halfway down. Capture from the top (focus and selection stay where they are).
+      await page.evaluate(() => window.scrollTo(0, 0))
 
       const certaintyLabels = certaintyLabelsIn(await page.locator('.qs-cert').allTextContents())
       const file = shotFileName(capture.state, viewport)

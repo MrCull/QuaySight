@@ -5,16 +5,20 @@ Provider select is the setup form: pick an AI provider from a list, pick a model
 The form is never inline on the inspection screen. It renders inside the `SetupCard` on first visit and inside the `SettingsDrawer` afterwards; the `SettingsChip` summarises it in the top bar.
 
 ## Parts
-- **Provider**: a `.qs-combo` with a `button.qs-combo__button` (`aria-haspopup="listbox"`, `aria-expanded`). It shows the chosen provider's monogram tile (`.qs-mono`), model family, vendor and API, and a *Recommended* cap when it applies.
-- **List**: `.qs-listbox` (`role="listbox"`) on `surface-raised` with `shadow-raised`. It holds a `.qs-listbox__filter` input (worth showing once the catalogue passes about five entries), `.qs-listbox__group` headings (*Ready for photos*; *Not available for photos* for catalogue entries without image input), and one `.qs-option` (`role="option"`) per provider. Each option shows its capability caps (`.qs-cap`: Probabilities, Bounding boxes, Multi-image; `.qs-cap--exp` dashed for experimental; `.qs-cap--rec` for the recommended default). Unsupported entries get `aria-disabled="true"` and say why in their `small` line.
-- **Model version**: a `.qs-input` select. Warn under a moving `latest` or `preview` alias with `.qs-hint--warn`.
+- **Provider**: a `.qs-combo` with a `button.qs-combo__button` (`aria-haspopup="listbox"`, `aria-expanded`). It shows the chosen provider's monogram tile (`.qs-mono`), its name, and a `small` line with the vendor and API. When the vendor and the name are the same (*OpenRouter*), the line gives the API alone. A *Recommended* cap shows only while the recommended provider is chosen; otherwise an empty `span` keeps the grid.
+- **List**: `.qs-listbox` (`role="listbox"`, `tabindex="0"`, `aria-activedescendant`) on `surface-raised` with `shadow-raised`. It takes focus while open and shows the shared 2px `focus-ring`. It holds `.qs-listbox__group` headings (*Ready for photos*; *Not available for photos* for catalogue entries without image input) and one `.qs-option` (`role="option"`, its own `id`, `data-testid="provider-option-{id}"`) per provider. Each option shows its capability caps (`.qs-cap`: *Probabilities*, *Boxes* when any of its models answers the box question, *Multi-image*; `.qs-cap--exp` dashed for experimental; `.qs-cap--rec` for the recommended provider). Unsupported entries get `aria-disabled="true"` and say why in their `small` line. Add a `.qs-listbox__filter` input once the catalogue passes about five entries; with two it is left out.
+- **Model version**: a `.qs-input` select. Under a moving `latest` alias, a `.qs-hint` says who moves it and that the answering version is recorded.
 - **Key**: a password `.qs-input` labelled with the provider name, with show/hide and *Clear*. The hint says whose endpoint receives the photo and the key. The label, placeholder and hint come from the catalogue, so the form stays provider-agnostic.
 
 ## Consumer provides
-The catalogue: id, display name, vendor, API name, a two-letter monogram, capability flags, the recommended model and the key field's label, placeholder and hint. Use monograms, not vendor logos.
+The catalogue: id, display name, vendor, API name, a two-letter monogram, whether it is the recommended provider (exactly one is, and it is the first-visit choice), its models with their capability flags and recommended model, and the key field's label, placeholder and hint. Use monograms, not vendor logos.
+
+## Keyboard
+- On the provider button, Arrow Down or Arrow Up opens the list on the chosen provider.
+- In the list, the arrows (and Home, End) move `is-active`; Enter or Space chooses; Escape closes the list without a change and only the list (a drawer around it stays open). Focus returns to the provider button.
+- With a filter shown, typing filters.
 
 ## Rules
-- Keyboard: arrows move `is-active`, Enter selects, Esc closes, typing filters.
 - Switching provider or model runs New inspection: a blank screen, never a silent re-run or merged results. Changing only the key resets nothing.
 - Each provider keeps its own key. Switching provider never moves a key.
 - Never pre-fill a key in screenshots or samples.

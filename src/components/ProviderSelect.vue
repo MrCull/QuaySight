@@ -2,7 +2,7 @@
 import { computed, nextTick, ref, useTemplateRef } from 'vue'
 import { useInspectionStore } from '../stores/inspection'
 import { useSetupStore } from '../stores/setup'
-import { providers, getProvider, findModel } from '../domain/providers'
+import { providers, getProvider, findModel, type ProviderInfo } from '../domain/providers'
 import type { ProviderId } from '../domain/inspection'
 
 /**
@@ -29,7 +29,12 @@ const optionId = (id: ProviderId) => `provider-option-${id}`
 /** What a provider's models can do, from the catalogue, shown as caps on its option. */
 function capsOf(id: ProviderId): string[] {
   const boxes = getProvider(id).models.some((m) => m.box)
-  return boxes ? ['Probabilities', 'Bounding boxes'] : ['Probabilities']
+  return boxes ? ['Probabilities', 'Boxes'] : ['Probabilities']
+}
+
+/** Vendor and API under the name; the vendor only when it differs from the name ("OpenRouter"). */
+function subline(p: ProviderInfo): string {
+  return p.vendor === p.name ? p.api : `${p.vendor} · ${p.api}`
 }
 
 async function openList() {
@@ -98,7 +103,7 @@ function onListKey(event: KeyboardEvent) {
           <span class="qs-mono">{{ selected.monogram }}</span>
           <span class="qs-opt-text">
             <strong>{{ selected.name }}</strong>
-            <small>{{ selected.vendor }} · {{ selected.api }}</small>
+            <small>{{ subline(selected) }}</small>
           </span>
           <span v-if="selected.recommended" class="qs-cap qs-cap--rec">Recommended</span>
           <span v-else aria-hidden="true"></span>
@@ -129,7 +134,7 @@ function onListKey(event: KeyboardEvent) {
             <span class="qs-mono">{{ p.monogram }}</span>
             <span class="qs-opt-text">
               <strong>{{ p.name }}</strong>
-              <small>{{ p.vendor }} · {{ p.api }}</small>
+              <small>{{ subline(p) }}</small>
             </span>
             <span class="qs-option__caps">
               <span v-if="p.recommended" class="qs-cap qs-cap--rec">Recommended</span>

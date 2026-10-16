@@ -68,10 +68,10 @@ body{margin:0;background:var(--bg)}
 <body class="qs-root rs rs--results">
 <header class="rs-top">
   <span class="qs-brand"><i class="qs-logo" aria-hidden="true"></i>Quay Sight</span>
-  <span class="rs-crumb">Inspection 4 <span>· 2 photos</span></span>
-  <span class="rs-run" title="Provider and model that produced this result"><span class="qs-mono">OA</span>GPT-6 Luna <small>OpenAI · pinned 2026-08</small></span>
+  <span class="rs-crumb">Container inspection</span>
+  <button type="button" class="qs-settingschip" aria-haspopup="dialog" aria-expanded="false" aria-controls="settings-drawer" aria-label="Settings: OpenAI · GPT-6 Luna · key set · Live"><span class="qs-mono" aria-hidden="true">OA</span><span class="qs-settingschip__text">OpenAI · <span class="qs-settingschip__model">GPT-6 Luna</span> · <span class="qs-settingschip__key">key set</span> · Live</span><i class="qs-glyph qs-glyph--chevron" aria-hidden="true"></i></button>
   <span class="rs-spacer"></span>
-  <div class="qs-cost"><button class="qs-cost__toggle" id="cost" aria-expanded="false"><span class="qs-cost__mode">Live</span><span class="qs-cost__sep"></span>This container <b id="c-now">$0.0042</b><span class="qs-cost__sep"></span>Session <b id="c-ses">$0.0187</b><i class="qs-glyph qs-glyph--chevron"></i></button></div>
+  <div class="qs-cost qs-cost--quiet"><button class="qs-cost__toggle" id="cost" aria-expanded="false">This container <b id="c-now">$0.0042</b> · Session <b id="c-ses">$0.0187</b><i class="qs-glyph qs-glyph--chevron"></i></button></div>
   <button class="qs-btn qs-btn--secondary"><i class="qs-glyph qs-glyph--upload"></i>Export</button>
   <button type="button" class="qs-btn qs-btn--secondary qs-btn--sm qs-newinsp">New inspection</button>
 </header>
@@ -386,7 +386,8 @@ function arrive(){
   stage.classList.remove('qs-arriving'); void stage.offsetWidth; stage.classList.add('qs-arrived');
   var c=document.getElementById('c-now'), s=document.getElementById('c-ses');
   if(reduce){ c.textContent=money(.0042); s.textContent=money(.0187); return; }
-  later(300,function(){ pill.classList.remove('qs-glow'); void pill.offsetWidth; pill.classList.add('qs-glow'); countTo(c,0,.0042,700); countTo(s,.0145,.0187,700); });
+  // The quiet cost line changes once, to the real figure, when the response is parsed: no glow, no count.
+  c.textContent=money(.0042); s.textContent=money(.0187);
 }
 function run(){
   timers.forEach(clearTimeout); timers=[];

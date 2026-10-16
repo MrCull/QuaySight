@@ -19,16 +19,19 @@ const recordedLabel = computed(() => {
   return recordedDemonstrationLabel(r)
 })
 
-// "Live: [provider/model]" for a result from a live call (spec 8.5). Never shown with the recorded label.
+// "Live result: [provider/model]" for a result from a live call (spec 8.5). Never shown with the
+// recorded label. The title names who answered; the body gives the exact version.
 const liveLabel = computed(() => {
   const r = record.value
   if (!r || r.source !== 'live') return null
   const moving = isMovingTarget(r.provider, r.model)
-  const name = labelsFor(r.provider, r.model).provider
   // A moving alias shows what was asked for and what answered, so the presenter can see the target moved.
-  return moving
-    ? `Live result: ${name} / ${r.resolvedVersion} (requested ${r.model}, a moving target)`
-    : `Live result: ${name} / ${r.resolvedVersion}`
+  return {
+    title: `Live result: ${labelsFor(r.provider, r.model).provider}`,
+    version: moving
+      ? `Answered by ${r.resolvedVersion} (requested ${r.model}, a moving target).`
+      : `Answered by ${r.resolvedVersion}.`,
+  }
 })
 
 // Stagger position of each card in the arrival choreography (read by .qs-rise as --i).
@@ -70,12 +73,12 @@ const showInsufficient = computed(() => idState.value === 'insufficient')
       <span class="qs-notice__kicker">Sample</span>
     </div>
 
-    <div v-if="liveLabel" class="qs-notice" role="note">
+    <div v-if="liveLabel" class="qs-notice qs-notice--live" role="note">
       <div>
-        <div class="qs-notice__title">{{ liveLabel }}</div>
+        <div class="qs-notice__title">{{ liveLabel.title }}</div>
         <div class="qs-notice__body">
-          A live call to the provider. Its cost is as the provider reported it, or an estimate where
-          it reported none; not an invoice.
+          {{ liveLabel.version }} A live call to the provider. Its cost is as the provider reported
+          it, or an estimate where it reported none; not an invoice.
         </div>
       </div>
       <span class="qs-notice__kicker">Live</span>

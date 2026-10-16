@@ -8,6 +8,12 @@ A field row shows one reading in the summary: a label, a value with its provenan
 - A `CertaintyChip` in the third column.
 - `.qs-field__note` (optional) for unresolved items, always as **Best interpretation:** … **What remains uncertain:** …
 
+## Phone
+At 480px and below the row regrids: the label and the certainty chip share the first line, and the value with its provenance tag gets the full width beneath, so a long tag (*Decoded from ISO*) never runs under the chip.
+
+## Not assessed
+When a run never read a group of fields (a live run that reads the ID only has no size code or weights), don't draw a row per field with *Not seen*: *Not seen* means "in no photo", which isn't what happened. Show the group's card with one plain sentence instead: *Not assessed in this inspection: this run read the container ID only.*
+
 ## Rules
 - Rows are read-only. No inputs, pickers or edit icons.
 - Sort the most useful confident readings first, then caveats. Raw model probabilities go in the expandable technical detail, not here.

@@ -5,7 +5,8 @@ body {
 .rs-top {
   position: sticky;
   top: 0;
-  z-index: 5;
+  /* Above the demo banner, so the cost ledger can open over it. */
+  z-index: 21;
   display: flex;
   white-space: nowrap;
   align-items: center;
@@ -177,8 +178,10 @@ body {
   border: 1px solid var(--line);
   border-radius: var(--radius-md);
 }
-.rs-card .qs-field {
-  grid-template-columns: 112px 1fr auto;
+@media (min-width: 481px) {
+  .rs-card .qs-field {
+    grid-template-columns: 112px 1fr auto;
+  }
 }
 .rs-note {
   margin: var(--space-3) 0 0;
@@ -321,10 +324,28 @@ body {
     order: 1;
     margin-left: auto;
   }
+  /* No row gap: a zero-height line break follows New inspection, and the lines beneath space themselves. */
+  .rs-top {
+    row-gap: 0;
+  }
+  .rs-top::after {
+    content: '';
+    order: 2;
+    flex-basis: 100%;
+    height: 0;
+  }
   .rs-top .qs-settingschip,
   .rs-top .rs-run,
   .rs-top .qs-cost {
     order: 3;
+    min-width: 0;
+    margin-top: var(--space-3);
+  }
+  .rs-top .rs-run {
+    flex: none;
+  }
+  .rs-top .qs-cost {
+    flex: 1 1 10rem;
   }
   .rs-top .rs-spacer {
     display: none;
@@ -352,9 +373,6 @@ body {
   .rs-right {
     grid-template-columns: minmax(0, 1fr);
     min-width: 0;
-  }
-  .rs-card .qs-field {
-    grid-template-columns: 88px minmax(0, 1fr) auto;
   }
   /* The design system's medium container ID (qs-id--md) so ten characters fit a phone width. */
   .rs-right .qs-id {

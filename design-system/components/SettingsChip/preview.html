@@ -1,35 +1,37 @@
 <!-- @dsCard group="Setup" height=260 subtitle="The setup folded into the top bar: provider, model, key status, never the key" -->
 <!doctype html>
-<html><head><link rel="stylesheet" href="../../tokens.css"><link rel="stylesheet" href="../bundle.css"><meta charset="utf-8"><title>Settings chip</title>
+<html><head><link rel="stylesheet" href="../../tokens.css"><link rel="stylesheet" href="../bundle.css"><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Settings chip</title>
 <style>
 body{margin:0;padding:var(--space-6);background:var(--bg)}
 .stack{display:grid;gap:var(--space-5)}
 .bar{display:flex;align-items:center;gap:var(--space-5);min-height:var(--control-lg);padding:var(--space-2) var(--space-5);background:var(--surface);border:1px solid var(--line);border-radius:var(--radius-md);white-space:nowrap}
+.bar .qs-settingschip{flex:0 1 auto}
 .spacer{flex:1}
 .row{display:flex;flex-wrap:wrap;gap:var(--space-4);align-items:center}
 .focus{outline:2px solid var(--focus-ring);outline-offset:2px}
+@media (max-width:640px){body{padding:var(--space-4)}.bar{flex-wrap:wrap;gap:var(--space-3);padding:var(--space-3) var(--space-4)}.bar .spacer{display:none}.bar .qs-newinsp{margin-left:auto}}
 </style></head>
 <body class="qs-root">
 <div class="stack">
   <!-- In the top bar: after the brand, before the cost indicator and New inspection. -->
   <header class="bar">
     <span class="qs-brand"><i class="qs-logo" aria-hidden="true"></i>Quay Sight</span>
-    <button type="button" class="qs-settingschip" aria-haspopup="dialog" aria-expanded="false" aria-controls="settings-drawer" aria-label="Settings: GPT-6 Luna · gpt-6-luna · key set · Live">
-      <span class="qs-mono" aria-hidden="true">OA</span>
-      <span class="qs-settingschip__text">GPT-6 Luna · <span class="qs-settingschip__model">gpt-6-luna</span> · <span class="qs-settingschip__key">key set</span> · Live</span>
+    <button type="button" class="qs-settingschip" aria-haspopup="dialog" aria-expanded="false" aria-controls="settings-drawer" aria-label="Settings: OpenRouter · Jev latest · key set · Live">
+      <span class="qs-mono" aria-hidden="true">OR</span>
+      <span class="qs-settingschip__text">OpenRouter · <span class="qs-settingschip__model">Jev latest</span> · <span class="qs-settingschip__key">key set</span> · Live</span>
       <i class="qs-glyph qs-glyph--chevron" aria-hidden="true"></i>
     </button>
     <span class="spacer"></span>
-    <div class="qs-cost"><button class="qs-cost__toggle" aria-expanded="false">This container <b>None yet</b> · Session <b>$0.0187</b><i class="qs-glyph qs-glyph--chevron" aria-hidden="true"></i></button></div>
+    <div class="qs-cost qs-cost--quiet"><button class="qs-cost__toggle" aria-expanded="false">This container <b>None yet</b> · Session <b>$0.0187</b><i class="qs-glyph qs-glyph--chevron" aria-hidden="true"></i></button></div>
     <button type="button" class="qs-btn qs-btn--secondary qs-btn--sm qs-newinsp">New inspection</button>
   </header>
 
   <!-- States: key set, keyboard focus, drawer open, no key (key cleared, or a provider whose key was never entered). -->
   <div class="row">
-    <button type="button" class="qs-settingschip" aria-expanded="false"><span class="qs-mono" aria-hidden="true">TS</span><span class="qs-settingschip__text">Jev · <span class="qs-settingschip__model">jev-latest</span> · <span class="qs-settingschip__key">key set</span> · Live</span><i class="qs-glyph qs-glyph--chevron" aria-hidden="true"></i></button>
-    <button type="button" class="qs-settingschip focus" aria-expanded="false"><span class="qs-mono" aria-hidden="true">TS</span><span class="qs-settingschip__text">Jev · <span class="qs-settingschip__model">jev-latest</span> · <span class="qs-settingschip__key">key set</span> · Live</span><i class="qs-glyph qs-glyph--chevron" aria-hidden="true"></i></button>
-    <button type="button" class="qs-settingschip" aria-expanded="true"><span class="qs-mono" aria-hidden="true">TS</span><span class="qs-settingschip__text">Jev · <span class="qs-settingschip__model">jev-latest</span> · <span class="qs-settingschip__key">key set</span> · Live</span><i class="qs-glyph qs-glyph--chevron" aria-hidden="true"></i></button>
-    <button type="button" class="qs-settingschip qs-settingschip--nokey" aria-expanded="false"><span class="qs-mono" aria-hidden="true">OA</span><span class="qs-settingschip__text">GPT-6 Luna · <span class="qs-settingschip__model">gpt-6-luna</span> · <span class="qs-settingschip__key">no key</span> · Live</span><i class="qs-glyph qs-glyph--chevron" aria-hidden="true"></i></button>
+    <button type="button" class="qs-settingschip" aria-expanded="false"><span class="qs-mono" aria-hidden="true">OR</span><span class="qs-settingschip__text">OpenRouter · <span class="qs-settingschip__model">Jev 1.14</span> · <span class="qs-settingschip__key">key set</span> · Live</span><i class="qs-glyph qs-glyph--chevron" aria-hidden="true"></i></button>
+    <button type="button" class="qs-settingschip focus" aria-expanded="false"><span class="qs-mono" aria-hidden="true">OR</span><span class="qs-settingschip__text">OpenRouter · <span class="qs-settingschip__model">GPT-6 Luna Decisions</span> · <span class="qs-settingschip__key">key set</span> · Live</span><i class="qs-glyph qs-glyph--chevron" aria-hidden="true"></i></button>
+    <button type="button" class="qs-settingschip" aria-expanded="true"><span class="qs-mono" aria-hidden="true">OR</span><span class="qs-settingschip__text">OpenRouter · <span class="qs-settingschip__model">Jev latest</span> · <span class="qs-settingschip__key">key set</span> · Live</span><i class="qs-glyph qs-glyph--chevron" aria-hidden="true"></i></button>
+    <button type="button" class="qs-settingschip qs-settingschip--nokey" aria-expanded="false"><span class="qs-mono" aria-hidden="true">OA</span><span class="qs-settingschip__text">OpenAI · <span class="qs-settingschip__model">GPT-6 Luna</span> · <span class="qs-settingschip__key">no key</span> · Live</span><i class="qs-glyph qs-glyph--chevron" aria-hidden="true"></i></button>
   </div>
 </div>
 </body></html>

@@ -9,6 +9,10 @@ body{margin:0;padding:var(--space-6);background:var(--bg)}
 .spacer{flex:1}
 .body{padding:var(--space-5)}
 .phone{max-width:390px}
+.run{display:inline-flex;align-items:center;gap:var(--space-2);height:36px;padding:0 var(--space-3) 0 var(--space-1);border:1px solid var(--line);border-radius:var(--radius-sm);font:600 14px/1 var(--font-sans);color:var(--ink)}
+.run .qs-mono{width:28px;height:28px;font-size:11px}.run small{font:400 12px/1 var(--font-mono);color:var(--ink-muted)}
+.pbar{display:flex;flex-wrap:wrap;align-items:center;gap:var(--space-3);padding:var(--space-3) var(--space-4);background:var(--surface);border-bottom:1px solid var(--line)}
+.pbar .qs-newinsp{margin-left:auto}.pbar .run small{display:none}.pbar .qs-cost{flex:1 1 0;min-width:0}.pbar .qs-cost__toggle{white-space:normal}
 .cap{margin:0 0 var(--space-2);color:var(--ink-muted);font:400 12px/16px var(--font-sans)}
 </style></head>
 <body class="qs-root">
@@ -19,17 +23,20 @@ body{margin:0;padding:var(--space-6);background:var(--bg)}
     <div class="frame">
       <header class="bar">
         <span class="qs-brand"><i class="qs-logo" aria-hidden="true"></i>Quay Sight</span>
+        <span class="run"><span class="qs-mono" aria-hidden="true">OA</span>GPT-6 Luna <small>OpenAI · gpt-6-luna</small></span>
         <span class="spacer"></span>
-        <div class="qs-cost"><button class="qs-cost__toggle" aria-expanded="false">Saved result · no live API charge<i class="qs-glyph qs-glyph--chevron" aria-hidden="true"></i></button></div>
+        <div class="qs-cost qs-cost--quiet"><button class="qs-cost__toggle" aria-expanded="false">Saved result · no live API charge<i class="qs-glyph qs-glyph--chevron" aria-hidden="true"></i></button></div>
         <button type="button" class="qs-btn qs-btn--secondary qs-btn--sm qs-newinsp">New inspection</button>
       </header>
       <section class="qs-demobanner" role="region" aria-label="Demo mode">
-        <i class="qs-glyph qs-glyph--recorded" aria-hidden="true"></i>
-        <div class="qs-demobanner__text">
-          <p class="qs-demobanner__title"><b>DEMO</b> — sample results, not a real inspection</p>
-          <p class="qs-demobanner__body">Inspecting your own photos needs an API provider.</p>
+        <div class="qs-demobanner__inner">
+          <i class="qs-glyph qs-glyph--recorded" aria-hidden="true"></i>
+          <div class="qs-demobanner__text">
+            <p class="qs-demobanner__title"><b>DEMO</b> — sample results, not a real inspection</p>
+            <p class="qs-demobanner__body">Inspecting your own photos needs an API provider.</p>
+          </div>
+          <button type="button" class="qs-btn qs-btn--secondary qs-demobanner__action">Connect a provider</button>
         </div>
-        <button type="button" class="qs-btn qs-btn--secondary qs-demobanner__action">Connect a provider</button>
       </section>
       <div class="body">
         <div class="qs-samples">
@@ -46,15 +53,23 @@ body{margin:0;padding:var(--space-6);background:var(--bg)}
 
   <!-- Phone: the action drops under the words and fills the row. -->
   <div class="phone">
-    <p class="cap">Phone width: below 640px the action drops under the words (narrow the window to see it)</p>
+    <p class="cap">Phone width: when the banner is 640px wide or less (a container query on the banner), it turns compact and the action sits small under the words. In the app, the top bar then scrolls away and only the banner stays on screen.</p>
     <div class="frame">
+      <header class="pbar">
+        <span class="qs-brand"><i class="qs-logo" aria-hidden="true"></i>Quay Sight</span>
+        <button type="button" class="qs-btn qs-btn--secondary qs-btn--sm qs-newinsp">New inspection</button>
+        <span class="run"><span class="qs-mono" aria-hidden="true">OA</span>GPT-6 Luna <small>OpenAI · gpt-6-luna</small></span>
+        <div class="qs-cost qs-cost--quiet"><button class="qs-cost__toggle" aria-expanded="false">Saved result · no live API charge<i class="qs-glyph qs-glyph--chevron" aria-hidden="true"></i></button></div>
+      </header>
       <section class="qs-demobanner" role="region" aria-label="Demo mode">
-        <i class="qs-glyph qs-glyph--recorded" aria-hidden="true"></i>
-        <div class="qs-demobanner__text">
-          <p class="qs-demobanner__title"><b>DEMO</b> — sample results, not a real inspection</p>
-          <p class="qs-demobanner__body">Inspecting your own photos needs an API provider.</p>
+        <div class="qs-demobanner__inner">
+          <i class="qs-glyph qs-glyph--recorded" aria-hidden="true"></i>
+          <div class="qs-demobanner__text">
+            <p class="qs-demobanner__title"><b>DEMO</b> — sample results, not a real inspection</p>
+            <p class="qs-demobanner__body">Inspecting your own photos needs an API provider.</p>
+          </div>
+          <button type="button" class="qs-btn qs-btn--secondary qs-demobanner__action">Connect a provider</button>
         </div>
-        <button type="button" class="qs-btn qs-btn--secondary qs-demobanner__action">Connect a provider</button>
       </section>
     </div>
   </div>

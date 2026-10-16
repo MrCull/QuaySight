@@ -3,8 +3,8 @@
 The analysing screen is the main inspection screen while the photos are being analysed: the same layout as `ResultsScreen`, before the results land.
 
 ## What shows
-- The top bar, unchanged. The cost pill keeps the previous figure until the response arrives; it never ticks up.
-- The photo stage with the uploaded photo straight away, a soft brand sweep over it, and a `StageProgress` card: *Reading markings*, *Looking for damage*, *Checking the details*, each with its measured time once done.
+- The top bar, unchanged: the `SettingsChip` (or, in demo mode, the recording's model chip) and the quiet cost line, which keeps the previous figure until the response arrives and never ticks up.
+- The photo stage with the uploaded photo straight away, a soft brand sweep over it, and a `StageProgress` card titled *Analysing with [model]*: *Reading markings*, *Looking for damage*, *Checking the details*, each with its measured time once done. Under the photo, the primary button reads *Analysing…* (disabled, `aria-busy`).
 - `qs-skeleton` shimmer in the readings column. The summary, thumbnails and damage view are not drawn until there is something real to show.
 
 ## Rules
