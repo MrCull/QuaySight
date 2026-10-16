@@ -40,3 +40,8 @@ __screenshots__/
 
 test-results/
 playwright-report/
+
+# Secrets and local env
+.env
+.env.*
+!.env.example

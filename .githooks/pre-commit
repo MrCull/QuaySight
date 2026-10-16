@@ -1,0 +1,7 @@
+#!/bin/sh
+# Pre-commit guard. Enabled by `npm install` (prepare sets core.hooksPath to .githooks).
+set -e
+
+node scripts/check-secrets.mjs --staged
+npm run type-check
+npx vitest run --run
