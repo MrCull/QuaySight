@@ -626,14 +626,15 @@ const CAPTURES: Capture[] = [
     steps: [
       'Settings-chip steps (OpenAI), choose the COYU door photo',
       'Run live inspection (mocked: the damage checks answer, the survey is still in flight)',
-      'Capture 500ms in: the damage stage done, ID and details active, Cancel offered',
+      'Capture after the damage part has landed: its stage done, ID and details active, Cancel offered',
     ],
     motion: 'animated',
     script: () => rearDoorsScript({}, { survey: HOLD }),
     run: async (page) => {
       await liveStart(page)
       await expect(stageRow(page, 'Checking for damage')).toHaveClass(/qs-stage--done/)
-      await page.waitForTimeout(500)
+      // The damage part has landed on its own; let its arrival finish. The ID and details are still in flight.
+      await page.waitForTimeout(SETTLE_MS)
     },
   },
   {
@@ -642,14 +643,15 @@ const CAPTURES: Capture[] = [
     steps: [
       'Settings-chip steps (OpenAI), choose the COYU door photo',
       'Run live inspection (mocked: the survey answers, both damage checks are still in flight)',
-      'Capture 500ms in: ID and details done, damage active',
+      'Capture after the ID and details have landed: their stages done, damage active, Cancel offered',
     ],
     motion: 'animated',
     script: () => rearDoorsScript({}, { side: HOLD, door: HOLD }),
     run: async (page) => {
       await liveStart(page)
       await expect(stageRow(page, 'Reading the ID')).toHaveClass(/qs-stage--done/)
-      await page.waitForTimeout(500)
+      // The ID and details have landed on their own; let their arrival finish. Damage is still in flight.
+      await page.waitForTimeout(SETTLE_MS)
     },
   },
   {
@@ -768,7 +770,7 @@ const CAPTURES: Capture[] = [
       'settle',
     ],
     motion: 'frozen',
-    script: () => longSideScript({ weights: null }),
+    script: () => longSideScript(),
     run: (page) => liveLanded(page, sidePhoto),
   },
   {
@@ -843,6 +845,12 @@ for (const viewport of VIEWPORTS) {
       // A click or focus may have scrolled the page; a full-page shot from mid-page draws the sticky
       // top bar halfway down. Capture from the top (focus and selection stay where they are).
       await page.evaluate(() => window.scrollTo(0, 0))
+
+      // No state may scroll sideways (390 x 844 included).
+      const sideways = await page.evaluate(
+        () => document.documentElement.scrollWidth - document.documentElement.clientWidth,
+      )
+      expect(sideways, `${label} scrolls sideways`).toBeLessThanOrEqual(0)
 
       const certaintyLabels = certaintyLabelsIn(await page.locator('.qs-cert').allTextContents())
       const file = shotFileName(capture.state, viewport)
