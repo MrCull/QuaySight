@@ -244,6 +244,17 @@ export function weightGroup(record: InspectionRecord, units: Units = 'metric'): 
   const conflict = weights?.payloadConflict
     ? payloadConflictText(weights.payloadConflict, units)
     : (weights?.conflict ?? null)
+  // The calculated payload is no better than the weights it comes from: say which of them is the reason.
+  const doubtful = [
+    weights?.maxGross?.units === 'conflict' ? 'maximum gross' : null,
+    weights?.tare?.units === 'conflict' ? 'tare' : null,
+  ].filter((name): name is string => name !== null)
+  const inheritedDoubt =
+    doubtful.length > 0 && weights?.payload?.certainty === 'Uncertain'
+      ? `Uncertain because ${doubtful.join(' and ')} ${doubtful.length > 1 ? 'are' : 'is'}: ${
+          doubtful.length > 1 ? 'their' : 'its'
+        } kg and lb readings disagree.`
+      : null
   const rows: DetailRow[] = [
     weightRow('MAX GROSS', weights?.maxGross ?? null, weights?.unread?.maxGross, units, {
       note: MAXIMUM_NOTE,
@@ -268,7 +279,11 @@ export function weightGroup(record: InspectionRecord, units: Units = 'metric'): 
     weightRow(live ? 'PAYLOAD (CALCULATED)' : 'PAYLOAD', payload, undefined, units, {
       calculated: true,
       absentText: 'Not calculated: needs maximum gross and tare',
-      note: joinNotes(conflict, payload && !conflict ? 'Maximum gross minus tare.' : null),
+      note: joinNotes(
+        conflict,
+        payload && !conflict ? 'Maximum gross minus tare.' : null,
+        conflict ? null : inheritedDoubt,
+      ),
     }),
   )
   if (weights?.capacity !== undefined) {

@@ -135,6 +135,20 @@ describe('the weights in Container details', () => {
     expect(imperial.find('.qs-field__note').text()).toContain('4,710 lb')
   })
 
+  it('says why the calculated payload is Uncertain when a weight it comes from has kg and lb that disagree', async () => {
+    const record = await liveWeightsRecord(
+      coyuReading({ tare: { metric: read(2180, 'Confident'), imperial: read(4710, 'Confident') } }),
+    )
+    const wrapper = mount(ContainerDetails, { props: { record } })
+
+    const calculated = rowOf(wrapper, 'PAYLOAD (CALCULATED)')
+    expect(calculated.find('.qs-cert').text()).toContain('Uncertain')
+    expect(calculated.find('.qs-field__note').text()).toContain('Maximum gross minus tare.')
+    expect(calculated.find('.qs-field__note').text()).toMatch(
+      /Uncertain because tare is: its kg and lb readings disagree\./,
+    )
+  })
+
   it('shows a conflict between printed and calculated payload in the unit in force, and lowers the rows', async () => {
     const record = await liveWeightsRecord(
       coyuReading({
