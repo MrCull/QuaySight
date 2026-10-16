@@ -1,9 +1,9 @@
 import { describe, it, expect } from 'vitest'
-import { runRecordedInspection } from '../recordedRun'
+import { recordedInspection } from '../../__tests__/recordedInspection'
 
 describe('recorded sample with the container ID not identified', () => {
   it('returns no container ID for the unidentified scenario', async () => {
-    const record = await runRecordedInspection('luna', {
+    const record = await recordedInspection('luna', {
       delayMs: 0,
       scenario: 'unidentified',
     })
@@ -13,7 +13,7 @@ describe('recorded sample with the container ID not identified', () => {
   })
 
   it('keeps the identified sample unchanged by default', async () => {
-    const record = await runRecordedInspection('luna', { delayMs: 0 })
+    const record = await recordedInspection('luna', { delayMs: 0 })
     expect(record.containerId?.value).toBe('APHU6586847')
   })
 })

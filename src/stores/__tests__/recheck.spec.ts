@@ -1,6 +1,9 @@
 import { describe, it, expect, beforeEach, vi, afterEach } from 'vitest'
 import { setActivePinia, createPinia } from 'pinia'
 
+// jsdom has no image decoder or canvas; photo preparation runs on the fake codec.
+vi.mock('../../services/imageCodec')
+
 const callLunaMock = vi.fn<(...args: unknown[]) => unknown>()
 vi.mock('../../services/luna', () => ({
   callLuna: (...args: unknown[]) => callLunaMock(...args),
@@ -91,6 +94,7 @@ describe('automatic re-check of unresolved container ID positions (live Luna)', 
       .mockResolvedValueOnce(firstResult())
       .mockResolvedValueOnce(recheckReply({ 7: '8', 9: '8' }))
     const store = useInspectionStore()
+    store.setProvider('luna')
     store.setApiKey(KEY)
     choosePhoto(store)
 
@@ -126,6 +130,7 @@ describe('automatic re-check of unresolved container ID positions (live Luna)', 
       .mockResolvedValueOnce(firstResult())
       .mockResolvedValueOnce(recheckReply({ 7: '8', 9: '8' }))
     const store = useInspectionStore()
+    store.setProvider('luna')
     const ledger = useLedgerStore()
     store.setApiKey(KEY)
     choosePhoto(store)
@@ -149,6 +154,7 @@ describe('automatic re-check of unresolved container ID positions (live Luna)', 
       .mockResolvedValueOnce(firstResult())
       .mockRejectedValueOnce(new LunaError('http', 'OpenAI is unavailable right now.', 503))
     const store = useInspectionStore()
+    store.setProvider('luna')
     const ledger = useLedgerStore()
     store.setApiKey(KEY)
     choosePhoto(store)
@@ -167,6 +173,7 @@ describe('automatic re-check of unresolved container ID positions (live Luna)', 
   it('stops at the per-inspection cap with no re-check call and no prompt', async () => {
     callLunaMock.mockResolvedValueOnce(firstResult())
     const store = useInspectionStore()
+    store.setProvider('luna')
     const ledger = useLedgerStore()
     const gate = vi
       .spyOn(ledger.ledger, 'capStatus')
@@ -195,6 +202,7 @@ describe('automatic re-check of unresolved container ID positions (live Luna)', 
       containerId: buildContainerIdReading({ printed: FULL_ID, certainty: 'Confident' }),
     })
     const store = useInspectionStore()
+    store.setProvider('luna')
     store.setApiKey(KEY)
     choosePhoto(store)
 

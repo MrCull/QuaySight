@@ -2,7 +2,7 @@ import { describe, it, expect, beforeEach } from 'vitest'
 import { mount } from '@vue/test-utils'
 import { setActivePinia, createPinia } from 'pinia'
 import { useInspectionStore } from '../../stores/inspection'
-import { runRecordedInspection } from '../../domain/recordedRun'
+import { recordedInspection } from '../../__tests__/recordedInspection'
 import type { ContainerIdReading, InspectionRecord } from '../../domain/inspection'
 import ResultsPanel from '../ResultsPanel.vue'
 
@@ -11,7 +11,7 @@ const FORBIDDEN =
 
 async function withReading(containerId: Partial<ContainerIdReading>) {
   const store = useInspectionStore()
-  const base = await runRecordedInspection('luna', { delayMs: 0 })
+  const base = await recordedInspection('luna', { delayMs: 0 })
   const record: InspectionRecord = {
     ...base,
     containerId: { ...base.containerId!, ...containerId },
@@ -34,6 +34,26 @@ describe('ResultsPanel result states', () => {
       'Also possible: APHU658841',
       'Also possible: APHU658842',
     ])
+  })
+
+  it('sets each alternative ID in the data face, grouped as owner, serial and check digit', async () => {
+    const wrapper = await withReading({
+      certainty: 'Likely',
+      alternatives: ['PPHH8888847'],
+    })
+    const id = wrapper.get('.rs-also .qs-type-data')
+    expect(id.text()).toBe('PPHH 888884 7')
+    expect(wrapper.get('.rs-also').text()).toBe('Also possible: PPHH 888884 7')
+  })
+
+  it('marks an unread position with a middle dot, and keeps a space after "Best interpretation:"', async () => {
+    const wrapper = await withReading({
+      value: 'APH?8888847',
+      certainty: 'Uncertain',
+      alternatives: ['APH?8588847'],
+    })
+    expect(wrapper.get('.rs-also').text()).toBe('Also possible: APH· 858884 7')
+    expect(wrapper.get('.rs-explain p').text()).toBe('Best interpretation: APH· 888884 7')
   })
 
   it('shows the best interpretation and what remains uncertain for an uncertain result', async () => {

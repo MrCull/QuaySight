@@ -9,7 +9,8 @@ import type { DamageAssessment } from './damage'
 
 export const INSPECTION_SCHEMA_VERSION = 1
 
-export type ProviderId = 'luna' | 'jev'
+/** Who receives the key and the call: OpenAI direct ('luna') or OpenRouter. */
+export type ProviderId = 'luna' | 'openrouter'
 
 /** The five fixed certainty words (AGENTS.md, spec 8.4). Nothing else may be shown. */
 export type CertaintyLabel = 'Confident' | 'Likely' | 'Uncertain' | "Can't tell" | 'Not seen'

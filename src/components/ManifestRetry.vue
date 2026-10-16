@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { computed, nextTick, ref, useId, watch } from 'vue'
 import { useInspectionStore } from '../stores/inspection'
-import { getProvider } from '../domain/providers'
+import { getProvider, labelsFor } from '../domain/providers'
 import { MANIFEST_LIMIT, parseManifest } from '../domain/manifest'
 
 // Optional manifest paste when the container ID was not identified (spec 3.2, design-system ManifestRetry).
@@ -27,13 +27,17 @@ const canCheck = computed(() => count.value > 0 && !overLimit.value)
 
 const checking = computed(() => store.retry.status === 'checking')
 const failed = computed(() => store.retry.status === 'error')
-const provider = computed(() => getProvider(store.provider))
-const runName = computed(() => `${provider.value.vendor} ${provider.value.name}`)
+// The check runs on the provider and model of the result on screen (a demo sample names its own).
+const provider = computed(() => getProvider(store.record?.provider ?? store.provider))
+const runName = computed(() =>
+  store.record
+    ? labelsFor(store.record.provider, store.record.model).prose
+    : labelsFor(store.provider, store.model).prose,
+)
+const live = computed(() => store.record?.source === 'live')
 
 // Offered only while the ID is not identified and the presenter has not chosen Keep first result.
-const offering = computed(
-  () => store.record !== null && store.record.containerId === null && !store.retry.dismissed,
-)
+const offering = computed(() => store.manifestRetryOffered && !store.retry.dismissed)
 const visible = computed(() => !closed.value && (offering.value || leaving.value))
 
 function reducedMotion(): boolean {
@@ -123,7 +127,10 @@ function keepFirstResult() {
         <div>
           <div class="qs-notice__title">The check didn't finish</div>
           <div class="qs-notice__body">
-            {{ provider.vendor }} said: "{{ store.retry.message }}" Your first result is unchanged.
+            <!-- A live message is ours and already names the provider; a recorded one is the provider's own words. -->
+            <template v-if="live">{{ store.retry.message }}</template>
+            <template v-else>{{ provider.vendor }} said: "{{ store.retry.message }}"</template>
+            Your first result is unchanged.
           </div>
         </div>
       </div>
@@ -135,7 +142,10 @@ function keepFirstResult() {
           Keep first result
         </button>
       </div>
-      <p :id="costId" class="qs-manifest__cost">
+      <p v-if="live" :id="costId" class="qs-manifest__cost">
+        This runs a new live check on <b>{{ runName }}</b> and adds to the cost total.
+      </p>
+      <p v-else :id="costId" class="qs-manifest__cost">
         This replays a saved sample on <b>{{ runName }}</b
         >. No live call and no charge.
       </p>
@@ -170,6 +180,10 @@ function keepFirstResult() {
           >
         </div>
       </div>
+      <p v-if="store.retry.noMatch" class="qs-manifest__nomatch" role="status">
+        <i class="qs-glyph qs-glyph--list" aria-hidden="true"></i>No entry in this manifest matches
+        what the photo shows. Your first result is unchanged.
+      </p>
       <div class="qs-manifest__actions">
         <button
           type="button"
@@ -184,7 +198,10 @@ function keepFirstResult() {
           Keep first result
         </button>
       </div>
-      <p :id="costId" class="qs-manifest__cost">
+      <p v-if="live" :id="costId" class="qs-manifest__cost">
+        This runs a new live check on <b>{{ runName }}</b> and adds to the cost total.
+      </p>
+      <p v-else :id="costId" class="qs-manifest__cost">
         This replays a saved sample on <b>{{ runName }}</b
         >. No live call and no charge.
       </p>

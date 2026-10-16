@@ -3,11 +3,16 @@ import { nextTick } from 'vue'
 import { mount } from '@vue/test-utils'
 import { setActivePinia, createPinia } from 'pinia'
 import { useInspectionStore } from '../stores/inspection'
-import { runRecordedInspection } from '../domain/recordedRun'
+import { useSetupStore } from '../stores/setup'
+import { recordedInspection } from './recordedInspection'
 import App from '../App.vue'
 
 describe('result arrival choreography', () => {
-  beforeEach(() => setActivePinia(createPinia()))
+  beforeEach(() => {
+    setActivePinia(createPinia())
+    // Past the setup card: the inspection screen is showing.
+    useSetupStore().view = 'inspection'
+  })
 
   it('is .qs-arriving while analysing and .qs-arrived once the record lands', async () => {
     const store = useInspectionStore()
@@ -17,7 +22,7 @@ describe('result arrival choreography', () => {
     expect(wrapper.find('#stage').classes()).toContain('qs-arriving')
     expect(wrapper.find('#stage').classes()).not.toContain('qs-arrived')
 
-    store.record = await runRecordedInspection('luna', { delayMs: 0 })
+    store.record = await recordedInspection('luna', { delayMs: 0 })
     store.status = 'complete'
     await nextTick()
     expect(wrapper.find('#stage').classes()).toContain('qs-arrived')
@@ -26,7 +31,7 @@ describe('result arrival choreography', () => {
 
   it('marks the landing items with .qs-rise so the design-system motion applies', async () => {
     const store = useInspectionStore()
-    store.record = await runRecordedInspection('jev', { delayMs: 0 })
+    store.record = await recordedInspection('openrouter', { delayMs: 0 })
     store.status = 'complete'
     const wrapper = mount(App)
     expect(wrapper.findAll('.qs-rise').length).toBeGreaterThan(0)

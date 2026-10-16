@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { runRecordedInspection } from '../recordedRun'
+import { recordedInspection } from '../../__tests__/recordedInspection'
 import { buildContainerIdReading } from '../containerId'
 import {
   buildInspectionExport,
@@ -11,11 +11,11 @@ import {
 import type { InspectionRecord } from '../inspection'
 
 async function lunaRecord(): Promise<InspectionRecord> {
-  return runRecordedInspection('luna', { delayMs: 0, id: 'run-luna-1' })
+  return recordedInspection('luna', { delayMs: 0, id: 'run-luna-1' })
 }
 
 async function jevRecord(): Promise<InspectionRecord> {
-  return runRecordedInspection('jev', { delayMs: 0, id: 'run-jev-1' })
+  return recordedInspection('openrouter', { delayMs: 0, id: 'run-jev-1' })
 }
 
 describe('consolidated inspection JSON', () => {

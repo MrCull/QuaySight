@@ -1,9 +1,8 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import { useInspectionStore } from '../stores/inspection'
-import { getProvider } from '../domain/providers'
-import { isMovingAlias } from '../domain/jev'
-import { idResultState, visibleAlternatives } from '../domain/certainty'
+import { isMovingTarget, labelsFor, recordedDemonstrationLabel } from '../domain/providers'
+import { idResultState, UNREAD, visibleAlternatives } from '../domain/certainty'
 import CertaintyChip from './CertaintyChip.vue'
 import ContainerId from './ContainerId.vue'
 import ManifestRetry from './ManifestRetry.vue'
@@ -17,18 +16,22 @@ const record = computed(() => store.record)
 const recordedLabel = computed(() => {
   const r = record.value
   if (!r || r.source !== 'recorded') return null
-  return `Recorded demonstration: ${getProvider(r.provider).name} / ${r.model}`
+  return recordedDemonstrationLabel(r)
 })
 
-// "Live: [provider/model]" for a result from a live call (spec 8.5). Never shown with the recorded label.
+// "Live result: [provider/model]" for a result from a live call (spec 8.5). Never shown with the
+// recorded label. The title names who answered; the body gives the exact version.
 const liveLabel = computed(() => {
   const r = record.value
   if (!r || r.source !== 'live') return null
-  const moving = isMovingAlias(r.model)
+  const moving = isMovingTarget(r.provider, r.model)
   // A moving alias shows what was asked for and what answered, so the presenter can see the target moved.
-  return moving
-    ? `Live result: ${getProvider(r.provider).name} / ${r.resolvedVersion} (requested ${r.model}, a moving target)`
-    : `Live result: ${getProvider(r.provider).name} / ${r.resolvedVersion}`
+  return {
+    title: `Live result: ${labelsFor(r.provider, r.model).provider}`,
+    version: moving
+      ? `Answered by ${r.resolvedVersion} (requested ${r.model}, a moving target).`
+      : `Answered by ${r.resolvedVersion}.`,
+  }
 })
 
 // Stagger position of each card in the arrival choreography (read by .qs-rise as --i).
@@ -41,8 +44,19 @@ const idState = computed(() =>
 const alternatives = computed(() =>
   record.value?.containerId ? visibleAlternatives(record.value.containerId) : [],
 )
+/**
+ * A full container number as it is printed: owner code, serial, check digit ("APHU 658684 7").
+ * An unread position shows as a middle dot, as in the ID above.
+ */
+function groupedId(id: string): string {
+  const marked = id.split(UNREAD).join('·')
+  return marked.length === 11
+    ? `${marked.slice(0, 4)} ${marked.slice(4, 10)} ${marked.slice(10)}`
+    : marked
+}
+// The reading as one string; groupedId marks its unread positions.
 const bestInterpretation = computed(() =>
-  (record.value?.containerId?.value ?? '').replace(/\s+/g, '').toUpperCase().replace(/\?/g, '·'),
+  (record.value?.containerId?.value ?? '').replace(/\s+/g, '').toUpperCase(),
 )
 const remainsUncertain = computed(() => {
   const r = record.value?.containerId
@@ -70,11 +84,12 @@ const showInsufficient = computed(() => idState.value === 'insufficient')
       <span class="qs-notice__kicker">Sample</span>
     </div>
 
-    <div v-if="liveLabel" class="qs-notice" role="note">
+    <div v-if="liveLabel" class="qs-notice qs-notice--live" role="note">
       <div>
-        <div class="qs-notice__title">{{ liveLabel }}</div>
+        <div class="qs-notice__title">{{ liveLabel.title }}</div>
         <div class="qs-notice__body">
-          A live call to the provider. The cost shown is an estimate, not an invoice.
+          {{ liveLabel.version }} A live call to the provider. Its cost is as the provider reported
+          it, or an estimate where it reported none; not an invoice.
         </div>
       </div>
       <span class="qs-notice__kicker">Live</span>
@@ -107,7 +122,7 @@ const showInsufficient = computed(() => idState.value === 'insufficient')
         class="rs-also qs-rise qs-type-body-sm"
         :style="{ '--i': STAGGER.alternative }"
       >
-        Also possible: {{ alt }}
+        Also possible: <span class="qs-type-data">{{ groupedId(alt) }}</span>
       </p>
 
       <div
@@ -115,7 +130,10 @@ const showInsufficient = computed(() => idState.value === 'insufficient')
         class="rs-explain qs-rise qs-type-body-sm"
         :style="{ '--i': STAGGER.explanation }"
       >
-        <p><b>Best interpretation:</b> {{ bestInterpretation }}</p>
+        <p>
+          <b>Best interpretation: </b>
+          <span class="qs-type-data">{{ groupedId(bestInterpretation) }}</span>
+        </p>
         <p><b>What remains uncertain:</b> {{ remainsUncertain }}</p>
       </div>
 
@@ -141,7 +159,8 @@ const showInsufficient = computed(() => idState.value === 'insufficient')
       <p class="rs-note qs-type-body-sm">The container ID could not be read from this photo.</p>
     </div>
 
-    <ManifestRetry v-if="record?.source === 'recorded'" />
+    <!-- Live: a live call on the same model. Demo: the sample's own recorded check. Never a replay against another photo. -->
+    <ManifestRetry v-if="store.canCheckManifest" />
 
     <ContainerDetails v-if="record" :record="record" />
 

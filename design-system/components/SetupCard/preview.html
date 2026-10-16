@@ -1,0 +1,88 @@
+<!-- @dsCard group="Setup" height=900 width=1200 subtitle="First screen: provider, model and key in one centred card, then Continue" -->
+<!doctype html>
+<html><head><link rel="stylesheet" href="../../tokens.css"><link rel="stylesheet" href="../bundle.css"><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Setup card</title>
+<style>
+body{margin:0;padding:var(--space-6);background:var(--bg)}
+.row{display:flex;flex-wrap:wrap;gap:var(--space-6);align-items:flex-start;justify-content:center}
+.col{display:grid;justify-items:center;width:100%;max-width:520px}
+.cap{margin:0 0 var(--space-3);color:var(--ink-muted);font:400 12px/16px var(--font-sans)}
+@media (max-width:480px){body{padding:var(--space-4)}}
+</style></head>
+<body class="qs-root">
+<div class="row">
+  <!-- First visit: the recommended provider (OpenRouter) and model (Jev latest) are chosen; Continue waits for a key. -->
+  <div class="col">
+    <p class="cap">First visit: no key yet (focus starts on the provider)</p>
+    <section class="qs-setupcard" role="region" aria-labelledby="t1">
+      <div class="qs-setupcard__head">
+        <h1 class="qs-setupcard__title" id="t1">Set up a provider</h1>
+        <p class="qs-setupcard__lede">Choose who analyses the photos, then paste that provider's API key.</p>
+      </div>
+      <div class="qs-setup">
+        <div class="qs-fieldset">
+          <span class="qs-fieldset__label" id="pl1">AI provider</span>
+          <div class="qs-combo">
+            <button class="qs-combo__button" aria-haspopup="listbox" aria-expanded="false" aria-labelledby="pl1">
+              <span class="qs-mono">OR</span>
+              <span class="qs-opt-text"><strong>OpenRouter</strong><small>Decisions API</small></span>
+              <span class="qs-cap qs-cap--rec">Recommended</span>
+              <i class="qs-glyph qs-glyph--chevron" aria-hidden="true"></i>
+            </button>
+          </div>
+        </div>
+        <div class="qs-fieldset">
+          <span class="qs-fieldset__label">Model version</span>
+          <label class="qs-input"><select aria-label="Model version"><option>Jev latest (TypeSafe) via OpenRouter · moving target, recommended</option><option>Jev 1.14 (TypeSafe) via OpenRouter · pinned</option><option>Jev 1.13 (TypeSafe) via OpenRouter · pinned</option><option>GPT-6 Luna Decisions (OpenAI) via OpenRouter</option></select></label>
+          <span class="qs-hint">Moving target: TypeSafe points this alias at its newest release. The version that answers is recorded with each result.</span>
+        </div>
+        <div class="qs-fieldset">
+          <label class="qs-fieldset__label" for="k1">OpenRouter API key</label>
+          <label class="qs-input"><input id="k1" type="password" placeholder="Paste your OpenRouter key (sk-or-…)" autocomplete="off"><button class="qs-btn qs-btn--ghost qs-btn--sm" aria-label="Show key"><i class="qs-glyph qs-glyph--eye" aria-hidden="true"></i></button><button class="qs-btn qs-btn--ghost qs-btn--sm" disabled>Clear</button></label>
+          <span class="qs-hint">The photo and this key go only to OpenRouter's Decisions endpoint, and only for a live run. OpenRouter passes the photo, never your key, on to the model's maker. The key stays in this tab's memory and is never saved.</span>
+        </div>
+      </div>
+      <div class="qs-setupcard__actions">
+        <button type="button" class="qs-btn qs-btn--primary qs-btn--lg" disabled>Continue</button>
+      </div>
+    </section>
+    <div class="qs-setupcard__after"><button type="button" class="qs-setupcard__demo">Enter as demo user</button></div>
+  </div>
+
+  <!-- Key entered for OpenAI: Continue opens. Enter in the key field does the same. -->
+  <div class="col">
+    <p class="cap">OpenAI chosen, key entered: Continue is the next step</p>
+    <section class="qs-setupcard" role="region" aria-labelledby="t2">
+      <div class="qs-setupcard__head">
+        <h1 class="qs-setupcard__title" id="t2">Set up a provider</h1>
+        <p class="qs-setupcard__lede">Choose who analyses the photos, then paste that provider's API key.</p>
+      </div>
+      <div class="qs-setup">
+        <div class="qs-fieldset">
+          <span class="qs-fieldset__label" id="pl2">AI provider</span>
+          <div class="qs-combo">
+            <button class="qs-combo__button" aria-haspopup="listbox" aria-expanded="false" aria-labelledby="pl2">
+              <span class="qs-mono">OA</span>
+              <span class="qs-opt-text"><strong>OpenAI</strong><small>Decisions API</small></span>
+              <span aria-hidden="true"></span>
+              <i class="qs-glyph qs-glyph--chevron" aria-hidden="true"></i>
+            </button>
+          </div>
+        </div>
+        <div class="qs-fieldset">
+          <span class="qs-fieldset__label">Model version</span>
+          <label class="qs-input"><select aria-label="Model version"><option>GPT-6 Luna (OpenAI) direct · pinned</option></select></label>
+        </div>
+        <div class="qs-fieldset">
+          <label class="qs-fieldset__label" for="k2">OpenAI API key</label>
+          <label class="qs-input"><input id="k2" type="password" value="placeholder-not-a-key" autocomplete="off"><button class="qs-btn qs-btn--ghost qs-btn--sm" aria-label="Show key"><i class="qs-glyph qs-glyph--eye" aria-hidden="true"></i></button><button class="qs-btn qs-btn--ghost qs-btn--sm">Clear</button></label>
+          <span class="qs-hint">The photo and this key go only to OpenAI's Decisions endpoint, and only for a live run. The key stays in this tab's memory and is never saved.</span>
+        </div>
+      </div>
+      <div class="qs-setupcard__actions">
+        <button type="button" class="qs-btn qs-btn--primary qs-btn--lg">Continue</button>
+      </div>
+    </section>
+    <div class="qs-setupcard__after"><button type="button" class="qs-setupcard__demo">Enter as demo user</button></div>
+  </div>
+</div>
+</body></html>

@@ -86,9 +86,10 @@ describe('DamageView selection', () => {
 })
 
 describe('DamageView states', () => {
-  it('says damage was not assessed when the recording has none, without implying clear', () => {
+  it('says damage was not assessed in this inspection (live or recorded), without implying clear', () => {
     const wrapper = mount(DamageView, { props: { assessment: null } })
-    expect(wrapper.text()).toContain('Damage not assessed in this recording')
+    expect(wrapper.text()).toContain('Damage not assessed in this inspection')
+    expect(wrapper.text()).not.toContain('recording')
     expect(wrapper.text()).not.toMatch(FORBIDDEN)
   })
 

@@ -2,12 +2,13 @@
 // Endpoint, auth, image and model rules follow the live TypeSafe docs checked on 16 October 2026
 // (docs.typesafe.ai/api, /models, /images, /primitives/box). The re-check is in docs/research/jev-guide-recheck.md.
 // Images go in a top-level `assets` map and are sent as multipart file parts; the experimental image
-// opt-in header is applied by the service. Jev has no image-capable box except jev-1.14.x.
+// opt-in header is applied by the service. Which models take the box question is declared in the catalogue.
 import { calculateCheckDigit } from './iso6346'
 import { buildContainerIdReading } from './containerId'
 import { CERTAINTY_LABELS, UNREAD, applyMargin } from './certainty'
 import type { CertaintyLabel, ContainerIdReading } from './inspection'
 import type { Usage } from './ledger'
+import { ProviderError, redact } from './providerErrors'
 
 export const JEV_ENDPOINT = 'https://api.typesafe.ai/v1/systemone'
 /** Endpoint family key used by the rate schedules and ledger. */
@@ -16,18 +17,6 @@ export const JEV_ENDPOINT_ID = 'system-one'
 export const JEV_IMAGE_HEADER = 'TypeSafe-Danger-Zone-Images'
 /** The reference the request uses to point at the single photo, and the multipart part name. */
 export const JEV_IMAGE_REF = 'photo_1'
-/** Moving aliases. The response `model` field reports the versioned ID that answered. */
-export const JEV_MOVING_ALIASES = ['jev-latest', 'jev-preview'] as const
-
-/** Jev 1.14 (and its preview alias) offers the experimental box question. jev-1.13.0 does not. */
-export function supportsBox(model: string): boolean {
-  return model === 'jev-preview' || model === 'jev-1.14.0' || model.startsWith('jev-1.14.')
-}
-
-/** Moving aliases are shown to the presenter as moving targets. */
-export function isMovingAlias(model: string): boolean {
-  return (JEV_MOVING_ALIASES as readonly string[]).includes(model)
-}
 
 /** Spec 4.2 check-digit guidance, as for Luna. Kept verbatim so both providers get the same constraint. */
 export const CHECK_DIGIT_GUIDANCE =
@@ -98,7 +87,7 @@ function roleOf(position: number): string {
 }
 
 /** One choice question per identification position, with an explicit unreadable option (guide section 61). */
-function identificationQuestions(): Record<string, JevChoiceQuestion> {
+function identificationQuestions(image: string): Record<string, JevChoiceQuestion> {
   const questions: Record<string, JevChoiceQuestion> = {}
   for (let position = 1; position <= ID_POSITIONS; position++) {
     const isLetter = position <= LETTER_POSITIONS
@@ -108,20 +97,31 @@ function identificationQuestions(): Record<string, JevChoiceQuestion> {
     criteria[UNREADABLE_OPTION] = 'The position is not visible or cannot be read clearly'
     questions[questionKey(position)] = {
       type: 'choice',
-      instructions: `Position ${position} of 11 (${roleOf(position)}) of the container identification printed on the image referenced as \`${JEV_IMAGE_REF}\`. ${CHECK_DIGIT_GUIDANCE}`,
+      instructions: `Position ${position} of 11 (${roleOf(position)}) of the container identification printed on ${image}. ${CHECK_DIGIT_GUIDANCE}`,
       criteria,
     }
   }
   return questions
 }
 
-/** Builds the System One request body for one photo. The key is never part of the body. */
-export function buildJevRequest(model: string, format: JevPhotoFormat): JevRequestBody {
+export interface JevQuestionOptions {
+  /** How the instructions name the photo, e.g. "the image referenced as `photo_1`" or "the photo". */
+  image: string
+  /** Ask the box question. Only for models the catalogue declares box-capable; older models reject it. */
+  box: boolean
+}
+
+/**
+ * The Jev question set: identification, legibility, whether the whole number is in frame and, on
+ * box-capable models only, where the number is. Shared by every route that reaches Jev, so answers map
+ * by the same keys whichever endpoint asked.
+ */
+export function jevQuestions({ image, box }: JevQuestionOptions): Record<string, JevQuestion> {
   const questions: Record<string, JevQuestion> = {
-    ...identificationQuestions(),
+    ...identificationQuestions(image),
     legibility: {
       type: 'score',
-      instructions: `How legible is the full container identification printed on the image referenced as \`${JEV_IMAGE_REF}\`?`,
+      instructions: `How legible is the full container identification printed on ${image}?`,
       criteria: [
         'Not visible at all',
         'Mostly unreadable',
@@ -132,15 +132,31 @@ export function buildJevRequest(model: string, format: JevPhotoFormat): JevReque
     },
     full_number_visible: {
       type: 'noul',
-      instructions: `Is the complete 11-character container identification visible within the image referenced as \`${JEV_IMAGE_REF}\`, with no part cut off?`,
+      instructions: `Is the complete 11-character container identification visible within ${image}, with no part cut off?`,
     },
   }
-  if (supportsBox(model)) {
+  if (box) {
     questions.container_box = {
       type: 'box',
-      instructions: `The container identification number printed on the container in the image referenced as \`${JEV_IMAGE_REF}\`.`,
+      instructions: `The container identification number printed on the container in ${image}.`,
     }
   }
+  return questions
+}
+
+/**
+ * Builds the System One request body for one photo. The key is never part of the body. TypeSafe direct
+ * is not in the catalogue (docs/adr/0001), so the caller says whether to ask the box question.
+ */
+export function buildJevRequest(
+  model: string,
+  format: JevPhotoFormat,
+  options: { box?: boolean } = {},
+): JevRequestBody {
+  const questions = jevQuestions({
+    image: `the image referenced as \`${JEV_IMAGE_REF}\``,
+    box: options.box ?? false,
+  })
   return {
     model,
     state: {
@@ -156,25 +172,12 @@ export function buildJevRequest(model: string, format: JevPhotoFormat): JevReque
 
 export type JevErrorKind = 'http' | 'network' | 'bad-response' | 'photo'
 
-/** An error with a message fit to show the presenter. Never carries the key. */
-export class JevError extends Error {
-  readonly kind: JevErrorKind
-  readonly status: number | null
-
-  constructor(kind: JevErrorKind, message: string, status: number | null = null) {
-    super(message)
+/** A failed TypeSafe call, with a message fit to show the presenter. Never carries the key. */
+export class JevError extends ProviderError<JevErrorKind> {
+  constructor(kind: JevErrorKind, advice: string, status: number | null = null) {
+    super(kind, advice, status)
     this.name = 'JevError'
-    this.kind = kind
-    this.status = status
   }
-}
-
-const KEY_PATTERN = /sk-[A-Za-z0-9_-]+/g
-
-function redact(text: string, apiKey: string): string {
-  let safe = text
-  if (apiKey) safe = safe.split(apiKey).join('[key removed]')
-  return safe.replace(KEY_PATTERN, '[key removed]').slice(0, 200)
 }
 
 function providerError(body: unknown): { message: string | null; code: string | null } {
@@ -208,7 +211,7 @@ export function jevFailure(status: number, body: unknown, apiKey: string): JevEr
   if (status === 400) {
     return new JevError(
       'http',
-      'TypeSafe rejected the photo or request (400). Check that the photo is a PNG or JPEG, 280 to 1568 px per side, rotated upright, and up to 16 MB. Any partial result is kept.',
+      'TypeSafe rejected the photo or request (400). Check that the photo is a PNG or JPEG, 280 to 1568 px per side, rotated upright, and up to 16 MB.',
       status,
     )
   }
@@ -244,11 +247,7 @@ export function jevFailure(status: number, body: unknown, apiKey: string): JevEr
     return new JevError('http', 'TypeSafe is overloaded right now. Try again shortly.', status)
   }
   if (status >= 500) {
-    return new JevError(
-      'http',
-      'TypeSafe is unavailable right now. Try again shortly. Any partial result is kept.',
-      status,
-    )
+    return new JevError('http', 'TypeSafe is unavailable right now. Try again shortly.', status)
   }
   return new JevError(
     'http',
@@ -363,12 +362,17 @@ function readBox(answer: unknown): JevBox | null {
  * positions stay as UNREAD; they are never filled in. The check digit is calculated here, not taken from the model.
  * The legibility score and the full-number noul can only lower certainty, never raise it.
  */
-export function mapJevResponse(response: unknown, requestedModel: string): JevMapping {
+export function mapJevResponse(
+  response: unknown,
+  requestedModel: string,
+  /** Who replied, for the bad-response message: TypeSafe direct, or OpenRouter. */
+  replier = 'TypeSafe',
+): JevMapping {
   const body = asRecord(response)
   if (!body)
-    throw new JevError('bad-response', 'TypeSafe replied in a shape the app does not recognise.')
+    throw new JevError('bad-response', `${replier} replied in a shape the app does not recognise.`)
   const answers = asRecord(body.answers)
-  if (!answers) throw new JevError('bad-response', 'TypeSafe replied without answers. Try again.')
+  if (!answers) throw new JevError('bad-response', `${replier} replied without answers. Try again.`)
 
   const readings = Array.from({ length: ID_POSITIONS }, (_, i) => {
     const position = i + 1

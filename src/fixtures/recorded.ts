@@ -9,7 +9,7 @@ import { recordedSideDamage } from './recordedDamage'
  * The check digit is not stored as "valid": the domain recalculates it from the characters.
  *
  * Luna: a fuller recorded reading of the clear rear door.
- * Jev: MINIMAL fixture. No captured Jev response exists yet (spec 11.4 requires live calibration),
+ * Jev (through OpenRouter): MINIMAL fixture. No captured Jev response exists yet (spec 11.4 requires live calibration),
  * so only the ID reading is recorded, at a lower certainty. Replace after a live smoke test.
  */
 export interface RecordedFixture {
@@ -48,9 +48,10 @@ export const recordedFixtures: Record<ProviderId, RecordedFixture> = {
     detailCertainty: 'Confident',
     retryFailureMessage: 'Rate limit reached for requests. Please try again in 20s.',
   },
-  jev: {
-    provider: 'jev',
-    model: 'jev-1.14.0',
+  // Jev through OpenRouter (docs/adr/0001). Still the minimal hand-made Jev reading, not a capture.
+  openrouter: {
+    provider: 'openrouter',
+    model: 'typesafe/jev-1.14',
     containerNumber: 'APHU658684',
     observedCheckDigit: 7,
     certainty: 'Likely',

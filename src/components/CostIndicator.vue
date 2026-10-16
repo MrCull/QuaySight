@@ -2,15 +2,16 @@
 import { computed, ref } from 'vue'
 import { useInspectionStore } from '../stores/inspection'
 import { useLedgerStore } from '../stores/ledger'
-import { formatUsd, type LedgerEntry } from '../domain/ledger'
-import { getProvider } from '../domain/providers'
+import { costKnown, formatUsd, type LedgerEntry, type Totals } from '../domain/ledger'
+import { labelsFor } from '../domain/providers'
 
 const inspection = useInspectionStore()
 const ledgerStore = useLedgerStore()
 const expanded = ref(false)
 const panelId = 'cost-ledger-panel'
 
-const isSample = computed(() => inspection.record?.source === 'recorded')
+// Demo mode and recorded results never reach the live ledger (spec 8.5): they show no live API charge.
+const isSample = computed(() => inspection.demo || inspection.record?.source === 'recorded')
 const containerId = computed(() => (isSample.value ? null : (inspection.record?.id ?? null)))
 
 const container = computed(() =>
@@ -20,8 +21,7 @@ const session = computed(() => ledgerStore.session)
 const rows = computed(() => ledgerStore.entries())
 
 function providerLabel(entry: LedgerEntry): string {
-  const p = getProvider(entry.provider)
-  return `${p.vendor} · ${p.name}`
+  return labelsFor(entry.provider, entry.model).ledger
 }
 
 function timeLabel(iso: string): string {
@@ -35,8 +35,11 @@ function tokensLabel(entry: LedgerEntry): string {
   return total.toLocaleString('en-US')
 }
 
+// A cost the provider reported is named as such; a rate-table figure is named an estimate (spec #16, Cost).
 function costLabel(entry: LedgerEntry): string {
-  return entry.costState === 'estimated' ? formatUsd(entry.costUsd) : formatUsd(null)
+  if (entry.costState === 'reported') return `${formatUsd(entry.costUsd)} reported`
+  if (entry.costState === 'estimated') return `${formatUsd(entry.costUsd)} estimate`
+  return formatUsd(null)
 }
 
 function latencyLabel(entry: LedgerEntry): string {
@@ -44,14 +47,24 @@ function latencyLabel(entry: LedgerEntry): string {
 }
 
 // Container and session totals use the same cost wording: "Partial estimate" marks incomplete data.
-function amount(totals: { costUsd: number | null; requests: number } | null): string {
+function amount(totals: Totals | null): string {
   if (!totals || totals.requests === 0) return 'None yet'
   return formatUsd(totals.costUsd)
+}
+
+// What a total is made of (spec #16 story 61). A bare figure is all provider-reported; a total with
+// any rate-table estimate in it says so, and an incomplete one says Partial estimate.
+function basis(totals: Totals | null): string | null {
+  if (!totals || totals.requests === 0) return null
+  if (totals.incomplete) return 'Partial estimate'
+  if (totals.estimate === 'all') return 'estimate'
+  if (totals.estimate === 'part') return 'incl. estimate'
+  return null
 }
 </script>
 
 <template>
-  <div class="qs-cost">
+  <div class="qs-cost qs-cost--quiet">
     <button
       type="button"
       class="qs-cost__toggle"
@@ -61,13 +74,14 @@ function amount(totals: { costUsd: number | null; requests: number } | null): st
     >
       <template v-if="isSample">Saved result · no live API charge</template>
       <template v-else>
+        <!-- The spaces are expressions: whitespace between tags is condensed away. -->
         This container <b>{{ amount(container) }}</b>
-        <template v-if="container?.incomplete">
-          <span class="rs-cost__partial">Partial estimate</span></template
+        <template v-if="basis(container)"
+          >{{ ' ' }}<span class="qs-cost__partial">{{ basis(container) }}</span></template
         >
         · Session <b>{{ amount(session) }}</b>
-        <template v-if="session.incomplete">
-          <span class="rs-cost__partial">Partial estimate</span></template
+        <template v-if="basis(session)"
+          >{{ ' ' }}<span class="qs-cost__partial">{{ basis(session) }}</span></template
         >
       </template>
       <i class="qs-glyph qs-glyph--chevron" aria-hidden="true"></i>
@@ -76,10 +90,18 @@ function amount(totals: { costUsd: number | null; requests: number } | null): st
     <div v-if="expanded" :id="panelId" class="qs-cost__panel">
       <div class="qs-cost__head">
         <div class="qs-cost__stat">
-          <span>This container</span><b>{{ amount(container) }}</b>
+          <span
+            >This container<template v-if="basis(container)">
+              · {{ basis(container) }}</template
+            ></span
+          ><b>{{ amount(container) }}</b>
         </div>
         <div class="qs-cost__stat">
-          <span>Session · {{ session.inspections }} containers</span><b>{{ amount(session) }}</b>
+          <span
+            >Session · {{ session.inspections }} containers<template v-if="basis(session)">
+              · {{ basis(session) }}</template
+            ></span
+          ><b>{{ amount(session) }}</b>
         </div>
         <div class="qs-cost__stat">
           <span>Requests</span><b>{{ session.requests }}</b>
@@ -97,7 +119,7 @@ function amount(totals: { costUsd: number | null; requests: number } | null): st
             <th>Status</th>
             <th>Time</th>
             <th class="num">Tokens</th>
-            <th class="num">Est. cost</th>
+            <th class="num">Cost</th>
             <th class="num">Latency</th>
           </tr>
         </thead>
@@ -109,7 +131,7 @@ function amount(totals: { costUsd: number | null; requests: number } | null): st
             <td>{{ entry.status }}</td>
             <td>{{ timeLabel(entry.startedAt) }}</td>
             <td class="num">{{ tokensLabel(entry) }}</td>
-            <td class="num" :class="{ 'qs-cost__unknown': entry.costState !== 'estimated' }">
+            <td class="num" :class="{ 'qs-cost__unknown': !costKnown(entry.costState) }">
               {{ costLabel(entry) }}
             </td>
             <td class="num">{{ latencyLabel(entry) }}</td>
@@ -117,8 +139,8 @@ function amount(totals: { costUsd: number | null; requests: number } | null): st
         </tbody>
       </table>
       <div class="qs-cost__foot">
-        Estimated API usage at each provider's configured rates, not an invoice. Recorded samples
-        are never added to live totals.
+        API usage as each provider reported it, or estimated at its configured rates where it
+        reports none, not an invoice. Recorded samples are never added to live totals.
       </div>
     </div>
   </div>

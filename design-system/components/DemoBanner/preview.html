@@ -1,0 +1,75 @@
+<!-- @dsCard group="Setup" height=520 subtitle="Demo mode: sample results, never a real inspection, with the way to a provider" -->
+<!doctype html>
+<html><head><link rel="stylesheet" href="../../tokens.css"><link rel="stylesheet" href="../bundle.css"><meta charset="utf-8"><title>Demo banner</title>
+<style>
+body{margin:0;padding:var(--space-6);background:var(--bg)}
+.stack{display:grid;gap:var(--space-5)}
+.frame{overflow:hidden;background:var(--bg);border:1px solid var(--line);border-radius:var(--radius-md)}
+.bar{display:flex;align-items:center;gap:var(--space-5);min-height:var(--control-lg);padding:var(--space-2) var(--space-5);background:var(--surface);border-bottom:1px solid var(--line);white-space:nowrap}
+.spacer{flex:1}
+.body{padding:var(--space-5)}
+.phone{max-width:390px}
+.pbar{display:flex;flex-wrap:wrap;align-items:center;gap:var(--space-3);padding:var(--space-3) var(--space-4);background:var(--surface);border-bottom:1px solid var(--line)}
+.pbar .qs-newinsp{margin-left:auto}.pbar .qs-runchip__detail{display:none}.pbar .qs-cost{flex:1 1 0;min-width:0}.pbar .qs-cost__toggle{white-space:normal}
+.cap{margin:0 0 var(--space-2);color:var(--ink-muted);font:400 12px/16px var(--font-sans)}
+</style></head>
+<body class="qs-root">
+<div class="stack">
+  <!-- Desktop: under the top bar, above the sample picker. The settings chip is not shown in demo mode. -->
+  <div>
+    <p class="cap">Desktop: the sample picker under the banner</p>
+    <div class="frame">
+      <header class="bar">
+        <span class="qs-brand"><i class="qs-logo" aria-hidden="true"></i>Quay Sight</span>
+        <span class="qs-runchip" title="GPT-6 Luna · OpenAI · gpt-6-luna"><span class="qs-mono" aria-hidden="true">OA</span><span class="qs-runchip__name">GPT-6 Luna</span><small class="qs-runchip__detail">OpenAI · gpt-6-luna</small></span>
+        <span class="spacer"></span>
+        <div class="qs-cost qs-cost--quiet"><button class="qs-cost__toggle" aria-expanded="false">Saved result · no live API charge<i class="qs-glyph qs-glyph--chevron" aria-hidden="true"></i></button></div>
+        <button type="button" class="qs-btn qs-btn--secondary qs-btn--sm qs-newinsp">New inspection</button>
+      </header>
+      <section class="qs-demobanner" role="region" aria-label="Demo mode">
+        <div class="qs-demobanner__inner">
+          <i class="qs-glyph qs-glyph--recorded" aria-hidden="true"></i>
+          <div class="qs-demobanner__text">
+            <p class="qs-demobanner__title"><b>DEMO</b> — sample results, not a real inspection</p>
+            <p class="qs-demobanner__body">Inspecting your own photos needs an API provider.</p>
+          </div>
+          <button type="button" class="qs-btn qs-btn--secondary qs-demobanner__action">Connect a provider</button>
+        </div>
+      </section>
+      <div class="body">
+        <div class="qs-samples">
+          <div class="qs-samples__head"><span class="qs-samples__title">Choose a sample container</span><span class="qs-samples__why">Each sample opens a result recorded from that photo. It works offline, with no API key and no charge. Inspecting your own photos needs an API provider.</span></div>
+          <div class="qs-samples__grid">
+            <button class="qs-sample"><span class="qs-sample__img"><svg viewBox="0 0 160 100" role="img" aria-label="Stand-in for rear container doors"><rect width="160" height="100" fill="var(--surface-sunken)"/><rect x="40" y="10" width="80" height="84" fill="var(--schem-end)"/><path d="M80 10 V94" stroke="var(--schem-detail)" stroke-width="2"/></svg><span class="qs-sample__badge"><i class="qs-glyph qs-glyph--recorded" aria-hidden="true"></i>Saved result</span></span><span class="qs-sample__body"><strong>Rear doors with markings</strong><small>ID, size code and weights read from the door</small></span></button>
+            <button class="qs-sample"><span class="qs-sample__img"><svg viewBox="0 0 160 100" role="img" aria-label="Stand-in for a container side"><rect width="160" height="100" fill="var(--surface-sunken)"/><rect x="10" y="22" width="140" height="60" fill="var(--schem-side)"/></svg><span class="qs-sample__badge"><i class="qs-glyph qs-glyph--recorded" aria-hidden="true"></i>Saved result</span></span><span class="qs-sample__body"><strong>Damaged grey side</strong><small>Dents in the side panel; no ID in view</small></span></button>
+            <button class="qs-sample"><span class="qs-sample__img"><svg viewBox="0 0 160 100" role="img" aria-label="Stand-in for clean rear doors"><rect width="160" height="100" fill="var(--surface-sunken)"/><rect x="45" y="14" width="70" height="78" fill="var(--schem-end)"/><path d="M80 14 V92" stroke="var(--schem-detail)" stroke-width="2"/></svg><span class="qs-sample__badge"><i class="qs-glyph qs-glyph--recorded" aria-hidden="true"></i>Saved result</span></span><span class="qs-sample__body"><strong>Clean grey rear doors</strong><small>Some ID digits hard to read, with alternatives</small></span></button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Phone: the action drops under the words and fills the row. -->
+  <div class="phone">
+    <p class="cap">Phone width: when the banner is 640px wide or less (a container query on the banner), it turns compact and the action sits small under the words. In the app, the top bar then scrolls away and only the banner stays on screen.</p>
+    <div class="frame">
+      <header class="pbar">
+        <span class="qs-brand"><i class="qs-logo" aria-hidden="true"></i>Quay Sight</span>
+        <button type="button" class="qs-btn qs-btn--secondary qs-btn--sm qs-newinsp">New inspection</button>
+        <span class="qs-runchip" title="GPT-6 Luna · OpenAI · gpt-6-luna"><span class="qs-mono" aria-hidden="true">OA</span><span class="qs-runchip__name">GPT-6 Luna</span><small class="qs-runchip__detail">OpenAI · gpt-6-luna</small></span>
+        <div class="qs-cost qs-cost--quiet"><button class="qs-cost__toggle" aria-expanded="false">Saved result · no live API charge<i class="qs-glyph qs-glyph--chevron" aria-hidden="true"></i></button></div>
+      </header>
+      <section class="qs-demobanner" role="region" aria-label="Demo mode">
+        <div class="qs-demobanner__inner">
+          <i class="qs-glyph qs-glyph--recorded" aria-hidden="true"></i>
+          <div class="qs-demobanner__text">
+            <p class="qs-demobanner__title"><b>DEMO</b> — sample results, not a real inspection</p>
+            <p class="qs-demobanner__body">Inspecting your own photos needs an API provider.</p>
+          </div>
+          <button type="button" class="qs-btn qs-btn--secondary qs-demobanner__action">Connect a provider</button>
+        </div>
+      </section>
+    </div>
+  </div>
+</div>
+</body></html>

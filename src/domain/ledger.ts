@@ -1,10 +1,19 @@
 import type { ProviderId } from './inspection'
 import { findRate, type RateSchedule, type SpendCaps } from './rates'
 
-// Live cost ledger (spec 8.5, 11.6). Estimates only: never an invoice.
+// Live cost ledger (spec 8.5, 11.6). Estimates and provider-reported costs: never an invoice.
 // Recorded samples never reach this module; only chargeable calls go through runChargeable.
 
-export type CostState = 'estimated' | 'partial' | 'unavailable'
+/**
+ * reported: the provider's own figure from its response (e.g. OpenRouter usage.cost).
+ * estimated: usage priced at the configured rate. partial / unavailable: not fully known, never zero.
+ */
+export type CostState = 'reported' | 'estimated' | 'partial' | 'unavailable'
+
+/** Whether a request's cost is fully known, either reported by the provider or estimated from usage. */
+export function costKnown(state: CostState): boolean {
+  return state === 'reported' || state === 'estimated'
+}
 
 export interface Usage {
   inputTokens: number | null
@@ -38,6 +47,11 @@ export interface Totals {
   costUsd: number | null
   /** True when any request has partial or unavailable cost. */
   incomplete: boolean
+  /**
+   * How much of costUsd is a rate-table estimate rather than a provider-reported cost: none of it,
+   * part of it, or all of it (spec #16 story 61). 'none' when no cost is known.
+   */
+  estimate: 'none' | 'part' | 'all'
   latencyMs: number
 }
 
@@ -186,7 +200,7 @@ export async function runChargeable(
     const reported = typeof outcome.reportedCostUsd === 'number' ? outcome.reportedCostUsd : null
     const { costUsd, costState } =
       reported !== null
-        ? { costUsd: reported, costState: 'estimated' as CostState }
+        ? { costUsd: reported, costState: 'reported' as CostState }
         : estimateCost(outcome.usage, rate)
     const entry: LedgerEntry = {
       ...base,
@@ -216,13 +230,20 @@ export async function runChargeable(
   }
 }
 
+function estimateShare(known: LedgerEntry[]): Totals['estimate'] {
+  const estimated = known.filter((e) => e.costState === 'estimated').length
+  if (estimated === 0) return 'none'
+  return estimated === known.length ? 'all' : 'part'
+}
+
 function totalsOf(entries: LedgerEntry[], inspections: number): Totals {
   const known = entries.filter((e) => e.costUsd !== null)
   return {
     requests: entries.length,
     inspections,
     costUsd: known.length === 0 ? null : known.reduce((sum, e) => sum + (e.costUsd ?? 0), 0),
-    incomplete: entries.some((e) => e.costState !== 'estimated'),
+    incomplete: entries.some((e) => !costKnown(e.costState)),
+    estimate: estimateShare(known),
     latencyMs: entries.reduce((sum, e) => sum + e.latencyMs, 0),
   }
 }

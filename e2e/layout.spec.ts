@@ -1,19 +1,10 @@
 import { test, expect, type Page } from '@playwright/test'
-import path from 'node:path'
-import { fileURLToPath } from 'node:url'
 
-const samplePhoto = path.resolve(
-  path.dirname(fileURLToPath(import.meta.url)),
-  '../samples/rear-door-aphu-45g1.jpg',
-)
-
-/** The key gate applies to recorded runs too: enter a placeholder key and choose replay (no network call). */
+/** Demo mode, no key and no network call: the rear-doors sample, ready to start. */
 async function prepareRecordedRun(page: Page) {
   await page.goto('/')
-  await page.locator('input[type="file"]').setInputFiles(samplePhoto)
-  await page.getByLabel('OpenAI API key', { exact: true }).first().fill('playwright-placeholder-not-a-key')
-  await page.getByRole('checkbox', { name: /Replay the recorded sample/ }).check()
-  await page.getByRole('button', { name: 'Done' }).click()
+  await page.getByRole('button', { name: 'Enter as demo user' }).click()
+  await page.getByRole('button', { name: /Rear doors with markings/ }).click()
 }
 
 async function runSample(page: Page) {

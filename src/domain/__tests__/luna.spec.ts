@@ -5,6 +5,7 @@ import {
   LUNA_MODEL,
   buildLunaRequest,
   lunaFailure,
+  lunaFetchFailure,
   mapLunaResponse,
   LunaError,
 } from '../luna'
@@ -201,5 +202,18 @@ describe('Luna errors', () => {
     const error = lunaFailure(400, { error: { message: `bad value ${key}` } }, key)
     expect(error.message).not.toContain(key)
     expect(error.message).not.toContain('key-value')
+  })
+
+  it('says partial results are kept, whatever went wrong', () => {
+    const failures = [
+      lunaFetchFailure(true),
+      lunaFetchFailure(false),
+      ...[400, 401, 403, 404, 429, 500, 503].map((status) => lunaFailure(status, {}, 'sk-x')),
+      lunaFailure(400, { error: { message: 'Invalid image' } }, 'sk-x'),
+    ]
+    for (const error of failures) {
+      expect(error.message).toMatch(/ Any partial result is kept\.$/)
+      expect(error.message.match(/partial result/g)).toHaveLength(1)
+    }
   })
 })

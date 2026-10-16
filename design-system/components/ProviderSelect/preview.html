@@ -1,55 +1,69 @@
-<!-- @dsCard group="Setup" height=560 subtitle="Providers come from a catalogue list, so new adapters just appear" -->
+<!-- @dsCard group="Setup" height=620 subtitle="Providers come from a catalogue list, so new adapters just appear" -->
 <!doctype html>
-<html><head><link rel="stylesheet" href="../../tokens.css"><link rel="stylesheet" href="../bundle.css"><meta charset="utf-8"><title>Provider select</title>
-<style>body{margin:0;padding:24px;background:var(--surface);max-width:600px}</style></head>
+<html><head><link rel="stylesheet" href="../../tokens.css"><link rel="stylesheet" href="../bundle.css"><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Provider select</title>
+<style>body{margin:0;padding:24px;background:var(--surface);max-width:600px}@media (max-width:480px){body{padding:var(--space-4)}}</style></head>
 <body class="qs-root">
 <div class="qs-setup">
   <div class="qs-fieldset">
     <span class="qs-fieldset__label" id="pl">AI provider</span>
     <div class="qs-combo">
       <button class="qs-combo__button" id="pb" aria-haspopup="listbox" aria-expanded="true" aria-labelledby="pl pb">
-        <span class="qs-mono">OA</span>
-        <span class="qs-opt-text"><strong>GPT-6 Luna</strong><small>OpenAI · Decisions API</small></span>
+        <span class="qs-mono">OR</span>
+        <span class="qs-opt-text"><strong>OpenRouter</strong><small>Decisions API</small></span>
         <span class="qs-cap qs-cap--rec">Recommended</span>
         <i class="qs-glyph qs-glyph--chevron"></i>
       </button>
-      <div class="qs-listbox" role="listbox" aria-labelledby="pl" id="lb">
-        <label class="qs-listbox__filter"><input placeholder="Filter providers" aria-label="Filter providers"></label>
+      <!-- The list takes focus while open; aria-activedescendant names the option the arrows are on. -->
+      <div class="qs-listbox" role="listbox" aria-labelledby="pl" id="lb" tabindex="0" aria-activedescendant="opt-luna">
         <div class="qs-listbox__group">Ready for photos</div>
-        <div class="qs-option" role="option" aria-selected="true" tabindex="-1">
-          <span class="qs-mono">OA</span><span class="qs-opt-text"><strong>GPT-6 Luna</strong><small>OpenAI · Decisions API</small></span>
-          <span class="qs-option__caps"><span class="qs-cap qs-cap--rec">Recommended</span><span class="qs-cap">Probabilities</span></span>
+        <div class="qs-option" id="opt-openrouter" role="option" aria-selected="true" data-testid="provider-option-openrouter">
+          <span class="qs-mono">OR</span><span class="qs-opt-text"><strong>OpenRouter</strong><small>Decisions API</small></span>
+          <span class="qs-option__caps"><span class="qs-cap qs-cap--rec">Recommended</span><span class="qs-cap">Probabilities</span><span class="qs-cap">Boxes</span></span>
         </div>
-        <div class="qs-option is-active" role="option" aria-selected="false" tabindex="-1">
-          <span class="qs-mono">TS</span><span class="qs-opt-text"><strong>Jev</strong><small>TypeSafe · System One</small></span>
-          <span class="qs-option__caps"><span class="qs-cap">Probabilities</span><span class="qs-cap qs-cap--exp">Boxes · experimental</span></span>
+        <div class="qs-option is-active" id="opt-luna" role="option" aria-selected="false" data-testid="provider-option-luna">
+          <span class="qs-mono">OA</span><span class="qs-opt-text"><strong>OpenAI</strong><small>Decisions API</small></span>
+          <span class="qs-option__caps"><span class="qs-cap">Probabilities</span></span>
         </div>
-        <div class="qs-listbox__foot">2 providers in the catalogue. New provider adapters are listed here automatically, with what each one supports.</div>
       </div>
     </div>
   </div>
   <div class="qs-fieldset">
     <span class="qs-fieldset__label">Model version</span>
-    <label class="qs-input"><select aria-label="Model version"><option>GPT-6 Luna · pinned 2026-08</option><option>GPT-6 Luna · latest (moving alias)</option></select></label>
-    <span class="qs-hint">Image input · choice probabilities · no bounding boxes</span>
+    <label class="qs-input"><select aria-label="Model version"><option>Jev latest (TypeSafe) via OpenRouter · moving target, recommended</option><option>Jev 1.14 (TypeSafe) via OpenRouter · pinned</option><option>Jev 1.13 (TypeSafe) via OpenRouter · pinned</option><option>GPT-6 Luna Decisions (OpenAI) via OpenRouter</option></select></label>
+    <span class="qs-hint">Moving target: TypeSafe points this alias at its newest release. The version that answers is recorded with each result.</span>
   </div>
   <div class="qs-fieldset">
-    <span class="qs-fieldset__label">OpenAI API key</span>
-    <label class="qs-input"><input type="password" placeholder="Paste your OpenAI key" aria-label="OpenAI API key"><button class="qs-btn qs-btn--ghost qs-btn--sm" aria-label="Show key"><i class="qs-glyph qs-glyph--eye"></i></button><button class="qs-btn qs-btn--ghost qs-btn--sm">Clear</button></label>
-    <span class="qs-hint">Kept in this tab only and sent only to OpenAI.</span>
+    <span class="qs-fieldset__label">OpenRouter API key</span>
+    <label class="qs-input"><input type="password" placeholder="Paste your OpenRouter key (sk-or-…)" aria-label="OpenRouter API key"><button class="qs-btn qs-btn--ghost qs-btn--sm" aria-label="Show key"><i class="qs-glyph qs-glyph--eye"></i></button><button class="qs-btn qs-btn--ghost qs-btn--sm" disabled>Clear</button></label>
+    <span class="qs-hint">The photo and this key go only to OpenRouter's Decisions endpoint, and only for a live run. OpenRouter passes the photo, never your key, on to the model's maker. The key stays in this tab's memory and is never saved.</span>
   </div>
 </div>
 <script>
 var b=document.getElementById('pb'), lb=document.getElementById('lb');
-b.addEventListener('click',function(){ var o=b.getAttribute('aria-expanded')==='true'; b.setAttribute('aria-expanded', o?'false':'true'); lb.hidden=o; });
-lb.querySelectorAll('.qs-option').forEach(function(op){ op.addEventListener('click',function(){
-  lb.querySelectorAll('.qs-option').forEach(function(x){ x.setAttribute('aria-selected','false'); x.classList.remove('is-active'); });
+var opts=[].slice.call(lb.querySelectorAll('.qs-option')), active=1;
+function setActive(i){ active=Math.max(0,Math.min(opts.length-1,i)); opts.forEach(function(o,k){ o.classList.toggle('is-active',k===active); }); lb.setAttribute('aria-activedescendant',opts[active].id); }
+function openList(){ b.setAttribute('aria-expanded','true'); lb.hidden=false; lb.focus(); }
+function closeList(){ b.setAttribute('aria-expanded','false'); lb.hidden=true; b.focus(); }
+function choose(op){
+  opts.forEach(function(x){ x.setAttribute('aria-selected','false'); });
   op.setAttribute('aria-selected','true');
   b.querySelector('.qs-mono').textContent=op.querySelector('.qs-mono').textContent;
   b.querySelector('.qs-opt-text').innerHTML=op.querySelector('.qs-opt-text').innerHTML;
   var rec=op.querySelector('.qs-cap--rec'); b.querySelector('.qs-cap').style.visibility=rec?'visible':'hidden';
-});});
-lb.querySelector('input').addEventListener('input',function(e){ var q=e.target.value.toLowerCase();
-  lb.querySelectorAll('.qs-option').forEach(function(op){ op.hidden = op.textContent.toLowerCase().indexOf(q)<0; }); });
+  closeList();
+}
+b.addEventListener('click',function(){ b.getAttribute('aria-expanded')==='true'?closeList():openList(); });
+b.addEventListener('keydown',function(e){ if(e.key==='ArrowDown'||e.key==='ArrowUp'){ e.preventDefault(); openList(); } });
+lb.addEventListener('keydown',function(e){
+  if(e.key==='ArrowDown') setActive(active+1);
+  else if(e.key==='ArrowUp') setActive(active-1);
+  else if(e.key==='Home') setActive(0);
+  else if(e.key==='End') setActive(opts.length-1);
+  else if(e.key==='Enter'||e.key===' ') choose(opts[active]);
+  else if(e.key==='Escape') closeList();
+  else return;
+  e.preventDefault();
+});
+opts.forEach(function(op,k){ op.addEventListener('click',function(){ choose(op); }); op.addEventListener('mousemove',function(){ setActive(k); }); });
 </script>
 </body></html>

@@ -2,7 +2,7 @@ import { describe, it, expect, beforeEach, vi } from 'vitest'
 import { mount } from '@vue/test-utils'
 import { setActivePinia, createPinia } from 'pinia'
 import { useInspectionStore } from '../../stores/inspection'
-import { runRecordedInspection } from '../../domain/recordedRun'
+import { recordedInspection } from '../../__tests__/recordedInspection'
 import { downloadText } from '../../services/download'
 import ExportActions from '../ExportActions.vue'
 
@@ -23,7 +23,7 @@ describe('ExportActions', () => {
 
   it('downloads the consolidated JSON, raw responses and summary as three files', async () => {
     const store = useInspectionStore()
-    store.record = await runRecordedInspection('luna', { delayMs: 0, id: 'run-luna-1' })
+    store.record = await recordedInspection('luna', { delayMs: 0, id: 'run-luna-1' })
     store.status = 'complete'
     const wrapper = mount(ExportActions)
     const labels = wrapper.findAll('button').map((b) => b.text())

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, ref } from 'vue'
+import { computed } from 'vue'
 import type { DamageAssessment } from '../../domain/damage'
 import DamageSchematic from './DamageSchematic.vue'
 import DamageFindings from './DamageFindings.vue'
@@ -8,7 +8,8 @@ import '../../styles/damage.css'
 const props = defineProps<{ assessment: DamageAssessment | null }>()
 
 // Selection is shared: a marker, its area and its finding card select together.
-const selectedId = ref<number | null>(null)
+// The app binds it to the inspection store (v-model:selected) so New inspection clears it.
+const selectedId = defineModel<number | null>('selected', { default: null })
 
 function select(id: number) {
   selectedId.value = selectedId.value === id ? null : id
@@ -38,10 +39,8 @@ const summary = computed(() => {
     <div v-else class="qs-notice" role="note">
       <i class="qs-glyph qs-glyph--unseen" aria-hidden="true"></i>
       <div>
-        <div class="qs-notice__title">Damage not assessed in this recording</div>
-        <div class="qs-notice__body">
-          Nothing is said about the faces of this container in this recording.
-        </div>
+        <div class="qs-notice__title">Damage not assessed in this inspection</div>
+        <div class="qs-notice__body">Nothing is said about any face of this container.</div>
       </div>
     </div>
   </section>

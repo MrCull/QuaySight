@@ -53,7 +53,8 @@ describe('callLuna', () => {
     expect(result.latencyMs).toBeGreaterThanOrEqual(0)
   })
 
-  it('reports a network failure without the key or the underlying error text', async () => {
+  it('reports an offline failure without the key or the underlying error text', async () => {
+    vi.spyOn(window.navigator, 'onLine', 'get').mockReturnValue(false)
     const fetchImpl = vi.fn<typeof fetch>(async () => {
       throw new TypeError(`Failed to fetch ${KEY}`)
     })
@@ -64,11 +65,25 @@ describe('callLuna', () => {
     expect((error as Error).message).toMatch(/could not reach openai/i)
   })
 
+  it('reports a fetch that throws while online as refused, without the key or the underlying error text', async () => {
+    vi.spyOn(window.navigator, 'onLine', 'get').mockReturnValue(true)
+    const fetchImpl = vi.fn<typeof fetch>(async () => {
+      throw new TypeError(`Failed to fetch ${KEY}`)
+    })
+    const error = await callLuna({ apiKey: KEY, photo, fetchImpl }).catch((e: unknown) => e)
+    expect(error).toBeInstanceOf(LunaError)
+    expect((error as LunaError).kind).toBe('refused')
+    expect((error as Error).message).not.toContain(KEY)
+    expect((error as Error).message).toMatch(/openai refused the request/i)
+  })
+
   it('translates an HTTP failure and removes an echoed key from the message', async () => {
     const fetchImpl = vi.fn<typeof fetch>(async () =>
       jsonResponse(400, { error: { message: `Invalid value near ${KEY}` } }),
     )
-    const error = (await callLuna({ apiKey: KEY, photo, fetchImpl }).catch((e: unknown) => e)) as LunaError
+    const error = (await callLuna({ apiKey: KEY, photo, fetchImpl }).catch(
+      (e: unknown) => e,
+    )) as LunaError
     expect(error).toBeInstanceOf(LunaError)
     expect(error.status).toBe(400)
     expect(error.message).not.toContain(KEY)
@@ -76,15 +91,23 @@ describe('callLuna', () => {
   })
 
   it('reports an invalid key as an actionable message', async () => {
-    const fetchImpl = vi.fn<typeof fetch>(async () => jsonResponse(401, { error: { message: 'bad key' } }))
-    const error = (await callLuna({ apiKey: KEY, photo, fetchImpl }).catch((e: unknown) => e)) as LunaError
+    const fetchImpl = vi.fn<typeof fetch>(async () =>
+      jsonResponse(401, { error: { message: 'bad key' } }),
+    )
+    const error = (await callLuna({ apiKey: KEY, photo, fetchImpl }).catch(
+      (e: unknown) => e,
+    )) as LunaError
     expect(error.status).toBe(401)
     expect(error.message).toMatch(/key was rejected/i)
   })
 
   it('treats a non-JSON success body as a bad response', async () => {
-    const fetchImpl = vi.fn<typeof fetch>(async () => new Response('<html>oops</html>', { status: 200 }))
-    const error = (await callLuna({ apiKey: KEY, photo, fetchImpl }).catch((e: unknown) => e)) as LunaError
+    const fetchImpl = vi.fn<typeof fetch>(
+      async () => new Response('<html>oops</html>', { status: 200 }),
+    )
+    const error = (await callLuna({ apiKey: KEY, photo, fetchImpl }).catch(
+      (e: unknown) => e,
+    )) as LunaError
     expect(error).toBeInstanceOf(LunaError)
     expect(error.kind).toBe('bad-response')
   })

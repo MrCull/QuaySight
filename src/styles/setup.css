@@ -1,0 +1,43 @@
+/* Setup-first flow: the centred setup card, and the settings chip and drawer around the inspection screen.
+   The qs-setupcard, qs-settingschip and qs-drawer components live in design-system/components/bundle.css. */
+
+/* The top bar and the demo banner stick together, so the banner never slides under the bar. */
+.rs-chrome {
+  position: sticky;
+  top: 0;
+  z-index: 5;
+}
+
+/* First visit: only the setup card, centred under the top bar. */
+.rs-setupview {
+  display: grid;
+  justify-items: center;
+  align-content: start;
+  padding: var(--space-8) var(--space-4);
+}
+
+.rs-drawer__note {
+  margin: var(--space-4) 0 0;
+}
+
+/* The chip gives way first when the top bar is short of room. */
+.rs-top .qs-settingschip {
+  flex: 0 1 auto;
+}
+
+/* Phone, demo mode: the top bar scrolls away and only the demo banner stays on screen, so the sticky
+   chrome takes a sixth of the screen rather than a third. Live mode keeps the whole top bar. */
+@media (max-width: 640px) {
+  .rs-chrome:has(.qs-demobanner) {
+    display: contents;
+  }
+  .rs-chrome:has(.qs-demobanner) .rs-top {
+    position: relative;
+  }
+}
+
+@media (max-width: 960px) {
+  .rs-setupview {
+    padding: var(--space-5) var(--space-4);
+  }
+}

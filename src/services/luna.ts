@@ -2,11 +2,17 @@ import {
   LUNA_ENDPOINT,
   LUNA_MODEL,
   LunaError,
+  buildLunaManifestRequest,
   buildLunaRequest,
   lunaFailure,
+  lunaFetchFailure,
+  mapLunaManifestResponse,
   mapLunaResponse,
   type LunaMapping,
+  type ManifestMapping,
 } from '../domain/luna'
+import type { ManifestQuestion } from '../domain/manifest'
+import { photoDataUrl, postDecisions, type DecisionsReply } from './decisions'
 
 export interface CallLunaOptions {
   /** The presenter's OpenAI key. Held by the caller in memory; sent only in the Authorization header to LUNA_ENDPOINT. */
@@ -19,31 +25,26 @@ export interface CallLunaOptions {
   fetchImpl?: typeof fetch
 }
 
-export interface LunaCallResult extends LunaMapping {
-  latencyMs: number
-  /** The response payload as returned. Contains no headers and no key. */
-  raw: unknown
+export interface LunaCallResult extends LunaMapping, DecisionsReply {}
+
+/** The browser's own view of its connection. Treated as online where the browser does not say. */
+function browserOnline(): boolean {
+  return typeof navigator === 'undefined' || navigator.onLine !== false
 }
 
-function blobToDataUrl(blob: Blob): Promise<string> {
-  return new Promise((resolve, reject) => {
-    const reader = new FileReader()
-    reader.onload = () => {
-      const result = typeof reader.result === 'string' ? reader.result : ''
-      if (!result.startsWith('data:image/')) {
-        reject(
-          new LunaError(
-            'bad-response',
-            'Choose a JPEG, PNG or WebP photo to run a live inspection.',
-          ),
-        )
-        return
-      }
-      resolve(result)
-    }
-    reader.onerror = () => reject(new LunaError('bad-response', 'That photo could not be read.'))
-    reader.readAsDataURL(blob)
-  })
+/** The photo as a data URL. A file that is not an image, or cannot be read, is refused before any request. */
+async function lunaPhoto(photo: Blob): Promise<string> {
+  if (!photo.type.startsWith('image/')) {
+    throw new LunaError(
+      'bad-response',
+      'Choose a JPEG, PNG or WebP photo to run a live inspection.',
+    )
+  }
+  try {
+    return await photoDataUrl(photo)
+  } catch {
+    throw new LunaError('bad-response', 'That photo could not be read.')
+  }
 }
 
 /**
@@ -51,34 +52,44 @@ function blobToDataUrl(blob: Blob): Promise<string> {
  * placed in the error, the body or any log line.
  */
 export async function callLuna(options: CallLunaOptions): Promise<LunaCallResult> {
-  const fetchImpl = options.fetchImpl ?? fetch
-  const imageDataUrl = await blobToDataUrl(options.photo)
-  const body = JSON.stringify(buildLunaRequest(imageDataUrl, options.positions))
+  const imageDataUrl = await lunaPhoto(options.photo)
+  const done = await decide(options, buildLunaRequest(imageDataUrl, options.positions))
+  return { ...mapLunaResponse(done.raw, LUNA_MODEL, options.positions), ...done }
+}
 
-  const started = Date.now()
-  let response: Response
-  try {
-    response = await fetchImpl(LUNA_ENDPOINT, {
-      method: 'POST',
-      headers: {
-        Authorization: `Bearer ${options.apiKey}`,
-        'Content-Type': 'application/json',
-      },
-      body,
-    })
-  } catch {
-    throw new LunaError('network', 'Could not reach OpenAI. Check your connection, then try again.')
-  }
-  const latencyMs = Date.now() - started
+export interface CallLunaManifestOptions {
+  /** The presenter's OpenAI key; sent only in the Authorization header to LUNA_ENDPOINT. */
+  apiKey: string
+  /** The photo as sent for the first reading. */
+  photo: Blob
+  /** The manifest check's questions, from buildManifestQuestions. */
+  questions: ManifestQuestion[]
+  /** Test seam. Defaults to the global fetch. */
+  fetchImpl?: typeof fetch
+}
 
-  let parsed: unknown = null
-  try {
-    parsed = await response.json()
-  } catch {
-    parsed = null
-  }
+export interface LunaManifestCallResult extends ManifestMapping, DecisionsReply {}
 
-  if (!response.ok) throw lunaFailure(response.status, parsed, options.apiKey)
+/** One live manifest check on GPT-6 Luna (spec 3.2). Fails with the same messages as the first reading. */
+export async function callLunaManifest(
+  options: CallLunaManifestOptions,
+): Promise<LunaManifestCallResult> {
+  const imageDataUrl = await lunaPhoto(options.photo)
+  const done = await decide(options, buildLunaManifestRequest(imageDataUrl, options.questions))
+  return { ...mapLunaManifestResponse(done.raw, LUNA_MODEL, options.questions), ...done }
+}
 
-  return { ...mapLunaResponse(parsed, LUNA_MODEL, options.positions), latencyMs, raw: parsed }
+/** One POST to OpenAI's Decisions endpoint, with OpenAI's error wording. No retries: each call is charged. */
+function decide(
+  options: { apiKey: string; fetchImpl?: typeof fetch },
+  request: unknown,
+): Promise<DecisionsReply> {
+  return postDecisions({
+    endpoint: LUNA_ENDPOINT,
+    apiKey: options.apiKey,
+    request,
+    fetchImpl: options.fetchImpl,
+    thrown: () => lunaFetchFailure(browserOnline()),
+    failed: (status, body) => lunaFailure(status, body, options.apiKey),
+  })
 }

@@ -8,9 +8,11 @@
  * Output: screenshots/<state>-<width>x<height>.png (full page) and screenshots/index.json.
  *         screenshots/ is generated and git-ignored; never commit it.
  *
- * Network: every external request is aborted, so nothing leaves the machine. The only "live" call is
+ * Recorded states run in demo mode (Enter as demo user: no key, the three bundled samples).
+ * Network: every external request is aborted, so nothing leaves the machine. The only "live" calls are
  * OpenAI's Decisions endpoint, answered by a route with a copy of the recorded smoke response (variants
- * for uncertain, partial and insufficient readings). The key is a placeholder typed into the real field.
+ * for uncertain, partial and insufficient readings), and OpenRouter's Decisions endpoint, answered with a
+ * Jev reading in the shape seen live on 16 Oct 2026. The key is a placeholder typed into the real field.
  * Motion: non-animation captures freeze CSS animations; mid-animation captures and the reduced-motion
  * capture are taken live, after a fixed pause during the staged progress.
  */
@@ -27,10 +29,14 @@ const samplePhoto = path.join(ROOT, 'samples', 'rear-door-aphu-45g1.jpg')
 const lunaSmoke = JSON.parse(
   fs.readFileSync(path.join(ROOT, 'src', 'fixtures', 'live', 'luna-smoke.json'), 'utf8'),
 ).response as { answers: Array<Record<string, unknown>> }
+/** GPT-6 Luna Decisions through OpenRouter, as recorded live on 16 Oct 2026 (no key, no headers). */
+const openRouterLunaSmoke = JSON.parse(
+  fs.readFileSync(path.join(ROOT, 'src', 'fixtures', 'live', 'openrouter-luna-smoke.json'), 'utf8'),
+).response as unknown
 
 // A placeholder typed through the real field. It is not a credential and no provider receives it.
 const PLACEHOLDER_KEY = 'playwright-placeholder-not-a-key'
-const PROVIDER_HOSTS = /openai\.com|typesafe\.ai/
+const PROVIDER_HOSTS = /openai\.com|openrouter\.ai|typesafe\.ai/
 
 const VIEWPORTS = [
   { width: 1440, height: 900 },
@@ -49,13 +55,13 @@ type Motion = 'frozen' | 'animated'
 
 interface Capture {
   state: string
-  screen: 'start' | 'analysing' | 'results' | 'manifest-retry'
+  screen: 'setup' | 'start' | 'demo' | 'analysing' | 'results' | 'manifest-retry'
   steps: string[]
   motion: Motion
   /** Limit to some viewports; default all three. */
   viewports?: Array<{ width: number; height: number }>
   reducedMotion?: boolean
-  /** Mocked OpenAI Decisions body for live captures. */
+  /** Mocked Decisions body (OpenAI or OpenRouter) for live captures. */
   liveBody?: () => unknown
   run: (page: Page) => Promise<void>
 }
@@ -67,12 +73,35 @@ const open = (page: Page) => page.goto('/')
 const choosePhoto = (page: Page) =>
   page.locator('input[type="file"]').setInputFiles(samplePhoto)
 
-/** Types the placeholder into the named key field, ticks replay and presses Done. */
-async function replayKey(page: Page, label = 'OpenAI API key') {
-  await page.getByLabel(label, { exact: true }).first().fill(PLACEHOLDER_KEY)
-  await page.getByRole('checkbox', { name: /Replay the recorded sample/ }).check()
-  await page.getByRole('button', { name: 'Done' }).click()
+/** On the setup card: picks OpenAI. OpenRouter is pre-selected; the Luna captures replay OpenAI responses. */
+async function chooseOpenAI(page: Page) {
+  await page.locator('#provider-button').click()
+  await page.getByTestId('provider-option-luna').click()
 }
+
+/** On the setup card: Enter as demo user (no key), then the sample picker. */
+async function enterDemo(page: Page) {
+  await page.getByRole('button', { name: 'Enter as demo user' }).click()
+  await page.getByRole('region', { name: 'Demo mode' }).waitFor()
+}
+
+type SampleName = 'Rear doors with markings' | 'Damaged grey side' | 'Clean grey rear doors'
+
+/** Demo mode: puts a bundled sample on the stage, ready to start. */
+async function openSample(page: Page, name: SampleName) {
+  await page.getByRole('button', { name: new RegExp(name) }).click()
+  await page.locator('.rs-photo__img').waitFor()
+}
+
+/** On the setup card: types the placeholder and presses Enter, which continues to the inspection screen. */
+async function liveKey(page: Page, label = 'OpenAI API key') {
+  if (label === 'OpenAI API key') await chooseOpenAI(page)
+  const key = page.getByLabel(label, { exact: true })
+  await key.fill(PLACEHOLDER_KEY)
+  await key.press('Enter')
+}
+
+const settingsChip = (page: Page) => page.getByRole('button', { name: /^Settings:/ })
 
 /** Waits for the arriving stage, then for the arrived stage, then lets the choreography finish. */
 async function startAndSettle(page: Page, button = 'Start inspection') {
@@ -82,18 +111,17 @@ async function startAndSettle(page: Page, button = 'Start inspection') {
   await page.waitForTimeout(SETTLE_MS)
 }
 
-async function recordedLuna(page: Page) {
+/** Demo mode: a sample's recorded result, landed. */
+async function demoResult(page: Page, name: SampleName) {
   await open(page)
-  await choosePhoto(page)
-  await replayKey(page)
+  await enterDemo(page)
+  await openSample(page, name)
   await startAndSettle(page)
 }
 
-/** Recorded run with the container ID not visible: the manifest offer opens. */
+/** The damaged side in demo mode: no container ID in view, so the manifest offer opens. */
 async function unidentifiedRun(page: Page) {
-  await recordedLuna(page)
-  await page.getByRole('checkbox', { name: 'Container ID not visible in this sample' }).check()
-  await startAndSettle(page)
+  await demoResult(page, 'Damaged grey side')
   await expect(page.getByRole('heading', { name: 'Container ID not identified' })).toBeVisible()
 }
 
@@ -105,11 +133,30 @@ async function typeManifest(page: Page) {
 /** A live run through the mocked Decisions endpoint (placeholder key, no replay). */
 async function liveRun(page: Page) {
   await open(page)
+  await liveKey(page)
   await choosePhoto(page)
-  const key = page.getByLabel('OpenAI API key', { exact: true }).first()
-  await key.fill(PLACEHOLDER_KEY)
-  await key.press('Enter')
   await startAndSettle(page, 'Run live inspection')
+}
+
+/** A Jev reading of the APHU sample through OpenRouter, in the response shape seen live on 16 Oct 2026. */
+function openRouterJevBody() {
+  const answers: Record<string, unknown> = {}
+  'APHU6586847'.split('').forEach((ch, i) => {
+    answers[`id_char_${String(i + 1).padStart(2, '0')}`] = {
+      type: 'choice',
+      choice: ch,
+      probabilities: { [ch]: 0.93, unreadable: 0.07 },
+      confidence: 0.9,
+    }
+  })
+  answers.full_number_visible = { type: 'noul', noul: 0.97 }
+  return {
+    model: 'typesafe/jev-1.14-20261014',
+    answers,
+    usage: { input_tokens: 1844, output_tokens: 75, cost: 0.000077448 },
+    id: 'gen-dec-screenshot',
+    provider: 'TypeSafe',
+  }
 }
 
 /**
@@ -142,77 +189,117 @@ function lunaVariant(kind: 'uncertain' | 'partial' | 'insufficient') {
 
 const CAPTURES: Capture[] = [
   {
-    state: 'first-load',
-    screen: 'start',
-    steps: ['Open / (no photo, no key)'],
+    state: 'setup-card',
+    screen: 'setup',
+    steps: ['Open / (first visit: only the setup card, no key)'],
     motion: 'frozen',
     run: open,
   },
   {
+    state: 'setup-provider-list',
+    screen: 'setup',
+    steps: ['Open /', 'Press ArrowDown on the provider button (list open, OpenAI active)', 'Press ArrowDown'],
+    motion: 'frozen',
+    run: async (page) => {
+      await open(page)
+      await page.locator('#provider-button').press('ArrowDown')
+      await page.getByRole('listbox').press('ArrowDown')
+    },
+  },
+  {
+    state: 'setup-key-focused',
+    screen: 'setup',
+    steps: ['Open /', 'Focus the OpenRouter API key field on the setup card'],
+    motion: 'frozen',
+    run: async (page) => {
+      await open(page)
+      await page.getByLabel('OpenRouter API key', { exact: true }).focus()
+    },
+  },
+  {
+    state: 'setup-key-entered',
+    screen: 'setup',
+    steps: ['Open /', "Type placeholder into 'OpenRouter API key' (Continue enabled)"],
+    motion: 'frozen',
+    run: async (page) => {
+      await open(page)
+      await page.getByLabel('OpenRouter API key', { exact: true }).fill(PLACEHOLDER_KEY)
+    },
+  },
+  {
+    state: 'settings-chip',
+    screen: 'start',
+    steps: ['Open /', 'Type placeholder key', 'Press Enter (setup folds into the header chip)'],
+    motion: 'frozen',
+    run: async (page) => {
+      await open(page)
+      await liveKey(page)
+    },
+  },
+  {
+    state: 'settings-drawer-open',
+    screen: 'start',
+    steps: ['Settings-chip steps', 'Click the settings chip (drawer open, focus on the provider)'],
+    motion: 'frozen',
+    run: async (page) => {
+      await open(page)
+      await liveKey(page)
+      await settingsChip(page).click()
+      await page.getByRole('dialog', { name: 'Settings' }).waitFor()
+    },
+  },
+  {
     state: 'photo-added',
     screen: 'start',
-    steps: ['Open /', 'Choose samples/rear-door-aphu-45g1.jpg (landscape)'],
+    steps: ['Settings-chip steps', 'Choose samples/rear-door-aphu-45g1.jpg (landscape)'],
     motion: 'frozen',
     run: async (page) => {
       await open(page)
+      await liveKey(page)
       await choosePhoto(page)
     },
   },
   {
-    state: 'key-focused',
-    screen: 'start',
-    steps: ['Open /', 'Choose photo', 'Focus the OpenAI API key field'],
+    state: 'demo-picker',
+    screen: 'demo',
+    steps: ['Open /', 'Click Enter as demo user (demo banner, sample picker, no upload)'],
     motion: 'frozen',
     run: async (page) => {
       await open(page)
-      await choosePhoto(page)
-      await page.getByLabel('OpenAI API key', { exact: true }).first().focus()
+      await enterDemo(page)
     },
   },
   {
-    state: 'key-entered',
-    screen: 'start',
-    steps: ['Open /', 'Choose photo', "Type placeholder into 'OpenAI API key' (selector still expanded)"],
+    state: 'demo-sample-ready',
+    screen: 'demo',
+    steps: ['Demo-picker steps', 'Choose Rear doors with markings (photo on the stage, Start inspection)'],
     motion: 'frozen',
     run: async (page) => {
       await open(page)
-      await choosePhoto(page)
-      await page.getByLabel('OpenAI API key', { exact: true }).first().fill(PLACEHOLDER_KEY)
+      await enterDemo(page)
+      await openSample(page, 'Rear doors with markings')
     },
   },
   {
-    state: 'selector-collapsed',
-    screen: 'start',
-    steps: ['Open /', 'Choose photo', 'Type placeholder key', 'Press Enter (selector collapses)'],
+    state: 'demo-after-new-inspection',
+    screen: 'demo',
+    steps: ['Demo rear-doors result', 'Click New inspection (back to the sample picker)'],
     motion: 'frozen',
     run: async (page) => {
-      await open(page)
-      await choosePhoto(page)
-      const key = page.getByLabel('OpenAI API key', { exact: true }).first()
-      await key.fill(PLACEHOLDER_KEY)
-      await key.press('Enter')
-    },
-  },
-  {
-    state: 'ready-recorded',
-    screen: 'start',
-    steps: ['Open /', 'Choose photo', 'Type placeholder key', 'Tick Replay the recorded sample', 'Click Done'],
-    motion: 'frozen',
-    run: async (page) => {
-      await open(page)
-      await choosePhoto(page)
-      await replayKey(page)
+      await demoResult(page, 'Rear doors with markings')
+      await page.getByRole('button', { name: 'New inspection' }).click()
+      await page.getByRole('button', { name: /Damaged grey side/ }).waitFor()
     },
   },
   {
     state: 'analysing-mid',
     screen: 'analysing',
-    steps: ['Ready-recorded steps', "Click Start inspection", 'Capture 500ms in, during the staged progress (animations live)'],
+    steps: ['Demo-sample-ready steps', 'Click Start inspection', 'Capture 500ms in, during the staged progress (animations live)'],
     motion: 'animated',
     run: async (page) => {
       await open(page)
-      await choosePhoto(page)
-      await replayKey(page)
+      await enterDemo(page)
+      await openSample(page, 'Rear doors with markings')
       await page.getByRole('button', { name: 'Start inspection' }).click()
       await page.locator('.rs-analysing').waitFor()
       await page.waitForTimeout(500)
@@ -221,80 +308,129 @@ const CAPTURES: Capture[] = [
   {
     state: 'analysing-reduced-motion',
     screen: 'analysing',
-    steps: ['Reduced-motion emulation', 'Ready-recorded steps', 'Click Start inspection', 'Capture 500ms in'],
+    steps: ['Reduced-motion emulation', 'Demo-sample-ready steps', 'Click Start inspection', 'Capture 500ms in'],
     motion: 'animated',
     viewports: [{ width: 1440, height: 900 }],
     reducedMotion: true,
     run: async (page) => {
       await open(page)
-      await choosePhoto(page)
-      await replayKey(page)
+      await enterDemo(page)
+      await openSample(page, 'Rear doors with markings')
       await page.getByRole('button', { name: 'Start inspection' }).click()
       await page.locator('.rs-analysing').waitFor()
       await page.waitForTimeout(500)
     },
   },
   {
-    state: 'luna-result',
+    state: 'demo-rear-result',
     screen: 'results',
-    steps: ['Recorded Luna: photo, replay key, Start inspection, settle'],
+    steps: ['Demo mode', 'Rear doors with markings (recorded Luna)', 'Start inspection, settle'],
     motion: 'frozen',
-    run: recordedLuna,
+    run: (page) => demoResult(page, 'Rear doors with markings'),
   },
   {
-    state: 'luna-cost-expanded',
+    state: 'demo-cost-expanded',
     screen: 'results',
-    steps: ['Recorded Luna result', 'Click the cost line toggle'],
+    steps: ['Demo rear-doors result', 'Click the cost line toggle'],
     motion: 'frozen',
     run: async (page) => {
-      await recordedLuna(page)
+      await demoResult(page, 'Rear doors with markings')
       await page.locator('button.qs-cost__toggle').click()
     },
   },
   {
-    state: 'luna-damage-marker',
+    state: 'demo-side-result',
     screen: 'results',
-    steps: ['Recorded Luna result', 'Click the first damage marker (pin)'],
+    steps: ['Demo mode', 'Damaged grey side (recorded Luna: damage, no ID in view)', 'Start inspection, settle'],
+    motion: 'frozen',
+    run: (page) => demoResult(page, 'Damaged grey side'),
+  },
+  {
+    state: 'demo-damage-marker',
+    screen: 'results',
+    steps: ['Demo damaged-side result', 'Click the first damage marker (pin)'],
     motion: 'frozen',
     run: async (page) => {
-      await recordedLuna(page)
+      await demoResult(page, 'Damaged grey side')
       await page.locator('.qs-c-pins [role="button"]').first().click()
     },
   },
   {
-    state: 'luna-exports',
+    state: 'demo-exports',
     screen: 'results',
-    steps: ['Recorded Luna result', 'Focus the first export button (Export JSON)'],
+    steps: ['Demo rear-doors result', 'Focus the first export button (Export JSON)'],
     motion: 'frozen',
     run: async (page) => {
-      await recordedLuna(page)
+      await demoResult(page, 'Rear doors with markings')
       await page.locator('.rs-exports button').first().focus()
     },
   },
   {
-    state: 'jev-result',
+    state: 'demo-clean-result',
+    screen: 'results',
+    steps: ['Demo mode', 'Clean grey rear doors (recorded Jev latest through OpenRouter, uncertain digits)', 'Start inspection, settle'],
+    motion: 'frozen',
+    run: (page) => demoResult(page, 'Clean grey rear doors'),
+  },
+  {
+    state: 'openrouter-live-result',
+    screen: 'results',
+    steps: [
+      'Open / (OpenRouter, Jev latest pre-selected)',
+      "Type placeholder into 'OpenRouter API key', Enter",
+      'Choose photo',
+      'Run live inspection (mocked OpenRouter Decisions: Jev reading)',
+      'settle',
+    ],
+    motion: 'frozen',
+    liveBody: openRouterJevBody,
+    run: async (page) => {
+      await open(page)
+      await liveKey(page, 'OpenRouter API key')
+      await choosePhoto(page)
+      await startAndSettle(page, 'Run live inspection')
+    },
+  },
+  {
+    state: 'openrouter-luna-result',
     screen: 'results',
     steps: [
       'Open /',
+      "Choose model 'GPT-6 Luna Decisions' on the setup card (OpenRouter)",
+      "Type placeholder into 'OpenRouter API key', Enter",
       'Choose photo',
-      'Choose provider Jev (TypeSafe)',
-      "Type placeholder into 'TypeSafe API key', tick replay, Done",
-      'Start inspection, settle',
+      'Run live inspection (mocked OpenRouter Decisions: the recorded Luna Decisions smoke response)',
+      'settle',
     ],
     motion: 'frozen',
+    liveBody: () => openRouterLunaSmoke,
     run: async (page) => {
       await open(page)
+      await page.getByLabel('Model version').selectOption('openai/gpt-6-luna-decisions')
+      await liveKey(page, 'OpenRouter API key')
       await choosePhoto(page)
-      await page.locator('#provider-button').click()
-      await page.getByRole('option', { name: /Jev/ }).click()
-      await replayKey(page, 'TypeSafe API key')
-      await startAndSettle(page)
+      await startAndSettle(page, 'Run live inspection')
+    },
+  },
+  {
+    state: 'live-after-new-inspection',
+    screen: 'start',
+    steps: ['OpenRouter live result steps', 'Click New inspection (blank screen, key kept)'],
+    motion: 'frozen',
+    liveBody: openRouterJevBody,
+    run: async (page) => {
+      await open(page)
+      await liveKey(page, 'OpenRouter API key')
+      await choosePhoto(page)
+      await startAndSettle(page, 'Run live inspection')
+      await page.getByRole('button', { name: 'New inspection' }).click()
+      await page.getByText('Drop a container photo here').waitFor()
     },
   },
   {
     state: 'live-uncertain',
     screen: 'results',
-    steps: ['Open /', 'Choose photo', 'Type placeholder key, Enter', 'Run live inspection (mocked Decisions: uncertain)', 'settle'],
+    steps: ['Open /', 'Type placeholder key, Enter', 'Choose photo', 'Run live inspection (mocked Decisions: uncertain)', 'settle'],
     motion: 'frozen',
     liveBody: () => lunaVariant('uncertain'),
     run: liveRun,
@@ -302,7 +438,7 @@ const CAPTURES: Capture[] = [
   {
     state: 'live-partial',
     screen: 'results',
-    steps: ['Open /', 'Choose photo', 'Type placeholder key, Enter', 'Run live inspection (mocked Decisions: positions 5 and 9 unread)', 'settle'],
+    steps: ['Open /', 'Type placeholder key, Enter', 'Choose photo', 'Run live inspection (mocked Decisions: positions 5 and 9 unread)', 'settle'],
     motion: 'frozen',
     liveBody: () => lunaVariant('partial'),
     run: liveRun,
@@ -310,7 +446,7 @@ const CAPTURES: Capture[] = [
   {
     state: 'live-insufficient',
     screen: 'results',
-    steps: ['Open /', 'Choose photo', 'Type placeholder key, Enter', 'Run live inspection (mocked Decisions: nothing read)', 'settle'],
+    steps: ['Open /', 'Type placeholder key, Enter', 'Choose photo', 'Run live inspection (mocked Decisions: nothing read)', 'settle'],
     motion: 'frozen',
     liveBody: () => lunaVariant('insufficient'),
     run: liveRun,
@@ -318,12 +454,7 @@ const CAPTURES: Capture[] = [
   {
     state: 'manifest-offer',
     screen: 'manifest-retry',
-    steps: [
-      'Recorded Luna, replay',
-      'Start, settle',
-      "Tick 'Container ID not visible in this sample', Start again",
-      'Manifest offer open',
-    ],
+    steps: ['Demo mode', 'Damaged grey side, Start, settle', 'Manifest offer open'],
     motion: 'frozen',
     run: unidentifiedRun,
   },
@@ -358,14 +489,14 @@ const CAPTURES: Capture[] = [
     },
   },
   {
-    state: 'manifest-resolved',
+    state: 'manifest-no-match',
     screen: 'manifest-retry',
-    steps: ['Manifest offer steps', 'Paste APHU 658684 and click Check again with this manifest', 'Panel closes, ID replaced'],
+    steps: ['Manifest offer steps', 'Paste APHU 658684 and click Check again with this manifest', 'No entry matches; the panel stays open'],
     motion: 'frozen',
     run: async (page) => {
       await unidentifiedRun(page)
       await typeManifest(page)
-      await expect(page.locator('.qs-manifest')).toHaveCount(0)
+      await expect(page.locator('.qs-manifest__nomatch')).toBeVisible()
       await page.waitForTimeout(300)
     },
   },
@@ -387,7 +518,8 @@ async function guardNetwork(page: Page, origin: string, liveBody: unknown, block
     const url = route.request().url()
     if (!/^https?:/.test(url)) return route.continue()
     if (url.startsWith(origin)) return route.continue()
-    if (liveBody !== undefined && /api\.openai\.com\/v1\/decisions/.test(url)) {
+    const decisions = /api\.openai\.com\/v1\/decisions|openrouter\.ai\/api\/alpha\/decisions/
+    if (liveBody !== undefined && decisions.test(url)) {
       return route.fulfill({
         status: 200,
         contentType: 'application/json',
@@ -420,6 +552,9 @@ for (const viewport of VIEWPORTS) {
 
       await capture.run(page)
       if (capture.motion === 'frozen') await page.addStyleTag({ content: FREEZE_CSS })
+      // A click or focus may have scrolled the page; a full-page shot from mid-page draws the sticky
+      // top bar halfway down. Capture from the top (focus and selection stay where they are).
+      await page.evaluate(() => window.scrollTo(0, 0))
 
       const certaintyLabels = certaintyLabelsIn(await page.locator('.qs-cert').allTextContents())
       const file = shotFileName(capture.state, viewport)

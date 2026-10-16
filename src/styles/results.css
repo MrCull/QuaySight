@@ -5,7 +5,8 @@ body {
 .rs-top {
   position: sticky;
   top: 0;
-  z-index: 5;
+  /* Above the demo banner, so the cost ledger can open over it. */
+  z-index: 21;
   display: flex;
   white-space: nowrap;
   align-items: center;
@@ -23,34 +24,21 @@ body {
   color: var(--ink-muted);
   font-weight: 400;
 }
-.rs-run {
-  display: inline-flex;
-  align-items: center;
-  gap: var(--space-2);
-  height: 36px;
-  padding: 0 var(--space-3) 0 var(--space-1);
-  border: 1px solid var(--line);
-  border-radius: var(--radius-sm);
-  font: 600 14px/1 var(--font-sans);
-  color: var(--ink);
-}
-.rs-run .qs-mono {
-  width: 28px;
-  height: 28px;
-  font-size: 11px;
-}
-.rs-run small {
-  font: 400 12px/1 var(--font-mono);
-  color: var(--ink-muted);
-}
 .rs-spacer {
   flex: 1;
 }
 .rs-main {
   display: grid;
   grid-template-columns: minmax(0, 1fr) 540px;
-  gap: var(--space-5);
-  padding: var(--space-5);
+  gap: var(--space-6);
+  padding: var(--space-6);
+}
+/* Before any photo: the drop zone, or the demo sample picker, has the full width (design-system PhotoDrop). */
+.rs-main--start {
+  grid-template-columns: minmax(0, 1fr);
+}
+.rs-main--start > .rs-right:empty {
+  display: none;
 }
 .rs-left {
   display: grid;
@@ -59,6 +47,8 @@ body {
 }
 .rs-photo {
   position: relative;
+  /* Fills the column; at the height cap the photo letterboxes inside rather than the stage narrowing. */
+  width: 100%;
   aspect-ratio: 1000/640;
   /* Keeps the photo and its controls inside a laptop viewport; the photo stays contained, not cropped. */
   max-height: 48vh;
@@ -159,8 +149,10 @@ body {
   border: 1px solid var(--line);
   border-radius: var(--radius-md);
 }
-.rs-card .qs-field {
-  grid-template-columns: 112px 1fr auto;
+@media (min-width: 481px) {
+  .rs-card .qs-field {
+    grid-template-columns: 112px 1fr auto;
+  }
 }
 .rs-note {
   margin: var(--space-3) 0 0;
@@ -278,77 +270,6 @@ body {
   gap: var(--space-3);
 }
 
-/* ---------- Quiet cost line (top bar): low emphasis, no coloured status; the panel floats on expand ---------- */
-.rs-top .qs-cost__toggle {
-  height: auto;
-  padding: 0;
-  border: 0;
-  border-radius: 0;
-  background: transparent;
-  color: var(--ink-muted);
-  font: 400 13px/20px var(--font-sans);
-}
-.rs-top .qs-cost__toggle b {
-  font-family: var(--font-mono);
-  font-weight: 500;
-  color: var(--ink);
-}
-.rs-cost__partial {
-  font-style: italic;
-  color: var(--ink-muted);
-}
-.rs-top .qs-cost__panel {
-  position: absolute;
-  top: 100%;
-  right: 0;
-  z-index: 10;
-  margin-top: var(--space-2);
-}
-
-/* ---------- Provider selector: compact entry, and one quiet summary row once a key is set ---------- */
-.rs-setup .qs-combo__button {
-  min-height: var(--control-md);
-  padding: 0 var(--space-3);
-}
-.rs-setup__summary {
-  display: flex;
-  align-items: center;
-  gap: var(--space-3);
-  min-height: var(--control-md);
-  padding: var(--space-2) var(--space-3);
-  border: 1px solid var(--line);
-  border-radius: var(--radius-sm);
-  background: var(--surface);
-  color: var(--ink-muted);
-}
-.rs-setup__mono {
-  width: 28px;
-  height: 28px;
-  font-size: 11px;
-  color: var(--ink-muted);
-}
-.rs-setup__text {
-  flex: 1;
-  min-width: 0;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-  color: var(--ink);
-}
-.rs-setup__options {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  justify-content: space-between;
-  gap: var(--space-2) var(--space-3);
-}
-.rs-setup__replay {
-  display: inline-flex;
-  align-items: center;
-  gap: var(--space-2);
-  color: var(--ink-muted);
-}
-
 /* Laptop and phone widths: no fixed minimum width, one column, 16px gutter on phones (no horizontal scroll). */
 @media (max-width: 1100px) {
   .rs-main {
@@ -367,6 +288,41 @@ body {
     gap: var(--space-3);
   }
   .rs-crumb {
+    display: none;
+  }
+  /* Phone: brand and New inspection share the first row; the run, settings and cost wrap beneath. */
+  .rs-top .qs-newinsp {
+    order: 1;
+    margin-left: auto;
+  }
+  /* No row gap: a zero-height line break follows New inspection, and the lines beneath space themselves. */
+  .rs-top {
+    row-gap: 0;
+  }
+  .rs-top::after {
+    content: '';
+    order: 2;
+    flex-basis: 100%;
+    height: 0;
+  }
+  .rs-top .qs-settingschip,
+  .rs-top .qs-runchip,
+  .rs-top .qs-cost {
+    order: 3;
+    min-width: 0;
+    margin-top: var(--space-3);
+  }
+  .rs-top .qs-runchip {
+    flex: none;
+  }
+  .rs-top .qs-cost {
+    flex: 1 1 10rem;
+  }
+  .rs-top .rs-spacer {
+    display: none;
+  }
+  /* design-system RunChip: on phones only the monogram and the name show. */
+  .rs-top .qs-runchip__detail {
     display: none;
   }
   .rs-top .qs-cost,
@@ -389,9 +345,6 @@ body {
   .rs-right {
     grid-template-columns: minmax(0, 1fr);
     min-width: 0;
-  }
-  .rs-card .qs-field {
-    grid-template-columns: 88px minmax(0, 1fr) auto;
   }
   /* The design system's medium container ID (qs-id--md) so ten characters fit a phone width. */
   .rs-right .qs-id {

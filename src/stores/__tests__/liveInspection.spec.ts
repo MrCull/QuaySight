@@ -1,6 +1,9 @@
 import { describe, it, expect, beforeEach, vi, afterEach } from 'vitest'
 import { setActivePinia, createPinia } from 'pinia'
 
+// jsdom has no image decoder or canvas; photo preparation runs on the fake codec.
+vi.mock('../../services/imageCodec')
+
 const callLunaMock = vi.fn<(...args: unknown[]) => unknown>()
 vi.mock('../../services/luna', () => ({
   callLuna: (...args: unknown[]) => callLunaMock(...args),
@@ -55,21 +58,21 @@ describe('live Luna inspection in the store', () => {
     vi.restoreAllMocks()
   })
 
-  it('will not start until a Luna key is entered, then runs live unless replay is chosen', () => {
+  it('will not start until a Luna key is entered, then runs live', () => {
     const store = useInspectionStore()
+    store.setProvider('luna')
     choosePhoto(store)
     expect(store.canStart).toBe(false)
     store.setApiKey(KEY)
     expect(store.canStart).toBe(true)
     expect(store.mode).toBe('live')
-    store.replaySample = true
-    expect(store.mode).toBe('recorded')
   })
 
-  it('does not send the Luna key to Jev, and will not start without a Jev key', async () => {
+  it('does not send the OpenAI key to OpenRouter, and will not start without an OpenRouter key', async () => {
     const store = useInspectionStore()
+    store.setProvider('luna')
     store.setApiKey(KEY)
-    store.setProvider('jev')
+    store.setProvider('openrouter')
     expect(store.canStart).toBe(false)
     choosePhoto(store)
     await store.start()
@@ -79,6 +82,7 @@ describe('live Luna inspection in the store', () => {
   it('runs one chargeable call through the ledger and records the live result', async () => {
     callLunaMock.mockResolvedValue(liveResult())
     const store = useInspectionStore()
+    store.setProvider('luna')
     const ledger = useLedgerStore()
     store.setApiKey(KEY)
     choosePhoto(store)
@@ -126,6 +130,7 @@ describe('live Luna inspection in the store', () => {
       },
     })
     const store = useInspectionStore()
+    store.setProvider('luna')
     store.setApiKey(KEY)
     choosePhoto(store)
     await store.start()
@@ -138,6 +143,7 @@ describe('live Luna inspection in the store', () => {
       new LunaError('http', 'OpenAI rate limit reached. Wait a minute, then try again.', 429),
     )
     const store = useInspectionStore()
+    store.setProvider('luna')
     const ledger = useLedgerStore()
     store.setApiKey(KEY)
     choosePhoto(store)
@@ -153,6 +159,7 @@ describe('live Luna inspection in the store', () => {
   it('clears the key on request and closes the gate again', () => {
     const setItem = vi.spyOn(Storage.prototype, 'setItem')
     const store = useInspectionStore()
+    store.setProvider('luna')
     store.setApiKey(KEY)
     store.clearApiKey()
     expect(store.apiKey).toBe('')
@@ -163,6 +170,7 @@ describe('live Luna inspection in the store', () => {
   it('does not persist the key to browser storage', () => {
     const setItem = vi.spyOn(Storage.prototype, 'setItem')
     const store = useInspectionStore()
+    store.setProvider('luna')
     store.setApiKey(KEY)
     expect(setItem).not.toHaveBeenCalled()
     expect(JSON.stringify(store.$state)).toContain(KEY)
@@ -171,6 +179,7 @@ describe('live Luna inspection in the store', () => {
 
   it('refuses a live run when the photo has no file to send', async () => {
     const store = useInspectionStore()
+    store.setProvider('luna')
     store.setApiKey(KEY)
     store.setPhoto({ name: 'rear.jpg', url: 'blob:x', orientation: 'landscape' })
     await store.start()

@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { canStart, hasKey, selectorView } from '../keyGate'
+import { canContinue, canStart, hasKey } from '../keyGate'
 
 describe('hasKey', () => {
   it('is false for empty and whitespace-only keys', () => {
@@ -30,7 +30,7 @@ describe('canStart (key gate)', () => {
   })
 
   it('refuses when the model is not offered by the selected provider', () => {
-    expect(canStart({ ...base, model: 'jev-latest' })).toBe(false)
+    expect(canStart({ ...base, model: '~typesafe/jev-latest' })).toBe(false)
   })
 
   it('allows a start once a photo, a key and a valid model are present', () => {
@@ -38,39 +38,29 @@ describe('canStart (key gate)', () => {
   })
 
   it('checks the key for the provider in use, so a Jev run needs a Jev key', () => {
-    expect(canStart({ ...base, provider: 'jev', model: 'jev-latest', apiKey: '' })).toBe(false)
-    expect(canStart({ ...base, provider: 'jev', model: 'jev-latest' })).toBe(true)
+    expect(
+      canStart({ ...base, provider: 'openrouter', model: '~typesafe/jev-latest', apiKey: '' }),
+    ).toBe(false)
+    expect(canStart({ ...base, provider: 'openrouter', model: '~typesafe/jev-latest' })).toBe(true)
   })
 })
 
-describe('selectorView (collapse logic)', () => {
-  it('shows the full entry view before a key is entered', () => {
-    expect(
-      selectorView({ apiKey: '', model: 'gpt-6-luna', provider: 'luna', editing: false }),
-    ).toBe('entry')
+describe('canContinue (setup card gate)', () => {
+  const base = { provider: 'luna' as const, model: 'gpt-6-luna', apiKey: 'test-key' }
+
+  it('stays closed until a key is entered', () => {
+    expect(canContinue({ ...base, apiKey: '' })).toBe(false)
+    expect(canContinue({ ...base, apiKey: '   ' })).toBe(false)
   })
 
-  it('collapses to a summary once a key is entered and the selection is valid', () => {
+  it('opens with a key and a model the provider offers, with no photo needed', () => {
+    expect(canContinue(base)).toBe(true)
     expect(
-      selectorView({ apiKey: 'test-key', model: 'gpt-6-luna', provider: 'luna', editing: false }),
-    ).toBe('collapsed')
+      canContinue({ provider: 'openrouter', model: 'typesafe/jev-1.13', apiKey: 'test-key' }),
+    ).toBe(true)
   })
 
-  it('stays expanded while the presenter is editing, even with a valid key', () => {
-    expect(
-      selectorView({ apiKey: 'test-key', model: 'gpt-6-luna', provider: 'luna', editing: true }),
-    ).toBe('entry')
-  })
-
-  it('does not collapse when the model is not valid for the provider', () => {
-    expect(
-      selectorView({ apiKey: 'test-key', model: 'jev-latest', provider: 'luna', editing: false }),
-    ).toBe('entry')
-  })
-
-  it('returns to the entry view when the key is cleared', () => {
-    expect(
-      selectorView({ apiKey: '', model: 'gpt-6-luna', provider: 'luna', editing: false }),
-    ).toBe('entry')
+  it('stays closed for a model the provider does not offer', () => {
+    expect(canContinue({ ...base, model: '~typesafe/jev-latest' })).toBe(false)
   })
 })

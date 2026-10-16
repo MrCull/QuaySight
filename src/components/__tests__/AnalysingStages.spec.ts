@@ -31,6 +31,16 @@ describe('AnalysingStages', () => {
     expect(wrapper.findAll('.qs-stage__time').every((t) => t.text() === '')).toBe(true)
   })
 
+  it('names the model doing the analysis: the chosen one live, the recorded one for a sample', () => {
+    const store = useInspectionStore()
+    const live = mount(AnalysingStages)
+    expect(live.get('.rs-stagecard__k').text()).toBe('Analysing with Jev latest')
+    store.enterDemo()
+    store.chooseSample('rear-aphu')
+    const demo = mount(AnalysingStages)
+    expect(demo.get('.rs-stagecard__k').text()).toBe('Analysing with GPT-6 Luna')
+  })
+
   it('never names passes, retries, candidates or refinement', () => {
     const wrapper = mount(AnalysingStages)
     expect(wrapper.text()).not.toMatch(/pass|retr|candidate|refine|round/i)

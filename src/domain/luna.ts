@@ -8,6 +8,14 @@ import { buildContainerIdReading } from './containerId'
 import { CERTAINTY_LABELS, UNREAD, applyMargin } from './certainty'
 import type { CertaintyLabel, ContainerIdReading } from './inspection'
 import type { Usage } from './ledger'
+import { classifyFailedCall, type ProviderErrorTraits } from './failedCall'
+import { ProviderError, providerMessage, redact } from './providerErrors'
+import {
+  MANIFEST_STATE_INSTRUCTIONS,
+  readManifestAnswers,
+  type ManifestChoiceAnswer,
+  type ManifestQuestion,
+} from './manifest'
 
 export const LUNA_MODEL = 'gpt-6-luna'
 export const LUNA_ENDPOINT = 'https://api.openai.com/v1/decisions'
@@ -18,7 +26,8 @@ export const LUNA_ENDPOINT_ID = 'decisions'
 export const CHECK_DIGIT_GUIDANCE =
   'A standard container number has three owner-code letters, one equipment-category letter, six serial digits and one check digit. To calculate the check digit, assign numeric values to letters starting at A=10 and skipping multiples of 11 (for example B=12, K=21, L=23, U=32). Digits retain their numeric value. Multiply the first ten values by 1, 2, 4, 8, 16, 32, 64, 128, 256 and 512; sum and take the remainder modulo 11. Remainder 10 is displayed as 0. Use this as a consistency constraint when comparing visually plausible numbers, but do not invent or change clearly visible characters just to satisfy it.'
 
-const IDENTIFICATION_INSTRUCTIONS =
+/** The instruction text sent ahead of the photo, on every route that asks the Luna question set. */
+export const LUNA_IDENTIFICATION_INSTRUCTIONS =
   'Read the container identification (ISO 6346 owner code, category, serial number and check digit) printed on this freight container photo. Answer each numbered position with the one character you can see. If a position is not visible or cannot be read, give a low probability for every choice rather than a clear character. ' +
   CHECK_DIGIT_GUIDANCE
 
@@ -81,7 +90,7 @@ export function buildLunaRequest(imageDataUrl: string, positions?: number[]): Lu
       {
         role: 'user',
         content: [
-          { type: 'input_text', text: IDENTIFICATION_INSTRUCTIONS },
+          { type: 'input_text', text: LUNA_IDENTIFICATION_INSTRUCTIONS },
           { type: 'input_image', image_url: imageDataUrl },
         ],
       },
@@ -90,75 +99,71 @@ export function buildLunaRequest(imageDataUrl: string, positions?: number[]): Lu
   }
 }
 
-export type LunaErrorKind = 'http' | 'network' | 'bad-response'
+/**
+ * OpenAI's Decisions API sends CORS headers on preflight and 200 responses but not on errors such as a 401
+ * (checked live 16 Oct 2026). In the browser a refused call therefore arrives as a thrown fetch.
+ */
+export const LUNA_ERROR_TRAITS: ProviderErrorTraits = { errorsCarryCors: false }
 
-/** An error with a message fit to show the presenter. Never carries the key. */
-export class LunaError extends Error {
-  readonly kind: LunaErrorKind
-  readonly status: number | null
+/** `network`: the browser could not reach OpenAI. `refused`: OpenAI refused the call but the browser could not read why. */
+export type LunaErrorKind = 'http' | 'network' | 'refused' | 'bad-response'
 
-  constructor(kind: LunaErrorKind, message: string, status: number | null = null) {
-    super(message)
+/** A failed OpenAI call, with a message fit to show the presenter. Never carries the key. */
+export class LunaError extends ProviderError<LunaErrorKind> {
+  constructor(kind: LunaErrorKind, advice: string, status: number | null = null) {
+    super(kind, advice, status)
     this.name = 'LunaError'
-    this.kind = kind
-    this.status = status
   }
 }
 
-const KEY_PATTERN = /sk-[A-Za-z0-9_-]+/g
-
-function redact(text: string, apiKey: string): string {
-  let safe = text
-  if (apiKey) safe = safe.split(apiKey).join('[key removed]')
-  return safe.replace(KEY_PATTERN, '[key removed]').slice(0, 200)
-}
-
-function providerMessage(body: unknown): string | null {
-  if (typeof body !== 'object' || body === null) return null
-  const error = (body as { error?: unknown }).error
-  if (typeof error !== 'object' || error === null) return null
-  const message = (error as { message?: unknown }).message
-  return typeof message === 'string' && message.trim() ? message.trim() : null
+/**
+ * Turns a fetch that threw (no readable response) into an actionable message. `online` is the browser's
+ * navigator.onLine when the call failed. Online means OpenAI refused the call; offline means it was unreachable.
+ */
+export function lunaFetchFailure(online: boolean): LunaError {
+  if (classifyFailedCall({ kind: 'thrown', online }, LUNA_ERROR_TRAITS) === 'refused') {
+    return new LunaError(
+      'refused',
+      `OpenAI refused the request. Usually the key is wrong, out of credit, or has no access to ${LUNA_MODEL}. Check the key, then try again.`,
+    )
+  }
+  return new LunaError('network', 'Could not reach OpenAI. Check your connection, then try again.')
 }
 
 /** Turns a non-2xx Decisions response into an actionable message. The key is removed from any echoed text. */
 export function lunaFailure(status: number, body: unknown, apiKey: string): LunaError {
-  if (status === 401 || status === 403) {
-    return new LunaError(
-      'http',
-      'The key was rejected by OpenAI. Check the GPT-6 Luna key, then try again. The key is not stored.',
-      status,
-    )
+  switch (classifyFailedCall({ kind: 'status', status }, LUNA_ERROR_TRAITS)) {
+    case 'bad-key':
+      return new LunaError(
+        'http',
+        'The key was rejected by OpenAI. Check the GPT-6 Luna key, then try again. The key is not stored.',
+        status,
+      )
+    case 'rate-limited':
+      return new LunaError(
+        'http',
+        'OpenAI rate limit reached. Wait a minute, then try again. Nothing was retried for you.',
+        status,
+      )
+    case 'not-found':
+      return new LunaError(
+        'http',
+        `OpenAI could not find the Decisions endpoint or ${LUNA_MODEL} for this key. Check the model version and that the key has access.`,
+        status,
+      )
+    case 'unavailable':
+      return new LunaError('http', 'OpenAI is unavailable right now. Try again shortly.', status)
+    default: {
+      const detail = providerMessage(body)
+      return new LunaError(
+        'http',
+        detail
+          ? `OpenAI rejected the request (${status}): ${redact(detail, apiKey)}`
+          : `OpenAI rejected the request (${status}). Check the photo and model, then try again.`,
+        status,
+      )
+    }
   }
-  if (status === 429) {
-    return new LunaError(
-      'http',
-      'OpenAI rate limit reached. Wait a minute, then try again. Nothing was retried for you.',
-      status,
-    )
-  }
-  if (status === 404) {
-    return new LunaError(
-      'http',
-      `OpenAI could not find the Decisions endpoint or ${LUNA_MODEL} for this key. Check the model version and that the key has access.`,
-      status,
-    )
-  }
-  if (status >= 500) {
-    return new LunaError(
-      'http',
-      'OpenAI is unavailable right now. Try again shortly. Any partial result is kept.',
-      status,
-    )
-  }
-  const detail = providerMessage(body)
-  return new LunaError(
-    'http',
-    detail
-      ? `OpenAI rejected the request (${status}): ${redact(detail, apiKey)}`
-      : `OpenAI rejected the request (${status}). Check the photo and model, then try again.`,
-    status,
-  )
 }
 
 export interface LunaMapping {
@@ -329,5 +334,79 @@ function readUsage(raw: unknown): Usage | null {
   return {
     inputTokens,
     outputTokens: numberField(record, ['output_tokens', 'completion_tokens']),
+  }
+}
+
+/**
+ * The manifest check for one photo (spec 3.2): the pasted entries as choice questions with "not
+ * listed", on the same Decisions request shape. The key is never part of the body.
+ */
+export function buildLunaManifestRequest(
+  imageDataUrl: string,
+  questions: ManifestQuestion[],
+): LunaRequestBody {
+  return {
+    model: LUNA_MODEL,
+    input: [
+      {
+        role: 'user',
+        content: [
+          { type: 'input_text', text: MANIFEST_STATE_INSTRUCTIONS },
+          { type: 'input_image', image_url: imageDataUrl },
+        ],
+      },
+    ],
+    questions: questions.map((q) => ({
+      type: 'choice',
+      name: q.name,
+      instructions: q.instructions,
+      choices: q.options,
+    })),
+  }
+}
+
+export interface ManifestMapping {
+  /** The manifest entry the model chose, as a manifest reading; null for "not listed". */
+  reading: ContainerIdReading | null
+  /** The model the response reports, or the requested model when it reports none. */
+  resolvedModel: string
+  /** Usage from the response's own fields, or null when the response carries none. */
+  usage: Usage | null
+}
+
+/** Maps an OpenAI-shaped Decisions response (answers as a named list) for the manifest check. */
+export function mapLunaManifestResponse(
+  response: unknown,
+  requestedModel: string,
+  questions: ManifestQuestion[],
+): ManifestMapping {
+  if (typeof response !== 'object' || response === null) {
+    throw new LunaError('bad-response', 'OpenAI replied in a shape the app does not recognise.')
+  }
+  const body = response as Record<string, unknown>
+  if (!Array.isArray(body.answers)) {
+    throw new LunaError('bad-response', 'OpenAI replied without answers. Try again.')
+  }
+  const answers: Record<string, ManifestChoiceAnswer> = {}
+  for (const answer of body.answers as unknown[]) {
+    if (typeof answer !== 'object' || answer === null) continue
+    const record = answer as Record<string, unknown>
+    if (typeof record.name !== 'string' || record.type !== 'choice') continue
+    if (typeof record.choice !== 'string') continue
+    const probabilities: Record<string, number> = {}
+    for (const entry of Array.isArray(record.probabilities) ? record.probabilities : []) {
+      const e = entry as { value?: unknown; probability?: unknown }
+      if (typeof e.value === 'string' && typeof e.probability === 'number') {
+        probabilities[e.value] = e.probability
+      }
+    }
+    answers[record.name] = { choice: record.choice, probabilities }
+  }
+  const resolvedModel =
+    typeof body.model === 'string' && body.model.trim() ? body.model.trim() : requestedModel
+  return {
+    reading: readManifestAnswers(answers, questions),
+    resolvedModel,
+    usage: readUsage(body.usage),
   }
 }
