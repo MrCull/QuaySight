@@ -31,7 +31,6 @@ import {
   longSideScript,
   rearDoorsScript,
   roofScript,
-  surveyReply,
   surveyWithIdAnswers,
   type Script,
 } from './mockRuns'
