@@ -145,6 +145,8 @@ export interface ChoiceReading {
   value: string | null
   certainty: CertaintyLabel
   runnerUp: string | null
+  /** The chosen character's probability, when the reply gave one. Compares two readings of a character. */
+  probability?: number
 }
 
 const RUNNER_UP_MIN = 0.15
@@ -166,7 +168,12 @@ function readCharacter(answer: SharedAnswer | undefined, allowed: string[]): Cho
   )
   if (certainty === "Can't tell") return UNREAD_CHARACTER
   const runner = scored.find((e) => e.value !== chosen.value && e.probability >= RUNNER_UP_MIN)
-  return { value: chosen.value, certainty, runnerUp: runner?.value ?? null }
+  return {
+    value: chosen.value,
+    certainty,
+    runnerUp: runner?.value ?? null,
+    probability: chosen.probability,
+  }
 }
 
 /**

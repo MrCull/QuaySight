@@ -4,6 +4,7 @@
 import { labelsFor, recordedDemonstrationLabel } from './providers'
 import { faceStatus, type DamageFace, type FaceStatus, type FindingZone } from './damage'
 import type { CertaintyLabel, InspectionRecord, Provenance, RecheckRecord } from './inspection'
+import type { IdCropReadRecord } from './cropRead'
 
 export const EXPORT_SCHEMA_VERSION = 1
 
@@ -70,6 +71,8 @@ export interface InspectionExport {
   conflicts: string[]
   /** Automatic re-checks: observations and outcome. Never shown in the UI. */
   rechecks: RecheckRecord[]
+  /** Jev's crop read of the container ID: the crop and any character it disagreed on. Never shown in the UI. */
+  idCropRead: IdCropReadRecord | null
   damage: {
     assessed: boolean
     photos: { photo: string; face: DamageFace }[]
@@ -254,6 +257,7 @@ export function buildInspectionExport(record: InspectionRecord): InspectionExpor
     unresolved,
     conflicts,
     rechecks: record.rechecks ?? [],
+    idCropRead: record.idCropRead ?? null,
     damage: {
       assessed: assessment !== null,
       photos: assessment?.photos ?? [],
