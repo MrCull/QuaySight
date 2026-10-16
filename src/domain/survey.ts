@@ -66,8 +66,8 @@ export interface SurveyAnswer {
   containerId: ContainerIdReading
   /** Per-position readings (11). Luna's re-check asks the unread ones again. */
   readings: ChoiceReading[]
-  /** Where the ID is in the photo, on box-capable models that answered; otherwise null. */
-  idBox: JevBox | null
+  /** Where the ID is in the photo, on box-capable models that answered; otherwise null (the crop read starts from it). */
+  box: JevBox | null
   findings: SurveyFindings
 }
 
@@ -101,7 +101,7 @@ export function readSurvey(
     return {
       containerId: assembleLunaReading(readings),
       readings,
-      idBox: null,
+      box: null,
       findings: findings as unknown as SurveyFindings,
     }
   }
@@ -109,7 +109,7 @@ export function readSurvey(
   return {
     containerId: jev.containerId,
     readings: jev.readings,
-    idBox: ask.box ? jev.box : null,
+    box: ask.box ? jev.box : null,
     findings: findings as unknown as SurveyFindings,
   }
 }

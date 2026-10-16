@@ -6,6 +6,9 @@ vi.mock('../../services/imageCodec')
 
 import { useInspectionStore } from '../inspection'
 import { useLedgerStore } from '../ledger'
+import { registerRequest } from '../../plan/registry'
+import { survey } from '../../plan/requests/survey'
+import type { SurveyAnswer } from '../../domain/survey'
 import {
   jsonResponse as json,
   openAiSurveyReply,
@@ -208,6 +211,38 @@ describe('the survey request reads the container details with the ID', () => {
     expect(store.record?.containerId?.value).toBe(COYU)
     expect(store.record?.details?.sizeCode).toMatchObject({ state: 'read', code: '22G1' })
     expect(store.record?.details?.equipment.flatRack.answer).toBe('no')
+  })
+
+  it("gives a request that follows it the ID's per-position readings and, on Jev, where the ID is", async () => {
+    let seen: SurveyAnswer | undefined
+    const undo = registerRequest({
+      id: 'follows-survey',
+      purpose: 'Test only',
+      stages: ['id'],
+      after: [survey],
+      needed: (plan) => {
+        seen = plan.answer(survey)
+        return false
+      },
+      send: () => Promise.reject(new Error('not needed')),
+      apply: (record) => record,
+    })
+    try {
+      fetchMock.mockResolvedValueOnce(
+        json(openRouterSurveyReply(COYU, { details: COYU_DETAILS, box: true })),
+      )
+      await jevStore().start()
+    } finally {
+      undo()
+    }
+
+    expect(seen?.readings).toHaveLength(11)
+    expect(seen?.box).toMatchObject({
+      top: expect.any(Number),
+      bottom: expect.any(Number),
+      left: expect.any(Number),
+      right: expect.any(Number),
+    })
   })
 
   it('flags a check that disagrees with the decoded code, and lowers its certainty', async () => {
