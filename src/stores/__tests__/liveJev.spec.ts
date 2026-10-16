@@ -53,12 +53,12 @@ describe('live Jev inspection in the store', () => {
   it('goes live for Jev only with a Jev key, and keeps keys per provider', () => {
     const store = useInspectionStore()
     store.setProvider('jev')
-    expect(store.mode).toBe('recorded')
+    expect(store.canStart).toBe(false)
     store.setApiKey(JEV_KEY)
     expect(store.mode).toBe('live')
     store.setProvider('luna')
     expect(store.apiKey).toBe('')
-    expect(store.mode).toBe('recorded')
+    expect(store.canStart).toBe(false)
   })
 
   it('never sends the Luna key to Jev, and the Jev key to Luna', async () => {
@@ -69,7 +69,7 @@ describe('live Jev inspection in the store', () => {
     await store.start()
     expect(callJevMock).not.toHaveBeenCalled()
     expect(callLunaMock).not.toHaveBeenCalled()
-    expect(store.mode).toBe('recorded')
+    expect(store.canStart).toBe(false)
   })
 
   it('calls Jev with the requested model and records the resolved version and provider raw response', async () => {
@@ -96,7 +96,10 @@ describe('live Jev inspection in the store', () => {
       model: 'jev-latest',
       resolvedVersion: 'jev-1.13.0',
     })
-    expect(store.record?.rawResponses[0]).toMatchObject({ capturedFrom: 'provider', provider: 'jev' })
+    expect(store.record?.rawResponses[0]).toMatchObject({
+      capturedFrom: 'provider',
+      provider: 'jev',
+    })
     expect(store.record?.containerId?.value).toBe('APHU6586847')
 
     expect(ledger.entries()[0]).toMatchObject({

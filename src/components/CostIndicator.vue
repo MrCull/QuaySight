@@ -59,22 +59,15 @@ function amount(totals: { costUsd: number | null; requests: number } | null): st
       :aria-controls="panelId"
       @click="expanded = !expanded"
     >
-      <template v-if="isSample">
-        <span class="qs-cost__mode qs-cost__mode--recorded">Sample</span>
-        <span class="qs-cost__sep"></span>
-        Saved result · no live API charge
-      </template>
+      <template v-if="isSample">Saved result · no live API charge</template>
       <template v-else>
-        <span class="qs-cost__mode">Live</span>
-        <span class="qs-cost__sep"></span>
         This container <b>{{ amount(container) }}</b>
         <template v-if="container?.incomplete">
-          <span class="qs-cost__unknown">Partial estimate</span></template
+          <span class="rs-cost__partial">Partial estimate</span></template
         >
-        <span class="qs-cost__sep"></span>
-        Session <b>{{ amount(session) }}</b>
+        · Session <b>{{ amount(session) }}</b>
         <template v-if="session.incomplete">
-          <span class="qs-cost__unknown">Partial estimate</span></template
+          <span class="rs-cost__partial">Partial estimate</span></template
         >
       </template>
       <i class="qs-glyph qs-glyph--chevron" aria-hidden="true"></i>

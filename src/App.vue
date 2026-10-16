@@ -11,7 +11,9 @@ import CostIndicator from './components/CostIndicator.vue'
 const store = useInspectionStore()
 
 const running = computed(() => store.status === 'running')
-const canStart = computed(() => !!store.photo && !running.value)
+// The key gate lives in the store: a photo, a key for the selected provider and a valid model.
+const canStart = computed(() => store.canStart && !running.value)
+const needsKey = computed(() => !!store.photo && !store.canStart && !running.value)
 const runLabel = computed(() => {
   const p = getProvider(store.provider)
   return `${p.name} · ${store.model}${store.mode === 'live' ? ' · live' : ''}`
@@ -72,6 +74,9 @@ function start() {
           >
         </div>
         <div>
+          <p v-if="needsKey" class="qs-hint rs-gate-hint">
+            Enter this provider's key to start. A key is needed even for a recorded sample.
+          </p>
           <button
             type="button"
             class="qs-btn qs-btn--primary"
@@ -79,7 +84,13 @@ function start() {
             :aria-busy="running ? 'true' : 'false'"
             @click="start"
           >
-            {{ running ? 'Analysing…' : store.mode === 'live' ? 'Run live inspection' : 'Start inspection' }}
+            {{
+              running
+                ? 'Analysing…'
+                : store.mode === 'live'
+                  ? 'Run live inspection'
+                  : 'Start inspection'
+            }}
           </button>
         </div>
       </section>
