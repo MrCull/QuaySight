@@ -8,6 +8,7 @@ import { buildContainerIdReading } from './containerId'
 import { CERTAINTY_LABELS, UNREAD, applyMargin } from './certainty'
 import type { CertaintyLabel, ContainerIdReading } from './inspection'
 import type { Usage } from './ledger'
+import { classifyFailedCall, type ProviderErrorTraits } from './failedCall'
 
 export const LUNA_MODEL = 'gpt-6-luna'
 export const LUNA_ENDPOINT = 'https://api.openai.com/v1/decisions'
@@ -90,7 +91,14 @@ export function buildLunaRequest(imageDataUrl: string, positions?: number[]): Lu
   }
 }
 
-export type LunaErrorKind = 'http' | 'network' | 'bad-response'
+/**
+ * OpenAI's Decisions API sends CORS headers on preflight and 200 responses but not on errors such as a 401
+ * (checked live 16 Oct 2026). In the browser a refused call therefore arrives as a thrown fetch.
+ */
+export const LUNA_ERROR_TRAITS: ProviderErrorTraits = { errorsCarryCors: false }
+
+/** `network`: the browser could not reach OpenAI. `refused`: OpenAI refused the call but the browser could not read why. */
+export type LunaErrorKind = 'http' | 'network' | 'refused' | 'bad-response'
 
 /** An error with a message fit to show the presenter. Never carries the key. */
 export class LunaError extends Error {
@@ -121,44 +129,58 @@ function providerMessage(body: unknown): string | null {
   return typeof message === 'string' && message.trim() ? message.trim() : null
 }
 
+/**
+ * Turns a fetch that threw (no readable response) into an actionable message. `online` is the browser's
+ * navigator.onLine when the call failed. Online means OpenAI refused the call; offline means it was unreachable.
+ */
+export function lunaFetchFailure(online: boolean): LunaError {
+  if (classifyFailedCall({ kind: 'thrown', online }, LUNA_ERROR_TRAITS) === 'refused') {
+    return new LunaError(
+      'refused',
+      `OpenAI refused the request. Usually the key is wrong, out of credit, or has no access to ${LUNA_MODEL}. Check the key, then try again.`,
+    )
+  }
+  return new LunaError('network', 'Could not reach OpenAI. Check your connection, then try again.')
+}
+
 /** Turns a non-2xx Decisions response into an actionable message. The key is removed from any echoed text. */
 export function lunaFailure(status: number, body: unknown, apiKey: string): LunaError {
-  if (status === 401 || status === 403) {
-    return new LunaError(
-      'http',
-      'The key was rejected by OpenAI. Check the GPT-6 Luna key, then try again. The key is not stored.',
-      status,
-    )
+  switch (classifyFailedCall({ kind: 'status', status }, LUNA_ERROR_TRAITS)) {
+    case 'bad-key':
+      return new LunaError(
+        'http',
+        'The key was rejected by OpenAI. Check the GPT-6 Luna key, then try again. The key is not stored.',
+        status,
+      )
+    case 'rate-limited':
+      return new LunaError(
+        'http',
+        'OpenAI rate limit reached. Wait a minute, then try again. Nothing was retried for you.',
+        status,
+      )
+    case 'not-found':
+      return new LunaError(
+        'http',
+        `OpenAI could not find the Decisions endpoint or ${LUNA_MODEL} for this key. Check the model version and that the key has access.`,
+        status,
+      )
+    case 'unavailable':
+      return new LunaError(
+        'http',
+        'OpenAI is unavailable right now. Try again shortly. Any partial result is kept.',
+        status,
+      )
+    default: {
+      const detail = providerMessage(body)
+      return new LunaError(
+        'http',
+        detail
+          ? `OpenAI rejected the request (${status}): ${redact(detail, apiKey)}`
+          : `OpenAI rejected the request (${status}). Check the photo and model, then try again.`,
+        status,
+      )
+    }
   }
-  if (status === 429) {
-    return new LunaError(
-      'http',
-      'OpenAI rate limit reached. Wait a minute, then try again. Nothing was retried for you.',
-      status,
-    )
-  }
-  if (status === 404) {
-    return new LunaError(
-      'http',
-      `OpenAI could not find the Decisions endpoint or ${LUNA_MODEL} for this key. Check the model version and that the key has access.`,
-      status,
-    )
-  }
-  if (status >= 500) {
-    return new LunaError(
-      'http',
-      'OpenAI is unavailable right now. Try again shortly. Any partial result is kept.',
-      status,
-    )
-  }
-  const detail = providerMessage(body)
-  return new LunaError(
-    'http',
-    detail
-      ? `OpenAI rejected the request (${status}): ${redact(detail, apiKey)}`
-      : `OpenAI rejected the request (${status}). Check the photo and model, then try again.`,
-    status,
-  )
 }
 
 export interface LunaMapping {

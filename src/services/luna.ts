@@ -4,6 +4,7 @@ import {
   LunaError,
   buildLunaRequest,
   lunaFailure,
+  lunaFetchFailure,
   mapLunaResponse,
   type LunaMapping,
 } from '../domain/luna'
@@ -23,6 +24,11 @@ export interface LunaCallResult extends LunaMapping {
   latencyMs: number
   /** The response payload as returned. Contains no headers and no key. */
   raw: unknown
+}
+
+/** The browser's own view of its connection. Treated as online where the browser does not say. */
+function browserOnline(): boolean {
+  return typeof navigator === 'undefined' || navigator.onLine !== false
 }
 
 function blobToDataUrl(blob: Blob): Promise<string> {
@@ -67,7 +73,8 @@ export async function callLuna(options: CallLunaOptions): Promise<LunaCallResult
       body,
     })
   } catch {
-    throw new LunaError('network', 'Could not reach OpenAI. Check your connection, then try again.')
+    // The thrown error's text is never shown: it says nothing useful and could echo request details.
+    throw lunaFetchFailure(browserOnline())
   }
   const latencyMs = Date.now() - started
 
