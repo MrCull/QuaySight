@@ -12,6 +12,8 @@ import { defineConfig, devices } from '@playwright/test'
  */
 export default defineConfig({
   testDir: './e2e',
+  /* The screenshot harness runs only through `npm run screenshots` (QS_SCREENSHOTS=1). */
+  testIgnore: process.env.QS_SCREENSHOTS ? [] : ['**/screens/capture.spec.ts'],
   /* Maximum time one test can run for. */
   timeout: 30 * 1000,
   expect: {

@@ -45,3 +45,6 @@ playwright-report/
 .env
 .env.*
 !.env.example
+
+# Screenshot harness output (generated, never committed)
+screenshots/
