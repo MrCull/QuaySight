@@ -57,6 +57,8 @@ const views = computed(() =>
       spec,
       noPhotos: !viewHasPhotos(props.assessment, spec.id),
       markers: findingsInView(props.assessment, spec.id),
+      // The door set's regions are drawn on the end of the view that holds the end.
+      zones: (props.assessment.zones ?? []).filter((z) => z.face === spec.end),
       side: {
         status: sideStatus,
         text: faceText(`${spec.side === 'right' ? 'Right' : 'Left'} side`, sideStatus),
@@ -72,10 +74,12 @@ const showImage = computed(() => props.assessment.photos.some((p) => p.face === 
 const imageZones = computed(() =>
   (props.assessment.zones ?? []).filter((z) => z.face === 'long-side'),
 )
+// Any zone grid in the assessment keeps its dashed edges visible.
+const hasZones = computed(() => (props.assessment.zones ?? []).length > 0)
 </script>
 
 <template>
-  <div :class="['qs-schem', { 'qs-schem--show-grid': imageZones.length > 0 }]">
+  <div :class="['qs-schem', { 'qs-schem--show-grid': hasZones }]">
     <div class="qs-schem__views">
       <div class="qs-schem__views-in">
         <SchematicFigure
@@ -88,6 +92,7 @@ const imageZones = computed(() =>
           :end="v.end"
           :roof="true"
           :markers="v.markers"
+          :zones="v.zones"
           :selected-id="selectedId"
           @select="emit('select', $event)"
         />

@@ -29,9 +29,19 @@ export function severityOfLevel(label: string): Severity | null {
 
 /**
  * The part of the container a finding is on: a photo-relative zone of a panel, or a structural
- * component reported on its own. The door-end set (#35) adds its door parts here.
+ * component reported on its own. The door-end set's parts are the locking bar, cam, hinge, gasket, header and sill.
  */
-export type DamageComponent = 'panel' | 'rail' | 'corner-post' | 'casting'
+export type DamageComponent =
+  | 'panel'
+  | 'rail'
+  | 'corner-post'
+  | 'casting'
+  | 'locking-bar'
+  | 'cam'
+  | 'hinge'
+  | 'gasket'
+  | 'header'
+  | 'sill'
 
 /** How well a zone could be seen. 'not-visible' is shown as Not seen, never as clean. */
 export type ZoneVisibility = 'clear' | 'partial' | 'not-visible'

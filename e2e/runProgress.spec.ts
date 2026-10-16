@@ -56,7 +56,7 @@ test.describe('Live run progress and Cancel', () => {
   test('stages advance as their requests settle (the ID, the details and the face share a request, the damage check is its own)', async ({
     page,
   }) => {
-    // The survey (call 1) is held; the long-side damage request (call 2) answers at once.
+    // The survey (call 1) is held; the long-side and door-end damage requests (calls 2 and 3) answer at once.
     const edge = await decisions(page, [1])
     await startLive(page)
     await expect.poll(() => edge.held.length).toBe(1)
@@ -77,10 +77,10 @@ test.describe('Live run progress and Cancel', () => {
   test('Cancel before anything arrives ends the run, keeps the photo and records the call as cancelled', async ({
     page,
   }) => {
-    // Both the survey and the damage request are held, so nothing has arrived.
-    const edge = await decisions(page, [1, 2])
+    // The survey and both damage requests (long side, door end) are held, so nothing has arrived.
+    const edge = await decisions(page, [1, 2, 3])
     await startLive(page)
-    await expect.poll(() => edge.held.length).toBe(2)
+    await expect.poll(() => edge.held.length).toBe(3)
 
     await page.getByRole('button', { name: 'Cancel' }).click()
 
@@ -99,8 +99,8 @@ test.describe('Live run progress and Cancel', () => {
   })
 
   test('Cancel during a run keeps what already arrived, marked partial', async ({ page }) => {
-    // The reading and the damage check answer; the closer look at the unread position (call 3) is held, then cancelled.
-    const edge = await decisions(page, [3])
+    // The reading and the damage checks answer; the closer look at the unread position (call 4) is held, then cancelled.
+    const edge = await decisions(page, [4])
     await startLive(page)
     await expect.poll(() => edge.held.length).toBe(1)
 
@@ -112,7 +112,7 @@ test.describe('Live run progress and Cancel', () => {
     await expect(page.locator('.qs-id')).toBeVisible()
     await expect(page.getByRole('button', { name: 'New inspection' })).toBeVisible()
     await page.locator('.rs-top .qs-cost__toggle').click()
-    await expect(page.locator('.qs-cost__table tbody tr')).toHaveCount(3)
-    await expect(page.locator('.qs-cost__table tbody tr').nth(2)).toContainText('cancelled')
+    await expect(page.locator('.qs-cost__table tbody tr')).toHaveCount(4)
+    await expect(page.locator('.qs-cost__table tbody tr').nth(3)).toContainText('cancelled')
   })
 })

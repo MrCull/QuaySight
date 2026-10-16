@@ -1,0 +1,864 @@
+{
+  "input": [
+    {
+      "role": "user",
+      "content": [
+        {
+          "type": "input_text",
+          "text": "TASK: Inspect this photograph of the EXTERIOR door end (the end with the two door leaves) of a general-purpose shipping container, which may be 20 ft, 40 ft or longer. Classify visible damage independently for each photo-relative door region using ISO 9897 CEDEX damage terminology. Only use what is visible; do not infer defects behind the panel, under paint, inside the container or on unseen faces. Do not automatically regard scratches, small cosmetic blemishes, rust-coloured dirt, shadows, logos, light reflections, normal door-panel corrugations or stiffening ribs, paint scuffs, door-lock handles in their normal position, stencilled markings, plates, welded manufacturing features or the normal gap between the two leaves as damage. GRID: consider ONLY the DOOR LEAVES, bounded by the corner posts at the left and right, the door header above and the door sill below. Divide the door area into two door leaves, D1 (the leaf at PHOTO LEFT) and D2 (the leaf at PHOTO RIGHT), and split each leaf into three equal horizontal bands from the top of the leaf to its bottom: T (top third), M (middle third) and B (bottom third); e.g. D2B is the bottom third of the leaf at photo right. Locking bars, cams, hinges, door gaskets, the door header, the door sill, the rear corner posts and the corner castings are OUTSIDE the leaf regions and have separate questions. All D-codes are photo-relative APPLICATION region IDs, NOT CEDEX location codes. The photo does not establish which side of the container is left or right; do not assume either, and assign the official CEDEX location later, in software, if orientation is established. Visible defects crossing boundaries may legitimately appear in more than one region; classify each region using the evidence within that region, not elsewhere. DAMAGE TYPE RUBRIC: DT = DENT: a local inward or outward indentation, impact depression, dimple, pushed-in corrugation or crumpled patch of the door panel. An impact dent often bends several adjacent corrugations or creates curved creases; DO classify it DT when a local area is pressed out of its intended profile, EVEN IF THE PANEL METAL IS ALSO CURVED OR CREASED. Do not require a round shape. Normal evenly spaced door-panel corrugations, door-panel stiffening ribs and embossed ribs are NOT DT. BT = BENT: a recognisable sharp change of angle, kink, fold, or displaced component axis, rather than simply a locally depressed corrugation. BT can occur on a door panel, locking bar, post, header or sill, but don't mark BT merely because a DT has curved or wrinkled metal; require distinct bending evidence. BW = BOWED: a broad, smooth, gradual displacement/curvature of a component over an extended distance, not a local dent or abrupt kink. HO = HOLED: an actual opening/puncture through the container component, not a dark shadow, ventilation opening or fork-lift pocket. CK = CRACKED: visible material fracture/tear (not merely a paint line or crease). CW = CRACKED WELD: visible separation of a weld seam; don't flag if the seam is too small to assess. CO = CORRODED/RUSTY: credible orange-brown oxidation, rust deposits, flaking or pitting on container metal; do not call harmless paint discoloration, stains or dirt corrosion without evidence. CH = CORRODED/HOLED: actual perforation visibly associated with corrosion; corrosion alone is not CH. BR = BROKEN/SPLIT: component fractured or separated; an intact dented sheet is not BR. These are ISO CEDEX terms; DT, BT and BW are not guaranteed mutually exclusive, but avoid marking several merely as synonyms. CLASSIFICATION ORDER FOR YOUR REASONING: identify intended straight/corrugated profile; identify local inward/outward surface displacement; look for distinct sharp kink or extended smooth bow; then check for perforation, cracks and corrosion. When more than one defect TYPE is independently evidenced in a zone, multiple predicates may be true. Do not confuse severe visual appearance with confirmed loss of structural strength. IMAGE UNCERTAINTY: low resolution or occlusion must lower certainty; a low damage probability on an uninspectable region is not proof of no damage. Score visible severity only and do not assume compliance with IICL repair criteria, dimensional tolerances or cargo-worthiness. No container, defect or location has been prelabelled as damaged; inspect this photo without assuming the result."
+        },
+        {
+          "type": "input_image",
+          "image_url": "data:image/jpeg;base64,{{imageBase64}}",
+          "detail": "original"
+        }
+      ]
+    }
+  ],
+  "questions": [
+    {
+      "type": "choice",
+      "name": "image_quality",
+      "instructions": "For the container metal, is focus, lighting and resolution sufficient to evaluate obvious dents and major distortions? This is photo suitability, not defect severity.",
+      "choices": [
+        {
+          "value": "good"
+        },
+        {
+          "value": "limited"
+        },
+        {
+          "value": "poor"
+        }
+      ]
+    },
+    {
+      "type": "choice",
+      "name": "door_end_coverage",
+      "instructions": "What proportion of the door end (both door leaves with the door header, sill and corner posts) is visible and judgeable? Choose not_inspectable when the photo does not show the door end of a container (for example a long side, the roof, the plain front end or a close-up of a small part).",
+      "choices": [
+        {
+          "value": "full"
+        },
+        {
+          "value": "most"
+        },
+        {
+          "value": "partial"
+        },
+        {
+          "value": "not_inspectable"
+        }
+      ]
+    },
+    {
+      "type": "predicate",
+      "name": "any_visible_defect",
+      "instructions": "Does ANY exterior container component visibly show physical damage or credible metal corrosion (including minor defects), excluding ordinary wear, dirt, paint variations and normal door-panel corrugations?"
+    },
+    {
+      "type": "predicate",
+      "name": "potentially_significant_damage",
+      "instructions": "Is there clearly visible metal deformation, rupture, a damaged or displaced locking bar, hinge or door, or other noncosmetic defect that reasonably warrants closer inspection? Do not assert serviceability or definite need for repair."
+    },
+    {
+      "type": "choice",
+      "name": "D1T_visibility",
+      "instructions": "For ONLY D1T: the leaf at PHOTO LEFT (left half of the door area), TOP third of the leaf (do not include the door header, sill, hinges, locking bars or corner posts), is the region visible sharply enough to evaluate its surface? Judge focus and occlusion, not whether it is damaged.",
+      "choices": [
+        {
+          "value": "clear"
+        },
+        {
+          "value": "partial"
+        },
+        {
+          "value": "not_visible"
+        }
+      ]
+    },
+    {
+      "type": "choice",
+      "name": "D1T_deformation_shape",
+      "instructions": "For ONLY D1T: the leaf at PHOTO LEFT (left half of the door area), TOP third of the leaf (do not include the door header, sill, hinges, locking bars or corner posts), choose the MOST visually supported deformation shape. Use the defined differences between local impact dent, sharp bend and broad bow; if clearly separate defects coexist choose mixed. Choose none for normal door-panel corrugations and uncertain when geometry cannot be judged.",
+      "choices": [
+        {
+          "value": "none",
+          "description": "No distinct deformation; the door panel retains its intended regular shape."
+        },
+        {
+          "value": "local_dent",
+          "description": "Local impact indentation or pushed-in/crumpled panel, even if locally creased (typically DT)."
+        },
+        {
+          "value": "sharp_bend",
+          "description": "Distinct abnormal sharp kink, fold or change in material angle/axis, not just an indentation (typically BT)."
+        },
+        {
+          "value": "broad_bow",
+          "description": "Smooth progressive curvature across a large span of the leaf (typically BW)."
+        },
+        {
+          "value": "mixed",
+          "description": "Two or more clearly DIFFERENT deformation types present with distinct visual evidence."
+        },
+        {
+          "value": "uncertain",
+          "description": "Image does not resolve the local geometry clearly enough to tell."
+        }
+      ]
+    },
+    {
+      "type": "predicate",
+      "name": "D1T_DT",
+      "instructions": "For ONLY D1T: the leaf at PHOTO LEFT (left half of the door area), TOP third of the leaf (do not include the door header, sill, hinges, locking bars or corner posts): Does this region contain a TRUE LOCAL DENT in the door panel: an inward/outward pushed-in area, crumpled patch or irregularly displaced corrugations compared with the neighbouring intact panel? Local impact dents may look angular, wavy or sharply creased. They STILL count as DT if the underlying damage is a local indentation; DO NOT reclassify them solely as BT because the panel is bent. Exclude regular factory corrugations and ribs, shadow bands, reflections and paint marks. Ignore defects in other regions."
+    },
+    {
+      "type": "predicate",
+      "name": "D1T_BT",
+      "instructions": "For ONLY D1T: the leaf at PHOTO LEFT (left half of the door area), TOP third of the leaf (do not include the door header, sill, hinges, locking bars or corner posts): Does this region show DISTINCT BENDING: a definite abnormal sharp kink, folded angle or displaced axis of the door panel, apart from mere local impact indentation? A dent may contain small wrinkles, but do not treat those wrinkles alone as proof of an independent BT defect. Ignore defects in other regions."
+    },
+    {
+      "type": "predicate",
+      "name": "D1T_BW",
+      "instructions": "For ONLY D1T: the leaf at PHOTO LEFT (left half of the door area), TOP third of the leaf (do not include the door header, sill, hinges, locking bars or corner posts): Does this region show a broad, relatively SMOOTH BOW extending over a substantial portion of the leaf, distinct from a discrete pushed-in dent and distinct from a sharp kink? Do not count normal corrugations. Ignore defects in other regions."
+    },
+    {
+      "type": "predicate",
+      "name": "D1T_HO",
+      "instructions": "For ONLY D1T: the leaf at PHOTO LEFT (left half of the door area), TOP third of the leaf (do not include the door header, sill, hinges, locking bars or corner posts): Is there an actual visibly open hole or puncture THROUGH the door panel in this region, rather than a dark paint patch, shadow, drain or breather hole, or normal construction feature? Ignore defects in other regions."
+    },
+    {
+      "type": "predicate",
+      "name": "D1T_CK",
+      "instructions": "For ONLY D1T: the leaf at PHOTO LEFT (left half of the door area), TOP third of the leaf (do not include the door header, sill, hinges, locking bars or corner posts): Is there a visible split, tear or crack IN the door panel material in this region, not simply a fold, shallow dent, welded seam or scratch in paint? Ignore defects in other regions."
+    },
+    {
+      "type": "predicate",
+      "name": "D1T_CW",
+      "instructions": "For ONLY D1T: the leaf at PHOTO LEFT (left half of the door area), TOP third of the leaf (do not include the door header, sill, hinges, locking bars or corner posts): Is an actual weld seam within this region clearly visible with a visible crack or split of the WELD itself? Answer conservatively when a weld cannot be inspected at this image resolution. Ignore defects in other regions."
+    },
+    {
+      "type": "predicate",
+      "name": "D1T_CO",
+      "instructions": "For ONLY D1T: the leaf at PHOTO LEFT (left half of the door area), TOP third of the leaf (do not include the door header, sill, hinges, locking bars or corner posts): Is there identifiable rust/corrosion on the METAL in this region, supported by oxidation colour, flaking, pitting or similar evidence? Dirt, painted graphics, stencilled markings, bare abrasion marks and brown stains alone are insufficient. Ignore defects in other regions."
+    },
+    {
+      "type": "predicate",
+      "name": "D1T_CH",
+      "instructions": "For ONLY D1T: the leaf at PHOTO LEFT (left half of the door area), TOP third of the leaf (do not include the door header, sill, hinges, locking bars or corner posts): Is there an actual visible THROUGH-HOLE resulting from corrosion in this region? Do not label CH for non-perforating rust or generic dents. Ignore defects in other regions."
+    },
+    {
+      "type": "predicate",
+      "name": "D1T_BR",
+      "instructions": "For ONLY D1T: the leaf at PHOTO LEFT (left half of the door area), TOP third of the leaf (do not include the door header, sill, hinges, locking bars or corner posts): Is a portion of the door panel actually BROKEN, physically separated, or visibly split apart in this region? An intact crumpled or indented panel is not broken. Ignore defects in other regions."
+    },
+    {
+      "type": "score",
+      "name": "D1T_severity",
+      "instructions": "For ONLY D1T: the leaf at PHOTO LEFT (left half of the door area), TOP third of the leaf (do not include the door header, sill, hinges, locking bars or corner posts), score the strongest clearly VISIBLE and supported defect, not hypothetical structural risk. If clearly intact, none. If visibility is inadequate, do not manufacture damage. This is NOT a repairability or IICL compliance rating.",
+      "levels": [
+        {
+          "label": "none",
+          "description": "No reliably observed physical defect in the target region."
+        },
+        {
+          "label": "cosmetic",
+          "description": "Superficial deterioration only, e.g. small isolated rust or paint damage without discernible metal deformation."
+        },
+        {
+          "label": "minor",
+          "description": "Visible local metal dent, crease or deformation of limited extent with no evident rupture."
+        },
+        {
+          "label": "moderate",
+          "description": "Clearly substantial deformation affecting a large part of the visible leaf region."
+        },
+        {
+          "label": "major",
+          "description": "Very extensive severe distortion or obvious door-panel rupture/perforation; visual assessment only, NOT repair acceptance criteria."
+        }
+      ]
+    },
+    {
+      "type": "choice",
+      "name": "D1M_visibility",
+      "instructions": "For ONLY D1M: the leaf at PHOTO LEFT (left half of the door area), MIDDLE third of the leaf (do not include the door header, sill, hinges, locking bars or corner posts), is the region visible sharply enough to evaluate its surface? Judge focus and occlusion, not whether it is damaged.",
+      "choices": [
+        {
+          "value": "clear"
+        },
+        {
+          "value": "partial"
+        },
+        {
+          "value": "not_visible"
+        }
+      ]
+    },
+    {
+      "type": "choice",
+      "name": "D1M_deformation_shape",
+      "instructions": "For ONLY D1M: the leaf at PHOTO LEFT (left half of the door area), MIDDLE third of the leaf (do not include the door header, sill, hinges, locking bars or corner posts), choose the MOST visually supported deformation shape. Use the defined differences between local impact dent, sharp bend and broad bow; if clearly separate defects coexist choose mixed. Choose none for normal door-panel corrugations and uncertain when geometry cannot be judged.",
+      "choices": [
+        {
+          "value": "none",
+          "description": "No distinct deformation; the door panel retains its intended regular shape."
+        },
+        {
+          "value": "local_dent",
+          "description": "Local impact indentation or pushed-in/crumpled panel, even if locally creased (typically DT)."
+        },
+        {
+          "value": "sharp_bend",
+          "description": "Distinct abnormal sharp kink, fold or change in material angle/axis, not just an indentation (typically BT)."
+        },
+        {
+          "value": "broad_bow",
+          "description": "Smooth progressive curvature across a large span of the leaf (typically BW)."
+        },
+        {
+          "value": "mixed",
+          "description": "Two or more clearly DIFFERENT deformation types present with distinct visual evidence."
+        },
+        {
+          "value": "uncertain",
+          "description": "Image does not resolve the local geometry clearly enough to tell."
+        }
+      ]
+    },
+    {
+      "type": "predicate",
+      "name": "D1M_DT",
+      "instructions": "For ONLY D1M: the leaf at PHOTO LEFT (left half of the door area), MIDDLE third of the leaf (do not include the door header, sill, hinges, locking bars or corner posts): Does this region contain a TRUE LOCAL DENT in the door panel: an inward/outward pushed-in area, crumpled patch or irregularly displaced corrugations compared with the neighbouring intact panel? Local impact dents may look angular, wavy or sharply creased. They STILL count as DT if the underlying damage is a local indentation; DO NOT reclassify them solely as BT because the panel is bent. Exclude regular factory corrugations and ribs, shadow bands, reflections and paint marks. Ignore defects in other regions."
+    },
+    {
+      "type": "predicate",
+      "name": "D1M_BT",
+      "instructions": "For ONLY D1M: the leaf at PHOTO LEFT (left half of the door area), MIDDLE third of the leaf (do not include the door header, sill, hinges, locking bars or corner posts): Does this region show DISTINCT BENDING: a definite abnormal sharp kink, folded angle or displaced axis of the door panel, apart from mere local impact indentation? A dent may contain small wrinkles, but do not treat those wrinkles alone as proof of an independent BT defect. Ignore defects in other regions."
+    },
+    {
+      "type": "predicate",
+      "name": "D1M_BW",
+      "instructions": "For ONLY D1M: the leaf at PHOTO LEFT (left half of the door area), MIDDLE third of the leaf (do not include the door header, sill, hinges, locking bars or corner posts): Does this region show a broad, relatively SMOOTH BOW extending over a substantial portion of the leaf, distinct from a discrete pushed-in dent and distinct from a sharp kink? Do not count normal corrugations. Ignore defects in other regions."
+    },
+    {
+      "type": "predicate",
+      "name": "D1M_HO",
+      "instructions": "For ONLY D1M: the leaf at PHOTO LEFT (left half of the door area), MIDDLE third of the leaf (do not include the door header, sill, hinges, locking bars or corner posts): Is there an actual visibly open hole or puncture THROUGH the door panel in this region, rather than a dark paint patch, shadow, drain or breather hole, or normal construction feature? Ignore defects in other regions."
+    },
+    {
+      "type": "predicate",
+      "name": "D1M_CK",
+      "instructions": "For ONLY D1M: the leaf at PHOTO LEFT (left half of the door area), MIDDLE third of the leaf (do not include the door header, sill, hinges, locking bars or corner posts): Is there a visible split, tear or crack IN the door panel material in this region, not simply a fold, shallow dent, welded seam or scratch in paint? Ignore defects in other regions."
+    },
+    {
+      "type": "predicate",
+      "name": "D1M_CW",
+      "instructions": "For ONLY D1M: the leaf at PHOTO LEFT (left half of the door area), MIDDLE third of the leaf (do not include the door header, sill, hinges, locking bars or corner posts): Is an actual weld seam within this region clearly visible with a visible crack or split of the WELD itself? Answer conservatively when a weld cannot be inspected at this image resolution. Ignore defects in other regions."
+    },
+    {
+      "type": "predicate",
+      "name": "D1M_CO",
+      "instructions": "For ONLY D1M: the leaf at PHOTO LEFT (left half of the door area), MIDDLE third of the leaf (do not include the door header, sill, hinges, locking bars or corner posts): Is there identifiable rust/corrosion on the METAL in this region, supported by oxidation colour, flaking, pitting or similar evidence? Dirt, painted graphics, stencilled markings, bare abrasion marks and brown stains alone are insufficient. Ignore defects in other regions."
+    },
+    {
+      "type": "predicate",
+      "name": "D1M_CH",
+      "instructions": "For ONLY D1M: the leaf at PHOTO LEFT (left half of the door area), MIDDLE third of the leaf (do not include the door header, sill, hinges, locking bars or corner posts): Is there an actual visible THROUGH-HOLE resulting from corrosion in this region? Do not label CH for non-perforating rust or generic dents. Ignore defects in other regions."
+    },
+    {
+      "type": "predicate",
+      "name": "D1M_BR",
+      "instructions": "For ONLY D1M: the leaf at PHOTO LEFT (left half of the door area), MIDDLE third of the leaf (do not include the door header, sill, hinges, locking bars or corner posts): Is a portion of the door panel actually BROKEN, physically separated, or visibly split apart in this region? An intact crumpled or indented panel is not broken. Ignore defects in other regions."
+    },
+    {
+      "type": "score",
+      "name": "D1M_severity",
+      "instructions": "For ONLY D1M: the leaf at PHOTO LEFT (left half of the door area), MIDDLE third of the leaf (do not include the door header, sill, hinges, locking bars or corner posts), score the strongest clearly VISIBLE and supported defect, not hypothetical structural risk. If clearly intact, none. If visibility is inadequate, do not manufacture damage. This is NOT a repairability or IICL compliance rating.",
+      "levels": [
+        {
+          "label": "none",
+          "description": "No reliably observed physical defect in the target region."
+        },
+        {
+          "label": "cosmetic",
+          "description": "Superficial deterioration only, e.g. small isolated rust or paint damage without discernible metal deformation."
+        },
+        {
+          "label": "minor",
+          "description": "Visible local metal dent, crease or deformation of limited extent with no evident rupture."
+        },
+        {
+          "label": "moderate",
+          "description": "Clearly substantial deformation affecting a large part of the visible leaf region."
+        },
+        {
+          "label": "major",
+          "description": "Very extensive severe distortion or obvious door-panel rupture/perforation; visual assessment only, NOT repair acceptance criteria."
+        }
+      ]
+    },
+    {
+      "type": "choice",
+      "name": "D1B_visibility",
+      "instructions": "For ONLY D1B: the leaf at PHOTO LEFT (left half of the door area), BOTTOM third of the leaf (do not include the door header, sill, hinges, locking bars or corner posts), is the region visible sharply enough to evaluate its surface? Judge focus and occlusion, not whether it is damaged.",
+      "choices": [
+        {
+          "value": "clear"
+        },
+        {
+          "value": "partial"
+        },
+        {
+          "value": "not_visible"
+        }
+      ]
+    },
+    {
+      "type": "choice",
+      "name": "D1B_deformation_shape",
+      "instructions": "For ONLY D1B: the leaf at PHOTO LEFT (left half of the door area), BOTTOM third of the leaf (do not include the door header, sill, hinges, locking bars or corner posts), choose the MOST visually supported deformation shape. Use the defined differences between local impact dent, sharp bend and broad bow; if clearly separate defects coexist choose mixed. Choose none for normal door-panel corrugations and uncertain when geometry cannot be judged.",
+      "choices": [
+        {
+          "value": "none",
+          "description": "No distinct deformation; the door panel retains its intended regular shape."
+        },
+        {
+          "value": "local_dent",
+          "description": "Local impact indentation or pushed-in/crumpled panel, even if locally creased (typically DT)."
+        },
+        {
+          "value": "sharp_bend",
+          "description": "Distinct abnormal sharp kink, fold or change in material angle/axis, not just an indentation (typically BT)."
+        },
+        {
+          "value": "broad_bow",
+          "description": "Smooth progressive curvature across a large span of the leaf (typically BW)."
+        },
+        {
+          "value": "mixed",
+          "description": "Two or more clearly DIFFERENT deformation types present with distinct visual evidence."
+        },
+        {
+          "value": "uncertain",
+          "description": "Image does not resolve the local geometry clearly enough to tell."
+        }
+      ]
+    },
+    {
+      "type": "predicate",
+      "name": "D1B_DT",
+      "instructions": "For ONLY D1B: the leaf at PHOTO LEFT (left half of the door area), BOTTOM third of the leaf (do not include the door header, sill, hinges, locking bars or corner posts): Does this region contain a TRUE LOCAL DENT in the door panel: an inward/outward pushed-in area, crumpled patch or irregularly displaced corrugations compared with the neighbouring intact panel? Local impact dents may look angular, wavy or sharply creased. They STILL count as DT if the underlying damage is a local indentation; DO NOT reclassify them solely as BT because the panel is bent. Exclude regular factory corrugations and ribs, shadow bands, reflections and paint marks. Ignore defects in other regions."
+    },
+    {
+      "type": "predicate",
+      "name": "D1B_BT",
+      "instructions": "For ONLY D1B: the leaf at PHOTO LEFT (left half of the door area), BOTTOM third of the leaf (do not include the door header, sill, hinges, locking bars or corner posts): Does this region show DISTINCT BENDING: a definite abnormal sharp kink, folded angle or displaced axis of the door panel, apart from mere local impact indentation? A dent may contain small wrinkles, but do not treat those wrinkles alone as proof of an independent BT defect. Ignore defects in other regions."
+    },
+    {
+      "type": "predicate",
+      "name": "D1B_BW",
+      "instructions": "For ONLY D1B: the leaf at PHOTO LEFT (left half of the door area), BOTTOM third of the leaf (do not include the door header, sill, hinges, locking bars or corner posts): Does this region show a broad, relatively SMOOTH BOW extending over a substantial portion of the leaf, distinct from a discrete pushed-in dent and distinct from a sharp kink? Do not count normal corrugations. Ignore defects in other regions."
+    },
+    {
+      "type": "predicate",
+      "name": "D1B_HO",
+      "instructions": "For ONLY D1B: the leaf at PHOTO LEFT (left half of the door area), BOTTOM third of the leaf (do not include the door header, sill, hinges, locking bars or corner posts): Is there an actual visibly open hole or puncture THROUGH the door panel in this region, rather than a dark paint patch, shadow, drain or breather hole, or normal construction feature? Ignore defects in other regions."
+    },
+    {
+      "type": "predicate",
+      "name": "D1B_CK",
+      "instructions": "For ONLY D1B: the leaf at PHOTO LEFT (left half of the door area), BOTTOM third of the leaf (do not include the door header, sill, hinges, locking bars or corner posts): Is there a visible split, tear or crack IN the door panel material in this region, not simply a fold, shallow dent, welded seam or scratch in paint? Ignore defects in other regions."
+    },
+    {
+      "type": "predicate",
+      "name": "D1B_CW",
+      "instructions": "For ONLY D1B: the leaf at PHOTO LEFT (left half of the door area), BOTTOM third of the leaf (do not include the door header, sill, hinges, locking bars or corner posts): Is an actual weld seam within this region clearly visible with a visible crack or split of the WELD itself? Answer conservatively when a weld cannot be inspected at this image resolution. Ignore defects in other regions."
+    },
+    {
+      "type": "predicate",
+      "name": "D1B_CO",
+      "instructions": "For ONLY D1B: the leaf at PHOTO LEFT (left half of the door area), BOTTOM third of the leaf (do not include the door header, sill, hinges, locking bars or corner posts): Is there identifiable rust/corrosion on the METAL in this region, supported by oxidation colour, flaking, pitting or similar evidence? Dirt, painted graphics, stencilled markings, bare abrasion marks and brown stains alone are insufficient. Ignore defects in other regions."
+    },
+    {
+      "type": "predicate",
+      "name": "D1B_CH",
+      "instructions": "For ONLY D1B: the leaf at PHOTO LEFT (left half of the door area), BOTTOM third of the leaf (do not include the door header, sill, hinges, locking bars or corner posts): Is there an actual visible THROUGH-HOLE resulting from corrosion in this region? Do not label CH for non-perforating rust or generic dents. Ignore defects in other regions."
+    },
+    {
+      "type": "predicate",
+      "name": "D1B_BR",
+      "instructions": "For ONLY D1B: the leaf at PHOTO LEFT (left half of the door area), BOTTOM third of the leaf (do not include the door header, sill, hinges, locking bars or corner posts): Is a portion of the door panel actually BROKEN, physically separated, or visibly split apart in this region? An intact crumpled or indented panel is not broken. Ignore defects in other regions."
+    },
+    {
+      "type": "score",
+      "name": "D1B_severity",
+      "instructions": "For ONLY D1B: the leaf at PHOTO LEFT (left half of the door area), BOTTOM third of the leaf (do not include the door header, sill, hinges, locking bars or corner posts), score the strongest clearly VISIBLE and supported defect, not hypothetical structural risk. If clearly intact, none. If visibility is inadequate, do not manufacture damage. This is NOT a repairability or IICL compliance rating.",
+      "levels": [
+        {
+          "label": "none",
+          "description": "No reliably observed physical defect in the target region."
+        },
+        {
+          "label": "cosmetic",
+          "description": "Superficial deterioration only, e.g. small isolated rust or paint damage without discernible metal deformation."
+        },
+        {
+          "label": "minor",
+          "description": "Visible local metal dent, crease or deformation of limited extent with no evident rupture."
+        },
+        {
+          "label": "moderate",
+          "description": "Clearly substantial deformation affecting a large part of the visible leaf region."
+        },
+        {
+          "label": "major",
+          "description": "Very extensive severe distortion or obvious door-panel rupture/perforation; visual assessment only, NOT repair acceptance criteria."
+        }
+      ]
+    },
+    {
+      "type": "choice",
+      "name": "D2T_visibility",
+      "instructions": "For ONLY D2T: the leaf at PHOTO RIGHT (right half of the door area), TOP third of the leaf (do not include the door header, sill, hinges, locking bars or corner posts), is the region visible sharply enough to evaluate its surface? Judge focus and occlusion, not whether it is damaged.",
+      "choices": [
+        {
+          "value": "clear"
+        },
+        {
+          "value": "partial"
+        },
+        {
+          "value": "not_visible"
+        }
+      ]
+    },
+    {
+      "type": "choice",
+      "name": "D2T_deformation_shape",
+      "instructions": "For ONLY D2T: the leaf at PHOTO RIGHT (right half of the door area), TOP third of the leaf (do not include the door header, sill, hinges, locking bars or corner posts), choose the MOST visually supported deformation shape. Use the defined differences between local impact dent, sharp bend and broad bow; if clearly separate defects coexist choose mixed. Choose none for normal door-panel corrugations and uncertain when geometry cannot be judged.",
+      "choices": [
+        {
+          "value": "none",
+          "description": "No distinct deformation; the door panel retains its intended regular shape."
+        },
+        {
+          "value": "local_dent",
+          "description": "Local impact indentation or pushed-in/crumpled panel, even if locally creased (typically DT)."
+        },
+        {
+          "value": "sharp_bend",
+          "description": "Distinct abnormal sharp kink, fold or change in material angle/axis, not just an indentation (typically BT)."
+        },
+        {
+          "value": "broad_bow",
+          "description": "Smooth progressive curvature across a large span of the leaf (typically BW)."
+        },
+        {
+          "value": "mixed",
+          "description": "Two or more clearly DIFFERENT deformation types present with distinct visual evidence."
+        },
+        {
+          "value": "uncertain",
+          "description": "Image does not resolve the local geometry clearly enough to tell."
+        }
+      ]
+    },
+    {
+      "type": "predicate",
+      "name": "D2T_DT",
+      "instructions": "For ONLY D2T: the leaf at PHOTO RIGHT (right half of the door area), TOP third of the leaf (do not include the door header, sill, hinges, locking bars or corner posts): Does this region contain a TRUE LOCAL DENT in the door panel: an inward/outward pushed-in area, crumpled patch or irregularly displaced corrugations compared with the neighbouring intact panel? Local impact dents may look angular, wavy or sharply creased. They STILL count as DT if the underlying damage is a local indentation; DO NOT reclassify them solely as BT because the panel is bent. Exclude regular factory corrugations and ribs, shadow bands, reflections and paint marks. Ignore defects in other regions."
+    },
+    {
+      "type": "predicate",
+      "name": "D2T_BT",
+      "instructions": "For ONLY D2T: the leaf at PHOTO RIGHT (right half of the door area), TOP third of the leaf (do not include the door header, sill, hinges, locking bars or corner posts): Does this region show DISTINCT BENDING: a definite abnormal sharp kink, folded angle or displaced axis of the door panel, apart from mere local impact indentation? A dent may contain small wrinkles, but do not treat those wrinkles alone as proof of an independent BT defect. Ignore defects in other regions."
+    },
+    {
+      "type": "predicate",
+      "name": "D2T_BW",
+      "instructions": "For ONLY D2T: the leaf at PHOTO RIGHT (right half of the door area), TOP third of the leaf (do not include the door header, sill, hinges, locking bars or corner posts): Does this region show a broad, relatively SMOOTH BOW extending over a substantial portion of the leaf, distinct from a discrete pushed-in dent and distinct from a sharp kink? Do not count normal corrugations. Ignore defects in other regions."
+    },
+    {
+      "type": "predicate",
+      "name": "D2T_HO",
+      "instructions": "For ONLY D2T: the leaf at PHOTO RIGHT (right half of the door area), TOP third of the leaf (do not include the door header, sill, hinges, locking bars or corner posts): Is there an actual visibly open hole or puncture THROUGH the door panel in this region, rather than a dark paint patch, shadow, drain or breather hole, or normal construction feature? Ignore defects in other regions."
+    },
+    {
+      "type": "predicate",
+      "name": "D2T_CK",
+      "instructions": "For ONLY D2T: the leaf at PHOTO RIGHT (right half of the door area), TOP third of the leaf (do not include the door header, sill, hinges, locking bars or corner posts): Is there a visible split, tear or crack IN the door panel material in this region, not simply a fold, shallow dent, welded seam or scratch in paint? Ignore defects in other regions."
+    },
+    {
+      "type": "predicate",
+      "name": "D2T_CW",
+      "instructions": "For ONLY D2T: the leaf at PHOTO RIGHT (right half of the door area), TOP third of the leaf (do not include the door header, sill, hinges, locking bars or corner posts): Is an actual weld seam within this region clearly visible with a visible crack or split of the WELD itself? Answer conservatively when a weld cannot be inspected at this image resolution. Ignore defects in other regions."
+    },
+    {
+      "type": "predicate",
+      "name": "D2T_CO",
+      "instructions": "For ONLY D2T: the leaf at PHOTO RIGHT (right half of the door area), TOP third of the leaf (do not include the door header, sill, hinges, locking bars or corner posts): Is there identifiable rust/corrosion on the METAL in this region, supported by oxidation colour, flaking, pitting or similar evidence? Dirt, painted graphics, stencilled markings, bare abrasion marks and brown stains alone are insufficient. Ignore defects in other regions."
+    },
+    {
+      "type": "predicate",
+      "name": "D2T_CH",
+      "instructions": "For ONLY D2T: the leaf at PHOTO RIGHT (right half of the door area), TOP third of the leaf (do not include the door header, sill, hinges, locking bars or corner posts): Is there an actual visible THROUGH-HOLE resulting from corrosion in this region? Do not label CH for non-perforating rust or generic dents. Ignore defects in other regions."
+    },
+    {
+      "type": "predicate",
+      "name": "D2T_BR",
+      "instructions": "For ONLY D2T: the leaf at PHOTO RIGHT (right half of the door area), TOP third of the leaf (do not include the door header, sill, hinges, locking bars or corner posts): Is a portion of the door panel actually BROKEN, physically separated, or visibly split apart in this region? An intact crumpled or indented panel is not broken. Ignore defects in other regions."
+    },
+    {
+      "type": "score",
+      "name": "D2T_severity",
+      "instructions": "For ONLY D2T: the leaf at PHOTO RIGHT (right half of the door area), TOP third of the leaf (do not include the door header, sill, hinges, locking bars or corner posts), score the strongest clearly VISIBLE and supported defect, not hypothetical structural risk. If clearly intact, none. If visibility is inadequate, do not manufacture damage. This is NOT a repairability or IICL compliance rating.",
+      "levels": [
+        {
+          "label": "none",
+          "description": "No reliably observed physical defect in the target region."
+        },
+        {
+          "label": "cosmetic",
+          "description": "Superficial deterioration only, e.g. small isolated rust or paint damage without discernible metal deformation."
+        },
+        {
+          "label": "minor",
+          "description": "Visible local metal dent, crease or deformation of limited extent with no evident rupture."
+        },
+        {
+          "label": "moderate",
+          "description": "Clearly substantial deformation affecting a large part of the visible leaf region."
+        },
+        {
+          "label": "major",
+          "description": "Very extensive severe distortion or obvious door-panel rupture/perforation; visual assessment only, NOT repair acceptance criteria."
+        }
+      ]
+    },
+    {
+      "type": "choice",
+      "name": "D2M_visibility",
+      "instructions": "For ONLY D2M: the leaf at PHOTO RIGHT (right half of the door area), MIDDLE third of the leaf (do not include the door header, sill, hinges, locking bars or corner posts), is the region visible sharply enough to evaluate its surface? Judge focus and occlusion, not whether it is damaged.",
+      "choices": [
+        {
+          "value": "clear"
+        },
+        {
+          "value": "partial"
+        },
+        {
+          "value": "not_visible"
+        }
+      ]
+    },
+    {
+      "type": "choice",
+      "name": "D2M_deformation_shape",
+      "instructions": "For ONLY D2M: the leaf at PHOTO RIGHT (right half of the door area), MIDDLE third of the leaf (do not include the door header, sill, hinges, locking bars or corner posts), choose the MOST visually supported deformation shape. Use the defined differences between local impact dent, sharp bend and broad bow; if clearly separate defects coexist choose mixed. Choose none for normal door-panel corrugations and uncertain when geometry cannot be judged.",
+      "choices": [
+        {
+          "value": "none",
+          "description": "No distinct deformation; the door panel retains its intended regular shape."
+        },
+        {
+          "value": "local_dent",
+          "description": "Local impact indentation or pushed-in/crumpled panel, even if locally creased (typically DT)."
+        },
+        {
+          "value": "sharp_bend",
+          "description": "Distinct abnormal sharp kink, fold or change in material angle/axis, not just an indentation (typically BT)."
+        },
+        {
+          "value": "broad_bow",
+          "description": "Smooth progressive curvature across a large span of the leaf (typically BW)."
+        },
+        {
+          "value": "mixed",
+          "description": "Two or more clearly DIFFERENT deformation types present with distinct visual evidence."
+        },
+        {
+          "value": "uncertain",
+          "description": "Image does not resolve the local geometry clearly enough to tell."
+        }
+      ]
+    },
+    {
+      "type": "predicate",
+      "name": "D2M_DT",
+      "instructions": "For ONLY D2M: the leaf at PHOTO RIGHT (right half of the door area), MIDDLE third of the leaf (do not include the door header, sill, hinges, locking bars or corner posts): Does this region contain a TRUE LOCAL DENT in the door panel: an inward/outward pushed-in area, crumpled patch or irregularly displaced corrugations compared with the neighbouring intact panel? Local impact dents may look angular, wavy or sharply creased. They STILL count as DT if the underlying damage is a local indentation; DO NOT reclassify them solely as BT because the panel is bent. Exclude regular factory corrugations and ribs, shadow bands, reflections and paint marks. Ignore defects in other regions."
+    },
+    {
+      "type": "predicate",
+      "name": "D2M_BT",
+      "instructions": "For ONLY D2M: the leaf at PHOTO RIGHT (right half of the door area), MIDDLE third of the leaf (do not include the door header, sill, hinges, locking bars or corner posts): Does this region show DISTINCT BENDING: a definite abnormal sharp kink, folded angle or displaced axis of the door panel, apart from mere local impact indentation? A dent may contain small wrinkles, but do not treat those wrinkles alone as proof of an independent BT defect. Ignore defects in other regions."
+    },
+    {
+      "type": "predicate",
+      "name": "D2M_BW",
+      "instructions": "For ONLY D2M: the leaf at PHOTO RIGHT (right half of the door area), MIDDLE third of the leaf (do not include the door header, sill, hinges, locking bars or corner posts): Does this region show a broad, relatively SMOOTH BOW extending over a substantial portion of the leaf, distinct from a discrete pushed-in dent and distinct from a sharp kink? Do not count normal corrugations. Ignore defects in other regions."
+    },
+    {
+      "type": "predicate",
+      "name": "D2M_HO",
+      "instructions": "For ONLY D2M: the leaf at PHOTO RIGHT (right half of the door area), MIDDLE third of the leaf (do not include the door header, sill, hinges, locking bars or corner posts): Is there an actual visibly open hole or puncture THROUGH the door panel in this region, rather than a dark paint patch, shadow, drain or breather hole, or normal construction feature? Ignore defects in other regions."
+    },
+    {
+      "type": "predicate",
+      "name": "D2M_CK",
+      "instructions": "For ONLY D2M: the leaf at PHOTO RIGHT (right half of the door area), MIDDLE third of the leaf (do not include the door header, sill, hinges, locking bars or corner posts): Is there a visible split, tear or crack IN the door panel material in this region, not simply a fold, shallow dent, welded seam or scratch in paint? Ignore defects in other regions."
+    },
+    {
+      "type": "predicate",
+      "name": "D2M_CW",
+      "instructions": "For ONLY D2M: the leaf at PHOTO RIGHT (right half of the door area), MIDDLE third of the leaf (do not include the door header, sill, hinges, locking bars or corner posts): Is an actual weld seam within this region clearly visible with a visible crack or split of the WELD itself? Answer conservatively when a weld cannot be inspected at this image resolution. Ignore defects in other regions."
+    },
+    {
+      "type": "predicate",
+      "name": "D2M_CO",
+      "instructions": "For ONLY D2M: the leaf at PHOTO RIGHT (right half of the door area), MIDDLE third of the leaf (do not include the door header, sill, hinges, locking bars or corner posts): Is there identifiable rust/corrosion on the METAL in this region, supported by oxidation colour, flaking, pitting or similar evidence? Dirt, painted graphics, stencilled markings, bare abrasion marks and brown stains alone are insufficient. Ignore defects in other regions."
+    },
+    {
+      "type": "predicate",
+      "name": "D2M_CH",
+      "instructions": "For ONLY D2M: the leaf at PHOTO RIGHT (right half of the door area), MIDDLE third of the leaf (do not include the door header, sill, hinges, locking bars or corner posts): Is there an actual visible THROUGH-HOLE resulting from corrosion in this region? Do not label CH for non-perforating rust or generic dents. Ignore defects in other regions."
+    },
+    {
+      "type": "predicate",
+      "name": "D2M_BR",
+      "instructions": "For ONLY D2M: the leaf at PHOTO RIGHT (right half of the door area), MIDDLE third of the leaf (do not include the door header, sill, hinges, locking bars or corner posts): Is a portion of the door panel actually BROKEN, physically separated, or visibly split apart in this region? An intact crumpled or indented panel is not broken. Ignore defects in other regions."
+    },
+    {
+      "type": "score",
+      "name": "D2M_severity",
+      "instructions": "For ONLY D2M: the leaf at PHOTO RIGHT (right half of the door area), MIDDLE third of the leaf (do not include the door header, sill, hinges, locking bars or corner posts), score the strongest clearly VISIBLE and supported defect, not hypothetical structural risk. If clearly intact, none. If visibility is inadequate, do not manufacture damage. This is NOT a repairability or IICL compliance rating.",
+      "levels": [
+        {
+          "label": "none",
+          "description": "No reliably observed physical defect in the target region."
+        },
+        {
+          "label": "cosmetic",
+          "description": "Superficial deterioration only, e.g. small isolated rust or paint damage without discernible metal deformation."
+        },
+        {
+          "label": "minor",
+          "description": "Visible local metal dent, crease or deformation of limited extent with no evident rupture."
+        },
+        {
+          "label": "moderate",
+          "description": "Clearly substantial deformation affecting a large part of the visible leaf region."
+        },
+        {
+          "label": "major",
+          "description": "Very extensive severe distortion or obvious door-panel rupture/perforation; visual assessment only, NOT repair acceptance criteria."
+        }
+      ]
+    },
+    {
+      "type": "choice",
+      "name": "D2B_visibility",
+      "instructions": "For ONLY D2B: the leaf at PHOTO RIGHT (right half of the door area), BOTTOM third of the leaf (do not include the door header, sill, hinges, locking bars or corner posts), is the region visible sharply enough to evaluate its surface? Judge focus and occlusion, not whether it is damaged.",
+      "choices": [
+        {
+          "value": "clear"
+        },
+        {
+          "value": "partial"
+        },
+        {
+          "value": "not_visible"
+        }
+      ]
+    },
+    {
+      "type": "choice",
+      "name": "D2B_deformation_shape",
+      "instructions": "For ONLY D2B: the leaf at PHOTO RIGHT (right half of the door area), BOTTOM third of the leaf (do not include the door header, sill, hinges, locking bars or corner posts), choose the MOST visually supported deformation shape. Use the defined differences between local impact dent, sharp bend and broad bow; if clearly separate defects coexist choose mixed. Choose none for normal door-panel corrugations and uncertain when geometry cannot be judged.",
+      "choices": [
+        {
+          "value": "none",
+          "description": "No distinct deformation; the door panel retains its intended regular shape."
+        },
+        {
+          "value": "local_dent",
+          "description": "Local impact indentation or pushed-in/crumpled panel, even if locally creased (typically DT)."
+        },
+        {
+          "value": "sharp_bend",
+          "description": "Distinct abnormal sharp kink, fold or change in material angle/axis, not just an indentation (typically BT)."
+        },
+        {
+          "value": "broad_bow",
+          "description": "Smooth progressive curvature across a large span of the leaf (typically BW)."
+        },
+        {
+          "value": "mixed",
+          "description": "Two or more clearly DIFFERENT deformation types present with distinct visual evidence."
+        },
+        {
+          "value": "uncertain",
+          "description": "Image does not resolve the local geometry clearly enough to tell."
+        }
+      ]
+    },
+    {
+      "type": "predicate",
+      "name": "D2B_DT",
+      "instructions": "For ONLY D2B: the leaf at PHOTO RIGHT (right half of the door area), BOTTOM third of the leaf (do not include the door header, sill, hinges, locking bars or corner posts): Does this region contain a TRUE LOCAL DENT in the door panel: an inward/outward pushed-in area, crumpled patch or irregularly displaced corrugations compared with the neighbouring intact panel? Local impact dents may look angular, wavy or sharply creased. They STILL count as DT if the underlying damage is a local indentation; DO NOT reclassify them solely as BT because the panel is bent. Exclude regular factory corrugations and ribs, shadow bands, reflections and paint marks. Ignore defects in other regions."
+    },
+    {
+      "type": "predicate",
+      "name": "D2B_BT",
+      "instructions": "For ONLY D2B: the leaf at PHOTO RIGHT (right half of the door area), BOTTOM third of the leaf (do not include the door header, sill, hinges, locking bars or corner posts): Does this region show DISTINCT BENDING: a definite abnormal sharp kink, folded angle or displaced axis of the door panel, apart from mere local impact indentation? A dent may contain small wrinkles, but do not treat those wrinkles alone as proof of an independent BT defect. Ignore defects in other regions."
+    },
+    {
+      "type": "predicate",
+      "name": "D2B_BW",
+      "instructions": "For ONLY D2B: the leaf at PHOTO RIGHT (right half of the door area), BOTTOM third of the leaf (do not include the door header, sill, hinges, locking bars or corner posts): Does this region show a broad, relatively SMOOTH BOW extending over a substantial portion of the leaf, distinct from a discrete pushed-in dent and distinct from a sharp kink? Do not count normal corrugations. Ignore defects in other regions."
+    },
+    {
+      "type": "predicate",
+      "name": "D2B_HO",
+      "instructions": "For ONLY D2B: the leaf at PHOTO RIGHT (right half of the door area), BOTTOM third of the leaf (do not include the door header, sill, hinges, locking bars or corner posts): Is there an actual visibly open hole or puncture THROUGH the door panel in this region, rather than a dark paint patch, shadow, drain or breather hole, or normal construction feature? Ignore defects in other regions."
+    },
+    {
+      "type": "predicate",
+      "name": "D2B_CK",
+      "instructions": "For ONLY D2B: the leaf at PHOTO RIGHT (right half of the door area), BOTTOM third of the leaf (do not include the door header, sill, hinges, locking bars or corner posts): Is there a visible split, tear or crack IN the door panel material in this region, not simply a fold, shallow dent, welded seam or scratch in paint? Ignore defects in other regions."
+    },
+    {
+      "type": "predicate",
+      "name": "D2B_CW",
+      "instructions": "For ONLY D2B: the leaf at PHOTO RIGHT (right half of the door area), BOTTOM third of the leaf (do not include the door header, sill, hinges, locking bars or corner posts): Is an actual weld seam within this region clearly visible with a visible crack or split of the WELD itself? Answer conservatively when a weld cannot be inspected at this image resolution. Ignore defects in other regions."
+    },
+    {
+      "type": "predicate",
+      "name": "D2B_CO",
+      "instructions": "For ONLY D2B: the leaf at PHOTO RIGHT (right half of the door area), BOTTOM third of the leaf (do not include the door header, sill, hinges, locking bars or corner posts): Is there identifiable rust/corrosion on the METAL in this region, supported by oxidation colour, flaking, pitting or similar evidence? Dirt, painted graphics, stencilled markings, bare abrasion marks and brown stains alone are insufficient. Ignore defects in other regions."
+    },
+    {
+      "type": "predicate",
+      "name": "D2B_CH",
+      "instructions": "For ONLY D2B: the leaf at PHOTO RIGHT (right half of the door area), BOTTOM third of the leaf (do not include the door header, sill, hinges, locking bars or corner posts): Is there an actual visible THROUGH-HOLE resulting from corrosion in this region? Do not label CH for non-perforating rust or generic dents. Ignore defects in other regions."
+    },
+    {
+      "type": "predicate",
+      "name": "D2B_BR",
+      "instructions": "For ONLY D2B: the leaf at PHOTO RIGHT (right half of the door area), BOTTOM third of the leaf (do not include the door header, sill, hinges, locking bars or corner posts): Is a portion of the door panel actually BROKEN, physically separated, or visibly split apart in this region? An intact crumpled or indented panel is not broken. Ignore defects in other regions."
+    },
+    {
+      "type": "score",
+      "name": "D2B_severity",
+      "instructions": "For ONLY D2B: the leaf at PHOTO RIGHT (right half of the door area), BOTTOM third of the leaf (do not include the door header, sill, hinges, locking bars or corner posts), score the strongest clearly VISIBLE and supported defect, not hypothetical structural risk. If clearly intact, none. If visibility is inadequate, do not manufacture damage. This is NOT a repairability or IICL compliance rating.",
+      "levels": [
+        {
+          "label": "none",
+          "description": "No reliably observed physical defect in the target region."
+        },
+        {
+          "label": "cosmetic",
+          "description": "Superficial deterioration only, e.g. small isolated rust or paint damage without discernible metal deformation."
+        },
+        {
+          "label": "minor",
+          "description": "Visible local metal dent, crease or deformation of limited extent with no evident rupture."
+        },
+        {
+          "label": "moderate",
+          "description": "Clearly substantial deformation affecting a large part of the visible leaf region."
+        },
+        {
+          "label": "major",
+          "description": "Very extensive severe distortion or obvious door-panel rupture/perforation; visual assessment only, NOT repair acceptance criteria."
+        }
+      ]
+    },
+    {
+      "type": "predicate",
+      "name": "left_leaf_locking_bar_bent",
+      "instructions": "Is a locking bar on the door leaf at PHOTO LEFT (D1) itself visibly bent, bowed out of line or knocked out of its guides? Ignore a dented door panel behind it and the normal position of the lock handle."
+    },
+    {
+      "type": "predicate",
+      "name": "left_leaf_locking_bar_broken",
+      "instructions": "Is a locking bar, its handle or a cam on the door leaf at PHOTO LEFT (D1) visibly broken, separated or missing? Do not count a bar that is simply out of view."
+    },
+    {
+      "type": "predicate",
+      "name": "right_leaf_locking_bar_bent",
+      "instructions": "Is a locking bar on the door leaf at PHOTO RIGHT (D2) itself visibly bent, bowed out of line or knocked out of its guides? Ignore a dented door panel behind it and the normal position of the lock handle."
+    },
+    {
+      "type": "predicate",
+      "name": "right_leaf_locking_bar_broken",
+      "instructions": "Is a locking bar, its handle or a cam on the door leaf at PHOTO RIGHT (D2) visibly broken, separated or missing? Do not count a bar that is simply out of view."
+    },
+    {
+      "type": "predicate",
+      "name": "cam_keeper_damage",
+      "instructions": "Is any locking cam or cam keeper (the catches on the door header and sill) visibly broken, missing, bent or torn away? Do not count a part that is simply out of view."
+    },
+    {
+      "type": "predicate",
+      "name": "left_leaf_hinge_damage",
+      "instructions": "Are the hinges of the door leaf at PHOTO LEFT (D1) visibly bent, cracked, broken, torn out of the corner post or missing a pin? Ignore normal paint wear and grease."
+    },
+    {
+      "type": "predicate",
+      "name": "right_leaf_hinge_damage",
+      "instructions": "Are the hinges of the door leaf at PHOTO RIGHT (D2) visibly bent, cracked, broken, torn out of the corner post or missing a pin? Ignore normal paint wear and grease."
+    },
+    {
+      "type": "predicate",
+      "name": "door_gasket_damage",
+      "instructions": "Is a door gasket (the rubber seal around the leaves and between them) visibly torn, hanging out, missing in a section or perished? Do not count a seal that is simply out of view or a normal shadow in the door gap."
+    },
+    {
+      "type": "predicate",
+      "name": "door_header_bent",
+      "instructions": "Does the DOOR HEADER (the beam above the door leaves) itself show a distinctly abnormal kink, bend or damaged alignment independent of the adjacent door panel?"
+    },
+    {
+      "type": "predicate",
+      "name": "door_header_corrosion",
+      "instructions": "Does the DOOR HEADER (the beam above the door leaves) itself visibly exhibit metal rust or corrosion? Do not infer oxidation from dirt or paint scuffs."
+    },
+    {
+      "type": "predicate",
+      "name": "door_header_broken",
+      "instructions": "Is the DOOR HEADER (the beam above the door leaves) itself visibly broken, cracked or separated?"
+    },
+    {
+      "type": "predicate",
+      "name": "door_sill_bent",
+      "instructions": "Does the DOOR SILL (the threshold below the door leaves) itself show a distinctly abnormal kink, bend or damaged alignment independent of the adjacent door panel?"
+    },
+    {
+      "type": "predicate",
+      "name": "door_sill_corrosion",
+      "instructions": "Does the DOOR SILL (the threshold below the door leaves) itself visibly exhibit metal rust or corrosion? Do not infer oxidation from dirt or paint scuffs."
+    },
+    {
+      "type": "predicate",
+      "name": "door_sill_broken",
+      "instructions": "Is the DOOR SILL (the threshold below the door leaves) itself visibly broken, cracked or separated?"
+    },
+    {
+      "type": "predicate",
+      "name": "left_corner_post_damage",
+      "instructions": "Is the rear corner post at PHOTO LEFT (beside the door hinges) itself visibly dented, bent, cracked or broken? Ignore ordinary paint scuffs and damage to the adjacent door leaf."
+    },
+    {
+      "type": "predicate",
+      "name": "right_corner_post_damage",
+      "instructions": "Is the rear corner post at PHOTO RIGHT (beside the door hinges) itself visibly dented, bent, cracked or broken? Ignore ordinary paint scuffs and damage to the adjacent door leaf."
+    },
+    {
+      "type": "predicate",
+      "name": "corner_casting_damage",
+      "instructions": "Is any of the four visible corner castings physically cracked, fractured or distorted? Normal lifting apertures, paint wear and minor corrosion do not alone count."
+    }
+  ]
+}

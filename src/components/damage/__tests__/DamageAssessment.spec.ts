@@ -3,6 +3,7 @@ import { mount } from '@vue/test-utils'
 import DamageView from '../DamageView.vue'
 import type { DamageAssessment, DamageFinding } from '../../../domain/damage'
 import { readSideDamage } from '../../../domain/sideDamage'
+import { readDoorDamage } from '../../../domain/doorDamage'
 import { assessDamage } from '../../../domain/damageSets'
 import type { SharedAnswer } from '../../../domain/questionSet'
 
@@ -168,5 +169,95 @@ describe('a view no damage set covers', () => {
     expect(wrapper.find('.qs-schem').exists()).toBe(false)
     expect(wrapper.find('.qs-finding').exists()).toBe(false)
     expect(wrapper.text()).not.toMatch(FORBIDDEN)
+  })
+})
+
+/** A live door-end assessment, built the way a live run builds it. */
+function liveDoors(edit: (answers: Record<string, SharedAnswer>) => void = () => {}) {
+  const answers: Record<string, SharedAnswer> = {
+    image_quality: choice('good'),
+    door_end_coverage: choice('most'),
+    potentially_significant_damage: predicate(0.7),
+  }
+  for (const leaf of [1, 2]) {
+    for (const band of ['T', 'M', 'B']) {
+      answers[`D${leaf}${band}_visibility`] = choice('clear')
+      answers[`D${leaf}${band}_severity`] = severity([0.95, 0.02, 0.01, 0.01, 0.01])
+    }
+  }
+  answers.D2B_DT = predicate(0.9)
+  answers.D2B_severity = severity([0.02, 0.03, 0.3, 0.6, 0.05])
+  answers.D2T_visibility = choice('partial')
+  answers.D1B_visibility = choice('not_visible')
+  answers.left_leaf_locking_bar_bent = predicate(0.8)
+  answers.door_sill_corrosion = predicate(0.7)
+  answers.door_gasket_damage = predicate(0.8)
+  edit(answers)
+  return assessDamage(
+    { face: 'rear-doors', probability: 0.95, certainty: 'Confident' },
+    [readDoorDamage(answers)],
+    'doors.jpg',
+  )!
+}
+
+describe('a live door-end assessment in the damage view', () => {
+  it('draws the six door regions on the end of the rear view, with visibility', () => {
+    const wrapper = mount(DamageView, { props: { assessment: liveDoors() } })
+    const rear = wrapper.find('figure[data-view="rear-right"]')
+    const zones = rear.findAll('.qs-c-zone')
+    expect(zones).toHaveLength(6)
+    expect(rear.findAll('.qs-c-zone--partial')).toHaveLength(1)
+    const unseen = rear.findAll('.qs-c-zone--unseen')
+    expect(unseen).toHaveLength(1)
+    expect(unseen[0]!.find('.qs-c-zone__tag').text()).toBe('Not seen')
+    expect(unseen[0]!.find('title').text()).toBe('Photo-left door leaf, bottom third: not seen')
+    // The other view holds the front end, so it has no door regions.
+    expect(wrapper.find('figure[data-view="front-left"]').findAll('.qs-c-zone')).toHaveLength(0)
+    expect(wrapper.text()).not.toMatch(FORBIDDEN)
+  })
+
+  it('says the door end is what is visible, and names no door end check of its own', () => {
+    const facts = mount(DamageView, { props: { assessment: liveDoors() } }).find('.qs-damage-facts')
+    expect(facts.text()).toContain('Door end visible')
+    expect(facts.text()).toContain('Most')
+    expect(facts.text()).not.toContain('At photo')
+  })
+
+  it('tints the dented region by severity and stands a pin on it', async () => {
+    const assessment = liveDoors()
+    const dent = assessment.findings.find((f) => f.component === 'panel')!
+    const wrapper = mount(DamageView, { props: { assessment } })
+    expect(wrapper.find(`.qs-region[data-finding="${dent.id}"]`).classes()).toContain(
+      'qs-region--moderate',
+    )
+    expect(wrapper.find(`.qs-pin[data-finding="${dent.id}"]`).classes()).toContain(
+      'qs-marker--moderate',
+    )
+    const card = cardFor(wrapper, dent)
+    expect(card.text()).toContain('Dent in the door panel')
+    expect(card.text()).toContain('Photo-right door leaf, bottom third')
+    expect(card.text()).not.toMatch(/\bD2B\b/)
+  })
+
+  it('shows door parts as bands with no severity rating; a gasket has a card but no pin', () => {
+    const assessment = liveDoors()
+    const bar = assessment.findings.find((f) => f.component === 'locking-bar')!
+    const sill = assessment.findings.find((f) => f.component === 'sill')!
+    const gasket = assessment.findings.find((f) => f.component === 'gasket')!
+    const wrapper = mount(DamageView, { props: { assessment } })
+    for (const f of [bar, sill]) {
+      expect(wrapper.find(`.qs-region[data-finding="${f.id}"]`).classes()).toContain(
+        'qs-region--unrated',
+      )
+      expect(wrapper.find(`.qs-pin[data-finding="${f.id}"]`).exists()).toBe(true)
+      expect(cardFor(wrapper, f).find('.qs-sev').text()).toContain('Not rated')
+    }
+    expect(cardFor(wrapper, gasket).exists()).toBe(true)
+    expect(wrapper.find(`.qs-pin[data-finding="${gasket.id}"]`).exists()).toBe(false)
+  })
+
+  it('does not draw the long-side figure for a door photo', () => {
+    const wrapper = mount(DamageView, { props: { assessment: liveDoors() } })
+    expect(wrapper.find('figure[data-view="image-relative"]').exists()).toBe(false)
   })
 })

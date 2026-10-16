@@ -1,6 +1,6 @@
 // Which damage set's findings an inspection shows (spec #27, ticket #33). Pure.
 //
-// A live run asks every damage set at once (long side now; the door end in #35), each as its own
+// A live run asks every damage set at once (long side, door end), each as its own
 // request, while the survey asks which face the photo shows. The damage shown comes from the set
 // written for the detected face. A set whose own coverage check says its face is not inspectable
 // contributes nothing. A face no set covers (roof, close-up, unknown, front end) is "not assessed for
@@ -46,12 +46,10 @@ export interface DamageSetReading {
   passId?: string
 }
 
-/**
- * The faces a damage set is written for, and the schematic face their findings are drawn on. The
- * door-end set (#35) adds 'rear-doors': 'rear'.
- */
+/** The faces a damage set is written for, and the schematic face their findings are drawn on. */
 export const DAMAGE_SET_FACES: Partial<Record<PhotoFace, DamageFace>> = {
   'long-side': 'long-side',
+  'rear-doors': 'rear',
 }
 
 const FACE_NAME: Record<PhotoFace, string> = {

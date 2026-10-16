@@ -80,10 +80,12 @@ describe('choosing the damage for the face the photo shows', () => {
     expect(damage?.notAssessed?.reason).toMatch(reason)
   })
 
-  it('never shows another face’s findings: a door photo does not take the side set', () => {
-    const damage = assessDamage(seen('rear-doors'), [sideReading()], 'doors.jpg')
+  it('never shows another face’s findings: a door photo waits for the door set, not the side set', () => {
+    expect(assessDamage(seen('rear-doors'), [sideReading()], 'doors.jpg')).toBeNull()
+    const doors = sideReading({ face: 'rear-doors', findings: [] })
+    const damage = assessDamage(seen('rear-doors'), [sideReading(), doors], 'doors.jpg')
     expect(damage?.findings).toEqual([])
-    expect(damage?.notAssessed?.reason).toMatch(/door end/)
+    expect(damage?.photos).toEqual([{ photo: 'doors.jpg', face: 'rear' }])
   })
 
   it('waits (null) while the set for the detected face has not answered', () => {
