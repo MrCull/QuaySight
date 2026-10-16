@@ -197,12 +197,20 @@ describe('consolidated inspection JSON', () => {
 })
 
 describe('raw provider responses export', () => {
+  it('marks a live run as a live provider response at the top level, never as a recorded demonstration', async () => {
+    const live = { ...(await lunaRecord()), source: 'live' as const }
+    const raw = buildRawResponsesExport(live)
+    expect(raw.source).toBe('live provider response')
+    expect(JSON.stringify(raw)).not.toContain('recorded demonstration')
+  })
+
   it('returns each provider response with its pass, provider, model and origin', async () => {
     const raw = buildRawResponsesExport(await lunaRecord())
     expect(raw.schemaVersion).toBe(1)
     expect(raw.notice).toMatch(/non-certified/)
     expect(raw.inspectionId).toBe('run-luna-1')
     expect(raw.responses).toHaveLength(1)
+    expect(raw.source).toBe('recorded demonstration, not a live provider response')
     const [response] = raw.responses
     expect(response).toMatchObject({
       passId: 'run-luna-1',

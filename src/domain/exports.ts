@@ -81,6 +81,8 @@ export interface InspectionExport {
 export interface RawResponsesExport {
   schemaVersion: number
   notice: string
+  /** Top-level provenance so no reader mistakes a replayed sample for a live response (parent spec, Recorded samples). */
+  source: 'recorded demonstration, not a live provider response' | 'live provider response'
   inspectionId: string
   responses: InspectionRecord['rawResponses']
 }
@@ -278,6 +280,10 @@ export function buildRawResponsesExport(record: InspectionRecord): RawResponsesE
   return {
     schemaVersion: record.schemaVersion,
     notice: EXPORT_NOTICE,
+    source:
+      record.source === 'recorded'
+        ? 'recorded demonstration, not a live provider response'
+        : 'live provider response',
     inspectionId: record.id,
     responses: record.rawResponses,
   }
