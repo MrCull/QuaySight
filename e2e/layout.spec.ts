@@ -30,6 +30,12 @@ test.describe('phone width (390px)', () => {
       }))
     const analysing = await width()
     expect(analysing.scroll).toBeLessThanOrEqual(analysing.client)
+    // The stage list sits under the photo, not over it, and the photo stays on screen.
+    const photo = (await page.locator('.rs-photo').boundingBox())!
+    const list = (await page.locator('.rs-stagecard').boundingBox())!
+    expect(list.y).toBeGreaterThanOrEqual(photo.y + photo.height)
+    expect(photo.y + photo.height).toBeLessThanOrEqual(844)
+    expect(await page.locator('.rs-photo .rs-stagecard').count()).toBe(0)
     await expect(page.getByText('Recorded demonstration: GPT-6 Luna / gpt-6-luna')).toBeVisible()
     const landed = await width()
     expect(landed.scroll).toBeLessThanOrEqual(landed.client)
