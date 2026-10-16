@@ -17,6 +17,7 @@ import {
 } from './damage'
 import type { FaceReading } from './photoFace'
 import type { CertaintyLabel, InspectionRecord, Provenance, RecheckRecord } from './inspection'
+import type { IdCropReadRecord } from './cropRead'
 
 export const EXPORT_SCHEMA_VERSION = 1
 
@@ -90,6 +91,8 @@ export interface InspectionExport {
   conflicts: string[]
   /** Automatic re-checks: observations and outcome. Never shown in the UI. */
   rechecks: RecheckRecord[]
+  /** Jev's crop read of the container ID: the crop and any character it disagreed on. Never shown in the UI. */
+  idCropRead: IdCropReadRecord | null
   damage: {
     assessed: boolean
     /** Why the photo's view was not assessed (roof, close-up, unknown view, a face not inspectable), or null. */
@@ -293,6 +296,7 @@ export function buildInspectionExport(record: InspectionRecord): InspectionExpor
     unresolved,
     conflicts,
     rechecks: record.rechecks ?? [],
+    idCropRead: record.idCropRead ?? null,
     damage: {
       assessed: assessment !== null,
       notAssessedReason,

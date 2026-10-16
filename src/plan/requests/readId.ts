@@ -1,3 +1,4 @@
+import type { IdBox } from '../../domain/cropRead'
 import { withPhotoFace } from '../../domain/damageSets'
 import type { ContainerIdReading } from '../../domain/inspection'
 import type { ChoiceReading } from '../../domain/luna'
@@ -10,8 +11,10 @@ import type { PlanRequest, RequestContext, RequestReply } from '../requestPlan'
 /** The container ID as read from the whole photo. */
 export interface IdAnswer {
   containerId: ContainerIdReading
-  /** Per-position readings, for the Luna question set's re-check; null for Jev's. */
+  /** Per-position readings: for Luna's re-check, and for combining with Jev's crop read. */
   readings: ChoiceReading[] | null
+  /** Where the ID is, on box-capable models that located it: the crop read starts from it. */
+  box?: IdBox | null
   /** Which face the photo shows (the survey's face question), or null when unanswered. */
   face: FaceReading | null
 }
@@ -78,7 +81,8 @@ export const readId: PlanRequest<IdAnswer> = {
     return {
       answer: {
         containerId: call.containerId,
-        readings: null,
+        readings: call.readings,
+        box: call.box,
         face: readPhotoFace('openrouter-decisions', call.raw),
       },
       resolvedModel: call.resolvedModel,

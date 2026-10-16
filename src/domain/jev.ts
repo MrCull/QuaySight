@@ -11,7 +11,7 @@ import { CERTAINTY_LABELS, UNREAD } from './certainty'
 import type { CertaintyLabel, ContainerIdReading } from './inspection'
 import type { Usage } from './ledger'
 import { ProviderError, redact } from './providerErrors'
-import { jevIdQuestionSet, readIdCharacters } from './idQuestions'
+import { jevIdQuestionSet, readIdCharacters, type ChoiceReading } from './idQuestions'
 import {
   UnreadableReplyError,
   readAnswers,
@@ -183,7 +183,10 @@ export interface JevMapping {
   usage: Usage | null
   /** Cost from the response's own usage.cost, or null. Never zero when absent. */
   reportedCostUsd: number | null
-  /** Experimental box, when the model returned one. Retained for the raw record; not drawn (no box-based damage). */
+  /** One reading per position (11): the crop read combines these with its own. */
+  readings: ChoiceReading[]
+  caveats: JevCaveats
+  /** Where the model located the ID, when it was asked and answered: the crop read starts from it. Not drawn. */
   box: JevBox | null
 }
 
@@ -207,53 +210,36 @@ function boxOf(answer: SharedAnswer | undefined): JevBox | null {
   return { ...answer.box, confidence: answer.confidence }
 }
 
-/**
- * Maps a System One response to the shared container-ID reading, by meaning. Missing, refused or
- * low-probability positions stay as UNREAD; they are never filled in. The check digit is calculated
- * here, not taken from the model. The legibility score and the full-number noul can only lower
- * certainty, never raise it.
- */
-export function mapJevResponse(
-  response: unknown,
-  requestedModel: string,
-  /** Who replied, for the bad-response message: TypeSafe direct, or OpenRouter. */
-  replier = 'TypeSafe',
-): JevMapping {
-  let reply
-  try {
-    // System One answers in OpenRouter's format: a map by question name.
-    reply = readAnswers(
-      'openrouter-decisions',
-      response,
-      jevIdQuestionSet({ image: 'the photo', box: true }),
-      requestedModel,
-    )
-  } catch (error) {
-    if (!(error instanceof UnreadableReplyError)) throw error
-    throw new JevError(
-      'bad-response',
-      error.kind === 'no-answers'
-        ? `${replier} replied without answers. Try again.`
-        : `${replier} replied in a shape the app does not recognise.`,
-    )
-  }
-  const { answers } = reply
-  const readings = readIdCharacters(answers)
+/** What the legibility score and the full-number noul say about a reading. They only ever lower certainty. */
+export interface JevCaveats {
+  hardToRead: boolean
+  partlyOutOfFrame: boolean
+}
 
+/** The caveats in a Jev ID answer set, read by meaning. An unanswered question raises none. */
+export function jevCaveatsOf(answers: Record<string, SharedAnswer>): JevCaveats {
+  const legibility = answers.legibility
+  const legibilityScore = legibility?.type === 'score' ? legibility.score : null
+  const fullNumber = answers.full_number_visible
+  const fullNumberProbability = fullNumber?.type === 'predicate' ? fullNumber.probability : null
+  return {
+    hardToRead: typeof legibilityScore === 'number' && legibilityScore < LEGIBILITY_FLOOR,
+    partlyOutOfFrame:
+      typeof fullNumberProbability === 'number' && fullNumberProbability < FULL_NUMBER_MIN,
+  }
+}
+
+/**
+ * The shared container-ID reading from one reading per position and the caveats. Missing positions stay
+ * UNREAD; the check digit is calculated here, not taken from the model; a caveat makes the reading at
+ * most Uncertain. Used for the full-photo reading and for the full-photo and crop readings combined.
+ */
+export function jevIdReading(readings: ChoiceReading[], caveats: JevCaveats): ContainerIdReading {
+  const { hardToRead, partlyOutOfFrame } = caveats
   const chars = readings.map((r) => r.value ?? UNREAD)
   const positionCertainty = readings.map((r) => r.certainty)
   const printed = chars.join('')
   let certainty = worstOf(positionCertainty)
-
-  const legibility = answers.legibility
-  const legibilityScore = legibility?.type === 'score' ? legibility.score : null
-  const hardToRead = typeof legibilityScore === 'number' && legibilityScore < LEGIBILITY_FLOOR
-
-  const fullNumber = answers.full_number_visible
-  const fullNumberProbability = fullNumber?.type === 'predicate' ? fullNumber.probability : null
-  const partlyOutOfFrame =
-    typeof fullNumberProbability === 'number' && fullNumberProbability < FULL_NUMBER_MIN
-
   if (hardToRead || partlyOutOfFrame) certainty = atLeastUncertain(certainty)
 
   let containerId: ContainerIdReading
@@ -296,9 +282,48 @@ export function mapJevResponse(
   if (hardToRead) notes.push('The identification is hard to read in this photo.')
   if (partlyOutOfFrame) notes.push('The complete identification may not be in frame.')
   if (notes.length > 0) containerId.uncertainty = notes.join(' ')
+  return containerId
+}
+
+/**
+ * Maps a System One response to the shared container-ID reading, by meaning. Missing, refused or
+ * low-probability positions stay as UNREAD; they are never filled in. The check digit is calculated
+ * here, not taken from the model. The legibility score and the full-number noul can only lower
+ * certainty, never raise it.
+ */
+export function mapJevResponse(
+  response: unknown,
+  requestedModel: string,
+  /** Who replied, for the bad-response message: TypeSafe direct, or OpenRouter. */
+  replier = 'TypeSafe',
+): JevMapping {
+  let reply
+  try {
+    // System One answers in OpenRouter's format: a map by question name.
+    reply = readAnswers(
+      'openrouter-decisions',
+      response,
+      jevIdQuestionSet({ image: 'the photo', box: true }),
+      requestedModel,
+    )
+  } catch (error) {
+    if (!(error instanceof UnreadableReplyError)) throw error
+    throw new JevError(
+      'bad-response',
+      error.kind === 'no-answers'
+        ? `${replier} replied without answers. Try again.`
+        : `${replier} replied in a shape the app does not recognise.`,
+    )
+  }
+  const { answers } = reply
+  const readings = readIdCharacters(answers)
+  const caveats = jevCaveatsOf(answers)
+  const containerId = jevIdReading(readings, caveats)
 
   return {
     containerId,
+    readings,
+    caveats,
     resolvedModel: reply.resolvedModel,
     usage: reply.usage,
     reportedCostUsd: reply.reportedCostUsd,
