@@ -175,6 +175,11 @@ misread as `2`. The Luna smoke in `src/services/__tests__/coyu.live.spec.ts` sen
 original bytes would also send the file's EXIF to the provider, which the re-encode strips today. Whether
 to change preparation is a separate decision.
 
+**Spec #27's acceptance bar for Luna is not met, by decision.** The bar was that COYU 266813 0 reads
+correctly on Jev latest and on Luna. Jev latest meets it. Luna through the app does not (`CO?U22?8130`),
+and the product owner chose not to enlarge photos or send original bytes to close the gap. The Luna smoke
+passes on original bytes, so a green Luna smoke is not evidence that the app reads COYU on Luna.
+
 ## Jev's crop read of COYU (ticket #31)
 
 Checked: 16 October 2026, live, Jev latest through OpenRouter (resolved `typesafe/jev-1.14-20261014`). This
