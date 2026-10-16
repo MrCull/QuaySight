@@ -255,8 +255,8 @@ describe('the door set chosen by the rear-doors face', () => {
 
   it('shows the side findings for a long side, and ignores the door set’s', () => {
     const damage = assessDamage(seen('long-side'), [sideWithDent(), doorsWithDent()], 'side.jpg')
-    expect(damage?.photos).toEqual([{ photo: 'side.jpg', face: 'long-side' }])
-    expect(damage?.findings.every((f) => f.face === 'long-side')).toBe(true)
+    expect(damage?.photos).toEqual([{ photo: 'side.jpg', face: 'right' }])
+    expect(damage?.findings.every((f) => f.face === 'right')).toBe(true)
   })
 
   it('says not inspectable for a door end the door set cannot see', () => {

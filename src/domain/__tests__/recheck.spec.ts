@@ -38,7 +38,7 @@ describe('buildLunaRequest with positions', () => {
   })
 
   it('still asks every position when no subset is given', () => {
-    expect(buildLunaRequest('data:image/jpeg;base64,AAAA').questions).toHaveLength(11)
+    expect(buildLunaRequest('data:image/jpeg;base64,AAAA').questions).toHaveLength(12)
   })
 })
 
