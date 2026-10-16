@@ -241,6 +241,19 @@ describe('manifest check after a live inspection', () => {
     expect(ledger.entries()).toHaveLength(3)
   })
 
+  it('claims no match when the model picks an entry too weakly to tell', async () => {
+    const store = await partlyReadOnOpenRouter()
+    const first = store.record?.containerId
+    fetchMock.mockImplementationOnce(async (_input, init) =>
+      json(openRouterManifestAnswer(String(init?.body), 'APHU6586847', 0.25)),
+    )
+
+    await store.retryManifest(MANIFEST)
+
+    expect(store.record?.containerId).toEqual(first)
+    expect(store.retry.noMatch).toBe(true)
+  })
+
   it('does not run for an empty list', async () => {
     const store = await partlyReadOnOpenRouter()
     await store.retryManifest([])
