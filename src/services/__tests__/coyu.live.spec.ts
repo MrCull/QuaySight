@@ -1,9 +1,15 @@
-// Opt-in live smoke test for the ID wording (ticket #29): COYU 266813 0 read by group position.
-// Makes up to three real, chargeable calls on samples/rear-door-coyu-22g1.jpg (1079 × 1080, upright, within
-// every model's photo limits, so it is sent as it is):
-//   - GPT-6 Luna, OpenAI direct            (needs OPENAI_API_KEY)
-//   - GPT-6 Luna Decisions, via OpenRouter (needs OPENROUTER_API_KEY)
-//   - Jev latest, via OpenRouter, with box (needs OPENROUTER_API_KEY; recorded for the crop read, not asserted)
+// Opt-in live smoke test for the ID wording (ticket #29) and Jev's crop read (ticket #31): COYU 266813 0
+// read by group position. Makes real, chargeable calls on samples/rear-door-coyu-22g1.jpg (1079 × 1080):
+//   - GPT-6 Luna, OpenAI direct            (needs OPENAI_API_KEY): the file's own bytes, then the re-check
+//   - GPT-6 Luna Decisions, via OpenRouter (needs OPENROUTER_API_KEY): the same
+//   - Jev latest, via OpenRouter           (needs OPENROUTER_API_KEY): a live run through the store, as the
+//     app makes it: the photo prepared, the full-photo read with the box, then the crop read around it.
+//     A real browser canvas (Playwright's Chromium; set PW_CHROMIUM_PATH to use a pre-installed one)
+//     prepares and crops the photo, as in the app.
+// The Luna checks send the original file's bytes and do NOT exercise the app's preparation path, which
+// re-encodes the photo. Luna's answers on this photo flip with small pixel changes: through the app's own
+// path (the store, 16 Oct 2026) both routes read CO?U22?8130, position 6 misread as 2. See
+// docs/research/live-api-findings-2026-10-16.md.
 // Keys are supplied at run time and never stored in the repo:
 //   Bash: OPENAI_API_KEY='<key>' OPENROUTER_API_KEY='<key>' npx vitest run src/services/__tests__/coyu.live.spec.ts
 // Each raw response (no headers, no key) is written to src/fixtures/live/coyu-*.json. Those fixtures feed
@@ -11,13 +17,20 @@
 //
 // Behind an HTTP proxy, set HTTPS_PROXY (and NODE_EXTRA_CA_CERTS if the proxy re-signs TLS); this spec then
 // installs undici's EnvHttpProxyAgent, as the other live specs do.
-import { describe, it, expect } from 'vitest'
+import { describe, it, expect, vi, afterAll } from 'vitest'
+import { setActivePinia, createPinia } from 'pinia'
 import { readFile, writeFile, mkdir } from 'node:fs/promises'
 import { dirname, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { EnvHttpProxyAgent, setGlobalDispatcher } from 'undici'
+
+vi.mock('../imageCodec', () => import('./browserCodec'))
+
+import { closeBrowserCodec } from './browserCodec'
+import { useInspectionStore } from '../../stores/inspection'
+import { useLedgerStore } from '../../stores/ledger'
 import { callLuna } from '../luna'
-import { callOpenRouterJev, callOpenRouterLuna } from '../openrouter'
+import { callOpenRouterLuna } from '../openrouter'
 import { LUNA_ENDPOINT, LUNA_MODEL, assembleLunaReading, type LunaMapping } from '../../domain/luna'
 import { mergeRecheck, unresolvedPositions } from '../../domain/recheck'
 import { OPENROUTER_ENDPOINT } from '../../domain/openrouter'
@@ -110,22 +123,29 @@ async function readLikeTheApp(
 }
 
 describe('COYU 266813 0 live smoke test (opt-in, chargeable)', () => {
-  it.skipIf(!openAiKey)('GPT-6 Luna on OpenAI never misreads COYU 266813 0', async () => {
-    const sent = await photo()
-    const read = await readLikeTheApp((positions, fetchImpl) =>
-      callLuna({ apiKey: openAiKey, photo: sent, positions, fetchImpl }),
-    )
-    await record(
-      'coyu-luna.json',
-      { endpoint: LUNA_ENDPOINT, requestedModel: LUNA_MODEL, ...read.fixture },
-      openAiKey,
-    )
-    expect(read.containerId.calculatedCheckDigit ?? 0).toBe(0)
-    expectNeverMisread(read.containerId.value)
+  afterAll(async () => {
+    await closeBrowserCodec()
   })
 
+  it.skipIf(!openAiKey)(
+    'GPT-6 Luna on OpenAI never misreads COYU 266813 0 from the original file bytes (not the app preparation path)',
+    async () => {
+      const sent = await photo()
+      const read = await readLikeTheApp((positions, fetchImpl) =>
+        callLuna({ apiKey: openAiKey, photo: sent, positions, fetchImpl }),
+      )
+      await record(
+        'coyu-luna.json',
+        { endpoint: LUNA_ENDPOINT, requestedModel: LUNA_MODEL, ...read.fixture },
+        openAiKey,
+      )
+      expect(read.containerId.calculatedCheckDigit ?? 0).toBe(0)
+      expectNeverMisread(read.containerId.value)
+    },
+  )
+
   it.skipIf(!openRouterKey)(
-    'GPT-6 Luna Decisions through OpenRouter never misreads COYU 266813 0',
+    'GPT-6 Luna Decisions through OpenRouter never misreads COYU 266813 0 from the original file bytes (not the app preparation path)',
     async () => {
       const model = 'openai/gpt-6-luna-decisions'
       const entry = findModel('openrouter', model)!
@@ -154,29 +174,47 @@ describe('COYU 266813 0 live smoke test (opt-in, chargeable)', () => {
   )
 
   it.skipIf(!openRouterKey)(
-    'Jev latest through OpenRouter never misreads COYU 266813 0, and locates it with a box',
+    'Jev latest through OpenRouter reads COYU 266813 0 in a live run, combining the full photo with a crop around its box',
     async () => {
+      setActivePinia(createPinia())
       const model = '~typesafe/jev-latest'
-      const entry = findModel('openrouter', model)!
-      const { seen, impl } = capturing()
-      const result = await callOpenRouterJev({
-        apiKey: openRouterKey,
-        photo: await photo(),
-        model,
-        box: entry.box,
-        describe: {
-          name: labelsFor('openrouter', model).model,
-          maxSide: entry.photoLimits.maxSide,
-        },
-        fetchImpl: impl,
+      const store = useInspectionStore()
+      store.setProvider('openrouter')
+      store.setModel(model)
+      store.setApiKey(openRouterKey)
+      store.setPhoto({
+        name: 'rear-door-coyu-22g1.jpg',
+        url: 'blob:coyu',
+        orientation: 'square',
+        file: await photo(),
       })
+
+      await store.start()
+
+      const run = store.record!
+      const responseOf = (id: string) =>
+        run.rawResponses.find((r) => r.passId === `${run.id}-${id}`)?.body ?? null
       await record(
         'coyu-openrouter-jev.json',
-        { endpoint: OPENROUTER_ENDPOINT, requestedModel: model, response: seen.body },
+        {
+          endpoint: OPENROUTER_ENDPOINT,
+          requestedModel: model,
+          response: responseOf('read'),
+          crop: { region: run.idCropRead?.crop ?? null, response: responseOf('crop') },
+        },
         openRouterKey,
       )
-      expect(seen.status).toBe(200)
-      expectNeverMisread(result.containerId.value)
+      console.info(
+        useLedgerStore()
+          .entries()
+          .map((l) => `${l.purpose}: ${l.status}, ${l.latencyMs} ms, $${l.costUsd}`)
+          .join('\n'),
+      )
+      console.info(
+        `Read ${run.containerId?.value}; crop ${JSON.stringify(run.idCropRead?.crop)}; disagreements ${JSON.stringify(run.idCropRead?.disagreements)}.`,
+      )
+      expect(run.idCropRead?.outcome).toBe('combined')
+      expect(run.containerId).toMatchObject({ value: COYU, checkDigitValid: true })
     },
   )
 })

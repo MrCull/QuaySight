@@ -139,7 +139,54 @@ along the repeated digits (`COYU2266130`, `COYU2268130`, depending on small word
 | GPT-6 Luna Decisions via OpenRouter | the same as direct |
 
 No variant of about twenty wordings tried read all eleven on Luna at 1079 px without misreading another
-position; Luna's position answers on this photo are near coin tosses. **Upscaled to Luna's 2,048 px**
-(Lanczos, outside the app), the same wording reads `COYU2668130` with clear margins (at least 0.34 over the runner-up on positions 2 to 10). The
-app never enlarges a photo (spec #16, `photoFit.ts`), so this is not used; the crop read (spec #27, D)
-is the planned route to full detail.
+position; Luna's position answers on this photo are near coin tosses. One Lanczos upscale to Luna's
+2,048 px, made outside the app, read `COYU2668130`. **Correction (re-checked 16 Oct 2026, ticket #31):**
+that was one lucky resample, not a finding that upscaling reads all eleven. See "Enlarging the photo for
+Luna" below: other upscales of the same photo misread, and the app does not enlarge photos for Luna.
+The crop read (spec #27, D) is Jev's route to full detail.
+
+## Luna on COYU: enlarging the photo, and the app's own path (ticket #31)
+
+Checked: 16 October 2026, live, OpenAI direct (`gpt-6-luna`) unless stated otherwise. Luna's answers are
+deterministic for a given image: the same bytes sent twice gave identical answers. Any change to the
+pixels can flip the 3rd letter (`Y`/`U`) and several serial digits.
+
+| Image sent (COYU, the same ID wording) | Reading | Wrong positions |
+| --- | --- | --- |
+| Original file bytes, 1079 × 1080 (what #29's smoke sends) | `COYU2?68130` (position 6 tied, left unread) | none |
+| **The app's own path**: prepared by the store (browser canvas re-encode, JPEG q0.9, 1079 × 1080), OpenAI direct **and** OpenRouter Luna Decisions | `CO?U22?8130` | **6 read as `2`** |
+| Browser canvas enlargement of the prepared photo to 2046 × 2048, JPEG q0.9, both routes | `CO?U2668830` | **9 read as `8`** (0.51, runner-up `1`) |
+| Browser canvas enlargement of the original file to 2046 × 2048, JPEG q0.9 | `COUU266??30` | **3 read as `U`** (0.60, Likely) |
+| PIL Lanczos of the original to 2046 × 2048, JPEG q95 | `COYU2668130` (Y at 0.39, 8 at 0.37) | none |
+| PIL Lanczos of the original, JPEG q92 | `COYU2668130` (Y at 0.55, 8 at 0.52) | none |
+| PIL Lanczos of the original, JPEG q90 | `CO?U2668130` | none |
+| PIL Lanczos of the original, JPEG q98 | `COUU266?130` | **3 read as `U`** (0.74, Likely) |
+| PIL bicubic of the original, JPEG q90 | `COUU2668130` | **3 read as `U`** (0.41) |
+| PIL Lanczos of the app-prepared photo, JPEG q95 | `COUU2668130` | **3 read as `U`** (0.70, Likely) |
+| PIL Lanczos of the app-prepared photo, JPEG q90 | `COUU266?130` | **3 read as `U`** (0.41) |
+
+**Decision (16 Oct 2026, product owner):** the app does not enlarge photos for Luna. Enlarging mostly
+turned an honest unread character into a misread, often a Likely one. A whole photo is never enlarged for
+any model (`fitPhoto`). Only Jev's crop around the ID is scaled up (`largestWithin`, `cropRead.ts`).
+
+**The app's real behaviour on COYU with Luna** is the second row: `CO?U22?8130` on both routes, position 6
+misread as `2`. The Luna smoke in `src/services/__tests__/coyu.live.spec.ts` sends the original file's bytes
+(first row). It does not exercise the app's preparation path, which re-encodes every photo. Sending the
+original bytes would also send the file's EXIF to the provider, which the re-encode strips today. Whether
+to change preparation is a separate decision.
+
+## Jev's crop read of COYU (ticket #31)
+
+Checked: 16 October 2026, live, Jev latest through OpenRouter (resolved `typesafe/jev-1.14-20261014`). This
+was a run through the store, as the app makes it: the photo was prepared and cropped by a real Chromium
+canvas. Fixture: `src/fixtures/live/coyu-openrouter-jev.json` (`response` for the full photo, `crop` for
+the crop read), recorded with no key and no headers.
+
+- **Full photo:** read `COYU2668130`. Box `{top 0.10, bottom 0.15, left 0.61, right 0.79}`, confidence 0.76.
+  Boxes drawn on other runs were `bottom 0.14`, confidence 0.75 to 0.77. The box is tight: it stops short of
+  the `CO` and of the boxed check digit. A margin of 0.35 × the box's long side on every side brings them
+  back in.
+- **Crop:** 331 × 190 px at (590, 40), sent at 1568 × 900. Read `COYU2668130`, with probability 1.0 on
+  every character except the 3rd serial digit (0.66) and the 4th (0.96). The two readings agreed on every
+  character.
+- **Cost:** about $0.00028 for the full-photo read and $0.00031 for the crop read (OpenRouter `usage.cost`).

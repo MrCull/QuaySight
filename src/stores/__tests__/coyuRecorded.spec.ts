@@ -5,12 +5,20 @@ import { dirname, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
 
 // jsdom has no image decoder. The COYU photo is 1079 × 1080, within every model's limits, so the
-// stand-in decoder reports that size and "re-encodes" it as the same bytes.
+// stand-in decoder reports that size and "re-encodes" it as the same bytes. A crop is described in text.
 vi.mock('../../services/imageCodec', () => ({
   decodePhoto: async (blob: Blob) => ({
     width: 1079,
     height: 1080,
     toJpeg: async () => blob,
+    toJpegRegion: async (
+      r: { x: number; y: number; width: number; height: number },
+      w: number,
+      h: number,
+    ) =>
+      new Blob([`crop ${w}x${h} from ${r.width}x${r.height} at ${r.x},${r.y}`], {
+        type: 'image/jpeg',
+      }),
     close: () => {},
   }),
 }))
@@ -67,8 +75,10 @@ describe('COYU 266813 0 through the store, from recorded replies', () => {
     vi.unstubAllGlobals()
   })
 
-  it('Jev latest through OpenRouter reads COYU 266813 0 with a valid check digit, asked by group position', async () => {
-    fetchMock.mockResolvedValueOnce(json(jevCoyu.response))
+  it('Jev latest through OpenRouter reads COYU 266813 0 with a valid check digit, from the full photo and a crop around its box', async () => {
+    fetchMock
+      .mockResolvedValueOnce(json(jevCoyu.response))
+      .mockResolvedValueOnce(json(jevCoyu.crop.response))
     const store = useInspectionStore()
     store.setProvider('openrouter')
     store.setModel('~typesafe/jev-latest')
@@ -77,7 +87,7 @@ describe('COYU 266813 0 through the store, from recorded replies', () => {
 
     await store.start()
 
-    expect(fetchMock).toHaveBeenCalledTimes(1)
+    expect(fetchMock).toHaveBeenCalledTimes(2)
     const body = JSON.parse(sentBody(fetchMock, 0)) as {
       state: [string, { image_url: { url: string } }]
       questions: Record<string, { type: string; instructions: string }>
@@ -98,8 +108,22 @@ describe('COYU 266813 0 through the store, from recorded replies', () => {
       checkDigitValid: true,
     })
     expect(store.manifestRetryOffered).toBe(false)
+
+    // The crop read: the recorded box {top 0.10, bottom 0.15, left 0.61, right 0.79} on 1079 x 1080 px is
+    // x 658-852, y 108-162; with a 68 px margin that is 331 x 190 px at 590,40, scaled to Jev's 1,568 px side.
+    const crop = JSON.parse(sentBody(fetchMock, 1)) as typeof body
+    expect(atob(crop.state[1].image_url.url.split(',')[1]!)).toBe(
+      'crop 1568x900 from 331x190 at 590,40',
+    )
+    expect(crop.questions.container_box).toBeUndefined()
+    expect(store.record?.idCropRead).toMatchObject({ outcome: 'combined', disagreements: [] })
     expect(useLedgerStore().entries()).toEqual([
-      expect.objectContaining({ costUsd: 0.000284634, costState: 'reported' }),
+      expect.objectContaining({ costUsd: 0.00028455, costState: 'reported' }),
+      expect.objectContaining({
+        purpose: 'Reading the ID up close',
+        costUsd: 0.000311178,
+        costState: 'reported',
+      }),
     ])
   })
 

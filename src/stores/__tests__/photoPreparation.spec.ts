@@ -112,6 +112,35 @@ describe('photo preparation before a live call', () => {
     expect(store.status).toBe('complete')
   })
 
+  // Decided 16 Oct 2026: an enlarged COYU photo turned Luna's one unread character into misreads, so a
+  // whole photo is never enlarged for any model (docs/research/live-api-findings-2026-10-16.md).
+  it('never enlarges a photo within the limits, for Luna or for Jev', async () => {
+    fetchMock.mockImplementation(async () => jsonResponse(lunaSmoke.response))
+    const store = useInspectionStore()
+    store.setProvider('luna')
+    store.setApiKey(KEY)
+    choosePhoto(store, fakePhoto(1079, 1080))
+
+    await store.start()
+
+    for (const [, init] of fetchMock.mock.calls) {
+      expect(await lunaPhotoSent(init)).toEqual({ text: 'jpeg 1079x1080', type: 'image/jpeg' })
+    }
+
+    fetchMock.mockReset()
+    fetchMock.mockResolvedValue(jsonResponse(jevBody()))
+    store.setProvider('openrouter')
+    store.setApiKey(KEY)
+    choosePhoto(store, fakePhoto(1079, 1080))
+
+    await store.start()
+
+    expect(jevPhotoSent(fetchMock.mock.calls[0]?.[1])).toEqual({
+      text: 'jpeg 1079x1080',
+      type: 'image/jpeg',
+    })
+  })
+
   it('refuses a photo below the model minimum with a size-specific message, before any request or charge', async () => {
     const store = useInspectionStore()
     const ledger = useLedgerStore()
