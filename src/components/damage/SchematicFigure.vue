@@ -14,7 +14,7 @@ const props = defineProps<{
   roof: boolean
   markers: DamageFinding[]
   selectedId: number | null
-  /** The damage set's photo-relative zones on the side face, with how well each was seen. */
+  /** The damage set's photo-relative zones on this view's faces, with how well each was seen. */
   zones?: ZoneCoverage[]
 }>()
 
@@ -79,15 +79,19 @@ function pinLabel(f: DamageFinding): string {
 const zoneShapes = computed(() =>
   (props.zones ?? []).map((z) => {
     const unseen = z.visibility === 'not-visible' || z.visibility === null
-    const [x, y] = sidePt((z.zone.u0 + z.zone.u1) / 2, (z.zone.v0 + z.zone.v1) / 2)
+    const onEnd = z.face === 'rear' || z.face === 'front'
+    const pt = onEnd ? endPt : sidePt
+    const [x, y] = pt((z.zone.u0 + z.zone.u1) / 2, (z.zone.v0 + z.zone.v1) / 2)
     return {
       id: z.id,
-      points: quad(sidePt, z.zone.u0, z.zone.u1, z.zone.v0, z.zone.v1),
+      points: quad(pt, z.zone.u0, z.zone.u1, z.zone.v0, z.zone.v1),
+      // The end face is narrow, so its tags are the narrower variant: two sit side by side.
+      tagHalf: onEnd ? 28 : 34,
       unseen,
       partial: z.visibility === 'partial',
       tag: z.visibility === null ? "Can't tell" : 'Not seen',
       centre: `translate(${x} ${y})`,
-      title: `${z.label}: ${
+      title: `${z.label.charAt(0).toUpperCase()}${z.label.slice(1)}: ${
         z.visibility === 'clear'
           ? 'clearly visible'
           : z.visibility === 'partial'
@@ -178,7 +182,7 @@ function select(id: number) {
           />
           <polygon :points="z.points" />
           <g v-if="z.unseen" class="qs-c-zone__tag" :transform="z.centre">
-            <rect x="-34" y="-11" width="68" height="22" rx="4" />
+            <rect :x="-z.tagHalf" y="-11" :width="z.tagHalf * 2" height="22" rx="4" />
             <text x="0" y="1">{{ z.tag }}</text>
           </g>
         </g>
