@@ -15,4 +15,5 @@ Say **sample container** and **saved result** in the entry point. The words *rec
 ## Rules
 - Ask for photos, never for classifications. No fields for ID, length, face or type.
 - Once a photo is added, it becomes the hero (see `ResultsScreen`), and the drop target shrinks to an *Add photo* tile in the thumbnail strip.
-- Keyboard: Enter or Space on the drop zone opens the file picker. Sample tiles are buttons.
+- Keyboard: Enter or Space on the drop zone opens the file picker. Sample tiles are buttons, grouped (`role="group"`) under the sample heading so the group is announced when focus enters it.
+- Focus: after **Continue** on the `SetupCard` and after `NewInspection`, focus lands on the drop zone. In demo mode, after `NewInspection` it lands on the first sample tile, and choosing a sample moves it to **Start inspection**, so a keyboard user can run a sample without a mouse.

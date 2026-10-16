@@ -16,7 +16,7 @@ The New inspection action gives the presenter a blank screen for the next contai
 
 ## Accessibility
 - A native `<button>`, reachable with Tab. Focus shows the shared 2px `focus-ring` outline, offset 2px, from `qs-btn`.
-- After the reset, the photo drop zone is the next thing to use; don't move focus away from the button.
+- After the reset, focus moves to the next thing to use: the photo drop zone (`PhotoDrop`), or in demo mode the first sample in the sample picker. Only a press of this button moves focus; a provider or model change in the `SettingsDrawer` runs the same reset but leaves focus in the drawer.
 
 ## Don't
 - Don't ask "Are you sure?" or show a modal. The action discards only what is on screen.

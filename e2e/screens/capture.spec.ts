@@ -34,8 +34,10 @@ const openRouterLunaSmoke = JSON.parse(
   fs.readFileSync(path.join(ROOT, 'src', 'fixtures', 'live', 'openrouter-luna-smoke.json'), 'utf8'),
 ).response as unknown
 
-// A placeholder typed through the real field. It is not a credential and no provider receives it.
-const PLACEHOLDER_KEY = 'playwright-placeholder-not-a-key'
+// Placeholders typed through the real field. Neither is a credential and no provider receives one.
+// The first starts the way both providers' keys do, so it shows no key-format warning; the second doesn't.
+const PLACEHOLDER_KEY = 'sk-or-placeholder'
+const WRONG_PREFIX_PLACEHOLDER = 'placeholder-without-prefix'
 const PROVIDER_HOSTS = /openai\.com|openrouter\.ai|typesafe\.ai/
 
 const VIEWPORTS = [
@@ -224,6 +226,20 @@ const CAPTURES: Capture[] = [
     run: async (page) => {
       await open(page)
       await page.getByLabel('OpenRouter API key', { exact: true }).fill(PLACEHOLDER_KEY)
+    },
+  },
+  {
+    state: 'setup-key-format-warning',
+    screen: 'setup',
+    steps: [
+      'Open /',
+      "Type a placeholder without the sk-or- prefix into 'OpenRouter API key' (warning shown, Continue enabled)",
+    ],
+    motion: 'frozen',
+    run: async (page) => {
+      await open(page)
+      await page.getByLabel('OpenRouter API key', { exact: true }).fill(WRONG_PREFIX_PLACEHOLDER)
+      await page.locator('.qs-keywarn').waitFor()
     },
   },
   {
