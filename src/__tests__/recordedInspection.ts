@@ -1,6 +1,6 @@
 // Test support only: a complete recorded InspectionRecord for a provider, built from the recorded
 // fixtures. The app replays recorded results through domain/demoSamples; nothing in src uses this.
-import { recordedFixtures } from '../fixtures/recorded'
+import { recordedFixtures } from './handWrittenRecord'
 import { buildContainerIdReading } from '../domain/containerId'
 import { decodeSizeCode } from '../domain/isoSizeCode'
 import {

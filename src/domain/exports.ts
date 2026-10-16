@@ -2,8 +2,25 @@
 // shareable plain-text summary. Every builder takes only the InspectionRecord. No key, header or
 // credential can reach an export because none is an input.
 import { labelsFor, recordedDemonstrationLabel } from './providers'
-import { faceStatus, type DamageFace, type FaceStatus, type FindingZone } from './damage'
+import {
+  SEVERITY_LEVELS,
+  faceStatus,
+  potentiallySignificant,
+  type DamageComponent,
+  type DamageFace,
+  type FaceCoverage,
+  type FaceStatus,
+  type FindingZone,
+  type ImageQuality,
+  type SeverityLevel,
+  type ZoneVisibility,
+} from './damage'
+import type { FaceReading } from './photoFace'
 import type { CertaintyLabel, InspectionRecord, Provenance, RecheckRecord } from './inspection'
+import type { DetailSource } from './containerDetails'
+import { detailsExport } from './detailsExport'
+import { weightsExport } from './weightsExport'
+import type { IdCropReadRecord } from './cropRead'
 
 export const EXPORT_SCHEMA_VERSION = 1
 
@@ -19,8 +36,9 @@ export interface ExportValue {
   /** Printed: read from the photo. Derived: decoded from a standard or calculated by arithmetic. */
   category: 'printed' | 'derived'
   value: string | number | null
-  unit?: 'kg'
-  provenance: Provenance
+  unit?: 'kg' | 'lb' | 'm3' | 'cu ft'
+  /** observed: judged from the photo (an equipment check or a marking), not read as text. */
+  provenance: Provenance | DetailSource
   certainty: CertaintyLabel | null
   uncertainty: string | null
 }
@@ -44,10 +62,17 @@ export interface ExportFindingLink {
   findingId: number
   title: string
   face: DamageFace
+  /** Panel zone or structural component. */
+  component: DamageComponent
+  /** How well the finding's zone was seen, or null when the set did not say. */
+  visibility: ZoneVisibility | null
+  /** Apparent visual severity, or 'not rated' for a component the photo gives no severity for. */
   severity: string
+  /** The model's probability for each severity level, when it gave them. */
+  severityProbabilities: Partial<Record<SeverityLevel, number>> | null
   certainty: string
   types: string[]
-  region: { location: string; zone: FindingZone }
+  region: { location: string; zone: FindingZone | null }
   photo: string | null
   sourcePass: { passId: string; kind: 'recorded-run' | 'provider-call' }
 }
@@ -70,10 +95,25 @@ export interface InspectionExport {
   conflicts: string[]
   /** Automatic re-checks: observations and outcome. Never shown in the UI. */
   rechecks: RecheckRecord[]
+  /** Jev's crop read of the container ID: the crop and any character it disagreed on. Never shown in the UI. */
+  idCropRead: IdCropReadRecord | null
   damage: {
     assessed: boolean
+    /** Why the photo's view was not assessed (roof, close-up, unknown view, a face not inspectable), or null. */
+    notAssessedReason: string | null
+    /** The face the survey says the photo shows, or null when it did not say (or the run is recorded). */
+    photoFace: FaceReading | null
+    imageQuality: ImageQuality | null
+    coverage: FaceCoverage | null
+    /** "Potentially significant damage, closer inspection advised" (never a repair verdict); null when unread. */
+    potentiallySignificant: boolean | null
+    significantProbability: number | null
+    /** Which edge of the photo the door end is at, only when the photo shows it directly. */
+    doorEnd: 'image-left' | 'image-right' | null
     photos: { photo: string; face: DamageFace }[]
     faces: { face: 'rear' | 'front' | 'left' | 'right' | 'roof'; status: FaceExportStatus }[]
+    /** Every photo-relative zone the set judged, with its visibility: an unseen zone is never clean. */
+    zones: { id: string; face: DamageFace; label: string; visibility: ZoneVisibility | null }[]
     findings: ExportFindingLink[]
   }
 }
@@ -162,7 +202,13 @@ export function buildInspectionExport(record: InspectionRecord): InspectionExpor
     value: alt,
   }))
 
-  if (record.sizeCode) {
+  if (record.details) {
+    // A live survey: the printed code, what it decodes to, the checks and the markings.
+    const details = detailsExport(record.details)
+    values.push(...details.values)
+    unresolved.push(...details.unresolved)
+    conflicts.push(...details.conflicts)
+  } else if (record.sizeCode) {
     values.push({
       field: 'sizeCode',
       category: 'derived',
@@ -187,55 +233,23 @@ export function buildInspectionExport(record: InspectionRecord): InspectionExpor
     })
   }
 
-  const weights = record.weights
-  if (weights?.maxGross) {
-    values.push({
-      field: 'maxGross',
-      category: 'printed',
-      value: weights.maxGross.valueKg,
-      unit: 'kg',
-      provenance: 'printed',
-      certainty: weights.maxGross.certainty,
-      uncertainty: 'Maximum gross is a rating, not a measured load.',
-    })
-  } else {
-    unresolved.push({ field: 'maxGross', category: 'unresolved', reason: 'Not read.' })
-  }
-  if (weights?.tare) {
-    values.push({
-      field: 'tare',
-      category: 'printed',
-      value: weights.tare.valueKg,
-      unit: 'kg',
-      provenance: 'printed',
-      certainty: weights.tare.certainty,
-      uncertainty: null,
-    })
-  } else {
-    unresolved.push({ field: 'tare', category: 'unresolved', reason: 'Not read.' })
-  }
-  if (weights?.payload) {
-    values.push({
-      field: 'payload',
-      category: 'derived',
-      value: weights.payload.valueKg,
-      unit: 'kg',
-      provenance: 'calculated',
-      certainty: weights.payload.certainty,
-      uncertainty: 'Maximum gross minus tare. Not a cargo weight.',
-    })
-  } else {
-    unresolved.push({
-      field: 'payload',
-      category: 'unresolved',
-      reason: 'Needs both maximum gross and tare.',
-    })
-  }
-  if (weights?.conflict) conflicts.push(weights.conflict)
+  // Weights, in both units whatever the display units are (weightsExport.ts).
+  const weights = weightsExport(record.weights)
+  values.push(...weights.values)
+  unresolved.push(...weights.unresolved)
+  conflicts.push(...weights.conflicts)
 
-  const assessment = record.damage
-  if (!assessment)
-    unresolved.push({ field: 'damage', category: 'unresolved', reason: 'Not assessed.' })
+  const assessment = record.damage?.notAssessed ? null : record.damage
+  const notAssessedReason = record.damage?.notAssessed?.reason ?? null
+  if (!assessment) {
+    unresolved.push({
+      field: 'damage',
+      category: 'unresolved',
+      reason: notAssessedReason
+        ? `Not assessed for this view. ${notAssessedReason}`
+        : 'Not assessed.',
+    })
+  }
 
   return {
     schemaVersion: record.schemaVersion,
@@ -254,23 +268,47 @@ export function buildInspectionExport(record: InspectionRecord): InspectionExpor
     unresolved,
     conflicts,
     rechecks: record.rechecks ?? [],
+    idCropRead: record.idCropRead ?? null,
     damage: {
       assessed: assessment !== null,
+      notAssessedReason,
+      photoFace: record.photoFace ?? null,
+      imageQuality: assessment?.imageQuality ?? null,
+      coverage: assessment?.coverage ?? null,
+      potentiallySignificant:
+        assessment && assessment.significantProbability != null
+          ? potentiallySignificant(assessment)
+          : null,
+      significantProbability: assessment?.significantProbability ?? null,
+      doorEnd: assessment?.doorEnd ?? null,
       photos: assessment?.photos ?? [],
       faces: FIXED_FACES.map((face) => ({
         face,
         status: assessment ? faceStatus(assessment, face) : 'not-assessed',
       })),
+      zones: (assessment?.zones ?? []).map((z) => ({
+        id: z.id,
+        face: z.face,
+        label: z.label,
+        visibility: z.visibility,
+      })),
       findings: (assessment?.findings ?? []).map((f) => ({
         findingId: f.id,
         title: f.title,
         face: f.face,
-        severity: f.severity,
+        component: f.component,
+        visibility: f.visibility,
+        severity: f.severity ?? 'not rated',
+        severityProbabilities: f.severityProbabilities
+          ? Object.fromEntries(
+              SEVERITY_LEVELS.map((level, i) => [level, f.severityProbabilities![i] ?? 0]),
+            )
+          : null,
         certainty: f.certainty,
         types: f.types.map((t) => t.code),
         region: { location: f.location, zone: f.zone },
         photo: assessment?.photos.find((p) => p.face === f.face)?.photo ?? null,
-        sourcePass: { passId: record.id, kind: sourcePassKind(record) },
+        sourcePass: { passId: assessment?.passId ?? record.id, kind: sourcePassKind(record) },
       })),
     },
   }
@@ -287,10 +325,6 @@ export function buildRawResponsesExport(record: InspectionRecord): RawResponsesE
     inspectionId: record.id,
     responses: record.rawResponses,
   }
-}
-
-function formatKg(value: number): string {
-  return `${value.toLocaleString('en-GB')} kg`
 }
 
 const FACE_LABEL: Record<FaceExportStatus, string> = {
@@ -342,31 +376,30 @@ export function buildSummaryText(record: InspectionRecord): string {
       `Re-check of container ID (positions ${check.positions.join(', ')}): ${check.outcome}${cap}`,
     )
   }
-  if (record.sizeCode) {
+  if (record.details) {
+    lines.push(...detailsExport(record.details).summary)
+  } else if (record.sizeCode) {
     lines.push(
       `Size code (decoded): ${record.sizeCode.code} - ${record.sizeCode.summary} - ${record.sizeCode.certainty}`,
     )
   }
-  const weights = record.weights
-  if (weights?.maxGross) {
-    lines.push(
-      `Max gross (printed): ${formatKg(weights.maxGross.valueKg)} - a rating, not a measured load`,
-    )
-  }
-  if (weights?.tare) lines.push(`Tare (printed): ${formatKg(weights.tare.valueKg)}`)
-  if (weights?.payload) {
-    lines.push(`Payload (calculated): ${formatKg(weights.payload.valueKg)}`)
-  }
+  lines.push(...weightsExport(record.weights).summary)
   for (const conflict of json.conflicts) lines.push(`Conflict: ${conflict}`)
   lines.push('')
 
-  if (!json.damage.assessed) {
+  if (json.damage.notAssessedReason) {
+    lines.push(`Damage: not assessed for this view. ${json.damage.notAssessedReason}`)
+  } else if (!json.damage.assessed) {
     lines.push('Damage: not assessed.')
   } else {
     const n = json.damage.findings.length
     lines.push(`Suspected damage: ${n} finding${n === 1 ? '' : 's'}`)
+    if (json.damage.potentiallySignificant) {
+      lines.push('Potentially significant damage, closer inspection advised.')
+    }
     for (const f of json.damage.findings) {
-      lines.push(`- ${f.title} - ${f.certainty}, ${f.severity}`)
+      const severity = f.severity === 'not rated' ? 'severity not rated' : f.severity
+      lines.push(`- ${f.title} - ${f.certainty}, ${severity}`)
       lines.push(
         `  Photo: ${f.photo ?? 'not linked'}, region: ${f.region.location}, source pass: ${f.sourcePass.passId} (${f.sourcePass.kind})`,
       )

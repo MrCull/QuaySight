@@ -3,11 +3,19 @@ import { setActivePinia, createPinia } from 'pinia'
 import { useInspectionStore } from '../inspection'
 import { useSetupStore } from '../setup'
 import { useLedgerStore } from '../ledger'
-import { DEMO_SAMPLES } from '../../domain/demoSamples'
+import { idResultState } from '../../domain/certainty'
+import { demoSamples, registerDemoRecording, type DemoSampleId } from '../../domain/demoSamples'
+import { dentedSideRecording } from '../../__tests__/planRecordings'
+
+/** The result on screen read nothing of the container ID. */
+function unread(store: ReturnType<typeof useInspectionStore>): boolean {
+  const reading = store.record?.containerId
+  return !reading || idResultState(reading) === 'insufficient'
+}
 
 /** Starts the chosen sample and lets its recorded result land past the staged progress. */
 async function runSample(store: ReturnType<typeof useInspectionStore>, id: string) {
-  store.chooseSample(id as (typeof DEMO_SAMPLES)[number]['id'])
+  store.chooseSample(id as DemoSampleId)
   const run = store.start()
   await vi.advanceTimersByTimeAsync(2000)
   await run
@@ -15,12 +23,17 @@ async function runSample(store: ReturnType<typeof useInspectionStore>, id: strin
 
 /**
  * Demo mode (spec #16, ticket #24) at the store seam, with fetch stubbed at the network edge:
- * a visitor with no key sees the three bundled samples from recorded results, and nothing reaches a provider.
+ * a visitor with no key sees the bundled samples from recorded results, and nothing reaches a provider.
+ * The side photo has no shipped recording yet, so a test recording stands in for it (a no-ID long side
+ * with a dent): these specs are about the mechanics of demo mode, not about what a recording says.
  */
 describe('demo mode', () => {
   const fetchMock = vi.fn<typeof fetch>()
 
+  let removeSideRecording = () => {}
+
   beforeEach(() => {
+    removeSideRecording = registerDemoRecording(dentedSideRecording())
     localStorage.clear()
     setActivePinia(createPinia())
     fetchMock.mockReset()
@@ -28,6 +41,7 @@ describe('demo mode', () => {
   })
 
   afterEach(() => {
+    removeSideRecording()
     vi.unstubAllGlobals()
     vi.useRealTimers()
   })
@@ -46,19 +60,19 @@ describe('demo mode', () => {
   })
 
   it('offers the three bundled containers: rear doors with markings, a damaged side, clean rear doors', () => {
-    expect(DEMO_SAMPLES.map((sample) => sample.photo.name)).toEqual([
+    expect(demoSamples().map((sample) => sample.photo.name)).toEqual([
       'rear-door-aphu-45g1.jpg',
       'side-dented-grey.jpg',
       'rear-door-chsu-22g1.jpg',
     ])
-    expect(DEMO_SAMPLES.map((sample) => sample.title)).toEqual([
+    expect(demoSamples().map((sample) => sample.title)).toEqual([
       'Rear doors with markings',
       'Damaged grey side',
       'Clean grey rear doors',
     ])
   })
 
-  it.each(DEMO_SAMPLES.map((sample) => [sample.id, sample.photo.name] as const))(
+  it.each(demoSamples().map((sample) => [sample.id, sample.photo.name] as const))(
     'replays %s against its own photo, with no key, no request and nothing on the ledger',
     async (id, photoName) => {
       vi.useFakeTimers()
@@ -143,7 +157,7 @@ describe('demo mode', () => {
       useSetupStore().enterDemo()
       const store = useInspectionStore()
       await runSample(store, 'side-dented')
-      expect(store.record?.containerId).toBeNull()
+      expect(unread(store)).toBe(true)
       return store
     }
 
@@ -178,7 +192,7 @@ describe('demo mode', () => {
 
       expect(store.retry.status).toBe('error')
       expect(store.retry.message).toContain('Rate limit reached')
-      expect(store.record?.containerId).toBeNull()
+      expect(unread(store)).toBe(true)
       expect(fetchMock).not.toHaveBeenCalled()
     })
   })

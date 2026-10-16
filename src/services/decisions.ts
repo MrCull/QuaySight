@@ -21,6 +21,8 @@ export interface DecisionsPost {
   request: unknown
   /** Test seam. Defaults to the global fetch. */
   fetchImpl?: typeof fetch
+  /** Aborts the request in flight (Cancel, New inspection, a provider or model change). */
+  signal?: AbortSignal
   /** The error for a fetch that threw. Its own text is never shown: it could echo request details. */
   thrown: () => Error
   /** The error for a readable non-2xx response. */
@@ -49,8 +51,11 @@ export async function postDecisions(post: DecisionsPost): Promise<DecisionsReply
         ...post.headers,
       },
       body,
+      signal: post.signal,
     })
   } catch {
+    // An abort is not a network failure: the caller cancelled it.
+    if (post.signal?.aborted) throw post.signal.reason
     throw post.thrown()
   }
   const latencyMs = Date.now() - started

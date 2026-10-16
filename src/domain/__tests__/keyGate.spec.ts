@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { canContinue, canStart, hasKey } from '../keyGate'
+import { canContinue, canStart, hasKey, keyFormatWarning } from '../keyGate'
 
 describe('hasKey', () => {
   it('is false for empty and whitespace-only keys', () => {
@@ -62,5 +62,42 @@ describe('canContinue (setup card gate)', () => {
 
   it('stays closed for a model the provider does not offer', () => {
     expect(canContinue({ ...base, model: '~typesafe/jev-latest' })).toBe(false)
+  })
+})
+
+describe('keyFormatWarning (key-prefix check)', () => {
+  it('warns about an OpenRouter key that does not start with sk-or-, naming the provider and prefix', () => {
+    expect(keyFormatWarning('openrouter', 'sk-test-abc123')).toEqual({
+      provider: 'OpenRouter',
+      prefix: 'sk-or-',
+    })
+  })
+
+  it('warns about an OpenAI key that does not start with sk-', () => {
+    expect(keyFormatWarning('luna', 'or-abc123')).toEqual({ provider: 'OpenAI', prefix: 'sk-' })
+  })
+
+  it('says nothing for a key with the expected prefix', () => {
+    expect(keyFormatWarning('openrouter', 'sk-or-test-abc123')).toBeNull()
+    expect(keyFormatWarning('luna', 'sk-test-abc123')).toBeNull()
+  })
+
+  it('says nothing for an empty key, or while the prefix is still being typed', () => {
+    expect(keyFormatWarning('openrouter', '')).toBeNull()
+    expect(keyFormatWarning('openrouter', '   ')).toBeNull()
+    expect(keyFormatWarning('openrouter', 's')).toBeNull()
+    expect(keyFormatWarning('openrouter', 'sk-o')).toBeNull()
+  })
+
+  it('warns about a key pasted with a leading space, which would not reach the provider as typed', () => {
+    expect(keyFormatWarning('luna', ' sk-test-abc123')).toEqual({
+      provider: 'OpenAI',
+      prefix: 'sk-',
+    })
+  })
+
+  it('never carries the key itself', () => {
+    const warning = keyFormatWarning('openrouter', 'wrong-secret-value')
+    expect(JSON.stringify(warning)).not.toContain('wrong-secret-value')
   })
 })

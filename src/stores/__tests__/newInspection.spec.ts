@@ -6,6 +6,10 @@ vi.mock('../../services/imageCodec')
 import lunaSmoke from '../../fixtures/live/luna-smoke.json'
 import { useInspectionStore } from '../inspection'
 import { useLedgerStore } from '../ledger'
+import { readNothingOfId, withAllSampleRecordings } from '../../__tests__/planRecordings'
+
+// The side photo has no shipped recording yet: a test recording stands in so the sample can be chosen.
+withAllSampleRecordings()
 
 // Test-only placeholders. No provider ever receives them: fetch is stubbed at the network edge.
 const LUNA_KEY = 'test-only-luna-key-0000'
@@ -167,7 +171,7 @@ describe('New inspection: manifest retry', () => {
     const run = store.start()
     await vi.advanceTimersByTimeAsync(1600)
     await run
-    expect(store.record?.containerId).toBeNull()
+    expect(readNothingOfId(store.record)).toBe(true)
     return store
   }
 

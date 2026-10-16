@@ -33,11 +33,25 @@ describe('provider catalogue: capabilities', () => {
 })
 
 describe('provider catalogue: moving targets', () => {
-  it('marks Jev latest as a moving target and the pinned models as fixed', () => {
+  it('marks Jev latest and GPT-6 Luna Decisions as moving targets and the pinned models as fixed', () => {
     expect(isMovingTarget('openrouter', '~typesafe/jev-latest')).toBe(true)
+    // Its alias resolves to a dated snapshot (openai/gpt-6-luna-decisions-20261006 on 16 Oct 2026).
+    expect(isMovingTarget('openrouter', 'openai/gpt-6-luna-decisions')).toBe(true)
     expect(isMovingTarget('openrouter', 'typesafe/jev-1.14')).toBe(false)
     expect(isMovingTarget('openrouter', 'typesafe/jev-1.13')).toBe(false)
     expect(isMovingTarget('luna', 'gpt-6-luna')).toBe(false)
+  })
+
+  it('labels every moving target as one in the selector, and no fixed model', () => {
+    for (const provider of providers) {
+      for (const model of provider.models) {
+        const option = labelsFor(provider.id, model.id).option
+        expect({ option, saysMoving: option.includes('moving target') }).toEqual({
+          option,
+          saysMoving: model.movingTarget,
+        })
+      }
+    }
   })
 
   it('does not call an unlisted model a moving target', () => {
@@ -66,12 +80,12 @@ describe('provider catalogue: model declarations', () => {
     ])
   })
 
-  it('labels every model in the selector by maker and route, Jev latest as the moving target', () => {
+  it('labels every model in the selector by maker and route, with the moving targets marked', () => {
     expect(models.map((m) => labelsFor(m.provider, m.id).option)).toEqual([
       'Jev latest (TypeSafe) via OpenRouter · moving target, recommended',
       'Jev 1.14 (TypeSafe) via OpenRouter · pinned',
       'Jev 1.13 (TypeSafe) via OpenRouter · pinned',
-      'GPT-6 Luna Decisions (OpenAI) via OpenRouter',
+      'GPT-6 Luna Decisions (OpenAI) via OpenRouter · moving target',
       'GPT-6 Luna (OpenAI) direct · pinned',
     ])
   })
@@ -133,7 +147,7 @@ describe('provider catalogue: model declarations', () => {
       'Jev latest (TypeSafe) via OpenRouter',
     )
     expect(labelsFor('openrouter', 'openai/gpt-6-luna-decisions')).toEqual({
-      option: 'GPT-6 Luna Decisions (OpenAI) via OpenRouter',
+      option: 'GPT-6 Luna Decisions (OpenAI) via OpenRouter · moving target',
       route: 'OpenAI via OpenRouter',
       provider: 'GPT-6 Luna Decisions (OpenAI) via OpenRouter',
       ledger: 'GPT-6 Luna Decisions (OpenAI) via OpenRouter',

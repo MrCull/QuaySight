@@ -12,7 +12,39 @@ export type DamageFace = 'rear' | 'front' | 'left' | 'right' | 'roof' | 'long-si
 
 export type ViewId = 'rear-right' | 'front-left'
 export type FaceStatus = 'photographed' | 'side-unknown' | 'not-seen'
-export type Severity = 'minor' | 'moderate' | 'major'
+
+/** The five-level apparent visual severity scale, lowest first. 'none' is never a finding. */
+export const SEVERITY_LEVELS = ['none', 'cosmetic', 'minor', 'moderate', 'major'] as const
+export type SeverityLevel = (typeof SEVERITY_LEVELS)[number]
+/** A finding's apparent visual severity. Cosmetic is the lightest; there is no 'none' finding. */
+export type Severity = Exclude<SeverityLevel, 'none'>
+
+/** The finding severity a level label names (any case), or null for 'none' and anything else. */
+export function severityOfLevel(label: string): Severity | null {
+  const level = label.trim().toLowerCase()
+  return level !== 'none' && (SEVERITY_LEVELS as readonly string[]).includes(level)
+    ? (level as Severity)
+    : null
+}
+
+/**
+ * The part of the container a finding is on: a photo-relative zone of a panel, or a structural
+ * component reported on its own. The door-end set's parts are the locking bar, cam, hinge, gasket, header and sill.
+ */
+export type DamageComponent =
+  | 'panel'
+  | 'rail'
+  | 'corner-post'
+  | 'casting'
+  | 'locking-bar'
+  | 'cam'
+  | 'hinge'
+  | 'gasket'
+  | 'header'
+  | 'sill'
+
+/** How well a zone could be seen. 'not-visible' is shown as Not seen, never as clean. */
+export type ZoneVisibility = 'clear' | 'partial' | 'not-visible'
 export type FindingCertainty = Extract<CertaintyLabel, 'Confident' | 'Likely' | 'Uncertain'>
 
 /** Approximate area on a face. u runs along the face's length (or width for an end), v down from its top. */
@@ -34,7 +66,11 @@ export interface DamageType {
 export interface DamageFinding {
   id: number
   face: DamageFace
-  zone: FindingZone
+  /** Approximate area on the face; null when the set does not say where (e.g. "one of the castings"). */
+  zone: FindingZone | null
+  component: DamageComponent
+  /** How well the zone could be seen, or null when the set did not say (components, recordings). */
+  visibility: ZoneVisibility | null
   /** Plain-language approximate location, for example "lower middle of the long side". */
   location: string
   title: string
@@ -42,10 +78,27 @@ export interface DamageFinding {
   bestInterpretation: string
   uncertainty: string
   types: DamageType[]
-  severity: Severity
+  /** Apparent visual severity; null when the set gives the part no severity rating (components). */
+  severity: Severity | null
+  /** Probability per SEVERITY_LEVELS entry, when the model gave one. Kept for the export. */
+  severityProbabilities?: number[]
   certainty: FindingCertainty
   caveats: string[]
 }
+
+/** One photo-relative zone a damage set judged, with how well it could be seen. */
+export interface ZoneCoverage {
+  /** The set's own zone id, e.g. Z2B. An application zone, never a CEDEX location code. */
+  id: string
+  face: DamageFace
+  zone: FindingZone
+  /** Plain words, e.g. "photo column 2 of 5, lower half". */
+  label: string
+  visibility: ZoneVisibility | null
+}
+
+export type ImageQuality = 'good' | 'limited' | 'poor'
+export type FaceCoverage = 'full' | 'most' | 'partial' | 'not-inspectable'
 
 export interface PhotoCoverage {
   photo: string
@@ -56,6 +109,30 @@ export interface DamageAssessment {
   source: 'recorded' | 'live'
   photos: PhotoCoverage[]
   findings: DamageFinding[]
+  /** The zones the set judged, with their visibility. Absent when the assessment has no zone grid. */
+  zones?: ZoneCoverage[]
+  /** Whether the photo is good enough to judge obvious damage, as the set's own check says. */
+  imageQuality?: ImageQuality | null
+  /** How much of the face is visible, as the set's own coverage check says. */
+  coverage?: FaceCoverage | null
+  /**
+   * Probability of "potentially significant damage, closer inspection advised". Never a repair
+   * verdict. Null when unread.
+   */
+  significantProbability?: number | null
+  /** Which edge of the photo the door end is at, only when the photo shows it directly. */
+  doorEnd?: 'image-left' | 'image-right' | null
+  /** Set when no face in the photo could be assessed: "Damage not assessed for this view", and why. */
+  notAssessed?: { reason: string }
+  /** The raw response the assessment came from (live), for the export. */
+  passId?: string
+}
+
+/** At or above this probability the assessment says "potentially significant damage, closer inspection advised". */
+export const SIGNIFICANT_MIN = 0.5
+
+export function potentiallySignificant(assessment: DamageAssessment): boolean {
+  return (assessment.significantProbability ?? 0) >= SIGNIFICANT_MIN
 }
 
 export interface ViewSpec {
@@ -95,14 +172,16 @@ export function imageRelativeFindings(assessment: DamageAssessment): DamageFindi
 }
 
 const CERTAINTY_RANK: Record<FindingCertainty, number> = { Confident: 0, Likely: 1, Uncertain: 2 }
-const SEVERITY_RANK: Record<Severity, number> = { major: 0, moderate: 1, minor: 2 }
+const SEVERITY_RANK: Record<Severity, number> = { major: 0, moderate: 1, minor: 2, cosmetic: 3 }
+const UNRATED_RANK = 4
 
 /** Confident before Likely before Uncertain; within that, more serious first. */
 export function sortFindings(findings: DamageFinding[]): DamageFinding[] {
   return [...findings].sort(
     (a, b) =>
       CERTAINTY_RANK[a.certainty] - CERTAINTY_RANK[b.certainty] ||
-      SEVERITY_RANK[a.severity] - SEVERITY_RANK[b.severity] ||
+      (a.severity ? SEVERITY_RANK[a.severity] : UNRATED_RANK) -
+        (b.severity ? SEVERITY_RANK[b.severity] : UNRATED_RANK) ||
       a.id - b.id,
   )
 }

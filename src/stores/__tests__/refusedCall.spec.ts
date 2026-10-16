@@ -1,7 +1,7 @@
 // Ticket #18: a refused OpenAI call reads as "refused", not as a connection problem. OpenAI's Decisions API
 // leaves CORS headers off its error responses (checked live 16 Oct 2026), so in the browser a 401 arrives
 // as a thrown fetch. Fetch is stubbed at the network edge; navigator.onLine is the only other input.
-import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest'
+import { describe, it, expect, beforeEach, afterEach, vi, beforeAll, afterAll } from 'vitest'
 import { setActivePinia, createPinia } from 'pinia'
 
 // jsdom has no image decoder or canvas; photo preparation runs on the fake codec.
@@ -81,6 +81,17 @@ function everythingShown(store: ReturnType<typeof useInspectionStore>): string {
 function expectNoKeyAnywhere(store: ReturnType<typeof useInspectionStore>) {
   expect(everythingShown(store)).not.toContain(KEY)
 }
+
+import { onlyRequests } from '../../plan/registry'
+import { survey } from '../../plan/requests/survey'
+import { idRecheck } from '../../plan/requests/idRecheck'
+
+// This spec covers the ID requests; the other parts of a run (damage, …) have their own specs.
+let restoreRequests = () => {}
+beforeAll(() => {
+  restoreRequests = onlyRequests(survey, idRecheck)
+})
+afterAll(() => restoreRequests())
 
 describe('a live Luna run whose call fails before a response is readable', () => {
   let fetchMock: ReturnType<typeof vi.fn<typeof fetch>>

@@ -10,6 +10,10 @@ vi.mock('../../domain/demoSamples', async (importOriginal) => ({
 }))
 
 import { useInspectionStore } from '../inspection'
+import { withSideSampleRecording } from '../../__tests__/planRecordings'
+
+// The side photo has no shipped recording yet: a test recording stands in so the sample can be chosen.
+withSideSampleRecording()
 
 function recordFor(provider: 'luna' | 'openrouter'): InspectionRecord {
   return {

@@ -1,12 +1,6 @@
 import { defineStore } from 'pinia'
 import { markRaw } from 'vue'
-import {
-  defaultModelFor,
-  findModel,
-  labelsFor,
-  questionSetOf,
-  type ModelOption,
-} from '../domain/providers'
+import { defaultModelFor, findModel, labelsFor, type ModelOption } from '../domain/providers'
 import { canStart as keyGateOpen, hasKey } from '../domain/keyGate'
 import {
   findSample,
@@ -15,39 +9,34 @@ import {
   type DemoSampleId,
 } from '../domain/demoSamples'
 import { buildManifestQuestions, MANIFEST_PURPOSE, needsManifest } from '../domain/manifest'
-import {
-  assembleLunaReading,
-  LUNA_ENDPOINT_ID,
-  LUNA_MODEL,
-  type ChoiceReading,
-} from '../domain/luna'
+import { LUNA_ENDPOINT_ID, LUNA_MODEL } from '../domain/luna'
 import { ProviderError } from '../domain/providerErrors'
-import { callLuna, callLunaManifest } from '../services/luna'
-import {
-  callOpenRouterJev,
-  callOpenRouterLuna,
-  callOpenRouterManifest,
-} from '../services/openrouter'
+import { callLunaManifest } from '../services/luna'
+import { callOpenRouterManifest } from '../services/openrouter'
 import { preparePhoto, PhotoPreparationError } from '../services/preparePhoto'
 import { OPENROUTER_ENDPOINT_ID } from '../domain/openrouter'
-import {
-  mergeRecheck,
-  observationsOf,
-  RECHECK_PURPOSE,
-  recheckOutcome,
-  recheckRecord,
-  unresolvedPositions,
-} from '../domain/recheck'
 import type { ContainerIdReading } from '../domain/inspection'
 import type { Usage } from '../domain/ledger'
 import { useLedgerStore } from './ledger'
+import type { InspectionRecord, ProviderId } from '../domain/inspection'
 import {
-  INSPECTION_SCHEMA_VERSION,
-  type InspectionRecord,
-  type ProviderId,
-  type RawProviderResponse,
-  type RecheckRecord,
-} from '../domain/inspection'
+  RUN_STAGES,
+  stageProgress,
+  stageSettled,
+  type PlannedRequestState,
+  type StageId,
+  type StageProgress,
+} from '../domain/runStages'
+import {
+  foldSettled,
+  planFor,
+  runPlan,
+  type PlanRun,
+  type RunRoute,
+  type SettledRequest,
+} from '../plan/requestPlan'
+import { draftRecord } from '../plan/draftRecord'
+import { planRequests } from '../plan/registry'
 
 export interface SelectedPhoto {
   name: string
@@ -58,23 +47,8 @@ export interface SelectedPhoto {
   file?: Blob
 }
 
-export type RunStatus = 'idle' | 'running' | 'complete' | 'failed'
-
-/** One live provider call, normalised for the record and the ledger. */
-interface LiveReading {
-  containerId: ContainerIdReading
-  resolvedModel: string
-  usage: Usage | null
-  latencyMs: number
-  raw: unknown
-  /** Cost the response itself reports, or null. Never zero when absent. */
-  reportedCostUsd: number | null
-}
-
-/** One Luna question-set call on either route: per-position readings, for the re-check. */
-interface LunaReading extends LiveReading {
-  readings: ChoiceReading[]
-}
+/** cancelled: the presenter cancelled the run before any part of it answered. */
+export type RunStatus = 'idle' | 'running' | 'complete' | 'failed' | 'cancelled'
 
 export interface ManifestRetryState {
   status: 'idle' | 'checking' | 'error'
@@ -95,6 +69,17 @@ export const RECORDED_RETRY_DELAY_MS = 1600
 
 let liveCounter = 0
 let manifestCounter = 0
+
+/**
+ * The live run's plan in flight, with the run token it belongs to. Outside reactive state: it holds
+ * abort controllers. Cancel, New inspection, a new photo and a provider or model change abort it.
+ */
+let activePlan: { token: number; run: PlanRun } | null = null
+
+function abortActivePlan() {
+  activePlan?.run.cancel()
+  activePlan = null
+}
 
 /** The cap's message for a call it stopped. */
 function capMessage(reason: 'requests' | 'spend'): string {
@@ -206,6 +191,12 @@ export const useInspectionStore = defineStore('inspection', {
     errorMessage: null as string | null,
     /** The photo exactly as sent for the live result on screen, so the manifest check sends the same. Dropped with the result. */
     sentPhoto: null as Blob | null,
+    /** The inspection id of the latest live run, from its start: its ledger lines are this container's. */
+    runId: null as string | null,
+    /** Where each request of the latest live run is, for the progress stages. */
+    planned: [] as PlannedRequestState[],
+    /** Cancel was pressed during the current run. */
+    cancelRequested: false,
   }),
   getters: {
     /** The key for the selected provider only. */
@@ -215,6 +206,27 @@ export const useInspectionStore = defineStore('inspection', {
     /** Recorded in demo mode only; every other run is live (and needs the key). */
     mode(): 'live' | 'recorded' {
       return this.demo ? 'recorded' : 'live'
+    },
+    /**
+     * Progress stages of the run on screen. Live, from its requests; a recorded replay has no requests,
+     * so its stages are all at work until the sample lands.
+     */
+    stages(): StageProgress[] {
+      if (this.demo) {
+        const state = this.status === 'complete' ? 'done' : 'active'
+        return RUN_STAGES.map(({ id, title }) => ({ id, title, state, elapsedMs: null }))
+      }
+      return stageProgress(this.planned)
+    },
+    /**
+     * Whether a part of the result may show: once the run is over, or once its own stage has settled.
+     * A stage not in this run lands with the run.
+     */
+    landed(): (stage: StageId) => boolean {
+      const stages = this.stages
+      return (stage) =>
+        this.status !== 'running' ||
+        stageSettled(stages.find((s) => s.id === stage)?.state ?? 'not-in-run')
     },
     /**
      * Demo: a bundled sample is on screen (no key). Live, the key gate: a photo, a key for the selected
@@ -236,7 +248,7 @@ export const useInspectionStore = defineStore('inspection', {
      */
     canCheckManifest(): boolean {
       const record = this.record
-      if (!record) return false
+      if (!record || this.status === 'running') return false
       if (this.demo) return record.source === 'recorded' && this.sample !== null
       if (record.source !== 'live' || this.sentPhoto === null) return false
       return liveManifestRoute(record.provider, record.model) !== null
@@ -275,6 +287,7 @@ export const useInspectionStore = defineStore('inspection', {
     },
     /** Shared by setPhoto and chooseSample: a new photo on screen drops any run, result and selection. */
     showPhoto(photo: SelectedPhoto) {
+      abortActivePlan()
       this.runToken += 1
       this.inFlight = null
       this.photo = photo
@@ -284,6 +297,9 @@ export const useInspectionStore = defineStore('inspection', {
       this.errorMessage = null
       this.selectedFinding = null
       this.sentPhoto = null
+      this.runId = null
+      this.planned = []
+      this.cancelRequested = false
     },
     selectFinding(id: number | null) {
       this.selectedFinding = id
@@ -298,6 +314,8 @@ export const useInspectionStore = defineStore('inspection', {
     newInspection() {
       const dropped = this.photo?.url
       if (dropped?.startsWith('blob:')) URL.revokeObjectURL(dropped)
+      // Every request in flight is aborted: its ledger line says cancelled and its answer never lands.
+      abortActivePlan()
       this.runToken += 1
       this.inFlight = null
       this.photo = null
@@ -309,6 +327,9 @@ export const useInspectionStore = defineStore('inspection', {
       this.errorMessage = null
       this.selectedFinding = null
       this.sentPhoto = null
+      this.runId = null
+      this.planned = []
+      this.cancelRequested = false
     },
     /** Enters demo mode on a blank screen, ready to choose a sample. */
     enterDemo() {
@@ -325,6 +346,7 @@ export const useInspectionStore = defineStore('inspection', {
       if (this.inFlight) return this.inFlight
       // Live needs the key gate; demo needs a bundled sample on screen.
       if (!this.photo || !this.canStart) return Promise.resolve()
+      this.cancelRequested = false
       if (!this.demo) return this.startLive()
       const sample = this.sample
       if (!sample) return Promise.resolve()
@@ -354,11 +376,13 @@ export const useInspectionStore = defineStore('inspection', {
       return run
     },
     /**
-     * One live call for the chosen photo, through the cost ledger and its per-inspection cap (spec 8.5, 11.5).
-     * Luna (OpenAI direct or OpenRouter) and Jev (OpenRouter) share this path; each provider's key goes
-     * only to its own call. Only the Luna question set runs the position re-check (ticket #14), on the
-     * same route and model as the first pass; Jev makes one call.
-     * A failure keeps the photo and the ledger line; a partial reading from a successful call is kept.
+     * A live run for the chosen photo, as a request plan (src/plan): every registered request that
+     * applies to this route, through the cost ledger and its per-inspection cap (spec 8.5, 11.5), each
+     * with its own abort signal, ledger line and stage. Independent requests start together; a dependent
+     * one starts when its prerequisites answer. Each provider's key goes only to its own route.
+     * Every answer is folded into the record as it lands. When nothing answers the run fails with the
+     * first failure's message; when some parts answer and others fail or are cancelled, what answered is
+     * kept and the record is marked partial.
      */
     startLive(): Promise<void> {
       const photo = this.photo
@@ -378,15 +402,32 @@ export const useInspectionStore = defineStore('inspection', {
       const requestedModel = provider === 'luna' ? LUNA_MODEL : this.model
       // The catalogue entry decides the wire format, box support and photo limits; nothing else does.
       const entry = findModel(provider, requestedModel)
-      const endpoint = endpointOf(entry)
       const modelName = labelsFor(provider, requestedModel).model
-      const describe = { name: modelName, maxSide: entry?.photoLimits.maxSide ?? 0 }
       const inspectionId = `live-${provider}-${(liveCounter += 1)}`
+      const route: RunRoute | null = entry
+        ? {
+            provider,
+            model: requestedModel,
+            entry,
+            endpoint: endpointOf(entry),
+            describe: { name: modelName, maxSide: entry.photoLimits.maxSide },
+          }
+        : null
+      const plan = route ? planFor(planRequests(), route) : []
       this.status = 'running'
       this.record = null
       this.retry = freshRetry()
       this.errorMessage = null
       this.sentPhoto = null
+      this.runId = inspectionId
+      this.planned = plan.map((r) => ({
+        id: r.id,
+        stages: [...r.stages],
+        state: 'waiting',
+        optional: r.optional ?? false,
+        startedAt: null,
+        settledAt: null,
+      }))
 
       const ledger = useLedgerStore()
       const run: Promise<void> = (async () => {
@@ -407,189 +448,96 @@ export const useInspectionStore = defineStore('inspection', {
           return
         }
         if (token !== this.runToken) return
+        // A cancel while the photo was being prepared: nothing was sent.
+        if (this.cancelRequested) return this.finishCancelled()
         this.sentPhoto = markRaw(sent)
-
-        // The Luna question set on this run's route: OpenAI direct, or OpenRouter (ticket #23).
-        const readLuna = async (positions?: number[]): Promise<LunaReading> => {
-          if (viaOpenRouter(entry)) {
-            return callOpenRouterLuna({
-              apiKey,
-              photo: sent,
-              model: requestedModel,
-              positions,
-              describe,
-            })
-          }
-          return { ...(await callLuna({ apiKey, photo: sent, positions })), reportedCostUsd: null }
+        if (!route || plan.length === 0) {
+          this.status = 'failed'
+          this.errorMessage = 'The live inspection could not be completed. Try again.'
+          return
         }
 
-        let reading = null as LiveReading | null
-        let lunaFirst = null as LunaReading | null
-        const result = await ledger.run({
-          id: `${inspectionId}-read`,
-          inspectionId,
-          purpose: 'Reading markings',
+        let draft = draftRecord({
+          id: inspectionId,
           provider,
-          endpoint,
           model: requestedModel,
-          call: async () => {
-            if (entry && questionSetOf(entry) === 'luna') {
-              const call = await readLuna()
-              lunaFirst = call
-              reading = call
-            } else if (viaOpenRouter(entry)) {
-              reading = await callOpenRouterJev({
-                apiKey,
-                photo: sent,
-                model: requestedModel,
-                box: entry.box,
-                describe,
-              })
-            } else {
-              throw new Error(`No live adapter for ${requestedModel}`)
-            }
-            const done = reading as LiveReading
-            return {
-              resolvedModel: done.resolvedModel,
-              usage: done.usage,
-              latencyMs: done.latencyMs,
-              reportedCostUsd: done.reportedCostUsd,
-            }
+          source: 'live',
+          photo: { name: photo.name, orientation: photo.orientation },
+        })
+        const settled: SettledRequest[] = []
+        const live = runPlan({
+          requests: plan,
+          route,
+          apiKey,
+          photo: sent,
+          inspectionId,
+          charge: (request) => ledger.run(request),
+          onState: (states) => {
+            if (token === this.runToken) this.planned = states
+          },
+          onSettled: (done) => {
+            if (token !== this.runToken) return
+            settled.push(done)
+            draft = foldSettled(draft, done)
+            // The record on screen follows each answer; parts show as their stage lands.
+            if (settled.some((s) => s.outcome.status === 'answered')) this.record = draft
           },
         })
+        activePlan = { token, run: live }
+        await live.done
+        if (activePlan?.run === live) activePlan = null
         if (token !== this.runToken) return
 
-        if (result.status === 'ran' && reading) {
-          const first = reading as LiveReading
-          let containerId = first.containerId
-          const resolvedVersion = first.resolvedModel
-          const rawResponses: RawProviderResponse[] = [
-            {
-              passId: inspectionId,
-              provider,
-              model: requestedModel,
-              capturedFrom: 'provider',
-              body: first.raw,
-            },
-          ]
-          let rechecks: RecheckRecord[] = []
-
-          if (lunaFirst) {
-            const lunaFirstCall = lunaFirst as LunaReading
-            const asked = unresolvedPositions(lunaFirstCall.readings)
-            if (asked.length > 0) {
-              // One re-check for the unread positions, on the same provider and model, through the same cap (spec 5.1, 8.5).
-              const recheckId = `${inspectionId}-recheck`
-              let again = null as LunaReading | null
-              const checked = await ledger.run({
-                id: recheckId,
-                inspectionId,
-                purpose: RECHECK_PURPOSE,
-                provider,
-                endpoint,
-                model: requestedModel,
-                call: async () => {
-                  again = await readLuna(asked)
-                  return {
-                    resolvedModel: again.resolvedModel,
-                    usage: again.usage,
-                    latencyMs: again.latencyMs,
-                    reportedCostUsd: again.reportedCostUsd,
-                  }
-                },
-              })
-              if (token !== this.runToken) return
-
-              if (checked.status === 'ran' && again) {
-                const second: LunaReading = again
-                const merged = mergeRecheck(lunaFirstCall.readings, second.readings, asked)
-                containerId = assembleLunaReading(merged.readings)
-                rawResponses.push({
-                  passId: recheckId,
-                  provider,
-                  model: requestedModel,
-                  capturedFrom: 'provider',
-                  body: second.raw,
-                })
-                rechecks = [
-                  recheckRecord({
-                    id: recheckId,
-                    provider,
-                    model: requestedModel,
-                    asked,
-                    resolvedVersion: second.resolvedModel,
-                    outcome: recheckOutcome(asked, merged.resolved),
-                    resolved: merged.resolved,
-                    observations: observationsOf(second.readings, asked),
-                  }),
-                ]
-              } else if (checked.status === 'blocked') {
-                rechecks = [
-                  recheckRecord({
-                    id: recheckId,
-                    provider,
-                    model: requestedModel,
-                    asked,
-                    resolvedVersion: null,
-                    outcome: 'skipped-cap',
-                    resolved: [],
-                    observations: [],
-                    reason: checked.reason,
-                  }),
-                ]
-              } else {
-                // A failed re-check keeps the first result, which is already usable.
-                rechecks = [
-                  recheckRecord({
-                    id: recheckId,
-                    provider,
-                    model: requestedModel,
-                    asked,
-                    resolvedVersion: null,
-                    outcome: 'failed',
-                    resolved: [],
-                    observations: [],
-                  }),
-                ]
-              }
-            }
-          }
-
-          const live: InspectionRecord = {
-            schemaVersion: INSPECTION_SCHEMA_VERSION,
-            id: inspectionId,
-            provider,
-            model: requestedModel,
-            resolvedVersion,
-            rawResponses,
-            source: 'live',
-            status: 'complete',
-            photo: { name: photo.name, orientation: photo.orientation },
-            containerId,
-            damage: null,
-            sizeCode: null,
-            weights: null,
-            rechecks,
-          }
-          this.record = live
-          this.status = 'complete'
-        } else if (result.status === 'blocked') {
+        const answered = settled.filter((s) => s.outcome.status === 'answered')
+        if (answered.length === 0) {
+          if (live.cancelled) return this.finishCancelled()
+          // Nothing answered: the first failure explains the run.
+          const first = settled.find((s) => s.outcome.status !== 'cancelled')?.outcome
+          this.record = null
           this.status = 'failed'
-          this.errorMessage = capMessage(result.reason)
-        } else {
-          this.status = 'failed'
-          this.errorMessage = failureMessage(
-            result.status === 'failed' ? result.error : null,
-            'The live inspection could not be completed. Try again.',
-            'message',
-          )
+          this.errorMessage =
+            first?.status === 'blocked'
+              ? capMessage(first.reason)
+              : failureMessage(
+                  first?.status === 'failed' ? first.error : null,
+                  'The live inspection could not be completed. Try again.',
+                  'message',
+                )
+          return
         }
+        const incomplete =
+          live.cancelled || stageProgress(this.planned).some((s) => s.state === 'failed')
+        this.record = { ...draft, status: incomplete ? 'partial' : 'complete' }
+        this.status = 'complete'
       })().finally(() => {
         if (this.inFlight === run) this.inFlight = null
       })
 
       this.inFlight = run
       return run
+    },
+    /**
+     * Cancel during a run: aborts the requests still in flight and never sends the rest. What already
+     * answered is kept and marked partial; when nothing had answered, the run ends cancelled. Their
+     * ledger lines say cancelled, with unknown cost.
+     */
+    cancel() {
+      if (this.status !== 'running') return
+      this.cancelRequested = true
+      if (this.demo) {
+        // A recorded replay has no request to abort: its answer is simply dropped.
+        this.runToken += 1
+        this.inFlight = null
+        this.finishCancelled()
+        return
+      }
+      if (activePlan?.token === this.runToken) activePlan.run.cancel()
+    },
+    /** A run cancelled before anything answered: no result, the photo stays, and Start can run again. */
+    finishCancelled() {
+      this.status = 'cancelled'
+      this.record = null
+      this.errorMessage = null
     },
     /**
      * Manifest retry (spec 3.2). Demo mode replays the sample's own recorded check. Live, it is one

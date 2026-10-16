@@ -28,6 +28,8 @@ interface CallOpenRouterOptions {
   model: string
   /** What error messages say about the model. */
   describe: FailureModel
+  /** Aborts the call in flight. */
+  signal?: AbortSignal
   /** Test seam. Defaults to the global fetch. */
   fetchImpl?: typeof fetch
 }
@@ -70,6 +72,7 @@ async function decide(
     headers: OPENROUTER_ATTRIBUTION_HEADERS,
     request: build(await photoDataUrl(options.photo)),
     fetchImpl: options.fetchImpl,
+    signal: options.signal,
     // OpenRouter's errors carry CORS headers, so a thrown fetch is unreachable, online or not.
     thrown: () => openRouterFetchFailure(),
     failed: (status, body) => openRouterFailure(status, body, options.apiKey, options.describe),

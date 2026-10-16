@@ -29,12 +29,19 @@
   </div>
   <div class="qs-fieldset">
     <span class="qs-fieldset__label">Model version</span>
-    <label class="qs-input"><select aria-label="Model version"><option>Jev latest (TypeSafe) via OpenRouter · moving target, recommended</option><option>Jev 1.14 (TypeSafe) via OpenRouter · pinned</option><option>Jev 1.13 (TypeSafe) via OpenRouter · pinned</option><option>GPT-6 Luna Decisions (OpenAI) via OpenRouter</option></select></label>
+    <label class="qs-input"><select aria-label="Model version"><option>Jev latest (TypeSafe) via OpenRouter · moving target, recommended</option><option>Jev 1.14 (TypeSafe) via OpenRouter · pinned</option><option>Jev 1.13 (TypeSafe) via OpenRouter · pinned</option><option>GPT-6 Luna Decisions (OpenAI) via OpenRouter · moving target</option></select></label>
     <span class="qs-hint">Moving target: TypeSafe points this alias at its newest release. The version that answers is recorded with each result.</span>
   </div>
   <div class="qs-fieldset">
     <span class="qs-fieldset__label">OpenRouter API key</span>
     <label class="qs-input"><input type="password" placeholder="Paste your OpenRouter key (sk-or-…)" aria-label="OpenRouter API key"><button class="qs-btn qs-btn--ghost qs-btn--sm" aria-label="Show key"><i class="qs-glyph qs-glyph--eye"></i></button><button class="qs-btn qs-btn--ghost qs-btn--sm" disabled>Clear</button></label>
+    <span class="qs-hint">The photo and this key go only to OpenRouter's Decisions endpoint, and only for a live run. OpenRouter passes the photo, never your key, on to the model's maker. The key stays in this tab's memory and is never saved.</span>
+  </div>
+  <!-- Key-format warning: the same key field holding a key that doesn't start with sk-or-. Continue stays enabled. -->
+  <div class="qs-fieldset">
+    <span class="qs-fieldset__label">OpenRouter API key</span>
+    <label class="qs-input"><input type="password" value="placeholder" aria-label="OpenRouter API key (key-format warning shown)" aria-describedby="kw"><button class="qs-btn qs-btn--ghost qs-btn--sm" aria-label="Show key"><i class="qs-glyph qs-glyph--eye"></i></button><button class="qs-btn qs-btn--ghost qs-btn--sm">Clear</button></label>
+    <p class="qs-keywarn" id="kw" role="status"><span class="qs-keywarn__title">This doesn't look like an OpenRouter key.</span><span>OpenRouter keys start with <span class="qs-keywarn__prefix">sk-or-</span>. If yours is right, you can still continue.</span></p>
     <span class="qs-hint">The photo and this key go only to OpenRouter's Decisions endpoint, and only for a live run. OpenRouter passes the photo, never your key, on to the model's maker. The key stays in this tab's memory and is never saved.</span>
   </div>
 </div>

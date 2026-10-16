@@ -9,7 +9,7 @@ Together they show all six faces. The roof appears in both views but is always *
 
 ## Encoding: four channels, never mixed
 - **Where**: a tinted zone (`.qs-region`) over the classified region of the face, plus a pin standing on it.
-- **Severity**: the zone tint and the pin head fill, `sev-minor`, `sev-moderate` or `sev-major`.
+- **Severity**: the zone tint and the pin head fill, `sev-cosmetic` (lightest), `sev-minor`, `sev-moderate` or `sev-major`; neutral (`qs-region--unrated`, `qs-marker--unrated`) for a component with no severity rating.
 - **Certainty**: the pin head outline. Solid is confident, dashed (`qs-pin--likely`) is likely, dotted (`qs-pin--uncertain`) is uncertain.
 - **Coverage**: a face that wasn't photographed is hatched and tagged *not seen* in its view, and listed in the `.qs-coverage` strip under both views. A view with no photographed faces says *No photos* in its caption. A face is never shown as clear.
 
@@ -19,6 +19,9 @@ Together they show all six faces. The roof appears in both views but is always *
 - The long side is `schem-side` with `schem-side-rib` corrugations and `schem-rail` rails and corner posts. The door end is a step darker (`schem-end`, `schem-end-rib`) with `schem-detail` locking bars, keepers and hinges. The roof is the lightest face (`schem-top`). Outer edges and castings use `schem-stroke`. A blurred `schem-shadow` grounds it.
 - The 10 × 2 region grid (`schem-grid`, dashed) appears on hover or with `qs-schem--show-grid`, so the drawing stays clean until someone looks closer.
 - 40 ft sides use 10 sections and 20 ft sides use 5. When orientation is unknown, draw one face labelled *Image-relative view* instead of naming a side.
+- **Image-relative long side.** A live long-side assessment is drawn on one face captioned *Long side, image-relative*, whatever the container's length, with the set's own photo-relative 5 × 2 zone grid (columns from photo left, top and bottom halves of the side sheet) shown and each zone's visibility drawn on it: see `DamageAssessment`. Rails, corner posts and castings are component findings, drawn as bands along that part of the face.
+
+- **Door end.** A live door-end assessment is drawn on the end face of the *Rear and right side* view: the set's six photo-relative regions (two door leaves, each in top, middle and bottom thirds) with their visibility, and bands for the locking bars, hinges, header, sill and corner posts. See `DamageAssessment`. The face is a fraction layout (posts 0 to 0.05 and 0.95 to 1, header 0 to 0.06, sill 0.94 to 1, leaves between), not a measured door.
 
 ## Consumer provides
 The SVG (generated from face geometry), one `g.qs-region[data-finding]` per finding, and one `g.qs-pin[data-finding]` per finding with `role="button"`, `tabindex="0"`, `aria-pressed` and an `aria-label` covering the code, severity, certainty and location. Pins share `data-finding` with the `FindingCard` and the photo area, so selecting any of them selects all three. A selected pin gets a `focus-ring` outline and a slow ripple.

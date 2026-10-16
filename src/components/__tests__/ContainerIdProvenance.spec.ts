@@ -4,6 +4,10 @@ import { setActivePinia, createPinia } from 'pinia'
 import { useInspectionStore } from '../../stores/inspection'
 import { recordedInspection } from '../../__tests__/recordedInspection'
 import ResultsPanel from '../ResultsPanel.vue'
+import { withSideSampleRecording } from '../../__tests__/planRecordings'
+
+// The side photo has no shipped recording yet: a test recording stands in so the sample can be chosen.
+withSideSampleRecording()
 
 describe('ContainerId provenance tag after a manifest check', () => {
   beforeEach(() => setActivePinia(createPinia()))

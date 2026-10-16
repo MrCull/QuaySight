@@ -102,10 +102,10 @@ test.describe('New inspection', () => {
   })
 
   test('clears the manifest retry panel', async ({ page }) => {
-    // Demo mode: the damaged side shows no container ID, so the manifest offer opens.
+    // Demo mode: the rear doors' recorded ID has an unread position, so the manifest offer opens.
     await page.goto('/')
     await page.getByRole('button', { name: 'Enter as demo user' }).click()
-    await page.getByRole('button', { name: /Damaged grey side/ }).click()
+    await page.getByRole('button', { name: /Rear doors with markings/ }).click()
     await page.getByRole('button', { name: 'Start inspection' }).click()
     await page.locator('#stage.qs-arrived').waitFor()
     const offer = page.getByRole('heading', { name: 'Container ID not identified' })
@@ -143,7 +143,7 @@ test.describe('New inspection', () => {
     await release()
 
     await expect(page.getByText('Drop a container photo here')).toBeVisible()
-    // The cancelled call settles (it was sent, so its charge reaches the session total) and its result does not land.
+    // The call is aborted: it was sent, so the session counts it as cancelled with unknown cost, and its result never lands.
     await expect(costLine(page)).not.toContainText('Session None yet')
     await expect(page.locator('#stage')).not.toHaveClass(/qs-arrived|qs-arriving/)
     await expect(page.locator('.rs-photo__img')).toHaveCount(0)

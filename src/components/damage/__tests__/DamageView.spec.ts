@@ -1,7 +1,7 @@
 import { describe, it, expect } from 'vitest'
 import { mount } from '@vue/test-utils'
 import DamageView from '../DamageView.vue'
-import { recordedSideDamage } from '../../../fixtures/recordedDamage'
+import { recordedSideDamage } from '../../../__tests__/handWrittenDamage'
 
 const FORBIDDEN = /\b(clear|undamaged|safe|verified|supported|green|passed|confirmed)\b/i
 

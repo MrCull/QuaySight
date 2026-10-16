@@ -3,6 +3,7 @@ import { computed } from 'vue'
 import { useInspectionStore } from './stores/inspection'
 import { useSetupStore } from './stores/setup'
 import { findSample } from './domain/demoSamples'
+import { needsManifest } from './domain/manifest'
 import SetupCard from './components/SetupCard.vue'
 import SettingsChip from './components/SettingsChip.vue'
 import SettingsDrawer from './components/SettingsDrawer.vue'
@@ -22,9 +23,10 @@ const running = computed(() => store.status === 'running')
 // The key gate lives in the store: a photo, a key for the selected provider and a valid model.
 const canStart = computed(() => store.canStart && !running.value)
 const needsKey = computed(() => !store.demo && !!store.photo && !store.canStart && !running.value)
-// Demo mode: a sample-only option while its manifest offer is open.
+// Demo mode: a sample-only option while its manifest offer is open (the recorded ID has a position unread).
 const showSampleOptions = computed(
-  () => store.demo && store.record?.source === 'recorded' && store.record.containerId === null,
+  () =>
+    store.demo && store.record?.source === 'recorded' && needsManifest(store.record.containerId),
 )
 // Demo mode has no settings chip, so the run chip names who answered when the sample was recorded.
 // A live run is named by the settings chip: changing provider or model blanks the screen, so they agree.
@@ -41,6 +43,13 @@ const stageClass = computed(() => {
   if (store.status === 'complete') return 'qs-arrived'
   if (store.status === 'running') return 'qs-arriving'
   return ''
+})
+
+// The damage view shows once damage has run to the end. After Cancel or a failed damage request it is left out:
+// the partial or error notice names damage as not finished, and "not assessed in this inspection" would be untrue.
+const showDamageView = computed(() => {
+  const state = store.stages.find((s) => s.id === 'damage')?.state
+  return store.landed('damage') && state !== 'cancelled' && state !== 'failed'
 })
 
 function start() {
@@ -100,6 +109,7 @@ function start() {
           <button
             type="button"
             class="qs-btn qs-btn--primary qs-btn--lg"
+            data-next-step="start"
             :disabled="!canStart"
             :aria-busy="running ? 'true' : 'false'"
             @click="start"
@@ -112,11 +122,20 @@ function start() {
                   : 'Start inspection'
             }}
           </button>
+          <!-- Stops what is still in flight; whatever already arrived stays, marked partial. -->
+          <button
+            v-if="running"
+            type="button"
+            class="qs-btn qs-btn--secondary"
+            @click="store.cancel()"
+          >
+            Cancel
+          </button>
         </div>
       </section>
       <ResultsPanel />
       <DamageView
-        v-if="store.record"
+        v-if="showDamageView && store.record"
         :assessment="store.record.damage"
         :selected="store.selectedFinding"
         @update:selected="store.selectFinding"

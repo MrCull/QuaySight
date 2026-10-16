@@ -89,6 +89,10 @@ body {
 .rs-photo__bar {
   transition: opacity var(--duration-base);
 }
+/* Cancel sits beside the busy primary button while a run is in flight. */
+.rs-startrow .qs-btn + .qs-btn {
+  margin-left: var(--space-3);
+}
 /* Analysing overlay on the photo (design-system AnalysingScreen). Shown only while .qs-arriving. */
 .rs-analysing {
   position: absolute;
@@ -277,6 +281,28 @@ body {
   }
   .rs-damage__grid {
     grid-template-columns: minmax(0, 1fr);
+  }
+}
+/* The cost line in the top bar is running text, not a row of flex items: every figure and its basis ("estimate",
+   "Partial estimate") would otherwise be a separate item that wraps on its own or runs past the edge of a phone. */
+.rs-top .qs-cost__toggle {
+  display: inline-block;
+  max-width: 100%;
+  white-space: normal;
+  text-align: left;
+}
+.rs-top .qs-cost__toggle .qs-glyph {
+  vertical-align: middle;
+  margin-left: var(--space-1);
+}
+/* Desktop: a long cost line ("Cost unavailable Partial estimate" after a cancel) wraps to two lines, so the chip
+   keeps naming the model instead of truncating (the chip only shrinks on phones). */
+@media (min-width: 961px) {
+  .rs-top .qs-settingschip {
+    flex: none;
+  }
+  .rs-top .qs-cost {
+    min-width: 0;
   }
 }
 @media (max-width: 960px) {

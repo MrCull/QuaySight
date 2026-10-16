@@ -8,11 +8,13 @@
  * Output: screenshots/<state>-<width>x<height>.png (full page) and screenshots/index.json.
  *         screenshots/ is generated and git-ignored; never commit it.
  *
- * Recorded states run in demo mode (Enter as demo user: no key, the three bundled samples).
+ * Recorded states run in demo mode (Enter as demo user: no key, the bundled samples that have a recording).
  * Network: every external request is aborted, so nothing leaves the machine. The only "live" calls are
- * OpenAI's Decisions endpoint, answered by a route with a copy of the recorded smoke response (variants
- * for uncertain, partial and insufficient readings), and OpenRouter's Decisions endpoint, answered with a
- * Jev reading in the shape seen live on 16 Oct 2026. The key is a placeholder typed into the real field.
+ * the Decisions endpoints, answered request by request (survey, long-side damage, door-end damage, second
+ * looks) from e2e/screens/mockRuns.ts: hand-written replies built from the COYU 266813 0 door figures, a copy
+ * of the recorded smoke responses for the earlier ID-only states, and a Jev reading in the shape seen live
+ * on 16 Oct 2026. They show how the screens treat such answers; they are not recordings. The key is a
+ * placeholder typed into the real field.
  * Motion: non-animation captures freeze CSS animations; mid-animation captures and the reduced-motion
  * capture are taken live, after a fixed pause during the staged progress.
  */
@@ -21,11 +23,26 @@ import fs from 'node:fs'
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { buildIndex, certaintyLabelsIn, shotFileName, type ShotInput } from './indexBuilder'
+import {
+  CONFLICTING_WEIGHTS,
+  HOLD,
+  MARKINGS_SEEN,
+  kindOfRequest,
+  longSideScript,
+  rearDoorsScript,
+  roofScript,
+  surveyWithIdAnswers,
+  type Script,
+} from './mockRuns'
+import { doorReply as jevDoorReply, notASideReply } from '../../src/__tests__/planReplies'
+import { openRouterSurveyReply } from '../../src/__tests__/surveyReplies'
 
 const here = path.dirname(fileURLToPath(import.meta.url))
 const ROOT = path.resolve(here, '../..')
 const OUT = path.join(ROOT, 'screenshots')
 const samplePhoto = path.join(ROOT, 'samples', 'rear-door-aphu-45g1.jpg')
+const coyuPhoto = path.join(ROOT, 'samples', 'rear-door-coyu-22g1.jpg')
+const sidePhoto = path.join(ROOT, 'samples', 'side-dented-grey.jpg')
 const lunaSmoke = JSON.parse(
   fs.readFileSync(path.join(ROOT, 'src', 'fixtures', 'live', 'luna-smoke.json'), 'utf8'),
 ).response as { answers: Array<Record<string, unknown>> }
@@ -34,8 +51,10 @@ const openRouterLunaSmoke = JSON.parse(
   fs.readFileSync(path.join(ROOT, 'src', 'fixtures', 'live', 'openrouter-luna-smoke.json'), 'utf8'),
 ).response as unknown
 
-// A placeholder typed through the real field. It is not a credential and no provider receives it.
-const PLACEHOLDER_KEY = 'playwright-placeholder-not-a-key'
+// Placeholders typed through the real field. Neither is a credential and no provider receives one.
+// The first starts the way both providers' keys do, so it shows no key-format warning; the second doesn't.
+const PLACEHOLDER_KEY = 'sk-or-placeholder'
+const WRONG_PREFIX_PLACEHOLDER = 'placeholder-without-prefix'
 const PROVIDER_HOSTS = /openai\.com|openrouter\.ai|typesafe\.ai/
 
 const VIEWPORTS = [
@@ -61,8 +80,8 @@ interface Capture {
   /** Limit to some viewports; default all three. */
   viewports?: Array<{ width: number; height: number }>
   reducedMotion?: boolean
-  /** Mocked Decisions body (OpenAI or OpenRouter) for live captures. */
-  liveBody?: () => unknown
+  /** Answers each Decisions request of a live capture (OpenAI or OpenRouter); HOLD leaves it in flight. */
+  script?: () => Script
   run: (page: Page) => Promise<void>
 }
 
@@ -85,7 +104,9 @@ async function enterDemo(page: Page) {
   await page.getByRole('region', { name: 'Demo mode' }).waitFor()
 }
 
-type SampleName = 'Rear doors with markings' | 'Damaged grey side' | 'Clean grey rear doors'
+// The damaged side has no recording yet (spec #27, ticket #37), so it is not offered; its captures return
+// when that photo is recorded with the whole plan.
+type SampleName = 'Rear doors with markings' | 'Clean grey rear doors'
 
 /** Demo mode: puts a bundled sample on the stage, ready to start. */
 async function openSample(page: Page, name: SampleName) {
@@ -119,9 +140,9 @@ async function demoResult(page: Page, name: SampleName) {
   await startAndSettle(page)
 }
 
-/** The damaged side in demo mode: no container ID in view, so the manifest offer opens. */
+/** The rear doors in demo mode: the recorded ID has an unread position, so the manifest offer opens. */
 async function unidentifiedRun(page: Page) {
-  await demoResult(page, 'Damaged grey side')
+  await demoResult(page, 'Rear doors with markings')
   await expect(page.getByRole('heading', { name: 'Container ID not identified' })).toBeVisible()
 }
 
@@ -138,24 +159,34 @@ async function liveRun(page: Page) {
   await startAndSettle(page, 'Run live inspection')
 }
 
-/** A Jev reading of the APHU sample through OpenRouter, in the response shape seen live on 16 Oct 2026. */
-function openRouterJevBody() {
-  const answers: Record<string, unknown> = {}
-  'APHU6586847'.split('').forEach((ch, i) => {
-    answers[`id_char_${String(i + 1).padStart(2, '0')}`] = {
-      type: 'choice',
-      choice: ch,
-      probabilities: { [ch]: 0.93, unreadable: 0.07 },
-      confidence: 0.9,
+/**
+ * A Jev reading of the APHU sample through OpenRouter, in the response shape seen live on 16 Oct 2026, with the
+ * details answered like a clean door and the damage sets answering as OpenRouter's keyed shape does.
+ */
+function openRouterJevScript(): Script {
+  return (kind) => {
+    if (kind === 'door') return jevDoorReply()
+    if (kind === 'side') return notASideReply()
+    return {
+      ...openRouterSurveyReply('APHU6586847', {
+        details: {
+          size_type_code: [['45G1', 0.9]],
+          photo_face: [['rear_doors', 0.95]],
+        },
+        cost: 0.000077448,
+      }),
+      id: 'gen-dec-screenshot',
+      provider: 'TypeSafe',
     }
-  })
-  answers.full_number_visible = { type: 'noul', noul: 0.97 }
-  return {
-    model: 'typesafe/jev-1.14-20261014',
-    answers,
-    usage: { input_tokens: 1844, output_tokens: 75, cost: 0.000077448 },
-    id: 'gen-dec-screenshot',
-    provider: 'TypeSafe',
+  }
+}
+
+/** GPT-6 Luna Decisions through OpenRouter: the recorded smoke response answers the survey; no damage question is answered. */
+function openRouterLunaScript(): Script {
+  return (kind) => {
+    if (kind === 'side') return notASideReply()
+    if (kind === 'door') return { model: 'openai/gpt-6-luna-decisions', answers: {} }
+    return openRouterLunaSmoke
   }
 }
 
@@ -184,6 +215,37 @@ function lunaVariant(kind: 'uncertain' | 'partial' | 'insufficient') {
   }
   return body
 }
+
+/** An ID reading variant of the recorded Luna smoke response, with the details and damage of a clean rear-door photo. */
+function idVariantScript(kind: 'uncertain' | 'partial' | 'insufficient'): Script {
+  const base = rearDoorsScript({ face: 'rear_doors' })
+  const answers = lunaVariant(kind).answers
+  return (k, n) =>
+    k === 'survey'
+      ? surveyWithIdAnswers(answers, { id: 'APHU6586847' })
+      : base(k, n)
+}
+
+/** Starts a live run on the COYU door photo (or another) and returns without waiting for it to finish. */
+async function liveStart(page: Page, photo = coyuPhoto) {
+  await open(page)
+  await liveKey(page)
+  await page.locator('input[type="file"]').setInputFiles(photo)
+  await page.getByRole('button', { name: 'Run live inspection' }).click()
+}
+
+/** A live run on the COYU door photo, landed. */
+async function liveLanded(page: Page, photo = coyuPhoto) {
+  await liveStart(page, photo)
+  await page.locator('#stage.qs-arrived').waitFor()
+  await page.waitForTimeout(SETTLE_MS)
+}
+
+const units = (page: Page, name: 'Metric' | 'Imperial') =>
+  page.getByRole('group', { name: 'Units' }).getByRole('button', { name })
+
+const stageRow = (page: Page, title: string) =>
+  page.locator('.rs-stagecard li.qs-stage', { hasText: title })
 
 // ---- Captures -----------------------------------------------------------------------------------
 
@@ -224,6 +286,20 @@ const CAPTURES: Capture[] = [
     run: async (page) => {
       await open(page)
       await page.getByLabel('OpenRouter API key', { exact: true }).fill(PLACEHOLDER_KEY)
+    },
+  },
+  {
+    state: 'setup-key-format-warning',
+    screen: 'setup',
+    steps: [
+      'Open /',
+      "Type a placeholder without the sk-or- prefix into 'OpenRouter API key' (warning shown, Continue enabled)",
+    ],
+    motion: 'frozen',
+    run: async (page) => {
+      await open(page)
+      await page.getByLabel('OpenRouter API key', { exact: true }).fill(WRONG_PREFIX_PLACEHOLDER)
+      await page.locator('.qs-keywarn').waitFor()
     },
   },
   {
@@ -288,7 +364,7 @@ const CAPTURES: Capture[] = [
     run: async (page) => {
       await demoResult(page, 'Rear doors with markings')
       await page.getByRole('button', { name: 'New inspection' }).click()
-      await page.getByRole('button', { name: /Damaged grey side/ }).waitFor()
+      await page.getByRole('button', { name: /Rear doors with markings/ }).waitFor()
     },
   },
   {
@@ -324,7 +400,7 @@ const CAPTURES: Capture[] = [
   {
     state: 'demo-rear-result',
     screen: 'results',
-    steps: ['Demo mode', 'Rear doors with markings (recorded Luna)', 'Start inspection, settle'],
+    steps: ['Demo mode', 'Rear doors with markings (recorded Luna, earlier ID-only run)', 'Start inspection, settle'],
     motion: 'frozen',
     run: (page) => demoResult(page, 'Rear doors with markings'),
   },
@@ -336,23 +412,6 @@ const CAPTURES: Capture[] = [
     run: async (page) => {
       await demoResult(page, 'Rear doors with markings')
       await page.locator('button.qs-cost__toggle').click()
-    },
-  },
-  {
-    state: 'demo-side-result',
-    screen: 'results',
-    steps: ['Demo mode', 'Damaged grey side (recorded Luna: damage, no ID in view)', 'Start inspection, settle'],
-    motion: 'frozen',
-    run: (page) => demoResult(page, 'Damaged grey side'),
-  },
-  {
-    state: 'demo-damage-marker',
-    screen: 'results',
-    steps: ['Demo damaged-side result', 'Click the first damage marker (pin)'],
-    motion: 'frozen',
-    run: async (page) => {
-      await demoResult(page, 'Damaged grey side')
-      await page.locator('.qs-c-pins [role="button"]').first().click()
     },
   },
   {
@@ -372,6 +431,29 @@ const CAPTURES: Capture[] = [
     motion: 'frozen',
     run: (page) => demoResult(page, 'Clean grey rear doors'),
   },
+  // The demo's recordings carry no weights, markings or damage yet, and the damaged side has no recording
+  // (spec #27, ticket #37): the states that need them (the demo in lb, the demo's side damage) are captured on
+  // live runs below (rear-door-damage-*, side-damage) until those photos are recorded with the whole plan.
+  {
+    state: 'found-reduced-motion',
+    screen: 'results',
+    steps: [
+      'Reduced-motion emulation',
+      'Demo rear-doors result, captured as soon as it lands (no pause)',
+      'What we found is simply there, with no animation',
+    ],
+    motion: 'animated',
+    viewports: [{ width: 1440, height: 900 }],
+    reducedMotion: true,
+    run: async (page) => {
+      await open(page)
+      await enterDemo(page)
+      await openSample(page, 'Rear doors with markings')
+      await page.getByRole('button', { name: 'Start inspection' }).click()
+      await page.locator('#stage.qs-arrived').waitFor()
+      await expect(page.locator('.qs-found')).toBeVisible()
+    },
+  },
   {
     state: 'openrouter-live-result',
     screen: 'results',
@@ -383,7 +465,7 @@ const CAPTURES: Capture[] = [
       'settle',
     ],
     motion: 'frozen',
-    liveBody: openRouterJevBody,
+    script: openRouterJevScript,
     run: async (page) => {
       await open(page)
       await liveKey(page, 'OpenRouter API key')
@@ -403,7 +485,7 @@ const CAPTURES: Capture[] = [
       'settle',
     ],
     motion: 'frozen',
-    liveBody: () => openRouterLunaSmoke,
+    script: openRouterLunaScript,
     run: async (page) => {
       await open(page)
       await page.getByLabel('Model version').selectOption('openai/gpt-6-luna-decisions')
@@ -417,7 +499,7 @@ const CAPTURES: Capture[] = [
     screen: 'start',
     steps: ['OpenRouter live result steps', 'Click New inspection (blank screen, key kept)'],
     motion: 'frozen',
-    liveBody: openRouterJevBody,
+    script: openRouterJevScript,
     run: async (page) => {
       await open(page)
       await liveKey(page, 'OpenRouter API key')
@@ -432,7 +514,7 @@ const CAPTURES: Capture[] = [
     screen: 'results',
     steps: ['Open /', 'Type placeholder key, Enter', 'Choose photo', 'Run live inspection (mocked Decisions: uncertain)', 'settle'],
     motion: 'frozen',
-    liveBody: () => lunaVariant('uncertain'),
+    script: () => idVariantScript('uncertain'),
     run: liveRun,
   },
   {
@@ -440,7 +522,7 @@ const CAPTURES: Capture[] = [
     screen: 'results',
     steps: ['Open /', 'Type placeholder key, Enter', 'Choose photo', 'Run live inspection (mocked Decisions: positions 5 and 9 unread)', 'settle'],
     motion: 'frozen',
-    liveBody: () => lunaVariant('partial'),
+    script: () => idVariantScript('partial'),
     run: liveRun,
   },
   {
@@ -448,13 +530,13 @@ const CAPTURES: Capture[] = [
     screen: 'results',
     steps: ['Open /', 'Type placeholder key, Enter', 'Choose photo', 'Run live inspection (mocked Decisions: nothing read)', 'settle'],
     motion: 'frozen',
-    liveBody: () => lunaVariant('insufficient'),
+    script: () => idVariantScript('insufficient'),
     run: liveRun,
   },
   {
     state: 'manifest-offer',
     screen: 'manifest-retry',
-    steps: ['Demo mode', 'Damaged grey side, Start, settle', 'Manifest offer open'],
+    steps: ['Demo mode', 'Rear doors with markings, Start, settle', 'Manifest offer open'],
     motion: 'frozen',
     run: unidentifiedRun,
   },
@@ -500,6 +582,191 @@ const CAPTURES: Capture[] = [
       await page.waitForTimeout(300)
     },
   },
+  // ---- Spec #27 states: the whole plan on a live run (mocked replies from e2e/screens/mockRuns.ts) ----
+  {
+    state: 'settings-drawer-key-warning',
+    screen: 'start',
+    steps: [
+      'Settings-chip steps',
+      'Click the settings chip',
+      "Type a placeholder without the sk- prefix into 'OpenAI API key' (warning under the field, Continue still enabled)",
+    ],
+    motion: 'frozen',
+    run: async (page) => {
+      await open(page)
+      await liveKey(page)
+      await settingsChip(page).click()
+      const drawer = page.getByRole('dialog', { name: 'Settings' })
+      await drawer.waitFor()
+      await drawer.getByLabel('OpenAI API key', { exact: true }).fill(WRONG_PREFIX_PLACEHOLDER)
+      await drawer.locator('.qs-keywarn').waitFor()
+    },
+  },
+  {
+    state: 'progress-survey-pending',
+    screen: 'analysing',
+    steps: [
+      'Settings-chip steps (OpenAI), choose the COYU door photo',
+      'Run live inspection (mocked: the damage checks answer, the survey is still in flight)',
+      'Capture after the damage part has landed: its stage done, ID and details active, Cancel offered',
+    ],
+    motion: 'animated',
+    script: () => rearDoorsScript({}, { survey: HOLD }),
+    run: async (page) => {
+      await liveStart(page)
+      await expect(stageRow(page, 'Checking for damage')).toHaveClass(/qs-stage--done/)
+      // The damage part has landed on its own; let its arrival finish. The ID and details are still in flight.
+      await page.waitForTimeout(SETTLE_MS)
+    },
+  },
+  {
+    state: 'progress-damage-pending',
+    screen: 'analysing',
+    steps: [
+      'Settings-chip steps (OpenAI), choose the COYU door photo',
+      'Run live inspection (mocked: the survey answers, both damage checks are still in flight)',
+      'Capture after the ID and details have landed: their stages done, damage active, Cancel offered',
+    ],
+    motion: 'animated',
+    script: () => rearDoorsScript({}, { side: HOLD, door: HOLD }),
+    run: async (page) => {
+      await liveStart(page)
+      await expect(stageRow(page, 'Reading the ID')).toHaveClass(/qs-stage--done/)
+      // The ID and details have landed on their own; let their arrival finish. Damage is still in flight.
+      await page.waitForTimeout(SETTLE_MS)
+    },
+  },
+  {
+    state: 'progress-cancel-focused',
+    screen: 'analysing',
+    steps: [
+      'Progress (survey pending) steps',
+      'Tab to Cancel so the keyboard focus ring shows',
+    ],
+    motion: 'frozen',
+    script: () => rearDoorsScript({}, { survey: HOLD }),
+    run: async (page) => {
+      await liveStart(page)
+      await expect(stageRow(page, 'Checking for damage')).toHaveClass(/qs-stage--done/)
+      await page.getByRole('button', { name: 'Cancel' }).focus()
+      await page.keyboard.press('Shift+Tab')
+      await page.keyboard.press('Tab')
+    },
+  },
+  {
+    state: 'cancelled-before-results',
+    screen: 'results',
+    steps: [
+      'Progress steps with every request held',
+      'Click Cancel before anything arrives (photo kept, the calls recorded as cancelled)',
+    ],
+    motion: 'frozen',
+    script: () => () => HOLD,
+    run: async (page) => {
+      await liveStart(page)
+      await page.getByRole('button', { name: 'Cancel' }).click()
+      await expect(page.getByText('Inspection cancelled before any result arrived.')).toBeVisible()
+    },
+  },
+  {
+    state: 'cancelled-partial',
+    screen: 'results',
+    steps: [
+      'Progress steps (the survey answers, both damage checks held)',
+      'Click Cancel: the ID and details stay, marked as a partial result, damage named as not finished',
+    ],
+    motion: 'frozen',
+    script: () => rearDoorsScript({}, { side: HOLD, door: HOLD }),
+    run: async (page) => {
+      await liveStart(page)
+      await expect(stageRow(page, 'Reading the ID')).toHaveClass(/qs-stage--done/)
+      await page.getByRole('button', { name: 'Cancel' }).click()
+      await page.locator('.qs-notice--partial').waitFor()
+      await page.waitForTimeout(SETTLE_MS)
+    },
+  },
+  {
+    state: 'rear-door-damage-metric',
+    screen: 'results',
+    steps: [
+      'Settings-chip steps (OpenAI), choose the COYU door photo',
+      'Run live inspection (mocked: ID and details read, weights agree in kg and lb, door-end damage found)',
+      'settle; Container details on Metric',
+    ],
+    motion: 'frozen',
+    script: () => rearDoorsScript(),
+    run: (page) => liveLanded(page),
+  },
+  {
+    state: 'rear-door-damage-imperial',
+    screen: 'results',
+    steps: ['Rear-door steps', 'Click Imperial in the Container details heading'],
+    motion: 'frozen',
+    script: () => rearDoorsScript(),
+    run: async (page) => {
+      await liveLanded(page)
+      await units(page, 'Imperial').click()
+    },
+  },
+  {
+    state: 'units-toggle-focused',
+    screen: 'results',
+    steps: ['Rear-door steps', 'Tab to the Imperial button so the keyboard focus ring shows'],
+    motion: 'frozen',
+    script: () => rearDoorsScript(),
+    run: async (page) => {
+      await liveLanded(page)
+      await units(page, 'Metric').focus()
+      await page.keyboard.press('Tab')
+    },
+  },
+  {
+    state: 'weights-conflict',
+    screen: 'results',
+    steps: [
+      'Rear-door steps',
+      'Mocked: max gross read as 30,480 kg but 67,900 lb, and the second look reads the same',
+      'settle: Uncertain with both readings, said first in What we found',
+    ],
+    motion: 'frozen',
+    script: () => rearDoorsScript({ weights: CONFLICTING_WEIGHTS }),
+    run: (page) => liveLanded(page),
+  },
+  {
+    state: 'markings-seen',
+    screen: 'results',
+    steps: [
+      'Rear-door steps',
+      'Mocked: a class 3 DG placard, fumigation and high-container markings seen, overwidth not clear',
+    ],
+    motion: 'frozen',
+    script: () => rearDoorsScript(MARKINGS_SEEN),
+    run: (page) => liveLanded(page),
+  },
+  {
+    state: 'side-damage',
+    screen: 'results',
+    steps: [
+      'Settings-chip steps (OpenAI), choose the dented grey side photo',
+      'Run live inspection (mocked: face long side; findings at each of the four severities and a bent bottom rail; the door-end set sees no door end)',
+      'settle',
+    ],
+    motion: 'frozen',
+    script: () => longSideScript(),
+    run: (page) => liveLanded(page, sidePhoto),
+  },
+  {
+    state: 'damage-not-assessed',
+    screen: 'results',
+    steps: [
+      'Settings-chip steps (OpenAI), choose the COYU door photo',
+      'Run live inspection (mocked: the survey says the photo shows the roof, neither damage set can inspect it)',
+      'settle: Damage not assessed for this view',
+    ],
+    motion: 'frozen',
+    script: () => roofScript(),
+    run: (page) => liveLanded(page),
+  },
 ]
 
 // ---- Harness ------------------------------------------------------------------------------------
@@ -512,18 +779,23 @@ function writeIndex() {
   fs.writeFileSync(path.join(OUT, 'index.json'), JSON.stringify(index, null, 2) + '\n')
 }
 
-/** Routes every request: the app origin passes; the Decisions endpoint is answered by the mock; the rest is aborted. */
-async function guardNetwork(page: Page, origin: string, liveBody: unknown, blocked: string[]) {
+/** Routes every request: the app origin passes; each Decisions request is answered by the script; the rest is aborted. */
+async function guardNetwork(page: Page, origin: string, script: Script | undefined, blocked: string[]) {
+  let calls = 0
   await page.route('**/*', async (route) => {
     const url = route.request().url()
     if (!/^https?:/.test(url)) return route.continue()
     if (url.startsWith(origin)) return route.continue()
     const decisions = /api\.openai\.com\/v1\/decisions|openrouter\.ai\/api\/alpha\/decisions/
-    if (liveBody !== undefined && decisions.test(url)) {
+    if (script !== undefined && decisions.test(url)) {
+      calls += 1
+      const reply = script(kindOfRequest(route.request().postData() ?? ''), calls)
+      // A held request stays in flight until the page aborts it or the capture ends.
+      if (reply === HOLD) return
       return route.fulfill({
         status: 200,
         contentType: 'application/json',
-        body: JSON.stringify(liveBody),
+        body: JSON.stringify(reply),
       })
     }
     blocked.push(url)
@@ -548,13 +820,19 @@ for (const viewport of VIEWPORTS) {
       })
       const page = await context.newPage()
       const blocked: string[] = []
-      await guardNetwork(page, origin, capture.liveBody?.(), blocked)
+      await guardNetwork(page, origin, capture.script?.(), blocked)
 
       await capture.run(page)
       if (capture.motion === 'frozen') await page.addStyleTag({ content: FREEZE_CSS })
       // A click or focus may have scrolled the page; a full-page shot from mid-page draws the sticky
       // top bar halfway down. Capture from the top (focus and selection stay where they are).
       await page.evaluate(() => window.scrollTo(0, 0))
+
+      // No state may scroll sideways (390 x 844 included).
+      const sideways = await page.evaluate(
+        () => document.documentElement.scrollWidth - document.documentElement.clientWidth,
+      )
+      expect(sideways, `${label} scrolls sideways`).toBeLessThanOrEqual(0)
 
       const certaintyLabels = certaintyLabelsIn(await page.locator('.qs-cert').allTextContents())
       const file = shotFileName(capture.state, viewport)

@@ -3,12 +3,22 @@
 // (docs.typesafe.ai/api, /models, /images, /primitives/box). The re-check is in docs/research/jev-guide-recheck.md.
 // Images go in a top-level `assets` map and are sent as multipart file parts; the experimental image
 // opt-in header is applied by the service. Which models take the box question is declared in the catalogue.
+// The questions are the Jev ID set in the shared format (idQuestions.ts); System One takes OpenRouter's
+// question format, so the same translation and answer mapping serve both.
 import { calculateCheckDigit } from './iso6346'
 import { buildContainerIdReading } from './containerId'
-import { CERTAINTY_LABELS, UNREAD, applyMargin } from './certainty'
+import { CERTAINTY_LABELS, UNREAD } from './certainty'
 import type { CertaintyLabel, ContainerIdReading } from './inspection'
 import type { Usage } from './ledger'
 import { ProviderError, redact } from './providerErrors'
+import { jevIdQuestionSet, readIdCharacters, type ChoiceReading } from './idQuestions'
+import {
+  UnreadableReplyError,
+  readAnswers,
+  toOpenRouterQuestions,
+  type OpenRouterQuestion,
+  type SharedAnswer,
+} from './questionSet'
 
 export const JEV_ENDPOINT = 'https://api.typesafe.ai/v1/systemone'
 /** Endpoint family key used by the rate schedules and ledger. */
@@ -18,42 +28,10 @@ export const JEV_IMAGE_HEADER = 'TypeSafe-Danger-Zone-Images'
 /** The reference the request uses to point at the single photo, and the multipart part name. */
 export const JEV_IMAGE_REF = 'photo_1'
 
-/** Spec 4.2 check-digit guidance, as for Luna. Kept verbatim so both providers get the same constraint. */
-export const CHECK_DIGIT_GUIDANCE =
-  'A standard container number has three owner-code letters, one equipment-category letter, six serial digits and one check digit. To calculate the check digit, assign numeric values to letters starting at A=10 and skipping multiples of 11 (for example B=12, K=21, L=23, U=32). Digits retain their numeric value. Multiply the first ten values by 1, 2, 4, 8, 16, 32, 64, 128, 256 and 512; sum and take the remainder modulo 11. Remainder 10 is displayed as 0. Use this as a consistency constraint when comparing visually plausible numbers, but do not invent or change clearly visible characters just to satisfy it.'
-
-const LETTERS = Array.from({ length: 26 }, (_, i) => String.fromCharCode(65 + i))
-const DIGITS = Array.from({ length: 10 }, (_, i) => String(i))
-const UNREADABLE_OPTION = 'unreadable'
-const ID_POSITIONS = 11
-const LETTER_POSITIONS = 4
-
 export type JevPhotoFormat = 'jpeg' | 'png'
 
-export interface JevChoiceQuestion {
-  type: 'choice'
-  instructions: string
-  criteria: Record<string, string>
-}
-
-export interface JevScoreQuestion {
-  type: 'score'
-  instructions: string
-  criteria: string[]
-}
-
-export interface JevNoulQuestion {
-  type: 'noul'
-  instructions: string
-  criteria?: { true: string; false: string }
-}
-
-export interface JevBoxQuestion {
-  type: 'box'
-  instructions: string
-}
-
-export type JevQuestion = JevChoiceQuestion | JevScoreQuestion | JevNoulQuestion | JevBoxQuestion
+/** A question in System One's (and OpenRouter's) format. */
+export type JevQuestion = OpenRouterQuestion
 
 export interface JevAsset {
   type: 'image'
@@ -75,75 +53,6 @@ export function jevPhotoFormat(mimeType: string): JevPhotoFormat | null {
   return null
 }
 
-function questionKey(position: number): string {
-  return `id_char_${String(position).padStart(2, '0')}`
-}
-
-function roleOf(position: number): string {
-  if (position <= 3) return 'owner code letter'
-  if (position === 4) return 'equipment category letter'
-  if (position === ID_POSITIONS) return 'check digit'
-  return 'serial digit'
-}
-
-/** One choice question per identification position, with an explicit unreadable option (guide section 61). */
-function identificationQuestions(image: string): Record<string, JevChoiceQuestion> {
-  const questions: Record<string, JevChoiceQuestion> = {}
-  for (let position = 1; position <= ID_POSITIONS; position++) {
-    const isLetter = position <= LETTER_POSITIONS
-    const values = isLetter ? LETTERS : DIGITS
-    const criteria: Record<string, string> = {}
-    for (const value of values) criteria[value] = `${isLetter ? 'Letter' : 'Digit'} ${value}`
-    criteria[UNREADABLE_OPTION] = 'The position is not visible or cannot be read clearly'
-    questions[questionKey(position)] = {
-      type: 'choice',
-      instructions: `Position ${position} of 11 (${roleOf(position)}) of the container identification printed on ${image}. ${CHECK_DIGIT_GUIDANCE}`,
-      criteria,
-    }
-  }
-  return questions
-}
-
-export interface JevQuestionOptions {
-  /** How the instructions name the photo, e.g. "the image referenced as `photo_1`" or "the photo". */
-  image: string
-  /** Ask the box question. Only for models the catalogue declares box-capable; older models reject it. */
-  box: boolean
-}
-
-/**
- * The Jev question set: identification, legibility, whether the whole number is in frame and, on
- * box-capable models only, where the number is. Shared by every route that reaches Jev, so answers map
- * by the same keys whichever endpoint asked.
- */
-export function jevQuestions({ image, box }: JevQuestionOptions): Record<string, JevQuestion> {
-  const questions: Record<string, JevQuestion> = {
-    ...identificationQuestions(image),
-    legibility: {
-      type: 'score',
-      instructions: `How legible is the full container identification printed on ${image}?`,
-      criteria: [
-        'Not visible at all',
-        'Mostly unreadable',
-        'Partly readable, with several positions unclear',
-        'Mostly readable, with one or two positions unclear',
-        'Fully readable and sharp',
-      ],
-    },
-    full_number_visible: {
-      type: 'noul',
-      instructions: `Is the complete 11-character container identification visible within ${image}, with no part cut off?`,
-    },
-  }
-  if (box) {
-    questions.container_box = {
-      type: 'box',
-      instructions: `The container identification number printed on the container in ${image}.`,
-    }
-  }
-  return questions
-}
-
 /**
  * Builds the System One request body for one photo. The key is never part of the body. TypeSafe direct
  * is not in the catalogue (docs/adr/0001), so the caller says whether to ask the box question.
@@ -153,7 +62,7 @@ export function buildJevRequest(
   format: JevPhotoFormat,
   options: { box?: boolean } = {},
 ): JevRequestBody {
-  const questions = jevQuestions({
+  const set = jevIdQuestionSet({
     image: `the image referenced as \`${JEV_IMAGE_REF}\``,
     box: options.box ?? false,
   })
@@ -163,7 +72,7 @@ export function buildJevRequest(
       image: JEV_IMAGE_REF,
       task: 'Freight container photo. Judge only what is visible in the referenced image.',
     },
-    questions,
+    questions: toOpenRouterQuestions(set.questions),
     assets: {
       [JEV_IMAGE_REF]: { type: 'image', part: JEV_IMAGE_REF, format },
     },
@@ -274,61 +183,17 @@ export interface JevMapping {
   usage: Usage | null
   /** Cost from the response's own usage.cost, or null. Never zero when absent. */
   reportedCostUsd: number | null
-  /** Experimental box, when the model returned one. Retained for the raw record; not drawn (no box-based damage). */
+  /** One reading per position (11): the crop read combines these with its own. */
+  readings: ChoiceReading[]
+  caveats: JevCaveats
+  /** Where the model located the ID, when it was asked and answered: the crop read starts from it. Not drawn. */
   box: JevBox | null
 }
 
-interface ChoiceReading {
-  value: string | null
-  certainty: CertaintyLabel
-  runnerUp: string | null
-}
-
-const POSITION_CONFIDENT = 0.9
-const POSITION_LIKELY = 0.6
-const POSITION_UNCERTAIN = 0.3
-const RUNNER_UP_MIN = 0.15
 /** Score levels are 0 to 4. A weighted score below this reads as hard to read. */
 const LEGIBILITY_FLOOR = 1.5
 /** A noul below this means the complete number is probably not in frame. */
 const FULL_NUMBER_MIN = 0.5
-
-function certaintyOf(probability: number): CertaintyLabel {
-  if (probability >= POSITION_CONFIDENT) return 'Confident'
-  if (probability >= POSITION_LIKELY) return 'Likely'
-  if (probability >= POSITION_UNCERTAIN) return 'Uncertain'
-  return "Can't tell"
-}
-
-function asRecord(value: unknown): Record<string, unknown> | null {
-  return typeof value === 'object' && value !== null && !Array.isArray(value)
-    ? (value as Record<string, unknown>)
-    : null
-}
-
-/** Reads one choice answer. Jev's probabilities are a map from option to probability. */
-function readChoice(answer: unknown, allowed: string[]): ChoiceReading {
-  const unread: ChoiceReading = { value: null, certainty: "Can't tell", runnerUp: null }
-  const record = asRecord(answer)
-  if (!record || record.type !== 'choice' || typeof record.choice !== 'string') return unread
-  const probabilities = asRecord(record.probabilities)
-  if (!probabilities || !allowed.includes(record.choice)) return unread
-  const scored = Object.entries(probabilities)
-    .filter(([value, p]) => allowed.includes(value) && typeof p === 'number' && Number.isFinite(p))
-    .map(([value, p]) => ({ value, probability: p as number }))
-    .sort((a, b) => b.probability - a.probability)
-  const chosen = scored.find((e) => e.value === record.choice)
-  if (!chosen) return unread
-  const best = scored.find((e) => e.value !== chosen.value)
-  const certainty = applyMargin(
-    certaintyOf(chosen.probability),
-    chosen.probability,
-    best?.probability ?? null,
-  )
-  if (certainty === "Can't tell") return unread
-  const runner = scored.find((e) => e.value !== chosen.value && e.probability >= RUNNER_UP_MIN)
-  return { value: chosen.value, certainty, runnerUp: runner?.value ?? null }
-}
 
 function worstOf(labels: CertaintyLabel[]): CertaintyLabel {
   let worst = 0
@@ -340,60 +205,41 @@ function atLeastUncertain(label: CertaintyLabel): CertaintyLabel {
   return worstOf([label, 'Uncertain'])
 }
 
-function readBox(answer: unknown): JevBox | null {
-  const record = asRecord(answer)
-  if (!record || record.type !== 'box') return null
-  const box = asRecord(record.box)
-  const confidence = record.confidence
-  if (!box || typeof confidence !== 'number') return null
-  const edges = [box.top, box.bottom, box.left, box.right]
-  if (!edges.every((v): v is number => typeof v === 'number' && v >= 0 && v <= 1)) return null
+function boxOf(answer: SharedAnswer | undefined): JevBox | null {
+  if (answer?.type !== 'box' || answer.confidence === null) return null
+  return { ...answer.box, confidence: answer.confidence }
+}
+
+/** What the legibility score and the full-number noul say about a reading. They only ever lower certainty. */
+export interface JevCaveats {
+  hardToRead: boolean
+  partlyOutOfFrame: boolean
+}
+
+/** The caveats in a Jev ID answer set, read by meaning. An unanswered question raises none. */
+export function jevCaveatsOf(answers: Record<string, SharedAnswer>): JevCaveats {
+  const legibility = answers.legibility
+  const legibilityScore = legibility?.type === 'score' ? legibility.score : null
+  const fullNumber = answers.full_number_visible
+  const fullNumberProbability = fullNumber?.type === 'predicate' ? fullNumber.probability : null
   return {
-    top: box.top as number,
-    bottom: box.bottom as number,
-    left: box.left as number,
-    right: box.right as number,
-    confidence,
+    hardToRead: typeof legibilityScore === 'number' && legibilityScore < LEGIBILITY_FLOOR,
+    partlyOutOfFrame:
+      typeof fullNumberProbability === 'number' && fullNumberProbability < FULL_NUMBER_MIN,
   }
 }
 
 /**
- * Maps a System One response to the shared container-ID reading. Missing, refused or low-probability
- * positions stay as UNREAD; they are never filled in. The check digit is calculated here, not taken from the model.
- * The legibility score and the full-number noul can only lower certainty, never raise it.
+ * The shared container-ID reading from one reading per position and the caveats. Missing positions stay
+ * UNREAD; the check digit is calculated here, not taken from the model; a caveat makes the reading at
+ * most Uncertain. Used for the full-photo reading and for the full-photo and crop readings combined.
  */
-export function mapJevResponse(
-  response: unknown,
-  requestedModel: string,
-  /** Who replied, for the bad-response message: TypeSafe direct, or OpenRouter. */
-  replier = 'TypeSafe',
-): JevMapping {
-  const body = asRecord(response)
-  if (!body)
-    throw new JevError('bad-response', `${replier} replied in a shape the app does not recognise.`)
-  const answers = asRecord(body.answers)
-  if (!answers) throw new JevError('bad-response', `${replier} replied without answers. Try again.`)
-
-  const readings = Array.from({ length: ID_POSITIONS }, (_, i) => {
-    const position = i + 1
-    const allowed = position <= LETTER_POSITIONS ? LETTERS : DIGITS
-    return readChoice(answers[questionKey(position)], allowed)
-  })
-
+export function jevIdReading(readings: ChoiceReading[], caveats: JevCaveats): ContainerIdReading {
+  const { hardToRead, partlyOutOfFrame } = caveats
   const chars = readings.map((r) => r.value ?? UNREAD)
   const positionCertainty = readings.map((r) => r.certainty)
   const printed = chars.join('')
   let certainty = worstOf(positionCertainty)
-
-  const legibility = asRecord(answers.legibility)
-  const legibilityScore = legibility?.type === 'score' ? legibility.score : null
-  const hardToRead = typeof legibilityScore === 'number' && legibilityScore < LEGIBILITY_FLOOR
-
-  const fullNumber = asRecord(answers.full_number_visible)
-  const fullNumberProbability = fullNumber?.type === 'noul' ? fullNumber.noul : null
-  const partlyOutOfFrame =
-    typeof fullNumberProbability === 'number' && fullNumberProbability < FULL_NUMBER_MIN
-
   if (hardToRead || partlyOutOfFrame) certainty = atLeastUncertain(certainty)
 
   let containerId: ContainerIdReading
@@ -436,39 +282,66 @@ export function mapJevResponse(
   if (hardToRead) notes.push('The identification is hard to read in this photo.')
   if (partlyOutOfFrame) notes.push('The complete identification may not be in frame.')
   if (notes.length > 0) containerId.uncertainty = notes.join(' ')
+  return containerId
+}
 
-  const resolvedModel =
-    typeof body.model === 'string' && body.model.trim() ? body.model.trim() : requestedModel
+/**
+ * Maps a System One response to the shared container-ID reading, by meaning. Missing, refused or
+ * low-probability positions stay as UNREAD; they are never filled in. The check digit is calculated
+ * here, not taken from the model. The legibility score and the full-number noul can only lower
+ * certainty, never raise it.
+ */
+export function mapJevResponse(
+  response: unknown,
+  requestedModel: string,
+  /** Who replied, for the bad-response message: TypeSafe direct, or OpenRouter. */
+  replier = 'TypeSafe',
+): JevMapping {
+  let reply
+  try {
+    // System One answers in OpenRouter's format: a map by question name.
+    reply = readAnswers(
+      'openrouter-decisions',
+      response,
+      jevIdQuestionSet({ image: 'the photo', box: true }),
+      requestedModel,
+    )
+  } catch (error) {
+    if (!(error instanceof UnreadableReplyError)) throw error
+    throw new JevError(
+      'bad-response',
+      error.kind === 'no-answers'
+        ? `${replier} replied without answers. Try again.`
+        : `${replier} replied in a shape the app does not recognise.`,
+    )
+  }
   return {
-    containerId,
-    resolvedModel,
-    usage: readUsage(body.usage),
-    reportedCostUsd: readCost(body.usage),
-    box: readBox(answers.container_box),
+    ...jevIdReadingOf(reply.answers),
+    resolvedModel: reply.resolvedModel,
+    usage: reply.usage,
+    reportedCostUsd: reply.reportedCostUsd,
   }
 }
 
-function numberField(record: Record<string, unknown>, keys: string[]): number | null {
-  for (const key of keys) {
-    const value = record[key]
-    if (typeof value === 'number' && Number.isFinite(value)) return value
-  }
-  return null
+/** The Jev ID set's answers, by meaning: the reading, each position's reading, its caveats and the box. */
+export interface JevIdReading {
+  containerId: ContainerIdReading
+  readings: ChoiceReading[]
+  caveats: JevCaveats
+  box: JevBox | null
 }
 
-function readUsage(raw: unknown): Usage | null {
-  const record = asRecord(raw)
-  if (!record) return null
-  const inputTokens = numberField(record, ['input_tokens', 'prompt_tokens'])
-  if (inputTokens === null) return null
+/**
+ * Reads the Jev ID set's answers (by question name) as the shared container-ID reading (see
+ * mapJevResponse). Other answers in the same reply (a survey's) are ignored.
+ */
+export function jevIdReadingOf(answers: Record<string, SharedAnswer>): JevIdReading {
+  const readings = readIdCharacters(answers)
+  const caveats = jevCaveatsOf(answers)
   return {
-    inputTokens,
-    outputTokens: numberField(record, ['output_tokens', 'completion_tokens']),
+    containerId: jevIdReading(readings, caveats),
+    readings,
+    caveats,
+    box: boxOf(answers.container_box),
   }
-}
-
-function readCost(raw: unknown): number | null {
-  const record = asRecord(raw)
-  if (!record) return null
-  return numberField(record, ['cost'])
 }

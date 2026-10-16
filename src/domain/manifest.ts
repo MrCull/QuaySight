@@ -1,6 +1,7 @@
 import { applyMargin, certaintyOfProbability, UNREAD } from './certainty'
 import { buildContainerIdReading } from './containerId'
 import type { CertaintyLabel, ContainerIdReading } from './inspection'
+import { questionSet, type SharedAnswer, type SharedQuestionSet } from './questionSet'
 
 // Manifest retry (spec 3.2). Pasted entries are used as supplied: no ISO 6346 or check-digit checks.
 // Live, the check is one call on the same provider and model with the photo as sent (spec 8.5); demo
@@ -101,6 +102,32 @@ export function buildManifestQuestions(entries: string[]): ManifestQuestion[] {
       ],
     }
   })
+}
+
+/** The manifest check in the shared question format: the text ahead of the photo, then one choice per part. */
+export function manifestQuestionSet(questions: ManifestQuestion[]): SharedQuestionSet {
+  return questionSet(
+    MANIFEST_STATE_INSTRUCTIONS,
+    questions.map((q) => ({
+      type: 'choice',
+      name: q.name,
+      instructions: q.instructions,
+      choices: q.options,
+    })),
+  )
+}
+
+/** The choice answers of a manifest-check reply, mapped by meaning, as readManifestAnswers takes them. */
+export function manifestAnswersOf(
+  answers: Record<string, SharedAnswer>,
+): Record<string, ManifestChoiceAnswer> {
+  const out: Record<string, ManifestChoiceAnswer> = {}
+  for (const [name, answer] of Object.entries(answers)) {
+    if (answer.type === 'choice') {
+      out[name] = { choice: answer.value, probabilities: answer.probabilities }
+    }
+  }
+  return out
 }
 
 /** One choice answer, translated from either route's shape: probabilities by option. */

@@ -24,6 +24,24 @@ export function canStart(input: {
   return input.hasPhoto && hasKey(input.apiKey) && modelIsOffered(input.provider, input.model)
 }
 
+/** What the key-format warning names: the provider and how its keys start. Never the key. */
+export interface KeyFormatWarning {
+  provider: string
+  prefix: string
+}
+
+/**
+ * The key-format warning (spec #27): a key that doesn't start the way the provider's keys do, from
+ * the catalogue's key field. Nothing while the field is blank or the prefix is still being typed.
+ * Advice only: it never closes the gate, so an unusual but valid key still works.
+ */
+export function keyFormatWarning(provider: ProviderId, key: string): KeyFormatWarning | null {
+  const info = getProvider(provider)
+  const { prefix } = info.keyField
+  if (!hasKey(key) || key.startsWith(prefix) || prefix.startsWith(key)) return null
+  return { provider: info.name, prefix }
+}
+
 /**
  * The setup card gate: Continue opens once a key for the selected provider is entered and the
  * model belongs to that provider. No photo is needed yet; the inspection screen comes next.

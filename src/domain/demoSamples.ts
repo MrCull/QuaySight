@@ -1,145 +1,172 @@
 import aphuPhoto from '../../samples/rear-door-aphu-45g1.jpg'
 import sidePhoto from '../../samples/side-dented-grey.jpg'
 import chsuPhoto from '../../samples/rear-door-chsu-22g1.jpg'
-import jevSmoke from '../fixtures/live/openrouter-jev-smoke.json'
-import { recordedFixtures } from '../fixtures/recorded'
-import { recordedSideDamage } from '../fixtures/recordedDamage'
-import { buildContainerIdReading } from './containerId'
-import { decodeSizeCode } from './isoSizeCode'
-import { ManifestRetryError } from './manifest'
-import { mapOpenRouterJevResponse } from './openrouter'
-import { checkWeights } from './weights'
-import {
-  INSPECTION_SCHEMA_VERSION,
-  type ContainerIdReading,
-  type InspectionRecord,
-  type ProviderId,
-} from './inspection'
+import { SHIPPED_RECORDINGS } from '../fixtures/demoRecordings'
+import { replayRecording } from '../plan/replay'
+import type { PlanRecording } from '../plan/recording'
+import { ManifestRetryError, needsManifest } from './manifest'
+import type { ContainerIdReading, InspectionRecord, ProviderId } from './inspection'
 
 /**
- * Demo mode's sample picker (spec #16, spec 13): the three bundled containers, each with the result
- * recorded for that photo and no other. Nothing here makes a network call or needs a key.
+ * Demo mode's sample picker (spec #16, spec 13; spec #27, ticket #37): the bundled containers, each
+ * replaying the recording of that photo and no other. A recording is what a model really answered on the
+ * sample's own photo (src/plan/recording.ts, src/fixtures/demoRecordings.ts), replayed through the same
+ * answer mappers a live run uses. Nothing here makes a network call or needs a key, and nothing here is
+ * hand-written: a sample whose photo has no recording yet is not offered (see pendingDemoRecordings).
  */
 export type DemoSampleId = 'rear-aphu' | 'side-dented' | 'rear-chsu'
+
+/** The models the demo is recorded on, in the order a sample prefers them. */
+const LUNA = { provider: 'luna', model: 'gpt-6-luna' } as const
+const JEV = { provider: 'openrouter', model: '~typesafe/jev-latest' } as const
+type DemoRoute = { provider: ProviderId; model: string }
 
 export interface DemoSample {
   id: DemoSampleId
   /** Tile title: what the photo shows. */
   title: string
-  /** One line on what the audience will see. */
+  /** One line on the photo, not on what a result will show. */
   hint: string
   photo: { name: string; url: string; orientation: 'landscape' | 'portrait' | 'square' }
-  /** Who answered when this result was recorded. */
+  /** Who answered the recording this sample replays. */
   provider: ProviderId
   model: string
 }
 
-/** What one sample replays: the reading and findings recorded from its own photo. */
-interface SampleRecording {
-  resolvedVersion: string
-  containerId: ContainerIdReading | null
-  sizeCode: InspectionRecord['sizeCode']
-  weights: InspectionRecord['weights']
-  damage: InspectionRecord['damage']
-  /** Saved body kept in the record's raw responses and the JSON export. */
-  body: unknown
-  /** Provider message replayed when the presenter makes the manifest check fail. */
-  retryFailureMessage: string
+/** A sample's photo and which recordings of it may be replayed. */
+interface SampleDefinition {
+  id: DemoSampleId
+  title: string
+  hint: string
+  photo: DemoSample['photo']
+  /** The photo as the recordings name it. */
+  photoPath: string
+  /** The routes it may replay, preferred first. */
+  routes: readonly DemoRoute[]
 }
 
-const luna = recordedFixtures.luna
-
-export const DEMO_SAMPLES: readonly DemoSample[] = [
+const DEFINITIONS: readonly SampleDefinition[] = [
   {
     id: 'rear-aphu',
     title: 'Rear doors with markings',
-    hint: 'ID, size code and weights read from the door',
+    hint: 'A clear door end with the ID and door plate printed',
     photo: { name: 'rear-door-aphu-45g1.jpg', url: aphuPhoto, orientation: 'landscape' },
-    provider: 'luna',
-    model: luna.model,
+    photoPath: 'samples/rear-door-aphu-45g1.jpg',
+    routes: [LUNA, JEV],
   },
   {
     id: 'side-dented',
     title: 'Damaged grey side',
     hint: 'Dents in the side panel; no ID in view',
     photo: { name: 'side-dented-grey.jpg', url: sidePhoto, orientation: 'landscape' },
-    provider: 'luna',
-    model: luna.model,
+    photoPath: 'samples/side-dented-grey.jpg',
+    routes: [LUNA, JEV],
   },
   {
     id: 'rear-chsu',
     title: 'Clean grey rear doors',
-    hint: 'Some ID digits hard to read, with alternatives',
+    hint: 'Grey doors; some ID digits are hard to read',
     photo: { name: 'rear-door-chsu-22g1.jpg', url: chsuPhoto, orientation: 'landscape' },
-    provider: 'openrouter',
-    model: jevSmoke.requestedModel,
+    photoPath: 'samples/rear-door-chsu-22g1.jpg',
+    routes: [JEV, LUNA],
   },
 ]
 
-export function findSample(id: DemoSampleId): DemoSample {
-  const sample = DEMO_SAMPLES.find((s) => s.id === id)
-  if (!sample) throw new Error(`No demo sample ${id}`)
-  return sample
+/** Recordings added by a test (see registerDemoRecording); the shipped ones are always there. */
+const registered: PlanRecording[] = []
+
+/** Test seam: makes a recording available to the demo, as if it were shipped. Returns its removal. */
+export function registerDemoRecording(recording: PlanRecording): () => void {
+  registered.push(recording)
+  return () => {
+    const at = registered.indexOf(recording)
+    if (at >= 0) registered.splice(at, 1)
+  }
 }
 
-function recordingFor(id: DemoSampleId): SampleRecording {
-  switch (id) {
-    // The fuller Luna reading of the APHU rear door. Its side damage belongs to the side photo, so none here.
-    case 'rear-aphu': {
-      const body = {
-        ...structuredClone(luna),
-        damage: null,
-        photo: 'samples/rear-door-aphu-45g1.jpg',
-      }
-      return {
-        resolvedVersion: luna.model,
-        containerId: buildContainerIdReading({
-          printed: `${luna.containerNumber}${luna.observedCheckDigit ?? ''}`,
-          certainty: luna.certainty,
-        }),
-        sizeCode: decodeSizeCode(luna.sizeCode, luna.detailCertainty),
-        weights: checkWeights({
-          maxGrossKg: luna.maxGrossKg,
-          tareKg: luna.tareKg,
-          printedNetKg: luna.printedNetKg,
-          certainty: luna.detailCertainty,
-        }),
-        damage: null,
-        body,
-        retryFailureMessage: luna.retryFailureMessage,
-      }
-    }
-    // The side photo shows no readable ID (a narrow vertical strip at the far end), so the manifest offer opens.
-    case 'side-dented':
-      return {
-        resolvedVersion: luna.model,
-        containerId: null,
-        sizeCode: null,
-        weights: null,
-        damage: structuredClone(recordedSideDamage),
-        body: {
-          provider: 'luna',
-          model: luna.model,
-          photo: 'samples/side-dented-grey.jpg',
-          containerNumber: null,
-          damage: structuredClone(recordedSideDamage),
-        },
-        retryFailureMessage: luna.retryFailureMessage,
-      }
-    // The real Jev latest response through OpenRouter for this photo (live smoke, 16 Oct 2026).
-    case 'rear-chsu': {
-      const mapped = mapOpenRouterJevResponse(jevSmoke.response, jevSmoke.requestedModel)
-      return {
-        resolvedVersion: mapped.resolvedModel,
-        containerId: mapped.containerId,
-        sizeCode: null,
-        weights: null,
-        damage: null,
-        body: structuredClone(jevSmoke.response),
-        retryFailureMessage: recordedFixtures.openrouter.retryFailureMessage,
-      }
-    }
+const sameRoute = (a: DemoRoute, b: DemoRoute) => a.provider === b.provider && a.model === b.model
+const askedWholePlan = (r: PlanRecording) => !r.entries.some((e) => e.asked === 'id-only')
+
+/**
+ * The recording a sample replays: of its own photo only, on one of its routes. One that asked the whole
+ * plan beats one that asked only the ID; then the sample's preferred route; then the newest.
+ */
+function recordingOf(definition: SampleDefinition): PlanRecording | null {
+  const candidates = [...SHIPPED_RECORDINGS, ...registered]
+    .filter((r) => r.photo === definition.photoPath)
+    .filter((r) => definition.routes.some((route) => sameRoute(route, r)))
+  candidates.sort(
+    (a, b) =>
+      Number(askedWholePlan(b)) - Number(askedWholePlan(a)) ||
+      definition.routes.findIndex((r) => sameRoute(r, a)) -
+        definition.routes.findIndex((r) => sameRoute(r, b)) ||
+      b.recordedAt.localeCompare(a.recordedAt),
+  )
+  return candidates[0] ?? null
+}
+
+function sampleOf(definition: SampleDefinition, recording: PlanRecording): DemoSample {
+  return {
+    id: definition.id,
+    title: definition.title,
+    hint: definition.hint,
+    photo: definition.photo,
+    provider: recording.provider,
+    model: recording.model,
   }
+}
+
+/** The samples that have a recording, in picker order. */
+export function demoSamples(): readonly DemoSample[] {
+  return DEFINITIONS.flatMap((definition) => {
+    const recording = recordingOf(definition)
+    return recording ? [sampleOf(definition, recording)] : []
+  })
+}
+
+function definitionOf(id: DemoSampleId): SampleDefinition {
+  const definition = DEFINITIONS.find((d) => d.id === id)
+  if (!definition) throw new Error(`No demo sample ${id}`)
+  return definition
+}
+
+/** A sample offered by the picker. Throws for one with no recording. */
+export function findSample(id: DemoSampleId): DemoSample {
+  const definition = definitionOf(id)
+  const recording = recordingOf(definition)
+  if (!recording) throw new Error(`No recording for demo sample ${id}`)
+  return sampleOf(definition, recording)
+}
+
+/** A recording still to be made: a sample's photo on one of the demo's models. */
+export interface PendingRecording {
+  sample: DemoSampleId
+  photo: string
+  route: DemoRoute
+  /** What the demo has for this slot today: nothing, or a run that asked only the container ID. */
+  covers: 'nothing' | 'id-only'
+}
+
+/**
+ * Every slot the demo still needs a full-plan recording for, so nothing waits unseen: a sample on a route
+ * with no recording of the whole plan. Record them with the opt-in spec (docs/research/live-api-findings-2026-10-16.md, last section).
+ */
+export function pendingDemoRecordings(): PendingRecording[] {
+  const all = [...SHIPPED_RECORDINGS, ...registered]
+  return DEFINITIONS.flatMap((definition) =>
+    definition.routes.flatMap((route) => {
+      const own = all.filter((r) => r.photo === definition.photoPath && sameRoute(route, r))
+      if (own.some(askedWholePlan)) return []
+      return [
+        {
+          sample: definition.id,
+          photo: definition.photoPath,
+          route: { ...route },
+          covers: own.length > 0 ? ('id-only' as const) : ('nothing' as const),
+        },
+      ]
+    }),
+  )
 }
 
 async function pause(delayMs: number | undefined) {
@@ -148,57 +175,49 @@ async function pause(delayMs: number | undefined) {
 
 let counter = 0
 
-/** Replays a sample's recorded result against its own photo. */
+/** Replays a sample's recording against its own photo. */
 export async function runDemoSample(
   id: DemoSampleId,
   options: { delayMs?: number } = {},
 ): Promise<InspectionRecord> {
   const sample = findSample(id)
-  const recording = recordingFor(id)
+  const recording = recordingOf(definitionOf(id))!
   await pause(options.delayMs)
   counter += 1
-  const recordId = `demo-${id}-${counter}`
-  return {
-    schemaVersion: INSPECTION_SCHEMA_VERSION,
-    id: recordId,
-    provider: sample.provider,
-    model: sample.model,
-    resolvedVersion: recording.resolvedVersion,
-    rawResponses: [
-      {
-        passId: recordId,
-        provider: sample.provider,
-        model: sample.model,
-        capturedFrom: 'recorded-fixture',
-        body: recording.body,
-      },
-    ],
-    source: 'recorded',
-    status: 'complete',
+  return replayRecording(recording, {
+    id: `demo-${id}-${counter}`,
     photo: { name: sample.photo.name, orientation: sample.photo.orientation },
-    containerId: recording.containerId,
-    sizeCode: recording.sizeCode,
-    weights: recording.weights,
-    damage: recording.damage,
-  }
+  })
 }
 
 /**
- * Replays a sample's recorded manifest check (spec 3.2): no network, no key, no ledger entry.
- * Resolves with the replacement reading, or null when no manifest entry matched what the photo shows
- * (the model's "not listed" answer; spec 12: never substitute a near-match). Rejects with the
- * recorded provider failure when `fail` is set.
+ * A provider failure for the manifest check, played when a test or the sample option asks for one. Nothing
+ * was recorded for it: it is the wording each route's errors use, so the failure path can be seen.
+ */
+const SIMULATED_FAILURE: Record<ProviderId, string> = {
+  luna: 'Rate limit reached for requests. Please try again in 20s.',
+  openrouter: 'Service is busy. Please try again in 20s.',
+}
+
+/**
+ * Replays a sample's manifest check (spec 3.2): no network, no key, no ledger entry. The manifest check
+ * itself was not recorded; what the recording read of the ID is compared with the pasted entries. Resolves
+ * with the reading when an entry is what the recording read, null when no entry matches what the photo
+ * shows (spec 12: never substitute a near-match), and always null where the recording left a position
+ * of the ID unread. Rejects with a simulated provider failure when `fail` is set.
  */
 export async function runDemoManifestRetry(
   id: DemoSampleId,
   entries: string[],
   options: { delayMs?: number; fail?: boolean } = {},
 ): Promise<ContainerIdReading | null> {
-  const recording = recordingFor(id)
+  const recording = recordingOf(definitionOf(id))
+  if (!recording) throw new Error(`No recording for demo sample ${id}`)
   await pause(options.delayMs)
-  if (options.fail) throw new ManifestRetryError(recording.retryFailureMessage)
-  const reading = recording.containerId
-  if (!reading) return null
+  if (options.fail) throw new ManifestRetryError(SIMULATED_FAILURE[recording.provider])
+  const reading = replayRecording(recording, { id: `demo-${id}-check`, photo: null }).containerId
+  // A reading with a position unread cannot equal any entry: nothing the photo showed matches.
+  if (!reading || needsManifest(reading)) return null
   const matched = entries.some((entry) => entry.replace(/\s+/g, '').toUpperCase() === reading.value)
   return { ...reading, provenance: matched ? 'manifest' : 'printed', manifestChecked: true }
 }

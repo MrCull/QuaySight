@@ -218,6 +218,27 @@ describe('CostIndicator', () => {
     )
   })
 
+  it('shows a cancelled request as cancelled with unknown cost, counted for this container before any result', async () => {
+    const inspection = useInspectionStore()
+    inspection.runId = 'live-insp-1'
+    const controller = new AbortController()
+    const pending = useLedgerStore().run(
+      liveRequest({ signal: controller.signal, call: () => new Promise(() => {}) }),
+    )
+    controller.abort()
+    await pending
+
+    const wrapper = mount(CostIndicator)
+    expect(wrapper.get('button.qs-cost__toggle').text()).toMatch(
+      /This container Cost unavailable Partial estimate/,
+    )
+    await wrapper.get('button.qs-cost__toggle').trigger('click')
+    const cells = wrapper.findAll('.qs-cost__table tbody td').map((td) => td.text())
+    expect(cells).toContain('cancelled')
+    expect(cells).toContain('Cost unknown')
+    expect(cells).not.toContain('$0.0000')
+  })
+
   it('labels the totals as estimates, not an invoice, in the expanded panel', async () => {
     const wrapper = mount(CostIndicator)
     await wrapper.get('button.qs-cost__toggle').trigger('click')

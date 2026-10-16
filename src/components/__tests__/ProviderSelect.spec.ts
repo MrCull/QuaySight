@@ -28,13 +28,16 @@ describe('ProviderSelect (the form in the setup card and the settings drawer)', 
     expect(store.photo).toBeNull()
   })
 
-  it('lists Jev latest (moving target, recommended), Jev 1.14, Jev 1.13 and GPT-6 Luna Decisions for OpenRouter, each by maker and route', () => {
+  it('lists Jev latest (moving target, recommended), Jev 1.14, Jev 1.13 and GPT-6 Luna Decisions (moving target) for OpenRouter, each by maker and route', () => {
     const wrapper = mount(ProviderSelect)
     expect(wrapper.findAll('select option').map((o) => [o.attributes('value'), o.text()])).toEqual([
       ['~typesafe/jev-latest', 'Jev latest (TypeSafe) via OpenRouter · moving target, recommended'],
       ['typesafe/jev-1.14', 'Jev 1.14 (TypeSafe) via OpenRouter · pinned'],
       ['typesafe/jev-1.13', 'Jev 1.13 (TypeSafe) via OpenRouter · pinned'],
-      ['openai/gpt-6-luna-decisions', 'GPT-6 Luna Decisions (OpenAI) via OpenRouter'],
+      [
+        'openai/gpt-6-luna-decisions',
+        'GPT-6 Luna Decisions (OpenAI) via OpenRouter · moving target',
+      ],
     ])
   })
 
@@ -62,6 +65,40 @@ describe('ProviderSelect (the form in the setup card and the settings drawer)', 
     const keyCopy = wrapper.findAll('.qs-fieldset').pop()!.text()
     expect(keyCopy).not.toContain('OpenAI')
     expect(wrapper.text()).toContain('Moving target: TypeSafe points this alias')
+  })
+
+  it('warns under the key field when an OpenRouter key does not start with sk-or-, without repeating the key', async () => {
+    const wrapper = mount(ProviderSelect)
+    const input = wrapper.find('input[type="password"]')
+    await input.setValue('sk-mistyped-0000')
+    const warning = wrapper.get('.qs-keywarn')
+    expect(warning.attributes('role')).toBe('status')
+    expect(warning.text()).toContain("This doesn't look like an OpenRouter key.")
+    expect(warning.text()).toContain('OpenRouter keys start with sk-or-.')
+    expect(warning.text()).not.toContain('mistyped')
+    expect(input.attributes('aria-describedby')).toBe(warning.attributes('id'))
+
+    await input.setValue('sk-or-test-0000')
+    expect(wrapper.find('.qs-keywarn').exists()).toBe(false)
+    expect(input.attributes('aria-describedby')).toBeUndefined()
+  })
+
+  it('checks the key against the chosen provider: an OpenAI key starts with sk-', async () => {
+    const store = useInspectionStore()
+    store.setProvider('luna')
+    const wrapper = mount(ProviderSelect)
+    await wrapper.find('input[type="password"]').setValue('or-0000')
+    expect(wrapper.get('.qs-keywarn').text()).toContain('OpenAI keys start with sk-.')
+    await wrapper.find('input[type="password"]').setValue('sk-test-0000')
+    expect(wrapper.find('.qs-keywarn').exists()).toBe(false)
+  })
+
+  it('still submits with a wrong-prefix key: the warning is advice only', async () => {
+    const wrapper = mount(ProviderSelect)
+    const input = wrapper.find('input[type="password"]')
+    await input.setValue('not-a-prefixed-key')
+    await input.trigger('keydown', { key: 'Enter' })
+    expect(wrapper.emitted('submit')).toHaveLength(1)
   })
 
   it('asks to submit when Enter is pressed in the key field', async () => {

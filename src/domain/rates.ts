@@ -69,9 +69,14 @@ export const rateSchedules: RateSchedule[] = [
   },
 ]
 
-/** Per-inspection cap (spec 8.3, 11.5). PLACEHOLDER values, to be set by the presenter. */
+/**
+ * Per-inspection cap (spec 8.3, 11.5). PLACEHOLDER values, to be set by the presenter.
+ * A live run's plan (spec #27) makes up to six requests: the survey, the long-side and door-end damage
+ * sets, then one of the crop read or Luna's re-check, and the weight re-read. Eight leaves room for a
+ * manifest check and one Try again.
+ */
 export const spendCaps: SpendCaps = {
-  maxRequestsPerInspection: 6,
+  maxRequestsPerInspection: 8,
   maxSpendUsdPerInspection: 0.05,
 }
 
