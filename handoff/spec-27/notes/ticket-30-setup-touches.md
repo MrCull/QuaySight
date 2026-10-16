@@ -1,0 +1,7 @@
+# #30 setup touches: seams for later tickets
+
+- **Key prefix**: `ProviderInfo.keyField.prefix` (catalogue). `keyFormatWarning(provider, key)` in `src/domain/keyGate.ts` returns `{provider, prefix}` or null; advice only, never part of `canContinue`/`canStart`. UI: `.qs-keywarn` in ProviderSelect (design-system ProviderSelect README).
+- **Moving target**: the `movingTarget` flag alone decides it. `labelsFor(...).option` now adds "moving target" from that flag; don't write it into `note`. GPT-6 Luna Decisions (OpenRouter) is now `movingTarget: true`, so live notices read "Answered by X (requested openai/gpt-6-luna-decisions, a moving target)".
+- **Focus**: `src/components/nextStepFocus.ts` `focusNextStep('photo' | 'start')` focuses `[data-next-step=...]` after nextTick. Targets: `.qs-drop` in PhotoPanel, first sample tile in SamplePicker (`photo`), Start button in App.vue (`start`). Called from components only (SetupCard Continue, NewInspectionAction, SamplePicker). The inspection store does not move focus. If you replace the Start button or drop zone, keep the `data-next-step` attribute.
+- **Test keys**: check-secrets blocks `sk-proj-`, `sk-or-v1-` and `sk-` + 20 chars, even in tests. Use short placeholders such as `sk-or-placeholder`. The screenshot harness placeholder is now `sk-or-placeholder`.
+- **Local e2e**: `PW_PORT=<unique> PW_CHROMIUM_PATH=/opt/pw-browsers/chromium-1194/chrome-linux/chrome xvfb-run -a npm run check`. The default port reuses whatever dev server already runs on 5173, which might be another worktree's.
