@@ -391,7 +391,7 @@ export function mapJevResponse(response: unknown, requestedModel: string): JevMa
   } else {
     const tenKnown = !chars.slice(0, 10).includes(UNREAD)
     const observed = chars[10] === UNREAD ? null : Number(chars[10])
-    const calculated = tenKnown ? calculateCheckDigit(chars.slice(0, 10).join('')) : 0
+    const calculated = tenKnown ? calculateCheckDigit(chars.slice(0, 10).join('')) : null
     containerId = {
       value: printed,
       observedCheckDigit: observed,

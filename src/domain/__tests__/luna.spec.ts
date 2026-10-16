@@ -108,6 +108,17 @@ describe('Luna response mapping', () => {
     expect(mapped.containerId.checkDigitValid).toBe(false)
   })
 
+  it('leaves the calculated check digit unavailable (null), never zero, when the first ten characters are not all read', () => {
+    const mapped = mapLunaResponse(
+      fullResponse({ 2: { type: 'refusal', name: 'id_char_03' } }),
+      'gpt-6-luna',
+    )
+    expect(mapped.containerId.value).toBe('AP?U6586847')
+    expect(mapped.containerId.observedCheckDigit).toBe(7)
+    expect(mapped.containerId.calculatedCheckDigit).toBeNull()
+    expect(mapped.containerId.checkDigitValid).toBe(false)
+  })
+
   it('lowers certainty for a low-probability position and offers the runner-up as an alternative', () => {
     const response = fullResponse({
       9: choiceAnswer(9, '4', 0.7, [{ value: '1', probability: 0.2 }]),

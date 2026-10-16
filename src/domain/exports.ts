@@ -133,14 +133,22 @@ export function buildInspectionExport(record: InspectionRecord): InspectionExpor
         uncertainty: null,
       })
     }
-    values.push({
-      field: 'containerId.calculatedCheckDigit',
-      category: 'derived',
-      value: reading.calculatedCheckDigit,
-      provenance: 'calculated',
-      certainty: null,
-      uncertainty: null,
-    })
+    if (reading.calculatedCheckDigit === null) {
+      unresolved.push({
+        field: 'containerId.calculatedCheckDigit',
+        category: 'unresolved',
+        reason: 'Not calculated: the first ten characters are not all read.',
+      })
+    } else {
+      values.push({
+        field: 'containerId.calculatedCheckDigit',
+        category: 'derived',
+        value: reading.calculatedCheckDigit,
+        provenance: 'calculated',
+        certainty: null,
+        uncertainty: null,
+      })
+    }
   } else {
     unresolved.push({ field: 'containerId', category: 'unresolved', reason: 'Not read.' })
   }
@@ -315,7 +323,9 @@ export function buildSummaryText(record: InspectionRecord): string {
     lines.push(`Container ID (printed): ${reading.value} - ${reading.certainty}`)
     if (reading.observedCheckDigit !== null) {
       lines.push(
-        `  Check digit: observed ${reading.observedCheckDigit}, calculated ${reading.calculatedCheckDigit}, ${reading.checkDigitValid ? 'matches' : 'does not match'}`,
+        reading.calculatedCheckDigit === null
+          ? `  Check digit: observed ${reading.observedCheckDigit}, not calculated (ID incomplete)`
+          : `  Check digit: observed ${reading.observedCheckDigit}, calculated ${reading.calculatedCheckDigit}, ${reading.checkDigitValid ? 'matches' : 'does not match'}`,
       )
     }
     for (const alt of json.candidates) lines.push(`  Also possible: ${alt.value}`)

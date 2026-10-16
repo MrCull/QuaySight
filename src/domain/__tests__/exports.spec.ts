@@ -109,6 +109,25 @@ describe('consolidated inspection JSON', () => {
     )
   })
 
+  it('never exports a calculated check digit for an incomplete ID; it is unresolved, not zero', async () => {
+    const record = await lunaRecord()
+    const incomplete = {
+      ...buildContainerIdReading({ printed: 'APHU6586847', certainty: 'Uncertain' }),
+      value: 'APH?6586847',
+      calculatedCheckDigit: null,
+      checkDigitValid: false,
+    }
+    const json = buildInspectionExport({ ...record, containerId: incomplete })
+    expect(json.values.find((v) => v.field === 'containerId.calculatedCheckDigit')).toBeUndefined()
+    expect(
+      json.unresolved.find((u) => u.field === 'containerId.calculatedCheckDigit'),
+    ).toBeDefined()
+    const summary = buildSummaryText({ ...record, containerId: incomplete })
+    expect(summary).not.toContain('calculated 0')
+    expect(summary).not.toContain('calculated null')
+    expect(summary).toContain('Check digit: observed 7, not calculated (ID incomplete)')
+  })
+
   it('lists plausible alternatives as candidates, separate from the printed reading', async () => {
     const record = await lunaRecord()
     const json = buildInspectionExport({

@@ -127,6 +127,16 @@ describe('mapJevResponse', () => {
     expect(result.containerId.value.charAt(3)).toBe(UNREAD)
   })
 
+  it('leaves the calculated check digit unavailable (null), never zero, when the first ten characters are not all read', () => {
+    const chars = [...ID]
+    chars[2] = 'unreadable'
+    const result = mapJevResponse(okBody({ answers: answersFor(chars) }), 'jev-latest')
+    expect(result.containerId.value.charAt(2)).toBe(UNREAD)
+    expect(result.containerId.observedCheckDigit).toBe(7)
+    expect(result.containerId.calculatedCheckDigit).toBeNull()
+    expect(result.containerId.checkDigitValid).toBe(false)
+  })
+
   it('caps the certainty to Uncertain when the score says the identification is hard to read', () => {
     const body = okBody()
     ;(body.answers as Record<string, unknown>).legibility = {

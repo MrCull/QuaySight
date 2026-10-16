@@ -69,11 +69,12 @@ const spelled = computed(() => {
   const body = spelledChars.slice(0, 10).join(' ')
   const check = chars.value[10] ?? UNREAD_CELL
   const checkPart = check.notRead ? 'check digit not read' : `check digit ${check.ch}`
-  const note = incomplete.value
-    ? 'check digit not checked, ID incomplete'
-    : r.checkDigitValid
-      ? 'check digit valid'
-      : `check digit does not match, calculated ${r.calculatedCheckDigit}`
+  const note =
+    incomplete.value || r.calculatedCheckDigit === null
+      ? 'check digit not checked, ID incomplete'
+      : r.checkDigitValid
+        ? 'check digit valid'
+        : `check digit does not match, calculated ${r.calculatedCheckDigit}`
   return `${body}, ${checkPart}, ${note}`
 })
 </script>
@@ -105,7 +106,12 @@ const spelled = computed(() => {
         {{ reading.checkDigitValid ? 'Check digit valid' : 'Check digit does not match' }}
       </span>
       <span
-        v-if="!incomplete && !reading.checkDigitValid && reading.observedCheckDigit !== null"
+        v-if="
+          !incomplete &&
+          !reading.checkDigitValid &&
+          reading.observedCheckDigit !== null &&
+          reading.calculatedCheckDigit !== null
+        "
         class="qs-prov qs-prov--calculated"
         >Calculated {{ reading.calculatedCheckDigit }}</span
       >

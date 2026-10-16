@@ -28,8 +28,8 @@ export interface ContainerIdReading {
   value: string
   /** Check digit as observed in the photo, or null when not seen. */
   observedCheckDigit: number | null
-  /** Check digit calculated independently from the first ten characters (ISO 6346). */
-  calculatedCheckDigit: number
+  /** Check digit calculated independently from the first ten characters (ISO 6346). Null when those ten are not all read: unavailable, never zero. */
+  calculatedCheckDigit: number | null
   checkDigitValid: boolean
   certainty: CertaintyLabel
   provenance: Provenance
