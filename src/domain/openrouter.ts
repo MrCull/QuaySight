@@ -62,6 +62,27 @@ export function buildOpenRouterJevRequest(
   }
 }
 
+/** A choice question in OpenAI's shape: a list of options, each with a value and a description. */
+interface ListedChoice {
+  name: string
+  instructions: string
+  options: { value: string; description: string }[]
+}
+
+/** OpenAI's choice lists translated into OpenRouter's criteria map (value to description), by question name. */
+function choiceQuestions(questions: ListedChoice[]): Record<string, JevQuestion> {
+  return Object.fromEntries(
+    questions.map((q) => [
+      q.name,
+      {
+        type: 'choice',
+        instructions: q.instructions,
+        criteria: Object.fromEntries(q.options.map((o) => [o.value, o.description])),
+      },
+    ]),
+  )
+}
+
 /**
  * The request for one photo on a Luna Decisions model (ticket #23). The Luna question set is reused as
  * it is, check-digit guidance included: its instruction text goes ahead of the photo, and each
@@ -73,14 +94,9 @@ export function buildOpenRouterLunaRequest(
   imageDataUrl: string,
   positions?: number[],
 ): OpenRouterRequestBody {
-  const questions: Record<string, JevQuestion> = {}
-  for (const question of buildIdQuestions(positions)) {
-    questions[question.name] = {
-      type: 'choice',
-      instructions: question.instructions,
-      criteria: Object.fromEntries(question.choices.map((c) => [c.value, c.description])),
-    }
-  }
+  const questions = choiceQuestions(
+    buildIdQuestions(positions).map((q) => ({ ...q, options: q.choices })),
+  )
   return {
     model,
     state: [
@@ -101,18 +117,10 @@ export function buildOpenRouterManifestRequest(
   imageDataUrl: string,
   questions: ManifestQuestion[],
 ): OpenRouterRequestBody {
-  const asked: Record<string, JevQuestion> = {}
-  for (const question of questions) {
-    asked[question.name] = {
-      type: 'choice',
-      instructions: question.instructions,
-      criteria: Object.fromEntries(question.options.map((o) => [o.value, o.description])),
-    }
-  }
   return {
     model,
     state: [MANIFEST_STATE_INSTRUCTIONS, { type: 'image_url', image_url: { url: imageDataUrl } }],
-    questions: asked,
+    questions: choiceQuestions(questions),
   }
 }
 
