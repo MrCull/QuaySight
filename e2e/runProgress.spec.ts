@@ -53,7 +53,7 @@ const stage = (page: Page, title: string) =>
 test.describe('Live run progress and Cancel', () => {
   test.use({ viewport: { width: 1440, height: 900 } })
 
-  test('stages advance as their requests settle; stages with no request say so', async ({
+  test('stages advance as their requests settle (the ID and the details share a request); stages with no request say so', async ({
     page,
   }) => {
     const edge = await decisions(page, [1])
@@ -61,13 +61,13 @@ test.describe('Live run progress and Cancel', () => {
     await expect.poll(() => edge.held.length).toBe(1)
 
     await expect(stage(page, 'Reading the ID')).toHaveClass(/qs-stage--active/)
-    await expect(stage(page, 'Reading container details')).toHaveClass(/qs-stage--skipped/)
-    await expect(stage(page, 'Reading container details')).toContainText('Not part of this run')
+    await expect(stage(page, 'Reading container details')).toHaveClass(/qs-stage--active/)
     await expect(stage(page, 'Checking for damage')).toContainText('Not part of this run')
 
     await edge.release(0)
     await page.locator('#stage.qs-arrived').waitFor()
     await expect(stage(page, 'Reading the ID')).toHaveClass(/qs-stage--done/)
+    await expect(stage(page, 'Reading container details')).toHaveClass(/qs-stage--done/)
     await expect(stage(page, 'Reading the ID').locator('.qs-stage__time')).toHaveText(/^\d+\.\d s$/)
     await expect(page.locator('.qs-id')).toBeVisible()
     await expect(page.getByRole('button', { name: 'Cancel' })).toHaveCount(0)
