@@ -102,10 +102,10 @@ test.describe('New inspection', () => {
   })
 
   test('clears the manifest retry panel', async ({ page }) => {
-    // Demo mode: the damaged side shows no container ID, so the manifest offer opens.
+    // Demo mode: the rear doors' recorded ID has an unread position, so the manifest offer opens.
     await page.goto('/')
     await page.getByRole('button', { name: 'Enter as demo user' }).click()
-    await page.getByRole('button', { name: /Damaged grey side/ }).click()
+    await page.getByRole('button', { name: /Rear doors with markings/ }).click()
     await page.getByRole('button', { name: 'Start inspection' }).click()
     await page.locator('#stage.qs-arrived').waitFor()
     const offer = page.getByRole('heading', { name: 'Container ID not identified' })

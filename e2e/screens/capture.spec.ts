@@ -8,7 +8,7 @@
  * Output: screenshots/<state>-<width>x<height>.png (full page) and screenshots/index.json.
  *         screenshots/ is generated and git-ignored; never commit it.
  *
- * Recorded states run in demo mode (Enter as demo user: no key, the three bundled samples).
+ * Recorded states run in demo mode (Enter as demo user: no key, the bundled samples that have a recording).
  * Network: every external request is aborted, so nothing leaves the machine. The only "live" calls are
  * OpenAI's Decisions endpoint, answered by a route with a copy of the recorded smoke response (variants
  * for uncertain, partial and insufficient readings), and OpenRouter's Decisions endpoint, answered with a
@@ -87,7 +87,9 @@ async function enterDemo(page: Page) {
   await page.getByRole('region', { name: 'Demo mode' }).waitFor()
 }
 
-type SampleName = 'Rear doors with markings' | 'Damaged grey side' | 'Clean grey rear doors'
+// The damaged side has no recording yet (spec #27, ticket #37), so it is not offered; its captures return
+// when that photo is recorded with the whole plan.
+type SampleName = 'Rear doors with markings' | 'Clean grey rear doors'
 
 /** Demo mode: puts a bundled sample on the stage, ready to start. */
 async function openSample(page: Page, name: SampleName) {
@@ -121,9 +123,9 @@ async function demoResult(page: Page, name: SampleName) {
   await startAndSettle(page)
 }
 
-/** The damaged side in demo mode: no container ID in view, so the manifest offer opens. */
+/** The rear doors in demo mode: the recorded ID has an unread position, so the manifest offer opens. */
 async function unidentifiedRun(page: Page) {
-  await demoResult(page, 'Damaged grey side')
+  await demoResult(page, 'Rear doors with markings')
   await expect(page.getByRole('heading', { name: 'Container ID not identified' })).toBeVisible()
 }
 
@@ -304,7 +306,7 @@ const CAPTURES: Capture[] = [
     run: async (page) => {
       await demoResult(page, 'Rear doors with markings')
       await page.getByRole('button', { name: 'New inspection' }).click()
-      await page.getByRole('button', { name: /Damaged grey side/ }).waitFor()
+      await page.getByRole('button', { name: /Rear doors with markings/ }).waitFor()
     },
   },
   {
@@ -340,7 +342,7 @@ const CAPTURES: Capture[] = [
   {
     state: 'demo-rear-result',
     screen: 'results',
-    steps: ['Demo mode', 'Rear doors with markings (recorded Luna)', 'Start inspection, settle'],
+    steps: ['Demo mode', 'Rear doors with markings (recorded Luna, earlier ID-only run)', 'Start inspection, settle'],
     motion: 'frozen',
     run: (page) => demoResult(page, 'Rear doors with markings'),
   },
@@ -352,23 +354,6 @@ const CAPTURES: Capture[] = [
     run: async (page) => {
       await demoResult(page, 'Rear doors with markings')
       await page.locator('button.qs-cost__toggle').click()
-    },
-  },
-  {
-    state: 'demo-side-result',
-    screen: 'results',
-    steps: ['Demo mode', 'Damaged grey side (recorded Luna: damage, no ID in view)', 'Start inspection, settle'],
-    motion: 'frozen',
-    run: (page) => demoResult(page, 'Damaged grey side'),
-  },
-  {
-    state: 'demo-damage-marker',
-    screen: 'results',
-    steps: ['Demo damaged-side result', 'Click the first damage marker (pin)'],
-    motion: 'frozen',
-    run: async (page) => {
-      await demoResult(page, 'Damaged grey side')
-      await page.locator('.qs-c-pins [role="button"]').first().click()
     },
   },
   {
@@ -470,7 +455,7 @@ const CAPTURES: Capture[] = [
   {
     state: 'manifest-offer',
     screen: 'manifest-retry',
-    steps: ['Demo mode', 'Damaged grey side, Start, settle', 'Manifest offer open'],
+    steps: ['Demo mode', 'Rear doors with markings, Start, settle', 'Manifest offer open'],
     motion: 'frozen',
     run: unidentifiedRun,
   },

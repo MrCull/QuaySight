@@ -3,6 +3,7 @@ import { computed } from 'vue'
 import { useInspectionStore } from './stores/inspection'
 import { useSetupStore } from './stores/setup'
 import { findSample } from './domain/demoSamples'
+import { needsManifest } from './domain/manifest'
 import SetupCard from './components/SetupCard.vue'
 import SettingsChip from './components/SettingsChip.vue'
 import SettingsDrawer from './components/SettingsDrawer.vue'
@@ -22,9 +23,10 @@ const running = computed(() => store.status === 'running')
 // The key gate lives in the store: a photo, a key for the selected provider and a valid model.
 const canStart = computed(() => store.canStart && !running.value)
 const needsKey = computed(() => !store.demo && !!store.photo && !store.canStart && !running.value)
-// Demo mode: a sample-only option while its manifest offer is open.
+// Demo mode: a sample-only option while its manifest offer is open (the recorded ID has a position unread).
 const showSampleOptions = computed(
-  () => store.demo && store.record?.source === 'recorded' && store.record.containerId === null,
+  () =>
+    store.demo && store.record?.source === 'recorded' && needsManifest(store.record.containerId),
 )
 // Demo mode has no settings chip, so the run chip names who answered when the sample was recorded.
 // A live run is named by the settings chip: changing provider or model blanks the screen, so they agree.

@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeEach } from 'vitest'
+import { describe, it, expect, beforeEach, vi } from 'vitest'
 import { nextTick } from 'vue'
 import { mount } from '@vue/test-utils'
 import { setActivePinia, createPinia } from 'pinia'
@@ -90,5 +90,37 @@ describe('App', () => {
     store.status = 'failed'
     await nextTick()
     expect(startButton(wrapper)?.attributes('disabled')).toBeUndefined()
+  })
+})
+
+describe('App in demo mode: the sample option', () => {
+  beforeEach(() => {
+    setActivePinia(createPinia())
+    useSetupStore().view = 'inspection'
+  })
+
+  async function demoResult(sample: 'rear-aphu' | 'rear-chsu') {
+    vi.useFakeTimers()
+    const store = useInspectionStore()
+    store.enterDemo()
+    store.chooseSample(sample)
+    const run = store.start()
+    await vi.advanceTimersByTimeAsync(2000)
+    await run
+    vi.useRealTimers()
+    return mount(App)
+  }
+
+  it('is offered while the manifest offer is open: the recorded ID has a position unread', async () => {
+    // Luna's earlier recorded read of the APHU photo leaves one position unread.
+    const wrapper = await demoResult('rear-aphu')
+    expect(wrapper.text()).toContain('Container ID not identified')
+    expect(wrapper.text()).toContain('Make the manifest check fail')
+  })
+
+  it('is not offered once the recorded ID is complete', async () => {
+    const wrapper = await demoResult('rear-chsu')
+    expect(wrapper.text()).not.toContain('Container ID not identified')
+    expect(wrapper.text()).not.toContain('Make the manifest check fail')
   })
 })

@@ -4,8 +4,7 @@ import chsuPhoto from '../../samples/rear-door-chsu-22g1.jpg'
 import { SHIPPED_RECORDINGS } from '../fixtures/demoRecordings'
 import { replayRecording } from '../plan/replay'
 import type { PlanRecording } from '../plan/recording'
-import { idResultState } from './certainty'
-import { ManifestRetryError } from './manifest'
+import { ManifestRetryError, needsManifest } from './manifest'
 import type { ContainerIdReading, InspectionRecord, ProviderId } from './inspection'
 
 /**
@@ -150,7 +149,7 @@ export interface PendingRecording {
 
 /**
  * Every slot the demo still needs a full-plan recording for, so nothing waits unseen: a sample on a route
- * with no recording of the whole plan. Record them with the opt-in spec (docs/research/demo-recordings.md).
+ * with no recording of the whole plan. Record them with the opt-in spec (docs/research/live-api-findings-2026-10-16.md, last section).
  */
 export function pendingDemoRecordings(): PendingRecording[] {
   const all = [...SHIPPED_RECORDINGS, ...registered]
@@ -204,8 +203,8 @@ const SIMULATED_FAILURE: Record<ProviderId, string> = {
  * Replays a sample's manifest check (spec 3.2): no network, no key, no ledger entry. The manifest check
  * itself was not recorded; what the recording read of the ID is compared with the pasted entries. Resolves
  * with the reading when an entry is what the recording read, null when no entry matches what the photo
- * shows (spec 12: never substitute a near-match), and always null where the recording read nothing of the
- * ID. Rejects with a simulated provider failure when `fail` is set.
+ * shows (spec 12: never substitute a near-match), and always null where the recording left a position
+ * of the ID unread. Rejects with a simulated provider failure when `fail` is set.
  */
 export async function runDemoManifestRetry(
   id: DemoSampleId,
@@ -217,7 +216,8 @@ export async function runDemoManifestRetry(
   await pause(options.delayMs)
   if (options.fail) throw new ManifestRetryError(SIMULATED_FAILURE[recording.provider])
   const reading = replayRecording(recording, { id: `demo-${id}-check`, photo: null }).containerId
-  if (!reading || idResultState(reading) === 'insufficient') return null
+  // A reading with a position unread cannot equal any entry: nothing the photo showed matches.
+  if (!reading || needsManifest(reading)) return null
   const matched = entries.some((entry) => entry.replace(/\s+/g, '').toUpperCase() === reading.value)
   return { ...reading, provenance: matched ? 'manifest' : 'printed', manifestChecked: true }
 }

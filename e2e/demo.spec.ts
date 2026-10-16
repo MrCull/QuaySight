@@ -1,8 +1,10 @@
 import { test, expect, type Page } from '@playwright/test'
 
 /**
- * Demo mode (spec #16, ticket #24): a visitor with no key enters from the setup card, chooses one of
- * the three bundled samples and sees its recorded result under a banner that never leaves the screen.
+ * Demo mode (spec #16, ticket #24; spec #27, ticket #37): a visitor with no key enters from the setup card,
+ * chooses one of the bundled samples and sees its recorded result under a banner that never leaves the
+ * screen. A sample is offered only when its photo has a real recording; the damaged side has none yet, so
+ * these specs use the two that do. When that photo is recorded, add its tile here.
  * Every request to a provider host is recorded and aborted; none may happen.
  */
 
@@ -48,10 +50,10 @@ test.describe('demo mode', () => {
     expect(hits).toEqual([])
   })
 
-  test('offers the three samples and no photo upload, with a note why', async ({ page }) => {
+  test('offers the recorded samples and no photo upload, with a note why', async ({ page }) => {
     await enterDemo(page)
 
-    for (const name of ['Rear doors with markings', 'Damaged grey side', 'Clean grey rear doors']) {
+    for (const name of ['Rear doors with markings', 'Clean grey rear doors']) {
       await expect(sampleTile(page, name)).toBeVisible()
     }
     await expect(page.locator('input[type="file"]')).toHaveCount(0)
@@ -74,12 +76,6 @@ test.describe('demo mode', () => {
         'OpenAI · gpt-6-luna',
       ],
       [
-        'Damaged grey side',
-        'side-dented-grey.jpg',
-        'Recorded demonstration: GPT-6 Luna / gpt-6-luna',
-        'OpenAI · gpt-6-luna',
-      ],
-      [
         'Clean grey rear doors',
         'rear-door-chsu-22g1.jpg',
         'Recorded demonstration: Jev latest (TypeSafe) via OpenRouter / ~typesafe/jev-latest',
@@ -98,7 +94,7 @@ test.describe('demo mode', () => {
 
       // New inspection returns to the sample picker, still in demo mode.
       await page.getByRole('button', { name: 'New inspection' }).click()
-      await expect(sampleTile(page, 'Damaged grey side')).toBeVisible()
+      await expect(sampleTile(page, 'Rear doors with markings')).toBeVisible()
       await expect(page.locator('.rs-photo__img')).toHaveCount(0)
       await expect(banner(page)).toBeVisible()
     }
@@ -108,13 +104,12 @@ test.describe('demo mode', () => {
 
   test('the banner stays on screen while analysing and when the page scrolls', async ({ page }) => {
     await enterDemo(page)
-    await sampleTile(page, 'Damaged grey side').click()
+    await sampleTile(page, 'Rear doors with markings').click()
     await page.getByRole('button', { name: 'Start inspection' }).click()
     await expect(page.locator('#stage.qs-arriving')).toBeVisible()
     await expect(banner(page)).toBeVisible()
     await page.locator('#stage.qs-arrived').waitFor()
 
-    await page.getByRole('region', { name: 'Damage view' }).scrollIntoViewIfNeeded()
     await page.mouse.wheel(0, 2000)
     const box = await banner(page).boundingBox()
     expect(box!.y).toBeGreaterThanOrEqual(0)
@@ -141,12 +136,12 @@ test.describe('demo mode', () => {
     await expect(banner(page)).toHaveCount(0)
   })
 
-  test('the damaged side opens the manifest offer; its recorded check finds no match', async ({
+  test('the rear doors, whose recorded ID has an unread position, open the manifest offer; its check finds no match', async ({
     page,
   }) => {
     const hits = await blockProviders(page)
     await enterDemo(page)
-    await inspectSample(page, 'Damaged grey side')
+    await inspectSample(page, 'Rear doors with markings')
     await expect(page.getByRole('heading', { name: 'Container ID not identified' })).toBeVisible()
 
     await page.getByLabel('Container numbers from the manifest').fill('APHU 658684 7')

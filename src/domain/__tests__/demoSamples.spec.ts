@@ -142,6 +142,12 @@ describe('the recorded manifest check', () => {
     })
   })
 
+  it('finds no match where the recording left a position unread (the earlier Luna run on APHU)', async () => {
+    const reading = (await runDemoSample('rear-aphu')).containerId!
+    expect(reading.value).toContain('?')
+    expect(await runDemoManifestRetry('rear-aphu', ['APHU6586847'])).toBeNull()
+  })
+
   it('finds no match where the recording read nothing of the ID, and fails as the sample option asks', async () => {
     register(dentedSideRecording())
     expect(await runDemoManifestRetry('side-dented', ['APHU6586847'])).toBeNull()

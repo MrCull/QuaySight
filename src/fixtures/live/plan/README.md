@@ -7,4 +7,4 @@ headers, no request body), in the order they landed, with each request's latency
 
 Demo mode replays any file here for the sample whose photo it names (`src/domain/demoSamples.ts`), picking
 it up with no code change. Never edit one by hand: a recording is what a model answered. To record, see
-`docs/research/demo-recordings.md`.
+`docs/research/live-api-findings-2026-10-16.md (the last section)`.
