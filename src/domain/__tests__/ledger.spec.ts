@@ -399,6 +399,48 @@ describe('CostLedger cap', () => {
     expect(totals.costUsd).toBeNull()
   })
 
+  it('records an aborted call as cancelled with unknown cost, never free, without waiting for it', async () => {
+    const ledger = new CostLedger(caps, [lunaRate], () => NOW)
+    const controller = new AbortController()
+    // A call that never answers: the abort alone must settle it.
+    const pending = runChargeable(ledger, {
+      id: 'x',
+      inspectionId: 'insp-1',
+      purpose: 'Reading markings',
+      provider: 'luna',
+      endpoint: 'decisions',
+      model: 'gpt-6-luna',
+      signal: controller.signal,
+      call: () => new Promise<ChargeableOutcome>(() => {}),
+    })
+    controller.abort()
+    const result = await pending
+    expect(result).toMatchObject({
+      status: 'cancelled',
+      entry: { status: 'cancelled', costUsd: null, costState: 'unavailable' },
+    })
+    expect(ledger.sessionTotals()).toMatchObject({ requests: 1, costUsd: null, incomplete: true })
+  })
+
+  it('a call whose own failure follows an abort is still recorded as cancelled', async () => {
+    const ledger = new CostLedger(caps, [lunaRate], () => NOW)
+    const controller = new AbortController()
+    const result = await runChargeable(ledger, {
+      id: 'x',
+      inspectionId: 'insp-1',
+      purpose: 'Reading markings',
+      provider: 'luna',
+      endpoint: 'decisions',
+      model: 'gpt-6-luna',
+      signal: controller.signal,
+      call: async () => {
+        controller.abort()
+        throw new Error('The operation was aborted')
+      },
+    })
+    expect(result).toMatchObject({ status: 'cancelled', entry: { status: 'cancelled' } })
+  })
+
   it('a recorded sample never enters the ledger because it never calls runChargeable', () => {
     const ledger = new CostLedger(caps, [lunaRate], () => NOW)
     expect(ledger.entries()).toHaveLength(0)

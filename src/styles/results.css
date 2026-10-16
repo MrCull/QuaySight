@@ -89,6 +89,10 @@ body {
 .rs-photo__bar {
   transition: opacity var(--duration-base);
 }
+/* Cancel sits beside the busy primary button while a run is in flight. */
+.rs-startrow .qs-btn + .qs-btn {
+  margin-left: var(--space-3);
+}
 /* Analysing overlay on the photo (design-system AnalysingScreen). Shown only while .qs-arriving. */
 .rs-analysing {
   position: absolute;

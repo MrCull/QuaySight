@@ -21,6 +21,8 @@ export interface CallLunaOptions {
   photo: Blob
   /** 1-based positions to ask. Omitted for the first pass (all eleven); the re-check passes only its unread positions. */
   positions?: number[]
+  /** Aborts the call in flight. */
+  signal?: AbortSignal
   /** Test seam. Defaults to the global fetch. */
   fetchImpl?: typeof fetch
 }
@@ -64,6 +66,8 @@ export interface CallLunaManifestOptions {
   photo: Blob
   /** The manifest check's questions, from buildManifestQuestions. */
   questions: ManifestQuestion[]
+  /** Aborts the call in flight. */
+  signal?: AbortSignal
   /** Test seam. Defaults to the global fetch. */
   fetchImpl?: typeof fetch
 }
@@ -81,7 +85,7 @@ export async function callLunaManifest(
 
 /** One POST to OpenAI's Decisions endpoint, with OpenAI's error wording. No retries: each call is charged. */
 function decide(
-  options: { apiKey: string; fetchImpl?: typeof fetch },
+  options: { apiKey: string; fetchImpl?: typeof fetch; signal?: AbortSignal },
   request: unknown,
 ): Promise<DecisionsReply> {
   return postDecisions({
@@ -89,6 +93,7 @@ function decide(
     apiKey: options.apiKey,
     request,
     fetchImpl: options.fetchImpl,
+    signal: options.signal,
     thrown: () => lunaFetchFailure(browserOnline()),
     failed: (status, body) => lunaFailure(status, body, options.apiKey),
   })

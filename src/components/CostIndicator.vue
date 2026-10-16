@@ -12,7 +12,10 @@ const panelId = 'cost-ledger-panel'
 
 // Demo mode and recorded results never reach the live ledger (spec 8.5): they show no live API charge.
 const isSample = computed(() => inspection.demo || inspection.record?.source === 'recorded')
-const containerId = computed(() => (isSample.value ? null : (inspection.record?.id ?? null)))
+// From the moment a live run starts, its lines are this container's, even before (or without) a result.
+const containerId = computed(() =>
+  isSample.value ? null : (inspection.record?.id ?? inspection.runId ?? null),
+)
 
 const container = computed(() =>
   containerId.value ? ledgerStore.inspectionTotals(containerId.value) : null,
@@ -37,13 +40,15 @@ function tokensLabel(entry: LedgerEntry): string {
 
 // A cost the provider reported is named as such; a rate-table figure is named an estimate (spec #16, Cost).
 function costLabel(entry: LedgerEntry): string {
+  // A cancelled request was sent: the provider may still charge for it, so its cost is unknown, never free.
+  if (entry.status === 'cancelled') return 'Cost unknown'
   if (entry.costState === 'reported') return `${formatUsd(entry.costUsd)} reported`
   if (entry.costState === 'estimated') return `${formatUsd(entry.costUsd)} estimate`
   return formatUsd(null)
 }
 
 function latencyLabel(entry: LedgerEntry): string {
-  return entry.status === 'failed' ? '—' : `${(entry.latencyMs / 1000).toFixed(1)} s`
+  return entry.status === 'complete' ? `${(entry.latencyMs / 1000).toFixed(1)} s` : '—'
 }
 
 // Container and session totals use the same cost wording: "Partial estimate" marks incomplete data.

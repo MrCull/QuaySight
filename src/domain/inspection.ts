@@ -4,6 +4,10 @@ import type { WeightChecks } from './weights'
 // Shared inspection record (spec 11.2). Provider-independent: every adapter, recorded or live,
 // normalises into this shape. Later tickets extend it (checks, findings, costs) without changing
 // the fields below, so schemaVersion bumps only on breaking changes.
+//
+// A live request adds its own fields from its own module, by augmenting InspectionRecord there with
+// optional fields (`declare module '<path>/domain/inspection' { interface InspectionRecord { … } }`),
+// so this file is not edited for each new request. See src/plan/requestPlan.ts.
 
 import type { DamageAssessment } from './damage'
 
@@ -77,8 +81,8 @@ export interface RecheckRecord {
   model: string
   /** Version the provider reports for the model that answered, or null when no reply was received. */
   resolvedVersion: string | null
-  /** resolved: all asked positions read. partly-resolved / unchanged: some or none read. failed: no reply. skipped-cap: the cap stopped it. */
-  outcome: 'resolved' | 'partly-resolved' | 'unchanged' | 'failed' | 'skipped-cap'
+  /** resolved: all asked positions read. partly-resolved / unchanged: some or none read. failed: no reply. skipped-cap: the cap stopped it. cancelled: the run was cancelled while it was in flight. */
+  outcome: 'resolved' | 'partly-resolved' | 'unchanged' | 'failed' | 'skipped-cap' | 'cancelled'
   resolvedPositions: number[]
   /** What the re-check read at each asked position. Empty when it did not run. */
   observations: { position: number; value: string | null; certainty: CertaintyLabel }[]
@@ -97,7 +101,8 @@ export interface InspectionRecord {
   rawResponses: RawProviderResponse[]
   /** 'recorded' runs replay saved results: no network, no key, no live charge. */
   source: 'recorded' | 'live'
-  status: 'running' | 'complete' | 'failed'
+  /** partial: the run was cancelled, or a part of it failed, after some of it had answered. What answered is kept. */
+  status: 'running' | 'complete' | 'partial' | 'failed'
   photo: PhotoRef | null
   containerId: ContainerIdReading | null
   /** Damage assessment for the neutral schematic (ticket #8). Null when the run assessed no damage. */

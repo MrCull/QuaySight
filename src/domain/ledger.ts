@@ -31,7 +31,8 @@ export interface LedgerEntry {
   model: string
   /** Exact model/version the provider reported, or the requested model when none was reported. */
   resolvedModel: string
-  status: 'complete' | 'failed'
+  /** cancelled: aborted after it was sent (Cancel, New inspection, a provider or model change). Its cost is unknown, never free. */
+  status: 'complete' | 'failed' | 'cancelled'
   startedAt: string
   latencyMs: number
   usage: Usage | null
@@ -166,13 +167,28 @@ export interface ChargeableRequest {
   provider: ProviderId
   endpoint: string
   model: string
+  /** Aborts the call. An aborted call settles at once as cancelled, whether or not the call itself notices. */
+  signal?: AbortSignal
   call: () => Promise<ChargeableOutcome>
 }
 
 export type ChargeableResult =
   | { status: 'ran'; entry: LedgerEntry }
   | { status: 'failed'; entry: LedgerEntry; error: unknown }
+  | { status: 'cancelled'; entry: LedgerEntry }
   | { status: 'blocked'; reason: CapReason }
+
+/** The call's outcome, or a rejection as soon as the signal aborts. */
+function untilAborted<T>(call: Promise<T>, signal: AbortSignal | undefined): Promise<T> {
+  if (!signal) return call
+  return new Promise<T>((resolve, reject) => {
+    const onAbort = () => reject(signal.reason)
+    // The call's own outcome is always handled, even when the abort settles first.
+    void call.then(resolve, reject).finally(() => signal.removeEventListener('abort', onAbort))
+    if (signal.aborted) return onAbort()
+    signal.addEventListener('abort', onAbort, { once: true })
+  })
+}
 
 /** The only way a live chargeable call enters the ledger. Blocked calls are never invoked. */
 export async function runChargeable(
@@ -196,7 +212,7 @@ export async function runChargeable(
   }
   ledger.reserve(request.inspectionId)
   try {
-    const outcome = await request.call()
+    const outcome = await untilAborted(request.call(), request.signal)
     const reported = typeof outcome.reportedCostUsd === 'number' ? outcome.reportedCostUsd : null
     const { costUsd, costState } =
       reported !== null
@@ -214,17 +230,19 @@ export async function runChargeable(
     ledger.record(entry)
     return { status: 'ran', entry }
   } catch (error) {
+    // Sent, then aborted: the provider may still charge for it, so its cost is unknown, never zero.
+    const cancelled = request.signal?.aborted === true
     const entry: LedgerEntry = {
       ...base,
       resolvedModel: request.model,
-      status: 'failed',
+      status: cancelled ? 'cancelled' : 'failed',
       latencyMs: 0,
       usage: null,
       costUsd: null,
       costState: 'unavailable',
     }
     ledger.record(entry)
-    return { status: 'failed', entry, error }
+    return cancelled ? { status: 'cancelled', entry } : { status: 'failed', entry, error }
   } finally {
     ledger.release(request.inspectionId)
   }
