@@ -389,6 +389,68 @@ const CAPTURES: Capture[] = [
     run: (page) => demoResult(page, 'Clean grey rear doors'),
   },
   {
+    state: 'found-demo-rear-imperial',
+    screen: 'results',
+    steps: [
+      'Demo rear-doors result (What we found at the top of the readings)',
+      'Switch the Container details toggle to Imperial (the summary shows the weights in lb)',
+    ],
+    motion: 'frozen',
+    run: async (page) => {
+      await demoResult(page, 'Rear doors with markings')
+      await page.getByRole('group', { name: 'Units' }).getByRole('button', { name: 'Imperial' }).click()
+    },
+  },
+  {
+    state: 'found-demo-side-caveats',
+    screen: 'results',
+    steps: [
+      'Demo damaged-side result (no ID in view: the caveat comes first, then the damage verdict)',
+    ],
+    motion: 'frozen',
+    run: async (page) => {
+      await demoResult(page, 'Damaged grey side')
+      await page.locator('.qs-found').waitFor()
+    },
+  },
+  {
+    state: 'found-live-partial-ids',
+    screen: 'results',
+    steps: [
+      'Open /',
+      'Type placeholder key, Enter',
+      'Choose photo',
+      'Run live inspection (mocked Decisions: positions 5 and 9 unread)',
+      'settle (What we found: caveat about the unread positions first)',
+    ],
+    motion: 'frozen',
+    liveBody: () => lunaVariant('partial'),
+    run: async (page) => {
+      await liveRun(page)
+      await page.locator('.qs-found .qs-found__block').first().waitFor()
+    },
+  },
+  {
+    state: 'found-reduced-motion',
+    screen: 'results',
+    steps: [
+      'Reduced-motion emulation',
+      'Demo rear-doors result, captured as soon as it lands (no pause)',
+      'What we found is simply there, with no animation',
+    ],
+    motion: 'animated',
+    viewports: [{ width: 1440, height: 900 }],
+    reducedMotion: true,
+    run: async (page) => {
+      await open(page)
+      await enterDemo(page)
+      await openSample(page, 'Rear doors with markings')
+      await page.getByRole('button', { name: 'Start inspection' }).click()
+      await page.locator('#stage.qs-arrived').waitFor()
+      await expect(page.locator('.qs-found')).toBeVisible()
+    },
+  },
+  {
     state: 'openrouter-live-result',
     screen: 'results',
     steps: [
