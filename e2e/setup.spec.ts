@@ -165,7 +165,7 @@ test.describe('header chip and settings drawer', () => {
     // A new provider: a blank screen, the new provider in the chip, and its own empty key.
     await chip(page).click()
     await drawer(page).locator('#provider-button').click()
-    await drawer(page).getByRole('option', { name: /GPT-6 Luna/ }).click()
+    await drawer(page).getByRole('option', { name: /GPT-6 Luna OpenAI/ }).click()
     await expect(page.locator('.rs-photo__img')).toHaveCount(0)
     await expect(page.getByText('Drop a container photo here')).toBeVisible()
     await expect(drawer(page).getByLabel('OpenAI API key', { exact: true })).toHaveValue('')
@@ -224,7 +224,7 @@ test.describe('phone width (390px)', () => {
   test('the setup card and the drawer fit without horizontal scroll', async ({ page }) => {
     await page.goto('/')
     await setupCard(page).locator('#provider-button').click()
-    await expect(setupCard(page).getByRole('option', { name: /GPT-6 Luna/ })).toBeVisible()
+    await expect(setupCard(page).getByRole('option', { name: /GPT-6 Luna OpenAI/ })).toBeVisible()
     await noSideScroll(page)
     await setupCard(page).locator('#provider-button').click()
 

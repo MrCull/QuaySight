@@ -71,7 +71,7 @@ const choosePhoto = (page: Page) =>
 /** On the setup card: picks OpenAI. OpenRouter is pre-selected; the Luna captures replay OpenAI responses. */
 async function chooseOpenAI(page: Page) {
   await page.locator('#provider-button').click()
-  await page.getByRole('option', { name: /GPT-6 Luna/ }).click()
+  await page.getByRole('option', { name: /GPT-6 Luna OpenAI/ }).click()
 }
 
 /** On the setup card: types the placeholder into the named key field, ticks replay and presses Continue. */
