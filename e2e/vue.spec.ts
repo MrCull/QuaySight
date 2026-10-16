@@ -18,7 +18,7 @@ async function choosePhoto(page: Page) {
 async function enterKey(page: Page) {
   // OpenRouter is pre-selected; these runs use OpenAI's Luna.
   await page.locator('#provider-button').click()
-  await page.getByRole('option', { name: /GPT-6 Luna OpenAI/ }).click()
+  await page.getByTestId('provider-option-luna').click()
   const key = page.getByLabel('OpenAI API key', { exact: true })
   await key.fill(PLACEHOLDER_KEY)
   await key.press('Enter')

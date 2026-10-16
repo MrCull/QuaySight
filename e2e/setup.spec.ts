@@ -88,7 +88,7 @@ test.describe('header chip and settings drawer', () => {
     await continueWithKey(page)
     await expect(chip(page)).toBeVisible()
     await expect(chip(page)).toContainText('OpenRouter')
-    await expect(chip(page)).toContainText('~typesafe/jev-latest')
+    await expect(chip(page)).toContainText('Jev latest')
     await expect(chip(page)).toContainText('key set')
     const shown =
       (await page.locator('.rs-top').innerText()) + (await chip(page).getAttribute('aria-label'))
@@ -167,12 +167,12 @@ test.describe('header chip and settings drawer', () => {
     // A new provider: a blank screen, the new provider in the chip, and its own empty key.
     await chip(page).click()
     await drawer(page).locator('#provider-button').click()
-    await drawer(page).getByRole('option', { name: /GPT-6 Luna OpenAI/ }).click()
+    await drawer(page).getByTestId('provider-option-luna').click()
     await expect(page.locator('.rs-photo__img')).toHaveCount(0)
     await expect(page.getByText('Drop a container photo here')).toBeVisible()
     await expect(drawer(page).getByLabel('OpenAI API key', { exact: true })).toHaveValue('')
     await expect(chip(page)).toContainText('GPT-6 Luna')
-    await expect(chip(page)).toContainText('gpt-6-luna')
+    await expect(chip(page)).toContainText('OpenAI')
     await expect(chip(page)).toContainText('no key')
   })
 
@@ -184,7 +184,7 @@ test.describe('header chip and settings drawer', () => {
     await chip(page).click()
     await drawer(page).getByLabel('Model version').selectOption('typesafe/jev-1.13')
     await expect(page.locator('.rs-photo__img')).toHaveCount(0)
-    await expect(chip(page)).toContainText('typesafe/jev-1.13')
+    await expect(chip(page)).toContainText('Jev 1.13')
     await expect(chip(page)).toContainText('key set')
   })
 })
@@ -195,7 +195,7 @@ test.describe('refresh', () => {
     await setupCard(page).getByLabel('Model version').selectOption('typesafe/jev-1.14')
     await setupCard(page).getByLabel('OpenRouter API key', { exact: true }).fill(PLACEHOLDER_KEY)
     await setupCard(page).getByRole('button', { name: 'Continue' }).click()
-    await expect(chip(page)).toContainText('typesafe/jev-1.14')
+    await expect(chip(page)).toContainText('Jev 1.14')
 
     await page.reload()
     await expect(setupCard(page)).toBeVisible()
@@ -226,7 +226,7 @@ test.describe('phone width (390px)', () => {
   test('the setup card and the drawer fit without horizontal scroll', async ({ page }) => {
     await page.goto('/')
     await setupCard(page).locator('#provider-button').click()
-    await expect(setupCard(page).getByRole('option', { name: /GPT-6 Luna OpenAI/ })).toBeVisible()
+    await expect(setupCard(page).getByTestId('provider-option-luna')).toBeVisible()
     await noSideScroll(page)
     await setupCard(page).locator('#provider-button').click()
 

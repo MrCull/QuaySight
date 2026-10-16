@@ -127,7 +127,10 @@ function keepFirstResult() {
         <div>
           <div class="qs-notice__title">The check didn't finish</div>
           <div class="qs-notice__body">
-            {{ provider.vendor }} said: "{{ store.retry.message }}" Your first result is unchanged.
+            <!-- A live message is ours and already names the provider; a recorded one is the provider's own words. -->
+            <template v-if="live">{{ store.retry.message }}</template>
+            <template v-else>{{ provider.vendor }} said: "{{ store.retry.message }}"</template>
+            Your first result is unchanged.
           </div>
         </div>
       </div>

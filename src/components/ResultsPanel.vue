@@ -74,7 +74,8 @@ const showInsufficient = computed(() => idState.value === 'insufficient')
       <div>
         <div class="qs-notice__title">{{ liveLabel }}</div>
         <div class="qs-notice__body">
-          A live call to the provider. The cost shown is an estimate, not an invoice.
+          A live call to the provider. Its cost is as the provider reported it, or an estimate where
+          it reported none; not an invoice.
         </div>
       </div>
       <span class="qs-notice__kicker">Live</span>

@@ -29,6 +29,10 @@ const samplePhoto = path.join(ROOT, 'samples', 'rear-door-aphu-45g1.jpg')
 const lunaSmoke = JSON.parse(
   fs.readFileSync(path.join(ROOT, 'src', 'fixtures', 'live', 'luna-smoke.json'), 'utf8'),
 ).response as { answers: Array<Record<string, unknown>> }
+/** GPT-6 Luna Decisions through OpenRouter, as recorded live on 16 Oct 2026 (no key, no headers). */
+const openRouterLunaSmoke = JSON.parse(
+  fs.readFileSync(path.join(ROOT, 'src', 'fixtures', 'live', 'openrouter-luna-smoke.json'), 'utf8'),
+).response as unknown
 
 // A placeholder typed through the real field. It is not a credential and no provider receives it.
 const PLACEHOLDER_KEY = 'playwright-placeholder-not-a-key'
@@ -72,7 +76,7 @@ const choosePhoto = (page: Page) =>
 /** On the setup card: picks OpenAI. OpenRouter is pre-selected; the Luna captures replay OpenAI responses. */
 async function chooseOpenAI(page: Page) {
   await page.locator('#provider-button').click()
-  await page.getByRole('option', { name: /GPT-6 Luna OpenAI/ }).click()
+  await page.getByTestId('provider-option-luna').click()
 }
 
 /** On the setup card: Enter as demo user (no key), then the sample picker. */
@@ -190,6 +194,17 @@ const CAPTURES: Capture[] = [
     steps: ['Open / (first visit: only the setup card, no key)'],
     motion: 'frozen',
     run: open,
+  },
+  {
+    state: 'setup-provider-list',
+    screen: 'setup',
+    steps: ['Open /', 'Press ArrowDown on the provider button (list open, OpenAI active)', 'Press ArrowDown'],
+    motion: 'frozen',
+    run: async (page) => {
+      await open(page)
+      await page.locator('#provider-button').press('ArrowDown')
+      await page.getByRole('listbox').press('ArrowDown')
+    },
   },
   {
     state: 'setup-key-focused',
@@ -374,6 +389,42 @@ const CAPTURES: Capture[] = [
       await liveKey(page, 'OpenRouter API key')
       await choosePhoto(page)
       await startAndSettle(page, 'Run live inspection')
+    },
+  },
+  {
+    state: 'openrouter-luna-result',
+    screen: 'results',
+    steps: [
+      'Open /',
+      "Choose model 'GPT-6 Luna Decisions' on the setup card (OpenRouter)",
+      "Type placeholder into 'OpenRouter API key', Enter",
+      'Choose photo',
+      'Run live inspection (mocked OpenRouter Decisions: the recorded Luna Decisions smoke response)',
+      'settle',
+    ],
+    motion: 'frozen',
+    liveBody: () => openRouterLunaSmoke,
+    run: async (page) => {
+      await open(page)
+      await page.getByLabel('Model version').selectOption('openai/gpt-6-luna-decisions')
+      await liveKey(page, 'OpenRouter API key')
+      await choosePhoto(page)
+      await startAndSettle(page, 'Run live inspection')
+    },
+  },
+  {
+    state: 'live-after-new-inspection',
+    screen: 'start',
+    steps: ['OpenRouter live result steps', 'Click New inspection (blank screen, key kept)'],
+    motion: 'frozen',
+    liveBody: openRouterJevBody,
+    run: async (page) => {
+      await open(page)
+      await liveKey(page, 'OpenRouter API key')
+      await choosePhoto(page)
+      await startAndSettle(page, 'Run live inspection')
+      await page.getByRole('button', { name: 'New inspection' }).click()
+      await page.getByText('Drop a container photo here').waitFor()
     },
   },
   {

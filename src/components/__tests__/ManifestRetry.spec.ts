@@ -208,6 +208,31 @@ describe('ManifestRetry', () => {
     w.unmount()
   })
 
+  it('on a live error shows our own message once, without quoting the provider by name twice', async () => {
+    const { store } = liveSetup('MSCU4417305')
+    vi.stubGlobal(
+      'fetch',
+      vi.fn<typeof fetch>(
+        async () =>
+          new Response(JSON.stringify({ error: { message: 'Rate limited', code: 429 } }), {
+            status: 429,
+            headers: { 'Content-Type': 'application/json' },
+          }),
+      ),
+    )
+    const w = mount(ManifestRetry, { attachTo: document.body })
+    await field(w).setValue('MSCU4417305')
+    await primary(w).trigger('click')
+    await vi.waitFor(() => expect(store.retry.status).toBe('error'))
+    await nextTick()
+    const alert = w.get('[role="alert"]').text()
+    expect(alert).toContain('OpenRouter rate limit reached')
+    expect(alert).not.toContain('said:')
+    expect(alert.match(/OpenRouter/g)).toHaveLength(1)
+    expect(alert).toContain('Your first result is unchanged.')
+    w.unmount()
+  })
+
   it('moves focus to Try again after an error', async () => {
     const store = await setup()
     store.retryFails = true
