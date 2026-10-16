@@ -46,6 +46,16 @@ describe('ResultsPanel result states', () => {
     expect(wrapper.get('.rs-also').text()).toBe('Also possible: PPHH 888884 7')
   })
 
+  it('marks an unread position with a middle dot, and keeps a space after "Best interpretation:"', async () => {
+    const wrapper = await withReading({
+      value: 'APH?8888847',
+      certainty: 'Uncertain',
+      alternatives: ['APH?8588847'],
+    })
+    expect(wrapper.get('.rs-also').text()).toBe('Also possible: APH· 858884 7')
+    expect(wrapper.get('.rs-explain p').text()).toBe('Best interpretation: APH· 888884 7')
+  })
+
   it('shows the best interpretation and what remains uncertain for an uncertain result', async () => {
     const wrapper = await withReading({
       certainty: 'Uncertain',

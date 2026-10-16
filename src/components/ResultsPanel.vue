@@ -44,9 +44,15 @@ const idState = computed(() =>
 const alternatives = computed(() =>
   record.value?.containerId ? visibleAlternatives(record.value.containerId) : [],
 )
-/** A full container number as it is printed: owner code, serial, check digit ("APHU 658684 7"). */
+/**
+ * A full container number as it is printed: owner code, serial, check digit ("APHU 658684 7").
+ * An unread position shows as a middle dot, as in the ID above.
+ */
 function groupedId(id: string): string {
-  return id.length === 11 ? `${id.slice(0, 4)} ${id.slice(4, 10)} ${id.slice(10)}` : id
+  const marked = id.replace(/\?/g, '·')
+  return marked.length === 11
+    ? `${marked.slice(0, 4)} ${marked.slice(4, 10)} ${marked.slice(10)}`
+    : marked
 }
 const bestInterpretation = computed(() =>
   (record.value?.containerId?.value ?? '').replace(/\s+/g, '').toUpperCase().replace(/\?/g, '·'),
@@ -124,7 +130,7 @@ const showInsufficient = computed(() => idState.value === 'insufficient')
         :style="{ '--i': STAGGER.explanation }"
       >
         <p>
-          <b>Best interpretation:</b>
+          <b>Best interpretation: </b>
           <span class="qs-type-data">{{ groupedId(bestInterpretation) }}</span>
         </p>
         <p><b>What remains uncertain:</b> {{ remainsUncertain }}</p>
