@@ -3,6 +3,7 @@ import { computed, nextTick, ref, useTemplateRef } from 'vue'
 import { useInspectionStore } from '../stores/inspection'
 import { useSetupStore } from '../stores/setup'
 import {
+  capabilitiesOf,
   providers,
   getProvider,
   findModel,
@@ -31,12 +32,6 @@ const button = useTemplateRef<HTMLButtonElement>('button')
 const listbox = useTemplateRef<HTMLElement>('listbox')
 
 const optionId = (id: ProviderId) => `provider-option-${id}`
-
-/** What a provider's models can do, from the catalogue, shown as caps on its option. */
-function capsOf(id: ProviderId): string[] {
-  const boxes = getProvider(id).models.some((m) => m.box)
-  return boxes ? ['Probabilities', 'Boxes'] : ['Probabilities']
-}
 
 /** Vendor and API under the name; the vendor only when it differs from the name ("OpenRouter"). */
 function subline(p: ProviderInfo): string {
@@ -144,7 +139,7 @@ function onListKey(event: KeyboardEvent) {
             </span>
             <span class="qs-option__caps">
               <span v-if="p.recommended" class="qs-cap qs-cap--rec">Recommended</span>
-              <span v-for="cap in capsOf(p.id)" :key="cap" class="qs-cap">{{ cap }}</span>
+              <span v-for="cap in capabilitiesOf(p.id)" :key="cap" class="qs-cap">{{ cap }}</span>
             </span>
           </div>
         </div>

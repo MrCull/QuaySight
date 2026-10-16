@@ -1,6 +1,12 @@
 import { defineStore } from 'pinia'
 import { markRaw } from 'vue'
-import { defaultModelFor, findModel, labelsFor, questionSetOf } from '../domain/providers'
+import {
+  defaultModelFor,
+  findModel,
+  labelsFor,
+  questionSetOf,
+  type ModelOption,
+} from '../domain/providers'
 import { canStart as keyGateOpen, hasKey } from '../domain/keyGate'
 import {
   findSample,
@@ -105,6 +111,23 @@ function failureMessage(error: unknown, fallback: string, part: 'message' | 'adv
   return error instanceof ProviderError ? error[part] : fallback
 }
 
+/** Whether the catalogue reaches this model through OpenRouter's Decisions endpoint. */
+function viaOpenRouter(
+  entry: ModelOption | undefined,
+): entry is ModelOption & { wireFormat: 'openrouter-decisions' } {
+  return entry?.wireFormat === 'openrouter-decisions'
+}
+
+/** The ledger's endpoint family for a model's route. */
+function endpointOf(entry: ModelOption | undefined): string {
+  return viaOpenRouter(entry) ? OPENROUTER_ENDPOINT_ID : LUNA_ENDPOINT_ID
+}
+
+/** A manifest check under way for these entries: no message, no earlier no-match. */
+function checkingRetry(retry: ManifestRetryState, ids: string[]): ManifestRetryState {
+  return { ...retry, status: 'checking', message: null, ids: [...ids], noMatch: false }
+}
+
 /** The live manifest call for a catalogue model's wire format, and its ledger endpoint. */
 interface ManifestRoute {
   endpoint: string
@@ -127,19 +150,19 @@ interface LiveManifestReading {
 /** The route the first reading took, or null where it has no live manifest call (the offer is then hidden). */
 function liveManifestRoute(provider: ProviderId, model: string): ManifestRoute | null {
   const entry = findModel(provider, model)
-  if (entry?.wireFormat === 'openrouter-decisions') {
+  if (viaOpenRouter(entry)) {
     const describe = {
       name: labelsFor(provider, model).model,
       maxSide: entry.photoLimits.maxSide,
     }
     return {
-      endpoint: OPENROUTER_ENDPOINT_ID,
+      endpoint: endpointOf(entry),
       call: (options) => callOpenRouterManifest({ ...options, model, describe }),
     }
   }
   if (entry?.wireFormat === 'openai-decisions') {
     return {
-      endpoint: LUNA_ENDPOINT_ID,
+      endpoint: endpointOf(entry),
       call: async (options) => ({ ...(await callLunaManifest(options)), reportedCostUsd: null }),
     }
   }
@@ -355,8 +378,7 @@ export const useInspectionStore = defineStore('inspection', {
       const requestedModel = provider === 'luna' ? LUNA_MODEL : this.model
       // The catalogue entry decides the wire format, box support and photo limits; nothing else does.
       const entry = findModel(provider, requestedModel)
-      const endpoint =
-        entry?.wireFormat === 'openrouter-decisions' ? OPENROUTER_ENDPOINT_ID : 'decisions'
+      const endpoint = endpointOf(entry)
       const modelName = labelsFor(provider, requestedModel).model
       const describe = { name: modelName, maxSide: entry?.photoLimits.maxSide ?? 0 }
       const inspectionId = `live-${provider}-${(liveCounter += 1)}`
@@ -389,7 +411,7 @@ export const useInspectionStore = defineStore('inspection', {
 
         // The Luna question set on this run's route: OpenAI direct, or OpenRouter (ticket #23).
         const readLuna = async (positions?: number[]): Promise<LunaReading> => {
-          if (entry?.wireFormat === 'openrouter-decisions') {
+          if (viaOpenRouter(entry)) {
             return callOpenRouterLuna({
               apiKey,
               photo: sent,
@@ -415,7 +437,7 @@ export const useInspectionStore = defineStore('inspection', {
               const call = await readLuna()
               lunaFirst = call
               reading = call
-            } else if (entry?.wireFormat === 'openrouter-decisions') {
+            } else if (viaOpenRouter(entry)) {
               reading = await callOpenRouterJev({
                 apiKey,
                 photo: sent,
@@ -590,13 +612,7 @@ export const useInspectionStore = defineStore('inspection', {
       if (!route || !photo || !hasKey(apiKey)) return
 
       const token = this.runToken
-      this.retry = {
-        ...this.retry,
-        status: 'checking',
-        message: null,
-        ids: [...ids],
-        noMatch: false,
-      }
+      this.retry = checkingRetry(this.retry, ids)
       const questions = buildManifestQuestions(ids)
       // Each check is its own request: a failed one and its Try again are two ledger lines.
       const passId = `${record.id}-manifest-${(manifestCounter += 1)}`
@@ -660,13 +676,7 @@ export const useInspectionStore = defineStore('inspection', {
       const sample = this.sample
       if (!record || !sample) return
       const token = this.runToken
-      this.retry = {
-        ...this.retry,
-        status: 'checking',
-        message: null,
-        ids: [...ids],
-        noMatch: false,
-      }
+      this.retry = checkingRetry(this.retry, ids)
       try {
         const reading = await runDemoManifestRetry(sample, ids, {
           delayMs: RECORDED_RETRY_DELAY_MS,

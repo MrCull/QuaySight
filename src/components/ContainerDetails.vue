@@ -104,17 +104,19 @@ const rows = computed<DetailRow[]>(() => {
       Not assessed in this inspection: this run read the container ID only. Nothing is said about
       the size code or the weights.
     </p>
-    <div v-for="row in assessed ? rows : []" :key="row.label" class="qs-field">
-      <span class="qs-field__label">{{ row.label }}</span>
-      <span :class="['qs-field__value', { 'qs-field__value--absent': row.value === null }]">
-        <template v-if="row.value !== null">
-          {{ row.value }}
-          <span :class="['qs-prov', row.provenanceClass]">{{ row.provenance }}</span>
-        </template>
-        <template v-else>{{ row.absentText }}</template>
-      </span>
-      <CertaintyChip :level="row.certainty" />
-      <span v-if="row.note" class="qs-field__note">{{ row.note }}</span>
-    </div>
+    <template v-else>
+      <div v-for="row in rows" :key="row.label" class="qs-field">
+        <span class="qs-field__label">{{ row.label }}</span>
+        <span :class="['qs-field__value', { 'qs-field__value--absent': row.value === null }]">
+          <template v-if="row.value !== null">
+            {{ row.value }}
+            <span :class="['qs-prov', row.provenanceClass]">{{ row.provenance }}</span>
+          </template>
+          <template v-else>{{ row.absentText }}</template>
+        </span>
+        <CertaintyChip :level="row.certainty" />
+        <span v-if="row.note" class="qs-field__note">{{ row.note }}</span>
+      </div>
+    </template>
   </div>
 </template>

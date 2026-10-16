@@ -31,6 +31,8 @@ export interface ModelOption {
   maker: ModelMaker
   route: ModelRoute
   wireFormat: WireFormat
+  /** Whether the model answers with a probability per option (every Decisions model does). */
+  probabilities: boolean
   /** Whether the model accepts the box question. Nothing else decides this. */
   box: boolean
   photoLimits: PhotoLimits
@@ -105,6 +107,7 @@ export const providers: ProviderInfo[] = [
         note: 'recommended, moving target',
         displayName: 'Jev latest',
         // Resolved to typesafe/jev-1.14-20261014 on 16 Oct 2026, which answers the box question.
+        probabilities: true,
         box: true,
         movingTarget: true,
         recommended: true,
@@ -114,6 +117,7 @@ export const providers: ProviderInfo[] = [
         id: 'typesafe/jev-1.14',
         note: 'pinned',
         displayName: 'Jev 1.14',
+        probabilities: true,
         box: true,
         movingTarget: false,
         recommended: false,
@@ -124,6 +128,7 @@ export const providers: ProviderInfo[] = [
         note: 'pinned',
         displayName: 'Jev 1.13',
         // Answers a box question with 400 "Invalid request." (checked 16 Oct 2026).
+        probabilities: true,
         box: false,
         movingTarget: false,
         recommended: false,
@@ -138,6 +143,7 @@ export const providers: ProviderInfo[] = [
         route: 'openrouter',
         wireFormat: 'openrouter-decisions',
         // Luna takes no box question.
+        probabilities: true,
         box: false,
         photoLimits: LUNA_LIMITS,
         movingTarget: false,
@@ -165,6 +171,7 @@ export const providers: ProviderInfo[] = [
         maker: 'OpenAI',
         route: 'direct',
         wireFormat: 'openai-decisions',
+        probabilities: true,
         box: false,
         photoLimits: LUNA_LIMITS,
         movingTarget: false,
@@ -188,6 +195,18 @@ export function findModel(provider: ProviderId, model: string): ModelOption | un
 /** Box-capable only when the catalogue says so. Unlisted models never are. */
 export function supportsBox(provider: ProviderId, model: string): boolean {
   return findModel(provider, model)?.box ?? false
+}
+
+/** A capability cap on a provider's option in the selector. */
+export type Capability = 'Probabilities' | 'Boxes'
+
+/** What any of a provider's models can do, from the model declarations, in a fixed order. */
+export function capabilitiesOf(provider: ProviderId): Capability[] {
+  const models = getProvider(provider).models
+  const caps: Capability[] = []
+  if (models.some((m) => m.probabilities)) caps.push('Probabilities')
+  if (models.some((m) => m.box)) caps.push('Boxes')
+  return caps
 }
 
 /** The question set a model is asked. Fixed by the model's maker, whichever route reaches it. */

@@ -2,7 +2,7 @@
 import { computed } from 'vue'
 import { useInspectionStore } from '../stores/inspection'
 import { isMovingTarget, labelsFor, recordedDemonstrationLabel } from '../domain/providers'
-import { idResultState, visibleAlternatives } from '../domain/certainty'
+import { idResultState, UNREAD, visibleAlternatives } from '../domain/certainty'
 import CertaintyChip from './CertaintyChip.vue'
 import ContainerId from './ContainerId.vue'
 import ManifestRetry from './ManifestRetry.vue'
@@ -49,13 +49,14 @@ const alternatives = computed(() =>
  * An unread position shows as a middle dot, as in the ID above.
  */
 function groupedId(id: string): string {
-  const marked = id.replace(/\?/g, '·')
+  const marked = id.split(UNREAD).join('·')
   return marked.length === 11
     ? `${marked.slice(0, 4)} ${marked.slice(4, 10)} ${marked.slice(10)}`
     : marked
 }
+// The reading as one string; groupedId marks its unread positions.
 const bestInterpretation = computed(() =>
-  (record.value?.containerId?.value ?? '').replace(/\s+/g, '').toUpperCase().replace(/\?/g, '·'),
+  (record.value?.containerId?.value ?? '').replace(/\s+/g, '').toUpperCase(),
 )
 const remainsUncertain = computed(() => {
   const r = record.value?.containerId

@@ -1,5 +1,6 @@
 import { describe, it, expect } from 'vitest'
 import {
+  capabilitiesOf,
   defaultModelFor,
   findModel,
   isMovingTarget,
@@ -21,6 +22,13 @@ describe('provider catalogue: box support', () => {
     expect(supportsBox('openrouter', 'typesafe/jev-1.14-20261014')).toBe(false)
     expect(supportsBox('openrouter', 'jev-1.14.0')).toBe(false)
     expect(supportsBox('luna', 'typesafe/jev-1.14')).toBe(false)
+  })
+})
+
+describe('provider catalogue: capabilities', () => {
+  it("says what any of a provider's models can do, from the model declarations", () => {
+    expect(capabilitiesOf('openrouter')).toEqual(['Probabilities', 'Boxes'])
+    expect(capabilitiesOf('luna')).toEqual(['Probabilities'])
   })
 })
 
