@@ -191,6 +191,23 @@ describe('New inspection: manifest retry', () => {
     })
   })
 
+  it('turns off the sample option that makes the manifest check fail, so the next sample checks normally', async () => {
+    const store = await unidentifiedResult()
+    store.retryFails = true
+
+    store.newInspection()
+
+    expect(store.retryFails).toBe(false)
+    store.chooseSample('side-dented')
+    const run = store.start()
+    await vi.advanceTimersByTimeAsync(1600)
+    await run
+    const check = store.retryManifest(['APHU6586847'])
+    await vi.advanceTimersByTimeAsync(1600)
+    await check
+    expect(store.retry.status).toBe('idle')
+  })
+
   it('drops a manifest check still in flight', async () => {
     const store = await unidentifiedResult()
     const check = store.retryManifest(['APHU6586847'])

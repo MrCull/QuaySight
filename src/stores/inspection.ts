@@ -267,8 +267,8 @@ export const useInspectionStore = defineStore('inspection', {
     },
     /**
      * New inspection: a blank screen for the next container, with no confirmation (spec #16).
-     * Clears the photo, the result, the run status and its error, the manifest retry and the
-     * selected damage marker. A run or manifest check in flight is cancelled: its token goes stale,
+     * Clears the photo, the result, the run status and its error, the manifest retry, the
+     * selected damage marker and the sample option (Make the manifest check fail). A run or manifest check in flight is cancelled: its token goes stale,
      * so whatever it returns is dropped. Keeps the provider, model, every key and the session ledger.
      * Later flows reuse this one action (a provider or model change, leaving demo mode).
      */
@@ -279,6 +279,7 @@ export const useInspectionStore = defineStore('inspection', {
       this.inFlight = null
       this.photo = null
       this.sample = null
+      this.retryFails = false
       this.status = 'idle'
       this.record = null
       this.retry = freshRetry()
