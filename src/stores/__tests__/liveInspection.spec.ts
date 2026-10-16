@@ -4,16 +4,10 @@ import { setActivePinia, createPinia } from 'pinia'
 // jsdom has no image decoder or canvas; photo preparation runs on the fake codec.
 vi.mock('../../services/imageCodec')
 
-const callLunaMock = vi.fn<(...args: unknown[]) => unknown>()
-vi.mock('../../services/luna', () => ({
-  callLuna: (...args: unknown[]) => callLunaMock(...args),
-}))
-
 import { useInspectionStore } from '../inspection'
 import { useLedgerStore } from '../ledger'
-import { LunaError } from '../../domain/luna'
-import { buildContainerIdReading } from '../../domain/containerId'
-import type { ChoiceReading } from '../../domain/luna'
+import { LUNA_ENDPOINT } from '../../domain/luna'
+import { jsonResponse, openAiSurveyReply } from '../../__tests__/surveyReplies'
 
 const KEY = 'test-only-key-value-0000'
 
@@ -26,47 +20,34 @@ function choosePhoto(store: ReturnType<typeof useInspectionStore>) {
   })
 }
 
-const readAll = (value: string): ChoiceReading[] =>
-  value.split('').map((c) => ({ value: c, certainty: 'Confident', runnerUp: null }))
-const unreadAt = (value: string): ChoiceReading[] =>
-  value
-    .split('')
-    .map((c) =>
-      c === '?'
-        ? { value: null, certainty: "Can't tell", runnerUp: null }
-        : { value: c, certainty: 'Confident', runnerUp: null },
-    )
-
-function liveResult(overrides: Partial<{ resolvedModel: string }> = {}) {
-  return {
-    containerId: buildContainerIdReading({ printed: 'APHU6586847', certainty: 'Confident' }),
-    readings: readAll('APHU6586847'),
-    raw: { answers: [] },
-    resolvedModel: overrides.resolvedModel ?? 'gpt-6-luna-20260922',
-    usage: { inputTokens: 15780, outputTokens: null },
-    latencyMs: 812,
-  }
+/** The survey's reply reading this ID, as the dated model with the usage the cost estimate rests on. */
+function reply(id = 'APHU6586847') {
+  return jsonResponse(openAiSurveyReply(id, { model: 'gpt-6-luna-20260922', inputTokens: 15780 }))
 }
 
 import { onlyRequests } from '../../plan/registry'
-import { readId } from '../../plan/requests/readId'
+import { survey } from '../../plan/requests/survey'
 import { idRecheck } from '../../plan/requests/idRecheck'
 
 // This spec covers the ID requests; the other parts of a run (damage, …) have their own specs.
 let restoreRequests = () => {}
 beforeAll(() => {
-  restoreRequests = onlyRequests(readId, idRecheck)
+  restoreRequests = onlyRequests(survey, idRecheck)
 })
 afterAll(() => restoreRequests())
 
 describe('live Luna inspection in the store', () => {
+  let fetchMock: ReturnType<typeof vi.fn<typeof fetch>>
+
   beforeEach(() => {
     setActivePinia(createPinia())
-    callLunaMock.mockReset()
+    fetchMock = vi.fn<typeof fetch>()
+    vi.stubGlobal('fetch', fetchMock)
   })
 
   afterEach(() => {
     vi.restoreAllMocks()
+    vi.unstubAllGlobals()
   })
 
   it('will not start until a Luna key is entered, then runs live', () => {
@@ -87,11 +68,11 @@ describe('live Luna inspection in the store', () => {
     expect(store.canStart).toBe(false)
     choosePhoto(store)
     await store.start()
-    expect(callLunaMock).not.toHaveBeenCalled()
+    expect(fetchMock).not.toHaveBeenCalled()
   })
 
   it('runs one chargeable call through the ledger and records the live result', async () => {
-    callLunaMock.mockResolvedValue(liveResult())
+    fetchMock.mockResolvedValue(reply())
     const store = useInspectionStore()
     store.setProvider('luna')
     const ledger = useLedgerStore()
@@ -100,10 +81,11 @@ describe('live Luna inspection in the store', () => {
 
     await store.start()
 
-    expect(callLunaMock).toHaveBeenCalledTimes(1)
-    const options = callLunaMock.mock.calls[0]?.[0] as { apiKey: string; photo: Blob }
-    expect(options.apiKey).toBe(KEY)
-    expect(options.photo).toBeInstanceOf(Blob)
+    expect(fetchMock).toHaveBeenCalledTimes(1)
+    const [url, init] = fetchMock.mock.calls[0]!
+    expect(String(url)).toBe(LUNA_ENDPOINT)
+    expect(new Headers(init?.headers).get('Authorization')).toBe(`Bearer ${KEY}`)
+    expect(String(init?.body)).toContain('data:image/jpeg;base64,')
 
     expect(store.status).toBe('complete')
     expect(store.record?.source).toBe('live')
@@ -128,18 +110,7 @@ describe('live Luna inspection in the store', () => {
   })
 
   it('keeps a partial reading and marks the unread positions', async () => {
-    callLunaMock.mockResolvedValue({
-      ...liveResult(),
-      readings: unreadAt('APHU65868??'),
-      containerId: {
-        value: 'APHU65868??',
-        observedCheckDigit: null,
-        calculatedCheckDigit: 0,
-        checkDigitValid: false,
-        certainty: "Can't tell",
-        provenance: 'printed',
-      },
-    })
+    fetchMock.mockResolvedValue(reply('APHU65868??'))
     const store = useInspectionStore()
     store.setProvider('luna')
     store.setApiKey(KEY)
@@ -150,8 +121,8 @@ describe('live Luna inspection in the store', () => {
   })
 
   it('shows the actionable provider message on failure and still records the attempt', async () => {
-    callLunaMock.mockRejectedValue(
-      new LunaError('http', 'OpenAI rate limit reached. Wait a minute, then try again.', 429),
+    fetchMock.mockResolvedValue(
+      jsonResponse({ error: { message: 'Rate limit reached for requests' } }, 429),
     )
     const store = useInspectionStore()
     store.setProvider('luna')
@@ -185,7 +156,7 @@ describe('live Luna inspection in the store', () => {
     store.setApiKey(KEY)
     expect(setItem).not.toHaveBeenCalled()
     expect(JSON.stringify(store.$state)).toContain(KEY)
-    expect(callLunaMock).not.toHaveBeenCalled()
+    expect(fetchMock).not.toHaveBeenCalled()
   })
 
   it('refuses a live run when the photo has no file to send', async () => {
@@ -194,7 +165,7 @@ describe('live Luna inspection in the store', () => {
     store.setApiKey(KEY)
     store.setPhoto({ name: 'rear.jpg', url: 'blob:x', orientation: 'landscape' })
     await store.start()
-    expect(callLunaMock).not.toHaveBeenCalled()
+    expect(fetchMock).not.toHaveBeenCalled()
     expect(store.status).toBe('failed')
     expect(store.errorMessage).toMatch(/choose the photo again/i)
   })

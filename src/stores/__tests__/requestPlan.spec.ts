@@ -9,7 +9,7 @@ import { useLedgerStore } from '../ledger'
 import { useSetupStore } from '../setup'
 import type { PlanRequest } from '../../plan/requestPlan'
 import { registerRequest, onlyRequests } from '../../plan/registry'
-import { readId } from '../../plan/requests/readId'
+import { survey } from '../../plan/requests/survey'
 import { askDecisions } from '../../services/askDecisions'
 import { spendCaps } from '../../domain/rates'
 
@@ -65,7 +65,7 @@ function sealRequest(
   const request: PlanRequest<{ seal: number; idSeen: string | null }> = {
     id: 'test-seal',
     purpose: 'Test seal check',
-    stages: ['details'],
+    stages: ['damage'],
     send: (ctx) =>
       askDecisions(ctx, {
         build: ({ route, imageDataUrl }) => ({
@@ -76,7 +76,7 @@ function sealRequest(
               type: 'noul',
               instructions: 'Is a customs seal visible?',
               // A dependent request can build on its prerequisite's answer.
-              context: ctx.answer(readId)?.containerId.value ?? null,
+              context: ctx.answer(survey)?.containerId.value ?? null,
             },
           },
         }),
@@ -84,7 +84,7 @@ function sealRequest(
           const answers = (raw as { answers: { test_seal_visible: { noul: number } } }).answers
           return {
             seal: answers.test_seal_visible.noul,
-            idSeen: ctx.answer(readId)?.containerId.value ?? null,
+            idSeen: ctx.answer(survey)?.containerId.value ?? null,
           }
         },
       }),
@@ -140,7 +140,7 @@ import { idRecheck } from '../../plan/requests/idRecheck'
 // This spec covers the ID requests; the other parts of a run (damage, …) have their own specs.
 let restoreRequests = () => {}
 beforeAll(() => {
-  restoreRequests = onlyRequests(readId, idRecheck)
+  restoreRequests = onlyRequests(survey, idRecheck)
 })
 afterAll(() => restoreRequests())
 
@@ -204,7 +204,7 @@ describe('a live run as a request plan', () => {
     expect(store.stages.map((s) => [s.id, s.state])).toEqual([
       ['id', 'done'],
       ['details', 'done'],
-      ['damage', 'not-in-run'],
+      ['damage', 'done'],
     ])
   })
 
@@ -216,13 +216,13 @@ describe('a live run as a request plan', () => {
     await vi.waitFor(() => expect(edge.order).toHaveLength(2))
     expect(edge.held('id')).toHaveLength(1)
     expect(edge.held('seal')).toHaveLength(1)
-    expect(store.stages.map((s) => s.state)).toEqual(['active', 'active', 'not-in-run'])
+    expect(store.stages.map((s) => s.state)).toEqual(['active', 'active', 'active'])
 
     edge.held('seal')[0]!.release(json(sealBody()))
-    await vi.waitFor(() => expect(store.stages[1]?.state).toBe('done'))
+    await vi.waitFor(() => expect(store.stages[2]?.state).toBe('done'))
     // One stage lands while the other is still at work.
     expect(store.stages[0]?.state).toBe('active')
-    expect(store.landed('details')).toBe(true)
+    expect(store.landed('damage')).toBe(true)
     expect(store.landed('id')).toBe(false)
 
     edge.held('id')[0]!.release(json(jevBody()))
@@ -231,7 +231,7 @@ describe('a live run as a request plan', () => {
   })
 
   it('starts a dependent request only when its prerequisite has answered, with that answer', async () => {
-    add(sealRequest({ after: [readId] }))
+    add(sealRequest({ after: [survey] }))
     const store = liveStore()
 
     const run = store.start()
@@ -266,7 +266,7 @@ describe('a live run as a request plan', () => {
     expect(store.record?.status).toBe('partial')
     expect(store.record?.containerId?.value).toBe('APHU6586847')
     expect(store.record?.testSeal).toBeUndefined()
-    expect(store.stages.map((s) => s.state)).toEqual(['done', 'cancelled', 'not-in-run'])
+    expect(store.stages.map((s) => s.state)).toEqual(['done', 'done', 'cancelled'])
 
     const lines = useLedgerStore().entries()
     expect(lines.find((l) => l.purpose === 'Test seal check')).toMatchObject({
@@ -354,7 +354,7 @@ describe('a live run as a request plan', () => {
     expect(store.status).toBe('complete')
     expect(store.record?.status).toBe('partial')
     expect(store.record?.containerId?.value).toBe('APHU6586847')
-    expect(store.stages.map((s) => s.state)).toEqual(['done', 'failed', 'not-in-run'])
+    expect(store.stages.map((s) => s.state)).toEqual(['done', 'done', 'failed'])
     const lines = useLedgerStore().entries()
     expect(lines.map((l) => [l.purpose, l.status]).sort()).toEqual([
       ['Reading markings', 'complete'],
@@ -377,11 +377,11 @@ describe('a live run as a request plan', () => {
     expect(edge.fetchMock).toHaveBeenCalledTimes(cap)
     expect(useLedgerStore().inspectionTotals(store.record!.id).requests).toBe(cap)
     expect(store.record?.status).toBe('partial')
-    expect(store.stages[1]?.state).toBe('failed')
+    expect(store.stages[2]?.state).toBe('failed')
   })
 
   it('never sends a dependent request whose prerequisite failed', async () => {
-    add(sealRequest({ after: [readId] }))
+    add(sealRequest({ after: [survey] }))
     edge.answer('id', () => json({ error: { message: 'Upstream error' } }, 502))
     const store = liveStore()
 

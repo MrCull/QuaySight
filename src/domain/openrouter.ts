@@ -9,8 +9,7 @@ import { classifyFailedCall, type ProviderErrorTraits } from './failedCall'
 import { ProviderError, providerMessage, redact } from './providerErrors'
 import { JevError, mapJevResponse, type JevMapping } from './jev'
 import { JEV_STATE_INSTRUCTIONS, jevIdQuestionSet, lunaIdQuestionSet } from './idQuestions'
-import { withFaceQuestion } from './photoFace'
-import { lunaMappingOf, manifestMappingOf, surveySet, type LunaMapping, type ManifestMapping } from './luna'
+import { lunaMappingOf, manifestMappingOf, type LunaMapping, type ManifestMapping } from './luna'
 import { manifestQuestionSet, type ManifestQuestion } from './manifest'
 import {
   UnreadableReplyError,
@@ -50,7 +49,7 @@ export function buildOpenRouterJevRequest(
 ): OpenRouterRequestBody {
   return toWireRequest(
     'openrouter-decisions',
-    withFaceQuestion(jevIdQuestionSet({ image: 'the photo', box: options.box })),
+    jevIdQuestionSet({ image: 'the photo', box: options.box }),
     {
       model,
       imageDataUrl,
@@ -68,7 +67,7 @@ export function buildOpenRouterLunaRequest(
   imageDataUrl: string,
   positions?: number[],
 ): OpenRouterRequestBody {
-  return toWireRequest('openrouter-decisions', surveySet(lunaIdQuestionSet(positions), positions), {
+  return toWireRequest('openrouter-decisions', lunaIdQuestionSet(positions), {
     model,
     imageDataUrl,
   })

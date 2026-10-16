@@ -370,10 +370,7 @@ describe('readAnswers from OpenRouter Decisions', () => {
 describe('parseQuestionSet', () => {
   const sideSet = JSON.parse(
     readFileSync(
-      resolve(
-        dirname(fileURLToPath(import.meta.url)),
-        '../questionSets/side-damage-v2.json',
-      ),
+      resolve(dirname(fileURLToPath(import.meta.url)), '../questionSets/side-damage-v2.json'),
       'utf8',
     ),
   ) as unknown

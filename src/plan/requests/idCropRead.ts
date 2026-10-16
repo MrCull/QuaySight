@@ -11,7 +11,7 @@ import { questionSetAsk } from '../../domain/questionSetAsk'
 import { askDecisions } from '../../services/askDecisions'
 import { cropPhoto } from '../../services/scalePhoto'
 import type { PlanRequest, PlanView } from '../requestPlan'
-import { readId } from './readId'
+import { survey } from './survey'
 
 /** The crop read's answer: one reading per position, its caveats, and the crop it was asked on. */
 export interface CropAnswer {
@@ -25,7 +25,7 @@ const CROP_QUESTIONS = jevIdQuestionSet({ image: 'the photo', box: false })
 
 /** The box from the full-photo read, when a crop can be made from it. */
 function boxOf(plan: PlanView): IdBox | null {
-  return usableIdBox(plan.answer(readId)?.box)
+  return usableIdBox(plan.answer(survey)?.box)
 }
 
 /**
@@ -38,10 +38,10 @@ export const idCropRead: PlanRequest<CropAnswer> = {
   id: 'crop',
   purpose: 'Reading the ID up close',
   stages: ['id'],
-  after: [readId],
+  after: [survey],
   optional: true,
   appliesTo: (route) => route.entry.box,
-  needed: (plan) => boxOf(plan) !== null && Boolean(plan.answer(readId)?.readings),
+  needed: (plan) => boxOf(plan) !== null && Boolean(plan.answer(survey)?.readings),
   async send(ctx) {
     const box = boxOf(ctx)
     if (!box) throw new Error('No box to crop the ID from.')
@@ -56,7 +56,7 @@ export const idCropRead: PlanRequest<CropAnswer> = {
     return { ...reply, answer: { ...reply.answer, region } }
   },
   apply(record, outcome, plan) {
-    const first = plan.answer(readId)
+    const first = plan.answer(survey)
     const box = boxOf(plan)
     if (!first?.readings || !box) return record
     const unanswered = (

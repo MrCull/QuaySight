@@ -1,8 +1,14 @@
 import { describe, it, expect } from 'vitest'
-import { FACE_QUESTION, readPhotoFace, withFaceQuestion } from '../photoFace'
-import { questionSet, toWireRequest } from '../questionSet'
+import { FACE_QUESTION, faceOf, facePart } from '../photoFace'
+import { readAnswers, questionSet, toWireRequest, type QuestionWireFormat } from '../questionSet'
+import { SURVEY_PARTS, surveyQuestionSet } from '../survey'
 
 const PHOTO = 'data:image/jpeg;base64,AAAA'
+
+/** The face a survey reply gives, read through the shared format as the survey reads it. */
+function readPhotoFace(wire: QuestionWireFormat, raw: unknown) {
+  return faceOf(readAnswers(wire, raw, questionSet('', [FACE_QUESTION]), '').answers)
+}
 
 describe('the face question', () => {
   it('offers the six faces a photo can show', () => {
@@ -17,11 +23,13 @@ describe('the face question', () => {
     ])
   })
 
-  it('is added once to a survey set, after its own questions', () => {
-    const set = questionSet('Survey', [{ type: 'predicate', name: 'p', instructions: 'p?' }])
-    const asked = withFaceQuestion(withFaceQuestion(set))
-    expect(asked.questions.map((q) => q.name)).toEqual(['p', FACE_QUESTION.name])
-    expect(asked.input).toEqual(set.input)
+  it('is one survey part, asked once, after the ID questions', () => {
+    expect(SURVEY_PARTS).toContain(facePart)
+    for (const questionSet of ['luna', 'jev'] as const) {
+      const names = surveyQuestionSet({ questionSet, box: false }).questions.map((q) => q.name)
+      expect(names.filter((n) => n === FACE_QUESTION.name)).toHaveLength(1)
+      expect(names.indexOf(FACE_QUESTION.name)).toBeGreaterThan(names.indexOf('id_char_11'))
+    }
   })
 
   it('reads the face from an OpenAI reply', () => {
@@ -63,7 +71,8 @@ describe('the face question', () => {
 
   it('is null when the reply has no usable face answer, or no answers at all', () => {
     expect(readPhotoFace('openrouter-decisions', { answers: {} })).toBeNull()
-    expect(readPhotoFace('openai-decisions', { nothing: true })).toBeNull()
+    expect(readPhotoFace('openai-decisions', { answers: [] })).toBeNull()
+    expect(faceOf({})).toBeNull()
     expect(
       readPhotoFace('openrouter-decisions', {
         answers: { [FACE_QUESTION.name]: { type: 'choice', choice: 'underside' } },
@@ -72,7 +81,7 @@ describe('the face question', () => {
   })
 
   it('goes on both wire formats', () => {
-    const set = withFaceQuestion(questionSet('Survey', []))
+    const set = questionSet('Survey', [FACE_QUESTION])
     const opts = { model: 'm', imageDataUrl: PHOTO }
     expect(toWireRequest('openai-decisions', set, opts).questions).toEqual([FACE_QUESTION])
     expect(

@@ -8,7 +8,7 @@ The provenance tag says where a displayed value came from. The spec requires thi
 | Decoded from ISO | `qs-prov` | solid | Properties derived from the size/type code (45G1 → 40 ft High Cube). |
 | Calculated | `qs-prov--calculated` | solid, `=` prefix | App arithmetic: payload = gross − tare, check digit. |
 | Alternative | `qs-prov--candidate` | dashed | A plausible other reading, shown for context. Never observed text. |
-| Model-selected | `qs-prov--model` | dotted | A choice the model picked from a constrained list. |
+| Model-selected | `qs-prov--model` | dotted | A choice the model picked from a constrained list: the yes/no equipment checks (REEFER, TANK…). |
 | Read from image | `qs-prov` | solid | The container ID after a manifest check, when the reading came from the photo rather than the list. |
 | Matched against manifest | `qs-prov--manifest` | double | The container ID matched an entry in the manifest the presenter pasted (`ManifestRetry`). |
 

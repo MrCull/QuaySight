@@ -305,6 +305,7 @@ export function readSideDamage(answers: Record<string, SharedAnswer>): DamageSet
     imageQuality: QUALITY[choiceOf(answers.image_quality) ?? ''] ?? null,
     coverage,
     significantProbability: probabilityOf(answers.potentially_significant_damage),
-    doorEnd: doorEnd === 'image_left' ? 'image-left' : doorEnd === 'image_right' ? 'image-right' : null,
+    doorEnd:
+      doorEnd === 'image_left' ? 'image-left' : doorEnd === 'image_right' ? 'image-right' : null,
   }
 }

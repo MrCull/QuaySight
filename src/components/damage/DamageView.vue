@@ -69,7 +69,8 @@ const significant = computed(() => !!assessed.value && potentiallySignificant(as
     <template v-if="assessed">
       <ul v-if="facts.length > 0" class="qs-damage-facts" aria-label="Photo checks">
         <li v-for="fact in facts" :key="fact.label">
-          <span>{{ fact.label }}</span>{{ fact.value }}
+          <span>{{ fact.label }}</span
+          >{{ fact.value }}
         </li>
       </ul>
       <p v-if="significant" class="qs-significant">

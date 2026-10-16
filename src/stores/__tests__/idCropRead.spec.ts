@@ -9,7 +9,7 @@ import { useInspectionStore } from '../inspection'
 import { useLedgerStore } from '../ledger'
 import { buildInspectionExport } from '../../domain/exports'
 import { onlyRequests } from '../../plan/registry'
-import { readId } from '../../plan/requests/readId'
+import { survey } from '../../plan/requests/survey'
 import { idRecheck } from '../../plan/requests/idRecheck'
 import { idCropRead } from '../../plan/requests/idCropRead'
 
@@ -115,7 +115,7 @@ describe('the crop read of the container ID (Jev)', () => {
 
   beforeEach(() => {
     // This spec covers the ID requests; the damage request has its own spec.
-    restoreRequests = onlyRequests(readId, idRecheck, idCropRead)
+    restoreRequests = onlyRequests(survey, idRecheck, idCropRead)
     setActivePinia(createPinia())
     edge = networkEdge()
     vi.stubGlobal('fetch', edge.fetchMock)

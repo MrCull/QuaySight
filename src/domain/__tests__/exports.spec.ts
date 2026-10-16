@@ -280,7 +280,9 @@ describe('live damage in the exports', () => {
     const json = buildInspectionExport(record)
     expect(json.damage.assessed).toBe(false)
     expect(json.damage.notAssessedReason).toMatch(/roof/)
-    expect(buildSummaryText(record)).toMatch(/Damage: not assessed for this view\. The photo shows the roof/)
+    expect(buildSummaryText(record)).toMatch(
+      /Damage: not assessed for this view\. The photo shows the roof/,
+    )
   })
 
   it('puts the significance flag and the unrated component in the summary, never as a repair verdict', async () => {

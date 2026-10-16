@@ -53,21 +53,22 @@ const stage = (page: Page, title: string) =>
 test.describe('Live run progress and Cancel', () => {
   test.use({ viewport: { width: 1440, height: 900 } })
 
-  test('stages advance as their requests settle; stages with no request say so', async ({
+  test('stages advance as their requests settle (the ID, the details and the face share a request, the damage check is its own)', async ({
     page,
   }) => {
+    // The survey (call 1) is held; the long-side damage request (call 2) answers at once.
     const edge = await decisions(page, [1])
     await startLive(page)
     await expect.poll(() => edge.held.length).toBe(1)
 
     await expect(stage(page, 'Reading the ID')).toHaveClass(/qs-stage--active/)
-    await expect(stage(page, 'Reading container details')).toHaveClass(/qs-stage--skipped/)
-    await expect(stage(page, 'Reading container details')).toContainText('Not part of this run')
-    await expect(stage(page, 'Checking for damage')).toContainText('Not part of this run')
+    await expect(stage(page, 'Reading container details')).toHaveClass(/qs-stage--active/)
+    await expect(stage(page, 'Checking for damage')).toHaveClass(/qs-stage--done/)
 
     await edge.release(0)
     await page.locator('#stage.qs-arrived').waitFor()
     await expect(stage(page, 'Reading the ID')).toHaveClass(/qs-stage--done/)
+    await expect(stage(page, 'Reading container details')).toHaveClass(/qs-stage--done/)
     await expect(stage(page, 'Reading the ID').locator('.qs-stage__time')).toHaveText(/^\d+\.\d s$/)
     await expect(page.locator('.qs-id')).toBeVisible()
     await expect(page.getByRole('button', { name: 'Cancel' })).toHaveCount(0)
@@ -76,9 +77,10 @@ test.describe('Live run progress and Cancel', () => {
   test('Cancel before anything arrives ends the run, keeps the photo and records the call as cancelled', async ({
     page,
   }) => {
-    const edge = await decisions(page, [1])
+    // Both the survey and the damage request are held, so nothing has arrived.
+    const edge = await decisions(page, [1, 2])
     await startLive(page)
-    await expect.poll(() => edge.held.length).toBe(1)
+    await expect.poll(() => edge.held.length).toBe(2)
 
     await page.getByRole('button', { name: 'Cancel' }).click()
 
@@ -97,8 +99,8 @@ test.describe('Live run progress and Cancel', () => {
   })
 
   test('Cancel during a run keeps what already arrived, marked partial', async ({ page }) => {
-    // The reading answers; the closer look at the unread position is held, then cancelled.
-    const edge = await decisions(page, [2])
+    // The reading and the damage check answer; the closer look at the unread position (call 3) is held, then cancelled.
+    const edge = await decisions(page, [3])
     await startLive(page)
     await expect.poll(() => edge.held.length).toBe(1)
 
@@ -110,7 +112,7 @@ test.describe('Live run progress and Cancel', () => {
     await expect(page.locator('.qs-id')).toBeVisible()
     await expect(page.getByRole('button', { name: 'New inspection' })).toBeVisible()
     await page.locator('.rs-top .qs-cost__toggle').click()
-    await expect(page.locator('.qs-cost__table tbody tr')).toHaveCount(2)
-    await expect(page.locator('.qs-cost__table tbody tr').nth(1)).toContainText('cancelled')
+    await expect(page.locator('.qs-cost__table tbody tr')).toHaveCount(3)
+    await expect(page.locator('.qs-cost__table tbody tr').nth(2)).toContainText('cancelled')
   })
 })

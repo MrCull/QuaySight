@@ -63,14 +63,14 @@ function misread(value: string): number[] {
 }
 
 import { onlyRequests } from '../../plan/registry'
-import { readId } from '../../plan/requests/readId'
+import { survey } from '../../plan/requests/survey'
 import { idRecheck } from '../../plan/requests/idRecheck'
 import { idCropRead } from '../../plan/requests/idCropRead'
 
 // This spec covers the ID requests; the other parts of a run (damage, …) have their own specs.
 let restoreRequests = () => {}
 beforeAll(() => {
-  restoreRequests = onlyRequests(readId, idRecheck, idCropRead)
+  restoreRequests = onlyRequests(survey, idRecheck, idCropRead)
 })
 afterAll(() => restoreRequests())
 

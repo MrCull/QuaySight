@@ -315,18 +315,33 @@ export function mapJevResponse(
         : `${replier} replied in a shape the app does not recognise.`,
     )
   }
-  const { answers } = reply
-  const readings = readIdCharacters(answers)
-  const caveats = jevCaveatsOf(answers)
-  const containerId = jevIdReading(readings, caveats)
-
   return {
-    containerId,
-    readings,
-    caveats,
+    ...jevIdReadingOf(reply.answers),
     resolvedModel: reply.resolvedModel,
     usage: reply.usage,
     reportedCostUsd: reply.reportedCostUsd,
+  }
+}
+
+/** The Jev ID set's answers, by meaning: the reading, each position's reading, its caveats and the box. */
+export interface JevIdReading {
+  containerId: ContainerIdReading
+  readings: ChoiceReading[]
+  caveats: JevCaveats
+  box: JevBox | null
+}
+
+/**
+ * Reads the Jev ID set's answers (by question name) as the shared container-ID reading (see
+ * mapJevResponse). Other answers in the same reply (a survey's) are ignored.
+ */
+export function jevIdReadingOf(answers: Record<string, SharedAnswer>): JevIdReading {
+  const readings = readIdCharacters(answers)
+  const caveats = jevCaveatsOf(answers)
+  return {
+    containerId: jevIdReading(readings, caveats),
+    readings,
+    caveats,
     box: boxOf(answers.container_box),
   }
 }

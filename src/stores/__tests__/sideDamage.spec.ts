@@ -7,7 +7,7 @@ vi.mock('../../services/imageCodec')
 import { useInspectionStore } from '../inspection'
 import { useLedgerStore } from '../ledger'
 import { onlyRequests } from '../../plan/registry'
-import { readId } from '../../plan/requests/readId'
+import { survey } from '../../plan/requests/survey'
 import { idRecheck } from '../../plan/requests/idRecheck'
 import { sideDamage } from '../../plan/requests/sideDamage'
 import { SIDE_DAMAGE_SET } from '../../domain/sideDamage'
@@ -61,7 +61,10 @@ function replyBody(route: Route, answers: Record<string, Answer>) {
       Object.entries(answers).map(([name, a]) => {
         if (a.type === 'predicate') return [name, { type: 'noul', noul: a.p }]
         if (a.type === 'choice') {
-          return [name, { type: 'choice', choice: a.value, probabilities: { [a.value]: a.p ?? 0.95 } }]
+          return [
+            name,
+            { type: 'choice', choice: a.value, probabilities: { [a.value]: a.p ?? 0.95 } },
+          ]
         }
         return [
           name,
@@ -116,7 +119,7 @@ describe('long-side damage on a live run', () => {
 
   beforeEach(() => {
     setActivePinia(createPinia())
-    restore = onlyRequests(readId, idRecheck, sideDamage)
+    restore = onlyRequests(survey, idRecheck, sideDamage)
   })
 
   afterEach(() => {

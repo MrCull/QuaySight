@@ -21,7 +21,7 @@ import type { ProviderId } from '../../domain/inspection'
 import { findModel, labelsFor } from '../../domain/providers'
 import { LUNA_ENDPOINT } from '../../domain/luna'
 import { OPENROUTER_ENDPOINT } from '../../domain/openrouter'
-import { readId } from '../../plan/requests/readId'
+import { survey } from '../../plan/requests/survey'
 import { sideDamage } from '../../plan/requests/sideDamage'
 import type { RequestContext, RunRoute } from '../../plan/requestPlan'
 
@@ -60,14 +60,14 @@ async function runBoth(route: RunRoute, apiKey: string, fixtureFile: string) {
     signal: new AbortController().signal,
     answer: () => undefined,
   }
-  const [survey, side] = await Promise.all([readId.send(ctx), sideDamage.send(ctx)])
+  const [read, side] = await Promise.all([survey.send(ctx), sideDamage.send(ctx)])
   const fixture = JSON.stringify(
     {
       recordedAt: new Date().toISOString(),
       photo: PHOTO_PATH,
       endpoint: route.endpoint,
       requestedModel: route.model,
-      survey: survey.raw,
+      survey: read.raw,
       side: side.raw,
     },
     null,
@@ -78,7 +78,7 @@ async function runBoth(route: RunRoute, apiKey: string, fixtureFile: string) {
   await mkdir(dirname(path), { recursive: true })
   await writeFile(path, fixture + '\n', 'utf8')
 
-  const face = survey.answer.face
+  const face = read.answer.findings.face
   const damage = assessDamage(face, [{ ...side.answer }], PHOTO_PATH)
   console.info(
     `${route.describe.name}: face ${face?.face ?? 'unread'}; findings ${damage?.findings

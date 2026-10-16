@@ -202,6 +202,10 @@ describe('reading the long-side answers', () => {
     const reading = readSideDamage({})
     expect(reading.findings).toEqual([])
     expect(reading.zones.every((z) => z.visibility === null)).toBe(true)
-    expect(reading).toMatchObject({ imageQuality: null, coverage: null, significantProbability: null })
+    expect(reading).toMatchObject({
+      imageQuality: null,
+      coverage: null,
+      significantProbability: null,
+    })
   })
 })

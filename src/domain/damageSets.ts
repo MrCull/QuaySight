@@ -127,7 +127,10 @@ function reassess(record: InspectionRecord): InspectionRecord {
 }
 
 /** The survey's face folded in: the damage is chosen again. */
-export function withPhotoFace(record: InspectionRecord, face: FaceReading | null): InspectionRecord {
+export function withPhotoFace(
+  record: InspectionRecord,
+  face: FaceReading | null,
+): InspectionRecord {
   return reassess({ ...record, photoFace: face })
 }
 

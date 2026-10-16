@@ -32,9 +32,8 @@ function uncertaintyClass(f: DamageFinding): string {
     >
       <span
         :class="['qs-finding__n', `qs-finding__n--${f.severity ?? 'unrated'}`, uncertaintyClass(f)]"
-        >{{
-        f.id
-      }}</span>
+        >{{ f.id }}</span
+      >
       <span>
         <span class="qs-finding__title">{{ f.title }}</span>
         <br />

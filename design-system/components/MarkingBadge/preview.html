@@ -1,12 +1,35 @@
-<!-- @dsCard group="Evidence" height=150 subtitle="Hazard diamond is reserved for safety and DG markings" -->
+<!-- @dsCard group="Evidence" height=420 subtitle="Hazard diamond is reserved for safety and DG markings" -->
 <!doctype html>
 <html><head><link rel="stylesheet" href="../../tokens.css"><link rel="stylesheet" href="../bundle.css"><meta charset="utf-8"><title>Marking badge</title>
-<style>body{margin:0;padding:24px;background:var(--surface)} .row{display:flex;flex-wrap:wrap;gap:10px;align-items:flex-start}</style></head>
+<style>body{margin:0;padding:24px;background:var(--surface)} .row{display:flex;flex-wrap:wrap;gap:10px;align-items:flex-start} .rows{margin-top:24px}</style></head>
 <body class="qs-root">
 <div class="row">
   <span class="qs-marking qs-marking--hazard"><i class="qs-glyph qs-glyph--hazard"></i><span>DG placard, class 3 visible<span class="qs-marking__caveat">Cargo status unknown without a declaration</span></span></span>
   <span class="qs-marking qs-marking--hazard"><i class="qs-glyph qs-glyph--hazard"></i>SUPER HEAVY marking</span>
   <span class="qs-marking"><i class="qs-glyph qs-glyph--check"></i>High-container stripes</span>
   <span class="qs-marking"><i class="qs-glyph qs-glyph--eye"></i><span>No DG placard visible<span class="qs-marking__caveat">Not evidence that cargo is non-hazardous</span></span></span>
+</div>
+<!-- In the Markings card: one field row per marking, each checked separately. -->
+<div class="rows">
+  <div class="qs-field">
+    <span class="qs-field__label">DG placard</span>
+    <span class="qs-field__value"><span class="qs-marking qs-marking--hazard"><i class="qs-glyph qs-glyph--hazard"></i><span>DG placard, class 3 (flammable liquids) visible<span class="qs-marking__caveat">Symbol: Flame. Cargo status unknown without a declaration</span></span></span></span>
+    <span class="qs-cert qs-cert--likely"><i class="qs-glyph qs-glyph--likely"></i>Likely</span>
+  </div>
+  <div class="qs-field">
+    <span class="qs-field__label">High container</span>
+    <span class="qs-field__value"><span class="qs-marking"><i class="qs-glyph qs-glyph--check"></i>High-container caution</span></span>
+    <span class="qs-cert qs-cert--confident"><i class="qs-glyph qs-glyph--confident"></i>Confident</span>
+  </div>
+  <div class="qs-field">
+    <span class="qs-field__label">Fumigation</span>
+    <span class="qs-field__value qs-field__value--absent">Not clear from this photo</span>
+    <span class="qs-cert qs-cert--unknown"><i class="qs-glyph qs-glyph--unknown"></i>Can't tell</span>
+  </div>
+  <div class="qs-field">
+    <span class="qs-field__label">Overwidth</span>
+    <span class="qs-field__value qs-field__value--absent">Not visible in this photo</span>
+    <span class="qs-cert qs-cert--unseen"><i class="qs-glyph qs-glyph--unseen"></i>Not seen</span>
+  </div>
 </div>
 </body></html>

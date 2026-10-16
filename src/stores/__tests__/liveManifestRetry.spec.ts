@@ -102,13 +102,13 @@ function openRouterManifestAnswer(
 }
 
 import { onlyRequests } from '../../plan/registry'
-import { readId } from '../../plan/requests/readId'
+import { survey } from '../../plan/requests/survey'
 import { idRecheck } from '../../plan/requests/idRecheck'
 
 // This spec covers the ID requests; the other parts of a run (damage, …) have their own specs.
 let restoreRequests = () => {}
 beforeAll(() => {
-  restoreRequests = onlyRequests(readId, idRecheck)
+  restoreRequests = onlyRequests(survey, idRecheck)
 })
 afterAll(() => restoreRequests())
 

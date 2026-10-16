@@ -8,6 +8,7 @@ import CertaintyChip from './CertaintyChip.vue'
 import ContainerId from './ContainerId.vue'
 import ManifestRetry from './ManifestRetry.vue'
 import ContainerDetails from './ContainerDetails.vue'
+import ContainerMarkings from './ContainerMarkings.vue'
 import ExportActions from './ExportActions.vue'
 
 const store = useInspectionStore()
@@ -40,6 +41,8 @@ const running = computed(() => store.status === 'running')
 const idLanded = computed(() => store.landed('id'))
 // A part that lands while the run is still going plays its own arrival inside the arriving screen.
 const arrivedEarly = computed(() => running.value && idLanded.value)
+const detailsLanded = computed(() => store.landed('details'))
+const detailsEarly = computed(() => running.value && detailsLanded.value)
 
 // The parts a stage stands for, in plain words, for the partial and failure notices.
 const PART: Record<StageId, string> = {
@@ -228,7 +231,10 @@ const showInsufficient = computed(() => idState.value === 'insufficient')
     <!-- Live: a live call on the same model. Demo: the sample's own recorded check. Never a replay against another photo. -->
     <ManifestRetry v-if="store.canCheckManifest" />
 
-    <ContainerDetails v-if="record && store.landed('details')" :record="record" />
+    <template v-if="record && detailsLanded">
+      <ContainerDetails :record="record" :class="{ 'qs-arrived': detailsEarly }" />
+      <ContainerMarkings :record="record" :class="{ 'qs-arrived': detailsEarly }" />
+    </template>
 
     <ExportActions v-if="!running" />
   </section>

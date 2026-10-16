@@ -1,15 +1,12 @@
 // Which face of the container a photo shows (spec #27, ticket #33). Pure.
 //
-// The survey request (A) asks it alongside the ID, so the presenter is never asked. The damage shown
+// The survey request (A) asks it alongside the ID (as a survey part), so the presenter is never asked. The damage shown
 // comes from the damage set written for that face (damageSets.ts).
 import { applyMargin, certaintyOfProbability } from './certainty'
 import type { CertaintyLabel } from './inspection'
-import {
-  readAnswers,
-  type ChoiceQuestion,
-  type QuestionWireFormat,
-  type SharedQuestionSet,
-} from './questionSet'
+import { withPhotoFace } from './damageSets'
+import type { ChoiceQuestion, SharedAnswer } from './questionSet'
+import type { SurveyPart } from './survey'
 
 export type PhotoFace = 'rear-doors' | 'long-side' | 'front-end' | 'roof' | 'close-up' | 'unknown'
 
@@ -54,25 +51,12 @@ export const FACE_QUESTION: ChoiceQuestion = {
   ],
 }
 
-/** The survey set with the face question added (once), after its own questions. */
-export function withFaceQuestion(set: SharedQuestionSet): SharedQuestionSet {
-  if (set.questions.some((q) => q.name === FACE_QUESTION.name)) return set
-  return { ...set, questions: [...set.questions, FACE_QUESTION] }
-}
-
-const FACE_ONLY: SharedQuestionSet = { input: [], questions: [FACE_QUESTION] }
-
 /**
- * The face from a survey reply, by meaning, on either wire format. Null when the reply carries no
- * usable face answer: the face is then unknown to the run, never guessed.
+ * The face from the survey's answers, by meaning. Null when there is no usable face answer: the face
+ * is then unknown to the run, never guessed.
  */
-export function readPhotoFace(wire: QuestionWireFormat, raw: unknown): FaceReading | null {
-  let answer
-  try {
-    answer = readAnswers(wire, raw, FACE_ONLY, '').answers[FACE_QUESTION.name]
-  } catch {
-    return null
-  }
+export function faceOf(answers: Record<string, SharedAnswer>): FaceReading | null {
+  const answer = answers[FACE_QUESTION.name]
   if (answer?.type !== 'choice') return null
   const face = FACE_OF_VALUE[answer.value]
   if (!face) return null
@@ -85,4 +69,19 @@ export function readPhotoFace(wire: QuestionWireFormat, raw: unknown): FaceReadi
     probability,
     certainty: applyMargin(certaintyOfProbability(probability), probability, runnerUp),
   }
+}
+
+declare module './survey' {
+  interface SurveyFindings {
+    /** Which face the photo shows, or null when the survey gave none. */
+    face: FaceReading | null
+  }
+}
+
+/** The survey part that asks which face the photo shows; the damage shown follows it (damageSets.ts). */
+export const facePart: SurveyPart = {
+  key: 'face',
+  questions: () => [FACE_QUESTION],
+  read: (answers) => faceOf(answers),
+  apply: (record, face) => withPhotoFace(record, face),
 }
