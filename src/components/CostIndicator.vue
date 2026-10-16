@@ -2,7 +2,7 @@
 import { computed, ref } from 'vue'
 import { useInspectionStore } from '../stores/inspection'
 import { useLedgerStore } from '../stores/ledger'
-import { costKnown, formatUsd, type LedgerEntry } from '../domain/ledger'
+import { costKnown, formatUsd, type LedgerEntry, type Totals } from '../domain/ledger'
 import { labelsFor } from '../domain/providers'
 
 const inspection = useInspectionStore()
@@ -47,9 +47,19 @@ function latencyLabel(entry: LedgerEntry): string {
 }
 
 // Container and session totals use the same cost wording: "Partial estimate" marks incomplete data.
-function amount(totals: { costUsd: number | null; requests: number } | null): string {
+function amount(totals: Totals | null): string {
   if (!totals || totals.requests === 0) return 'None yet'
   return formatUsd(totals.costUsd)
+}
+
+// What a total is made of (spec #16 story 61). A bare figure is all provider-reported; a total with
+// any rate-table estimate in it says so, and an incomplete one says Partial estimate.
+function basis(totals: Totals | null): string | null {
+  if (!totals || totals.requests === 0) return null
+  if (totals.incomplete) return 'Partial estimate'
+  if (totals.estimate === 'all') return 'estimate'
+  if (totals.estimate === 'part') return 'incl. estimate'
+  return null
 }
 </script>
 
@@ -64,13 +74,14 @@ function amount(totals: { costUsd: number | null; requests: number } | null): st
     >
       <template v-if="isSample">Saved result · no live API charge</template>
       <template v-else>
+        <!-- The spaces are expressions: whitespace between tags is condensed away. -->
         This container <b>{{ amount(container) }}</b>
-        <template v-if="container?.incomplete">
-          <span class="qs-cost__partial">Partial estimate</span></template
+        <template v-if="basis(container)"
+          >{{ ' ' }}<span class="qs-cost__partial">{{ basis(container) }}</span></template
         >
         · Session <b>{{ amount(session) }}</b>
-        <template v-if="session.incomplete">
-          <span class="qs-cost__partial">Partial estimate</span></template
+        <template v-if="basis(session)"
+          >{{ ' ' }}<span class="qs-cost__partial">{{ basis(session) }}</span></template
         >
       </template>
       <i class="qs-glyph qs-glyph--chevron" aria-hidden="true"></i>
@@ -79,10 +90,18 @@ function amount(totals: { costUsd: number | null; requests: number } | null): st
     <div v-if="expanded" :id="panelId" class="qs-cost__panel">
       <div class="qs-cost__head">
         <div class="qs-cost__stat">
-          <span>This container</span><b>{{ amount(container) }}</b>
+          <span
+            >This container<template v-if="basis(container)">
+              · {{ basis(container) }}</template
+            ></span
+          ><b>{{ amount(container) }}</b>
         </div>
         <div class="qs-cost__stat">
-          <span>Session · {{ session.inspections }} containers</span><b>{{ amount(session) }}</b>
+          <span
+            >Session · {{ session.inspections }} containers<template v-if="basis(session)">
+              · {{ basis(session) }}</template
+            ></span
+          ><b>{{ amount(session) }}</b>
         </div>
         <div class="qs-cost__stat">
           <span>Requests</span><b>{{ session.requests }}</b>

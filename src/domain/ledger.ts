@@ -47,6 +47,11 @@ export interface Totals {
   costUsd: number | null
   /** True when any request has partial or unavailable cost. */
   incomplete: boolean
+  /**
+   * How much of costUsd is a rate-table estimate rather than a provider-reported cost: none of it,
+   * part of it, or all of it (spec #16 story 61). 'none' when no cost is known.
+   */
+  estimate: 'none' | 'part' | 'all'
   latencyMs: number
 }
 
@@ -225,6 +230,12 @@ export async function runChargeable(
   }
 }
 
+function estimateShare(known: LedgerEntry[]): Totals['estimate'] {
+  const estimated = known.filter((e) => e.costState === 'estimated').length
+  if (estimated === 0) return 'none'
+  return estimated === known.length ? 'all' : 'part'
+}
+
 function totalsOf(entries: LedgerEntry[], inspections: number): Totals {
   const known = entries.filter((e) => e.costUsd !== null)
   return {
@@ -232,6 +243,7 @@ function totalsOf(entries: LedgerEntry[], inspections: number): Totals {
     inspections,
     costUsd: known.length === 0 ? null : known.reduce((sum, e) => sum + (e.costUsd ?? 0), 0),
     incomplete: entries.some((e) => !costKnown(e.costState)),
+    estimate: estimateShare(known),
     latencyMs: entries.reduce((sum, e) => sum + e.latencyMs, 0),
   }
 }

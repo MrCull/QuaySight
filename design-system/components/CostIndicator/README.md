@@ -3,12 +3,13 @@
 The cost indicator is a small, always-visible pill showing this container's and the session's estimated API cost. It expands into a request-level ledger.
 
 ## Variants
-- **Quiet** (`.qs-cost.qs-cost--quiet`), the one the app's top bar uses: a muted line in `body-sm`, the figures in mono `ink`, no pill and no mode dot, so the cost never competes with the photo. *This container None yet · Session $0.0187*; for a sample, *Saved result · no live API charge*. An incomplete total adds *Partial estimate* (`.qs-cost__partial`). The panel floats under it, right-aligned. It does not glow on arrival; the figure simply changes once the response is parsed.
+- **Quiet** (`.qs-cost.qs-cost--quiet`), the one the app's top bar uses: a muted line in `body-sm`, the figures in mono `ink`, no pill and no mode dot, so the cost never competes with the photo. *This container None yet · Session $0.0187*; for a sample, *Saved result · no live API charge*. An incomplete total adds *Partial estimate* (`.qs-cost__partial`). A complete total says what it is made of, in the same `.qs-cost__partial` style: *estimate* when every cost in it comes from the rate table, *incl. estimate* when it adds provider-reported and estimated costs together (*This container $0.0017 incl. estimate*). A bare figure is provider-reported throughout. The panel's totals carry the same words after their labels (*This container · incl. estimate*). The panel floats under it, right-aligned. It does not glow on arrival; the figure simply changes once the response is parsed.
 - **Pill** (`.qs-cost` alone): the bordered pill below, with a mode dot, for places where the cost needs to stand out (a cost summary card, a printed export).
 
 ## States
 - **Live**: a solid brand dot, then *This container $0.0042 · Session $0.0187*.
 - **Sample**: a dashed dot, *Sample · Saved result · no charge*. A sample's recorded usage may appear in the ledger but is never added to live totals.
+- **Estimate**: a total with any rate-table cost in it is never shown as if the provider reported it: *estimate* or *incl. estimate* after the figure.
 - **Partial**: a cost that can't be estimated shows *Partial estimate* or *Cost unavailable* in `cert-uncertain-fg`. Never `$0.00`.
 
 ## Consumer provides

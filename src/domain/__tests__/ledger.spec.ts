@@ -182,6 +182,21 @@ describe('CostLedger totals', () => {
     expect(ledger.sessionTotals()).toMatchObject({ costUsd: null, incomplete: true, requests: 1 })
   })
 
+  it('says how much of a total is a rate-table estimate: none, part or all of it', () => {
+    const reported = new CostLedger(caps, [lunaRate], () => NOW)
+    reported.record(entry({ id: 'a', costState: 'reported' }))
+    expect(reported.sessionTotals().estimate).toBe('none')
+
+    const mixed = new CostLedger(caps, [lunaRate], () => NOW)
+    mixed.record(entry({ id: 'a', costState: 'reported' }))
+    mixed.record(entry({ id: 'b', costState: 'estimated' }))
+    expect(mixed.sessionTotals().estimate).toBe('part')
+
+    const estimated = new CostLedger(caps, [lunaRate], () => NOW)
+    estimated.record(entry({ id: 'a', costState: 'estimated' }))
+    expect(estimated.sessionTotals().estimate).toBe('all')
+  })
+
   it('is not incomplete when every request is estimated', () => {
     const ledger = new CostLedger(caps, [lunaRate], () => NOW)
     ledger.record(entry())

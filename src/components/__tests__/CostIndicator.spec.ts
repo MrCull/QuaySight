@@ -187,6 +187,35 @@ describe('CostIndicator', () => {
     expect(reported!.text()).toContain('$0.0001 reported')
     expect(estimated!.text()).toContain('$0.0016 estimate')
     expect(wrapper.text()).not.toContain('Partial estimate')
+    // The totals mix a reported and an estimated cost, so they never read as reported.
+    expect(wrapper.get('button.qs-cost__toggle').text()).toMatch(
+      /This container \$0\.0017 incl\. estimate · Session \$0\.0017 incl\. estimate/,
+    )
+  })
+
+  it('marks totals made only of rate-table estimates as an estimate', async () => {
+    const inspection = useInspectionStore()
+    inspection.record = {
+      schemaVersion: 1,
+      id: 'live-insp-1',
+      provider: 'luna',
+      model: 'gpt-6-luna',
+      resolvedVersion: 'gpt-6-luna',
+      rawResponses: [],
+      source: 'live',
+      status: 'complete',
+      photo: null,
+      containerId: null,
+      damage: null,
+      sizeCode: null,
+      weights: null,
+    }
+    await useLedgerStore().run(liveRequest())
+
+    const wrapper = mount(CostIndicator)
+    expect(wrapper.get('button.qs-cost__toggle').text()).toMatch(
+      /This container \$0\.0016 estimate · Session \$0\.0016 estimate/,
+    )
   })
 
   it('labels the totals as estimates, not an invoice, in the expanded panel', async () => {
