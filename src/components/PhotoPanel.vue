@@ -97,9 +97,10 @@ function openPicker() {
         </div>
         <div class="rs-analysing">
           <div class="rs-sweep" aria-hidden="true"></div>
-          <AnalysingStages />
         </div>
       </div>
+      <!-- Under the photo, never over it: no text sits on the photo at any point in a run. -->
+      <div class="rs-stages"><AnalysingStages /></div>
       <div v-if="!store.demo">
         <button
           type="button"
