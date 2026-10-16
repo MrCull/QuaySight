@@ -29,7 +29,7 @@ import {
   type DamageFinding,
 } from './damage'
 import type { CertaintyLabel, ContainerIdReading, InspectionRecord } from './inspection'
-import type { StageId } from './runStages'
+import type { StageId, StageProgress } from './runStages'
 import type { Units } from './unitPreference'
 import { payloadConflictText, toImperial, type WeightRow, type WeightChecks } from './weights'
 
@@ -488,4 +488,21 @@ export function buildWhatWeFound(
     gaps,
     statements,
   }
+}
+
+/**
+ * The stages that have not delivered, from the run's progress: still at work while the run is going
+ * (pending), or failed or cancelled once it has settled. A stage that is not part of the run was never
+ * asked, so it is not a gap: its parts say "not assessed in this inspection".
+ */
+export function unavailableStages(
+  stages: readonly StageProgress[],
+  running: boolean,
+): Partial<Record<StageId, Unavailable>> {
+  const out: Partial<Record<StageId, Unavailable>> = {}
+  for (const { id, state } of stages) {
+    if (state === 'active' && running) out[id] = 'pending'
+    else if (state === 'failed' || state === 'cancelled') out[id] = state
+  }
+  return out
 }

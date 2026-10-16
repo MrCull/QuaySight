@@ -4,7 +4,7 @@ The results screen is the main inspection screen once photos are uploaded and re
 
 ## Layout (desktop, 1440)
 - **Top bar** (`surface`, 64px): the name in `display`, the crumb (*Container inspection*), the `SettingsChip` (live) or, in demo mode, the chip naming who answered the recording, the quiet `CostIndicator` (`qs-cost--quiet`), *Export* and *New inspection* (`NewInspection`). A live run needs no separate run chip: changing provider or model blanks the screen, so the settings chip always names what produced the result on screen.
-- **Left**: the photo stage (`surface-sunken`, `radius-lg`) with image-relative areas drawn on the photo, the face pill and the stand-in or zoom controls; the thumbnail strip with an *Add photo* tile; then **What we found**, with a `display-lg` headline, a plain-English paragraph and a stat row.
+- **Left**: the photo stage (`surface-sunken`, `radius-lg`) with image-relative areas drawn on the photo, the face pill and the stand-in or zoom controls; the thumbnail strip with an *Add photo* tile; then **What we found**, with a `display-lg` headline, a plain-English paragraph and a stat row (in the app it is the `WhatWeFound` card at the top of the readings column; see *In the app today*).
 - **Right** (540px): `ContainerId` with any plausible alternative ("Also possible …"). If the ID was not identified, the optional `ManifestRetry` panel sits directly under it. Then Equipment `FieldRow`s, Markings, and an optional suggestion `Notice`.
 - **Full width**: the damage view. The `ContainerSchematic`'s two views (rear and right side, front and left side) are stacked one above the other, with a column of `FindingCard`s beside them. On wide screens (viewport 1800px and up) the views sit side by side and the cards form a row beneath. Selecting a pin, a card or a photo area selects all three.
 - **Phone**: the same order stacked, the photo first.
@@ -22,8 +22,7 @@ The results screen is the main inspection screen once photos are uploaded and re
 3. All of it runs on `duration-arrive` with eased curves and finishes within about 1.6s. Under `prefers-reduced-motion`, the result simply appears.
 
 ## In the app today
-The preview shows the whole intended screen. The app already ships the top bar, the photo stage with the analysing sweep and stage card, `ContainerId` with *Also possible* and the *Best interpretation* / *What remains uncertain* explanation, `ManifestRetry`, the readings (`FieldRow`s, under *Container details*), the damage view and the arrival choreography. These parts are deliberately not built yet; each is a follow-up, not a parity fix:
-- **What we found** (headline, paragraph, stat row) under the photo.
+The preview shows the whole intended screen. The app already ships the top bar, **What we found** (the `WhatWeFound` card, at the top of the readings column rather than under the photo, caveats first), the photo stage with the analysing sweep and stage card, `ContainerId` with *Also possible* and the *Best interpretation* / *What remains uncertain* explanation, `ManifestRetry`, the readings (`FieldRow`s, under *Container details*), the damage view and the arrival choreography. These parts are deliberately not built yet; each is a follow-up, not a parity fix:
 - The **thumbnail strip** with *Add photo* (multi-photo is deferred); a single photo shows a *Replace photo* button instead.
 - **Photo areas** drawn on the photo (photo-relative highlight is deferred), and the stand-in and zoom controls.
 - The suggestion `Notice`.

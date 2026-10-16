@@ -10,6 +10,8 @@ import ManifestRetry from './ManifestRetry.vue'
 import ContainerDetails from './ContainerDetails.vue'
 import ContainerMarkings from './ContainerMarkings.vue'
 import ExportActions from './ExportActions.vue'
+import WhatWeFound from './WhatWeFound.vue'
+import { unavailableStages } from '../domain/whatWeFound'
 
 const store = useInspectionStore()
 const record = computed(() => store.record)
@@ -43,6 +45,14 @@ const idLanded = computed(() => store.landed('id'))
 const arrivedEarly = computed(() => running.value && idLanded.value)
 const detailsLanded = computed(() => store.landed('details'))
 const detailsEarly = computed(() => running.value && detailsLanded.value)
+
+// What we found: first in the readings once anything has landed. A part that has not arrived is named
+// as missing (still arriving, failed, cancelled) and left out, never reported as not seen.
+const foundShown = computed(
+  () => !!record.value && (['id', 'details', 'damage'] as const).some((s) => store.landed(s)),
+)
+const foundEarly = computed(() => running.value && foundShown.value)
+const foundUnavailable = computed(() => unavailableStages(store.stages, running.value))
 
 // The parts a stage stands for, in plain words, for the partial and failure notices.
 const PART: Record<StageId, string> = {
@@ -164,6 +174,13 @@ const showInsufficient = computed(() => idState.value === 'insufficient')
         <div class="qs-notice__body">Everything else found is shown.</div>
       </div>
     </div>
+
+    <WhatWeFound
+      v-if="foundShown && record"
+      :record="record"
+      :unavailable="foundUnavailable"
+      :class="{ 'qs-arrived': foundEarly }"
+    />
 
     <div v-if="running && !idLanded" class="rs-card" aria-busy="true">
       <div class="rs-card__head"><span class="rs-k">Container ID</span></div>

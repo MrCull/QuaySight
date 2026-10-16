@@ -1,5 +1,6 @@
 import { describe, it, expect } from 'vitest'
-import { buildWhatWeFound, type WhatWeFound } from '../whatWeFound'
+import { buildWhatWeFound, unavailableStages, type WhatWeFound } from '../whatWeFound'
+import type { StageId, StageProgress, StageState } from '../runStages'
 import { buildContainerIdReading } from '../containerId'
 import { decodeSizeCode } from '../isoSizeCode'
 import type { DamageAssessment, DamageFinding } from '../damage'
@@ -525,5 +526,33 @@ describe('every certainty word is one of the five', () => {
       m[1]!.split(', '),
     )
     for (const word of used) expect(['calculated', ...words]).toContain(word)
+  })
+})
+
+describe('which stages have not delivered', () => {
+  const stage = (id: StageId, state: StageState): StageProgress => ({
+    id,
+    title: id,
+    state,
+    elapsedMs: null,
+  })
+
+  it('names a stage still at work while the run is going, and one that failed or was cancelled once it is settled', () => {
+    const stages = [stage('id', 'done'), stage('details', 'active'), stage('damage', 'failed')]
+    expect(unavailableStages(stages, true)).toEqual({ details: 'pending', damage: 'failed' })
+    expect(
+      unavailableStages(
+        [stage('id', 'cancelled'), stage('details', 'done'), stage('damage', 'done')],
+        false,
+      ),
+    ).toEqual({
+      id: 'cancelled',
+    })
+  })
+
+  it('leaves a stage that is not part of the run out of the gaps: it was never asked', () => {
+    const stages = [stage('id', 'done'), stage('details', 'done'), stage('damage', 'not-in-run')]
+    expect(unavailableStages(stages, false)).toEqual({})
+    expect(unavailableStages(stages, true)).toEqual({})
   })
 })
