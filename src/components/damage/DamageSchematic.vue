@@ -81,6 +81,11 @@ const views = computed(() =>
   }),
 )
 
+// A view with no photographed face is replaced by one line, unless nothing at all was photographed:
+// then both drawings stay, as the empty state.
+const anyPhotographed = computed(() => views.value.some((v) => !v.noPhotos))
+const hidden = (v: { noPhotos: boolean }) => anyPhotographed.value && v.noPhotos
+
 const sideNotCertain = computed(() => props.assessment.sideInference?.basis === 'defaulted')
 // Any zone grid in the assessment keeps its dashed edges visible.
 const hasZones = computed(() => (props.assessment.zones ?? []).length > 0)
@@ -90,21 +95,31 @@ const hasZones = computed(() => (props.assessment.zones ?? []).length > 0)
   <div :class="['qs-schem', { 'qs-schem--show-grid': hasZones }]">
     <div class="qs-schem__views">
       <div class="qs-schem__views-in">
-        <SchematicFigure
-          v-for="v in views"
-          :key="v.spec.id"
-          :id="v.spec.id"
-          :caption="v.spec.label"
-          :no-photos="v.noPhotos"
-          :side="v.side"
-          :end="v.end"
-          :roof="true"
-          :markers="v.markers"
-          :zones="v.zones"
-          :length-ft="assessment.lengthFt"
-          :selected-id="selectedId"
-          @select="emit('select', $event)"
-        />
+=======
+        <template v-for="v in views" :key="v.spec.id">
+          <p
+            v-if="hidden(v)"
+            class="qs-coverage__item qs-coverage__item--unseen"
+            :data-view-hidden="v.spec.id"
+          >
+            <i class="qs-glyph qs-glyph--unseen" aria-hidden="true"></i>
+            <span>{{ v.spec.label }}: not photographed</span>
+          </p>
+          <SchematicFigure
+            v-else
+            :id="v.spec.id"
+            :caption="v.spec.label"
+            :no-photos="v.noPhotos"
+            :side="v.side"
+            :end="v.end"
+            :roof="true"
+            :markers="v.markers"
+            :zones="v.zones"
+            :length-ft="assessment.lengthFt"
+            :selected-id="selectedId"
+            @select="emit('select', $event)"
+          />
+        </template>
       </div>
     </div>
 
