@@ -4,15 +4,19 @@ import {
   OpenRouterError,
   buildOpenRouterJevRequest,
   buildOpenRouterLunaRequest,
+  buildOpenRouterManifestRequest,
   mapOpenRouterJevResponse,
   mapOpenRouterLunaResponse,
+  mapOpenRouterManifestResponse,
   openRouterFailure,
   openRouterFetchFailure,
   type FailureModel,
   type OpenRouterLunaMapping,
+  type OpenRouterManifestMapping,
   type OpenRouterRequestBody,
 } from '../domain/openrouter'
 import type { JevMapping } from '../domain/jev'
+import type { ManifestQuestion } from '../domain/manifest'
 
 interface CallOpenRouterOptions {
   /** The presenter's OpenRouter key. Held by the caller in memory; sent only in the Authorization header to OPENROUTER_ENDPOINT. */
@@ -116,6 +120,26 @@ export async function callOpenRouterJev(
     buildOpenRouterJevRequest(options.model, image, { box: options.box }),
   )
   return { ...mapOpenRouterJevResponse(done.raw, options.model), ...done }
+}
+
+export interface CallOpenRouterManifestOptions extends CallOpenRouterOptions {
+  /** The manifest check's questions, from buildManifestQuestions. */
+  questions: ManifestQuestion[]
+}
+
+export interface OpenRouterManifestCallResult extends OpenRouterManifestMapping, CallTiming {}
+
+/** One live manifest check through OpenRouter (spec 3.2), on the model of the first reading. */
+export async function callOpenRouterManifest(
+  options: CallOpenRouterManifestOptions,
+): Promise<OpenRouterManifestCallResult> {
+  const done = await decide(options, (image) =>
+    buildOpenRouterManifestRequest(options.model, image, options.questions),
+  )
+  return {
+    ...mapOpenRouterManifestResponse(done.raw, options.model, options.questions),
+    ...done,
+  }
 }
 
 /**

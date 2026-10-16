@@ -3,17 +3,76 @@ import { mount } from '@vue/test-utils'
 import { nextTick } from 'vue'
 import { setActivePinia, createPinia } from 'pinia'
 import { useInspectionStore } from '../../stores/inspection'
-import { runRecordedInspection } from '../../domain/recordedRun'
+import { INSPECTION_SCHEMA_VERSION } from '../../domain/inspection'
 import ManifestRetry from '../ManifestRetry.vue'
 
+/** Demo mode: the damaged side (no ID read) or the APHU rear doors (ID read), with their own recorded check. */
 async function setup(scenario: 'unidentified' | 'identified' = 'unidentified') {
   const store = useInspectionStore()
-  store.setProvider('luna')
-  store.setPhoto({ name: 'a.jpg', url: 'blob:a', orientation: 'landscape' })
-  store.setApiKey('test-only-key-0000')
-  store.record = await runRecordedInspection('luna', { delayMs: 0, scenario })
-  store.status = 'complete'
+  store.enterDemo()
+  store.chooseSample(scenario === 'unidentified' ? 'side-dented' : 'rear-aphu')
+  const run = store.start()
+  await vi.advanceTimersByTimeAsync(1600)
+  await run
   return store
+}
+
+const KEY = 'test-only-openrouter-key-0000'
+
+/** A live OpenRouter result with two positions unread; the manifest check is answered by a stubbed fetch. */
+function liveSetup(pick: string) {
+  const store = useInspectionStore()
+  store.setProvider('openrouter')
+  store.setModel('typesafe/jev-1.14')
+  store.setApiKey(KEY)
+  store.setPhoto({ name: 'rear.jpg', url: 'blob:a', orientation: 'portrait' })
+  store.record = {
+    schemaVersion: INSPECTION_SCHEMA_VERSION,
+    id: 'live-openrouter-test',
+    provider: 'openrouter',
+    model: 'typesafe/jev-1.14',
+    resolvedVersion: 'typesafe/jev-1.14-20261014',
+    rawResponses: [],
+    source: 'live',
+    status: 'complete',
+    photo: { name: 'rear.jpg', orientation: 'portrait' },
+    containerId: {
+      value: 'MSCU44173??',
+      observedCheckDigit: null,
+      calculatedCheckDigit: null,
+      checkDigitValid: false,
+      certainty: "Can't tell",
+      provenance: 'printed',
+    },
+    damage: null,
+    sizeCode: null,
+    weights: null,
+  }
+  store.status = 'complete'
+  store.sentPhoto = new Blob(['jpeg 1176x1568'], { type: 'image/jpeg' })
+  const fetchMock = vi.fn<typeof fetch>(async (_input, init) => {
+    const body = JSON.parse(String(init?.body)) as {
+      questions: Record<string, { criteria: Record<string, string> }>
+    }
+    const answers = Object.fromEntries(
+      Object.entries(body.questions).map(([name, q]) => [
+        name,
+        {
+          type: 'choice',
+          choice: pick,
+          probabilities: Object.fromEntries(
+            Object.keys(q.criteria).map((o) => [o, o === pick ? 0.95 : 0.01]),
+          ),
+        },
+      ]),
+    )
+    return new Response(
+      JSON.stringify({ model: 'typesafe/jev-1.14-20261014', answers, usage: { cost: 0.00008 } }),
+      { status: 200, headers: { 'Content-Type': 'application/json' } },
+    )
+  })
+  vi.stubGlobal('fetch', fetchMock)
+  return { store, fetchMock }
 }
 
 function field(w: ReturnType<typeof mount>) {
@@ -33,7 +92,10 @@ describe('ManifestRetry', () => {
     setActivePinia(createPinia())
     vi.useFakeTimers()
   })
-  afterEach(() => vi.useRealTimers())
+  afterEach(() => {
+    vi.useRealTimers()
+    vi.unstubAllGlobals()
+  })
 
   it('shows the optional paste panel only when the container ID was not identified', async () => {
     await setup('identified')
@@ -168,10 +230,12 @@ describe('ManifestRetry', () => {
     await vi.advanceTimersByTimeAsync(1600)
     await nextTick()
     store.retryFails = false
+    const spy = vi.spyOn(store, 'retryManifest')
     await buttonNamed(w, 'Try again').trigger('click')
+    expect(spy).toHaveBeenCalledWith(['APHU6586847'])
     await vi.advanceTimersByTimeAsync(1600)
     await nextTick()
-    expect(store.record?.containerId?.value).toBe('APHU6586847')
+    expect(store.retry.status).toBe('idle')
     w.unmount()
   })
 
@@ -187,17 +251,26 @@ describe('ManifestRetry', () => {
   })
 
   it('on success the panel leaves and the new ID is in the store', async () => {
-    const store = await setup()
+    const { store } = liveSetup('MSCU4417305')
     const w = mount(ManifestRetry, { attachTo: document.body })
-    await field(w).setValue('AAAU1111111')
+    await field(w).setValue('MSCU4417305\nAPHU6586847')
     await primary(w).trigger('click')
-    await vi.advanceTimersByTimeAsync(1600)
-    await nextTick()
-    expect(store.record?.containerId?.value).toBe('APHU6586847')
+    await vi.waitFor(() => expect(store.retry.status).toBe('idle'))
+    expect(store.record?.containerId?.value).toBe('MSCU4417305')
+    expect(store.record?.containerId?.provenance).toBe('manifest')
     await vi.advanceTimersByTimeAsync(300)
     await nextTick()
     expect(w.find('textarea').exists()).toBe(false)
     w.unmount()
+  })
+
+  it('after a live result, says the check is a new live call that adds to the cost total', () => {
+    liveSetup('other_not_listed')
+    const w = mount(ManifestRetry)
+    expect(w.text()).toContain(
+      'This runs a new live check on Jev 1.14 (TypeSafe) via OpenRouter and adds to the cost total.',
+    )
+    expect(w.text()).not.toContain('No live call')
   })
 
   it('when no entry matches the photo, stays open with the entries and says the first result is unchanged', async () => {

@@ -38,6 +38,17 @@ export function applyMargin(
   return CERTAINTY_LABELS[Math.min(index + 1, floor)] ?? label
 }
 
+/**
+ * The level one chosen probability gives before the margin rule: 0.9 Confident, 0.6 Likely,
+ * 0.3 Uncertain, below that Can't tell. The thresholds the per-position readings use.
+ */
+export function certaintyOfProbability(probability: number): CertaintyLabel {
+  if (probability >= 0.9) return 'Confident'
+  if (probability >= 0.6) return 'Likely'
+  if (probability >= 0.3) return 'Uncertain'
+  return "Can't tell"
+}
+
 /** Marks a character position that was not read. Never filled in as fact. */
 export const UNREAD = '?'
 

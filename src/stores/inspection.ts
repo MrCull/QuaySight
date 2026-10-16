@@ -1,4 +1,5 @@
 import { defineStore } from 'pinia'
+import { markRaw } from 'vue'
 import { defaultModelFor, findModel, labelsFor, questionSetOf } from '../domain/providers'
 import { canStart as keyGateOpen, hasKey } from '../domain/keyGate'
 import {
@@ -7,10 +8,20 @@ import {
   runDemoSample,
   type DemoSampleId,
 } from '../domain/demoSamples'
-import { runRecordedManifestRetry } from '../domain/manifest'
-import { assembleLunaReading, LUNA_MODEL, LunaError, type ChoiceReading } from '../domain/luna'
-import { callLuna } from '../services/luna'
-import { callOpenRouterJev, callOpenRouterLuna } from '../services/openrouter'
+import { buildManifestQuestions, MANIFEST_PURPOSE, needsManifest } from '../domain/manifest'
+import {
+  assembleLunaReading,
+  LUNA_ENDPOINT_ID,
+  LUNA_MODEL,
+  LunaError,
+  type ChoiceReading,
+} from '../domain/luna'
+import { callLuna, callLunaManifest } from '../services/luna'
+import {
+  callOpenRouterJev,
+  callOpenRouterLuna,
+  callOpenRouterManifest,
+} from '../services/openrouter'
 import { preparePhoto, PhotoPreparationError } from '../services/preparePhoto'
 import { OPENROUTER_ENDPOINT_ID, OpenRouterError } from '../domain/openrouter'
 import {
@@ -77,6 +88,55 @@ export const RECORDED_STAGE_DELAY_MS = 1600
 export const RECORDED_RETRY_DELAY_MS = 1600
 
 let liveCounter = 0
+let manifestCounter = 0
+
+/** The cap's message for a call it stopped. */
+function capMessage(reason: 'requests' | 'spend'): string {
+  return reason === 'requests'
+    ? 'This inspection has reached its request limit. Start a new photo to run again.'
+    : 'This inspection has reached its spend limit. Start a new photo to run again.'
+}
+
+/** The live manifest call for a catalogue model's wire format, and its ledger endpoint. */
+interface ManifestRoute {
+  endpoint: string
+  call: (options: {
+    apiKey: string
+    photo: Blob
+    questions: ReturnType<typeof buildManifestQuestions>
+  }) => Promise<LiveManifestReading>
+}
+
+interface LiveManifestReading {
+  reading: ContainerIdReading | null
+  resolvedModel: string
+  usage: Usage | null
+  latencyMs: number
+  raw: unknown
+  reportedCostUsd: number | null
+}
+
+/** The route the first reading took, or null where it has no live manifest call (the offer is then hidden). */
+function liveManifestRoute(provider: ProviderId, model: string): ManifestRoute | null {
+  const entry = findModel(provider, model)
+  if (entry?.wireFormat === 'openrouter-decisions') {
+    const describe = {
+      name: labelsFor(provider, model).model,
+      maxSide: entry.photoLimits.maxSide,
+    }
+    return {
+      endpoint: OPENROUTER_ENDPOINT_ID,
+      call: (options) => callOpenRouterManifest({ ...options, model, describe }),
+    }
+  }
+  if (entry?.wireFormat === 'openai-decisions') {
+    return {
+      endpoint: LUNA_ENDPOINT_ID,
+      call: async (options) => ({ ...(await callLunaManifest(options)), reportedCostUsd: null }),
+    }
+  }
+  return null
+}
 
 const freshRetry = (): ManifestRetryState => ({
   status: 'idle',
@@ -113,6 +173,8 @@ export const useInspectionStore = defineStore('inspection', {
     demo: false,
     /** Actionable message for the last failed run. The provider's text is never the key. */
     errorMessage: null as string | null,
+    /** The photo exactly as sent for the live result on screen, so the manifest check sends the same. Dropped with the result. */
+    sentPhoto: null as Blob | null,
   }),
   getters: {
     /** The key for the selected provider only. */
@@ -135,6 +197,22 @@ export const useInspectionStore = defineStore('inspection', {
         model: this.model,
         apiKey: this.apiKey,
       })
+    },
+    /**
+     * Whether a manifest check can run for the result on screen: demo, the sample's own recorded check;
+     * live, one call on the same route and model with the photo as sent. A live route with no manifest
+     * call has no check at all: a recorded result is never shown against a photo it did not come from.
+     */
+    canCheckManifest(): boolean {
+      const record = this.record
+      if (!record) return false
+      if (this.demo) return record.source === 'recorded' && this.sample !== null
+      if (record.source !== 'live' || this.sentPhoto === null) return false
+      return liveManifestRoute(record.provider, record.model) !== null
+    },
+    /** The manifest offer: a check can run and the container ID is not (fully) identified (spec 3.2). */
+    manifestRetryOffered(): boolean {
+      return this.canCheckManifest && needsManifest(this.record?.containerId ?? null)
     },
   },
   actions: {
@@ -174,6 +252,7 @@ export const useInspectionStore = defineStore('inspection', {
       this.retry = freshRetry()
       this.errorMessage = null
       this.selectedFinding = null
+      this.sentPhoto = null
     },
     selectFinding(id: number | null) {
       this.selectedFinding = id
@@ -197,6 +276,7 @@ export const useInspectionStore = defineStore('inspection', {
       this.retry = freshRetry()
       this.errorMessage = null
       this.selectedFinding = null
+      this.sentPhoto = null
     },
     /** Enters demo mode on a blank screen, ready to choose a sample. */
     enterDemo() {
@@ -275,6 +355,7 @@ export const useInspectionStore = defineStore('inspection', {
       this.record = null
       this.retry = freshRetry()
       this.errorMessage = null
+      this.sentPhoto = null
 
       const ledger = useLedgerStore()
       const run: Promise<void> = (async () => {
@@ -295,6 +376,7 @@ export const useInspectionStore = defineStore('inspection', {
           return
         }
         if (token !== this.runToken) return
+        this.sentPhoto = markRaw(sent)
 
         // The Luna question set on this run's route: OpenAI direct, or OpenRouter (ticket #23).
         const readLuna = async (positions?: number[]): Promise<LunaReading> => {
@@ -462,10 +544,7 @@ export const useInspectionStore = defineStore('inspection', {
           this.status = 'complete'
         } else if (result.status === 'blocked') {
           this.status = 'failed'
-          this.errorMessage =
-            result.reason === 'requests'
-              ? 'This inspection has reached its request limit. Start a new photo to run again.'
-              : 'This inspection has reached its spend limit. Start a new photo to run again.'
+          this.errorMessage = capMessage(result.reason)
         } else {
           this.status = 'failed'
           this.errorMessage =
@@ -482,33 +561,85 @@ export const useInspectionStore = defineStore('inspection', {
       return run
     },
     /**
-     * Manifest retry (spec 3.2), recorded only. Replaces the container ID in place on success and
-     * leaves the first result unchanged on failure. Recorded replays never reach the cost ledger
-     * or the per-inspection cap: only live chargeable calls go through runChargeable (spec 8.5).
+     * Manifest retry (spec 3.2). Demo mode replays the sample's own recorded check. Live, it is one
+     * call on the same provider and model with the photo as sent, through the cost ledger and the
+     * per-inspection cap (spec 8.5): the model chooses among the pasted entries or "not listed". A
+     * match replaces the container ID in place; "not listed" and any failure keep the first result.
+     * New inspection cancels it like any run: its token goes stale and the answer is dropped.
      */
     async retryManifest(ids: string[]): Promise<void> {
       const record = this.record
-      if (!record || record.containerId !== null) return
+      if (!record || !needsManifest(record.containerId)) return
       if (this.retry.status === 'checking' || ids.length === 0) return
       if (this.demo) return this.retryDemoManifest(ids)
-      if (!hasKey(this.apiKey)) return
+
+      // Live only: never a recorded replay against this photo.
+      const photo = this.sentPhoto
+      const route =
+        record.source === 'live' ? liveManifestRoute(record.provider, record.model) : null
+      const apiKey = this.apiKeys[record.provider]
+      if (!route || !photo || !hasKey(apiKey)) return
 
       const token = this.runToken
-      this.retry = { ...this.retry, status: 'checking', message: null, ids: [...ids] }
-      try {
-        const reading = await runRecordedManifestRetry(record.provider, ids, {
-          delayMs: RECORDED_RETRY_DELAY_MS,
-          fail: this.retryFails,
-        })
-        if (token !== this.runToken || this.record !== record) return
-        this.record = { ...record, containerId: reading }
-        this.retry = { ...this.retry, status: 'idle' }
-      } catch (error) {
-        if (token !== this.runToken) return
+      this.retry = {
+        ...this.retry,
+        status: 'checking',
+        message: null,
+        ids: [...ids],
+        noMatch: false,
+      }
+      const questions = buildManifestQuestions(ids)
+      // Each check is its own request: a failed one and its Try again are two ledger lines.
+      const passId = `${record.id}-manifest-${(manifestCounter += 1)}`
+      let answered = null as LiveManifestReading | null
+      const ledger = useLedgerStore()
+      const result = await ledger.run({
+        id: passId,
+        inspectionId: record.id,
+        purpose: MANIFEST_PURPOSE,
+        provider: record.provider,
+        endpoint: route.endpoint,
+        model: record.model,
+        call: async () => {
+          answered = await route.call({ apiKey, photo, questions })
+          return {
+            resolvedModel: answered.resolvedModel,
+            usage: answered.usage,
+            latencyMs: answered.latencyMs,
+            reportedCostUsd: answered.reportedCostUsd,
+          }
+        },
+      })
+      if (token !== this.runToken || this.record !== record) return
+
+      if (result.status === 'ran' && answered) {
+        const done: LiveManifestReading = answered
+        this.record = {
+          ...record,
+          containerId: done.reading ?? record.containerId,
+          rawResponses: [
+            ...record.rawResponses,
+            {
+              passId,
+              provider: record.provider,
+              model: record.model,
+              capturedFrom: 'provider',
+              body: done.raw,
+            },
+          ],
+        }
+        this.retry = { ...this.retry, status: 'idle', noMatch: done.reading === null }
+      } else {
         this.retry = {
           ...this.retry,
           status: 'error',
-          message: error instanceof Error ? error.message : String(error),
+          message:
+            result.status === 'blocked'
+              ? capMessage(result.reason)
+              : result.status === 'failed' &&
+                  (result.error instanceof LunaError || result.error instanceof OpenRouterError)
+                ? result.error.message
+                : 'The manifest check could not be completed. Try again.',
         }
       }
     },

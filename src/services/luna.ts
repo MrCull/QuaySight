@@ -2,12 +2,16 @@ import {
   LUNA_ENDPOINT,
   LUNA_MODEL,
   LunaError,
+  buildLunaManifestRequest,
   buildLunaRequest,
   lunaFailure,
   lunaFetchFailure,
+  mapLunaManifestResponse,
   mapLunaResponse,
   type LunaMapping,
+  type ManifestMapping,
 } from '../domain/luna'
+import type { ManifestQuestion } from '../domain/manifest'
 
 export interface CallLunaOptions {
   /** The presenter's OpenAI key. Held by the caller in memory; sent only in the Authorization header to LUNA_ENDPOINT. */
@@ -57,9 +61,44 @@ function blobToDataUrl(blob: Blob): Promise<string> {
  * placed in the error, the body or any log line.
  */
 export async function callLuna(options: CallLunaOptions): Promise<LunaCallResult> {
-  const fetchImpl = options.fetchImpl ?? fetch
   const imageDataUrl = await blobToDataUrl(options.photo)
-  const body = JSON.stringify(buildLunaRequest(imageDataUrl, options.positions))
+  const done = await decide(options, buildLunaRequest(imageDataUrl, options.positions))
+  return { ...mapLunaResponse(done.raw, LUNA_MODEL, options.positions), ...done }
+}
+
+export interface CallLunaManifestOptions {
+  /** The presenter's OpenAI key; sent only in the Authorization header to LUNA_ENDPOINT. */
+  apiKey: string
+  /** The photo as sent for the first reading. */
+  photo: Blob
+  /** The manifest check's questions, from buildManifestQuestions. */
+  questions: ManifestQuestion[]
+  /** Test seam. Defaults to the global fetch. */
+  fetchImpl?: typeof fetch
+}
+
+export interface LunaManifestCallResult extends ManifestMapping {
+  latencyMs: number
+  /** The response payload as returned. Contains no headers and no key. */
+  raw: unknown
+}
+
+/** One live manifest check on GPT-6 Luna (spec 3.2). Fails with the same messages as the first reading. */
+export async function callLunaManifest(
+  options: CallLunaManifestOptions,
+): Promise<LunaManifestCallResult> {
+  const imageDataUrl = await blobToDataUrl(options.photo)
+  const done = await decide(options, buildLunaManifestRequest(imageDataUrl, options.questions))
+  return { ...mapLunaManifestResponse(done.raw, LUNA_MODEL, options.questions), ...done }
+}
+
+/** One POST to the Decisions endpoint. No retries: each call is charged. */
+async function decide(
+  options: { apiKey: string; fetchImpl?: typeof fetch },
+  request: unknown,
+): Promise<{ latencyMs: number; raw: unknown }> {
+  const fetchImpl = options.fetchImpl ?? fetch
+  const body = JSON.stringify(request)
 
   const started = Date.now()
   let response: Response
@@ -86,6 +125,5 @@ export async function callLuna(options: CallLunaOptions): Promise<LunaCallResult
   }
 
   if (!response.ok) throw lunaFailure(response.status, parsed, options.apiKey)
-
-  return { ...mapLunaResponse(parsed, LUNA_MODEL, options.positions), latencyMs, raw: parsed }
+  return { latencyMs, raw: parsed }
 }

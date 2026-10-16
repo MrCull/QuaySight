@@ -27,13 +27,17 @@ const canCheck = computed(() => count.value > 0 && !overLimit.value)
 
 const checking = computed(() => store.retry.status === 'checking')
 const failed = computed(() => store.retry.status === 'error')
-const provider = computed(() => getProvider(store.provider))
-const runName = computed(() => labelsFor(store.provider, store.model).prose)
+// The check runs on the provider and model of the result on screen (a demo sample names its own).
+const provider = computed(() => getProvider(store.record?.provider ?? store.provider))
+const runName = computed(() =>
+  store.record
+    ? labelsFor(store.record.provider, store.record.model).prose
+    : labelsFor(store.provider, store.model).prose,
+)
+const live = computed(() => store.record?.source === 'live')
 
 // Offered only while the ID is not identified and the presenter has not chosen Keep first result.
-const offering = computed(
-  () => store.record !== null && store.record.containerId === null && !store.retry.dismissed,
-)
+const offering = computed(() => store.manifestRetryOffered && !store.retry.dismissed)
 const visible = computed(() => !closed.value && (offering.value || leaving.value))
 
 function reducedMotion(): boolean {
@@ -135,7 +139,10 @@ function keepFirstResult() {
           Keep first result
         </button>
       </div>
-      <p :id="costId" class="qs-manifest__cost">
+      <p v-if="live" :id="costId" class="qs-manifest__cost">
+        This runs a new live check on <b>{{ runName }}</b> and adds to the cost total.
+      </p>
+      <p v-else :id="costId" class="qs-manifest__cost">
         This replays a saved sample on <b>{{ runName }}</b
         >. No live call and no charge.
       </p>
@@ -188,7 +195,10 @@ function keepFirstResult() {
           Keep first result
         </button>
       </div>
-      <p :id="costId" class="qs-manifest__cost">
+      <p v-if="live" :id="costId" class="qs-manifest__cost">
+        This runs a new live check on <b>{{ runName }}</b> and adds to the cost total.
+      </p>
+      <p v-else :id="costId" class="qs-manifest__cost">
         This replays a saved sample on <b>{{ runName }}</b
         >. No live call and no charge.
       </p>
