@@ -64,6 +64,10 @@ export interface ExportFindingLink {
   /** The CEDEX/IICL long-side sections the finding lies in, numbered from the door end; null off the long side or with no area. */
   sections: number[] | null
   photo: string | null
+  /** Every photo the damage was seen in (several photos); empty for a single photo. */
+  photos: string[]
+  /** True for damage on a face that could not be identified: listed, not placed on the drawing. */
+  unidentifiedFace: boolean
   sourcePass: { passId: string; kind: 'recorded-run' | 'provider-call' }
 }
 
@@ -158,6 +162,8 @@ export interface ExportPhoto {
     containerId: { positions: number[] }
     details: string[]
     weights: string[]
+    /** The numbers of the damages (finding ids) seen in the photo. */
+    damage: number[]
   }
   /** The raw responses (rawResponses[].passId) this photo's requests gave. */
   passIds: string[]

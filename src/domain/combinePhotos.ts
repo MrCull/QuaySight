@@ -15,6 +15,7 @@ import {
 } from './containerDetailTypes'
 import { withCodeConflict } from './containerDetails'
 import { agree, combineContainerIds, weakerOf, type Candidate } from './combineReadings'
+import { combineDamage } from './combineDamage'
 import { decodeSizeCode } from './isoSizeCode'
 import type { CertaintyLabel, ContainerIdReading, InspectionRecord } from './inspection'
 import type { FaceReading } from './photoFace'
@@ -25,6 +26,8 @@ export interface PhotoContribution {
   containerId: number[]
   details: string[]
   weights: string[]
+  /** The numbers of the damages (cards) seen in this photo. */
+  damage: number[]
 }
 
 /** One photo of the inspection, for the chips and the export. */
@@ -58,7 +61,7 @@ export function droppedPhotoMessage(index: number): string {
 
 export const DIFFERENT_CONTAINERS_MESSAGE = 'These photos may be of different containers'
 
-const NO_CONTRIBUTION = (): PhotoContribution => ({ containerId: [], details: [], weights: [] })
+const NO_CONTRIBUTION = (): PhotoContribution => ({ containerId: [], details: [], weights: [], damage: [] })
 
 const isDropped = (run: PhotoRun) => run.record.photoFace?.face === 'not-container'
 
@@ -320,6 +323,12 @@ export function combinePhotoRuns(
     }
   }
 
+  // Several photos: one damage list and drawing (combineDamage.ts).
+  const damage = runs.length > 1 && !different ? combineDamage(runs) : null
+  for (const [photo, ids] of Object.entries(damage?.from ?? {})) {
+    contributions.get(Number(photo))!.damage = ids
+  }
+
   const photos: PhotoSummary[] = runs.map((r) => ({
     index: r.index,
     name: r.name,
@@ -346,7 +355,7 @@ export function combinePhotoRuns(
     weights,
     // The photo of the record is the first one given; the face and damage are the primary photo's (see above).
     photo: runs[0]!.record.photo,
-    damage: different ? null : base.damage,
+    damage: different ? null : (damage?.damage ?? base.damage),
     differentContainers: different,
     photos,
   }

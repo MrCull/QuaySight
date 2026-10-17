@@ -90,6 +90,8 @@ export interface DamageFinding {
   severityProbabilities?: number[]
   certainty: FindingCertainty
   caveats: string[]
+  /** The photos (1-based) the damage was seen in, when the inspection has several photos. */
+  photos?: number[]
 }
 
 /** One photo-relative zone a damage set judged, with how well it could be seen. */
@@ -109,12 +111,16 @@ export type FaceCoverage = 'full' | 'most' | 'partial' | 'not-inspectable'
 export interface PhotoCoverage {
   photo: string
   face: DamageFace
+  /** 1-based photo number, when the inspection has several photos. */
+  index?: number
 }
 
 export interface DamageAssessment {
   source: 'recorded' | 'live'
   photos: PhotoCoverage[]
   findings: DamageFinding[]
+  /** Findings from a photo whose face could not be identified: listed, never drawn. Several photos only. */
+  unplaced?: DamageFinding[]
   /** The zones the set judged, with their visibility. Absent when the assessment has no zone grid. */
   zones?: ZoneCoverage[]
   /** Whether the photo is good enough to judge obvious damage, as the set's own check says. */
