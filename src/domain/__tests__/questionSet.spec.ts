@@ -51,6 +51,31 @@ const SET: SharedQuestionSet = {
 }
 
 describe('toWireRequest for OpenAI Decisions', () => {
+  it('sets image detail original on every photo, whether or not the set authored one', () => {
+    const bare: SharedQuestionSet = {
+      input: [
+        {
+          role: 'user',
+          content: [
+            { type: 'input_text', text: 'Photo.' },
+            { type: 'input_image', image_url: 'x' },
+            { type: 'input_image', image_url: 'y', detail: 'low' },
+          ],
+        },
+      ],
+      questions: SET.questions,
+    }
+    const body = toWireRequest('openai-decisions', bare, {
+      model: 'gpt-6-luna',
+      imageDataUrl: PHOTO,
+    })
+    const images = body.input[0]!.content.filter((p) => p.type === 'input_image')
+    expect(images).toEqual([
+      { type: 'input_image', image_url: PHOTO, detail: 'original' },
+      { type: 'input_image', image_url: PHOTO, detail: 'original' },
+    ])
+  })
+
   it('sends the authored request with the photo in place and the image detail kept', () => {
     expect(
       toWireRequest('openai-decisions', SET, { model: 'gpt-6-luna', imageDataUrl: PHOTO }),

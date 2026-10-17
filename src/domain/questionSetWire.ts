@@ -80,7 +80,9 @@ function toOpenAi(set: SharedQuestionSet, options: WireRequestOptions): OpenAiDe
     input: set.input.map((message) => ({
       role: message.role,
       content: message.content.map((part) =>
-        part.type === 'input_image' ? { ...part, image_url: options.imageDataUrl } : part,
+        part.type === 'input_image'
+          ? { ...part, image_url: options.imageDataUrl, detail: 'original' }
+          : part,
       ),
     })),
     questions: set.questions.filter((q) => q.type !== 'box'),
