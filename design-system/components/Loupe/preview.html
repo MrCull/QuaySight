@@ -1,0 +1,21 @@
+<!-- @dsCard group="Evidence" height=420 subtitle="Hover magnifier: the original photo, about 3×, beside the cursor" -->
+<!doctype html>
+<html><head><link rel="stylesheet" href="../../tokens.css"><link rel="stylesheet" href="../bundle.css"><meta charset="utf-8"><title>Loupe</title>
+<style>
+body{margin:0;background:var(--bg);min-height:100vh;padding:var(--space-5);box-sizing:border-box}
+/* The preview pins the loupe inside the card; in the app it is position: fixed and follows the pointer. */
+.demo{position:relative;height:calc(var(--space-8) * 5.5)}
+.demo .qs-loupe{position:absolute}
+.stand-in{width:calc(var(--space-8) * 7.8125);aspect-ratio:1000/640;border-radius:var(--radius-lg);border:1px solid var(--line);background:repeating-linear-gradient(90deg,var(--surface-sunken) 0 var(--space-3),var(--surface) var(--space-3) var(--space-5));cursor:zoom-in}
+/* Stand-in for the mouse pointer; the loupe sits var(--space-5) below and to the right of it. */
+.pointer{position:absolute;width:var(--space-2);height:var(--space-2);margin:calc(var(--space-1) * -1) 0 0 calc(var(--space-1) * -1);border-radius:var(--radius-pill);background:var(--ink)}
+</style></head>
+<body class="qs-root">
+<div class="demo">
+  <div class="stand-in" role="img" aria-label="Container photo: door.jpg"></div>
+  <span class="pointer" style="left:calc(var(--space-8) * 2.5);top:calc(var(--space-8) * 1.25)" aria-hidden="true"></span>
+  <!-- In the app: style="left; top; background-image: url(original); background-size; background-position", set as the pointer moves. -->
+  <div class="qs-loupe" aria-hidden="true"
+    style="left:calc(var(--space-8) * 2.5 + var(--space-5));top:calc(var(--space-8) * 1.25 + var(--space-5));background-image:repeating-linear-gradient(90deg,var(--surface-sunken) 0 var(--space-6),var(--surface) var(--space-6) calc(var(--space-6) * 2))"></div>
+</div>
+</body></html>

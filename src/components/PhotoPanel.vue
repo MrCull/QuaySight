@@ -3,8 +3,10 @@ import { computed, nextTick, ref } from 'vue'
 import { MAX_PHOTOS, TOO_MANY_PHOTOS, useInspectionStore } from '../stores/inspection'
 import { faceChipLabel, facesShown } from '../domain/photoFace'
 import { readPhotoFile, PHOTO_ACCEPT } from '../services/readPhoto'
+import { useLoupe } from '../composables/loupe'
 import AnalysingStages from './AnalysingStages.vue'
 import PhotoFrame from './PhotoFrame.vue'
+import PhotoLoupe from './PhotoLoupe.vue'
 import PhotoViewer, { type ViewerPhoto } from './PhotoViewer.vue'
 
 const store = useInspectionStore()
@@ -49,6 +51,9 @@ const viewerPhotos = computed<ViewerPhoto[]>(() =>
   })),
 )
 let opener: HTMLElement | null = null
+
+/** The hover loupe, shared by every photo so it can carry over between them. */
+const loupe = useLoupe()
 
 /** Opens the viewer on a photo; focus comes back to the frame that opened it. */
 function enlarge(index: number, frame: HTMLElement) {
@@ -146,6 +151,10 @@ function openPicker() {
             :alt="`Container photo ${i + 1}: ${photo.name}`"
             :label="`Enlarge photo ${i + 1} of ${store.photos.length}`"
             @enlarge="enlarge(i, $event)"
+            @pointerenter="loupe.track($event, photo.url)"
+            @pointermove="loupe.track($event, photo.url)"
+            @pointerleave="loupe.leave()"
+            @pointerdown="loupe.leave()"
           />
           <!-- Under the photo, never over it. -->
           <div class="rs-photos__cap">
@@ -163,6 +172,10 @@ function openPicker() {
         :alt="`Container photo: ${store.photo.name}`"
         label="Enlarge photo"
         @enlarge="enlarge(0, $event)"
+        @pointerenter="loupe.track($event, store.photo.url)"
+        @pointermove="loupe.track($event, store.photo.url)"
+        @pointerleave="loupe.leave()"
+        @pointerdown="loupe.leave()"
       >
         <span class="rs-photo__bar">
           <span class="rs-pill">
@@ -170,6 +183,8 @@ function openPicker() {
           </span>
         </span>
       </PhotoFrame>
+      <!-- Mouse-only and decorative: the original, magnified beside the cursor. -->
+      <PhotoLoupe v-if="loupe.view.value && viewing === null" :view="loupe.view.value" />
       <!-- The one full-screen layer: the original photo, over everything, analysing sweep included. -->
       <PhotoViewer
         v-if="viewing !== null"
