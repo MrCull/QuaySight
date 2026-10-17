@@ -6,6 +6,7 @@ import { applyMargin, certaintyOfProbability } from './certainty'
 import type { ReadingBox } from './enlargedCrop'
 import type { ExportUnresolved, ExportValue } from './exportTypes'
 import type { CertaintyLabel } from './inspection'
+import type { PhotoFace } from './photoFace'
 import type { FamilyExport, QuestionFamily } from './questionRegistry'
 import type { SharedAnswer, SharedQuestion } from './questionSet'
 
@@ -26,6 +27,10 @@ export interface PlacardReading {
   certainty: CertaintyLabel
   /** Where it is in the photo the survey was asked on (boxes only on box-capable models). */
   box?: ReadingBox
+  /** Several photos (ticket #72): the 1-based photo the box, and so the crop, belongs to. */
+  photo?: number
+  /** Several photos: the faces it was seen on, in photo order (faces that could not be told are left out). */
+  faces?: PhotoFace[]
 }
 
 export interface MarkReading {

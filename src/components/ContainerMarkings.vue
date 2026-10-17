@@ -10,7 +10,12 @@ const props = defineProps<{
   record: InspectionRecord
   /** The photo on screen, which the placards' boxes were asked on; without it no crop is shown. */
   photo?: string | null
+  /** Several photos: every photo's URL in order; a placard's crop comes from the photo it was read on. */
+  photos?: string[]
 }>()
+
+const cropSource = (photoNumber: number | null) =>
+  (photoNumber ? props.photos?.[photoNumber - 1] : null) ?? props.photo ?? null
 
 // One row per marking, each checked separately (spec 4.4). A marking that was seen is a MarkingBadge:
 // the hazard diamond only for DG placards and safety markings, neutral for the high-container caution.
@@ -18,7 +23,7 @@ const props = defineProps<{
 const details = computed(() => markingRows(props.record))
 const placards = computed(() => placardRows(props.record))
 const rows = computed(() => [
-  ...(details.value ?? []).map((row) => ({ ...row, key: row.label, box: null })),
+  ...(details.value ?? []).map((row) => ({ ...row, key: row.label, box: null, photo: null })),
   ...placards.value,
 ])
 </script>
@@ -50,9 +55,9 @@ const rows = computed(() => [
         <CertaintyChip :level="row.certainty" />
       </div>
       <PhotoCrop
-        v-if="row.box && photo"
+        v-if="row.box && cropSource(row.photo)"
         class="rs-marking-row__crop"
-        :src="photo"
+        :src="cropSource(row.photo)!"
         :box="row.box"
         :caption="`Where we read ${row.label.toLowerCase()}`"
         :label="`The ${row.label.toLowerCase()}`"

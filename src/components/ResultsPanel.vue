@@ -302,7 +302,11 @@ const showInsufficient = computed(() => idState.value === 'insufficient')
     <SealCard
       v-if="idLanded && record?.seal"
       :reading="record.seal"
-      :photo-url="store.photo?.url ?? null"
+      :photo-url="
+        (record.seal.photo ? store.photos[record.seal.photo - 1]?.url : null) ??
+        store.photo?.url ??
+        null
+      "
       :class="['qs-rise', { 'qs-arrived': arrivedEarly }]"
       :style="{ '--i': STAGGER.card }"
     />
@@ -315,6 +319,7 @@ const showInsufficient = computed(() => idState.value === 'insufficient')
       <ContainerMarkings
         :record="record"
         :photo="store.photo?.url ?? null"
+        :photos="store.photos.map((p) => p.url)"
         :class="{ 'qs-arrived': detailsEarly }"
       />
     </template>

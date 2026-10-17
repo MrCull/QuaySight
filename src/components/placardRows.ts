@@ -3,6 +3,7 @@
 import { dgClassName } from '../domain/containerDetails'
 import type { ReadingBox } from '../domain/enlargedCrop'
 import type { InspectionRecord } from '../domain/inspection'
+import { faceChipLabel } from '../domain/photoFace'
 import type { MarkReading, PlacardReading } from '../domain/placards'
 import type { MarkingRow } from './markingRows'
 
@@ -10,6 +11,8 @@ export interface PlacardRow extends MarkingRow {
   key: string
   /** Where this placard is in the photo; the card shows a crop beside it when usable. */
   box: ReadingBox | null
+  /** Several photos: the 1-based photo the box belongs to. */
+  photo: number | null
 }
 
 const CARGO_CAVEAT = 'Cargo status unknown without a declaration'
@@ -26,6 +29,9 @@ function placardRow(p: PlacardReading, index: number): PlacardRow {
   const name = p.dgClass === null ? null : dgClassName(p.dgClass)
   const caveat = [
     name ? `${name[0]!.toUpperCase()}${name.slice(1)}.` : null,
+    p.faces && p.faces.length > 0
+      ? `Seen on: ${p.faces.map((f) => faceChipLabel(f).toLowerCase()).join(', ')}.`
+      : null,
     un.partial ? 'A digit of the UN number was not read.' : null,
     CARGO_CAVEAT,
   ]
@@ -43,6 +49,7 @@ function placardRow(p: PlacardReading, index: number): PlacardRow {
     absentText: NOT_CLEAR,
     certainty: p.certainty,
     box: p.box ?? null,
+    photo: p.photo ?? null,
   }
 }
 
@@ -55,6 +62,7 @@ function markRow(key: string, label: string, seen: string, mark: MarkReading): P
     absentText: mark.answer === 'no' ? NOT_VISIBLE : NOT_CLEAR,
     certainty: mark.certainty,
     box: null,
+    photo: null,
   }
 }
 
@@ -69,6 +77,7 @@ export function placardRows(record: InspectionRecord): PlacardRow[] {
     absentText: NOT_CLEAR,
     certainty: reading.certainty,
     box: null,
+    photo: null,
   })
   const head: PlacardRow[] =
     reading.answer === 'none'

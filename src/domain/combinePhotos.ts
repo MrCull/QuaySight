@@ -3,8 +3,8 @@
 // Each photo is read on its own (its own survey and requests, folded into its own record as they land).
 // This builds the combined record the screen and the exports show: the container ID combined character by
 // character, details and weights by the most certain reading after the agreement rule (combineReadings.ts),
-// and a summary of each photo: its face, and which readings came from it. Damage, length, seal and placards
-// are not combined here: the record carries the first container photo's, until the tickets that combine them.
+// and a summary of each photo: its face, and which readings came from it. Length, seal and placards are combined in
+// combineLengthSealPlacards.ts. Damage is not combined here: the record carries the first container photo's.
 import {
   EQUIPMENT_CHECKS,
   MARKING_CHECKS,
@@ -16,6 +16,7 @@ import {
 import { withCodeConflict } from './containerDetails'
 import { agree, combineContainerIds, weakerOf, type Candidate } from './combineReadings'
 import { combineDamage } from './combineDamage'
+import { combineLengthSealPlacards } from './combineLengthSealPlacards'
 import { decodeSizeCode } from './isoSizeCode'
 import type { CertaintyLabel, ContainerIdReading, InspectionRecord } from './inspection'
 import type { FaceReading } from './photoFace'
@@ -329,6 +330,15 @@ export function combinePhotoRuns(
     contributions.get(Number(photo))!.damage = ids
   }
 
+  // Length from shape, seal and placards (combineLengthSealPlacards.ts).
+  const merged = combineLengthSealPlacards(
+    kept.map((r) => ({ photo: r.index, record: r.record })),
+    different,
+  )
+  for (const [field, from] of Object.entries(merged.from)) {
+    for (const photo of from) add(photo, 'details', [field])
+  }
+
   const photos: PhotoSummary[] = runs.map((r) => ({
     index: r.index,
     name: r.name,
@@ -344,6 +354,7 @@ export function combinePhotoRuns(
   const base = primary.record
   return {
     ...base,
+    ...merged.fields,
     id: options.id,
     resolvedVersion: records.map((r) => r.resolvedVersion).find(Boolean) ?? '',
     rawResponses: records.flatMap((r) => r.rawResponses),
