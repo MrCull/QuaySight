@@ -24,6 +24,7 @@ import { questionSet } from './questionSet'
 import { containerDetailsPart } from './containerDetails'
 import { doorDamageFamily, sideDamageFamily } from './damageFamilies'
 import { idFamily } from './idFamily'
+import { placardsFamily } from './placards'
 import { lengthPart } from './containerLength'
 import { shapeLengthFamily } from './shapeLength'
 import { facePart } from './photoFace'
@@ -82,6 +83,7 @@ const FAMILIES: QuestionFamily[] = [
   shapeLengthFamily,
   sideDamageFamily,
   doorDamageFamily,
+  placardsFamily,
 ]
 
 export function questionFamilies(): readonly QuestionFamily[] {

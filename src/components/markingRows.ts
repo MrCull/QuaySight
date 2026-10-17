@@ -45,6 +45,8 @@ const ORDER: readonly CertaintyLabel[] = [
 export function markingRows(record: InspectionRecord): MarkingRow[] | null {
   const details = record.details
   if (!details) return null
+  // A run that read the placards (ticket #69) shows them in their own rows, which replace these two.
+  const placardsRead = record.placards !== undefined
   const dg = details.dgPlacard
   const className = dg.dgClass === null ? null : dgClassName(dg.dgClass)
   const dgRow: MarkingRow = {
@@ -64,19 +66,21 @@ export function markingRows(record: InspectionRecord): MarkingRow[] | null {
     certainty: dg.certainty,
   }
   const rows: MarkingRow[] = [
-    dgRow,
-    ...MARKINGS.map(({ check, label, seen, hazard }): MarkingRow => {
-      const reading = details.markings[check]
-      return {
-        label,
-        badge:
-          reading.answer === 'yes'
-            ? { text: seen, caveat: reading.conflict, hazard, glyph: hazard ? 'hazard' : 'check' }
-            : null,
-        absentText: reading.answer === 'no' ? NOT_VISIBLE : NOT_CLEAR,
-        certainty: reading.certainty,
-      }
-    }),
+    ...(placardsRead ? [] : [dgRow]),
+    ...MARKINGS.filter(({ check }) => !(placardsRead && check === 'marinePollutant')).map(
+      ({ check, label, seen, hazard }): MarkingRow => {
+        const reading = details.markings[check]
+        return {
+          label,
+          badge:
+            reading.answer === 'yes'
+              ? { text: seen, caveat: reading.conflict, hazard, glyph: hazard ? 'hazard' : 'check' }
+              : null,
+          absentText: reading.answer === 'no' ? NOT_VISIBLE : NOT_CLEAR,
+          certainty: reading.certainty,
+        }
+      },
+    ),
   ]
   const seen = (row: MarkingRow) =>
     row.badge !== null && row.certainty !== 'Not seen' ? 0 : row.certainty === 'Not seen' ? 2 : 1

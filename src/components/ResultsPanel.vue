@@ -280,7 +280,11 @@ const showInsufficient = computed(() => idState.value === 'insufficient')
 
     <template v-if="record && detailsLanded">
       <ContainerDetails :record="record" :class="{ 'qs-arrived': detailsEarly }" />
-      <ContainerMarkings :record="record" :class="{ 'qs-arrived': detailsEarly }" />
+      <ContainerMarkings
+        :record="record"
+        :photo="store.photo?.url ?? null"
+        :class="{ 'qs-arrived': detailsEarly }"
+      />
     </template>
 
     <ExportActions v-if="!running" />

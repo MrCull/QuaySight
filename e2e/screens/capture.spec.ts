@@ -163,23 +163,79 @@ async function liveRun(page: Page) {
  * A Jev reading of the APHU sample through OpenRouter, in the response shape seen live on 16 Oct 2026, with the
  * details answered like a clean door and the damage sets answering as OpenRouter's keyed shape does.
  */
-function openRouterJevScript(): Script {
+function openRouterJevScript(placards: Record<string, unknown> = {}): Script {
   return (kind) => {
     if (kind === 'door') return jevDoorReply()
     if (kind === 'side') return notASideReply()
+    const reply = openRouterSurveyReply('APHU6586847', {
+      box: true,
+      details: {
+        size_type_code: [['45G1', 0.9]],
+        photo_face: [['rear_doors', 0.95]],
+      },
+      cost: 0.000077448,
+    })
     return {
-      ...openRouterSurveyReply('APHU6586847', {
-        box: true,
-        details: {
-          size_type_code: [['45G1', 0.9]],
-          photo_face: [['rear_doors', 0.95]],
-        },
-        cost: 0.000077448,
-      }),
+      ...reply,
+      answers: { ...reply.answers, ...placards },
       id: 'gen-dec-screenshot',
       provider: 'TypeSafe',
     }
   }
+}
+
+// Hand-written placard answers in OpenRouter's keyed shape (ticket #69).
+const yes = (probability: number) => ({ type: 'predicate', probability })
+const pick = (value: string, p = 0.96) => ({
+  type: 'choice',
+  choice: value,
+  probabilities: { [value]: p },
+  confidence: p,
+})
+function placardAnswers(
+  n: number,
+  klass: string,
+  un: string,
+  left: number,
+): Record<string, unknown> {
+  const out: Record<string, unknown> = {
+    [`placard_${n}_present`]: yes(0.96),
+    [`placard_${n}_class`]: pick(klass),
+    [`placard_${n}_box`]: {
+      type: 'box',
+      box: { top: 0.3, bottom: 0.4, left, right: left + 0.1 },
+      confidence: 0.85,
+    },
+  }
+  ;[...un].forEach((ch, i) => {
+    out[`placard_${n}_un_${i + 1}`] = pick(ch === '?' ? 'unreadable' : ch)
+  })
+  return out
+}
+const NO_PLACARDS = {
+  placards_present: yes(0.03),
+  marine_pollutant_mark: yes(0.02),
+  limited_quantity_mark: yes(0.02),
+}
+const TWO_PLACARDS = {
+  placards_present: yes(0.97),
+  ...placardAnswers(1, 'class_3', '1203', 0.3),
+  ...placardAnswers(2, 'class_9', '3082', 0.55),
+  marine_pollutant_mark: yes(0.94),
+  limited_quantity_mark: yes(0.9),
+}
+const UNREAD_UN = {
+  placards_present: yes(0.97),
+  ...placardAnswers(1, 'class_3', '12?3', 0.3),
+  marine_pollutant_mark: yes(0.03),
+  limited_quantity_mark: yes(0.03),
+}
+
+async function jevResult(page: Page) {
+  await open(page)
+  await liveKey(page, 'OpenRouter API key')
+  await choosePhoto(page)
+  await startAndSettle(page, 'Run live inspection')
 }
 
 /** GPT-6 Luna Decisions through OpenRouter: the recorded smoke response answers the survey; no damage question is answered. */
@@ -498,6 +554,27 @@ const CAPTURES: Capture[] = [
       await startAndSettle(page, 'Run live inspection')
     },
   },
+  ...(
+    [
+      ['placards-none', 'no placards seen', NO_PLACARDS],
+      [
+        'placards-two',
+        'two placards with the marine pollutant and limited quantity marks',
+        TWO_PLACARDS,
+      ],
+      ['placards-unread-un', 'one placard whose UN number has an unread digit', UNREAD_UN],
+    ] as const
+  ).map(([state, what, answers]): Capture => ({
+    state,
+    screen: 'results',
+    steps: [
+      'OpenRouter live result steps',
+      `Mocked Jev reading with boxes: ${what}; the Markings card shows the placards with crops`,
+    ],
+    motion: 'frozen',
+    script: () => openRouterJevScript(answers),
+    run: jevResult,
+  })),
   {
     state: 'openrouter-luna-result',
     screen: 'results',

@@ -1,0 +1,105 @@
+// The placards, the marine pollutant mark and the limited quantity mark as Markings card rows (ticket #69).
+// Pure. A placard is a hazard badge; certainty is only the chip beside it.
+import { dgClassName } from '../domain/containerDetails'
+import type { ReadingBox } from '../domain/enlargedCrop'
+import type { InspectionRecord } from '../domain/inspection'
+import type { MarkReading, PlacardReading } from '../domain/placards'
+import type { MarkingRow } from './markingRows'
+
+export interface PlacardRow extends MarkingRow {
+  key: string
+  /** Where this placard is in the photo; the card shows a crop beside it when usable. */
+  box: ReadingBox | null
+}
+
+const CARGO_CAVEAT = 'Cargo status unknown without a declaration'
+const NOT_CLEAR = 'Not clear from this photo'
+const NOT_VISIBLE = 'Not visible in this photo'
+
+function unText(unNumber: string | null): { text: string; partial: boolean } {
+  if (unNumber === null) return { text: 'UN number not read', partial: false }
+  return { text: `UN ${unNumber.replace(/\?/g, '·')}`, partial: unNumber.includes('?') }
+}
+
+function placardRow(p: PlacardReading, index: number): PlacardRow {
+  const un = unText(p.unNumber)
+  const name = p.dgClass === null ? null : dgClassName(p.dgClass)
+  const caveat = [
+    name ? `${name[0]!.toUpperCase()}${name.slice(1)}.` : null,
+    un.partial ? 'A digit of the UN number was not read.' : null,
+    CARGO_CAVEAT,
+  ]
+    .filter(Boolean)
+    .join(' ')
+  return {
+    key: `placard-${index}`,
+    label: `PLACARD ${index + 1}`,
+    badge: {
+      text: `${p.dgClass === null ? 'Class not read' : `Class ${p.dgClass}`}, ${un.text}`,
+      caveat,
+      hazard: true,
+      glyph: 'hazard',
+    },
+    absentText: NOT_CLEAR,
+    certainty: p.certainty,
+    box: p.box ?? null,
+  }
+}
+
+function markRow(key: string, label: string, seen: string, mark: MarkReading): PlacardRow {
+  return {
+    key,
+    label,
+    badge:
+      mark.answer === 'yes' ? { text: seen, caveat: null, hazard: true, glyph: 'hazard' } : null,
+    absentText: mark.answer === 'no' ? NOT_VISIBLE : NOT_CLEAR,
+    certainty: mark.certainty,
+    box: null,
+  }
+}
+
+/** One row per placard seen (or one saying none were), then one per mark; empty when the run did not ask. */
+export function placardRows(record: InspectionRecord): PlacardRow[] {
+  const reading = record.placards
+  if (!reading) return []
+  const headRow = (badge: PlacardRow['badge']): PlacardRow => ({
+    key: 'placards',
+    label: 'PLACARDS',
+    badge,
+    absentText: NOT_CLEAR,
+    certainty: reading.certainty,
+    box: null,
+  })
+  const head: PlacardRow[] =
+    reading.answer === 'none'
+      ? [
+          headRow({
+            text: 'No placards seen',
+            caveat: 'Not evidence that the cargo is non-hazardous',
+            hazard: false,
+            glyph: 'eye',
+          }),
+        ]
+      : reading.answer === 'unclear'
+        ? [headRow(null)]
+        : reading.placards.length === 0
+          ? [
+              headRow({
+                text: 'Placard visible, class and UN number not read',
+                caveat: CARGO_CAVEAT,
+                hazard: true,
+                glyph: 'hazard',
+              }),
+            ]
+          : reading.placards.map(placardRow)
+  return [
+    ...head,
+    markRow('marine', 'MARINE POLLUTANT', 'Marine pollutant mark visible', reading.marinePollutant),
+    markRow(
+      'limited',
+      'LIMITED QUANTITY',
+      'Limited quantity mark visible',
+      reading.limitedQuantity,
+    ),
+  ]
+}
