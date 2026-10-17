@@ -27,5 +27,11 @@ Demo mode plays both several-photo inspections (`src/domain/demoSamples.ts`).
   environment, `npx vitest run src/services/__tests__/planRecording.live.spec.ts`. Then `npm run check:secrets`
   and commit the changed files. Re-recording changes the scores: say so in the commit.
 
+Each photo's run now includes the numbered-regions step (ticket #84): `regions` (the model names the marks
+holding the ID, seal, weights panel, ISO code and hazard stickers on a copy of the photo drawn with 25 numbered
+regions), then `crop` (the ID's area re-read from the full-resolution photo) and `seal-zoom` (the seal's area
+re-read) where a region was named. Jev's own coordinate-box crop read is gone. A recording made before this
+step has no `regions` entry, so its `crop` entry is ignored on replay; re-record such a file.
+
 Never edit one by hand: a recording is what a model answered. To record, see
 `docs/research/live-api-findings-2026-10-16.md (the last section)`.

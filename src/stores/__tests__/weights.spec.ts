@@ -8,7 +8,6 @@ import { useInspectionStore } from '../inspection'
 import { useLedgerStore } from '../ledger'
 import { buildInspectionExport } from '../../domain/exports'
 import { onlyRequests } from '../../plan/registry'
-import { idCropRead } from '../../plan/requests/idCropRead'
 import { idRecheck } from '../../plan/requests/idRecheck'
 import { survey } from '../../plan/requests/survey'
 import { weightCheck } from '../../plan/requests/weightCheck'
@@ -109,7 +108,7 @@ describe('the weights are read in the survey, in both units', () => {
   beforeEach(() => {
     setActivePinia(createPinia())
     // The damage requests are other tickets' business: keep them out of the fetch counts.
-    restoreRequests = onlyRequests(survey, idRecheck, idCropRead, weightCheck)
+    restoreRequests = onlyRequests(survey, idRecheck, weightCheck)
     edge = networkEdge()
     vi.stubGlobal('fetch', edge.fetchMock)
   })
@@ -338,7 +337,6 @@ describe('the weights are read in the survey, in both units', () => {
 
   it('crops the second look to the weight block when the model gave a box for it', async () => {
     edge.on('survey', jevSurvey(withTare({ kg: '2,180', lb: '4,610' })))
-    edge.on('id-crop', () => json(openRouterSurveyReply(COYU)))
     edge.on('weights', () =>
       json(openRouterChoiceReply(weightChoices({ tare: { kg: '2,180', lb: '4,810' } }))),
     )
@@ -350,9 +348,9 @@ describe('the weights are read in the survey, in both units', () => {
     expect(sentImage(edge.last('weights'))).toMatch(/^jpeg \d+x\d+ from \d+x\d+ at \d+,\d+$/)
     expect(askedNames(edge.last('weights'))).not.toContain('weights_box')
     expect(store.record!.weights!.tare).toMatchObject({ units: 'agree' })
-    // The whole run: the survey, the ID crop read and the weights look: three ledger lines, none blocked.
+    // The whole run: the survey and the weights look: two ledger lines, none blocked.
     const lines = useLedgerStore().entries()
-    expect(lines).toHaveLength(3)
+    expect(lines).toHaveLength(2)
     expect(lines.every((l) => l.status === 'complete')).toBe(true)
   })
 

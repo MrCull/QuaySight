@@ -12,13 +12,16 @@ import { onlyRequests } from '../../plan/registry'
 import { survey } from '../../plan/requests/survey'
 import { idRecheck } from '../../plan/requests/idRecheck'
 import { idCropRead } from '../../plan/requests/idCropRead'
+import { regions } from '../../plan/requests/regions'
 
 const KEY = 'test-only-openrouter-key-0000'
-// The box Jev latest gave for COYU 266813 0 on the 1079 x 1080 photo, 16 Oct 2026.
+// The box Jev latest gives for COYU 266813 0 on the 1079 x 1080 photo, 16 Oct 2026. Still asked, to show the
+// enlarged close-up; the zoomed read no longer starts from it.
 const COYU_BOX = { top: 0.1, bottom: 0.14, left: 0.61, right: 0.79 }
-// That box with a margin, cut from the 1079 x 1080 photo and scaled to Jev's 1,568 px side (worked by hand
-// in src/domain/__tests__/cropRead.spec.ts).
-const COYU_CROP = 'jpeg 1568x852 from 331x180 at 590,40'
+// The numbered regions name marks 3 and 4 (top row, right half) for the ID. That area (x 0.5 to 1, y 0 to 0.25)
+// with a 0.25 margin, cut from the 1079 x 1080 photo and scaled to Jev's 1,568 px side.
+const COYU_MARKS = { id_mark: '3', id_mark_2: '4' }
+const COYU_CROP = 'jpeg 1568x940 from 675x405 at 404,0'
 
 function json(body: unknown, status = 200): Response {
   return new Response(JSON.stringify(body), {
@@ -65,24 +68,37 @@ function jevBody(
   }
 }
 
+/** An OpenRouter reply to the numbered-regions request naming these marks (name → mark); the rest are none. */
+function regionsBody(marks: Record<string, string> = COYU_MARKS, p = 0.8) {
+  const answers: Record<string, unknown> = {}
+  for (const [name, mark] of Object.entries(marks)) {
+    answers[name] = { type: 'choice', choice: mark, probabilities: { [mark]: p }, confidence: p }
+  }
+  return { model: 'typesafe/jev-1.14-20261014', answers, usage: { input_tokens: 1800, output_tokens: 60, cost: 0.0001 } }
+}
+
 interface Held {
   release: (response: Response) => void
   signal: AbortSignal | null
 }
 
-type Kind = 'full' | 'crop'
+type Kind = 'regions' | 'full' | 'crop'
 
 /**
  * Fetch at the network edge, routed by what each call asks: the full-photo read asks where the ID is,
  * the crop read does not. A held call answers only when released, and rejects when its signal aborts.
  */
 function networkEdge() {
-  const held: Record<Kind, Held[]> = { full: [], crop: [] }
+  const held: Record<Kind, Held[]> = { regions: [], full: [], crop: [] }
   const auto = new Map<Kind, () => Response>()
   const calls: { kind: Kind; body: string; signal: AbortSignal | null }[] = []
   const fetchMock = vi.fn<typeof fetch>((_input, init) => {
     const body = String(init?.body)
-    const kind: Kind = body.includes('container_box') ? 'full' : 'crop'
+    const kind: Kind = body.includes('id_mark')
+      ? 'regions'
+      : body.includes('container_box')
+        ? 'full'
+        : 'crop'
     calls.push({ kind, body, signal: init?.signal ?? null })
     const reply = auto.get(kind)
     if (reply) return Promise.resolve(reply())
@@ -109,15 +125,16 @@ function sentImage(body: string): string {
   return atob(url.slice(url.indexOf(',') + 1))
 }
 
-describe('the crop read of the container ID (Jev)', () => {
+describe('the zoomed read of the container ID, from the numbered regions (Jev)', () => {
   let edge: ReturnType<typeof networkEdge>
   let restoreRequests = () => {}
 
   beforeEach(() => {
     // This spec covers the ID requests; the damage request has its own spec.
-    restoreRequests = onlyRequests(survey, idRecheck, idCropRead)
+    restoreRequests = onlyRequests(survey, regions, idRecheck, idCropRead)
     setActivePinia(createPinia())
     edge = networkEdge()
+    edge.answer('regions', () => json(regionsBody()))
     vi.stubGlobal('fetch', edge.fetchMock)
   })
 
@@ -148,11 +165,12 @@ describe('the crop read of the container ID (Jev)', () => {
 
     await store.start()
 
-    expect(edge.calls.map((c) => c.kind)).toEqual(['full', 'crop'])
+    expect(edge.calls.map((c) => c.kind)).toEqual(['full', 'regions', 'crop'])
     expect(sentImage(edge.calls[0]!.body)).toBe('jpeg 1079x1080')
-    expect(sentImage(edge.calls[1]!.body)).toBe(COYU_CROP)
+    expect(sentImage(edge.calls[1]!.body)).toBe('jpeg 1079x1080 marked 25')
+    expect(sentImage(edge.calls[2]!.body)).toBe(COYU_CROP)
     // The same group-position character questions, without asking for the box again.
-    const crop = JSON.parse(edge.calls[1]!.body) as {
+    const crop = JSON.parse(edge.calls[2]!.body) as {
       model: string
       questions: Record<string, { instructions: string }>
     }
@@ -185,7 +203,8 @@ describe('the crop read of the container ID (Jev)', () => {
     })
     expect(store.record?.idCropRead).toMatchObject({
       outcome: 'combined',
-      crop: { x: 590, y: 40, width: 331, height: 180, sentWidth: 1568, sentHeight: 852 },
+      marks: [3, 4],
+      crop: { x: 404, y: 0, width: 675, height: 405, sentWidth: 1568, sentHeight: 940 },
       disagreements: [
         {
           position: 8,
@@ -199,6 +218,7 @@ describe('the crop read of the container ID (Jev)', () => {
     expect(buildInspectionExport(store.record!).idCropRead?.disagreements).toHaveLength(1)
     expect(store.record?.rawResponses.map((r) => r.passId)).toEqual([
       `${store.record?.id}-read`,
+      `${store.record?.id}-regions`,
       `${store.record?.id}-crop`,
     ])
   })
@@ -215,6 +235,7 @@ describe('the crop read of the container ID (Jev)', () => {
 
   it('carries no box on the ID reading when none was usable', async () => {
     edge.answer('full', () => json(jevBody('COYU2668130', { box: COYU_BOX, boxConfidence: 0.3 })))
+    edge.answer('crop', () => json(jevBody('COYU2668130')))
     const store = liveStore()
 
     await store.start()
@@ -232,36 +253,52 @@ describe('the crop read of the container ID (Jev)', () => {
     const lines = useLedgerStore().entries()
     expect(lines.map((l) => [l.id, l.purpose, l.status, l.costUsd])).toEqual([
       [`${store.record?.id}-read`, 'Reading markings', 'complete', 0.0001],
+      [`${store.record?.id}-regions`, 'Locating the markings', 'complete', 0.0001],
       [`${store.record?.id}-crop`, 'Reading the ID up close', 'complete', 0.0001],
     ])
   })
 
   it.each([
-    ['no box', null, 0.77],
-    ['a box the model is unsure of', COYU_BOX, 0.3],
-  ])('makes no crop request when the full-photo read gives %s', async (_case, box, confidence) => {
-    edge.answer('full', () => json(jevBody('COYU2668130', { box, boxConfidence: confidence })))
+    ['no mark for the ID', { id_mark: 'none' }, 0.9],
+    ['a mark the model is barely sure of', COYU_MARKS, 0.05],
+  ])('makes no zoomed read when the regions give %s', async (_case, marks, p) => {
+    edge.answer('full', () => json(jevBody('COYU2668130', { box: COYU_BOX })))
+    edge.answer('regions', () => json(regionsBody(marks, p)))
     const store = liveStore()
 
     await store.start()
 
-    expect(edge.calls.map((c) => c.kind)).toEqual(['full'])
-    expect(useLedgerStore().entries()).toHaveLength(1)
+    expect(edge.calls.map((c) => c.kind)).toEqual(['full', 'regions'])
     expect(store.record?.containerId?.value).toBe('COYU2668130')
     expect(store.record?.idCropRead).toBeUndefined()
   })
 
-  it('never makes a crop request on Jev 1.13, which takes no box question', async () => {
-    edge.fetchMock.mockImplementation(() =>
-      Promise.resolve(json(jevBody('COYU2668130', { box: COYU_BOX }))),
-    )
+  it('makes no zoomed read when the regions request fails, and the result stays complete', async () => {
+    edge.answer('full', () => json(jevBody('COYU2668130', { box: COYU_BOX })))
+    edge.answer('regions', () => json({ error: { message: 'Upstream error' } }, 502))
+    const store = liveStore()
+
+    await store.start()
+
+    expect(store.status).toBe('complete')
+    expect(edge.calls.map((c) => c.kind)).toEqual(['full', 'regions'])
+    expect(store.record?.regions).toMatchObject({ outcome: 'failed', found: null })
+    expect(store.record?.containerId?.value).toBe('COYU2668130')
+  })
+
+  it('asks the numbered regions on Jev 1.13 too, where no box question is taken', async () => {
+    edge.fetchMock.mockImplementation((_input, init) => {
+      const body = String(init?.body)
+      return Promise.resolve(json(body.includes('id_mark') ? regionsBody() : jevBody('COYU2668130')))
+    })
     const store = liveStore('typesafe/jev-1.13')
 
     await store.start()
 
-    expect(edge.fetchMock).toHaveBeenCalledTimes(1)
-    expect(String(edge.fetchMock.mock.calls[0]![1]?.body)).not.toContain('container_box')
-    expect(store.record?.idCropRead).toBeUndefined()
+    const bodies = edge.fetchMock.mock.calls.map((c) => String(c[1]?.body))
+    expect(bodies.filter((b) => b.includes('container_box'))).toHaveLength(0)
+    expect(bodies.some((b) => b.includes('id_mark'))).toBe(true)
+    expect(store.record?.idCropRead).toMatchObject({ outcome: 'combined', marks: [3, 4] })
   })
 
   it('keeps the full-photo reading, and a complete result, when the crop read fails', async () => {
@@ -279,7 +316,7 @@ describe('the crop read of the container ID (Jev)', () => {
       useLedgerStore()
         .entries()
         .map((l) => l.status),
-    ).toEqual(['complete', 'failed'])
+    ).toEqual(['complete', 'complete', 'failed'])
   })
 
   it('aborts the crop read in flight on Cancel and keeps the full-photo reading', async () => {
@@ -306,11 +343,12 @@ describe('the crop read of the container ID (Jev)', () => {
     const store = liveStore()
     vi.spyOn(useLedgerStore().ledger, 'capStatus')
       .mockReturnValueOnce({ allowed: true })
+      .mockReturnValueOnce({ allowed: true })
       .mockReturnValueOnce({ allowed: false, reason: 'requests' })
 
     await store.start()
 
-    expect(edge.calls.map((c) => c.kind)).toEqual(['full'])
+    expect(edge.calls.map((c) => c.kind)).toEqual(['full', 'regions'])
     expect(store.record?.containerId?.value).toBe('COYU2668130')
     expect(store.record?.idCropRead).toMatchObject({ outcome: 'skipped-cap', reason: 'requests' })
   })

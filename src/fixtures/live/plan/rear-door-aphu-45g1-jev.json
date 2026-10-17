@@ -1,12 +1,12 @@
 {
   "format": 1,
-  "recordedAt": "2026-10-17T12:56:39.368Z",
+  "recordedAt": "2026-10-17T13:00:49.566Z",
   "photo": "samples/rear-door-aphu-45g1.jpg",
   "provider": "openrouter",
   "model": "~typesafe/jev-latest",
   "entries": [
     {
-      "request": "door-damage",
+      "request": "side-damage",
       "response": {
         "model": "typesafe/jev-1.14-20261014",
         "answers": {
@@ -14,578 +14,860 @@
             "type": "choice",
             "choice": "good",
             "probabilities": {
-              "good": 0.87,
-              "limited": 0.12,
-              "poor": 0.01
+              "good": 0.76,
+              "limited": 0.21,
+              "poor": 0.03
             },
-            "confidence": 0.8
+            "confidence": 0.64
           },
-          "door_end_coverage": {
+          "side_panel_coverage": {
             "type": "choice",
             "choice": "full",
             "probabilities": {
-              "full": 0.77,
-              "most": 0.22,
-              "partial": 0.01,
-              "not_inspectable": 0
+              "full": 0.31,
+              "most": 0.11,
+              "partial": 0.31,
+              "not_inspectable": 0.27
             },
-            "confidence": 0.69
+            "confidence": 0.08
+          },
+          "door_end_in_image": {
+            "type": "choice",
+            "choice": "not_identifiable",
+            "probabilities": {
+              "image_left": 0.21,
+              "image_right": 0.35,
+              "not_identifiable": 0.44
+            },
+            "confidence": 0.16
           },
           "any_visible_defect": {
             "type": "noul",
-            "noul": 0.84
+            "noul": 0.77
           },
           "potentially_significant_damage": {
             "type": "noul",
-            "noul": 0.38
+            "noul": 0.37
           },
-          "D1T_visibility": {
+          "Z1T_visibility": {
             "type": "choice",
             "choice": "clear",
             "probabilities": {
-              "clear": 0.91,
+              "clear": 0.87,
               "partial": 0.09,
-              "not_visible": 0
-            },
-            "confidence": 0.86
-          },
-          "D1T_deformation_shape": {
-            "type": "choice",
-            "choice": "none",
-            "probabilities": {
-              "none": 0.85,
-              "local_dent": 0.07,
-              "sharp_bend": 0.01,
-              "broad_bow": 0.05,
-              "mixed": 0,
-              "uncertain": 0.02
-            },
-            "confidence": 0.82
-          },
-          "D1T_DT": {
-            "type": "noul",
-            "noul": 0.19
-          },
-          "D1T_BT": {
-            "type": "noul",
-            "noul": 0.08
-          },
-          "D1T_BW": {
-            "type": "noul",
-            "noul": 0.23
-          },
-          "D1T_HO": {
-            "type": "noul",
-            "noul": 0.02
-          },
-          "D1T_CK": {
-            "type": "noul",
-            "noul": 0.04
-          },
-          "D1T_CW": {
-            "type": "noul",
-            "noul": 0.03
-          },
-          "D1T_CO": {
-            "type": "noul",
-            "noul": 0.11
-          },
-          "D1T_CH": {
-            "type": "noul",
-            "noul": 0.02
-          },
-          "D1T_BR": {
-            "type": "noul",
-            "noul": 0.04
-          },
-          "D1T_severity": {
-            "type": "score",
-            "score": 0.81,
-            "legend": {
-              "0": "none: No reliably observed physical defect in the target region.",
-              "1": "cosmetic: Superficial deterioration only, e.g. small isolated rust or paint damage without discernible metal deformation.",
-              "2": "minor: Visible local metal dent, crease or deformation of limited extent with no evident rupture.",
-              "3": "moderate: Clearly substantial deformation affecting a large part of the visible leaf region.",
-              "4": "major: Very extensive severe distortion or obvious door-panel rupture/perforation; visual assessment only, NOT repair acceptance criteria."
-            },
-            "probabilities": {
-              "0": 0.41,
-              "1": 0.43,
-              "2": 0.11,
-              "3": 0.05,
-              "4": 0
-            },
-            "confidence": 0.48
-          },
-          "D1M_visibility": {
-            "type": "choice",
-            "choice": "clear",
-            "probabilities": {
-              "clear": 0.95,
-              "partial": 0.05,
-              "not_visible": 0
-            },
-            "confidence": 0.92
-          },
-          "D1M_deformation_shape": {
-            "type": "choice",
-            "choice": "none",
-            "probabilities": {
-              "none": 0.83,
-              "local_dent": 0.1,
-              "sharp_bend": 0.01,
-              "broad_bow": 0.05,
-              "mixed": 0,
-              "uncertain": 0.01
+              "not_visible": 0.04
             },
             "confidence": 0.8
           },
-          "D1M_DT": {
-            "type": "noul",
-            "noul": 0.24
+          "Z1T_deformation_shape": {
+            "type": "choice",
+            "choice": "none",
+            "probabilities": {
+              "none": 0.78,
+              "local_dent": 0.1,
+              "sharp_bend": 0.03,
+              "broad_bow": 0.05,
+              "mixed": 0,
+              "uncertain": 0.04
+            },
+            "confidence": 0.74
           },
-          "D1M_BT": {
+          "Z1T_DT": {
             "type": "noul",
-            "noul": 0.09
+            "noul": 0.18
           },
-          "D1M_BW": {
-            "type": "noul",
-            "noul": 0.21
-          },
-          "D1M_HO": {
-            "type": "noul",
-            "noul": 0.04
-          },
-          "D1M_CK": {
-            "type": "noul",
-            "noul": 0.05
-          },
-          "D1M_CW": {
-            "type": "noul",
-            "noul": 0.04
-          },
-          "D1M_CO": {
+          "Z1T_BT": {
             "type": "noul",
             "noul": 0.1
           },
-          "D1M_CH": {
+          "Z1T_BW": {
             "type": "noul",
-            "noul": 0.02
+            "noul": 0.19
           },
-          "D1M_BR": {
+          "Z1T_HO": {
+            "type": "noul",
+            "noul": 0.03
+          },
+          "Z1T_CK": {
             "type": "noul",
             "noul": 0.05
           },
-          "D1M_severity": {
+          "Z1T_CW": {
+            "type": "noul",
+            "noul": 0.03
+          },
+          "Z1T_CO": {
+            "type": "noul",
+            "noul": 0.11
+          },
+          "Z1T_CH": {
+            "type": "noul",
+            "noul": 0.02
+          },
+          "Z1T_BR": {
+            "type": "noul",
+            "noul": 0.04
+          },
+          "Z1T_severity": {
             "type": "score",
-            "score": 0.88,
+            "score": 0.95,
             "legend": {
               "0": "none: No reliably observed physical defect in the target region.",
               "1": "cosmetic: Superficial deterioration only, e.g. small isolated rust or paint damage without discernible metal deformation.",
               "2": "minor: Visible local metal dent, crease or deformation of limited extent with no evident rupture.",
-              "3": "moderate: Clearly substantial deformation affecting a large part of the visible leaf region.",
-              "4": "major: Very extensive severe distortion or obvious door-panel rupture/perforation; visual assessment only, NOT repair acceptance criteria."
+              "3": "moderate: Clearly substantial deformation affecting multiple corrugations or an extended part of the visible sheet.",
+              "4": "major: Very extensive severe distortion or obvious sheet rupture/perforation; visual assessment only, NOT repair acceptance criteria."
             },
             "probabilities": {
-              "0": 0.42,
-              "1": 0.36,
-              "2": 0.15,
-              "3": 0.06,
+              "0": 0.34,
+              "1": 0.47,
+              "2": 0.1,
+              "3": 0.08,
               "4": 0.01
             },
-            "confidence": 0.27
+            "confidence": 0.47
           },
-          "D1B_visibility": {
+          "Z1B_visibility": {
+            "type": "choice",
+            "choice": "clear",
+            "probabilities": {
+              "clear": 0.8,
+              "partial": 0.15,
+              "not_visible": 0.05
+            },
+            "confidence": 0.7
+          },
+          "Z1B_deformation_shape": {
+            "type": "choice",
+            "choice": "none",
+            "probabilities": {
+              "none": 0.82,
+              "local_dent": 0.09,
+              "sharp_bend": 0.01,
+              "broad_bow": 0.04,
+              "mixed": 0,
+              "uncertain": 0.04
+            },
+            "confidence": 0.78
+          },
+          "Z1B_DT": {
+            "type": "noul",
+            "noul": 0.15
+          },
+          "Z1B_BT": {
+            "type": "noul",
+            "noul": 0.07
+          },
+          "Z1B_BW": {
+            "type": "noul",
+            "noul": 0.12
+          },
+          "Z1B_HO": {
+            "type": "noul",
+            "noul": 0.05
+          },
+          "Z1B_CK": {
+            "type": "noul",
+            "noul": 0.05
+          },
+          "Z1B_CW": {
+            "type": "noul",
+            "noul": 0.04
+          },
+          "Z1B_CO": {
+            "type": "noul",
+            "noul": 0.13
+          },
+          "Z1B_CH": {
+            "type": "noul",
+            "noul": 0.03
+          },
+          "Z1B_BR": {
+            "type": "noul",
+            "noul": 0.04
+          },
+          "Z1B_severity": {
+            "type": "score",
+            "score": 0.57,
+            "legend": {
+              "0": "none: No reliably observed physical defect in the target region.",
+              "1": "cosmetic: Superficial deterioration only, e.g. small isolated rust or paint damage without discernible metal deformation.",
+              "2": "minor: Visible local metal dent, crease or deformation of limited extent with no evident rupture.",
+              "3": "moderate: Clearly substantial deformation affecting multiple corrugations or an extended part of the visible sheet.",
+              "4": "major: Very extensive severe distortion or obvious sheet rupture/perforation; visual assessment only, NOT repair acceptance criteria."
+            },
+            "probabilities": {
+              "0": 0.63,
+              "1": 0.23,
+              "2": 0.09,
+              "3": 0.04,
+              "4": 0.01
+            },
+            "confidence": 0.53
+          },
+          "Z2T_visibility": {
             "type": "choice",
             "choice": "clear",
             "probabilities": {
               "clear": 0.86,
-              "partial": 0.14,
-              "not_visible": 0
+              "partial": 0.08,
+              "not_visible": 0.06
             },
             "confidence": 0.79
           },
-          "D1B_deformation_shape": {
+          "Z2T_deformation_shape": {
             "type": "choice",
             "choice": "none",
             "probabilities": {
-              "none": 0.81,
-              "local_dent": 0.12,
+              "none": 0.86,
+              "local_dent": 0.07,
               "sharp_bend": 0.01,
               "broad_bow": 0.04,
               "mixed": 0,
               "uncertain": 0.02
             },
-            "confidence": 0.77
+            "confidence": 0.83
           },
-          "D1B_DT": {
+          "Z2T_DT": {
             "type": "noul",
-            "noul": 0.2
+            "noul": 0.15
           },
-          "D1B_BT": {
+          "Z2T_BT": {
             "type": "noul",
-            "noul": 0.09
+            "noul": 0.07
           },
-          "D1B_BW": {
+          "Z2T_BW": {
             "type": "noul",
-            "noul": 0.13
+            "noul": 0.15
           },
-          "D1B_HO": {
-            "type": "noul",
-            "noul": 0.04
-          },
-          "D1B_CK": {
-            "type": "noul",
-            "noul": 0.06
-          },
-          "D1B_CW": {
-            "type": "noul",
-            "noul": 0.04
-          },
-          "D1B_CO": {
-            "type": "noul",
-            "noul": 0.18
-          },
-          "D1B_CH": {
+          "Z2T_HO": {
             "type": "noul",
             "noul": 0.03
           },
-          "D1B_BR": {
+          "Z2T_CK": {
+            "type": "noul",
+            "noul": 0.04
+          },
+          "Z2T_CW": {
+            "type": "noul",
+            "noul": 0.05
+          },
+          "Z2T_CO": {
+            "type": "noul",
+            "noul": 0.1
+          },
+          "Z2T_CH": {
+            "type": "noul",
+            "noul": 0.02
+          },
+          "Z2T_BR": {
+            "type": "noul",
+            "noul": 0.03
+          },
+          "Z2T_severity": {
+            "type": "score",
+            "score": 0.55,
+            "legend": {
+              "0": "none: No reliably observed physical defect in the target region.",
+              "1": "cosmetic: Superficial deterioration only, e.g. small isolated rust or paint damage without discernible metal deformation.",
+              "2": "minor: Visible local metal dent, crease or deformation of limited extent with no evident rupture.",
+              "3": "moderate: Clearly substantial deformation affecting multiple corrugations or an extended part of the visible sheet.",
+              "4": "major: Very extensive severe distortion or obvious sheet rupture/perforation; visual assessment only, NOT repair acceptance criteria."
+            },
+            "probabilities": {
+              "0": 0.68,
+              "1": 0.17,
+              "2": 0.09,
+              "3": 0.05,
+              "4": 0.01
+            },
+            "confidence": 0.55
+          },
+          "Z2B_visibility": {
+            "type": "choice",
+            "choice": "clear",
+            "probabilities": {
+              "clear": 0.72,
+              "partial": 0.25,
+              "not_visible": 0.03
+            },
+            "confidence": 0.58
+          },
+          "Z2B_deformation_shape": {
+            "type": "choice",
+            "choice": "none",
+            "probabilities": {
+              "none": 0.85,
+              "local_dent": 0.09,
+              "sharp_bend": 0.01,
+              "broad_bow": 0.03,
+              "mixed": 0,
+              "uncertain": 0.02
+            },
+            "confidence": 0.82
+          },
+          "Z2B_DT": {
+            "type": "noul",
+            "noul": 0.16
+          },
+          "Z2B_BT": {
+            "type": "noul",
+            "noul": 0.07
+          },
+          "Z2B_BW": {
+            "type": "noul",
+            "noul": 0.1
+          },
+          "Z2B_HO": {
+            "type": "noul",
+            "noul": 0.03
+          },
+          "Z2B_CK": {
+            "type": "noul",
+            "noul": 0.05
+          },
+          "Z2B_CW": {
+            "type": "noul",
+            "noul": 0.04
+          },
+          "Z2B_CO": {
+            "type": "noul",
+            "noul": 0.16
+          },
+          "Z2B_CH": {
+            "type": "noul",
+            "noul": 0.03
+          },
+          "Z2B_BR": {
+            "type": "noul",
+            "noul": 0.04
+          },
+          "Z2B_severity": {
+            "type": "score",
+            "score": 0.5,
+            "legend": {
+              "0": "none: No reliably observed physical defect in the target region.",
+              "1": "cosmetic: Superficial deterioration only, e.g. small isolated rust or paint damage without discernible metal deformation.",
+              "2": "minor: Visible local metal dent, crease or deformation of limited extent with no evident rupture.",
+              "3": "moderate: Clearly substantial deformation affecting multiple corrugations or an extended part of the visible sheet.",
+              "4": "major: Very extensive severe distortion or obvious sheet rupture/perforation; visual assessment only, NOT repair acceptance criteria."
+            },
+            "probabilities": {
+              "0": 0.67,
+              "1": 0.21,
+              "2": 0.08,
+              "3": 0.03,
+              "4": 0.01
+            },
+            "confidence": 0.58
+          },
+          "Z3T_visibility": {
+            "type": "choice",
+            "choice": "clear",
+            "probabilities": {
+              "clear": 0.8,
+              "partial": 0.15,
+              "not_visible": 0.05
+            },
+            "confidence": 0.7
+          },
+          "Z3T_deformation_shape": {
+            "type": "choice",
+            "choice": "none",
+            "probabilities": {
+              "none": 0.87,
+              "local_dent": 0.05,
+              "sharp_bend": 0.02,
+              "broad_bow": 0.04,
+              "mixed": 0,
+              "uncertain": 0.02
+            },
+            "confidence": 0.84
+          },
+          "Z3T_DT": {
+            "type": "noul",
+            "noul": 0.16
+          },
+          "Z3T_BT": {
+            "type": "noul",
+            "noul": 0.08
+          },
+          "Z3T_BW": {
+            "type": "noul",
+            "noul": 0.15
+          },
+          "Z3T_HO": {
+            "type": "noul",
+            "noul": 0.05
+          },
+          "Z3T_CK": {
             "type": "noul",
             "noul": 0.06
           },
-          "D1B_severity": {
+          "Z3T_CW": {
+            "type": "noul",
+            "noul": 0.05
+          },
+          "Z3T_CO": {
+            "type": "noul",
+            "noul": 0.15
+          },
+          "Z3T_CH": {
+            "type": "noul",
+            "noul": 0.03
+          },
+          "Z3T_BR": {
+            "type": "noul",
+            "noul": 0.04
+          },
+          "Z3T_severity": {
+            "type": "score",
+            "score": 0.47,
+            "legend": {
+              "0": "none: No reliably observed physical defect in the target region.",
+              "1": "cosmetic: Superficial deterioration only, e.g. small isolated rust or paint damage without discernible metal deformation.",
+              "2": "minor: Visible local metal dent, crease or deformation of limited extent with no evident rupture.",
+              "3": "moderate: Clearly substantial deformation affecting multiple corrugations or an extended part of the visible sheet.",
+              "4": "major: Very extensive severe distortion or obvious sheet rupture/perforation; visual assessment only, NOT repair acceptance criteria."
+            },
+            "probabilities": {
+              "0": 0.7,
+              "1": 0.17,
+              "2": 0.08,
+              "3": 0.04,
+              "4": 0.01
+            },
+            "confidence": 0.59
+          },
+          "Z3B_visibility": {
+            "type": "choice",
+            "choice": "clear",
+            "probabilities": {
+              "clear": 0.63,
+              "partial": 0.32,
+              "not_visible": 0.05
+            },
+            "confidence": 0.45
+          },
+          "Z3B_deformation_shape": {
+            "type": "choice",
+            "choice": "none",
+            "probabilities": {
+              "none": 0.84,
+              "local_dent": 0.09,
+              "sharp_bend": 0.02,
+              "broad_bow": 0.03,
+              "mixed": 0,
+              "uncertain": 0.02
+            },
+            "confidence": 0.81
+          },
+          "Z3B_DT": {
+            "type": "noul",
+            "noul": 0.17
+          },
+          "Z3B_BT": {
+            "type": "noul",
+            "noul": 0.09
+          },
+          "Z3B_BW": {
+            "type": "noul",
+            "noul": 0.11
+          },
+          "Z3B_HO": {
+            "type": "noul",
+            "noul": 0.06
+          },
+          "Z3B_CK": {
+            "type": "noul",
+            "noul": 0.06
+          },
+          "Z3B_CW": {
+            "type": "noul",
+            "noul": 0.05
+          },
+          "Z3B_CO": {
+            "type": "noul",
+            "noul": 0.45
+          },
+          "Z3B_CH": {
+            "type": "noul",
+            "noul": 0.04
+          },
+          "Z3B_BR": {
+            "type": "noul",
+            "noul": 0.06
+          },
+          "Z3B_severity": {
+            "type": "score",
+            "score": 0.7,
+            "legend": {
+              "0": "none: No reliably observed physical defect in the target region.",
+              "1": "cosmetic: Superficial deterioration only, e.g. small isolated rust or paint damage without discernible metal deformation.",
+              "2": "minor: Visible local metal dent, crease or deformation of limited extent with no evident rupture.",
+              "3": "moderate: Clearly substantial deformation affecting multiple corrugations or an extended part of the visible sheet.",
+              "4": "major: Very extensive severe distortion or obvious sheet rupture/perforation; visual assessment only, NOT repair acceptance criteria."
+            },
+            "probabilities": {
+              "0": 0.47,
+              "1": 0.4,
+              "2": 0.09,
+              "3": 0.03,
+              "4": 0.01
+            },
+            "confidence": 0.41
+          },
+          "Z4T_visibility": {
+            "type": "choice",
+            "choice": "clear",
+            "probabilities": {
+              "clear": 0.89,
+              "partial": 0.07,
+              "not_visible": 0.04
+            },
+            "confidence": 0.83
+          },
+          "Z4T_deformation_shape": {
+            "type": "choice",
+            "choice": "none",
+            "probabilities": {
+              "none": 0.87,
+              "local_dent": 0.06,
+              "sharp_bend": 0.01,
+              "broad_bow": 0.04,
+              "mixed": 0,
+              "uncertain": 0.02
+            },
+            "confidence": 0.84
+          },
+          "Z4T_DT": {
+            "type": "noul",
+            "noul": 0.16
+          },
+          "Z4T_BT": {
+            "type": "noul",
+            "noul": 0.08
+          },
+          "Z4T_BW": {
+            "type": "noul",
+            "noul": 0.13
+          },
+          "Z4T_HO": {
+            "type": "noul",
+            "noul": 0.04
+          },
+          "Z4T_CK": {
+            "type": "noul",
+            "noul": 0.06
+          },
+          "Z4T_CW": {
+            "type": "noul",
+            "noul": 0.06
+          },
+          "Z4T_CO": {
+            "type": "noul",
+            "noul": 0.18
+          },
+          "Z4T_CH": {
+            "type": "noul",
+            "noul": 0.03
+          },
+          "Z4T_BR": {
+            "type": "noul",
+            "noul": 0.04
+          },
+          "Z4T_severity": {
+            "type": "score",
+            "score": 0.49,
+            "legend": {
+              "0": "none: No reliably observed physical defect in the target region.",
+              "1": "cosmetic: Superficial deterioration only, e.g. small isolated rust or paint damage without discernible metal deformation.",
+              "2": "minor: Visible local metal dent, crease or deformation of limited extent with no evident rupture.",
+              "3": "moderate: Clearly substantial deformation affecting multiple corrugations or an extended part of the visible sheet.",
+              "4": "major: Very extensive severe distortion or obvious sheet rupture/perforation; visual assessment only, NOT repair acceptance criteria."
+            },
+            "probabilities": {
+              "0": 0.65,
+              "1": 0.26,
+              "2": 0.06,
+              "3": 0.03,
+              "4": 0
+            },
+            "confidence": 0.61
+          },
+          "Z4B_visibility": {
+            "type": "choice",
+            "choice": "clear",
+            "probabilities": {
+              "clear": 0.79,
+              "partial": 0.19,
+              "not_visible": 0.02
+            },
+            "confidence": 0.69
+          },
+          "Z4B_deformation_shape": {
+            "type": "choice",
+            "choice": "none",
+            "probabilities": {
+              "none": 0.85,
+              "local_dent": 0.1,
+              "sharp_bend": 0.01,
+              "broad_bow": 0.03,
+              "mixed": 0,
+              "uncertain": 0.01
+            },
+            "confidence": 0.82
+          },
+          "Z4B_DT": {
+            "type": "noul",
+            "noul": 0.15
+          },
+          "Z4B_BT": {
+            "type": "noul",
+            "noul": 0.08
+          },
+          "Z4B_BW": {
+            "type": "noul",
+            "noul": 0.09
+          },
+          "Z4B_HO": {
+            "type": "noul",
+            "noul": 0.06
+          },
+          "Z4B_CK": {
+            "type": "noul",
+            "noul": 0.06
+          },
+          "Z4B_CW": {
+            "type": "noul",
+            "noul": 0.06
+          },
+          "Z4B_CO": {
+            "type": "noul",
+            "noul": 0.55
+          },
+          "Z4B_CH": {
+            "type": "noul",
+            "noul": 0.04
+          },
+          "Z4B_BR": {
+            "type": "noul",
+            "noul": 0.05
+          },
+          "Z4B_severity": {
+            "type": "score",
+            "score": 0.87,
+            "legend": {
+              "0": "none: No reliably observed physical defect in the target region.",
+              "1": "cosmetic: Superficial deterioration only, e.g. small isolated rust or paint damage without discernible metal deformation.",
+              "2": "minor: Visible local metal dent, crease or deformation of limited extent with no evident rupture.",
+              "3": "moderate: Clearly substantial deformation affecting multiple corrugations or an extended part of the visible sheet.",
+              "4": "major: Very extensive severe distortion or obvious sheet rupture/perforation; visual assessment only, NOT repair acceptance criteria."
+            },
+            "probabilities": {
+              "0": 0.29,
+              "1": 0.59,
+              "2": 0.09,
+              "3": 0.03,
+              "4": 0
+            },
+            "confidence": 0.63
+          },
+          "Z5T_visibility": {
+            "type": "choice",
+            "choice": "clear",
+            "probabilities": {
+              "clear": 0.88,
+              "partial": 0.09,
+              "not_visible": 0.03
+            },
+            "confidence": 0.82
+          },
+          "Z5T_deformation_shape": {
+            "type": "choice",
+            "choice": "none",
+            "probabilities": {
+              "none": 0.84,
+              "local_dent": 0.08,
+              "sharp_bend": 0.02,
+              "broad_bow": 0.04,
+              "mixed": 0,
+              "uncertain": 0.02
+            },
+            "confidence": 0.81
+          },
+          "Z5T_DT": {
+            "type": "noul",
+            "noul": 0.19
+          },
+          "Z5T_BT": {
+            "type": "noul",
+            "noul": 0.1
+          },
+          "Z5T_BW": {
+            "type": "noul",
+            "noul": 0.13
+          },
+          "Z5T_HO": {
+            "type": "noul",
+            "noul": 0.05
+          },
+          "Z5T_CK": {
+            "type": "noul",
+            "noul": 0.06
+          },
+          "Z5T_CW": {
+            "type": "noul",
+            "noul": 0.07
+          },
+          "Z5T_CO": {
+            "type": "noul",
+            "noul": 0.28
+          },
+          "Z5T_CH": {
+            "type": "noul",
+            "noul": 0.04
+          },
+          "Z5T_BR": {
+            "type": "noul",
+            "noul": 0.04
+          },
+          "Z5T_severity": {
             "type": "score",
             "score": 0.66,
             "legend": {
               "0": "none: No reliably observed physical defect in the target region.",
               "1": "cosmetic: Superficial deterioration only, e.g. small isolated rust or paint damage without discernible metal deformation.",
               "2": "minor: Visible local metal dent, crease or deformation of limited extent with no evident rupture.",
-              "3": "moderate: Clearly substantial deformation affecting a large part of the visible leaf region.",
-              "4": "major: Very extensive severe distortion or obvious door-panel rupture/perforation; visual assessment only, NOT repair acceptance criteria."
+              "3": "moderate: Clearly substantial deformation affecting multiple corrugations or an extended part of the visible sheet.",
+              "4": "major: Very extensive severe distortion or obvious sheet rupture/perforation; visual assessment only, NOT repair acceptance criteria."
             },
             "probabilities": {
-              "0": 0.59,
-              "1": 0.2,
-              "2": 0.19,
-              "3": 0.02,
+              "0": 0.5,
+              "1": 0.4,
+              "2": 0.07,
+              "3": 0.03,
               "4": 0
             },
             "confidence": 0.47
           },
-          "D2T_visibility": {
+          "Z5B_visibility": {
             "type": "choice",
             "choice": "clear",
             "probabilities": {
-              "clear": 0.93,
-              "partial": 0.07,
-              "not_visible": 0
+              "clear": 0.86,
+              "partial": 0.05,
+              "not_visible": 0.09
             },
-            "confidence": 0.89
+            "confidence": 0.79
           },
-          "D2T_deformation_shape": {
-            "type": "choice",
-            "choice": "none",
-            "probabilities": {
-              "none": 0.9,
-              "local_dent": 0.04,
-              "sharp_bend": 0.01,
-              "broad_bow": 0.04,
-              "mixed": 0,
-              "uncertain": 0.01
-            },
-            "confidence": 0.88
-          },
-          "D2T_DT": {
-            "type": "noul",
-            "noul": 0.14
-          },
-          "D2T_BT": {
-            "type": "noul",
-            "noul": 0.07
-          },
-          "D2T_BW": {
-            "type": "noul",
-            "noul": 0.17
-          },
-          "D2T_HO": {
-            "type": "noul",
-            "noul": 0.02
-          },
-          "D2T_CK": {
-            "type": "noul",
-            "noul": 0.04
-          },
-          "D2T_CW": {
-            "type": "noul",
-            "noul": 0.05
-          },
-          "D2T_CO": {
-            "type": "noul",
-            "noul": 0.22
-          },
-          "D2T_CH": {
-            "type": "noul",
-            "noul": 0.02
-          },
-          "D2T_BR": {
-            "type": "noul",
-            "noul": 0.03
-          },
-          "D2T_severity": {
-            "type": "score",
-            "score": 0.54,
-            "legend": {
-              "0": "none: No reliably observed physical defect in the target region.",
-              "1": "cosmetic: Superficial deterioration only, e.g. small isolated rust or paint damage without discernible metal deformation.",
-              "2": "minor: Visible local metal dent, crease or deformation of limited extent with no evident rupture.",
-              "3": "moderate: Clearly substantial deformation affecting a large part of the visible leaf region.",
-              "4": "major: Very extensive severe distortion or obvious door-panel rupture/perforation; visual assessment only, NOT repair acceptance criteria."
-            },
-            "probabilities": {
-              "0": 0.61,
-              "1": 0.29,
-              "2": 0.09,
-              "3": 0.01,
-              "4": 0
-            },
-            "confidence": 0.58
-          },
-          "D2M_visibility": {
-            "type": "choice",
-            "choice": "clear",
-            "probabilities": {
-              "clear": 0.96,
-              "partial": 0.04,
-              "not_visible": 0
-            },
-            "confidence": 0.94
-          },
-          "D2M_deformation_shape": {
+          "Z5B_deformation_shape": {
             "type": "choice",
             "choice": "none",
             "probabilities": {
               "none": 0.89,
-              "local_dent": 0.05,
-              "sharp_bend": 0.01,
-              "broad_bow": 0.04,
-              "mixed": 0,
-              "uncertain": 0.01
-            },
-            "confidence": 0.87
-          },
-          "D2M_DT": {
-            "type": "noul",
-            "noul": 0.15
-          },
-          "D2M_BT": {
-            "type": "noul",
-            "noul": 0.06
-          },
-          "D2M_BW": {
-            "type": "noul",
-            "noul": 0.17
-          },
-          "D2M_HO": {
-            "type": "noul",
-            "noul": 0.03
-          },
-          "D2M_CK": {
-            "type": "noul",
-            "noul": 0.04
-          },
-          "D2M_CW": {
-            "type": "noul",
-            "noul": 0.05
-          },
-          "D2M_CO": {
-            "type": "noul",
-            "noul": 0.25
-          },
-          "D2M_CH": {
-            "type": "noul",
-            "noul": 0.02
-          },
-          "D2M_BR": {
-            "type": "noul",
-            "noul": 0.03
-          },
-          "D2M_severity": {
-            "type": "score",
-            "score": 0.58,
-            "legend": {
-              "0": "none: No reliably observed physical defect in the target region.",
-              "1": "cosmetic: Superficial deterioration only, e.g. small isolated rust or paint damage without discernible metal deformation.",
-              "2": "minor: Visible local metal dent, crease or deformation of limited extent with no evident rupture.",
-              "3": "moderate: Clearly substantial deformation affecting a large part of the visible leaf region.",
-              "4": "major: Very extensive severe distortion or obvious door-panel rupture/perforation; visual assessment only, NOT repair acceptance criteria."
-            },
-            "probabilities": {
-              "0": 0.55,
-              "1": 0.35,
-              "2": 0.09,
-              "3": 0.01,
-              "4": 0
-            },
-            "confidence": 0.53
-          },
-          "D2B_visibility": {
-            "type": "choice",
-            "choice": "clear",
-            "probabilities": {
-              "clear": 0.94,
-              "partial": 0.06,
-              "not_visible": 0
-            },
-            "confidence": 0.91
-          },
-          "D2B_deformation_shape": {
-            "type": "choice",
-            "choice": "none",
-            "probabilities": {
-              "none": 0.88,
-              "local_dent": 0.08,
+              "local_dent": 0.06,
               "sharp_bend": 0.01,
               "broad_bow": 0.02,
               "mixed": 0,
-              "uncertain": 0.01
+              "uncertain": 0.02
             },
-            "confidence": 0.86
+            "confidence": 0.87
           },
-          "D2B_DT": {
+          "Z5B_DT": {
             "type": "noul",
-            "noul": 0.21
+            "noul": 0.14
           },
-          "D2B_BT": {
+          "Z5B_BT": {
             "type": "noul",
-            "noul": 0.07
+            "noul": 0.06
           },
-          "D2B_BW": {
+          "Z5B_BW": {
             "type": "noul",
             "noul": 0.09
           },
-          "D2B_HO": {
+          "Z5B_HO": {
             "type": "noul",
             "noul": 0.05
           },
-          "D2B_CK": {
+          "Z5B_CK": {
             "type": "noul",
-            "noul": 0.06
+            "noul": 0.04
           },
-          "D2B_CW": {
+          "Z5B_CW": {
             "type": "noul",
             "noul": 0.05
           },
-          "D2B_CO": {
+          "Z5B_CO": {
             "type": "noul",
-            "noul": 0.57
+            "noul": 0.26
           },
-          "D2B_CH": {
+          "Z5B_CH": {
             "type": "noul",
-            "noul": 0.03
+            "noul": 0.04
           },
-          "D2B_BR": {
+          "Z5B_BR": {
             "type": "noul",
-            "noul": 0.06
+            "noul": 0.04
           },
-          "D2B_severity": {
+          "Z5B_severity": {
             "type": "score",
-            "score": 0.94,
+            "score": 0.57,
             "legend": {
               "0": "none: No reliably observed physical defect in the target region.",
               "1": "cosmetic: Superficial deterioration only, e.g. small isolated rust or paint damage without discernible metal deformation.",
               "2": "minor: Visible local metal dent, crease or deformation of limited extent with no evident rupture.",
-              "3": "moderate: Clearly substantial deformation affecting a large part of the visible leaf region.",
-              "4": "major: Very extensive severe distortion or obvious door-panel rupture/perforation; visual assessment only, NOT repair acceptance criteria."
+              "3": "moderate: Clearly substantial deformation affecting multiple corrugations or an extended part of the visible sheet.",
+              "4": "major: Very extensive severe distortion or obvious sheet rupture/perforation; visual assessment only, NOT repair acceptance criteria."
             },
             "probabilities": {
-              "0": 0.25,
-              "1": 0.58,
-              "2": 0.16,
-              "3": 0.01,
+              "0": 0.56,
+              "1": 0.35,
+              "2": 0.07,
+              "3": 0.02,
               "4": 0
             },
-            "confidence": 0.64
+            "confidence": 0.54
           },
-          "left_leaf_locking_bar_bent": {
-            "type": "noul",
-            "noul": 0.12
-          },
-          "left_leaf_locking_bar_broken": {
-            "type": "noul",
-            "noul": 0.16
-          },
-          "right_leaf_locking_bar_bent": {
-            "type": "noul",
-            "noul": 0.16
-          },
-          "right_leaf_locking_bar_broken": {
-            "type": "noul",
-            "noul": 0.16
-          },
-          "cam_keeper_damage": {
-            "type": "noul",
-            "noul": 0.21
-          },
-          "left_leaf_hinge_damage": {
-            "type": "noul",
-            "noul": 0.09
-          },
-          "right_leaf_hinge_damage": {
-            "type": "noul",
-            "noul": 0.1
-          },
-          "door_gasket_damage": {
-            "type": "noul",
-            "noul": 0.1
-          },
-          "door_header_bent": {
-            "type": "noul",
-            "noul": 0.07
-          },
-          "door_header_corrosion": {
-            "type": "noul",
-            "noul": 0.41
-          },
-          "door_header_broken": {
-            "type": "noul",
-            "noul": 0.04
-          },
-          "door_sill_bent": {
+          "bottom_rail_bent": {
             "type": "noul",
             "noul": 0.08
           },
-          "door_sill_corrosion": {
+          "bottom_rail_corrosion": {
             "type": "noul",
-            "noul": 0.63
+            "noul": 0.67
           },
-          "door_sill_broken": {
+          "bottom_rail_broken": {
             "type": "noul",
-            "noul": 0.05
+            "noul": 0.06
           },
-          "left_corner_post_damage": {
+          "top_rail_bent": {
             "type": "noul",
-            "noul": 0.28
+            "noul": 0.08
           },
-          "right_corner_post_damage": {
+          "left_end_corner_post_damage": {
             "type": "noul",
-            "noul": 0.25
+            "noul": 0.24
+          },
+          "right_end_corner_post_damage": {
+            "type": "noul",
+            "noul": 0.23
           },
           "corner_casting_damage": {
             "type": "noul",
-            "noul": 0.2
+            "noul": 0.19
           }
         },
         "usage": {
-          "input_tokens": 16233,
-          "output_tokens": 2293,
-          "cost": 0.000681786
+          "input_tokens": 20999,
+          "output_tokens": 3351,
+          "cost": 0.000881958
         },
-        "id": "gen-dec-1792241798-U6ZQSce61tSuC9pMvJLv",
+        "id": "gen-dec-1792242048-mAHKgizcpqH2z2QX8hmc",
         "provider": "TypeSafe"
       },
-      "latencyMs": 865,
-      "costUsd": 0.000681786
+      "latencyMs": 948,
+      "costUsd": 0.000881958
     },
     {
       "request": "regions",
@@ -598,11 +880,11 @@
             "probabilities": {
               "1": 0,
               "2": 0,
-              "3": 0.58,
+              "3": 0.62,
               "4": 0,
               "5": 0,
               "6": 0,
-              "7": 0.39,
+              "7": 0.35,
               "8": 0,
               "9": 0,
               "10": 0,
@@ -613,7 +895,7 @@
               "15": 0,
               "16": 0,
               "17": 0,
-              "18": 0.02,
+              "18": 0.01,
               "19": 0,
               "20": 0,
               "21": 0,
@@ -621,9 +903,9 @@
               "23": 0,
               "24": 0,
               "25": 0,
-              "none": 0.01
+              "none": 0.02
             },
-            "confidence": 0.56
+            "confidence": 0.6
           },
           "id_mark_2": {
             "type": "choice",
@@ -631,11 +913,11 @@
             "probabilities": {
               "1": 0,
               "2": 0,
-              "3": 0.34,
-              "4": 0.04,
+              "3": 0.35000000000000003,
+              "4": 0.02,
               "5": 0,
               "6": 0,
-              "7": 0.19,
+              "7": 0.26,
               "8": 0,
               "9": 0,
               "10": 0,
@@ -646,8 +928,8 @@
               "15": 0,
               "16": 0,
               "17": 0,
-              "18": 0.25,
-              "19": 0.09,
+              "18": 0.2,
+              "19": 0.07,
               "20": 0,
               "21": 0,
               "22": 0,
@@ -656,7 +938,7 @@
               "25": 0,
               "none": 0.09
             },
-            "confidence": 0.31
+            "confidence": 0.32
           },
           "seal_mark": {
             "type": "choice",
@@ -671,8 +953,8 @@
               "7": 0,
               "8": 0,
               "9": 0,
-              "10": 0.06,
-              "11": 0.03,
+              "10": 0.06999999999999999,
+              "11": 0.04,
               "12": 0,
               "13": 0,
               "14": 0.02,
@@ -681,15 +963,15 @@
               "17": 0,
               "18": 0.01,
               "19": 0,
-              "20": 0.01,
-              "21": 0.03,
+              "20": 0,
+              "21": 0.02,
               "22": 0,
               "23": 0.01,
-              "24": 0.59,
+              "24": 0.56,
               "25": 0,
-              "none": 0.21
+              "none": 0.23
             },
-            "confidence": 0.57
+            "confidence": 0.54
           },
           "seal_mark_2": {
             "type": "choice",
@@ -701,10 +983,10 @@
               "4": 0,
               "5": 0,
               "6": 0.01,
-              "7": 0,
+              "7": 0.01,
               "8": 0,
               "9": 0,
-              "10": 0.07,
+              "10": 0.08,
               "11": 0.03,
               "12": 0,
               "13": 0,
@@ -712,17 +994,17 @@
               "15": 0.03,
               "16": 0,
               "17": 0,
-              "18": 0.02,
+              "18": 0.01,
               "19": 0,
               "20": 0.01,
-              "21": 0.14,
+              "21": 0.11,
               "22": 0,
               "23": 0.03,
-              "24": 0.53,
+              "24": 0.55,
               "25": 0.01,
               "none": 0.09
             },
-            "confidence": 0.51
+            "confidence": 0.53
           },
           "weights_mark": {
             "type": "choice",
@@ -730,15 +1012,15 @@
             "probabilities": {
               "1": 0,
               "2": 0,
-              "3": 0.01,
+              "3": 0.02,
               "4": 0,
               "5": 0,
               "6": 0,
-              "7": 0.81,
+              "7": 0.74,
               "8": 0,
               "9": 0,
               "10": 0,
-              "11": 0.1,
+              "11": 0.15000000000000002,
               "12": 0,
               "13": 0,
               "14": 0,
@@ -748,47 +1030,47 @@
               "18": 0,
               "19": 0,
               "20": 0,
-              "21": 0.06,
+              "21": 0.08,
               "22": 0,
               "23": 0,
               "24": 0,
               "25": 0,
               "none": 0.01
             },
-            "confidence": 0.8
+            "confidence": 0.73
           },
           "weights_mark_2": {
             "type": "choice",
-            "choice": "21",
+            "choice": "7",
             "probabilities": {
               "1": 0,
               "2": 0,
-              "3": 0.05,
+              "3": 0.04,
               "4": 0,
               "5": 0,
               "6": 0,
-              "7": 0.28,
+              "7": 0.35000000000000003,
               "8": 0,
               "9": 0,
               "10": 0,
-              "11": 0.16,
+              "11": 0.18,
               "12": 0,
               "13": 0,
               "14": 0.01,
               "15": 0,
               "16": 0,
               "17": 0,
-              "18": 0.05,
+              "18": 0.04,
               "19": 0.01,
               "20": 0,
-              "21": 0.38,
-              "22": 0.05,
+              "21": 0.33,
+              "22": 0.03,
               "23": 0,
               "24": 0,
               "25": 0,
               "none": 0.01
             },
-            "confidence": 0.36
+            "confidence": 0.32
           },
           "iso_mark": {
             "type": "choice",
@@ -796,11 +1078,11 @@
             "probabilities": {
               "1": 0,
               "2": 0,
-              "3": 0.66,
+              "3": 0.6,
               "4": 0,
               "5": 0,
               "6": 0,
-              "7": 0.31,
+              "7": 0.37,
               "8": 0,
               "9": 0,
               "10": 0,
@@ -821,7 +1103,7 @@
               "25": 0,
               "none": 0.02
             },
-            "confidence": 0.65
+            "confidence": 0.58
           },
           "iso_mark_2": {
             "type": "choice",
@@ -829,11 +1111,11 @@
             "probabilities": {
               "1": 0,
               "2": 0,
-              "3": 0.33,
+              "3": 0.37,
               "4": 0.01,
               "5": 0,
               "6": 0,
-              "7": 0.24000000000000002,
+              "7": 0.26,
               "8": 0,
               "9": 0,
               "10": 0,
@@ -844,17 +1126,17 @@
               "15": 0,
               "16": 0,
               "17": 0,
-              "18": 0.1,
-              "19": 0.19,
+              "18": 0.06,
+              "19": 0.16,
               "20": 0,
               "21": 0,
               "22": 0,
               "23": 0,
               "24": 0,
               "25": 0,
-              "none": 0.13
+              "none": 0.14
             },
-            "confidence": 0.3
+            "confidence": 0.34
           },
           "hazard_1_mark": {
             "type": "choice",
@@ -883,11 +1165,11 @@
               "21": 0,
               "22": 0,
               "23": 0,
-              "24": 0.87,
-              "25": 0.02,
-              "none": 0.09999999999999999
+              "24": 0.84,
+              "25": 0.03,
+              "none": 0.12
             },
-            "confidence": 0.86
+            "confidence": 0.83
           },
           "hazard_1_mark_2": {
             "type": "choice",
@@ -907,20 +1189,20 @@
               "12": 0,
               "13": 0,
               "14": 0,
-              "15": 0.03,
+              "15": 0.02,
               "16": 0,
               "17": 0,
               "18": 0,
               "19": 0,
               "20": 0,
-              "21": 0.02,
+              "21": 0.03,
               "22": 0,
               "23": 0,
-              "24": 0.77,
-              "25": 0.04,
-              "none": 0.13
+              "24": 0.73,
+              "25": 0.06999999999999999,
+              "none": 0.14
             },
-            "confidence": 0.76
+            "confidence": 0.72
           },
           "hazard_2_mark": {
             "type": "choice",
@@ -931,7 +1213,7 @@
               "3": 0,
               "4": 0,
               "5": 0,
-              "6": 0.01,
+              "6": 0.02,
               "7": 0,
               "8": 0,
               "9": 0,
@@ -949,11 +1231,11 @@
               "21": 0,
               "22": 0,
               "23": 0,
-              "24": 0.3,
-              "25": 0.13,
-              "none": 0.56
+              "24": 0.24000000000000002,
+              "25": 0.15,
+              "none": 0.59
             },
-            "confidence": 0.54
+            "confidence": 0.57
           },
           "hazard_2_mark_2": {
             "type": "choice",
@@ -982,11 +1264,11 @@
               "21": 0.02,
               "22": 0,
               "23": 0,
-              "24": 0.5,
-              "25": 0.19,
-              "none": 0.25
+              "24": 0.51,
+              "25": 0.18000000000000002,
+              "none": 0.24000000000000002
             },
-            "confidence": 0.48
+            "confidence": 0.49
           },
           "hazard_3_mark": {
             "type": "choice",
@@ -1015,8 +1297,8 @@
               "21": 0,
               "22": 0,
               "23": 0,
-              "24": 0.18,
-              "25": 0.05,
+              "24": 0.17,
+              "25": 0.06,
               "none": 0.76
             },
             "confidence": 0.75
@@ -1039,7 +1321,7 @@
               "12": 0,
               "13": 0,
               "14": 0,
-              "15": 0.02,
+              "15": 0.03,
               "16": 0,
               "17": 0,
               "18": 0,
@@ -1048,23 +1330,23 @@
               "21": 0.01,
               "22": 0,
               "23": 0,
-              "24": 0.71,
-              "25": 0.06999999999999999,
-              "none": 0.17
+              "24": 0.67,
+              "25": 0.08,
+              "none": 0.19
             },
-            "confidence": 0.7
+            "confidence": 0.66
           }
         },
         "usage": {
-          "input_tokens": 11599,
-          "output_tokens": 3024,
-          "cost": 0.000487158
+          "input_tokens": 11600,
+          "output_tokens": 3023,
+          "cost": 0.0004872
         },
-        "id": "gen-dec-1792241798-Kp44dboMp4wXbaobyslZ",
+        "id": "gen-dec-1792242048-B31oeQfkFklfRA5tDeqm",
         "provider": "TypeSafe"
       },
-      "latencyMs": 717,
-      "costUsd": 0.000487158
+      "latencyMs": 793,
+      "costUsd": 0.0004872
     },
     {
       "request": "read",
@@ -1150,7 +1432,7 @@
               "E": 0,
               "F": 0,
               "G": 0,
-              "H": 0.9,
+              "H": 0.84,
               "I": 0,
               "J": 0,
               "K": 0,
@@ -1158,20 +1440,20 @@
               "M": 0,
               "N": 0,
               "O": 0,
-              "P": 0.06,
+              "P": 0.09,
               "Q": 0,
               "R": 0,
               "S": 0,
               "T": 0,
-              "U": 0.04,
+              "U": 0.06,
               "V": 0,
               "W": 0,
               "X": 0,
               "Y": 0,
               "Z": 0,
-              "unreadable": 0
+              "unreadable": 0.01
             },
-            "confidence": 0.9
+            "confidence": 0.83
           },
           "id_char_04": {
             "type": "choice",
@@ -1233,9 +1515,9 @@
               "1": 0,
               "2": 0,
               "3": 0,
-              "4": 0,
+              "4": 0.01,
               "5": 0.96,
-              "6": 0.03,
+              "6": 0.02,
               "7": 0,
               "8": 0.01,
               "9": 0,
@@ -1253,13 +1535,13 @@
               "3": 0.01,
               "4": 0.01,
               "5": 0.02,
-              "6": 0.23,
-              "7": 0.01,
-              "8": 0.72,
+              "6": 0.31,
+              "7": 0,
+              "8": 0.65,
               "9": 0,
               "unreadable": 0
             },
-            "confidence": 0.69
+            "confidence": 0.61
           },
           "id_char_08": {
             "type": "choice",
@@ -1270,14 +1552,14 @@
               "2": 0,
               "3": 0.01,
               "4": 0.01,
-              "5": 0.01,
-              "6": 0.73,
+              "5": 0.02,
+              "6": 0.77,
               "7": 0,
-              "8": 0.24000000000000002,
+              "8": 0.19,
               "9": 0,
               "unreadable": 0
             },
-            "confidence": 0.7
+            "confidence": 0.75
           },
           "id_char_09": {
             "type": "choice",
@@ -1287,15 +1569,15 @@
               "1": 0,
               "2": 0,
               "3": 0,
-              "4": 0,
+              "4": 0.01,
               "5": 0,
               "6": 0.01,
               "7": 0,
-              "8": 0.99,
+              "8": 0.98,
               "9": 0,
               "unreadable": 0
             },
-            "confidence": 0.99
+            "confidence": 0.98
           },
           "id_char_10": {
             "type": "choice",
@@ -1320,18 +1602,18 @@
             "choice": "7",
             "probabilities": {
               "0": 0,
-              "1": 0,
+              "1": 0.01,
               "2": 0,
               "3": 0,
               "4": 0,
               "5": 0,
               "6": 0,
-              "7": 1,
+              "7": 0.99,
               "8": 0,
               "9": 0,
               "unreadable": 0
             },
-            "confidence": 1
+            "confidence": 0.99
           },
           "owner_code": {
             "type": "choice",
@@ -1596,7 +1878,7 @@
           },
           "legibility": {
             "type": "score",
-            "score": 3.69,
+            "score": 3.72,
             "legend": {
               "0": "Not visible at all",
               "1": "Mostly unreadable",
@@ -1607,25 +1889,25 @@
             "probabilities": {
               "0": 0,
               "1": 0.01,
-              "2": 0.05,
+              "2": 0.04,
               "3": 0.16,
-              "4": 0.78
+              "4": 0.79
             },
-            "confidence": 0.76
+            "confidence": 0.77
           },
           "full_number_visible": {
             "type": "noul",
-            "noul": 0.27
+            "noul": 0.37
           },
           "container_box": {
             "type": "box",
             "box": {
               "top": 0.15,
               "bottom": 0.19,
-              "left": 0.58,
-              "right": 0.66
+              "left": 0.59,
+              "right": 0.67
             },
-            "confidence": 0.86
+            "confidence": 0.84
           },
           "size_type_code": {
             "type": "choice",
@@ -1675,20 +1957,20 @@
             "choice": "no",
             "probabilities": {
               "yes": 0.02,
-              "no": 0.94,
-              "unknown": 0.04
+              "no": 0.92,
+              "unknown": 0.06
             },
-            "confidence": 0.91
+            "confidence": 0.88
           },
           "equipment_open_top": {
             "type": "choice",
             "choice": "no",
             "probabilities": {
               "yes": 0,
-              "no": 0.87,
-              "unknown": 0.13
+              "no": 0.85,
+              "unknown": 0.15
             },
-            "confidence": 0.8
+            "confidence": 0.77
           },
           "equipment_tank": {
             "type": "choice",
@@ -1705,10 +1987,10 @@
             "choice": "no",
             "probabilities": {
               "yes": 0,
-              "no": 0.95,
-              "unknown": 0.05
+              "no": 0.96,
+              "unknown": 0.04
             },
-            "confidence": 0.92
+            "confidence": 0.94
           },
           "marking_super_heavy": {
             "type": "choice",
@@ -1724,11 +2006,11 @@
             "type": "choice",
             "choice": "yes",
             "probabilities": {
-              "yes": 0.98,
-              "no": 0.02,
+              "yes": 0.97,
+              "no": 0.03,
               "unknown": 0
             },
-            "confidence": 0.97
+            "confidence": 0.95
           },
           "marking_overwidth": {
             "type": "choice",
@@ -1744,21 +2026,21 @@
             "type": "choice",
             "choice": "no",
             "probabilities": {
-              "yes": 0.07,
-              "no": 0.93,
+              "yes": 0.06,
+              "no": 0.9400000000000001,
               "unknown": 0
             },
-            "confidence": 0.89
+            "confidence": 0.91
           },
           "marking_marine_pollutant": {
             "type": "choice",
             "choice": "no",
             "probabilities": {
               "yes": 0.07,
-              "no": 0.93,
-              "unknown": 0
+              "no": 0.92,
+              "unknown": 0.01
             },
-            "confidence": 0.89
+            "confidence": 0.88
           },
           "dg_placard": {
             "type": "choice",
@@ -1786,11 +2068,28 @@
               "long_side": 0,
               "front_end": 0,
               "roof": 0,
+              "close_up_seal": 0,
+              "close_up_id": 0,
+              "close_up_weights": 0,
+              "close_up_placard": 0,
+              "close_up_damage": 0,
               "close_up": 0,
               "not_a_container": 0,
               "unknown": 0
             },
             "confidence": 1
+          },
+          "shows_rear_doors": {
+            "type": "noul",
+            "noul": 0.98
+          },
+          "shows_long_side": {
+            "type": "noul",
+            "noul": 0.27
+          },
+          "shows_front_end": {
+            "type": "noul",
+            "noul": 0.08
           },
           "max_gross_kg_units": {
             "type": "choice",
@@ -1815,12 +2114,12 @@
             "type": "choice",
             "choice": "5",
             "probabilities": {
-              "0": 0.24,
+              "0": 0.45,
               "1": 0.01,
               "2": 0,
               "3": 0.01,
-              "4": 0.01,
-              "5": 0.73,
+              "4": 0,
+              "5": 0.53,
               "6": 0,
               "7": 0,
               "8": 0,
@@ -1829,7 +2128,7 @@
               "unreadable": 0,
               "not_visible": 0
             },
-            "confidence": 0.71
+            "confidence": 0.49
           },
           "max_gross_kg_hundreds": {
             "type": "choice",
@@ -1837,10 +2136,10 @@
             "probabilities": {
               "0": 0.03,
               "1": 0.01,
-              "2": 0.03,
-              "3": 0.09,
-              "4": 0,
-              "5": 0.8,
+              "2": 0.01,
+              "3": 0.08,
+              "4": 0.01,
+              "5": 0.82,
               "6": 0.01,
               "7": 0.01,
               "8": 0.01,
@@ -1849,27 +2148,27 @@
               "unreadable": 0,
               "not_visible": 0
             },
-            "confidence": 0.78
+            "confidence": 0.8
           },
           "max_gross_kg_thousands": {
             "type": "choice",
             "choice": "2",
             "probabilities": {
               "0": 0.01,
-              "1": 0.02,
-              "2": 0.62,
-              "3": 0.3,
+              "1": 0.03,
+              "2": 0.54,
+              "3": 0.33,
               "4": 0.01,
-              "5": 0.01,
-              "6": 0,
-              "7": 0,
+              "5": 0.02,
+              "6": 0.01,
+              "7": 0.01,
               "8": 0.01,
               "9": 0,
-              "none": 0.02,
+              "none": 0.03,
               "unreadable": 0,
               "not_visible": 0
             },
-            "confidence": 0.59
+            "confidence": 0.5
           },
           "max_gross_kg_ten_thousands": {
             "type": "choice",
@@ -1895,12 +2194,12 @@
             "type": "choice",
             "choice": "0",
             "probabilities": {
-              "0": 0.97,
+              "0": 0.95,
               "1": 0.01,
               "2": 0,
-              "3": 0,
+              "3": 0.01,
               "4": 0.01,
-              "5": 0.01,
+              "5": 0.02,
               "6": 0,
               "7": 0,
               "8": 0,
@@ -1908,7 +2207,7 @@
               "unreadable": 0,
               "not_visible": 0
             },
-            "confidence": 0.97
+            "confidence": 0.95
           },
           "max_gross_lb_tens": {
             "type": "choice",
@@ -1919,16 +2218,16 @@
               "2": 0,
               "3": 0.01,
               "4": 0.01,
-              "5": 0.04,
-              "6": 0.9,
-              "7": 0.02,
+              "5": 0.09,
+              "6": 0.84,
+              "7": 0.03,
               "8": 0,
               "9": 0,
               "none": 0,
               "unreadable": 0,
               "not_visible": 0
             },
-            "confidence": 0.89
+            "confidence": 0.83
           },
           "max_gross_lb_hundreds": {
             "type": "choice",
@@ -1940,35 +2239,35 @@
               "3": 0.01,
               "4": 0,
               "5": 0.01,
-              "6": 0.94,
-              "7": 0.02,
+              "6": 0.93,
+              "7": 0.03,
               "8": 0,
               "9": 0,
               "none": 0.01,
               "unreadable": 0,
               "not_visible": 0
             },
-            "confidence": 0.93
+            "confidence": 0.92
           },
           "max_gross_lb_thousands": {
             "type": "choice",
             "choice": "1",
             "probabilities": {
               "0": 0,
-              "1": 0.7,
+              "1": 0.72,
               "2": 0,
-              "3": 0.02,
+              "3": 0.01,
               "4": 0.01,
               "5": 0.01,
-              "6": 0.02,
-              "7": 0.22,
+              "6": 0.03,
+              "7": 0.21,
               "8": 0,
               "9": 0,
-              "none": 0.02,
+              "none": 0.01,
               "unreadable": 0,
               "not_visible": 0
             },
-            "confidence": 0.67
+            "confidence": 0.7
           },
           "max_gross_lb_ten_thousands": {
             "type": "choice",
@@ -1980,7 +2279,7 @@
               "3": 0,
               "4": 0,
               "5": 0,
-              "6": 0.03,
+              "6": 0.02,
               "7": 0.93,
               "8": 0,
               "9": 0,
@@ -2016,47 +2315,47 @@
               "0": 0,
               "1": 0,
               "2": 0,
-              "3": 0.01,
-              "4": 0.01,
+              "3": 0,
+              "4": 0,
               "5": 0,
               "6": 0,
-              "7": 0.96,
-              "8": 0.02,
+              "7": 0.99,
+              "8": 0.01,
               "9": 0,
               "none": 0,
               "unreadable": 0,
               "not_visible": 0
             },
-            "confidence": 0.96
+            "confidence": 0.99
           },
           "tare_kg_hundreds": {
             "type": "choice",
             "choice": "3",
             "probabilities": {
-              "0": 0.04,
+              "0": 0.03,
               "1": 0.01,
               "2": 0,
-              "3": 0.76,
-              "4": 0.02,
+              "3": 0.67,
+              "4": 0.01,
               "5": 0.01,
               "6": 0,
               "7": 0,
-              "8": 0.09,
+              "8": 0.2,
               "9": 0,
-              "none": 0.07,
+              "none": 0.06,
               "unreadable": 0,
               "not_visible": 0
             },
-            "confidence": 0.74
+            "confidence": 0.64
           },
           "tare_kg_thousands": {
             "type": "choice",
             "choice": "3",
             "probabilities": {
-              "0": 0.01,
+              "0": 0.02,
               "1": 0.01,
               "2": 0,
-              "3": 0.88,
+              "3": 0.87,
               "4": 0.01,
               "5": 0,
               "6": 0,
@@ -2067,13 +2366,13 @@
               "unreadable": 0,
               "not_visible": 0
             },
-            "confidence": 0.87
+            "confidence": 0.86
           },
           "tare_kg_ten_thousands": {
             "type": "choice",
             "choice": "none",
             "probabilities": {
-              "0": 0.13,
+              "0": 0.16,
               "1": 0,
               "2": 0,
               "3": 0.03,
@@ -2083,20 +2382,20 @@
               "7": 0,
               "8": 0,
               "9": 0,
-              "none": 0.84,
+              "none": 0.81,
               "unreadable": 0,
               "not_visible": 0
             },
-            "confidence": 0.83
+            "confidence": 0.79
           },
           "tare_lb_units": {
             "type": "choice",
             "choice": "1",
             "probabilities": {
               "0": 0.02,
-              "1": 0.95,
+              "1": 0.96,
               "2": 0,
-              "3": 0.02,
+              "3": 0.01,
               "4": 0,
               "5": 0.01,
               "6": 0,
@@ -2106,17 +2405,17 @@
               "unreadable": 0,
               "not_visible": 0
             },
-            "confidence": 0.95
+            "confidence": 0.96
           },
           "tare_lb_tens": {
             "type": "choice",
             "choice": "3",
             "probabilities": {
               "0": 0,
-              "1": 0.03,
-              "2": 0.03,
-              "3": 0.8,
-              "4": 0.02,
+              "1": 0.02,
+              "2": 0.02,
+              "3": 0.83,
+              "4": 0.01,
               "5": 0.05,
               "6": 0.01,
               "7": 0.01,
@@ -2126,27 +2425,27 @@
               "unreadable": 0.01,
               "not_visible": 0
             },
-            "confidence": 0.78
+            "confidence": 0.82
           },
           "tare_lb_hundreds": {
             "type": "choice",
             "choice": "5",
             "probabilities": {
               "0": 0.01,
-              "1": 0.01,
+              "1": 0.02,
               "2": 0,
-              "3": 0.05,
-              "4": 0.01,
-              "5": 0.59,
-              "6": 0.01,
+              "3": 0.03,
+              "4": 0.02,
+              "5": 0.51,
+              "6": 0.02,
               "7": 0.01,
-              "8": 0.27,
+              "8": 0.33,
               "9": 0.01,
               "none": 0.01,
-              "unreadable": 0.02,
+              "unreadable": 0.03,
               "not_visible": 0
             },
-            "confidence": 0.56
+            "confidence": 0.47
           },
           "tare_lb_thousands": {
             "type": "choice",
@@ -2157,13 +2456,13 @@
               "2": 0,
               "3": 0.02,
               "4": 0.01,
-              "5": 0.02,
+              "5": 0.03,
               "6": 0.01,
               "7": 0.01,
               "8": 0.84,
               "9": 0.01,
               "none": 0.03,
-              "unreadable": 0.03,
+              "unreadable": 0.02,
               "not_visible": 0
             },
             "confidence": 0.83
@@ -2172,21 +2471,21 @@
             "type": "choice",
             "choice": "8",
             "probabilities": {
-              "0": 0.12,
+              "0": 0.11,
               "1": 0.02,
               "2": 0,
               "3": 0.01,
-              "4": 0,
+              "4": 0.01,
               "5": 0.01,
               "6": 0.01,
               "7": 0.01,
-              "8": 0.54,
+              "8": 0.55,
               "9": 0.01,
-              "none": 0.26,
-              "unreadable": 0.01,
+              "none": 0.24,
+              "unreadable": 0.02,
               "not_visible": 0
             },
-            "confidence": 0.5
+            "confidence": 0.51
           },
           "payload_kg_units": {
             "type": "choice",
@@ -2214,18 +2513,18 @@
               "0": 0.02,
               "1": 0,
               "2": 0,
-              "3": 0.62,
+              "3": 0.63,
               "4": 0,
               "5": 0,
               "6": 0.32,
               "7": 0.01,
-              "8": 0.02,
+              "8": 0.01,
               "9": 0.01,
               "none": 0,
               "unreadable": 0,
               "not_visible": 0
             },
-            "confidence": 0.59
+            "confidence": 0.6
           },
           "payload_kg_hundreds": {
             "type": "choice",
@@ -2237,35 +2536,35 @@
               "3": 0.01,
               "4": 0,
               "5": 0,
-              "6": 0.88,
+              "6": 0.89,
               "7": 0.02,
-              "8": 0.07,
+              "8": 0.06,
               "9": 0,
               "none": 0.01,
               "unreadable": 0,
               "not_visible": 0
             },
-            "confidence": 0.87
+            "confidence": 0.88
           },
           "payload_kg_thousands": {
             "type": "choice",
             "choice": "8",
             "probabilities": {
               "0": 0.02,
-              "1": 0.01,
+              "1": 0.02,
               "2": 0.01,
               "3": 0.02,
               "4": 0.01,
               "5": 0.01,
               "6": 0.01,
-              "7": 0.34,
-              "8": 0.53,
+              "7": 0.4,
+              "8": 0.45999999999999996,
               "9": 0.01,
               "none": 0.03,
               "unreadable": 0,
               "not_visible": 0
             },
-            "confidence": 0.49
+            "confidence": 0.41
           },
           "payload_kg_ten_thousands": {
             "type": "choice",
@@ -2273,19 +2572,19 @@
             "probabilities": {
               "0": 0.01,
               "1": 0.01,
-              "2": 0.11,
+              "2": 0.08,
               "3": 0.01,
-              "4": 0.01,
+              "4": 0,
               "5": 0,
               "6": 0.01,
-              "7": 0.8,
-              "8": 0.03,
+              "7": 0.81,
+              "8": 0.04,
               "9": 0,
-              "none": 0.01,
+              "none": 0.02,
               "unreadable": 0,
               "not_visible": 0
             },
-            "confidence": 0.78
+            "confidence": 0.79
           },
           "payload_lb_units": {
             "type": "choice",
@@ -2310,11 +2609,11 @@
             "type": "choice",
             "choice": "2",
             "probabilities": {
-              "0": 0.01,
+              "0": 0.02,
               "1": 0.31,
-              "2": 0.64,
+              "2": 0.62,
               "3": 0.02,
-              "4": 0.01,
+              "4": 0.02,
               "5": 0.01,
               "6": 0,
               "7": 0,
@@ -2324,7 +2623,7 @@
               "unreadable": 0,
               "not_visible": 0
             },
-            "confidence": 0.61
+            "confidence": 0.59
           },
           "payload_lb_hundreds": {
             "type": "choice",
@@ -2333,10 +2632,10 @@
               "0": 0,
               "1": 0.92,
               "2": 0.01,
-              "3": 0.02,
+              "3": 0.04,
               "4": 0,
               "5": 0.01,
-              "6": 0.03,
+              "6": 0.01,
               "7": 0,
               "8": 0,
               "9": 0,
@@ -2350,33 +2649,33 @@
             "type": "choice",
             "choice": "6",
             "probabilities": {
-              "0": 0.02,
-              "1": 0.08,
+              "0": 0.01,
+              "1": 0.07,
               "2": 0.01,
-              "3": 0.24,
+              "3": 0.36,
               "4": 0.01,
               "5": 0.05,
-              "6": 0.51,
+              "6": 0.42,
               "7": 0.03,
               "8": 0.01,
               "9": 0.01,
-              "none": 0.03,
+              "none": 0.02,
               "unreadable": 0,
               "not_visible": 0
             },
-            "confidence": 0.47
+            "confidence": 0.37
           },
           "payload_lb_ten_thousands": {
             "type": "choice",
             "choice": "6",
             "probabilities": {
               "0": 0,
-              "1": 0,
+              "1": 0.01,
               "2": 0,
               "3": 0.01,
               "4": 0,
               "5": 0.02,
-              "6": 0.95,
+              "6": 0.94,
               "7": 0.01,
               "8": 0,
               "9": 0,
@@ -2384,7 +2683,7 @@
               "unreadable": 0,
               "not_visible": 0
             },
-            "confidence": 0.95
+            "confidence": 0.93
           },
           "capacity_m3_units": {
             "type": "choice",
@@ -2394,36 +2693,36 @@
               "1": 0,
               "2": 0,
               "3": 0,
-              "4": 0.28,
+              "4": 0.23,
               "5": 0,
-              "6": 0.63,
-              "7": 0.08,
+              "6": 0.7,
+              "7": 0.06,
               "8": 0.01,
               "9": 0,
               "unreadable": 0,
               "not_visible": 0
             },
-            "confidence": 0.6
+            "confidence": 0.67
           },
           "capacity_m3_tens": {
             "type": "choice",
             "choice": "7",
             "probabilities": {
-              "0": 0.01,
+              "0": 0,
               "1": 0,
               "2": 0,
               "3": 0,
               "4": 0.01,
               "5": 0,
               "6": 0.04,
-              "7": 0.91,
+              "7": 0.92,
               "8": 0.01,
               "9": 0,
               "none": 0.02,
               "unreadable": 0,
               "not_visible": 0
             },
-            "confidence": 0.9
+            "confidence": 0.91
           },
           "capacity_m3_tenths": {
             "type": "choice",
@@ -2468,41 +2767,41 @@
             "type": "choice",
             "choice": "0",
             "probabilities": {
-              "0": 0.79,
-              "1": 0.08,
+              "0": 0.84,
+              "1": 0.06,
               "2": 0.01,
               "3": 0.01,
               "4": 0.01,
               "5": 0,
-              "6": 0.01,
-              "7": 0.05,
+              "6": 0,
+              "7": 0.04,
               "8": 0,
-              "9": 0.02,
+              "9": 0.01,
               "none": 0.02,
               "unreadable": 0,
               "not_visible": 0
             },
-            "confidence": 0.77
+            "confidence": 0.83
           },
           "capacity_cuft_hundreds": {
             "type": "choice",
             "choice": "7",
             "probabilities": {
-              "0": 0.04,
-              "1": 0.12,
-              "2": 0.17,
+              "0": 0.03,
+              "1": 0.09,
+              "2": 0.31,
               "3": 0.01,
               "4": 0.01,
               "5": 0,
-              "6": 0.02,
-              "7": 0.49,
+              "6": 0.01,
+              "7": 0.39,
               "8": 0,
               "9": 0.01,
               "none": 0.12,
-              "unreadable": 0.01,
+              "unreadable": 0.02,
               "not_visible": 0
             },
-            "confidence": 0.45
+            "confidence": 0.34
           },
           "capacity_cuft_thousands": {
             "type": "choice",
@@ -2510,7 +2809,7 @@
             "probabilities": {
               "0": 0.01,
               "1": 0.01,
-              "2": 0.91,
+              "2": 0.92,
               "3": 0,
               "4": 0,
               "5": 0,
@@ -2518,65 +2817,65 @@
               "7": 0,
               "8": 0,
               "9": 0,
-              "none": 0.060000000000000005,
+              "none": 0.05,
               "unreadable": 0.01,
               "not_visible": 0
             },
-            "confidence": 0.9
+            "confidence": 0.91
           },
           "weights_box": {
             "type": "box",
             "box": {
               "top": 0.34,
-              "bottom": 0.47,
-              "left": 0.53,
-              "right": 0.69
+              "bottom": 0.55,
+              "left": 0.52,
+              "right": 0.7
             },
-            "confidence": 0.63
+            "confidence": 0.52
           },
           "container_length": {
             "type": "choice",
             "choice": "45_ft",
             "probabilities": {
-              "20_ft": 0.14,
+              "20_ft": 0.11,
               "40_ft": 0.15,
-              "45_ft": 0.55,
-              "unknown": 0.16
+              "45_ft": 0.56,
+              "unknown": 0.18
             },
-            "confidence": 0.4
+            "confidence": 0.41
           },
           "seal_visible": {
             "type": "noul",
-            "noul": 0.45
+            "noul": 0.49
           },
           "seal_length": {
             "type": "choice",
             "choice": "unreadable",
             "probabilities": {
-              "1": 0.03,
+              "1": 0.02,
               "2": 0.02,
-              "3": 0.03,
-              "4": 0.05,
+              "3": 0.04,
+              "4": 0.07,
               "5": 0.03,
               "6": 0.07,
               "7": 0.02,
               "8": 0,
-              "unreadable": 0.75
+              "unreadable": 0.73
             },
-            "confidence": 0.72
+            "confidence": 0.7
           },
           "seal_char_01": {
             "type": "choice",
-            "choice": "unreadable",
+            "choice": "none",
             "probabilities": {
               "0": 0,
-              "1": 0.07,
+              "1": 0.05,
               "2": 0.01,
               "3": 0,
               "4": 0,
               "5": 0,
               "6": 0.01,
-              "7": 0,
+              "7": 0.01,
               "8": 0,
               "9": 0,
               "A": 0.01,
@@ -2586,7 +2885,7 @@
               "E": 0,
               "F": 0,
               "G": 0.01,
-              "H": 0.01,
+              "H": 0,
               "I": 0.01,
               "J": 0.01,
               "K": 0.01,
@@ -2605,7 +2904,7 @@
               "X": 0,
               "Y": 0,
               "Z": 0,
-              "none": 0.37,
+              "none": 0.39,
               "unreadable": 0.4
             },
             "confidence": 0.38
@@ -2616,12 +2915,12 @@
             "probabilities": {
               "0": 0.01,
               "1": 0.01,
-              "2": 0.02,
+              "2": 0.01,
               "3": 0,
               "4": 0,
               "5": 0,
               "6": 0,
-              "7": 0,
+              "7": 0.02,
               "8": 0,
               "9": 0,
               "A": 0,
@@ -2636,7 +2935,7 @@
               "J": 0,
               "K": 0.02,
               "L": 0,
-              "M": 0,
+              "M": 0.02,
               "N": 0.02,
               "O": 0,
               "P": 0,
@@ -2650,10 +2949,10 @@
               "X": 0,
               "Y": 0,
               "Z": 0,
-              "none": 0.55,
-              "unreadable": 0.36
+              "none": 0.45,
+              "unreadable": 0.44
             },
-            "confidence": 0.54
+            "confidence": 0.44
           },
           "seal_char_03": {
             "type": "choice",
@@ -2661,7 +2960,7 @@
             "probabilities": {
               "0": 0,
               "1": 0,
-              "2": 0.02,
+              "2": 0,
               "3": 0,
               "4": 0,
               "5": 0,
@@ -2690,15 +2989,15 @@
               "S": 0,
               "T": 0,
               "U": 0,
-              "V": 0,
-              "W": 0,
-              "X": 0,
+              "V": 0.01,
+              "W": 0.01,
+              "X": 0.01,
               "Y": 0.01,
               "Z": 0.01,
-              "none": 0.56,
-              "unreadable": 0.39
+              "none": 0.53,
+              "unreadable": 0.42
             },
-            "confidence": 0.55
+            "confidence": 0.52
           },
           "seal_char_04": {
             "type": "choice",
@@ -2736,61 +3035,16 @@
               "T": 0,
               "U": 0,
               "V": 0,
-              "W": 0.01,
+              "W": 0,
               "X": 0.01,
               "Y": 0.01,
               "Z": 0.01,
               "none": 0.63,
-              "unreadable": 0.33
+              "unreadable": 0.34
             },
             "confidence": 0.62
           },
           "seal_char_05": {
-            "type": "choice",
-            "choice": "none",
-            "probabilities": {
-              "0": 0,
-              "1": 0.02,
-              "2": 0.02,
-              "3": 0,
-              "4": 0,
-              "5": 0.02,
-              "6": 0,
-              "7": 0,
-              "8": 0,
-              "9": 0,
-              "A": 0,
-              "B": 0,
-              "C": 0,
-              "D": 0,
-              "E": 0,
-              "F": 0,
-              "G": 0,
-              "H": 0,
-              "I": 0,
-              "J": 0,
-              "K": 0,
-              "L": 0,
-              "M": 0,
-              "N": 0,
-              "O": 0,
-              "P": 0,
-              "Q": 0,
-              "R": 0,
-              "S": 0,
-              "T": 0,
-              "U": 0,
-              "V": 0,
-              "W": 0,
-              "X": 0,
-              "Y": 0,
-              "Z": 0,
-              "none": 0.64,
-              "unreadable": 0.3
-            },
-            "confidence": 0.63
-          },
-          "seal_char_06": {
             "type": "choice",
             "choice": "none",
             "probabilities": {
@@ -2825,9 +3079,54 @@
               "S": 0,
               "T": 0,
               "U": 0,
-              "V": 0,
+              "V": 0.01,
               "W": 0.01,
               "X": 0.01,
+              "Y": 0.01,
+              "Z": 0.01,
+              "none": 0.61,
+              "unreadable": 0.34
+            },
+            "confidence": 0.6
+          },
+          "seal_char_06": {
+            "type": "choice",
+            "choice": "none",
+            "probabilities": {
+              "0": 0,
+              "1": 0,
+              "2": 0.02,
+              "3": 0,
+              "4": 0,
+              "5": 0,
+              "6": 0,
+              "7": 0,
+              "8": 0,
+              "9": 0,
+              "A": 0,
+              "B": 0,
+              "C": 0,
+              "D": 0,
+              "E": 0,
+              "F": 0,
+              "G": 0,
+              "H": 0,
+              "I": 0,
+              "J": 0,
+              "K": 0,
+              "L": 0,
+              "M": 0,
+              "N": 0,
+              "O": 0,
+              "P": 0,
+              "Q": 0,
+              "R": 0,
+              "S": 0,
+              "T": 0,
+              "U": 0,
+              "V": 0,
+              "W": 0,
+              "X": 0,
               "Y": 0.01,
               "Z": 0.01,
               "none": 0.66,
@@ -2872,13 +3171,13 @@
               "U": 0,
               "V": 0,
               "W": 0,
-              "X": 0,
+              "X": 0.01,
               "Y": 0.01,
               "Z": 0.01,
-              "none": 0.73,
-              "unreadable": 0.25
+              "none": 0.7,
+              "unreadable": 0.27
             },
-            "confidence": 0.72
+            "confidence": 0.69
           },
           "seal_char_08": {
             "type": "choice",
@@ -2892,7 +3191,7 @@
               "5": 0,
               "6": 0,
               "7": 0,
-              "8": 0,
+              "8": 0.02,
               "9": 0,
               "A": 0,
               "B": 0,
@@ -2918,12 +3217,12 @@
               "V": 0,
               "W": 0,
               "X": 0,
-              "Y": 0.01,
+              "Y": 0,
               "Z": 0.01,
-              "none": 0.72,
-              "unreadable": 0.26
+              "none": 0.74,
+              "unreadable": 0.23
             },
-            "confidence": 0.71
+            "confidence": 0.73
           },
           "seal_second_copy": {
             "type": "noul",
@@ -2939,11 +3238,11 @@
               "3": 0,
               "4": 0,
               "5": 0,
-              "6": 0.02,
+              "6": 0.01,
               "7": 0,
-              "8": 0.01,
+              "8": 0,
               "9": 0,
-              "A": 0.02,
+              "A": 0.01,
               "B": 0,
               "C": 0,
               "D": 0.01,
@@ -2964,19 +3263,19 @@
               "S": 0.01,
               "T": 0.01,
               "U": 0,
-              "V": 0.01,
+              "V": 0,
               "W": 0.01,
               "X": 0,
               "Y": 0,
               "Z": 0,
-              "none": 0.3,
-              "unreadable": 0.44
+              "none": 0.28,
+              "unreadable": 0.5
             },
-            "confidence": 0.42
+            "confidence": 0.49
           },
           "seal_second_char_02": {
             "type": "choice",
-            "choice": "unreadable",
+            "choice": "none",
             "probabilities": {
               "0": 0.01,
               "1": 0.01,
@@ -2986,7 +3285,7 @@
               "5": 0,
               "6": 0,
               "7": 0,
-              "8": 0.01,
+              "8": 0,
               "9": 0,
               "A": 0,
               "B": 0,
@@ -2994,7 +3293,7 @@
               "D": 0,
               "E": 0,
               "F": 0,
-              "G": 0.01,
+              "G": 0,
               "H": 0,
               "I": 0,
               "J": 0,
@@ -3014,147 +3313,12 @@
               "X": 0,
               "Y": 0,
               "Z": 0,
-              "none": 0.41000000000000003,
-              "unreadable": 0.45
+              "none": 0.45,
+              "unreadable": 0.44
             },
             "confidence": 0.44
           },
           "seal_second_char_03": {
-            "type": "choice",
-            "choice": "none",
-            "probabilities": {
-              "0": 0,
-              "1": 0,
-              "2": 0.02,
-              "3": 0,
-              "4": 0,
-              "5": 0,
-              "6": 0,
-              "7": 0,
-              "8": 0,
-              "9": 0,
-              "A": 0,
-              "B": 0,
-              "C": 0,
-              "D": 0,
-              "E": 0,
-              "F": 0,
-              "G": 0,
-              "H": 0,
-              "I": 0,
-              "J": 0,
-              "K": 0,
-              "L": 0,
-              "M": 0.02,
-              "N": 0,
-              "O": 0,
-              "P": 0,
-              "Q": 0,
-              "R": 0,
-              "S": 0,
-              "T": 0,
-              "U": 0,
-              "V": 0,
-              "W": 0,
-              "X": 0.01,
-              "Y": 0.01,
-              "Z": 0.01,
-              "none": 0.48,
-              "unreadable": 0.45
-            },
-            "confidence": 0.47
-          },
-          "seal_second_char_04": {
-            "type": "choice",
-            "choice": "none",
-            "probabilities": {
-              "0": 0,
-              "1": 0.01,
-              "2": 0.02,
-              "3": 0,
-              "4": 0.02,
-              "5": 0,
-              "6": 0,
-              "7": 0,
-              "8": 0,
-              "9": 0,
-              "A": 0,
-              "B": 0,
-              "C": 0,
-              "D": 0,
-              "E": 0,
-              "F": 0,
-              "G": 0,
-              "H": 0,
-              "I": 0,
-              "J": 0,
-              "K": 0,
-              "L": 0,
-              "M": 0.02,
-              "N": 0,
-              "O": 0,
-              "P": 0,
-              "Q": 0,
-              "R": 0,
-              "S": 0,
-              "T": 0,
-              "U": 0,
-              "V": 0,
-              "W": 0,
-              "X": 0,
-              "Y": 0,
-              "Z": 0,
-              "none": 0.51,
-              "unreadable": 0.41000000000000003
-            },
-            "confidence": 0.5
-          },
-          "seal_second_char_05": {
-            "type": "choice",
-            "choice": "none",
-            "probabilities": {
-              "0": 0,
-              "1": 0.01,
-              "2": 0.01,
-              "3": 0,
-              "4": 0.02,
-              "5": 0.02,
-              "6": 0,
-              "7": 0,
-              "8": 0,
-              "9": 0,
-              "A": 0,
-              "B": 0,
-              "C": 0,
-              "D": 0,
-              "E": 0,
-              "F": 0,
-              "G": 0,
-              "H": 0,
-              "I": 0,
-              "J": 0,
-              "K": 0,
-              "L": 0,
-              "M": 0.02,
-              "N": 0,
-              "O": 0,
-              "P": 0,
-              "Q": 0,
-              "R": 0,
-              "S": 0,
-              "T": 0,
-              "U": 0,
-              "V": 0,
-              "W": 0,
-              "X": 0,
-              "Y": 0,
-              "Z": 0,
-              "none": 0.5,
-              "unreadable": 0.41000000000000003
-            },
-            "confidence": 0.49
-          },
-          "seal_second_char_06": {
             "type": "choice",
             "choice": "none",
             "probabilities": {
@@ -3164,7 +3328,97 @@
               "3": 0,
               "4": 0,
               "5": 0,
-              "6": 0.02,
+              "6": 0,
+              "7": 0,
+              "8": 0,
+              "9": 0,
+              "A": 0,
+              "B": 0,
+              "C": 0,
+              "D": 0,
+              "E": 0,
+              "F": 0,
+              "G": 0,
+              "H": 0,
+              "I": 0,
+              "J": 0,
+              "K": 0,
+              "L": 0,
+              "M": 0.02,
+              "N": 0,
+              "O": 0,
+              "P": 0,
+              "Q": 0,
+              "R": 0,
+              "S": 0,
+              "T": 0,
+              "U": 0,
+              "V": 0,
+              "W": 0,
+              "X": 0,
+              "Y": 0.01,
+              "Z": 0.01,
+              "none": 0.5,
+              "unreadable": 0.41000000000000003
+            },
+            "confidence": 0.49
+          },
+          "seal_second_char_04": {
+            "type": "choice",
+            "choice": "none",
+            "probabilities": {
+              "0": 0,
+              "1": 0.02,
+              "2": 0,
+              "3": 0,
+              "4": 0.02,
+              "5": 0,
+              "6": 0,
+              "7": 0,
+              "8": 0,
+              "9": 0,
+              "A": 0,
+              "B": 0,
+              "C": 0,
+              "D": 0,
+              "E": 0,
+              "F": 0,
+              "G": 0,
+              "H": 0,
+              "I": 0,
+              "J": 0,
+              "K": 0,
+              "L": 0,
+              "M": 0,
+              "N": 0,
+              "O": 0,
+              "P": 0,
+              "Q": 0,
+              "R": 0,
+              "S": 0,
+              "T": 0,
+              "U": 0,
+              "V": 0,
+              "W": 0,
+              "X": 0,
+              "Y": 0.01,
+              "Z": 0.01,
+              "none": 0.55,
+              "unreadable": 0.38
+            },
+            "confidence": 0.54
+          },
+          "seal_second_char_05": {
+            "type": "choice",
+            "choice": "none",
+            "probabilities": {
+              "0": 0,
+              "1": 0.02,
+              "2": 0.02,
+              "3": 0,
+              "4": 0,
+              "5": 0.02,
+              "6": 0,
               "7": 0,
               "8": 0,
               "9": 0,
@@ -3194,10 +3448,55 @@
               "X": 0,
               "Y": 0,
               "Z": 0.01,
-              "none": 0.5700000000000001,
+              "none": 0.51,
+              "unreadable": 0.41000000000000003
+            },
+            "confidence": 0.5
+          },
+          "seal_second_char_06": {
+            "type": "choice",
+            "choice": "none",
+            "probabilities": {
+              "0": 0,
+              "1": 0,
+              "2": 0,
+              "3": 0,
+              "4": 0,
+              "5": 0,
+              "6": 0,
+              "7": 0,
+              "8": 0,
+              "9": 0,
+              "A": 0,
+              "B": 0,
+              "C": 0,
+              "D": 0,
+              "E": 0,
+              "F": 0,
+              "G": 0,
+              "H": 0,
+              "I": 0,
+              "J": 0,
+              "K": 0,
+              "L": 0,
+              "M": 0,
+              "N": 0,
+              "O": 0,
+              "P": 0,
+              "Q": 0,
+              "R": 0,
+              "S": 0,
+              "T": 0,
+              "U": 0.01,
+              "V": 0.01,
+              "W": 0.01,
+              "X": 0.01,
+              "Y": 0.01,
+              "Z": 0.01,
+              "none": 0.59,
               "unreadable": 0.35000000000000003
             },
-            "confidence": 0.56
+            "confidence": 0.58
           },
           "seal_second_char_07": {
             "type": "choice",
@@ -3235,14 +3534,14 @@
               "T": 0,
               "U": 0,
               "V": 0,
-              "W": 0,
+              "W": 0.01,
               "X": 0.01,
               "Y": 0.01,
               "Z": 0.01,
-              "none": 0.62,
-              "unreadable": 0.33
+              "none": 0.63,
+              "unreadable": 0.31
             },
-            "confidence": 0.61
+            "confidence": 0.62
           },
           "seal_second_char_08": {
             "type": "choice",
@@ -3281,42 +3580,42 @@
               "U": 0,
               "V": 0,
               "W": 0,
-              "X": 0.01,
-              "Y": 0.01,
+              "X": 0,
+              "Y": 0,
               "Z": 0.01,
-              "none": 0.56,
-              "unreadable": 0.38
+              "none": 0.67,
+              "unreadable": 0.29000000000000004
             },
-            "confidence": 0.55
+            "confidence": 0.66
           },
           "seal_box": {
             "type": "box",
             "box": {
-              "top": 0.74,
+              "top": 0.75,
               "bottom": 0.85,
               "left": 0.53,
               "right": 0.55
             },
-            "confidence": 0.3
+            "confidence": 0.28
           },
           "shape_length": {
             "type": "choice",
             "choice": "unknown",
             "probabilities": {
               "20_ft": 0.01,
-              "40_ft": 0.01,
-              "45_ft": 0.03,
-              "unknown": 0.95
+              "40_ft": 0,
+              "45_ft": 0.02,
+              "unknown": 0.97
             },
-            "confidence": 0.93
+            "confidence": 0.96
           },
           "placards_present": {
             "type": "noul",
-            "noul": 0.15
+            "noul": 0.11
           },
           "placard_1_present": {
             "type": "noul",
-            "noul": 0.12
+            "noul": 0.1
           },
           "placard_1_class": {
             "type": "choice",
@@ -3324,16 +3623,16 @@
             "probabilities": {
               "class_1": 0.02,
               "class_2": 0.02,
-              "class_3": 0.03,
+              "class_3": 0.04,
               "class_4": 0.02,
               "class_5": 0.01,
               "class_6": 0.01,
-              "class_7": 0.05,
-              "class_8": 0.01,
+              "class_7": 0.06,
+              "class_8": 0.02,
               "class_9": 0.06,
-              "unreadable": 0.77
+              "unreadable": 0.74
             },
-            "confidence": 0.74
+            "confidence": 0.71
           },
           "placard_1_un_1": {
             "type": "choice",
@@ -3345,8 +3644,8 @@
               "3": 0.04,
               "4": 0.02,
               "5": 0.04,
-              "6": 0.14,
-              "7": 0.04,
+              "6": 0.15,
+              "7": 0.03,
               "8": 0.01,
               "9": 0.01,
               "unreadable": 0.62
@@ -3357,98 +3656,98 @@
             "type": "choice",
             "choice": "unreadable",
             "probabilities": {
-              "0": 0.02,
-              "1": 0.03,
+              "0": 0.01,
+              "1": 0.02,
               "2": 0.02,
               "3": 0.06,
               "4": 0.04,
-              "5": 0.17,
-              "6": 0.06,
+              "5": 0.19,
+              "6": 0.08,
               "7": 0.03,
-              "8": 0.09,
+              "8": 0.08,
               "9": 0.01,
-              "unreadable": 0.47
+              "unreadable": 0.46
             },
-            "confidence": 0.42
+            "confidence": 0.41
           },
           "placard_1_un_3": {
             "type": "choice",
             "choice": "unreadable",
             "probabilities": {
               "0": 0.02,
-              "1": 0.03,
-              "2": 0.01,
-              "3": 0.03,
-              "4": 0.05,
+              "1": 0.05,
+              "2": 0.02,
+              "3": 0.04,
+              "4": 0.06,
               "5": 0.05,
-              "6": 0.13,
-              "7": 0.02,
-              "8": 0.13,
+              "6": 0.09,
+              "7": 0.03,
+              "8": 0.07,
               "9": 0.01,
-              "unreadable": 0.52
+              "unreadable": 0.56
             },
-            "confidence": 0.47
+            "confidence": 0.52
           },
           "placard_1_un_4": {
             "type": "choice",
             "choice": "unreadable",
             "probabilities": {
-              "0": 0.04,
-              "1": 0.26,
+              "0": 0.03,
+              "1": 0.21,
               "2": 0.02,
               "3": 0.02,
-              "4": 0.09,
-              "5": 0.02,
+              "4": 0.1,
+              "5": 0.01,
               "6": 0.02,
               "7": 0.02,
-              "8": 0.02,
+              "8": 0.03,
               "9": 0.01,
-              "unreadable": 0.48
+              "unreadable": 0.53
             },
-            "confidence": 0.43
+            "confidence": 0.48
           },
           "placard_1_box": {
             "type": "box",
             "box": {
-              "top": 0.74,
+              "top": 0.73,
               "bottom": 0.81,
               "left": 0.53,
               "right": 0.59
             },
-            "confidence": 0.76
+            "confidence": 0.66
           },
           "placard_2_present": {
             "type": "noul",
-            "noul": 0.07
+            "noul": 0.06
           },
           "placard_2_class": {
             "type": "choice",
             "choice": "unreadable",
             "probabilities": {
-              "class_1": 0.02,
-              "class_2": 0.03,
+              "class_1": 0.01,
+              "class_2": 0.02,
               "class_3": 0.03,
               "class_4": 0.02,
               "class_5": 0.01,
               "class_6": 0.01,
-              "class_7": 0.03,
+              "class_7": 0.04,
               "class_8": 0.01,
-              "class_9": 0.06,
-              "unreadable": 0.78
+              "class_9": 0.05,
+              "unreadable": 0.8
             },
-            "confidence": 0.76
+            "confidence": 0.78
           },
           "placard_2_un_1": {
             "type": "choice",
             "choice": "unreadable",
             "probabilities": {
-              "0": 0.03,
-              "1": 0.04,
-              "2": 0.04,
+              "0": 0.02,
+              "1": 0.05,
+              "2": 0.05,
               "3": 0.05,
-              "4": 0.03,
-              "5": 0.03,
-              "6": 0.1,
+              "4": 0.04,
+              "5": 0.04,
+              "6": 0.07,
               "7": 0.04,
               "8": 0.02,
               "9": 0.01,
@@ -3460,86 +3759,86 @@
             "type": "choice",
             "choice": "unreadable",
             "probabilities": {
-              "0": 0.04,
-              "1": 0.03,
-              "2": 0.03,
-              "3": 0.05,
+              "0": 0.02,
+              "1": 0.02,
+              "2": 0.02,
+              "3": 0.04,
               "4": 0.03,
-              "5": 0.07,
-              "6": 0.07,
+              "5": 0.1,
+              "6": 0.06,
               "7": 0.03,
-              "8": 0.06,
+              "8": 0.05,
               "9": 0.01,
-              "unreadable": 0.58
+              "unreadable": 0.62
             },
-            "confidence": 0.54
+            "confidence": 0.58
           },
           "placard_2_un_3": {
             "type": "choice",
             "choice": "unreadable",
             "probabilities": {
               "0": 0.03,
-              "1": 0.04,
+              "1": 0.08,
               "2": 0.02,
-              "3": 0.03,
-              "4": 0.06,
-              "5": 0.05,
-              "6": 0.11,
+              "3": 0.04,
+              "4": 0.08,
+              "5": 0.07,
+              "6": 0.09,
               "7": 0.03,
-              "8": 0.1,
+              "8": 0.07,
               "9": 0.01,
-              "unreadable": 0.52
+              "unreadable": 0.48
             },
-            "confidence": 0.47
+            "confidence": 0.43
           },
           "placard_2_un_4": {
             "type": "choice",
             "choice": "unreadable",
             "probabilities": {
               "0": 0.03,
-              "1": 0.21,
+              "1": 0.16,
               "2": 0.02,
-              "3": 0.02,
-              "4": 0.09,
+              "3": 0.01,
+              "4": 0.17,
               "5": 0.01,
               "6": 0.02,
               "7": 0.02,
               "8": 0.02,
               "9": 0.01,
-              "unreadable": 0.55
+              "unreadable": 0.53
             },
-            "confidence": 0.51
+            "confidence": 0.48
           },
           "placard_2_box": {
             "type": "box",
             "box": {
               "top": 0.75,
               "bottom": 0.81,
-              "left": 0.55,
-              "right": 0.59
+              "left": 0.54,
+              "right": 0.58
             },
             "confidence": 0.35
           },
           "placard_3_present": {
             "type": "noul",
-            "noul": 0.1
+            "noul": 0.07
           },
           "placard_3_class": {
             "type": "choice",
             "choice": "unreadable",
             "probabilities": {
               "class_1": 0.01,
-              "class_2": 0.02,
-              "class_3": 0.05,
+              "class_2": 0.01,
+              "class_3": 0.04,
               "class_4": 0.02,
               "class_5": 0.01,
               "class_6": 0.01,
-              "class_7": 0.03,
+              "class_7": 0.02,
               "class_8": 0.01,
-              "class_9": 0.06,
-              "unreadable": 0.78
+              "class_9": 0.05,
+              "unreadable": 0.82
             },
-            "confidence": 0.76
+            "confidence": 0.8
           },
           "placard_3_un_1": {
             "type": "choice",
@@ -3550,74 +3849,74 @@
               "2": 0.03,
               "3": 0.07,
               "4": 0.03,
-              "5": 0.03,
-              "6": 0.1,
-              "7": 0.03,
+              "5": 0.04,
+              "6": 0.07,
+              "7": 0.04,
               "8": 0.02,
               "9": 0.01,
-              "unreadable": 0.61
+              "unreadable": 0.62
             },
-            "confidence": 0.57
+            "confidence": 0.58
           },
           "placard_3_un_2": {
             "type": "choice",
             "choice": "unreadable",
             "probabilities": {
               "0": 0.03,
-              "1": 0.03,
+              "1": 0.02,
               "2": 0.03,
-              "3": 0.06,
+              "3": 0.05,
               "4": 0.03,
-              "5": 0.13,
+              "5": 0.09,
               "6": 0.07,
-              "7": 0.03,
-              "8": 0.08,
+              "7": 0.02,
+              "8": 0.06,
               "9": 0.01,
-              "unreadable": 0.5
+              "unreadable": 0.59
             },
-            "confidence": 0.45
+            "confidence": 0.55
           },
           "placard_3_un_3": {
             "type": "choice",
             "choice": "unreadable",
             "probabilities": {
-              "0": 0.05,
-              "1": 0.05,
+              "0": 0.04,
+              "1": 0.04,
               "2": 0.02,
               "3": 0.03,
-              "4": 0.06,
-              "5": 0.05,
-              "6": 0.07,
+              "4": 0.1,
+              "5": 0.04,
+              "6": 0.06,
               "7": 0.03,
-              "8": 0.060000000000000005,
+              "8": 0.07,
               "9": 0.01,
-              "unreadable": 0.57
+              "unreadable": 0.5599999999999999
             },
-            "confidence": 0.53
+            "confidence": 0.52
           },
           "placard_3_un_4": {
             "type": "choice",
             "choice": "unreadable",
             "probabilities": {
-              "0": 0.04,
-              "1": 0.17,
-              "2": 0.02,
-              "3": 0.02,
-              "4": 0.07,
+              "0": 0.05,
+              "1": 0.24,
+              "2": 0.03,
+              "3": 0.03,
+              "4": 0.09,
               "5": 0.02,
-              "6": 0.02,
+              "6": 0.03,
               "7": 0.02,
               "8": 0.03,
-              "9": 0.02,
-              "unreadable": 0.57
+              "9": 0.01,
+              "unreadable": 0.45
             },
-            "confidence": 0.53
+            "confidence": 0.4
           },
           "placard_3_box": {
             "type": "box",
             "box": {
               "top": 0.55,
-              "bottom": 0.8,
+              "bottom": 0.59,
               "left": 0.54,
               "right": 0.58
             },
@@ -3625,7 +3924,7 @@
           },
           "marine_pollutant_mark": {
             "type": "noul",
-            "noul": 0.07
+            "noul": 0.09
           },
           "limited_quantity_mark": {
             "type": "noul",
@@ -3633,15 +3932,15 @@
           }
         },
         "usage": {
-          "input_tokens": 41966,
-          "output_tokens": 15286,
-          "cost": 0.001762572
+          "input_tokens": 42227,
+          "output_tokens": 15386,
+          "cost": 0.001773534
         },
-        "id": "gen-dec-1792241798-sPsKWZXZbe7G1mbiwjVU",
+        "id": "gen-dec-1792242048-VErJhUvWxL4atjfI3YhA",
         "provider": "TypeSafe"
       },
-      "latencyMs": 1083,
-      "costUsd": 0.001762572
+      "latencyMs": 1179,
+      "costUsd": 0.001773534
     },
     {
       "request": "crop",
@@ -3727,7 +4026,7 @@
               "E": 0,
               "F": 0,
               "G": 0,
-              "H": 0.98,
+              "H": 0.96,
               "I": 0,
               "J": 0,
               "K": 0,
@@ -3740,7 +4039,7 @@
               "R": 0,
               "S": 0,
               "T": 0,
-              "U": 0.02,
+              "U": 0.04,
               "V": 0,
               "W": 0,
               "X": 0,
@@ -3748,7 +4047,7 @@
               "Z": 0,
               "unreadable": 0
             },
-            "confidence": 0.98
+            "confidence": 0.96
           },
           "id_char_04": {
             "type": "choice",
@@ -3811,14 +4110,14 @@
               "2": 0,
               "3": 0,
               "4": 0,
-              "5": 1,
+              "5": 0.99,
               "6": 0,
               "7": 0,
-              "8": 0,
+              "8": 0.01,
               "9": 0,
               "unreadable": 0
             },
-            "confidence": 1
+            "confidence": 0.99
           },
           "id_char_07": {
             "type": "choice",
@@ -3830,13 +4129,13 @@
               "3": 0,
               "4": 0,
               "5": 0.01,
-              "6": 0.07,
+              "6": 0.06,
               "7": 0,
-              "8": 0.92,
+              "8": 0.93,
               "9": 0,
               "unreadable": 0
             },
-            "confidence": 0.91
+            "confidence": 0.92
           },
           "id_char_08": {
             "type": "choice",
@@ -3848,13 +4147,13 @@
               "3": 0,
               "4": 0.01,
               "5": 0,
-              "6": 0.74,
+              "6": 0.8,
               "7": 0,
-              "8": 0.25,
+              "8": 0.19,
               "9": 0,
               "unreadable": 0
             },
-            "confidence": 0.71
+            "confidence": 0.78
           },
           "id_char_09": {
             "type": "choice",
@@ -3931,19 +4230,19 @@
           },
           "full_number_visible": {
             "type": "noul",
-            "noul": 0.59
+            "noul": 0.51
           }
         },
         "usage": {
-          "input_tokens": 7982,
+          "input_tokens": 7980,
           "output_tokens": 1552,
-          "cost": 0.000335244
+          "cost": 0.00033516
         },
-        "id": "gen-dec-1792241798-WHbDqswUNawuF5zimfzr",
+        "id": "gen-dec-1792242049-ryUvfJ4MuUOOeEg2n9Lx",
         "provider": "TypeSafe"
       },
-      "latencyMs": 278,
-      "costUsd": 0.000335244,
+      "latencyMs": 242,
+      "costUsd": 0.00033516,
       "crop": {
         "x": 896,
         "y": 0,
@@ -3954,19 +4253,234 @@
       }
     },
     {
+      "request": "weights",
+      "response": {
+        "model": "typesafe/jev-1.14-20261014",
+        "answers": {
+          "tare_kg_units": {
+            "type": "choice",
+            "choice": "0",
+            "probabilities": {
+              "0": 1,
+              "1": 0,
+              "2": 0,
+              "3": 0,
+              "4": 0,
+              "5": 0,
+              "6": 0,
+              "7": 0,
+              "8": 0,
+              "9": 0,
+              "unreadable": 0,
+              "not_visible": 0
+            },
+            "confidence": 1
+          },
+          "tare_kg_tens": {
+            "type": "choice",
+            "choice": "7",
+            "probabilities": {
+              "0": 0.01,
+              "1": 0,
+              "2": 0,
+              "3": 0,
+              "4": 0,
+              "5": 0,
+              "6": 0,
+              "7": 0.99,
+              "8": 0,
+              "9": 0,
+              "none": 0,
+              "unreadable": 0,
+              "not_visible": 0
+            },
+            "confidence": 0.99
+          },
+          "tare_kg_hundreds": {
+            "type": "choice",
+            "choice": "8",
+            "probabilities": {
+              "0": 0.01,
+              "1": 0,
+              "2": 0,
+              "3": 0.01,
+              "4": 0,
+              "5": 0,
+              "6": 0,
+              "7": 0.03,
+              "8": 0.92,
+              "9": 0,
+              "none": 0.02,
+              "unreadable": 0.01,
+              "not_visible": 0
+            },
+            "confidence": 0.91
+          },
+          "tare_kg_thousands": {
+            "type": "choice",
+            "choice": "3",
+            "probabilities": {
+              "0": 0.01,
+              "1": 0,
+              "2": 0,
+              "3": 0.91,
+              "4": 0,
+              "5": 0,
+              "6": 0,
+              "7": 0,
+              "8": 0,
+              "9": 0,
+              "none": 0.06999999999999999,
+              "unreadable": 0.01,
+              "not_visible": 0
+            },
+            "confidence": 0.9
+          },
+          "tare_kg_ten_thousands": {
+            "type": "choice",
+            "choice": "none",
+            "probabilities": {
+              "0": 0.06,
+              "1": 0,
+              "2": 0,
+              "3": 0.04,
+              "4": 0,
+              "5": 0,
+              "6": 0,
+              "7": 0,
+              "8": 0,
+              "9": 0,
+              "none": 0.9,
+              "unreadable": 0,
+              "not_visible": 0
+            },
+            "confidence": 0.89
+          },
+          "tare_lb_units": {
+            "type": "choice",
+            "choice": "0",
+            "probabilities": {
+              "0": 0.98,
+              "1": 0,
+              "2": 0,
+              "3": 0,
+              "4": 0,
+              "5": 0,
+              "6": 0,
+              "7": 0,
+              "8": 0,
+              "9": 0,
+              "unreadable": 0.02,
+              "not_visible": 0
+            },
+            "confidence": 0.98
+          },
+          "tare_lb_tens": {
+            "type": "choice",
+            "choice": "3",
+            "probabilities": {
+              "0": 0.01,
+              "1": 0,
+              "2": 0,
+              "3": 0.97,
+              "4": 0,
+              "5": 0.01,
+              "6": 0,
+              "7": 0,
+              "8": 0,
+              "9": 0,
+              "none": 0,
+              "unreadable": 0.01,
+              "not_visible": 0
+            },
+            "confidence": 0.97
+          },
+          "tare_lb_hundreds": {
+            "type": "choice",
+            "choice": "5",
+            "probabilities": {
+              "0": 0,
+              "1": 0,
+              "2": 0,
+              "3": 0.03,
+              "4": 0,
+              "5": 0.9400000000000001,
+              "6": 0,
+              "7": 0,
+              "8": 0,
+              "9": 0,
+              "none": 0,
+              "unreadable": 0.02,
+              "not_visible": 0
+            },
+            "confidence": 0.93
+          },
+          "tare_lb_thousands": {
+            "type": "choice",
+            "choice": "8",
+            "probabilities": {
+              "0": 0,
+              "1": 0,
+              "2": 0,
+              "3": 0,
+              "4": 0,
+              "5": 0,
+              "6": 0,
+              "7": 0,
+              "8": 0.93,
+              "9": 0,
+              "none": 0.03,
+              "unreadable": 0.04,
+              "not_visible": 0
+            },
+            "confidence": 0.92
+          },
+          "tare_lb_ten_thousands": {
+            "type": "choice",
+            "choice": "none",
+            "probabilities": {
+              "0": 0.12,
+              "1": 0,
+              "2": 0,
+              "3": 0,
+              "4": 0,
+              "5": 0,
+              "6": 0,
+              "7": 0,
+              "8": 0.17,
+              "9": 0,
+              "none": 0.7,
+              "unreadable": 0.01,
+              "not_visible": 0
+            },
+            "confidence": 0.67
+          }
+        },
+        "usage": {
+          "input_tokens": 9951,
+          "output_tokens": 1112,
+          "cost": 0.000417942
+        },
+        "id": "gen-dec-1792242049-y3xrmxbAyjDiMu8S2ckZ",
+        "provider": "TypeSafe"
+      },
+      "latencyMs": 384,
+      "costUsd": 0.000417942
+    },
+    {
       "request": "seal-zoom",
       "response": {
         "model": "typesafe/jev-1.14-20261014",
         "answers": {
           "seal_visible": {
             "type": "noul",
-            "noul": 0.44
+            "noul": 0.48
           },
           "seal_length": {
             "type": "choice",
             "choice": "unreadable",
             "probabilities": {
-              "1": 0.02,
+              "1": 0.01,
               "2": 0.01,
               "3": 0.01,
               "4": 0.02,
@@ -3974,9 +4488,9 @@
               "6": 0.04,
               "7": 0.01,
               "8": 0.01,
-              "unreadable": 0.87
+              "unreadable": 0.88
             },
-            "confidence": 0.85
+            "confidence": 0.87
           },
           "seal_char_01": {
             "type": "choice",
@@ -4019,9 +4533,9 @@
               "Y": 0.01,
               "Z": 0.01,
               "none": 0.25,
-              "unreadable": 0.6900000000000001
+              "unreadable": 0.7
             },
-            "confidence": 0.68
+            "confidence": 0.69
           },
           "seal_char_02": {
             "type": "choice",
@@ -4060,13 +4574,13 @@
               "U": 0,
               "V": 0,
               "W": 0,
-              "X": 0,
+              "X": 0.01,
               "Y": 0.01,
               "Z": 0.01,
-              "none": 0.31,
-              "unreadable": 0.65
+              "none": 0.28,
+              "unreadable": 0.66
             },
-            "confidence": 0.64
+            "confidence": 0.65
           },
           "seal_char_03": {
             "type": "choice",
@@ -4108,18 +4622,18 @@
               "X": 0.01,
               "Y": 0.01,
               "Z": 0.01,
-              "none": 0.37,
-              "unreadable": 0.6
+              "none": 0.39,
+              "unreadable": 0.5700000000000001
             },
-            "confidence": 0.59
+            "confidence": 0.56
           },
           "seal_char_04": {
             "type": "choice",
             "choice": "unreadable",
             "probabilities": {
               "0": 0,
-              "1": 0.02,
-              "2": 0.02,
+              "1": 0,
+              "2": 0,
               "3": 0,
               "4": 0,
               "5": 0,
@@ -4151,12 +4665,12 @@
               "V": 0,
               "W": 0,
               "X": 0,
-              "Y": 0,
-              "Z": 0,
-              "none": 0.45,
-              "unreadable": 0.51
+              "Y": 0.01,
+              "Z": 0.01,
+              "none": 0.42,
+              "unreadable": 0.56
             },
-            "confidence": 0.5
+            "confidence": 0.55
           },
           "seal_char_05": {
             "type": "choice",
@@ -4198,57 +4712,12 @@
               "X": 0,
               "Y": 0,
               "Z": 0.01,
-              "none": 0.44,
-              "unreadable": 0.53
+              "none": 0.42,
+              "unreadable": 0.55
             },
-            "confidence": 0.52
+            "confidence": 0.54
           },
           "seal_char_06": {
-            "type": "choice",
-            "choice": "none",
-            "probabilities": {
-              "0": 0,
-              "1": 0,
-              "2": 0.03,
-              "3": 0,
-              "4": 0,
-              "5": 0,
-              "6": 0,
-              "7": 0,
-              "8": 0,
-              "9": 0,
-              "A": 0,
-              "B": 0,
-              "C": 0,
-              "D": 0,
-              "E": 0,
-              "F": 0,
-              "G": 0,
-              "H": 0,
-              "I": 0,
-              "J": 0,
-              "K": 0,
-              "L": 0,
-              "M": 0,
-              "N": 0,
-              "O": 0,
-              "P": 0,
-              "Q": 0,
-              "R": 0,
-              "S": 0,
-              "T": 0,
-              "U": 0,
-              "V": 0,
-              "W": 0,
-              "X": 0,
-              "Y": 0,
-              "Z": 0,
-              "none": 0.54,
-              "unreadable": 0.43
-            },
-            "confidence": 0.53
-          },
-          "seal_char_07": {
             "type": "choice",
             "choice": "none",
             "probabilities": {
@@ -4287,11 +4756,56 @@
               "W": 0,
               "X": 0,
               "Y": 0,
-              "Z": 0,
-              "none": 0.56,
-              "unreadable": 0.41000000000000003
+              "Z": 0.01,
+              "none": 0.49,
+              "unreadable": 0.48
             },
-            "confidence": 0.55
+            "confidence": 0.48
+          },
+          "seal_char_07": {
+            "type": "choice",
+            "choice": "none",
+            "probabilities": {
+              "0": 0,
+              "1": 0,
+              "2": 0,
+              "3": 0,
+              "4": 0,
+              "5": 0,
+              "6": 0,
+              "7": 0,
+              "8": 0,
+              "9": 0,
+              "A": 0,
+              "B": 0,
+              "C": 0,
+              "D": 0,
+              "E": 0,
+              "F": 0,
+              "G": 0,
+              "H": 0,
+              "I": 0,
+              "J": 0,
+              "K": 0,
+              "L": 0,
+              "M": 0,
+              "N": 0,
+              "O": 0,
+              "P": 0,
+              "Q": 0,
+              "R": 0,
+              "S": 0,
+              "T": 0,
+              "U": 0,
+              "V": 0,
+              "W": 0,
+              "X": 0,
+              "Y": 0.01,
+              "Z": 0.01,
+              "none": 0.49,
+              "unreadable": 0.49
+            },
+            "confidence": 0.48
           },
           "seal_char_08": {
             "type": "choice",
@@ -4331,16 +4845,16 @@
               "V": 0,
               "W": 0,
               "X": 0,
-              "Y": 0.01,
+              "Y": 0,
               "Z": 0.01,
-              "none": 0.55,
-              "unreadable": 0.43
+              "none": 0.5700000000000001,
+              "unreadable": 0.41000000000000003
             },
-            "confidence": 0.54
+            "confidence": 0.56
           },
           "seal_second_copy": {
             "type": "noul",
-            "noul": 0.1
+            "noul": 0.12
           },
           "seal_second_char_01": {
             "type": "choice",
@@ -4379,13 +4893,13 @@
               "U": 0,
               "V": 0,
               "W": 0,
-              "X": 0,
+              "X": 0.01,
               "Y": 0.01,
               "Z": 0.01,
-              "none": 0.17,
-              "unreadable": 0.77
+              "none": 0.15000000000000002,
+              "unreadable": 0.78
             },
-            "confidence": 0.76
+            "confidence": 0.77
           },
           "seal_second_char_02": {
             "type": "choice",
@@ -4393,7 +4907,7 @@
             "probabilities": {
               "0": 0,
               "1": 0,
-              "2": 0.02,
+              "2": 0,
               "3": 0,
               "4": 0,
               "5": 0,
@@ -4424,13 +4938,13 @@
               "U": 0,
               "V": 0,
               "W": 0,
-              "X": 0,
-              "Y": 0,
-              "Z": 0,
-              "none": 0.24000000000000002,
-              "unreadable": 0.72
+              "X": 0.01,
+              "Y": 0.01,
+              "Z": 0.01,
+              "none": 0.21000000000000002,
+              "unreadable": 0.74
             },
-            "confidence": 0.71
+            "confidence": 0.73
           },
           "seal_second_char_03": {
             "type": "choice",
@@ -4468,14 +4982,14 @@
               "T": 0,
               "U": 0,
               "V": 0,
-              "W": 0,
-              "X": 0,
+              "W": 0.01,
+              "X": 0.01,
               "Y": 0.01,
               "Z": 0.01,
-              "none": 0.28,
-              "unreadable": 0.6900000000000001
+              "none": 0.3,
+              "unreadable": 0.66
             },
-            "confidence": 0.68
+            "confidence": 0.65
           },
           "seal_second_char_04": {
             "type": "choice",
@@ -4514,13 +5028,13 @@
               "U": 0,
               "V": 0,
               "W": 0,
-              "X": 0.01,
+              "X": 0,
               "Y": 0.01,
               "Z": 0.01,
-              "none": 0.33,
-              "unreadable": 0.64
+              "none": 0.29000000000000004,
+              "unreadable": 0.68
             },
-            "confidence": 0.63
+            "confidence": 0.67
           },
           "seal_second_char_05": {
             "type": "choice",
@@ -4562,10 +5076,10 @@
               "X": 0,
               "Y": 0,
               "Z": 0.01,
-              "none": 0.36,
-              "unreadable": 0.61
+              "none": 0.35000000000000003,
+              "unreadable": 0.62
             },
-            "confidence": 0.6
+            "confidence": 0.61
           },
           "seal_second_char_06": {
             "type": "choice",
@@ -4607,10 +5121,10 @@
               "X": 0,
               "Y": 0,
               "Z": 0,
-              "none": 0.41000000000000003,
-              "unreadable": 0.56
+              "none": 0.38,
+              "unreadable": 0.6
             },
-            "confidence": 0.55
+            "confidence": 0.59
           },
           "seal_second_char_07": {
             "type": "choice",
@@ -4618,7 +5132,7 @@
             "probabilities": {
               "0": 0,
               "1": 0,
-              "2": 0,
+              "2": 0.01,
               "3": 0,
               "4": 0,
               "5": 0,
@@ -4651,11 +5165,11 @@
               "W": 0,
               "X": 0,
               "Y": 0,
-              "Z": 0.01,
-              "none": 0.46,
-              "unreadable": 0.51
+              "Z": 0,
+              "none": 0.39,
+              "unreadable": 0.5700000000000001
             },
-            "confidence": 0.5
+            "confidence": 0.56
           },
           "seal_second_char_08": {
             "type": "choice",
@@ -4663,7 +5177,7 @@
             "probabilities": {
               "0": 0,
               "1": 0,
-              "2": 0.01,
+              "2": 0.02,
               "3": 0,
               "4": 0,
               "5": 0,
@@ -4698,21 +5212,21 @@
               "Y": 0,
               "Z": 0,
               "none": 0.42,
-              "unreadable": 0.55
+              "unreadable": 0.54
             },
-            "confidence": 0.54
+            "confidence": 0.53
           }
         },
         "usage": {
-          "input_tokens": 15828,
+          "input_tokens": 15826,
           "output_tokens": 4730,
-          "cost": 0.000664776
+          "cost": 0.000664692
         },
-        "id": "gen-dec-1792241799-HoUiZVqUMWG9Nc8cw3o8",
+        "id": "gen-dec-1792242049-rMcvkViOblyi9EKl0sva",
         "provider": "TypeSafe"
       },
-      "latencyMs": 287,
-      "costUsd": 0.000664776,
+      "latencyMs": 433,
+      "costUsd": 0.000664692,
       "crop": {
         "x": 640,
         "y": 832,
@@ -4723,420 +5237,7 @@
       }
     },
     {
-      "request": "weights",
-      "response": {
-        "model": "typesafe/jev-1.14-20261014",
-        "answers": {
-          "tare_kg_units": {
-            "type": "choice",
-            "choice": "0",
-            "probabilities": {
-              "0": 1,
-              "1": 0,
-              "2": 0,
-              "3": 0,
-              "4": 0,
-              "5": 0,
-              "6": 0,
-              "7": 0,
-              "8": 0,
-              "9": 0,
-              "unreadable": 0,
-              "not_visible": 0
-            },
-            "confidence": 1
-          },
-          "tare_kg_tens": {
-            "type": "choice",
-            "choice": "7",
-            "probabilities": {
-              "0": 0.02,
-              "1": 0,
-              "2": 0,
-              "3": 0,
-              "4": 0,
-              "5": 0,
-              "6": 0,
-              "7": 0.98,
-              "8": 0,
-              "9": 0,
-              "none": 0,
-              "unreadable": 0,
-              "not_visible": 0
-            },
-            "confidence": 0.98
-          },
-          "tare_kg_hundreds": {
-            "type": "choice",
-            "choice": "8",
-            "probabilities": {
-              "0": 0.01,
-              "1": 0,
-              "2": 0,
-              "3": 0.01,
-              "4": 0,
-              "5": 0,
-              "6": 0,
-              "7": 0.03,
-              "8": 0.92,
-              "9": 0,
-              "none": 0.02,
-              "unreadable": 0.01,
-              "not_visible": 0
-            },
-            "confidence": 0.91
-          },
-          "tare_kg_thousands": {
-            "type": "choice",
-            "choice": "3",
-            "probabilities": {
-              "0": 0.01,
-              "1": 0,
-              "2": 0,
-              "3": 0.95,
-              "4": 0,
-              "5": 0,
-              "6": 0,
-              "7": 0,
-              "8": 0,
-              "9": 0,
-              "none": 0.03,
-              "unreadable": 0.01,
-              "not_visible": 0
-            },
-            "confidence": 0.95
-          },
-          "tare_kg_ten_thousands": {
-            "type": "choice",
-            "choice": "none",
-            "probabilities": {
-              "0": 0.11,
-              "1": 0,
-              "2": 0,
-              "3": 0.04,
-              "4": 0,
-              "5": 0,
-              "6": 0,
-              "7": 0,
-              "8": 0,
-              "9": 0,
-              "none": 0.85,
-              "unreadable": 0,
-              "not_visible": 0
-            },
-            "confidence": 0.84
-          },
-          "tare_lb_units": {
-            "type": "choice",
-            "choice": "0",
-            "probabilities": {
-              "0": 0.99,
-              "1": 0,
-              "2": 0,
-              "3": 0,
-              "4": 0,
-              "5": 0,
-              "6": 0,
-              "7": 0,
-              "8": 0,
-              "9": 0,
-              "unreadable": 0.01,
-              "not_visible": 0
-            },
-            "confidence": 0.99
-          },
-          "tare_lb_tens": {
-            "type": "choice",
-            "choice": "3",
-            "probabilities": {
-              "0": 0,
-              "1": 0,
-              "2": 0,
-              "3": 0.98,
-              "4": 0,
-              "5": 0.01,
-              "6": 0,
-              "7": 0,
-              "8": 0,
-              "9": 0,
-              "none": 0,
-              "unreadable": 0.01,
-              "not_visible": 0
-            },
-            "confidence": 0.98
-          },
-          "tare_lb_hundreds": {
-            "type": "choice",
-            "choice": "5",
-            "probabilities": {
-              "0": 0,
-              "1": 0,
-              "2": 0,
-              "3": 0.04,
-              "4": 0,
-              "5": 0.95,
-              "6": 0,
-              "7": 0,
-              "8": 0,
-              "9": 0,
-              "none": 0,
-              "unreadable": 0.01,
-              "not_visible": 0
-            },
-            "confidence": 0.95
-          },
-          "tare_lb_thousands": {
-            "type": "choice",
-            "choice": "8",
-            "probabilities": {
-              "0": 0.01,
-              "1": 0,
-              "2": 0,
-              "3": 0,
-              "4": 0,
-              "5": 0.01,
-              "6": 0,
-              "7": 0,
-              "8": 0.93,
-              "9": 0,
-              "none": 0.02,
-              "unreadable": 0.02,
-              "not_visible": 0
-            },
-            "confidence": 0.92
-          },
-          "tare_lb_ten_thousands": {
-            "type": "choice",
-            "choice": "none",
-            "probabilities": {
-              "0": 0.22,
-              "1": 0.01,
-              "2": 0,
-              "3": 0,
-              "4": 0,
-              "5": 0,
-              "6": 0,
-              "7": 0,
-              "8": 0.21,
-              "9": 0,
-              "none": 0.55,
-              "unreadable": 0.01,
-              "not_visible": 0
-            },
-            "confidence": 0.51
-          },
-          "payload_kg_units": {
-            "type": "choice",
-            "choice": "0",
-            "probabilities": {
-              "0": 1,
-              "1": 0,
-              "2": 0,
-              "3": 0,
-              "4": 0,
-              "5": 0,
-              "6": 0,
-              "7": 0,
-              "8": 0,
-              "9": 0,
-              "unreadable": 0,
-              "not_visible": 0
-            },
-            "confidence": 1
-          },
-          "payload_kg_tens": {
-            "type": "choice",
-            "choice": "3",
-            "probabilities": {
-              "0": 0.04,
-              "1": 0.01,
-              "2": 0.03,
-              "3": 0.9,
-              "4": 0,
-              "5": 0,
-              "6": 0.01,
-              "7": 0,
-              "8": 0.01,
-              "9": 0,
-              "none": 0,
-              "unreadable": 0,
-              "not_visible": 0
-            },
-            "confidence": 0.89
-          },
-          "payload_kg_hundreds": {
-            "type": "choice",
-            "choice": "6",
-            "probabilities": {
-              "0": 0.02,
-              "1": 0.01,
-              "2": 0.01,
-              "3": 0.02,
-              "4": 0,
-              "5": 0,
-              "6": 0.92,
-              "7": 0,
-              "8": 0.01,
-              "9": 0,
-              "none": 0.01,
-              "unreadable": 0,
-              "not_visible": 0
-            },
-            "confidence": 0.91
-          },
-          "payload_kg_thousands": {
-            "type": "choice",
-            "choice": "8",
-            "probabilities": {
-              "0": 0.01,
-              "1": 0.01,
-              "2": 0.17,
-              "3": 0.01,
-              "4": 0,
-              "5": 0,
-              "6": 0.01,
-              "7": 0,
-              "8": 0.77,
-              "9": 0,
-              "none": 0.01,
-              "unreadable": 0.01,
-              "not_visible": 0
-            },
-            "confidence": 0.75
-          },
-          "payload_kg_ten_thousands": {
-            "type": "choice",
-            "choice": "2",
-            "probabilities": {
-              "0": 0.01,
-              "1": 0,
-              "2": 0.98,
-              "3": 0,
-              "4": 0,
-              "5": 0,
-              "6": 0,
-              "7": 0,
-              "8": 0,
-              "9": 0,
-              "none": 0.01,
-              "unreadable": 0,
-              "not_visible": 0
-            },
-            "confidence": 0.98
-          },
-          "payload_lb_units": {
-            "type": "choice",
-            "choice": "0",
-            "probabilities": {
-              "0": 1,
-              "1": 0,
-              "2": 0,
-              "3": 0,
-              "4": 0,
-              "5": 0,
-              "6": 0,
-              "7": 0,
-              "8": 0,
-              "9": 0,
-              "unreadable": 0,
-              "not_visible": 0
-            },
-            "confidence": 1
-          },
-          "payload_lb_tens": {
-            "type": "choice",
-            "choice": "2",
-            "probabilities": {
-              "0": 0,
-              "1": 0.03,
-              "2": 0.97,
-              "3": 0,
-              "4": 0,
-              "5": 0,
-              "6": 0,
-              "7": 0,
-              "8": 0,
-              "9": 0,
-              "none": 0,
-              "unreadable": 0,
-              "not_visible": 0
-            },
-            "confidence": 0.97
-          },
-          "payload_lb_hundreds": {
-            "type": "choice",
-            "choice": "1",
-            "probabilities": {
-              "0": 0.01,
-              "1": 0.97,
-              "2": 0.01,
-              "3": 0.01,
-              "4": 0,
-              "5": 0,
-              "6": 0,
-              "7": 0,
-              "8": 0,
-              "9": 0,
-              "none": 0,
-              "unreadable": 0,
-              "not_visible": 0
-            },
-            "confidence": 0.97
-          },
-          "payload_lb_thousands": {
-            "type": "choice",
-            "choice": "3",
-            "probabilities": {
-              "0": 0.01,
-              "1": 0.1,
-              "2": 0.01,
-              "3": 0.8,
-              "4": 0,
-              "5": 0.02,
-              "6": 0.05,
-              "7": 0,
-              "8": 0,
-              "9": 0,
-              "none": 0,
-              "unreadable": 0,
-              "not_visible": 0
-            },
-            "confidence": 0.78
-          },
-          "payload_lb_ten_thousands": {
-            "type": "choice",
-            "choice": "6",
-            "probabilities": {
-              "0": 0,
-              "1": 0,
-              "2": 0,
-              "3": 0,
-              "4": 0,
-              "5": 0.02,
-              "6": 0.98,
-              "7": 0,
-              "8": 0,
-              "9": 0,
-              "none": 0,
-              "unreadable": 0,
-              "not_visible": 0
-            },
-            "confidence": 0.98
-          }
-        },
-        "usage": {
-          "input_tokens": 12878,
-          "output_tokens": 2221,
-          "cost": 0.000540876
-        },
-        "id": "gen-dec-1792241799-B15tVGZvUxclFJfk0urQ",
-        "provider": "TypeSafe"
-      },
-      "latencyMs": 273,
-      "costUsd": 0.000540876
-    },
-    {
-      "request": "side-damage",
+      "request": "door-damage",
       "response": {
         "model": "typesafe/jev-1.14-20261014",
         "answers": {
@@ -5144,860 +5245,578 @@
             "type": "choice",
             "choice": "good",
             "probabilities": {
-              "good": 0.67,
-              "limited": 0.29,
-              "poor": 0.04
+              "good": 0.86,
+              "limited": 0.13,
+              "poor": 0.01
             },
-            "confidence": 0.51
+            "confidence": 0.79
           },
-          "side_panel_coverage": {
+          "door_end_coverage": {
             "type": "choice",
-            "choice": "not_inspectable",
+            "choice": "full",
             "probabilities": {
-              "full": 0.22,
-              "most": 0.07,
-              "partial": 0.31,
-              "not_inspectable": 0.4
+              "full": 0.71,
+              "most": 0.28,
+              "partial": 0.01,
+              "not_inspectable": 0
             },
-            "confidence": 0.2
-          },
-          "door_end_in_image": {
-            "type": "choice",
-            "choice": "not_identifiable",
-            "probabilities": {
-              "image_left": 0.18,
-              "image_right": 0.28,
-              "not_identifiable": 0.54
-            },
-            "confidence": 0.31
+            "confidence": 0.61
           },
           "any_visible_defect": {
             "type": "noul",
-            "noul": 0.77
+            "noul": 0.83
           },
           "potentially_significant_damage": {
             "type": "noul",
-            "noul": 0.39
+            "noul": 0.4
           },
-          "Z1T_visibility": {
+          "D1T_visibility": {
             "type": "choice",
             "choice": "clear",
             "probabilities": {
-              "clear": 0.83,
-              "partial": 0.1,
-              "not_visible": 0.07
+              "clear": 0.92,
+              "partial": 0.08,
+              "not_visible": 0
             },
-            "confidence": 0.74
+            "confidence": 0.88
           },
-          "Z1T_deformation_shape": {
+          "D1T_deformation_shape": {
             "type": "choice",
             "choice": "none",
             "probabilities": {
-              "none": 0.8,
+              "none": 0.83,
               "local_dent": 0.09,
-              "sharp_bend": 0.03,
-              "broad_bow": 0.04,
+              "sharp_bend": 0.01,
+              "broad_bow": 0.06,
               "mixed": 0,
-              "uncertain": 0.04
+              "uncertain": 0.01
             },
-            "confidence": 0.76
+            "confidence": 0.8
           },
-          "Z1T_DT": {
+          "D1T_DT": {
             "type": "noul",
-            "noul": 0.2
+            "noul": 0.21
           },
-          "Z1T_BT": {
-            "type": "noul",
-            "noul": 0.1
-          },
-          "Z1T_BW": {
-            "type": "noul",
-            "noul": 0.17
-          },
-          "Z1T_HO": {
-            "type": "noul",
-            "noul": 0.03
-          },
-          "Z1T_CK": {
-            "type": "noul",
-            "noul": 0.05
-          },
-          "Z1T_CW": {
-            "type": "noul",
-            "noul": 0.04
-          },
-          "Z1T_CO": {
-            "type": "noul",
-            "noul": 0.11
-          },
-          "Z1T_CH": {
-            "type": "noul",
-            "noul": 0.02
-          },
-          "Z1T_BR": {
-            "type": "noul",
-            "noul": 0.05
-          },
-          "Z1T_severity": {
-            "type": "score",
-            "score": 0.95,
-            "legend": {
-              "0": "none: No reliably observed physical defect in the target region.",
-              "1": "cosmetic: Superficial deterioration only, e.g. small isolated rust or paint damage without discernible metal deformation.",
-              "2": "minor: Visible local metal dent, crease or deformation of limited extent with no evident rupture.",
-              "3": "moderate: Clearly substantial deformation affecting multiple corrugations or an extended part of the visible sheet.",
-              "4": "major: Very extensive severe distortion or obvious sheet rupture/perforation; visual assessment only, NOT repair acceptance criteria."
-            },
-            "probabilities": {
-              "0": 0.37,
-              "1": 0.42,
-              "2": 0.12,
-              "3": 0.08,
-              "4": 0.01
-            },
-            "confidence": 0.43
-          },
-          "Z1B_visibility": {
-            "type": "choice",
-            "choice": "clear",
-            "probabilities": {
-              "clear": 0.78,
-              "partial": 0.18,
-              "not_visible": 0.04
-            },
-            "confidence": 0.67
-          },
-          "Z1B_deformation_shape": {
-            "type": "choice",
-            "choice": "none",
-            "probabilities": {
-              "none": 0.82,
-              "local_dent": 0.09,
-              "sharp_bend": 0.02,
-              "broad_bow": 0.03,
-              "mixed": 0,
-              "uncertain": 0.04
-            },
-            "confidence": 0.78
-          },
-          "Z1B_DT": {
-            "type": "noul",
-            "noul": 0.15
-          },
-          "Z1B_BT": {
+          "D1T_BT": {
             "type": "noul",
             "noul": 0.08
           },
-          "Z1B_BW": {
+          "D1T_BW": {
             "type": "noul",
-            "noul": 0.11
+            "noul": 0.21
           },
-          "Z1B_HO": {
+          "D1T_HO": {
             "type": "noul",
-            "noul": 0.04
+            "noul": 0.02
           },
-          "Z1B_CK": {
-            "type": "noul",
-            "noul": 0.05
-          },
-          "Z1B_CW": {
+          "D1T_CK": {
             "type": "noul",
             "noul": 0.04
           },
-          "Z1B_CO": {
-            "type": "noul",
-            "noul": 0.14
-          },
-          "Z1B_CH": {
+          "D1T_CW": {
             "type": "noul",
             "noul": 0.04
           },
-          "Z1B_BR": {
+          "D1T_CO": {
             "type": "noul",
-            "noul": 0.05
+            "noul": 0.12
           },
-          "Z1B_severity": {
+          "D1T_CH": {
+            "type": "noul",
+            "noul": 0.02
+          },
+          "D1T_BR": {
+            "type": "noul",
+            "noul": 0.04
+          },
+          "D1T_severity": {
             "type": "score",
-            "score": 0.63,
+            "score": 0.78,
             "legend": {
               "0": "none: No reliably observed physical defect in the target region.",
               "1": "cosmetic: Superficial deterioration only, e.g. small isolated rust or paint damage without discernible metal deformation.",
               "2": "minor: Visible local metal dent, crease or deformation of limited extent with no evident rupture.",
-              "3": "moderate: Clearly substantial deformation affecting multiple corrugations or an extended part of the visible sheet.",
-              "4": "major: Very extensive severe distortion or obvious sheet rupture/perforation; visual assessment only, NOT repair acceptance criteria."
+              "3": "moderate: Clearly substantial deformation affecting a large part of the visible leaf region.",
+              "4": "major: Very extensive severe distortion or obvious door-panel rupture/perforation; visual assessment only, NOT repair acceptance criteria."
             },
             "probabilities": {
-              "0": 0.6,
-              "1": 0.26,
-              "2": 0.09,
-              "3": 0.04,
+              "0": 0.47,
+              "1": 0.33,
+              "2": 0.13,
+              "3": 0.06,
               "4": 0.01
             },
-            "confidence": 0.5
+            "confidence": 0.32
           },
-          "Z2T_visibility": {
+          "D1M_visibility": {
             "type": "choice",
             "choice": "clear",
             "probabilities": {
-              "clear": 0.85,
-              "partial": 0.1,
-              "not_visible": 0.05
+              "clear": 0.94,
+              "partial": 0.06,
+              "not_visible": 0
             },
-            "confidence": 0.77
+            "confidence": 0.91
           },
-          "Z2T_deformation_shape": {
+          "D1M_deformation_shape": {
             "type": "choice",
             "choice": "none",
             "probabilities": {
-              "none": 0.85,
-              "local_dent": 0.07,
+              "none": 0.81,
+              "local_dent": 0.12,
               "sharp_bend": 0.01,
+              "broad_bow": 0.05,
+              "mixed": 0,
+              "uncertain": 0.01
+            },
+            "confidence": 0.77
+          },
+          "D1M_DT": {
+            "type": "noul",
+            "noul": 0.24
+          },
+          "D1M_BT": {
+            "type": "noul",
+            "noul": 0.08
+          },
+          "D1M_BW": {
+            "type": "noul",
+            "noul": 0.21
+          },
+          "D1M_HO": {
+            "type": "noul",
+            "noul": 0.04
+          },
+          "D1M_CK": {
+            "type": "noul",
+            "noul": 0.05
+          },
+          "D1M_CW": {
+            "type": "noul",
+            "noul": 0.04
+          },
+          "D1M_CO": {
+            "type": "noul",
+            "noul": 0.11
+          },
+          "D1M_CH": {
+            "type": "noul",
+            "noul": 0.02
+          },
+          "D1M_BR": {
+            "type": "noul",
+            "noul": 0.06
+          },
+          "D1M_severity": {
+            "type": "score",
+            "score": 0.79,
+            "legend": {
+              "0": "none: No reliably observed physical defect in the target region.",
+              "1": "cosmetic: Superficial deterioration only, e.g. small isolated rust or paint damage without discernible metal deformation.",
+              "2": "minor: Visible local metal dent, crease or deformation of limited extent with no evident rupture.",
+              "3": "moderate: Clearly substantial deformation affecting a large part of the visible leaf region.",
+              "4": "major: Very extensive severe distortion or obvious door-panel rupture/perforation; visual assessment only, NOT repair acceptance criteria."
+            },
+            "probabilities": {
+              "0": 0.5,
+              "1": 0.28,
+              "2": 0.16,
+              "3": 0.05,
+              "4": 0.01
+            },
+            "confidence": 0.34
+          },
+          "D1B_visibility": {
+            "type": "choice",
+            "choice": "clear",
+            "probabilities": {
+              "clear": 0.82,
+              "partial": 0.18,
+              "not_visible": 0
+            },
+            "confidence": 0.73
+          },
+          "D1B_deformation_shape": {
+            "type": "choice",
+            "choice": "none",
+            "probabilities": {
+              "none": 0.79,
+              "local_dent": 0.13,
+              "sharp_bend": 0.02,
               "broad_bow": 0.04,
               "mixed": 0,
-              "uncertain": 0.03
+              "uncertain": 0.02
             },
-            "confidence": 0.82
+            "confidence": 0.75
           },
-          "Z2T_DT": {
+          "D1B_DT": {
+            "type": "noul",
+            "noul": 0.21
+          },
+          "D1B_BT": {
+            "type": "noul",
+            "noul": 0.09
+          },
+          "D1B_BW": {
             "type": "noul",
             "noul": 0.16
           },
-          "Z2T_BT": {
+          "D1B_HO": {
             "type": "noul",
-            "noul": 0.07
+            "noul": 0.04
           },
-          "Z2T_BW": {
+          "D1B_CK": {
             "type": "noul",
-            "noul": 0.15
+            "noul": 0.06
           },
-          "Z2T_HO": {
-            "type": "noul",
-            "noul": 0.03
-          },
-          "Z2T_CK": {
+          "D1B_CW": {
             "type": "noul",
             "noul": 0.05
           },
-          "Z2T_CW": {
+          "D1B_CO": {
             "type": "noul",
-            "noul": 0.05
+            "noul": 0.17
           },
-          "Z2T_CO": {
-            "type": "noul",
-            "noul": 0.1
-          },
-          "Z2T_CH": {
+          "D1B_CH": {
             "type": "noul",
             "noul": 0.03
           },
-          "Z2T_BR": {
+          "D1B_BR": {
             "type": "noul",
-            "noul": 0.03
+            "noul": 0.06
           },
-          "Z2T_severity": {
+          "D1B_severity": {
             "type": "score",
             "score": 0.65,
             "legend": {
               "0": "none: No reliably observed physical defect in the target region.",
               "1": "cosmetic: Superficial deterioration only, e.g. small isolated rust or paint damage without discernible metal deformation.",
               "2": "minor: Visible local metal dent, crease or deformation of limited extent with no evident rupture.",
-              "3": "moderate: Clearly substantial deformation affecting multiple corrugations or an extended part of the visible sheet.",
-              "4": "major: Very extensive severe distortion or obvious sheet rupture/perforation; visual assessment only, NOT repair acceptance criteria."
+              "3": "moderate: Clearly substantial deformation affecting a large part of the visible leaf region.",
+              "4": "major: Very extensive severe distortion or obvious door-panel rupture/perforation; visual assessment only, NOT repair acceptance criteria."
             },
             "probabilities": {
-              "0": 0.63,
-              "1": 0.19,
-              "2": 0.1,
-              "3": 0.07,
+              "0": 0.59,
+              "1": 0.2,
+              "2": 0.18,
+              "3": 0.02,
               "4": 0.01
             },
-            "confidence": 0.47
+            "confidence": 0.45
           },
-          "Z2B_visibility": {
+          "D2T_visibility": {
             "type": "choice",
             "choice": "clear",
             "probabilities": {
-              "clear": 0.7,
-              "partial": 0.26,
-              "not_visible": 0.04
+              "clear": 0.95,
+              "partial": 0.05,
+              "not_visible": 0
             },
-            "confidence": 0.55
+            "confidence": 0.92
           },
-          "Z2B_deformation_shape": {
+          "D2T_deformation_shape": {
             "type": "choice",
             "choice": "none",
             "probabilities": {
-              "none": 0.84,
-              "local_dent": 0.09,
+              "none": 0.89,
+              "local_dent": 0.05,
               "sharp_bend": 0.01,
-              "broad_bow": 0.03,
+              "broad_bow": 0.04,
               "mixed": 0,
-              "uncertain": 0.03
+              "uncertain": 0.01
             },
-            "confidence": 0.81
+            "confidence": 0.87
           },
-          "Z2B_DT": {
-            "type": "noul",
-            "noul": 0.16
-          },
-          "Z2B_BT": {
-            "type": "noul",
-            "noul": 0.07
-          },
-          "Z2B_BW": {
-            "type": "noul",
-            "noul": 0.1
-          },
-          "Z2B_HO": {
-            "type": "noul",
-            "noul": 0.04
-          },
-          "Z2B_CK": {
-            "type": "noul",
-            "noul": 0.05
-          },
-          "Z2B_CW": {
-            "type": "noul",
-            "noul": 0.05
-          },
-          "Z2B_CO": {
+          "D2T_DT": {
             "type": "noul",
             "noul": 0.15
           },
-          "Z2B_CH": {
+          "D2T_BT": {
+            "type": "noul",
+            "noul": 0.07
+          },
+          "D2T_BW": {
+            "type": "noul",
+            "noul": 0.14
+          },
+          "D2T_HO": {
             "type": "noul",
             "noul": 0.03
           },
-          "Z2B_BR": {
+          "D2T_CK": {
             "type": "noul",
             "noul": 0.05
           },
-          "Z2B_severity": {
+          "D2T_CW": {
+            "type": "noul",
+            "noul": 0.05
+          },
+          "D2T_CO": {
+            "type": "noul",
+            "noul": 0.21
+          },
+          "D2T_CH": {
+            "type": "noul",
+            "noul": 0.02
+          },
+          "D2T_BR": {
+            "type": "noul",
+            "noul": 0.03
+          },
+          "D2T_severity": {
             "type": "score",
-            "score": 0.54,
+            "score": 0.49,
             "legend": {
               "0": "none: No reliably observed physical defect in the target region.",
               "1": "cosmetic: Superficial deterioration only, e.g. small isolated rust or paint damage without discernible metal deformation.",
               "2": "minor: Visible local metal dent, crease or deformation of limited extent with no evident rupture.",
-              "3": "moderate: Clearly substantial deformation affecting multiple corrugations or an extended part of the visible sheet.",
-              "4": "major: Very extensive severe distortion or obvious sheet rupture/perforation; visual assessment only, NOT repair acceptance criteria."
+              "3": "moderate: Clearly substantial deformation affecting a large part of the visible leaf region.",
+              "4": "major: Very extensive severe distortion or obvious door-panel rupture/perforation; visual assessment only, NOT repair acceptance criteria."
             },
             "probabilities": {
               "0": 0.64,
-              "1": 0.23,
+              "1": 0.26,
               "2": 0.09,
-              "3": 0.03,
-              "4": 0.01
+              "3": 0.01,
+              "4": 0
             },
-            "confidence": 0.55
+            "confidence": 0.61
           },
-          "Z3T_visibility": {
+          "D2M_visibility": {
             "type": "choice",
             "choice": "clear",
             "probabilities": {
-              "clear": 0.8,
-              "partial": 0.14,
-              "not_visible": 0.06
+              "clear": 0.95,
+              "partial": 0.05,
+              "not_visible": 0
             },
-            "confidence": 0.7
+            "confidence": 0.92
           },
-          "Z3T_deformation_shape": {
+          "D2M_deformation_shape": {
+            "type": "choice",
+            "choice": "none",
+            "probabilities": {
+              "none": 0.89,
+              "local_dent": 0.05,
+              "sharp_bend": 0.01,
+              "broad_bow": 0.04,
+              "mixed": 0,
+              "uncertain": 0.01
+            },
+            "confidence": 0.87
+          },
+          "D2M_DT": {
+            "type": "noul",
+            "noul": 0.15
+          },
+          "D2M_BT": {
+            "type": "noul",
+            "noul": 0.06
+          },
+          "D2M_BW": {
+            "type": "noul",
+            "noul": 0.18
+          },
+          "D2M_HO": {
+            "type": "noul",
+            "noul": 0.04
+          },
+          "D2M_CK": {
+            "type": "noul",
+            "noul": 0.04
+          },
+          "D2M_CW": {
+            "type": "noul",
+            "noul": 0.05
+          },
+          "D2M_CO": {
+            "type": "noul",
+            "noul": 0.25
+          },
+          "D2M_CH": {
+            "type": "noul",
+            "noul": 0.02
+          },
+          "D2M_BR": {
+            "type": "noul",
+            "noul": 0.03
+          },
+          "D2M_severity": {
+            "type": "score",
+            "score": 0.55,
+            "legend": {
+              "0": "none: No reliably observed physical defect in the target region.",
+              "1": "cosmetic: Superficial deterioration only, e.g. small isolated rust or paint damage without discernible metal deformation.",
+              "2": "minor: Visible local metal dent, crease or deformation of limited extent with no evident rupture.",
+              "3": "moderate: Clearly substantial deformation affecting a large part of the visible leaf region.",
+              "4": "major: Very extensive severe distortion or obvious door-panel rupture/perforation; visual assessment only, NOT repair acceptance criteria."
+            },
+            "probabilities": {
+              "0": 0.56,
+              "1": 0.34,
+              "2": 0.09,
+              "3": 0.01,
+              "4": 0
+            },
+            "confidence": 0.54
+          },
+          "D2B_visibility": {
+            "type": "choice",
+            "choice": "clear",
+            "probabilities": {
+              "clear": 0.92,
+              "partial": 0.08,
+              "not_visible": 0
+            },
+            "confidence": 0.88
+          },
+          "D2B_deformation_shape": {
             "type": "choice",
             "choice": "none",
             "probabilities": {
               "none": 0.86,
-              "local_dent": 0.05,
-              "sharp_bend": 0.02,
-              "broad_bow": 0.04,
-              "mixed": 0,
-              "uncertain": 0.03
-            },
-            "confidence": 0.83
-          },
-          "Z3T_DT": {
-            "type": "noul",
-            "noul": 0.15
-          },
-          "Z3T_BT": {
-            "type": "noul",
-            "noul": 0.08
-          },
-          "Z3T_BW": {
-            "type": "noul",
-            "noul": 0.13
-          },
-          "Z3T_HO": {
-            "type": "noul",
-            "noul": 0.04
-          },
-          "Z3T_CK": {
-            "type": "noul",
-            "noul": 0.06
-          },
-          "Z3T_CW": {
-            "type": "noul",
-            "noul": 0.05
-          },
-          "Z3T_CO": {
-            "type": "noul",
-            "noul": 0.15
-          },
-          "Z3T_CH": {
-            "type": "noul",
-            "noul": 0.03
-          },
-          "Z3T_BR": {
-            "type": "noul",
-            "noul": 0.04
-          },
-          "Z3T_severity": {
-            "type": "score",
-            "score": 0.46,
-            "legend": {
-              "0": "none: No reliably observed physical defect in the target region.",
-              "1": "cosmetic: Superficial deterioration only, e.g. small isolated rust or paint damage without discernible metal deformation.",
-              "2": "minor: Visible local metal dent, crease or deformation of limited extent with no evident rupture.",
-              "3": "moderate: Clearly substantial deformation affecting multiple corrugations or an extended part of the visible sheet.",
-              "4": "major: Very extensive severe distortion or obvious sheet rupture/perforation; visual assessment only, NOT repair acceptance criteria."
-            },
-            "probabilities": {
-              "0": 0.72,
-              "1": 0.16,
-              "2": 0.07,
-              "3": 0.04,
-              "4": 0.01
-            },
-            "confidence": 0.62
-          },
-          "Z3B_visibility": {
-            "type": "choice",
-            "choice": "clear",
-            "probabilities": {
-              "clear": 0.59,
-              "partial": 0.37,
-              "not_visible": 0.04
-            },
-            "confidence": 0.38
-          },
-          "Z3B_deformation_shape": {
-            "type": "choice",
-            "choice": "none",
-            "probabilities": {
-              "none": 0.83,
-              "local_dent": 0.09,
-              "sharp_bend": 0.02,
-              "broad_bow": 0.03,
-              "mixed": 0,
-              "uncertain": 0.03
-            },
-            "confidence": 0.8
-          },
-          "Z3B_DT": {
-            "type": "noul",
-            "noul": 0.16
-          },
-          "Z3B_BT": {
-            "type": "noul",
-            "noul": 0.08
-          },
-          "Z3B_BW": {
-            "type": "noul",
-            "noul": 0.11
-          },
-          "Z3B_HO": {
-            "type": "noul",
-            "noul": 0.06
-          },
-          "Z3B_CK": {
-            "type": "noul",
-            "noul": 0.06
-          },
-          "Z3B_CW": {
-            "type": "noul",
-            "noul": 0.05
-          },
-          "Z3B_CO": {
-            "type": "noul",
-            "noul": 0.43
-          },
-          "Z3B_CH": {
-            "type": "noul",
-            "noul": 0.04
-          },
-          "Z3B_BR": {
-            "type": "noul",
-            "noul": 0.05
-          },
-          "Z3B_severity": {
-            "type": "score",
-            "score": 0.76,
-            "legend": {
-              "0": "none: No reliably observed physical defect in the target region.",
-              "1": "cosmetic: Superficial deterioration only, e.g. small isolated rust or paint damage without discernible metal deformation.",
-              "2": "minor: Visible local metal dent, crease or deformation of limited extent with no evident rupture.",
-              "3": "moderate: Clearly substantial deformation affecting multiple corrugations or an extended part of the visible sheet.",
-              "4": "major: Very extensive severe distortion or obvious sheet rupture/perforation; visual assessment only, NOT repair acceptance criteria."
-            },
-            "probabilities": {
-              "0": 0.43,
-              "1": 0.41,
-              "2": 0.11,
-              "3": 0.04,
-              "4": 0.01
-            },
-            "confidence": 0.34
-          },
-          "Z4T_visibility": {
-            "type": "choice",
-            "choice": "clear",
-            "probabilities": {
-              "clear": 0.89,
-              "partial": 0.08,
-              "not_visible": 0.03
-            },
-            "confidence": 0.83
-          },
-          "Z4T_deformation_shape": {
-            "type": "choice",
-            "choice": "none",
-            "probabilities": {
-              "none": 0.89,
-              "local_dent": 0.05,
-              "sharp_bend": 0.01,
-              "broad_bow": 0.03,
-              "mixed": 0,
-              "uncertain": 0.02
-            },
-            "confidence": 0.87
-          },
-          "Z4T_DT": {
-            "type": "noul",
-            "noul": 0.15
-          },
-          "Z4T_BT": {
-            "type": "noul",
-            "noul": 0.08
-          },
-          "Z4T_BW": {
-            "type": "noul",
-            "noul": 0.12
-          },
-          "Z4T_HO": {
-            "type": "noul",
-            "noul": 0.04
-          },
-          "Z4T_CK": {
-            "type": "noul",
-            "noul": 0.05
-          },
-          "Z4T_CW": {
-            "type": "noul",
-            "noul": 0.06
-          },
-          "Z4T_CO": {
-            "type": "noul",
-            "noul": 0.16
-          },
-          "Z4T_CH": {
-            "type": "noul",
-            "noul": 0.04
-          },
-          "Z4T_BR": {
-            "type": "noul",
-            "noul": 0.04
-          },
-          "Z4T_severity": {
-            "type": "score",
-            "score": 0.54,
-            "legend": {
-              "0": "none: No reliably observed physical defect in the target region.",
-              "1": "cosmetic: Superficial deterioration only, e.g. small isolated rust or paint damage without discernible metal deformation.",
-              "2": "minor: Visible local metal dent, crease or deformation of limited extent with no evident rupture.",
-              "3": "moderate: Clearly substantial deformation affecting multiple corrugations or an extended part of the visible sheet.",
-              "4": "major: Very extensive severe distortion or obvious sheet rupture/perforation; visual assessment only, NOT repair acceptance criteria."
-            },
-            "probabilities": {
-              "0": 0.6,
-              "1": 0.31,
-              "2": 0.06,
-              "3": 0.03,
-              "4": 0
-            },
-            "confidence": 0.57
-          },
-          "Z4B_visibility": {
-            "type": "choice",
-            "choice": "clear",
-            "probabilities": {
-              "clear": 0.77,
-              "partial": 0.21,
-              "not_visible": 0.02
-            },
-            "confidence": 0.66
-          },
-          "Z4B_deformation_shape": {
-            "type": "choice",
-            "choice": "none",
-            "probabilities": {
-              "none": 0.84,
               "local_dent": 0.1,
-              "sharp_bend": 0.02,
+              "sharp_bend": 0.01,
               "broad_bow": 0.02,
               "mixed": 0,
-              "uncertain": 0.02
+              "uncertain": 0.01
             },
-            "confidence": 0.81
+            "confidence": 0.83
           },
-          "Z4B_DT": {
+          "D2B_DT": {
             "type": "noul",
-            "noul": 0.17
+            "noul": 0.21
           },
-          "Z4B_BT": {
-            "type": "noul",
-            "noul": 0.08
-          },
-          "Z4B_BW": {
+          "D2B_BT": {
             "type": "noul",
             "noul": 0.08
           },
-          "Z4B_HO": {
+          "D2B_BW": {
             "type": "noul",
-            "noul": 0.06
+            "noul": 0.1
           },
-          "Z4B_CK": {
-            "type": "noul",
-            "noul": 0.05
-          },
-          "Z4B_CW": {
+          "D2B_HO": {
             "type": "noul",
             "noul": 0.05
           },
-          "Z4B_CO": {
+          "D2B_CK": {
+            "type": "noul",
+            "noul": 0.07
+          },
+          "D2B_CW": {
+            "type": "noul",
+            "noul": 0.05
+          },
+          "D2B_CO": {
             "type": "noul",
             "noul": 0.52
           },
-          "Z4B_CH": {
+          "D2B_CH": {
             "type": "noul",
             "noul": 0.04
           },
-          "Z4B_BR": {
-            "type": "noul",
-            "noul": 0.05
-          },
-          "Z4B_severity": {
-            "type": "score",
-            "score": 0.85,
-            "legend": {
-              "0": "none: No reliably observed physical defect in the target region.",
-              "1": "cosmetic: Superficial deterioration only, e.g. small isolated rust or paint damage without discernible metal deformation.",
-              "2": "minor: Visible local metal dent, crease or deformation of limited extent with no evident rupture.",
-              "3": "moderate: Clearly substantial deformation affecting multiple corrugations or an extended part of the visible sheet.",
-              "4": "major: Very extensive severe distortion or obvious sheet rupture/perforation; visual assessment only, NOT repair acceptance criteria."
-            },
-            "probabilities": {
-              "0": 0.31,
-              "1": 0.57,
-              "2": 0.09,
-              "3": 0.03,
-              "4": 0
-            },
-            "confidence": 0.62
-          },
-          "Z5T_visibility": {
-            "type": "choice",
-            "choice": "clear",
-            "probabilities": {
-              "clear": 0.86,
-              "partial": 0.1,
-              "not_visible": 0.04
-            },
-            "confidence": 0.79
-          },
-          "Z5T_deformation_shape": {
-            "type": "choice",
-            "choice": "none",
-            "probabilities": {
-              "none": 0.84,
-              "local_dent": 0.08,
-              "sharp_bend": 0.02,
-              "broad_bow": 0.03,
-              "mixed": 0,
-              "uncertain": 0.03
-            },
-            "confidence": 0.81
-          },
-          "Z5T_DT": {
-            "type": "noul",
-            "noul": 0.19
-          },
-          "Z5T_BT": {
-            "type": "noul",
-            "noul": 0.09
-          },
-          "Z5T_BW": {
-            "type": "noul",
-            "noul": 0.13
-          },
-          "Z5T_HO": {
-            "type": "noul",
-            "noul": 0.06
-          },
-          "Z5T_CK": {
-            "type": "noul",
-            "noul": 0.06
-          },
-          "Z5T_CW": {
-            "type": "noul",
-            "noul": 0.06
-          },
-          "Z5T_CO": {
-            "type": "noul",
-            "noul": 0.26
-          },
-          "Z5T_CH": {
-            "type": "noul",
-            "noul": 0.04
-          },
-          "Z5T_BR": {
-            "type": "noul",
-            "noul": 0.04
-          },
-          "Z5T_severity": {
-            "type": "score",
-            "score": 0.68,
-            "legend": {
-              "0": "none: No reliably observed physical defect in the target region.",
-              "1": "cosmetic: Superficial deterioration only, e.g. small isolated rust or paint damage without discernible metal deformation.",
-              "2": "minor: Visible local metal dent, crease or deformation of limited extent with no evident rupture.",
-              "3": "moderate: Clearly substantial deformation affecting multiple corrugations or an extended part of the visible sheet.",
-              "4": "major: Very extensive severe distortion or obvious sheet rupture/perforation; visual assessment only, NOT repair acceptance criteria."
-            },
-            "probabilities": {
-              "0": 0.5,
-              "1": 0.37,
-              "2": 0.09,
-              "3": 0.04,
-              "4": 0
-            },
-            "confidence": 0.44
-          },
-          "Z5B_visibility": {
-            "type": "choice",
-            "choice": "clear",
-            "probabilities": {
-              "clear": 0.9,
-              "partial": 0.05,
-              "not_visible": 0.05
-            },
-            "confidence": 0.85
-          },
-          "Z5B_deformation_shape": {
-            "type": "choice",
-            "choice": "none",
-            "probabilities": {
-              "none": 0.89,
-              "local_dent": 0.06,
-              "sharp_bend": 0.01,
-              "broad_bow": 0.02,
-              "mixed": 0,
-              "uncertain": 0.02
-            },
-            "confidence": 0.87
-          },
-          "Z5B_DT": {
-            "type": "noul",
-            "noul": 0.13
-          },
-          "Z5B_BT": {
-            "type": "noul",
-            "noul": 0.06
-          },
-          "Z5B_BW": {
-            "type": "noul",
-            "noul": 0.09
-          },
-          "Z5B_HO": {
-            "type": "noul",
-            "noul": 0.05
-          },
-          "Z5B_CK": {
-            "type": "noul",
-            "noul": 0.04
-          },
-          "Z5B_CW": {
-            "type": "noul",
-            "noul": 0.04
-          },
-          "Z5B_CO": {
-            "type": "noul",
-            "noul": 0.28
-          },
-          "Z5B_CH": {
-            "type": "noul",
-            "noul": 0.04
-          },
-          "Z5B_BR": {
-            "type": "noul",
-            "noul": 0.04
-          },
-          "Z5B_severity": {
-            "type": "score",
-            "score": 0.61,
-            "legend": {
-              "0": "none: No reliably observed physical defect in the target region.",
-              "1": "cosmetic: Superficial deterioration only, e.g. small isolated rust or paint damage without discernible metal deformation.",
-              "2": "minor: Visible local metal dent, crease or deformation of limited extent with no evident rupture.",
-              "3": "moderate: Clearly substantial deformation affecting multiple corrugations or an extended part of the visible sheet.",
-              "4": "major: Very extensive severe distortion or obvious sheet rupture/perforation; visual assessment only, NOT repair acceptance criteria."
-            },
-            "probabilities": {
-              "0": 0.54,
-              "1": 0.35,
-              "2": 0.08,
-              "3": 0.03,
-              "4": 0
-            },
-            "confidence": 0.5
-          },
-          "bottom_rail_bent": {
-            "type": "noul",
-            "noul": 0.09
-          },
-          "bottom_rail_corrosion": {
-            "type": "noul",
-            "noul": 0.68
-          },
-          "bottom_rail_broken": {
-            "type": "noul",
-            "noul": 0.06
-          },
-          "top_rail_bent": {
+          "D2B_BR": {
             "type": "noul",
             "noul": 0.08
           },
-          "left_end_corner_post_damage": {
-            "type": "noul",
-            "noul": 0.23
+          "D2B_severity": {
+            "type": "score",
+            "score": 0.89,
+            "legend": {
+              "0": "none: No reliably observed physical defect in the target region.",
+              "1": "cosmetic: Superficial deterioration only, e.g. small isolated rust or paint damage without discernible metal deformation.",
+              "2": "minor: Visible local metal dent, crease or deformation of limited extent with no evident rupture.",
+              "3": "moderate: Clearly substantial deformation affecting a large part of the visible leaf region.",
+              "4": "major: Very extensive severe distortion or obvious door-panel rupture/perforation; visual assessment only, NOT repair acceptance criteria."
+            },
+            "probabilities": {
+              "0": 0.3,
+              "1": 0.53,
+              "2": 0.16,
+              "3": 0.01,
+              "4": 0
+            },
+            "confidence": 0.6
           },
-          "right_end_corner_post_damage": {
+          "left_leaf_locking_bar_bent": {
             "type": "noul",
-            "noul": 0.24
+            "noul": 0.11
+          },
+          "left_leaf_locking_bar_broken": {
+            "type": "noul",
+            "noul": 0.19
+          },
+          "right_leaf_locking_bar_bent": {
+            "type": "noul",
+            "noul": 0.15
+          },
+          "right_leaf_locking_bar_broken": {
+            "type": "noul",
+            "noul": 0.19
+          },
+          "cam_keeper_damage": {
+            "type": "noul",
+            "noul": 0.25
+          },
+          "left_leaf_hinge_damage": {
+            "type": "noul",
+            "noul": 0.1
+          },
+          "right_leaf_hinge_damage": {
+            "type": "noul",
+            "noul": 0.1
+          },
+          "door_gasket_damage": {
+            "type": "noul",
+            "noul": 0.11
+          },
+          "door_header_bent": {
+            "type": "noul",
+            "noul": 0.07
+          },
+          "door_header_corrosion": {
+            "type": "noul",
+            "noul": 0.47
+          },
+          "door_header_broken": {
+            "type": "noul",
+            "noul": 0.04
+          },
+          "door_sill_bent": {
+            "type": "noul",
+            "noul": 0.09
+          },
+          "door_sill_corrosion": {
+            "type": "noul",
+            "noul": 0.69
+          },
+          "door_sill_broken": {
+            "type": "noul",
+            "noul": 0.06
+          },
+          "left_corner_post_damage": {
+            "type": "noul",
+            "noul": 0.25
+          },
+          "right_corner_post_damage": {
+            "type": "noul",
+            "noul": 0.29
           },
           "corner_casting_damage": {
             "type": "noul",
-            "noul": 0.19
+            "noul": 0.2
           }
         },
         "usage": {
-          "input_tokens": 20998,
-          "output_tokens": 3354,
-          "cost": 0.000881916
+          "input_tokens": 16237,
+          "output_tokens": 2293,
+          "cost": 0.000681954
         },
-        "id": "gen-dec-1792241798-1JoGHDbZogsMEPQsAYHY",
+        "id": "gen-dec-1792242049-bzf8XaowNocgCsj3RGPe",
         "provider": "TypeSafe"
       },
-      "latencyMs": 1686,
-      "costUsd": 0.000881916
+      "latencyMs": 1908,
+      "costUsd": 0.000681954
     }
   ]
 }

@@ -19,6 +19,8 @@ vi.mock('../../services/imageCodec', () => ({
       new Blob([`crop ${w}x${h} from ${r.width}x${r.height} at ${r.x},${r.y}`], {
         type: 'image/jpeg',
       }),
+    toJpegMarked: async (w: number, h: number) =>
+      new Blob([`marked ${w}x${h}`], { type: 'image/jpeg' }),
     close: () => {},
   }),
 }))
@@ -66,13 +68,14 @@ import { onlyRequests } from '../../plan/registry'
 import { survey } from '../../plan/requests/survey'
 import { idRecheck } from '../../plan/requests/idRecheck'
 import { idCropRead } from '../../plan/requests/idCropRead'
+import { regions } from '../../plan/requests/regions'
 
 // This spec covers the ID requests; the other parts of a run (damage, …) have their own specs.
 let restoreRequests = () => {}
-beforeAll(() => {
+beforeEach(() => {
   restoreRequests = onlyRequests(survey, idRecheck, idCropRead)
 })
-afterAll(() => restoreRequests())
+afterEach(() => restoreRequests())
 
 describe('COYU 266813 0 through the store, from recorded replies', () => {
   let fetchMock: ReturnType<typeof vi.fn<typeof fetch>>
@@ -87,10 +90,32 @@ describe('COYU 266813 0 through the store, from recorded replies', () => {
     vi.unstubAllGlobals()
   })
 
-  it('Jev latest through OpenRouter reads COYU 266813 0 with a valid check digit, from the full photo and a crop around its box', async () => {
-    fetchMock
-      .mockResolvedValueOnce(json(jevCoyu.response))
-      .mockResolvedValueOnce(json(jevCoyu.crop.response))
+  it('Jev latest through OpenRouter reads COYU 266813 0 with a valid check digit, from the full photo and a crop of the numbered regions that hold the ID', async () => {
+    // The ID request is made with the numbered-regions request beside it (ticket #84).
+    restoreRequests()
+    restoreRequests = onlyRequests(survey, regions, idRecheck, idCropRead)
+    const marks = { id_mark: '3', id_mark_2: '4' }
+    const regionsReply = {
+      model: 'typesafe/jev-1.14-20261014',
+      answers: Object.fromEntries(
+        Object.entries(marks).map(([name, mark]) => [
+          name,
+          { type: 'choice', choice: mark, probabilities: { [mark]: 0.8 }, confidence: 0.8 },
+        ]),
+      ),
+    }
+    fetchMock.mockImplementation((_input, init) => {
+      const body = String(init?.body)
+      return Promise.resolve(
+        json(
+          body.includes('id_mark')
+            ? regionsReply
+            : body.includes('container_box')
+              ? jevCoyu.response
+              : jevCoyu.crop.response,
+        ),
+      )
+    })
     const store = useInspectionStore()
     store.setProvider('openrouter')
     store.setModel('~typesafe/jev-latest')
@@ -99,7 +124,7 @@ describe('COYU 266813 0 through the store, from recorded replies', () => {
 
     await store.start()
 
-    expect(fetchMock).toHaveBeenCalledTimes(2)
+    expect(fetchMock).toHaveBeenCalledTimes(3)
     const body = JSON.parse(sentBody(fetchMock, 0)) as {
       state: [string, { image_url: { url: string } }]
       questions: Record<string, { type: string; instructions: string }>
@@ -121,16 +146,17 @@ describe('COYU 266813 0 through the store, from recorded replies', () => {
     })
     expect(store.manifestRetryOffered).toBe(false)
 
-    // The crop read: the recorded box {top 0.10, bottom 0.15, left 0.61, right 0.79} on 1079 x 1080 px is
-    // x 658-852, y 108-162; with a 68 px margin that is 331 x 190 px at 590,40, scaled to Jev's 1,568 px side.
-    const crop = JSON.parse(sentBody(fetchMock, 1)) as typeof body
+    // The zoomed read: marks 3 and 4 hold the area x 0.5 to 1, y 0 to 0.25 of the 1079 x 1080 px photo; with a
+    // 0.25 margin that is 675 x 405 px at 404,0, scaled to Jev's 1,568 px side.
+    const crop = JSON.parse(sentBody(fetchMock, 2)) as typeof body
     expect(atob(crop.state[1].image_url.url.split(',')[1]!)).toBe(
-      'crop 1568x900 from 331x190 at 590,40',
+      'crop 1568x940 from 675x405 at 404,0',
     )
     expect(crop.questions.container_box).toBeUndefined()
     expect(store.record?.idCropRead).toMatchObject({ outcome: 'combined', disagreements: [] })
     expect(useLedgerStore().entries()).toEqual([
       expect.objectContaining({ costUsd: 0.00028455, costState: 'reported' }),
+      expect.objectContaining({ purpose: 'Locating the markings' }),
       expect.objectContaining({
         purpose: 'Reading the ID up close',
         costUsd: 0.000311178,
