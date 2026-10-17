@@ -2,13 +2,15 @@ import { DOOR_DAMAGE_REQUEST, SIDE_DAMAGE_REQUEST } from '../domain/damageFamili
 import { UNREAD } from '../domain/certainty'
 import { facesShown, type PhotoFace } from '../domain/photoFace'
 import { planFor, type PlanRequest, type PlanView, type RunRoute } from './requestPlan'
+import { regions } from './requests/regions'
 import { survey } from './requests/survey'
 
 // Planning the requests across several photos of one container (ticket #70). Every photo is surveyed, and
 // the survey says which face it shows. What else is sent for a photo follows from that, so the container
 // does not get a full run per photo:
 // - a photo that is not a container gets nothing more;
-// - the ID re-check and the crop read run only for a photo in which the survey read some of the ID;
+// - the numbered regions start with the survey, for every photo (the zoomed ID and seal reads follow from what they find);
+// - the ID re-check runs only for a photo in which the survey read some of the ID;
 // - the weight check runs only for a photo whose weights the survey read and found in disagreement;
 // - each photo gets the damage set for each face it shows (door end, long side), and no other.
 // One photo keeps the whole plan as it was: every request, in parallel with the survey.
@@ -27,7 +29,6 @@ const showsId = (plan: PlanView): boolean =>
 /** What a request needs of the photo beyond its own `needed`, by request id. */
 const GATES: Record<string, (plan: PlanView) => boolean> = {
   recheck: showsId,
-  crop: showsId,
   [SIDE_DAMAGE_REQUEST]: (plan) => shows(plan, 'long-side'),
   [DOOR_DAMAGE_REQUEST]: (plan) => shows(plan, 'rear-doors'),
 }
@@ -51,7 +52,7 @@ export function planForPhoto(
 ): PlanRequest[] {
   if (!several) return planFor(requests, route)
   return planFor(
-    requests.map((r) => (r === survey ? r : gated(r))),
+    requests.map((r) => (r === survey || r === regions ? r : gated(r))),
     route,
   )
 }

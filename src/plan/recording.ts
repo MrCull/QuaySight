@@ -66,7 +66,12 @@ export function recordRun(
   const entries = record.rawResponses.map((raw): RecordedRequest => {
     const request = requestOf(raw.passId, record.id)
     const line = ledger.find((l) => l.id === raw.passId)
-    const crop = request === 'crop' ? record.idCropRead?.crop : null
+    const crop =
+      request === 'crop'
+        ? record.idCropRead?.crop
+        : request === 'seal-zoom'
+          ? record.sealZoomRead?.crop
+          : null
     return {
       request,
       response: raw.body,
