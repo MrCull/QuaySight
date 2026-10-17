@@ -2,7 +2,7 @@ import { describe, it, expect } from 'vitest'
 import { enlargedCrop, type ReadingBox } from '../enlargedCrop'
 
 // Expected values are worked by hand. Photo 2000 x 1000; the box is 400 px wide and 100 px tall, so its
-// long side is 400 px and the padding (0.5 of the long side) is 200 px on every side.
+// long side is 400 px and the padding (0.8 of the long side) is 320 px on every side.
 const photo = { width: 2000, height: 1000 }
 const box = (over: Partial<ReadingBox> = {}): ReadingBox => ({
   left: 0.4,
@@ -15,14 +15,14 @@ const box = (over: Partial<ReadingBox> = {}): ReadingBox => ({
 
 describe('enlargedCrop', () => {
   it('pads the box well beyond its edges on every side', () => {
-    // Box: x 800..1200, y 450..550. Padded: x 600..1400, y 250..750.
-    expect(enlargedCrop(photo, box())).toEqual({ x: 600, y: 250, width: 800, height: 500 })
+    // Box: x 800..1200, y 450..550. Padded: x 480..1520, y 130..870.
+    expect(enlargedCrop(photo, box())).toEqual({ x: 480, y: 130, width: 1040, height: 740 })
   })
 
   it('keeps the crop inside the photo and its size when the box is near an edge', () => {
     // Box: x 0..400, y 0..100. Padded would run past the top-left; it shifts in instead of shrinking.
     const region = enlargedCrop(photo, box({ left: 0, right: 0.2, top: 0, bottom: 0.1 }))
-    expect(region).toEqual({ x: 0, y: 0, width: 800, height: 500 })
+    expect(region).toEqual({ x: 0, y: 0, width: 1040, height: 740 })
   })
 
   it('takes the whole photo when the padded crop is larger than the photo', () => {

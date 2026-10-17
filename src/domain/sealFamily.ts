@@ -190,9 +190,17 @@ export function readSeal(
     count !== null && secondSeen?.type === 'predicate' && secondSeen.probability >= VISIBLE_MIN
       ? Array.from({ length: SEAL_POSITIONS }, (_, i) => placeAt(answers[secondName(i + 1)]))
       : null
+  // One read of a seal, however sure the model sounds, is no better than Likely: nothing else says how many
+  // characters it has. Live Jev read COYU 0154620 as 01546220 at 0.97 on the length. A second copy that
+  // agrees, or a zoomed read that agrees (sealZoom.ts), lifts it back up.
+  const capped = (c: CertaintyLabel): CertaintyLabel => (second ? c : weakerLabel(c, 'Likely'))
   const merged = places.slice(0, end).map((p, i): Place => {
     const other = second?.[i]
-    if (!other || other.kind !== 'read') return p
+    if (!other || other.kind !== 'read') {
+      return p.kind === 'read'
+        ? { kind: 'read', character: { ...p.character, certainty: capped(p.character.certainty) } }
+        : p
+    }
     if (p.kind !== 'read') return other
     const [a, b] = [p.character, other.character]
     if (a.value === b.value) {
