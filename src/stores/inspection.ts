@@ -11,12 +11,11 @@ import {
 import { buildManifestQuestions, MANIFEST_PURPOSE, needsManifest } from '../domain/manifest'
 import { LUNA_ENDPOINT_ID, LUNA_MODEL } from '../domain/luna'
 import { ProviderError } from '../domain/providerErrors'
-import { callLunaManifest } from '../services/luna'
-import { callOpenRouterManifest } from '../services/openrouter'
+import { askDecisions } from '../services/askDecisions'
+import { manifestAsk } from '../domain/manifestAsk'
+import type { ManifestMapping } from '../domain/luna'
 import { preparePhoto, PhotoPreparationError } from '../services/preparePhoto'
 import { OPENROUTER_ENDPOINT_ID } from '../domain/openrouter'
-import type { ContainerIdReading } from '../domain/inspection'
-import type { Usage } from '../domain/ledger'
 import { useLedgerStore } from './ledger'
 import type { InspectionRecord, ProviderId } from '../domain/inspection'
 import {
@@ -32,6 +31,7 @@ import {
   planFor,
   runPlan,
   type PlanRun,
+  type RequestReply,
   type RunRoute,
   type SettledRequest,
 } from '../plan/requestPlan'
@@ -113,45 +113,25 @@ function checkingRetry(retry: ManifestRetryState, ids: string[]): ManifestRetryS
   return { ...retry, status: 'checking', message: null, ids: [...ids], noMatch: false }
 }
 
-/** The live manifest call for a catalogue model's wire format, and its ledger endpoint. */
-interface ManifestRoute {
-  endpoint: string
-  call: (options: {
-    apiKey: string
-    photo: Blob
-    questions: ReturnType<typeof buildManifestQuestions>
-  }) => Promise<LiveManifestReading>
-}
-
-interface LiveManifestReading {
-  reading: ContainerIdReading | null
-  resolvedModel: string
-  usage: Usage | null
-  latencyMs: number
-  raw: unknown
-  reportedCostUsd: number | null
+/** The route a catalogue model is reached on: its wire format, endpoint family and error wording. Null for a model the catalogue lacks. */
+function routeOf(provider: ProviderId, model: string): RunRoute | null {
+  const entry = findModel(provider, model)
+  if (!entry) return null
+  return {
+    provider,
+    model,
+    entry,
+    endpoint: endpointOf(entry),
+    describe: { name: labelsFor(provider, model).model, maxSide: entry.photoLimits.maxSide },
+  }
 }
 
 /** The route the first reading took, or null where it has no live manifest call (the offer is then hidden). */
-function liveManifestRoute(provider: ProviderId, model: string): ManifestRoute | null {
-  const entry = findModel(provider, model)
-  if (viaOpenRouter(entry)) {
-    const describe = {
-      name: labelsFor(provider, model).model,
-      maxSide: entry.photoLimits.maxSide,
-    }
-    return {
-      endpoint: endpointOf(entry),
-      call: (options) => callOpenRouterManifest({ ...options, model, describe }),
-    }
-  }
-  if (entry?.wireFormat === 'openai-decisions') {
-    return {
-      endpoint: endpointOf(entry),
-      call: async (options) => ({ ...(await callLunaManifest(options)), reportedCostUsd: null }),
-    }
-  }
-  return null
+function liveManifestRoute(provider: ProviderId, model: string): RunRoute | null {
+  const route = routeOf(provider, model)
+  return route && ['openrouter-decisions', 'openai-decisions'].includes(route.entry.wireFormat)
+    ? route
+    : null
 }
 
 const freshRetry = (): ManifestRetryState => ({
@@ -182,7 +162,7 @@ export const useInspectionStore = defineStore('inspection', {
     selectedFinding: null as number | null,
     /**
      * The presenter's keys, one per provider. Memory only: no persistence plugin, no storage write, cleared on request.
-     * Each key is read only for its own provider's call (callLuna or callOpenRouterJev); switching provider never moves a key.
+     * Each key is read only for its own provider's call (askDecisions); switching provider never moves a key.
      */
     apiKeys: { luna: '', openrouter: '' } as Record<ProviderId, string>,
     /** Demo mode (spec #16): the bundled samples replay recorded results; no key, no upload, no network. Never persisted. */
@@ -404,15 +384,7 @@ export const useInspectionStore = defineStore('inspection', {
       const entry = findModel(provider, requestedModel)
       const modelName = labelsFor(provider, requestedModel).model
       const inspectionId = `live-${provider}-${(liveCounter += 1)}`
-      const route: RunRoute | null = entry
-        ? {
-            provider,
-            model: requestedModel,
-            entry,
-            endpoint: endpointOf(entry),
-            describe: { name: modelName, maxSide: entry.photoLimits.maxSide },
-          }
-        : null
+      const route = routeOf(provider, requestedModel)
       const plan = route ? planFor(planRequests(), route) : []
       this.status = 'running'
       this.record = null
@@ -564,7 +536,7 @@ export const useInspectionStore = defineStore('inspection', {
       const questions = buildManifestQuestions(ids)
       // Each check is its own request: a failed one and its Try again are two ledger lines.
       const passId = `${record.id}-manifest-${(manifestCounter += 1)}`
-      let answered = null as LiveManifestReading | null
+      let answered = null as RequestReply<ManifestMapping> | null
       const ledger = useLedgerStore()
       const result = await ledger.run({
         id: passId,
@@ -572,24 +544,19 @@ export const useInspectionStore = defineStore('inspection', {
         purpose: MANIFEST_PURPOSE,
         provider: record.provider,
         endpoint: route.endpoint,
-        model: record.model,
+        model: route.model,
         call: async () => {
-          answered = await route.call({ apiKey, photo, questions })
-          return {
-            resolvedModel: answered.resolvedModel,
-            usage: answered.usage,
-            latencyMs: answered.latencyMs,
-            reportedCostUsd: answered.reportedCostUsd,
-          }
+          answered = await askDecisions({ route, apiKey, photo }, manifestAsk(questions))
+          return answered
         },
       })
       if (token !== this.runToken || this.record !== record) return
 
       if (result.status === 'ran' && answered) {
-        const done: LiveManifestReading = answered
+        const done = answered
         this.record = {
           ...record,
-          containerId: done.reading ?? record.containerId,
+          containerId: done.answer.reading ?? record.containerId,
           rawResponses: [
             ...record.rawResponses,
             {
@@ -601,7 +568,7 @@ export const useInspectionStore = defineStore('inspection', {
             },
           ],
         }
-        this.retry = { ...this.retry, status: 'idle', noMatch: done.reading === null }
+        this.retry = { ...this.retry, status: 'idle', noMatch: done.answer.reading === null }
       } else {
         this.retry = {
           ...this.retry,

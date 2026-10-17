@@ -53,6 +53,22 @@ export function describeFailure(error: unknown): RequestFailure {
   }
 }
 
+const stamped = new WeakMap<object, RequestFailure>()
+
+/** Records the failure of a request on its error. Called by the shared Decisions adapter, nowhere else. */
+export function stampFailure(error: unknown): void {
+  if (typeof error === 'object' && error !== null) stamped.set(error, describeFailure(error))
+}
+
+/**
+ * The failure the adapter stamped on this error. An error that never went through the adapter (a cap
+ * stop, a photo that could not be prepared) is described as it stands.
+ */
+export function failureOf(error: unknown): RequestFailure {
+  const found = typeof error === 'object' && error !== null ? stamped.get(error) : undefined
+  return found ?? describeFailure(error)
+}
+
 /** The reply that arrived but could not be mapped, kept for the raw-response download. Undefined when there was none. */
 export function unreadableBody(error: unknown): { body: unknown } | null {
   return error instanceof ProviderError && error.rawBody !== undefined

@@ -17,7 +17,7 @@ import { readFile, writeFile, mkdir } from 'node:fs/promises'
 import { dirname, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { EnvHttpProxyAgent, setGlobalDispatcher } from 'undici'
-import { callLuna } from '../luna'
+import { liveLuna } from './liveCalls'
 import { LUNA_ENDPOINT } from '../../domain/luna'
 
 const apiKey = process.env.OPENAI_API_KEY ?? ''
@@ -47,7 +47,7 @@ describe.skipIf(!apiKey)('Luna live smoke test (opt-in, one chargeable call)', (
       return response
     }
 
-    const result = await callLuna({ apiKey, photo, fetchImpl: capturing })
+    const result = await liveLuna({ apiKey, photo, fetchImpl: capturing })
 
     expect(result.containerId.value.length).toBe(11)
     expect(result.resolvedModel).toBeTruthy()

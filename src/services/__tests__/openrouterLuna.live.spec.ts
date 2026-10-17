@@ -23,7 +23,7 @@ import { readFile, writeFile, mkdir } from 'node:fs/promises'
 import { dirname, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { EnvHttpProxyAgent, setGlobalDispatcher } from 'undici'
-import { callOpenRouterLuna } from '../openrouter'
+import { liveLuna } from './liveCalls'
 import { OPENROUTER_ENDPOINT } from '../../domain/openrouter'
 import { findModel, labelsFor, questionSetOf } from '../../domain/providers'
 
@@ -66,16 +66,7 @@ describe.skipIf(!apiKey)(
         return response
       }
 
-      const result = await callOpenRouterLuna({
-        apiKey,
-        photo,
-        model: MODEL,
-        describe: {
-          name: labelsFor('openrouter', MODEL).model,
-          maxSide: entry!.photoLimits.maxSide,
-        },
-        fetchImpl: capturing,
-      })
+      const result = await liveLuna({ apiKey, photo, model: MODEL, fetchImpl: capturing })
 
       expect(status).toBe(200)
       expect(result.containerId.value.length).toBe(11)
