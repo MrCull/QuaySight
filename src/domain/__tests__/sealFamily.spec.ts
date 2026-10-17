@@ -39,9 +39,12 @@ describe('the seal questions', () => {
     const seal = questions.filter((q) => q.name.startsWith('seal_'))
     expect(seal.map((q) => q.name)).toEqual([
       'seal_visible',
+      'seal_length',
       ...Array.from({ length: 8 }, (_, i) => `seal_char_0${i + 1}`),
+      'seal_second_copy',
+      ...Array.from({ length: 8 }, (_, i) => `seal_second_char_0${i + 1}`),
     ])
-    const first = seal[1]
+    const first = seal[2]
     expect(first?.type).toBe('choice')
     const values = first?.type === 'choice' ? first.choices.map((c) => c.value) : []
     expect(values).toEqual(expect.arrayContaining(['0', '9', 'A', 'Z', 'none', 'unreadable']))
@@ -152,5 +155,77 @@ describe('a survey that did not answer the seal questions', () => {
     const r = record({})
     expect(r.seal).toBeUndefined()
     expect(buildSummaryText(r)).not.toContain('Seal')
+  })
+})
+
+describe('the seal read at its full length', () => {
+  const withLength = (n: string, answers: Record<string, SharedAnswer>) => ({
+    ...answers,
+    seal_length: choice(n),
+  })
+
+  it('keeps places the count says are there as "?" when they were not read', () => {
+    const answers = withLength('7', {
+      ...spelled(['0', '1', '5', '4', '6', '2', '0']),
+      seal_char_05: choice('none'),
+      seal_char_07: choice('unreadable'),
+    })
+    const seal = record(answers).seal!
+    expect(seal.value).toBe('0154?2?')
+    expect(seal.characters).toHaveLength(7)
+    expect(seal.certainty).toBe('Uncertain')
+  })
+
+  it('keeps a trailing unread place a read-to-the-end guess would have dropped', () => {
+    const answers = withLength('7', spelled(['0', '1', '5', '4', '6', '2']))
+    const seal = record(answers).seal!
+    expect(seal.value).toBe('015462?')
+    expect(seal.certainty).toBe('Uncertain')
+  })
+
+  it('does not read the places beyond the count', () => {
+    const answers = withLength('5', spelled(['0', '1', '5', '4', '6', '2', '0']))
+    expect(record(answers).seal!.value).toBe('01546')
+  })
+
+  it('falls back to the last read character when the count could not be made', () => {
+    const answers = { ...spelled(['0', '1', '5']), seal_length: choice('unreadable') }
+    expect(record(answers).seal!.value).toBe('015')
+  })
+
+  it('counts a second printed copy as a separate read: agreeing copies raise certainty', () => {
+    const digits = ['0', '1', '5', '4', '6', '2', '0']
+    const answers: Record<string, SharedAnswer> = withLength('7', {
+      ...spelled(digits),
+      seal_second_copy: visible(0.9),
+    })
+    digits.forEach((d, i) => {
+      answers[`seal_char_0${i + 1}`] = choice(d, 0.7, ['9', 0.1])
+      answers[`seal_second_char_0${i + 1}`] = choice(d, 0.7, ['9', 0.1])
+    })
+    const seal = record(answers).seal!
+    expect(seal.value).toBe('0154620')
+    expect(seal.characters.every((c) => c.certainty === 'Confident')).toBe(true)
+  })
+
+  it('fills a place from the second copy when the first could not be read', () => {
+    const answers: Record<string, SharedAnswer> = withLength('7', {
+      ...spelled(['0', '1', '5', '4', '6', '2', '0']),
+      seal_char_03: choice('unreadable'),
+      seal_second_copy: visible(0.9),
+      seal_second_char_03: choice('5'),
+    })
+    expect(record(answers).seal!.value).toBe('0154620')
+  })
+
+  it('lowers certainty where the two copies disagree', () => {
+    const answers: Record<string, SharedAnswer> = withLength('7', {
+      ...spelled(['0', '1', '5', '4', '6', '2', '0']),
+      seal_second_copy: visible(0.9),
+      seal_second_char_04: choice('3'),
+    })
+    const seal = record(answers).seal!
+    expect(seal.characters[3]?.certainty).toBe('Uncertain')
+    expect(seal.certainty).toBe('Uncertain')
   })
 })

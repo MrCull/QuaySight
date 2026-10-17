@@ -1,6 +1,6 @@
 {
   "format": 1,
-  "recordedAt": "2026-10-17T12:11:50.986Z",
+  "recordedAt": "2026-10-17T12:13:20.355Z",
   "photo": "samples/seal-closeup-coyu-0154620.jpg",
   "provider": "luna",
   "model": "gpt-6-luna",
@@ -4153,6 +4153,50 @@
           },
           {
             "type": "choice",
+            "name": "seal_length",
+            "choice": "6",
+            "probabilities": [
+              {
+                "value": "1",
+                "probability": 0.01
+              },
+              {
+                "value": "2",
+                "probability": 0.01
+              },
+              {
+                "value": "3",
+                "probability": 0.01
+              },
+              {
+                "value": "4",
+                "probability": 0.01
+              },
+              {
+                "value": "5",
+                "probability": 0.08
+              },
+              {
+                "value": "6",
+                "probability": 0.42
+              },
+              {
+                "value": "7",
+                "probability": 0.41
+              },
+              {
+                "value": "8",
+                "probability": 0.04
+              },
+              {
+                "value": "unreadable",
+                "probability": 0.01
+              }
+            ],
+            "confidence": 0.35
+          },
+          {
+            "type": "choice",
             "name": "seal_char_01",
             "choice": "0",
             "probabilities": [
@@ -5432,6 +5476,1291 @@
             "confidence": 0.27
           },
           {
+            "type": "predicate",
+            "name": "seal_second_copy",
+            "probability": 1
+          },
+          {
+            "type": "choice",
+            "name": "seal_second_char_01",
+            "choice": "0",
+            "probabilities": [
+              {
+                "value": "0",
+                "probability": 0.9
+              },
+              {
+                "value": "1",
+                "probability": 0.02
+              },
+              {
+                "value": "2",
+                "probability": 0.01
+              },
+              {
+                "value": "3",
+                "probability": 0
+              },
+              {
+                "value": "4",
+                "probability": 0.01
+              },
+              {
+                "value": "5",
+                "probability": 0
+              },
+              {
+                "value": "6",
+                "probability": 0
+              },
+              {
+                "value": "7",
+                "probability": 0
+              },
+              {
+                "value": "8",
+                "probability": 0.02
+              },
+              {
+                "value": "9",
+                "probability": 0.03
+              },
+              {
+                "value": "A",
+                "probability": 0
+              },
+              {
+                "value": "B",
+                "probability": 0
+              },
+              {
+                "value": "C",
+                "probability": 0
+              },
+              {
+                "value": "D",
+                "probability": 0
+              },
+              {
+                "value": "E",
+                "probability": 0
+              },
+              {
+                "value": "F",
+                "probability": 0
+              },
+              {
+                "value": "G",
+                "probability": 0
+              },
+              {
+                "value": "H",
+                "probability": 0
+              },
+              {
+                "value": "I",
+                "probability": 0
+              },
+              {
+                "value": "J",
+                "probability": 0
+              },
+              {
+                "value": "K",
+                "probability": 0
+              },
+              {
+                "value": "L",
+                "probability": 0
+              },
+              {
+                "value": "M",
+                "probability": 0
+              },
+              {
+                "value": "N",
+                "probability": 0
+              },
+              {
+                "value": "O",
+                "probability": 0
+              },
+              {
+                "value": "P",
+                "probability": 0
+              },
+              {
+                "value": "Q",
+                "probability": 0
+              },
+              {
+                "value": "R",
+                "probability": 0
+              },
+              {
+                "value": "S",
+                "probability": 0
+              },
+              {
+                "value": "T",
+                "probability": 0
+              },
+              {
+                "value": "U",
+                "probability": 0
+              },
+              {
+                "value": "V",
+                "probability": 0
+              },
+              {
+                "value": "W",
+                "probability": 0
+              },
+              {
+                "value": "X",
+                "probability": 0
+              },
+              {
+                "value": "Y",
+                "probability": 0
+              },
+              {
+                "value": "Z",
+                "probability": 0
+              },
+              {
+                "value": "none",
+                "probability": 0.01
+              },
+              {
+                "value": "unreadable",
+                "probability": 0
+              }
+            ],
+            "confidence": 0.9
+          },
+          {
+            "type": "choice",
+            "name": "seal_second_char_02",
+            "choice": "0",
+            "probabilities": [
+              {
+                "value": "0",
+                "probability": 0.7
+              },
+              {
+                "value": "1",
+                "probability": 0.17
+              },
+              {
+                "value": "2",
+                "probability": 0.02
+              },
+              {
+                "value": "3",
+                "probability": 0.01
+              },
+              {
+                "value": "4",
+                "probability": 0.01
+              },
+              {
+                "value": "5",
+                "probability": 0.01
+              },
+              {
+                "value": "6",
+                "probability": 0.01
+              },
+              {
+                "value": "7",
+                "probability": 0.01
+              },
+              {
+                "value": "8",
+                "probability": 0.01
+              },
+              {
+                "value": "9",
+                "probability": 0.01
+              },
+              {
+                "value": "A",
+                "probability": 0.01
+              },
+              {
+                "value": "B",
+                "probability": 0.01
+              },
+              {
+                "value": "C",
+                "probability": 0
+              },
+              {
+                "value": "D",
+                "probability": 0
+              },
+              {
+                "value": "E",
+                "probability": 0
+              },
+              {
+                "value": "F",
+                "probability": 0
+              },
+              {
+                "value": "G",
+                "probability": 0
+              },
+              {
+                "value": "H",
+                "probability": 0
+              },
+              {
+                "value": "I",
+                "probability": 0
+              },
+              {
+                "value": "J",
+                "probability": 0
+              },
+              {
+                "value": "K",
+                "probability": 0
+              },
+              {
+                "value": "L",
+                "probability": 0
+              },
+              {
+                "value": "M",
+                "probability": 0
+              },
+              {
+                "value": "N",
+                "probability": 0
+              },
+              {
+                "value": "O",
+                "probability": 0
+              },
+              {
+                "value": "P",
+                "probability": 0
+              },
+              {
+                "value": "Q",
+                "probability": 0
+              },
+              {
+                "value": "R",
+                "probability": 0
+              },
+              {
+                "value": "S",
+                "probability": 0
+              },
+              {
+                "value": "T",
+                "probability": 0
+              },
+              {
+                "value": "U",
+                "probability": 0
+              },
+              {
+                "value": "V",
+                "probability": 0
+              },
+              {
+                "value": "W",
+                "probability": 0
+              },
+              {
+                "value": "X",
+                "probability": 0
+              },
+              {
+                "value": "Y",
+                "probability": 0
+              },
+              {
+                "value": "Z",
+                "probability": 0
+              },
+              {
+                "value": "none",
+                "probability": 0.01
+              },
+              {
+                "value": "unreadable",
+                "probability": 0.01
+              }
+            ],
+            "confidence": 0.69
+          },
+          {
+            "type": "choice",
+            "name": "seal_second_char_03",
+            "choice": "0",
+            "probabilities": [
+              {
+                "value": "0",
+                "probability": 0.64
+              },
+              {
+                "value": "1",
+                "probability": 0.13
+              },
+              {
+                "value": "2",
+                "probability": 0.08
+              },
+              {
+                "value": "3",
+                "probability": 0.01
+              },
+              {
+                "value": "4",
+                "probability": 0.03
+              },
+              {
+                "value": "5",
+                "probability": 0.04
+              },
+              {
+                "value": "6",
+                "probability": 0.01
+              },
+              {
+                "value": "7",
+                "probability": 0.01
+              },
+              {
+                "value": "8",
+                "probability": 0.01
+              },
+              {
+                "value": "9",
+                "probability": 0.01
+              },
+              {
+                "value": "A",
+                "probability": 0.01
+              },
+              {
+                "value": "B",
+                "probability": 0
+              },
+              {
+                "value": "C",
+                "probability": 0.01
+              },
+              {
+                "value": "D",
+                "probability": 0
+              },
+              {
+                "value": "E",
+                "probability": 0
+              },
+              {
+                "value": "F",
+                "probability": 0
+              },
+              {
+                "value": "G",
+                "probability": 0
+              },
+              {
+                "value": "H",
+                "probability": 0
+              },
+              {
+                "value": "I",
+                "probability": 0
+              },
+              {
+                "value": "J",
+                "probability": 0
+              },
+              {
+                "value": "K",
+                "probability": 0
+              },
+              {
+                "value": "L",
+                "probability": 0
+              },
+              {
+                "value": "M",
+                "probability": 0
+              },
+              {
+                "value": "N",
+                "probability": 0
+              },
+              {
+                "value": "O",
+                "probability": 0
+              },
+              {
+                "value": "P",
+                "probability": 0
+              },
+              {
+                "value": "Q",
+                "probability": 0
+              },
+              {
+                "value": "R",
+                "probability": 0
+              },
+              {
+                "value": "S",
+                "probability": 0
+              },
+              {
+                "value": "T",
+                "probability": 0
+              },
+              {
+                "value": "U",
+                "probability": 0
+              },
+              {
+                "value": "V",
+                "probability": 0
+              },
+              {
+                "value": "W",
+                "probability": 0
+              },
+              {
+                "value": "X",
+                "probability": 0
+              },
+              {
+                "value": "Y",
+                "probability": 0
+              },
+              {
+                "value": "Z",
+                "probability": 0
+              },
+              {
+                "value": "none",
+                "probability": 0.01
+              },
+              {
+                "value": "unreadable",
+                "probability": 0
+              }
+            ],
+            "confidence": 0.63
+          },
+          {
+            "type": "choice",
+            "name": "seal_second_char_04",
+            "choice": "4",
+            "probabilities": [
+              {
+                "value": "0",
+                "probability": 0.05
+              },
+              {
+                "value": "1",
+                "probability": 0.06
+              },
+              {
+                "value": "2",
+                "probability": 0.09
+              },
+              {
+                "value": "3",
+                "probability": 0.19
+              },
+              {
+                "value": "4",
+                "probability": 0.32
+              },
+              {
+                "value": "5",
+                "probability": 0.1
+              },
+              {
+                "value": "6",
+                "probability": 0.07
+              },
+              {
+                "value": "7",
+                "probability": 0.02
+              },
+              {
+                "value": "8",
+                "probability": 0.01
+              },
+              {
+                "value": "9",
+                "probability": 0.01
+              },
+              {
+                "value": "A",
+                "probability": 0.01
+              },
+              {
+                "value": "B",
+                "probability": 0
+              },
+              {
+                "value": "C",
+                "probability": 0.01
+              },
+              {
+                "value": "D",
+                "probability": 0.01
+              },
+              {
+                "value": "E",
+                "probability": 0.01
+              },
+              {
+                "value": "F",
+                "probability": 0.01
+              },
+              {
+                "value": "G",
+                "probability": 0
+              },
+              {
+                "value": "H",
+                "probability": 0
+              },
+              {
+                "value": "I",
+                "probability": 0
+              },
+              {
+                "value": "J",
+                "probability": 0
+              },
+              {
+                "value": "K",
+                "probability": 0
+              },
+              {
+                "value": "L",
+                "probability": 0
+              },
+              {
+                "value": "M",
+                "probability": 0
+              },
+              {
+                "value": "N",
+                "probability": 0
+              },
+              {
+                "value": "O",
+                "probability": 0
+              },
+              {
+                "value": "P",
+                "probability": 0
+              },
+              {
+                "value": "Q",
+                "probability": 0
+              },
+              {
+                "value": "R",
+                "probability": 0
+              },
+              {
+                "value": "S",
+                "probability": 0
+              },
+              {
+                "value": "T",
+                "probability": 0
+              },
+              {
+                "value": "U",
+                "probability": 0.01
+              },
+              {
+                "value": "V",
+                "probability": 0.01
+              },
+              {
+                "value": "W",
+                "probability": 0
+              },
+              {
+                "value": "X",
+                "probability": 0
+              },
+              {
+                "value": "Y",
+                "probability": 0
+              },
+              {
+                "value": "Z",
+                "probability": 0
+              },
+              {
+                "value": "none",
+                "probability": 0.01
+              },
+              {
+                "value": "unreadable",
+                "probability": 0
+              }
+            ],
+            "confidence": 0.3
+          },
+          {
+            "type": "choice",
+            "name": "seal_second_char_05",
+            "choice": "4",
+            "probabilities": [
+              {
+                "value": "0",
+                "probability": 0.03
+              },
+              {
+                "value": "1",
+                "probability": 0.03
+              },
+              {
+                "value": "2",
+                "probability": 0.06
+              },
+              {
+                "value": "3",
+                "probability": 0.04
+              },
+              {
+                "value": "4",
+                "probability": 0.28
+              },
+              {
+                "value": "5",
+                "probability": 0.11
+              },
+              {
+                "value": "6",
+                "probability": 0.23
+              },
+              {
+                "value": "7",
+                "probability": 0.05
+              },
+              {
+                "value": "8",
+                "probability": 0.05
+              },
+              {
+                "value": "9",
+                "probability": 0.05
+              },
+              {
+                "value": "A",
+                "probability": 0.01
+              },
+              {
+                "value": "B",
+                "probability": 0
+              },
+              {
+                "value": "C",
+                "probability": 0.01
+              },
+              {
+                "value": "D",
+                "probability": 0.01
+              },
+              {
+                "value": "E",
+                "probability": 0.01
+              },
+              {
+                "value": "F",
+                "probability": 0
+              },
+              {
+                "value": "G",
+                "probability": 0
+              },
+              {
+                "value": "H",
+                "probability": 0
+              },
+              {
+                "value": "I",
+                "probability": 0
+              },
+              {
+                "value": "J",
+                "probability": 0
+              },
+              {
+                "value": "K",
+                "probability": 0
+              },
+              {
+                "value": "L",
+                "probability": 0
+              },
+              {
+                "value": "M",
+                "probability": 0
+              },
+              {
+                "value": "N",
+                "probability": 0
+              },
+              {
+                "value": "O",
+                "probability": 0
+              },
+              {
+                "value": "P",
+                "probability": 0
+              },
+              {
+                "value": "Q",
+                "probability": 0
+              },
+              {
+                "value": "R",
+                "probability": 0
+              },
+              {
+                "value": "S",
+                "probability": 0
+              },
+              {
+                "value": "T",
+                "probability": 0
+              },
+              {
+                "value": "U",
+                "probability": 0
+              },
+              {
+                "value": "V",
+                "probability": 0
+              },
+              {
+                "value": "W",
+                "probability": 0
+              },
+              {
+                "value": "X",
+                "probability": 0
+              },
+              {
+                "value": "Y",
+                "probability": 0
+              },
+              {
+                "value": "Z",
+                "probability": 0.01
+              },
+              {
+                "value": "none",
+                "probability": 0.01
+              },
+              {
+                "value": "unreadable",
+                "probability": 0.01
+              }
+            ],
+            "confidence": 0.26
+          },
+          {
+            "type": "choice",
+            "name": "seal_second_char_06",
+            "choice": "6",
+            "probabilities": [
+              {
+                "value": "0",
+                "probability": 0.08
+              },
+              {
+                "value": "1",
+                "probability": 0.06
+              },
+              {
+                "value": "2",
+                "probability": 0.09
+              },
+              {
+                "value": "3",
+                "probability": 0.03
+              },
+              {
+                "value": "4",
+                "probability": 0.2
+              },
+              {
+                "value": "5",
+                "probability": 0.13
+              },
+              {
+                "value": "6",
+                "probability": 0.2
+              },
+              {
+                "value": "7",
+                "probability": 0.04
+              },
+              {
+                "value": "8",
+                "probability": 0.07
+              },
+              {
+                "value": "9",
+                "probability": 0.04
+              },
+              {
+                "value": "A",
+                "probability": 0.01
+              },
+              {
+                "value": "B",
+                "probability": 0
+              },
+              {
+                "value": "C",
+                "probability": 0.01
+              },
+              {
+                "value": "D",
+                "probability": 0
+              },
+              {
+                "value": "E",
+                "probability": 0.01
+              },
+              {
+                "value": "F",
+                "probability": 0
+              },
+              {
+                "value": "G",
+                "probability": 0
+              },
+              {
+                "value": "H",
+                "probability": 0
+              },
+              {
+                "value": "I",
+                "probability": 0
+              },
+              {
+                "value": "J",
+                "probability": 0
+              },
+              {
+                "value": "K",
+                "probability": 0
+              },
+              {
+                "value": "L",
+                "probability": 0
+              },
+              {
+                "value": "M",
+                "probability": 0
+              },
+              {
+                "value": "N",
+                "probability": 0
+              },
+              {
+                "value": "O",
+                "probability": 0
+              },
+              {
+                "value": "P",
+                "probability": 0
+              },
+              {
+                "value": "Q",
+                "probability": 0
+              },
+              {
+                "value": "R",
+                "probability": 0
+              },
+              {
+                "value": "S",
+                "probability": 0
+              },
+              {
+                "value": "T",
+                "probability": 0
+              },
+              {
+                "value": "U",
+                "probability": 0
+              },
+              {
+                "value": "V",
+                "probability": 0
+              },
+              {
+                "value": "W",
+                "probability": 0
+              },
+              {
+                "value": "X",
+                "probability": 0
+              },
+              {
+                "value": "Y",
+                "probability": 0
+              },
+              {
+                "value": "Z",
+                "probability": 0.01
+              },
+              {
+                "value": "none",
+                "probability": 0.01
+              },
+              {
+                "value": "unreadable",
+                "probability": 0.01
+              }
+            ],
+            "confidence": 0.18
+          },
+          {
+            "type": "choice",
+            "name": "seal_second_char_07",
+            "choice": "0",
+            "probabilities": [
+              {
+                "value": "0",
+                "probability": 0.32
+              },
+              {
+                "value": "1",
+                "probability": 0.17
+              },
+              {
+                "value": "2",
+                "probability": 0.12
+              },
+              {
+                "value": "3",
+                "probability": 0.02
+              },
+              {
+                "value": "4",
+                "probability": 0.06
+              },
+              {
+                "value": "5",
+                "probability": 0.06
+              },
+              {
+                "value": "6",
+                "probability": 0.06
+              },
+              {
+                "value": "7",
+                "probability": 0.02
+              },
+              {
+                "value": "8",
+                "probability": 0.06
+              },
+              {
+                "value": "9",
+                "probability": 0.09
+              },
+              {
+                "value": "A",
+                "probability": 0.01
+              },
+              {
+                "value": "B",
+                "probability": 0
+              },
+              {
+                "value": "C",
+                "probability": 0
+              },
+              {
+                "value": "D",
+                "probability": 0
+              },
+              {
+                "value": "E",
+                "probability": 0
+              },
+              {
+                "value": "F",
+                "probability": 0
+              },
+              {
+                "value": "G",
+                "probability": 0
+              },
+              {
+                "value": "H",
+                "probability": 0
+              },
+              {
+                "value": "I",
+                "probability": 0
+              },
+              {
+                "value": "J",
+                "probability": 0
+              },
+              {
+                "value": "K",
+                "probability": 0
+              },
+              {
+                "value": "L",
+                "probability": 0
+              },
+              {
+                "value": "M",
+                "probability": 0
+              },
+              {
+                "value": "N",
+                "probability": 0
+              },
+              {
+                "value": "O",
+                "probability": 0
+              },
+              {
+                "value": "P",
+                "probability": 0
+              },
+              {
+                "value": "Q",
+                "probability": 0
+              },
+              {
+                "value": "R",
+                "probability": 0
+              },
+              {
+                "value": "S",
+                "probability": 0
+              },
+              {
+                "value": "T",
+                "probability": 0
+              },
+              {
+                "value": "U",
+                "probability": 0
+              },
+              {
+                "value": "V",
+                "probability": 0
+              },
+              {
+                "value": "W",
+                "probability": 0
+              },
+              {
+                "value": "X",
+                "probability": 0
+              },
+              {
+                "value": "Y",
+                "probability": 0
+              },
+              {
+                "value": "Z",
+                "probability": 0
+              },
+              {
+                "value": "none",
+                "probability": 0.01
+              },
+              {
+                "value": "unreadable",
+                "probability": 0
+              }
+            ],
+            "confidence": 0.3
+          },
+          {
+            "type": "choice",
+            "name": "seal_second_char_08",
+            "choice": "0",
+            "probabilities": [
+              {
+                "value": "0",
+                "probability": 0.27
+              },
+              {
+                "value": "1",
+                "probability": 0.09
+              },
+              {
+                "value": "2",
+                "probability": 0.1
+              },
+              {
+                "value": "3",
+                "probability": 0.02
+              },
+              {
+                "value": "4",
+                "probability": 0.08
+              },
+              {
+                "value": "5",
+                "probability": 0.04
+              },
+              {
+                "value": "6",
+                "probability": 0.11
+              },
+              {
+                "value": "7",
+                "probability": 0.04
+              },
+              {
+                "value": "8",
+                "probability": 0.08
+              },
+              {
+                "value": "9",
+                "probability": 0.07
+              },
+              {
+                "value": "A",
+                "probability": 0.01
+              },
+              {
+                "value": "B",
+                "probability": 0
+              },
+              {
+                "value": "C",
+                "probability": 0
+              },
+              {
+                "value": "D",
+                "probability": 0
+              },
+              {
+                "value": "E",
+                "probability": 0.01
+              },
+              {
+                "value": "F",
+                "probability": 0
+              },
+              {
+                "value": "G",
+                "probability": 0
+              },
+              {
+                "value": "H",
+                "probability": 0
+              },
+              {
+                "value": "I",
+                "probability": 0
+              },
+              {
+                "value": "J",
+                "probability": 0
+              },
+              {
+                "value": "K",
+                "probability": 0
+              },
+              {
+                "value": "L",
+                "probability": 0
+              },
+              {
+                "value": "M",
+                "probability": 0
+              },
+              {
+                "value": "N",
+                "probability": 0
+              },
+              {
+                "value": "O",
+                "probability": 0
+              },
+              {
+                "value": "P",
+                "probability": 0
+              },
+              {
+                "value": "Q",
+                "probability": 0
+              },
+              {
+                "value": "R",
+                "probability": 0
+              },
+              {
+                "value": "S",
+                "probability": 0
+              },
+              {
+                "value": "T",
+                "probability": 0
+              },
+              {
+                "value": "U",
+                "probability": 0
+              },
+              {
+                "value": "V",
+                "probability": 0
+              },
+              {
+                "value": "W",
+                "probability": 0
+              },
+              {
+                "value": "X",
+                "probability": 0
+              },
+              {
+                "value": "Y",
+                "probability": 0
+              },
+              {
+                "value": "Z",
+                "probability": 0.01
+              },
+              {
+                "value": "none",
+                "probability": 0.06
+              },
+              {
+                "value": "unreadable",
+                "probability": 0.01
+              }
+            ],
+            "confidence": 0.25
+          },
+          {
             "type": "choice",
             "name": "shape_length",
             "choice": "unknown",
@@ -6255,7 +7584,7 @@
           }
         ],
         "usage": {
-          "input_tokens": 31408,
+          "input_tokens": 35692,
           "input_tokens_details": {
             "cached_tokens": 0,
             "cache_write_tokens": 0
@@ -6264,11 +7593,141 @@
           "output_tokens_details": {
             "reasoning_tokens": 0
           },
-          "total_tokens": 31408
+          "total_tokens": 35692
         }
       },
-      "latencyMs": 1177,
-      "costUsd": 0.0031408
+      "latencyMs": 1166,
+      "costUsd": 0.0035692000000000002
+    },
+    {
+      "request": "recheck",
+      "response": {
+        "model": "gpt-6-luna",
+        "answers": [
+          {
+            "type": "refusal",
+            "name": "id_char_01"
+          },
+          {
+            "type": "refusal",
+            "name": "id_char_02"
+          },
+          {
+            "type": "refusal",
+            "name": "id_char_03"
+          },
+          {
+            "type": "choice",
+            "name": "id_char_06",
+            "choice": "0",
+            "probabilities": [
+              {
+                "value": "0",
+                "probability": 0.42
+              },
+              {
+                "value": "1",
+                "probability": 0.11
+              },
+              {
+                "value": "2",
+                "probability": 0.09
+              },
+              {
+                "value": "3",
+                "probability": 0.04
+              },
+              {
+                "value": "4",
+                "probability": 0.13
+              },
+              {
+                "value": "5",
+                "probability": 0.07
+              },
+              {
+                "value": "6",
+                "probability": 0.07
+              },
+              {
+                "value": "7",
+                "probability": 0.03
+              },
+              {
+                "value": "8",
+                "probability": 0.03
+              },
+              {
+                "value": "9",
+                "probability": 0.01
+              }
+            ],
+            "confidence": 0.36
+          },
+          {
+            "type": "choice",
+            "name": "id_char_08",
+            "choice": "4",
+            "probabilities": [
+              {
+                "value": "0",
+                "probability": 0.11
+              },
+              {
+                "value": "1",
+                "probability": 0.05
+              },
+              {
+                "value": "2",
+                "probability": 0.09
+              },
+              {
+                "value": "3",
+                "probability": 0.05
+              },
+              {
+                "value": "4",
+                "probability": 0.22
+              },
+              {
+                "value": "5",
+                "probability": 0.21
+              },
+              {
+                "value": "6",
+                "probability": 0.12
+              },
+              {
+                "value": "7",
+                "probability": 0.06
+              },
+              {
+                "value": "8",
+                "probability": 0.06
+              },
+              {
+                "value": "9",
+                "probability": 0.03
+              }
+            ],
+            "confidence": 0.13
+          }
+        ],
+        "usage": {
+          "input_tokens": 2446,
+          "input_tokens_details": {
+            "cached_tokens": 0,
+            "cache_write_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "reasoning_tokens": 0
+          },
+          "total_tokens": 2446
+        }
+      },
+      "latencyMs": 312,
+      "costUsd": 0.00024460000000000004
     },
     {
       "request": "side-damage",
@@ -7687,138 +9146,8 @@
           "total_tokens": 30332
         }
       },
-      "latencyMs": 1313,
+      "latencyMs": 1648,
       "costUsd": 0.0030332000000000002
-    },
-    {
-      "request": "recheck",
-      "response": {
-        "model": "gpt-6-luna",
-        "answers": [
-          {
-            "type": "refusal",
-            "name": "id_char_01"
-          },
-          {
-            "type": "refusal",
-            "name": "id_char_02"
-          },
-          {
-            "type": "refusal",
-            "name": "id_char_03"
-          },
-          {
-            "type": "choice",
-            "name": "id_char_06",
-            "choice": "0",
-            "probabilities": [
-              {
-                "value": "0",
-                "probability": 0.42
-              },
-              {
-                "value": "1",
-                "probability": 0.11
-              },
-              {
-                "value": "2",
-                "probability": 0.09
-              },
-              {
-                "value": "3",
-                "probability": 0.04
-              },
-              {
-                "value": "4",
-                "probability": 0.13
-              },
-              {
-                "value": "5",
-                "probability": 0.07
-              },
-              {
-                "value": "6",
-                "probability": 0.07
-              },
-              {
-                "value": "7",
-                "probability": 0.03
-              },
-              {
-                "value": "8",
-                "probability": 0.03
-              },
-              {
-                "value": "9",
-                "probability": 0.01
-              }
-            ],
-            "confidence": 0.36
-          },
-          {
-            "type": "choice",
-            "name": "id_char_08",
-            "choice": "4",
-            "probabilities": [
-              {
-                "value": "0",
-                "probability": 0.11
-              },
-              {
-                "value": "1",
-                "probability": 0.05
-              },
-              {
-                "value": "2",
-                "probability": 0.09
-              },
-              {
-                "value": "3",
-                "probability": 0.05
-              },
-              {
-                "value": "4",
-                "probability": 0.22
-              },
-              {
-                "value": "5",
-                "probability": 0.21
-              },
-              {
-                "value": "6",
-                "probability": 0.12
-              },
-              {
-                "value": "7",
-                "probability": 0.06
-              },
-              {
-                "value": "8",
-                "probability": 0.06
-              },
-              {
-                "value": "9",
-                "probability": 0.03
-              }
-            ],
-            "confidence": 0.13
-          }
-        ],
-        "usage": {
-          "input_tokens": 2446,
-          "input_tokens_details": {
-            "cached_tokens": 0,
-            "cache_write_tokens": 0
-          },
-          "output_tokens": 0,
-          "output_tokens_details": {
-            "reasoning_tokens": 0
-          },
-          "total_tokens": 2446
-        }
-      },
-      "latencyMs": 343,
-      "costUsd": 0.00024460000000000004
     },
     {
       "request": "door-damage",
@@ -8747,7 +10076,7 @@
           "total_tokens": 21825
         }
       },
-      "latencyMs": 1829,
+      "latencyMs": 1731,
       "costUsd": 0.0021825
     }
   ]

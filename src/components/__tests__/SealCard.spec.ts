@@ -65,7 +65,7 @@ describe('the Seal card', () => {
   it('marks the characters it could not read, each with its own certainty', async () => {
     const card = (await mounted(PARTLY)).get('.rs-seal')
     const chars = card.findAll('.qs-id__ch')
-    expect(chars.map((c) => c.text()).join('')).toBe('42·7')
+    expect(chars.map((c) => c.text()).join('')).toBe('42?7')
     expect(chars.map((c) => c.attributes('data-c'))).toEqual([
       undefined,
       undefined,
