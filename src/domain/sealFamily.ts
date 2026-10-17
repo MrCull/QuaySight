@@ -28,6 +28,8 @@ export interface SealReading {
   certainty: CertaintyLabel
   /** Where the number was read in the photo, when the model gave a usable box. Shown as an enlarged crop. */
   box?: ReadingBox
+  /** Several photos (ticket #72): the 1-based photo the box, and so the crop, belongs to. */
+  photo?: number
 }
 
 declare module './survey' {
