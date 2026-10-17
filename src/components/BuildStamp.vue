@@ -8,7 +8,6 @@ const props = withDefaults(defineProps<{ commit?: string | null; builtAt?: strin
 })
 
 const COMMIT_URL = 'https://github.com/MrCull/QuaySight/commit/'
-const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
 
 const short = computed(() => props.commit?.slice(0, 7) ?? null)
 
@@ -16,14 +15,25 @@ const short = computed(() => props.commit?.slice(0, 7) ?? null)
 const when = computed(() => {
   const d = new Date(props.builtAt)
   if (Number.isNaN(d.getTime())) return null
-  const hh = String(d.getUTCHours()).padStart(2, '0')
-  const mm = String(d.getUTCMinutes()).padStart(2, '0')
-  return `${d.getUTCDate()} ${MONTHS[d.getUTCMonth()]} ${d.getUTCFullYear()} ${hh}:${mm} UTC`
+  const parts = Object.fromEntries(
+    new Intl.DateTimeFormat('en-GB', {
+      timeZone: 'UTC',
+      day: 'numeric',
+      month: 'short',
+      year: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit',
+      hourCycle: 'h23',
+    })
+      .formatToParts(d)
+      .map((p) => [p.type, p.value]),
+  )
+  return `${parts.day} ${parts.month} ${parts.year} ${parts.hour}:${parts.minute} UTC`
 })
 </script>
 
 <template>
-  <p class="qs-buildstamp qs-type-caption">
+  <p class="rs-buildstamp qs-type-caption">
     <template v-if="short"
       >Build <a :href="COMMIT_URL + commit" target="_blank" rel="noopener">{{ short }}</a
       ><template v-if="when"> · {{ when }}</template></template
@@ -33,14 +43,13 @@ const when = computed(() => {
 </template>
 
 <style scoped>
-.qs-buildstamp {
+.rs-buildstamp {
   margin: 0;
   padding: var(--space-4);
   text-align: center;
   color: var(--ink-muted);
-  opacity: 0.8;
 }
-.qs-buildstamp a {
+.rs-buildstamp a {
   color: inherit;
   text-decoration: underline;
 }

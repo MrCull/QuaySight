@@ -131,6 +131,8 @@ export interface IdSource {
    * read (ticket #86). Absent: the reading itself is the one vote.
    */
   reads?: readonly IdRead[]
+  /** A close-up of the ID: its characters vote, but it never counts toward "different containers". */
+  voteOnly?: boolean
 }
 
 /** One independent read, with the character each position was next likely to be (what the check digit may pick instead). */
@@ -185,7 +187,7 @@ export function combineContainerIds(sources: readonly IdSource[]): IdCombination
   const validOwn = [
     ...new Set(
       sources
-        .filter((s) => strong(s.reading))
+        .filter((s) => !s.voteOnly && strong(s.reading))
         .map((s) => normalised(s.reading))
         .filter(passesCheck),
     ),

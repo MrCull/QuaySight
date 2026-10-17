@@ -18,8 +18,6 @@ const props = defineProps<{
   margin?: number
   /** Several photos or one: the 1-based photo the crop is cut from. The caption names it. */
   photoNumber?: number | null
-  /** The outline drawn on the full photo: a hazard sticker takes the hazard colour, everything else the ID's. */
-  outline?: 'id' | 'hazard'
 }>()
 
 const size = ref<{ width: number; height: number } | null>(null)
@@ -107,7 +105,7 @@ const imgStyle = computed(() => {
       >
         <img class="rs-crop__whole" :src="src" :alt="`${label}, full photo`" />
         <svg
-          :class="['qs-photo rs-crop__outline', `rs-crop__outline--${outline ?? 'id'}`]"
+          class="qs-photo rs-crop__outline"
           viewBox="0 0 1000 1000"
           preserveAspectRatio="none"
           aria-hidden="true"
@@ -184,9 +182,6 @@ const imgStyle = computed(() => {
 .rs-crop__outline {
   position: absolute;
   inset: 0;
-}
-.rs-crop__outline--hazard :deep(.qs-photo-region > rect) {
-  stroke: var(--hazard-fg);
 }
 .rs-crop__caption {
   margin: var(--space-2) 0 0;

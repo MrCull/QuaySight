@@ -79,7 +79,7 @@ const isCloseUp = (run: PhotoRun) => run.record.photoFace?.face === 'close-up'
 /**
  * Whether a photo may give a reading of `subject`. A close-up gives only the readings of what it shows
  * (a close-up whose subject is unknown: the seal, weights and placards it read itself); it never gives
- * a face, an ID, details or length. Every other photo gives everything.
+ * a face, details or length (an ID close-up votes in the ID only; see combinePhotoRuns). Every other photo gives everything.
  */
 function mayGive(run: PhotoRun, subject: 'seal' | 'weights' | 'placard'): boolean {
   if (!isCloseUp(run)) return true
@@ -327,11 +327,20 @@ export function combinePhotoRuns(
   const add = (photo: number, field: 'details' | 'weights', names: string[]) =>
     contributions.get(photo)![field].push(...names)
 
-  // A close-up never gives an ID, so it never votes for "different containers" either.
-  const idRuns = kept.filter((r) => !isCloseUp(r))
+  // A close-up gives no ID, except one of the ID itself (stories 40-41): its characters vote in the
+  // combined reading it shows, but it never votes for "different containers". A close-up whose subject
+  // is unknown (old recordings) stays out.
+  const idRuns = kept.filter((r) => !isCloseUp(r) || r.record.photoFace?.closeUpSubject === 'id')
   const idSources = idRuns.flatMap((r) =>
     r.record.containerId
-      ? [{ photo: r.index, reading: r.record.containerId, reads: idVotes(r.record) }]
+      ? [
+          {
+            photo: r.index,
+            reading: r.record.containerId,
+            reads: idVotes(r.record),
+            ...(isCloseUp(r) ? { voteOnly: true } : {}),
+          },
+        ]
       : [],
   )
   const idResult = combineContainerIds(idSources)

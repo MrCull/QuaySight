@@ -102,6 +102,48 @@ describe('a close-up among several photos', () => {
   })
 })
 
+describe('a close-up of the ID among several photos', () => {
+  const door = run(1, 'rear-doors', { containerId: id('COYU2668130', 'Uncertain') })
+
+  it('casts an ID vote into the combined reading it shows', () => {
+    const closeUp = run(2, 'close-up', { containerId: id('COYU2668130', 'Confident') }, 'id')
+    const record = combinePhotoRuns([door, closeUp], { id: 'x' })
+    expect(record.containerId?.value).toBe('COYU2668130')
+    expect(record.containerId?.certainty).toBe('Confident')
+    expect(record.photos?.[1]?.contributed.containerId.length).toBeGreaterThan(0)
+  })
+
+  it('never raises "different containers", even reading another valid ID', () => {
+    const strong = run(1, 'rear-doors', { containerId: id('COYU2668130', 'Confident') })
+    const closeUp = run(2, 'close-up', { containerId: id('JDLU2006902', 'Confident') }, 'id')
+    expect(combinePhotoRuns([strong, closeUp], { id: 'x' }).differentContainers).toBe(false)
+  })
+
+  it('is still no face and gives no details, length or damage', () => {
+    const closeUp = run(
+      2,
+      'close-up',
+      {
+        containerId: id('COYU2668130', 'Confident'),
+        details: { sizeCode: { state: 'read', code: '22G1' } } as never,
+        damage: { findings: [] } as never,
+      },
+      'id',
+    )
+    const record = combinePhotoRuns([door, closeUp], { id: 'x' })
+    expect(record.photos?.[1]?.face?.face).toBe('close-up')
+    expect(record.photos?.[1]?.contributed.details).toEqual([])
+    expect(record.photos?.[1]?.contributed.damage).toEqual([])
+  })
+
+  it('keeps an unknown-subject close-up out of the ID, as old recordings had it', () => {
+    const closeUp = run(2, 'close-up', { containerId: id('COYU2668130', 'Confident') })
+    const record = combinePhotoRuns([door, closeUp], { id: 'x' })
+    expect(record.containerId?.certainty).toBe('Uncertain')
+    expect(record.photos?.[1]?.contributed.containerId).toEqual([])
+  })
+})
+
 describe('the "different containers" warning', () => {
   const ids = (a: CertaintyLabel, b: CertaintyLabel) =>
     combinePhotoRuns(
