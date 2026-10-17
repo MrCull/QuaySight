@@ -4,7 +4,7 @@ import { questionFamilies } from '../questionRegistry'
 import { surveyQuestionSet } from '../survey'
 import { chosenLength, type ContainerLengthFt, type LengthReading } from '../chosenLength'
 import { decodeSizeCode } from '../isoSizeCode'
-import { SHAPE_LENGTH_QUESTION, shapeLengthFamily, shapeLengthOf } from '../shapeLength'
+import { SHAPE_LENGTH_QUESTION, lengthDisagreement, shapeLengthFamily, shapeLengthOf } from '../shapeLength'
 import { buildInspectionExport } from '../exports'
 import { draftRecord } from '../../plan/draftRecord'
 import type { CertaintyLabel, InspectionRecord } from '../inspection'
@@ -94,9 +94,22 @@ describe('the length chosen', () => {
     expect(chosenLength(r)).toEqual({ feet: 20, source: 'iso-code' })
   })
 
+  it('is Uncertain when a Likely code and the shape disagree, the code as the alternative', () => {
+    const r = recordWith({ code: ['22G1', 'Likely'], shape: [40, 'Confident'] })
+    expect(chosenLength(r)).toEqual({
+      feet: 40,
+      source: 'shape',
+      certainty: 'Uncertain',
+      alternative: 20,
+    })
+    expect(lengthDisagreement(r)).toBe(
+      'The size code says 20 ft but the shape of the container in the photo says 40 ft.',
+    )
+  })
+
   it('uses the shape when the code is below Confident or absent', () => {
     expect(
-      chosenLength(recordWith({ code: ['22G1', 'Likely'], shape: [40, 'Confident'] })),
+      chosenLength(recordWith({ code: ['42G1', 'Likely'], shape: [40, 'Confident'] })),
     ).toEqual({ feet: 40, source: 'shape' })
     expect(chosenLength(recordWith({ shape: [45, 'Likely'], model: 20 }))).toEqual({
       feet: 45,

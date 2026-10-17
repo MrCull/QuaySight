@@ -13,9 +13,9 @@ export type LengthSource = 'iso-code' | 'shape' | 'model' | 'default'
 export interface ChosenLength {
   feet: ContainerLengthFt
   source: LengthSource
-  /** Only when a Confident ISO code and the shape estimate disagree: Uncertain. */
+  /** Only when the ISO code (Confident or Likely) and the shape estimate disagree: Uncertain. */
   certainty?: CertaintyLabel
-  /** Only then: the shape's length, the other plausible value. */
+  /** Only then: the other plausible length (the shape's, or a Likely code's). */
   alternative?: ContainerLengthFt
 }
 
@@ -28,20 +28,31 @@ export interface LengthReading {
   certainty: CertaintyLabel
 }
 
+/** The 20, 40 or 45 ft the decoded size code names, when it names one. */
+export function codeFeetOf(record: InspectionRecord): ContainerLengthFt | null {
+  const feet = record.sizeCode?.length.feet
+  return feet === 20 || feet === 40 || feet === 45 ? feet : null
+}
+
 /** The length to draw and where it came from. */
 export function chosenLength(record: InspectionRecord): ChosenLength {
-  const decoded = record.sizeCode
-  if (decoded && decoded.certainty === 'Confident') {
-    const feet = decoded.length.feet
-    if (feet === 20 || feet === 40 || feet === 45) {
-      const shape = record.shapeLength
-      if (shape && shape.feet !== feet) {
-        return { feet, source: 'iso-code', certainty: 'Uncertain', alternative: shape.feet }
-      }
-      return { feet, source: 'iso-code' }
+  const code = codeFeetOf(record)
+  const shape = record.shapeLength
+  const codeCertainty = record.sizeCode?.certainty
+  if (code !== null && codeCertainty === 'Confident') {
+    if (shape && shape.feet !== code) {
+      return { feet: code, source: 'iso-code', certainty: 'Uncertain', alternative: shape.feet }
     }
+    return { feet: code, source: 'iso-code' }
   }
-  if (record.shapeLength) return { feet: record.shapeLength.feet, source: 'shape' }
+  if (shape) {
+    // A Likely code is still a reading: against the shape it makes the length Uncertain (the shape
+    // stands, the code's length is the alternative).
+    if (code !== null && codeCertainty === 'Likely' && shape.feet !== code) {
+      return { feet: shape.feet, source: 'shape', certainty: 'Uncertain', alternative: code }
+    }
+    return { feet: shape.feet, source: 'shape' }
+  }
   if (record.modelLength) return { feet: record.modelLength.feet, source: 'model' }
   return DEFAULT_LENGTH
 }

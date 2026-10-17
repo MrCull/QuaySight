@@ -1,7 +1,7 @@
 // The length-from-shape question (spec #51, ticket #66): 20, 40 or 45 ft from the cues a side photo shows.
 // A question family of the registry. Pure. Which length the drawing uses is chosen in chosenLength.ts.
 import { applyMargin, certaintyOfProbability } from './certainty'
-import { chosenLength, type ContainerLengthFt, type LengthReading } from './chosenLength'
+import { chosenLength, codeFeetOf, type ContainerLengthFt, type LengthReading } from './chosenLength'
 import { withShapeLength } from './damageSets'
 import type { CertaintyLabel, InspectionRecord } from './inspection'
 import type { QuestionFamily } from './questionRegistry'
@@ -53,11 +53,13 @@ export function shapeLengthOf(answers: Record<string, SharedAnswer>): LengthRead
   return { feet, probability, certainty }
 }
 
-/** The warning when a Confident size code and the shape disagree on the length, or null. */
+/** The warning when a size code (Confident or Likely) and the shape disagree on the length, or null. */
 export function lengthDisagreement(record: InspectionRecord): string | null {
   const chosen = chosenLength(record)
-  if (chosen.alternative === undefined) return null
-  return `The size code says ${chosen.feet} ft but the shape of the container in the photo says ${chosen.alternative} ft.`
+  const code = codeFeetOf(record)
+  if (chosen.alternative === undefined || code === null) return null
+  const shape = chosen.source === 'shape' ? chosen.feet : chosen.alternative
+  return `The size code says ${code} ft but the shape of the container in the photo says ${shape} ft.`
 }
 
 declare module './survey' {
