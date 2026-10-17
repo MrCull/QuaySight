@@ -22,6 +22,9 @@ jobs:
       - name: Build And Deploy
         id: builddeploy
         uses: Azure/static-web-apps-deploy@v1
+        env:
+          # Read by vite.config.ts for the footer build stamp.
+          BUILD_COMMIT: ${{ github.event.pull_request.head.sha || github.sha }}
         with:
           azure_static_web_apps_api_token: ${{ secrets.AZURE_STATIC_WEB_APPS_API_TOKEN_POLITE_POND_07CED2110 }}
           repo_token: ${{ secrets.GITHUB_TOKEN }} # Used for Github integrations (i.e. PR comments)
