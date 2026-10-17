@@ -27,7 +27,9 @@ const orientationLabel = computed(() => {
 /** Each photo's chip: the face the survey named, once it has. Several photos only; one photo reads as before. */
 function chipFor(index: number): string | null {
   const photo = store.record?.photos?.[index]
-  return photo ? faceChipLabel(photo.face?.face ?? null, photo.side) : null
+  return photo
+    ? faceChipLabel(photo.face?.face ?? null, photo.side, photo.face?.closeUpSubject ?? null)
+    : null
 }
 
 async function take(files: File[]) {
@@ -116,7 +118,9 @@ function openPicker() {
           <!-- Under the photo, never over it. -->
           <div class="rs-photos__cap">
             <span class="rs-photos__n qs-type-body-sm">Photo {{ i + 1 }}</span>
-            <span v-if="chipFor(i)" class="rs-facechip qs-type-caption" data-face-chip>{{ chipFor(i) }}</span>
+            <span v-if="chipFor(i)" class="rs-facechip qs-type-caption" data-face-chip>{{
+              chipFor(i)
+            }}</span>
           </div>
         </li>
       </ul>
