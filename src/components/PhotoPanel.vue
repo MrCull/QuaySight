@@ -115,8 +115,8 @@ function openPicker() {
           </div>
           <!-- Under the photo, never over it. -->
           <div class="rs-photos__cap">
-            <span class="rs-photos__n">Photo {{ i + 1 }}</span>
-            <span v-if="chipFor(i)" class="rs-facechip" data-face-chip>{{ chipFor(i) }}</span>
+            <span class="rs-photos__n qs-type-body-sm">Photo {{ i + 1 }}</span>
+            <span v-if="chipFor(i)" class="rs-facechip qs-type-caption" data-face-chip>{{ chipFor(i) }}</span>
           </div>
         </li>
       </ul>
@@ -178,7 +178,6 @@ function openPicker() {
   margin-top: var(--space-2);
 }
 .rs-photos__n {
-  font: 500 13px/1 var(--font-sans);
   color: var(--ink);
 }
 .rs-facechip {
@@ -190,7 +189,6 @@ function openPicker() {
   border: 1px solid var(--line-strong);
   background: var(--surface-sunken);
   color: var(--ink);
-  font: 500 12px/1 var(--font-sans);
 }
 .rs-photo__img {
   display: block;
