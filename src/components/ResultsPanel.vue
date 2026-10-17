@@ -8,6 +8,7 @@ import CertaintyChip from './CertaintyChip.vue'
 import ContainerId from './ContainerId.vue'
 import ManifestRetry from './ManifestRetry.vue'
 import PhotoCrop from './PhotoCrop.vue'
+import SealCard from './SealCard.vue'
 import ContainerDetails from './ContainerDetails.vue'
 import ContainerMarkings from './ContainerMarkings.vue'
 import ExportActions from './ExportActions.vue'
@@ -255,6 +256,15 @@ const showInsufficient = computed(() => idState.value === 'insufficient')
       </div>
       <p class="rs-note qs-type-body-sm">The container ID could not be read from this photo.</p>
     </div>
+
+    <!-- The seal, under the ID. Absent when the survey did not assess it. -->
+    <SealCard
+      v-if="idLanded && record?.seal"
+      :reading="record.seal"
+      :photo-url="store.photo?.url ?? null"
+      :class="['qs-rise', { 'qs-arrived': arrivedEarly }]"
+      :style="{ '--i': STAGGER.card }"
+    />
 
     <!-- Live: a live call on the same model. Demo: the sample's own recorded check. Never a replay against another photo. -->
     <ManifestRetry v-if="store.canCheckManifest" />
