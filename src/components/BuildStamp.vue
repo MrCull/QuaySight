@@ -23,7 +23,7 @@ const when = computed(() => {
 </script>
 
 <template>
-  <p class="qs-buildstamp">
+  <p class="qs-buildstamp qs-type-caption">
     <template v-if="short"
       >Build <a :href="COMMIT_URL + commit" target="_blank" rel="noopener">{{ short }}</a
       ><template v-if="when"> · {{ when }}</template></template
@@ -38,7 +38,6 @@ const when = computed(() => {
   padding: var(--space-4);
   text-align: center;
   color: var(--ink-muted);
-  font: 400 13px/18px var(--font-sans);
   opacity: 0.8;
 }
 .qs-buildstamp a {
