@@ -56,6 +56,8 @@ async function take(files: File[]) {
       }
     }
     for (const url of previous) URL.revokeObjectURL(url)
+    // Choosing photos is the go-ahead. Without a key, start() does nothing and the key hint stays.
+    void store.start()
   } catch (err) {
     error.value = err instanceof Error ? err.message : 'That photo could not be read.'
   }
