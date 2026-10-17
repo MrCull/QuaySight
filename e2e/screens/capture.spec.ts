@@ -90,8 +90,7 @@ interface Capture {
 
 const open = (page: Page) => page.goto('/')
 
-const choosePhoto = (page: Page) =>
-  page.locator('input[type="file"]').setInputFiles(samplePhoto)
+const choosePhoto = (page: Page) => page.locator('input[type="file"]').setInputFiles(samplePhoto)
 
 /** On the setup card: picks OpenAI. OpenRouter is pre-selected; the Luna captures replay OpenAI responses. */
 async function chooseOpenAI(page: Page) {
@@ -202,7 +201,9 @@ function lunaVariant(kind: 'uncertain' | 'partial' | 'insufficient') {
   const body = structuredClone(lunaSmoke)
   if (kind === 'insufficient') body.answers = []
   if (kind === 'partial') {
-    body.answers = body.answers.filter((a) => !['id_char_05', 'id_char_09'].includes(String(a.name)))
+    body.answers = body.answers.filter(
+      (a) => !['id_char_05', 'id_char_09'].includes(String(a.name)),
+    )
   }
   if (kind === 'uncertain') {
     for (const answer of body.answers) {
@@ -223,9 +224,7 @@ function idVariantScript(kind: 'uncertain' | 'partial' | 'insufficient'): Script
   const base = rearDoorsScript({ face: 'rear_doors' })
   const answers = lunaVariant(kind).answers
   return (k, n) =>
-    k === 'survey'
-      ? surveyWithIdAnswers(answers, { id: 'APHU6586847' })
-      : base(k, n)
+    k === 'survey' ? surveyWithIdAnswers(answers, { id: 'APHU6586847' }) : base(k, n)
 }
 
 /** Starts a live run on the COYU door photo (or another) and returns without waiting for it to finish. */
@@ -262,7 +261,11 @@ const CAPTURES: Capture[] = [
   {
     state: 'setup-provider-list',
     screen: 'setup',
-    steps: ['Open /', 'Press ArrowDown on the provider button (list open, OpenAI active)', 'Press ArrowDown'],
+    steps: [
+      'Open /',
+      'Press ArrowDown on the provider button (list open, OpenAI active)',
+      'Press ArrowDown',
+    ],
     motion: 'frozen',
     run: async (page) => {
       await open(page)
@@ -350,7 +353,10 @@ const CAPTURES: Capture[] = [
   {
     state: 'demo-sample-ready',
     screen: 'demo',
-    steps: ['Demo-picker steps', 'Choose Rear doors with markings (photo on the stage, Start inspection)'],
+    steps: [
+      'Demo-picker steps',
+      'Choose Rear doors with markings (photo on the stage, Start inspection)',
+    ],
     motion: 'frozen',
     run: async (page) => {
       await open(page)
@@ -372,7 +378,11 @@ const CAPTURES: Capture[] = [
   {
     state: 'analysing-mid',
     screen: 'analysing',
-    steps: ['Demo-sample-ready steps', 'Click Start inspection', 'Capture 500ms in, during the staged progress (animations live)'],
+    steps: [
+      'Demo-sample-ready steps',
+      'Click Start inspection',
+      'Capture 500ms in, during the staged progress (animations live)',
+    ],
     motion: 'animated',
     run: async (page) => {
       await open(page)
@@ -386,7 +396,12 @@ const CAPTURES: Capture[] = [
   {
     state: 'analysing-reduced-motion',
     screen: 'analysing',
-    steps: ['Reduced-motion emulation', 'Demo-sample-ready steps', 'Click Start inspection', 'Capture 500ms in'],
+    steps: [
+      'Reduced-motion emulation',
+      'Demo-sample-ready steps',
+      'Click Start inspection',
+      'Capture 500ms in',
+    ],
     motion: 'animated',
     viewports: [{ width: 1440, height: 900 }],
     reducedMotion: true,
@@ -402,7 +417,11 @@ const CAPTURES: Capture[] = [
   {
     state: 'demo-rear-result',
     screen: 'results',
-    steps: ['Demo mode', 'Rear doors with markings (recorded Luna, earlier ID-only run)', 'Start inspection, settle'],
+    steps: [
+      'Demo mode',
+      'Rear doors with markings (recorded Luna, earlier ID-only run)',
+      'Start inspection, settle',
+    ],
     motion: 'frozen',
     run: (page) => demoResult(page, 'Rear doors with markings'),
   },
@@ -429,7 +448,11 @@ const CAPTURES: Capture[] = [
   {
     state: 'demo-clean-result',
     screen: 'results',
-    steps: ['Demo mode', 'Clean grey rear doors (recorded Jev latest through OpenRouter, uncertain digits)', 'Start inspection, settle'],
+    steps: [
+      'Demo mode',
+      'Clean grey rear doors (recorded Jev latest through OpenRouter, uncertain digits)',
+      'Start inspection, settle',
+    ],
     motion: 'frozen',
     run: (page) => demoResult(page, 'Clean grey rear doors'),
   },
@@ -514,7 +537,13 @@ const CAPTURES: Capture[] = [
   {
     state: 'live-uncertain',
     screen: 'results',
-    steps: ['Open /', 'Type placeholder key, Enter', 'Choose photo', 'Run live inspection (mocked Decisions: uncertain)', 'settle'],
+    steps: [
+      'Open /',
+      'Type placeholder key, Enter',
+      'Choose photo',
+      'Run live inspection (mocked Decisions: uncertain)',
+      'settle',
+    ],
     motion: 'frozen',
     script: () => idVariantScript('uncertain'),
     run: liveRun,
@@ -522,7 +551,13 @@ const CAPTURES: Capture[] = [
   {
     state: 'live-partial',
     screen: 'results',
-    steps: ['Open /', 'Type placeholder key, Enter', 'Choose photo', 'Run live inspection (mocked Decisions: positions 5 and 9 unread)', 'settle'],
+    steps: [
+      'Open /',
+      'Type placeholder key, Enter',
+      'Choose photo',
+      'Run live inspection (mocked Decisions: positions 5 and 9 unread)',
+      'settle',
+    ],
     motion: 'frozen',
     script: () => idVariantScript('partial'),
     run: liveRun,
@@ -530,7 +565,13 @@ const CAPTURES: Capture[] = [
   {
     state: 'live-survey-failed',
     screen: 'results',
-    steps: ['Open /', 'Type placeholder key, Enter', 'Choose photo', 'Run live inspection (mocked: the survey fails with an HTTP 500, damage answers)', 'settle'],
+    steps: [
+      'Open /',
+      'Type placeholder key, Enter',
+      'Choose photo',
+      'Run live inspection (mocked: the survey fails with an HTTP 500, damage answers)',
+      'settle',
+    ],
     motion: 'frozen',
     viewports: [{ width: 1440, height: 900 }],
     script: () => rearDoorsScript({}, { survey: SERVER_ERROR }),
@@ -539,7 +580,13 @@ const CAPTURES: Capture[] = [
   {
     state: 'live-insufficient',
     screen: 'results',
-    steps: ['Open /', 'Type placeholder key, Enter', 'Choose photo', 'Run live inspection (mocked Decisions: nothing read)', 'settle'],
+    steps: [
+      'Open /',
+      'Type placeholder key, Enter',
+      'Choose photo',
+      'Run live inspection (mocked Decisions: nothing read)',
+      'settle',
+    ],
     motion: 'frozen',
     script: () => idVariantScript('insufficient'),
     run: liveRun,
@@ -554,7 +601,11 @@ const CAPTURES: Capture[] = [
   {
     state: 'manifest-checking',
     screen: 'manifest-retry',
-    steps: ['Manifest offer steps', 'Paste APHU 658684 and click Check again with this manifest', 'Capture 500ms in'],
+    steps: [
+      'Manifest offer steps',
+      'Paste APHU 658684 and click Check again with this manifest',
+      'Capture 500ms in',
+    ],
     motion: 'animated',
     run: async (page) => {
       await unidentifiedRun(page)
@@ -584,7 +635,11 @@ const CAPTURES: Capture[] = [
   {
     state: 'manifest-no-match',
     screen: 'manifest-retry',
-    steps: ['Manifest offer steps', 'Paste APHU 658684 and click Check again with this manifest', 'No entry matches; the panel stays open'],
+    steps: [
+      'Manifest offer steps',
+      'Paste APHU 658684 and click Check again with this manifest',
+      'No entry matches; the panel stays open',
+    ],
     motion: 'frozen',
     run: async (page) => {
       await unidentifiedRun(page)
@@ -650,10 +705,7 @@ const CAPTURES: Capture[] = [
   {
     state: 'progress-cancel-focused',
     screen: 'analysing',
-    steps: [
-      'Progress (survey pending) steps',
-      'Tab to Cancel so the keyboard focus ring shows',
-    ],
+    steps: ['Progress (survey pending) steps', 'Tab to Cancel so the keyboard focus ring shows'],
     motion: 'frozen',
     script: () => rearDoorsScript({}, { survey: HOLD }),
     run: async (page) => {
@@ -759,11 +811,11 @@ const CAPTURES: Capture[] = [
     screen: 'results',
     steps: [
       'Settings-chip steps (OpenAI), choose the dented grey side photo',
-      'Run live inspection (mocked: face long side; findings at each of the four severities and a bent bottom rail; the door-end set sees no door end)',
+      'Run live inspection (mocked: face long side, no readable size code so the length is estimated from shape; findings at each of the four severities and a bent bottom rail; the door-end set sees no door end)',
       'settle',
     ],
     motion: 'frozen',
-    script: () => longSideScript(),
+    script: () => longSideScript({ shapeLength: '40_ft', sizeTypeCode: [['not_visible', 0.95]] }),
     run: (page) => liveLanded(page, sidePhoto),
   },
   {
@@ -791,7 +843,12 @@ function writeIndex() {
 }
 
 /** Routes every request: the app origin passes; each Decisions request is answered by the script; the rest is aborted. */
-async function guardNetwork(page: Page, origin: string, script: Script | undefined, blocked: string[]) {
+async function guardNetwork(
+  page: Page,
+  origin: string,
+  script: Script | undefined,
+  blocked: string[],
+) {
   let calls = 0
   await page.route('**/*', async (route) => {
     const url = route.request().url()

@@ -26,6 +26,7 @@ import { doorDamageFamily, sideDamageFamily } from './damageFamilies'
 import { idFamily } from './idFamily'
 import { placardsFamily } from './placards'
 import { lengthPart } from './containerLength'
+import { shapeLengthFamily } from './shapeLength'
 import { facePart } from './photoFace'
 import { weightsPart } from './weightQuestions'
 
@@ -77,6 +78,7 @@ const FAMILIES: QuestionFamily[] = [
   facePart,
   weightsPart,
   lengthPart,
+  shapeLengthFamily,
   sideDamageFamily,
   doorDamageFamily,
   placardsFamily,

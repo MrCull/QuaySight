@@ -1,17 +1,22 @@
 // Which length the schematic is drawn to (spec 4.3, ticket #46). Pure.
 //
-// In order: the ISO size/type code when it was read and decoded at Confident; the model's answer to the
-// survey's length question; 40 ft.
+// In order: the ISO size/type code when it was read and decoded at Confident; the shape estimate from a
+// side photo (ticket #66); the model's answer to the survey's length question; 40 ft. When a Confident
+// code and the shape disagree, the code's length stands, Uncertain, with the shape's as its alternative.
 import type { CertaintyLabel, InspectionRecord } from './inspection'
 
 export type ContainerLengthFt = 20 | 40 | 45
 
 /** Where the length used came from. */
-export type LengthSource = 'iso-code' | 'model' | 'default'
+export type LengthSource = 'iso-code' | 'shape' | 'model' | 'default'
 
 export interface ChosenLength {
   feet: ContainerLengthFt
   source: LengthSource
+  /** Only when a Confident ISO code and the shape estimate disagree: Uncertain. */
+  certainty?: CertaintyLabel
+  /** Only then: the shape's length, the other plausible value. */
+  alternative?: ContainerLengthFt
 }
 
 export const DEFAULT_LENGTH: ChosenLength = { feet: 40, source: 'default' }
@@ -28,8 +33,15 @@ export function chosenLength(record: InspectionRecord): ChosenLength {
   const decoded = record.sizeCode
   if (decoded && decoded.certainty === 'Confident') {
     const feet = decoded.length.feet
-    if (feet === 20 || feet === 40 || feet === 45) return { feet, source: 'iso-code' }
+    if (feet === 20 || feet === 40 || feet === 45) {
+      const shape = record.shapeLength
+      if (shape && shape.feet !== feet) {
+        return { feet, source: 'iso-code', certainty: 'Uncertain', alternative: shape.feet }
+      }
+      return { feet, source: 'iso-code' }
+    }
   }
+  if (record.shapeLength) return { feet: record.shapeLength.feet, source: 'shape' }
   if (record.modelLength) return { feet: record.modelLength.feet, source: 'model' }
   return DEFAULT_LENGTH
 }
