@@ -37,6 +37,7 @@ function within(lo: number, hi: number, max: number): [number, number] {
 export function enlargedCrop(
   photo: PhotoSize,
   box: ReadingBox | null | undefined,
+  margin: number = ENLARGED_MARGIN,
 ): CropFrame | null {
   if (!(photo.width > 0 && photo.height > 0)) return null
   const usable = usableIdBox(box)
@@ -45,7 +46,7 @@ export function enlargedCrop(
   const right = usable.right * photo.width
   const top = usable.top * photo.height
   const bottom = usable.bottom * photo.height
-  const pad = ENLARGED_MARGIN * Math.max(right - left, bottom - top)
+  const pad = margin * Math.max(right - left, bottom - top)
   const [x0, x1] = within(left - pad, right + pad, photo.width)
   const [y0, y1] = within(top - pad, bottom + pad, photo.height)
   return { x: x0, y: y0, width: x1 - x0, height: y1 - y0 }

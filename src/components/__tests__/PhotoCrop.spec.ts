@@ -52,4 +52,42 @@ describe('PhotoCrop', () => {
     await wrapper.get('img').trigger('error')
     expect(wrapper.find('figure').exists()).toBe(false)
   })
+
+  it('names the source photo in the caption', async () => {
+    const wrapper = mount(PhotoCrop, {
+      props: {
+        src: 'blob:photo',
+        box,
+        caption: 'Where we read the ID',
+        label: 'ID',
+        photoNumber: 2,
+      },
+    })
+    expect(wrapper.get('figcaption').text()).toBe('Where we read the ID · Photo 2')
+  })
+
+  it('shows the full photo with the area outlined when tapped, and the close-up again on a second tap', async () => {
+    const wrapper = mount(PhotoCrop, {
+      props: {
+        src: 'blob:photo',
+        box,
+        caption: 'Where we read the ID',
+        label: 'ID',
+        photoNumber: 1,
+      },
+    })
+    await loaded(wrapper, 2000, 1000)
+    expect(wrapper.find('.rs-crop__full').exists()).toBe(false)
+    await wrapper.get('button').trigger('click')
+    expect(wrapper.get('button').attributes('aria-expanded')).toBe('true')
+    const rect = wrapper.get('.rs-crop__full rect')
+    expect(rect.attributes('x')).toBe('400')
+    expect(rect.attributes('width')).toBe('200')
+    expect(rect.attributes('y')).toBe('450')
+    expect(rect.attributes('height')).toBe('100')
+    expect(wrapper.get('.rs-crop__whole').attributes('src')).toBe('blob:photo')
+    expect(wrapper.get('.rs-crop__frame').attributes('style')).toContain('display: none')
+    await wrapper.get('button').trigger('click')
+    expect(wrapper.find('.rs-crop__full').exists()).toBe(false)
+  })
 })
