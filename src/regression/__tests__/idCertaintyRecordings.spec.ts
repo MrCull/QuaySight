@@ -40,6 +40,14 @@ describe('the container ID on the regression recordings', () => {
     expect(idOf('jdlu-four-photos', 'luna')?.value).toBe('JDLU2006902')
   })
 
+  it('reads JDLU 200690 2 as Confident from the four photos on Luna, and names the winning photo and area (ticket #86)', () => {
+    const reading = idOf('jdlu-four-photos', 'luna')
+    expect(reading).toMatchObject({ value: 'JDLU2006902', certainty: 'Confident' })
+    expect(reading?.alternatives).toBeUndefined()
+    expect(reading?.photo).toBe(1)
+    expect(reading?.box).toBeDefined()
+  })
+
   it('hides the COYU 206813 0 alternative, which fails the check digit', () => {
     for (const route of ROUTES) {
       expect(idOf('coyu-doors', route)?.alternatives ?? []).not.toContain('COYU2068130')

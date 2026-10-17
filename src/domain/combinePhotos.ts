@@ -14,8 +14,12 @@ import {
   type SizeCodeReading,
 } from './containerDetailTypes'
 import { withCodeConflict } from './containerDetails'
-import { agree, combineContainerIds, weakerOf, type Candidate } from './combineReadings'
+import { agree, combineContainerIds, weakerOf, type Candidate, type IdRead } from './combineReadings'
 import { combineDamage } from './combineDamage'
+import { withCategoryLetter } from './idCandidates'
+import { weakestOf } from './idConfidence'
+import type { ChoiceReading } from './idQuestions'
+import { UNREAD } from './certainty'
 import { combineLengthSealPlacards } from './combineLengthSealPlacards'
 import { decodeSizeCode } from './isoSizeCode'
 import type { CertaintyLabel, ContainerIdReading, InspectionRecord } from './inspection'
@@ -81,6 +85,33 @@ function mayGive(run: PhotoRun, subject: 'seal' | 'weights' | 'placard'): boolea
   if (!isCloseUp(run)) return true
   const shows = run.record.photoFace?.closeUpSubject
   return shows === undefined || shows === subject
+}
+
+/** A reading as one string and certainty per position, from per-position choice readings. */
+function readingOfChoices(readings: readonly ChoiceReading[]): IdRead {
+  const positionCertainty = readings.map((r) => r.certainty)
+  return {
+    value: readings.map((r) => r.value ?? UNREAD).join(''),
+    observedCheckDigit: null,
+    calculatedCheckDigit: null,
+    checkDigitValid: false,
+    certainty: weakestOf(positionCertainty),
+    provenance: 'printed',
+    positionCertainty,
+    runnerUps: readings.map((r) =>
+      r.runnerUp ? { value: r.runnerUp, certainty: r.runnerUpCertainty ?? r.certainty } : null,
+    ),
+  }
+}
+
+/**
+ * The independent reads of one photo's ID that each cast a vote (ticket #86): the whole-photo read and
+ * the zoomed read when both were made, else the photo's reading alone.
+ */
+function idVotes(record: InspectionRecord): IdRead[] | undefined {
+  const crop = record.idCropRead
+  if (crop?.outcome !== 'combined' || !crop.whole || !crop.read) return undefined
+  return [crop.whole, withCategoryLetter(crop.read.readings)].map(readingOfChoices)
 }
 
 function sideOf(record: InspectionRecord): 'left' | 'right' | null {
@@ -297,17 +328,25 @@ export function combinePhotoRuns(
     contributions.get(photo)![field].push(...names)
 
   // A close-up never gives an ID, so it never votes for "different containers" either.
-  const idSources = kept
-    .filter((r) => !isCloseUp(r))
-    .flatMap((r) =>
-      r.record.containerId ? [{ photo: r.index, reading: r.record.containerId }] : [],
-    )
+  const idRuns = kept.filter((r) => !isCloseUp(r))
+  const idSources = idRuns.flatMap((r) =>
+    r.record.containerId
+      ? [{ photo: r.index, reading: r.record.containerId, reads: idVotes(r.record) }]
+      : [],
+  )
   const idResult = combineContainerIds(idSources)
   const different = idResult?.kind === 'different'
 
   let containerId: ContainerIdReading | null = null
   if (idResult?.kind === 'combined') {
-    containerId = idResult.reading
+    // The winning photo and the area its read came from, so a close-up is cut from that photo.
+    const winner = idRuns.find((r) => r.index === idResult.winner)
+    const area = winner?.record.containerId?.box ?? winner?.record.idCropRead?.box
+    containerId = {
+      ...idResult.reading,
+      photo: idResult.winner,
+      ...(area ? { box: area } : {}),
+    }
     for (const [photo, positions] of Object.entries(idResult.taken)) {
       contributions.get(Number(photo))!.containerId = [...positions].sort((a, b) => a - b)
     }
