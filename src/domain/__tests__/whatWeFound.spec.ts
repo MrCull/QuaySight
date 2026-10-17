@@ -406,7 +406,7 @@ describe('the damage verdict', () => {
       }),
     })
     expect(statement(found, 'damage')).toBe(
-      '4 suspected findings on the long side: Dent in the side sheet, moderate (Confident); Scrape on the lower rail, cosmetic (Likely); Bent corner post, not rated (Likely); and 1 more. Potentially significant damage, closer inspection advised. Other faces were not in the photo, so we have not seen them.',
+      "4 suspected findings on the long side: Dent in the side sheet, moderate (Confident); Scrape on the lower rail, cosmetic (Likely); Bent corner post, can't tell (Likely); and 1 more. Potentially significant damage, closer inspection advised. Other faces were not in the photo, so we have not seen them.",
     )
     expect(found.caveats).toContain('Hole in the side sheet is Uncertain.')
   })
@@ -428,7 +428,7 @@ describe('the damage verdict', () => {
       }),
     })
     expect(statement(found, 'damage')).toContain(
-      '1 suspected finding on the door end: Bent locking bar, not rated (Confident).',
+      "1 suspected finding on the door end: Bent locking bar, can't tell (Confident).",
     )
   })
 

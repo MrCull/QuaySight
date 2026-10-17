@@ -203,7 +203,7 @@ export const partNotSeenText = (face: string) => `Part of the ${face} could not 
 export const findingUncertainText = (title: string) => `${title} is Uncertain.`
 
 export const findingText = (title: string, severity: string | null, certainty: CertaintyLabel) =>
-  `${title}, ${severity ?? 'not rated'} (${certainty})`
+  `${title}, ${severity ?? "can't tell"} (${certainty})`
 
 export const noDamageText = (face: string) => `No suspected damage on the ${face}.`
 

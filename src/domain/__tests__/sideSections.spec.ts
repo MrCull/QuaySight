@@ -1,8 +1,33 @@
 import { describe, it, expect } from 'vitest'
-import { sectionCount, sectionsOfZone } from '../sideSections'
+import { sectionCount, sectionsOfZone, sectionWords } from '../sideSections'
 
 // Photo columns 1..5 are fifths of the face from photo left. Doors at photo left mean the right side.
 const column = (c: number) => ({ u0: (c - 1) / 5, u1: c / 5, v0: 0, v1: 0.5 })
+
+describe('sectionWords', () => {
+  const zone = (u0: number, u1: number) => ({ u0, u1, v0: 0, v1: 0.5 })
+  it('words a 40 ft side in tenths, from the door end', () => {
+    expect(sectionWords(zone(0.2, 0.4), 40, 'right', 'inferred')).toBe(
+      'Sections 3 and 4 of 10 from the door end',
+    )
+    expect(sectionWords(zone(0.2, 0.3), 40, 'right', 'inferred')).toBe(
+      'Section 3 of 10 from the door end',
+    )
+  })
+  it('words a 20 ft side in fifths, counting from the door end on the left side', () => {
+    expect(sectionWords(zone(0.2, 0.4), 20, 'right', 'inferred')).toBe(
+      'Section 2 of 5 from the door end',
+    )
+    expect(sectionWords(zone(0, 0.2), 20, 'left', 'inferred')).toBe(
+      'Section 5 of 5 from the door end',
+    )
+  })
+  it('says the door end is assumed when the photo did not show the doors', () => {
+    expect(sectionWords(zone(0.2, 0.3), 40, 'right', 'defaulted')).toBe(
+      'Section 3 of 10 from the assumed door end',
+    )
+  })
+})
 
 describe('CEDEX/IICL long-side sections', () => {
   it('has 5 sections for 20 ft and 10 for 40 and 45 ft', () => {

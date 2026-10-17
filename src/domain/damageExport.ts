@@ -82,7 +82,7 @@ export function damageExport(record: InspectionRecord): {
         face: f.face,
         component: f.component,
         visibility: f.visibility,
-        severity: f.severity ?? 'not rated',
+        severity: f.severity ?? "can't tell",
         severityProbabilities: f.severityProbabilities
           ? Object.fromEntries(
               SEVERITY_LEVELS.map((level, i) => [level, f.severityProbabilities![i] ?? 0]),

@@ -44,7 +44,7 @@ export const findingCountLine = (n: number) => `Suspected damage: ${n} finding${
 export const SIGNIFICANT_LINE = 'Potentially significant damage, closer inspection advised.'
 
 export function findingLines(f: ExportFindingLink): string[] {
-  const severity = f.severity === 'not rated' ? 'severity not rated' : f.severity
+  const severity = f.severity === "can't tell" ? "severity can't tell" : f.severity
   return [
     `- ${f.title} - ${f.certainty}, ${severity}`,
     `  Photo: ${f.photo ?? 'not linked'}, region: ${f.region.location}, source pass: ${f.sourcePass.passId} (${f.sourcePass.kind})`,

@@ -76,7 +76,7 @@ describe('what we found, wording', () => {
     expect(words.findingsText(5, ['a', 'b', 'c'], 3, 'door end')).toBe(
       '5 suspected findings on the door end: a; b; c; and 2 more.',
     )
-    expect(words.findingText('Dent', null, 'Likely')).toBe('Dent, not rated (Likely)')
+    expect(words.findingText('Dent', null, 'Likely')).toBe("Dent, can't tell (Likely)")
     expect(words.noDamageText('roof')).toBe('No suspected damage on the roof.')
   })
 
