@@ -20,6 +20,7 @@ To switch tests back on: set `RUN_TESTS=true`, add `npx vitest run --run` back t
 - Screenshots: `npm run screenshots` takes 4-6 minutes. Run it once per ticket. Each image you read stays
   in context for every later call, so read only the states your change touches, and prefer an
   assertion (overflow, opacity, focus ring) to looking.
+- The screenshots runner uses `PW_CHROMIUM_PATH`, else `/opt/pw-browsers/chromium` when present, and exits non-zero naming a browser problem if no screenshot was written.
 - Report once, then stop. Leave no background job running after the report.
 - Code points only at committed files (`docs/`, source). Scratch notes are deleted after the run.
 - Check that the keys a ticket's live criteria need are present before starting it. If they are missing, build
