@@ -6,6 +6,7 @@ import {
   openRouterFailure,
   openRouterFetchFailure,
 } from '../domain/openrouter'
+import { ProviderError } from '../domain/providerErrors'
 import { readReplyMeta } from '../domain/replyMeta'
 import type { RequestContext, RequestReply, RunRoute } from '../plan/requestPlan'
 import { photoDataUrl, postDecisions } from './decisions'
@@ -56,8 +57,16 @@ export async function askDecisions<A>(
         ? openRouterFailure(status, body, ctx.apiKey, route.describe)
         : lunaFailure(status, body, ctx.apiKey),
   })
+  let answer: A
+  try {
+    answer = ask.map(reply.raw, route)
+  } catch (error) {
+    // A reply that arrived but could not be mapped: keep its body for the raw-response download.
+    if (error instanceof ProviderError) error.rawBody = reply.raw
+    throw error
+  }
   return {
-    answer: ask.map(reply.raw, route),
+    answer,
     ...readReplyMeta(reply.raw, route.model),
     latencyMs: reply.latencyMs,
     raw: reply.raw,

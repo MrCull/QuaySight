@@ -286,6 +286,18 @@ describe('live damage in the exports', () => {
     for (const f of json.damage.findings) expect(f).toHaveProperty('sections')
   })
 
+  it('numbers the sections from the door end of the side the doors put it on', async () => {
+    const record = await liveSideRecord()
+    const first = (side: 'left' | 'right') =>
+      buildInspectionExport({
+        ...record,
+        damage: record.damage && { ...record.damage, sideInference: { side, basis: 'inferred' } },
+      }).damage.zones.find((z) => z.id === 'Z1T')?.sections
+    // Z1T is photo column 1: by the doors when they are at photo left (the right side).
+    expect(first('right')).toEqual([1, 2])
+    expect(first('left')).toEqual([9, 10])
+  })
+
   it('records that the door end is assumed when the side was defaulted', async () => {
     const record = await liveSideRecord()
     const defaulted: InspectionRecord = {

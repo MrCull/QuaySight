@@ -4,6 +4,7 @@ import type { InspectionRecord } from '../domain/inspection'
 import { detailGroups } from './containerDetailRows'
 import CertaintyChip from './CertaintyChip.vue'
 import UnitsToggle from './UnitsToggle.vue'
+import { causeSentence } from '../domain/requestFailure'
 import { useUnits } from '../composables/units'
 
 const props = defineProps<{ record: InspectionRecord }>()
@@ -22,6 +23,11 @@ const assessed = computed(
     props.record.weights !== null,
 )
 
+// The survey was asked and failed: say the details could not be read, which is not the same as not asked.
+const detailsFailure = computed(() =>
+  props.record.failures?.find((f) => f.stages.includes('details')),
+)
+
 // Each value keeps its source label: Printed, Decoded from ISO, Calculated or Model-selected (spec 4.3, 4.4).
 const rows = computed(() => groups.value.flatMap((g) => g.rows))
 const notAssessed = computed(() => groups.value.flatMap((g) => g.notAssessed ?? []))
@@ -33,11 +39,14 @@ const notAssessed = computed(() => groups.value.flatMap((g) => g.notAssessed ?? 
       <span class="rs-k">Container details</span>
       <UnitsToggle v-if="assessed" :model-value="units" @update:model-value="setUnits" />
     </div>
-    <p v-if="!assessed" class="rs-note qs-type-body-sm">
+    <p v-if="detailsFailure" class="rs-note qs-type-body-sm">
+      The container details could not be read in this inspection. {{ causeSentence(detailsFailure) }}
+    </p>
+    <p v-if="!assessed && !detailsFailure" class="rs-note qs-type-body-sm">
       Not assessed in this inspection: this run read the container ID only. Nothing is said about
       the size code or the weights.
     </p>
-    <template v-else>
+    <template v-else-if="assessed">
       <div v-for="row in rows" :key="row.label" class="qs-field">
         <span class="qs-field__label">{{ row.label }}</span>
         <span :class="['qs-field__value', { 'qs-field__value--absent': row.value === null }]">

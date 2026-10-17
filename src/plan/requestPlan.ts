@@ -1,6 +1,7 @@
 import type { CropRegion } from '../domain/cropRead'
 import type { InspectionRecord, ProviderId } from '../domain/inspection'
 import type { CapReason, ChargeableRequest, ChargeableResult, Usage } from '../domain/ledger'
+import { describeFailure, unreadableBody } from '../domain/requestFailure'
 import type { FailureModel } from '../domain/openrouter'
 import type { ModelOption } from '../domain/providers'
 import type { PlannedRequestState, RequestState, StageId } from '../domain/runStages'
@@ -298,6 +299,31 @@ export function runPlan(options: PlanRunOptions): PlanRun {
 export function foldSettled(record: InspectionRecord, settled: SettledRequest): InspectionRecord {
   const { request, outcome, reply, passId, plan } = settled
   let next = request.apply(record, outcome, plan)
+  if (outcome.status === 'failed') {
+    next = {
+      ...next,
+      failures: [
+        ...(next.failures ?? []),
+        { ...describeFailure(outcome.error), requestId: request.id, stages: request.stages },
+      ],
+    }
+    const unreadable = unreadableBody(outcome.error)
+    if (unreadable) {
+      next = {
+        ...next,
+        rawResponses: [
+          ...next.rawResponses,
+          {
+            passId,
+            provider: plan.route.provider,
+            model: plan.route.model,
+            capturedFrom: 'provider',
+            body: unreadable.body,
+          },
+        ],
+      }
+    }
+  }
   if (reply) {
     next = {
       ...next,

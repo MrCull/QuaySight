@@ -2,6 +2,7 @@
 import { computed, ref } from 'vue'
 import { useInspectionStore } from '../stores/inspection'
 import { useLedgerStore } from '../stores/ledger'
+import type { FailureCause, RequestFailure } from '../domain/requestFailure'
 import { costKnown, formatUsd, type LedgerEntry, type Totals } from '../domain/ledger'
 import { labelsFor } from '../domain/providers'
 
@@ -22,6 +23,21 @@ const container = computed(() =>
 )
 const session = computed(() => ledgerStore.session)
 const rows = computed(() => ledgerStore.entries())
+
+const CAUSE_LABEL: Record<FailureCause, string> = {
+  busy: 'busy or rate-limited',
+  refused: 'refused',
+  unreadable: 'unreadable reply',
+  offline: 'offline',
+  unknown: 'did not finish',
+}
+
+/** Why a failed request failed: its cause in plain words, with the HTTP status when there was one. */
+function failureLabel(failure: RequestFailure): string {
+  return failure.status === null
+    ? CAUSE_LABEL[failure.cause]
+    : `${CAUSE_LABEL[failure.cause]} (${failure.status})`
+}
 
 function providerLabel(entry: LedgerEntry): string {
   return labelsFor(entry.provider, entry.model).ledger
@@ -133,7 +149,10 @@ function basis(totals: Totals | null): string | null {
             <td>{{ index + 1 }}</td>
             <td class="qs-cost__purpose">{{ entry.purpose }}</td>
             <td class="qs-cost__model">{{ providerLabel(entry) }} · {{ entry.resolvedModel }}</td>
-            <td>{{ entry.status }}</td>
+            <td>
+              {{ entry.status
+              }}<template v-if="entry.failure"> · {{ failureLabel(entry.failure) }}</template>
+            </td>
             <td>{{ timeLabel(entry.startedAt) }}</td>
             <td class="num">{{ tokensLabel(entry) }}</td>
             <td class="num" :class="{ 'qs-cost__unknown': !costKnown(entry.costState) }">

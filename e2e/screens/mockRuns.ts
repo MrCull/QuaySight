@@ -21,7 +21,9 @@ export function kindOfRequest(body: string): RequestKind {
 
 /** A scripted answer to a request: a reply body, or never (the request stays in flight). */
 export const HOLD = Symbol('hold')
-export type Reply = unknown | typeof HOLD
+/** A scripted HTTP 500 answer (a readable provider error). */
+export const SERVER_ERROR = Symbol('server-error')
+export type Reply = unknown | typeof HOLD | typeof SERVER_ERROR
 export type Script = (kind: RequestKind, n: number) => Reply
 
 // ---- Survey ----------------------------------------------------------------------------------------
