@@ -126,7 +126,8 @@ describe('Luna response mapping', () => {
     })
     const mapped = mapLunaResponse(response, 'gpt-6-luna')
     expect(mapped.containerId.positionCertainty?.[9]).toBe('Likely')
-    expect(mapped.containerId.certainty).toBe('Likely')
+    // Every character is at least Likely and the ID passes the check digit on a listed owner.
+    expect(mapped.containerId.certainty).toBe('Confident')
     // APHU6586847 passes the check digit and the swapped reading does not, so it stands alone.
     expect(mapped.containerId.alternatives).toBeUndefined()
   })
@@ -137,7 +138,8 @@ describe('Luna response mapping', () => {
     })
     const mapped = mapLunaResponse(response, 'gpt-6-luna')
     expect(mapped.containerId.positionCertainty?.[9]).toBe('Likely')
-    expect(mapped.containerId.certainty).toBe('Likely')
+    // Every character is at least Likely and the ID passes the check digit on a listed owner.
+    expect(mapped.containerId.certainty).toBe('Confident')
   })
 
   it('keeps Confident when the runner-up is well outside the margin (0.90 against 0.40)', () => {

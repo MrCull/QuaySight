@@ -8,7 +8,7 @@ import { calculateCheckDigit } from './iso6346'
 import { buildContainerIdReading } from './containerId'
 import { combineOwnerReading, readOwnerPick, type OwnerPick } from './ownerPick'
 import { rankIdCandidates, withCategoryLetter } from './idCandidates'
-import { CERTAINTY_LABELS, UNREAD } from './certainty'
+import { UNREAD } from './certainty'
 import type { CertaintyLabel, ContainerIdReading } from './inspection'
 import type { Usage } from './ledger'
 import type { DecisionsWire } from './decisionsWire'
@@ -136,12 +136,6 @@ export interface LunaMapping {
   usage: Usage | null
 }
 
-function worstOf(labels: CertaintyLabel[]): CertaintyLabel {
-  let worst = 0
-  for (const label of labels) worst = Math.max(worst, CERTAINTY_LABELS.indexOf(label))
-  return CERTAINTY_LABELS[worst] ?? "Can't tell"
-}
-
 /** Reads an OpenAI Decisions reply by meaning, with OpenAI's wording for a reply it cannot read. */
 export function readOpenAiReply(
   response: unknown,
@@ -197,9 +191,8 @@ export function assembleLunaReading(
 ): ContainerIdReading {
   const owner = combineOwnerReading(rawReadings, ownerPick)
   const readings = withCategoryLetter(owner.readings)
-  const positionCertainty = readings.map((r) => r.certainty)
-  const certainty = worstOf(positionCertainty)
   const ranked = rankIdCandidates(readings, 'Confident', owner.alternatives)
+  const { positionCertainty, certainty } = ranked
   const chars = ranked.chars
   const printed = chars.join('')
 
