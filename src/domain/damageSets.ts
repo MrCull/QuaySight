@@ -22,7 +22,7 @@ import type {
 import type { InspectionRecord } from './inspection'
 import { sectionWords } from './sideSections'
 import { chosenLength, type ContainerLengthFt, type LengthReading } from './chosenLength'
-import type { FaceReading, PhotoFace } from './photoFace'
+import { facesShown, type FaceReading, type PhotoFace } from './photoFace'
 
 /** One damage set's reading of one photo: what it found on its own face, and its own checks. */
 export interface DamageSetReading {
@@ -176,6 +176,22 @@ function fromReading(
   }
 }
 
+/** Several faces of one photo as one assessment: the first (main) face's checks, every face's photos, findings and zones. */
+function mergeAssessments(parts: DamageAssessment[]): DamageAssessment {
+  const main = parts[0]!
+  const probabilities = parts.flatMap((p) => p.significantProbability ?? [])
+  const sideInference = parts.find((p) => p.sideInference)?.sideInference
+  return {
+    ...main,
+    photos: parts.flatMap((p) => p.photos),
+    findings: parts.flatMap((p) => p.findings).map((f, i) => ({ ...f, id: i + 1 })),
+    zones: parts.flatMap((p) => p.zones ?? []),
+    significantProbability: probabilities.length > 0 ? Math.max(...probabilities) : null,
+    doorEnd: main.doorEnd ?? parts.find((p) => p.doorEnd)?.doorEnd ?? null,
+    ...(sideInference ? { sideInference } : {}),
+  }
+}
+
 /**
  * The damage to show, from the detected face and the damage sets' readings so far. Null while the
  * reading it needs has not arrived (or never did: its request failed, and the run says so).
@@ -202,7 +218,15 @@ export function assessDamage(
       )
     }
     const reading = readings.find((r) => r.face === face.face)
-    return reading ? fromReading(reading, photo, lengthFt) : null
+    if (!reading) return null
+    const main = fromReading(reading, photo, lengthFt)
+    // A photo that shows more than one face (a corner: doors and a long side) shows the damage of each, once
+    // that face's set has answered. The main face is waited for; a further face that has not answered is left out.
+    const further = facesShown(face)
+      .filter((f) => f !== face.face && DAMAGE_SET_FACES[f])
+      .flatMap((f) => readings.filter((r) => r.face === f && r.inspectable))
+      .map((r) => fromReading(r, photo, lengthFt))
+    return further.length > 0 && !main.notAssessed ? mergeAssessments([main, ...further]) : main
   }
   if (readings.length === 0) return null
   const inspectable = readings.filter((r) => r.inspectable && DAMAGE_SET_FACES[r.face])

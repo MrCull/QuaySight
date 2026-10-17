@@ -62,9 +62,26 @@ export function droppedPhotoMessage(index: number): string {
 
 export const DIFFERENT_CONTAINERS_MESSAGE = 'These photos may be of different containers'
 
-const NO_CONTRIBUTION = (): PhotoContribution => ({ containerId: [], details: [], weights: [], damage: [] })
+const NO_CONTRIBUTION = (): PhotoContribution => ({
+  containerId: [],
+  details: [],
+  weights: [],
+  damage: [],
+})
 
 const isDropped = (run: PhotoRun) => run.record.photoFace?.face === 'not-container'
+const isCloseUp = (run: PhotoRun) => run.record.photoFace?.face === 'close-up'
+
+/**
+ * Whether a photo may give a reading of `subject`. A close-up gives only the readings of what it shows
+ * (a close-up whose subject is unknown: the seal, weights and placards it read itself); it never gives
+ * a face, an ID, details or length. Every other photo gives everything.
+ */
+function mayGive(run: PhotoRun, subject: 'seal' | 'weights' | 'placard'): boolean {
+  if (!isCloseUp(run)) return true
+  const shows = run.record.photoFace?.closeUpSubject
+  return shows === undefined || shows === subject
+}
 
 function sideOf(record: InspectionRecord): 'left' | 'right' | null {
   const inference = record.damage?.sideInference
@@ -279,9 +296,12 @@ export function combinePhotoRuns(
   const add = (photo: number, field: 'details' | 'weights', names: string[]) =>
     contributions.get(photo)![field].push(...names)
 
-  const idSources = kept.flatMap((r) =>
-    r.record.containerId ? [{ photo: r.index, reading: r.record.containerId }] : [],
-  )
+  // A close-up never gives an ID, so it never votes for "different containers" either.
+  const idSources = kept
+    .filter((r) => !isCloseUp(r))
+    .flatMap((r) =>
+      r.record.containerId ? [{ photo: r.index, reading: r.record.containerId }] : [],
+    )
   const idResult = combineContainerIds(idSources)
   const different = idResult?.kind === 'different'
 
@@ -296,9 +316,9 @@ export function combinePhotoRuns(
   let details: InspectionRecord['details']
   let weights: InspectionRecord['weights'] = null
   if (!different) {
-    const withDetails = kept.flatMap((r) =>
-      r.record.details ? [{ photo: r.index, details: r.record.details }] : [],
-    )
+    const withDetails = kept
+      .filter((r) => !isCloseUp(r))
+      .flatMap((r) => (r.record.details ? [{ photo: r.index, details: r.record.details }] : []))
     if (withDetails.length === 1) {
       details = withDetails[0]!.details
       add(withDetails[0]!.photo, 'details', ['all'])
@@ -309,9 +329,9 @@ export function combinePhotoRuns(
         for (const photo of photos) add(photo, 'details', [field])
       }
     }
-    const withWeights = kept.flatMap((r) =>
-      r.record.weights ? [{ photo: r.index, weights: r.record.weights }] : [],
-    )
+    const withWeights = kept
+      .filter((r) => mayGive(r, 'weights'))
+      .flatMap((r) => (r.record.weights ? [{ photo: r.index, weights: r.record.weights }] : []))
     if (withWeights.length === 1) {
       weights = withWeights[0]!.weights
       add(withWeights[0]!.photo, 'weights', ['all'])
@@ -332,7 +352,17 @@ export function combinePhotoRuns(
 
   // Length from shape, seal and placards (combineLengthSealPlacards.ts).
   const merged = combineLengthSealPlacards(
-    kept.map((r) => ({ photo: r.index, record: r.record })),
+    kept.map((r) => ({
+      photo: r.index,
+      record: isCloseUp(r)
+        ? {
+            ...r.record,
+            shapeLength: undefined,
+            seal: mayGive(r, 'seal') ? r.record.seal : undefined,
+            placards: mayGive(r, 'placard') ? r.record.placards : undefined,
+          }
+        : r.record,
+    })),
     different,
   )
   for (const [field, from] of Object.entries(merged.from)) {

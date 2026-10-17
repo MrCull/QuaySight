@@ -1,6 +1,6 @@
 {
   "format": 1,
-  "recordedAt": "2026-10-17T12:56:26.160Z",
+  "recordedAt": "2026-10-17T12:38:58.025Z",
   "photo": "samples/jdlu-200690-2-corner-doors-left.jpg",
   "provider": "luna",
   "model": "gpt-6-luna",
@@ -2209,18 +2209,38 @@
             "probabilities": [
               {
                 "value": "rear_doors",
-                "probability": 0.97
+                "probability": 0.92
               },
               {
                 "value": "long_side",
-                "probability": 0.03
+                "probability": 0.06
               },
               {
                 "value": "front_end",
-                "probability": 0
+                "probability": 0.01
               },
               {
                 "value": "roof",
+                "probability": 0
+              },
+              {
+                "value": "close_up_seal",
+                "probability": 0.01
+              },
+              {
+                "value": "close_up_id",
+                "probability": 0
+              },
+              {
+                "value": "close_up_weights",
+                "probability": 0
+              },
+              {
+                "value": "close_up_placard",
+                "probability": 0
+              },
+              {
+                "value": "close_up_damage",
                 "probability": 0
               },
               {
@@ -2236,7 +2256,22 @@
                 "probability": 0
               }
             ],
-            "confidence": 0.97
+            "confidence": 0.91
+          },
+          {
+            "type": "predicate",
+            "name": "shows_rear_doors",
+            "probability": 1
+          },
+          {
+            "type": "predicate",
+            "name": "shows_long_side",
+            "probability": 1
+          },
+          {
+            "type": "predicate",
+            "name": "shows_front_end",
+            "probability": 0
           },
           {
             "type": "choice",
@@ -7888,7 +7923,7 @@
           }
         ],
         "usage": {
-          "input_tokens": 36386,
+          "input_tokens": 37018,
           "input_tokens_details": {
             "cached_tokens": 0,
             "cache_write_tokens": 0
@@ -7897,1601 +7932,11 @@
           "output_tokens_details": {
             "reasoning_tokens": 0
           },
-          "total_tokens": 36386
+          "total_tokens": 37018
         }
       },
-      "latencyMs": 937,
-      "costUsd": 0.0036386000000000005
-    },
-    {
-      "request": "regions",
-      "response": {
-        "model": "gpt-6-luna",
-        "answers": [
-          {
-            "type": "choice",
-            "name": "id_mark",
-            "choice": "2",
-            "probabilities": [
-              {
-                "value": "1",
-                "probability": 0.19
-              },
-              {
-                "value": "2",
-                "probability": 0.22
-              },
-              {
-                "value": "3",
-                "probability": 0.03
-              },
-              {
-                "value": "4",
-                "probability": 0.01
-              },
-              {
-                "value": "5",
-                "probability": 0.06
-              },
-              {
-                "value": "6",
-                "probability": 0.05
-              },
-              {
-                "value": "7",
-                "probability": 0.01
-              },
-              {
-                "value": "8",
-                "probability": 0.01
-              },
-              {
-                "value": "9",
-                "probability": 0.01
-              },
-              {
-                "value": "10",
-                "probability": 0.01
-              },
-              {
-                "value": "11",
-                "probability": 0.01
-              },
-              {
-                "value": "12",
-                "probability": 0
-              },
-              {
-                "value": "13",
-                "probability": 0
-              },
-              {
-                "value": "14",
-                "probability": 0
-              },
-              {
-                "value": "15",
-                "probability": 0
-              },
-              {
-                "value": "16",
-                "probability": 0
-              },
-              {
-                "value": "17",
-                "probability": 0.1
-              },
-              {
-                "value": "18",
-                "probability": 0.12
-              },
-              {
-                "value": "19",
-                "probability": 0.05
-              },
-              {
-                "value": "20",
-                "probability": 0.08
-              },
-              {
-                "value": "21",
-                "probability": 0.03
-              },
-              {
-                "value": "22",
-                "probability": 0.01
-              },
-              {
-                "value": "23",
-                "probability": 0
-              },
-              {
-                "value": "24",
-                "probability": 0
-              },
-              {
-                "value": "25",
-                "probability": 0
-              },
-              {
-                "value": "none",
-                "probability": 0
-              }
-            ],
-            "confidence": 0.19
-          },
-          {
-            "type": "choice",
-            "name": "id_mark_2",
-            "choice": "6",
-            "probabilities": [
-              {
-                "value": "1",
-                "probability": 0.05
-              },
-              {
-                "value": "2",
-                "probability": 0.08
-              },
-              {
-                "value": "3",
-                "probability": 0.06
-              },
-              {
-                "value": "4",
-                "probability": 0.01
-              },
-              {
-                "value": "5",
-                "probability": 0.07
-              },
-              {
-                "value": "6",
-                "probability": 0.15
-              },
-              {
-                "value": "7",
-                "probability": 0.06
-              },
-              {
-                "value": "8",
-                "probability": 0.01
-              },
-              {
-                "value": "9",
-                "probability": 0.01
-              },
-              {
-                "value": "10",
-                "probability": 0.03
-              },
-              {
-                "value": "11",
-                "probability": 0.01
-              },
-              {
-                "value": "12",
-                "probability": 0
-              },
-              {
-                "value": "13",
-                "probability": 0
-              },
-              {
-                "value": "14",
-                "probability": 0.01
-              },
-              {
-                "value": "15",
-                "probability": 0
-              },
-              {
-                "value": "16",
-                "probability": 0
-              },
-              {
-                "value": "17",
-                "probability": 0.06
-              },
-              {
-                "value": "18",
-                "probability": 0.14
-              },
-              {
-                "value": "19",
-                "probability": 0.08
-              },
-              {
-                "value": "20",
-                "probability": 0.06
-              },
-              {
-                "value": "21",
-                "probability": 0.06
-              },
-              {
-                "value": "22",
-                "probability": 0.02
-              },
-              {
-                "value": "23",
-                "probability": 0.01
-              },
-              {
-                "value": "24",
-                "probability": 0.01
-              },
-              {
-                "value": "25",
-                "probability": 0
-              },
-              {
-                "value": "none",
-                "probability": 0.01
-              }
-            ],
-            "confidence": 0.12
-          },
-          {
-            "type": "choice",
-            "name": "seal_mark",
-            "choice": "none",
-            "probabilities": [
-              {
-                "value": "1",
-                "probability": 0.01
-              },
-              {
-                "value": "2",
-                "probability": 0.01
-              },
-              {
-                "value": "3",
-                "probability": 0.01
-              },
-              {
-                "value": "4",
-                "probability": 0.01
-              },
-              {
-                "value": "5",
-                "probability": 0.01
-              },
-              {
-                "value": "6",
-                "probability": 0.01
-              },
-              {
-                "value": "7",
-                "probability": 0.01
-              },
-              {
-                "value": "8",
-                "probability": 0.01
-              },
-              {
-                "value": "9",
-                "probability": 0.08
-              },
-              {
-                "value": "10",
-                "probability": 0.03
-              },
-              {
-                "value": "11",
-                "probability": 0.02
-              },
-              {
-                "value": "12",
-                "probability": 0.01
-              },
-              {
-                "value": "13",
-                "probability": 0.03
-              },
-              {
-                "value": "14",
-                "probability": 0.01
-              },
-              {
-                "value": "15",
-                "probability": 0.01
-              },
-              {
-                "value": "16",
-                "probability": 0.01
-              },
-              {
-                "value": "17",
-                "probability": 0.01
-              },
-              {
-                "value": "18",
-                "probability": 0.01
-              },
-              {
-                "value": "19",
-                "probability": 0.01
-              },
-              {
-                "value": "20",
-                "probability": 0.03
-              },
-              {
-                "value": "21",
-                "probability": 0.02
-              },
-              {
-                "value": "22",
-                "probability": 0.01
-              },
-              {
-                "value": "23",
-                "probability": 0.01
-              },
-              {
-                "value": "24",
-                "probability": 0.01
-              },
-              {
-                "value": "25",
-                "probability": 0.02
-              },
-              {
-                "value": "none",
-                "probability": 0.59
-              }
-            ],
-            "confidence": 0.57
-          },
-          {
-            "type": "choice",
-            "name": "seal_mark_2",
-            "choice": "none",
-            "probabilities": [
-              {
-                "value": "1",
-                "probability": 0.04
-              },
-              {
-                "value": "2",
-                "probability": 0.03
-              },
-              {
-                "value": "3",
-                "probability": 0.01
-              },
-              {
-                "value": "4",
-                "probability": 0.01
-              },
-              {
-                "value": "5",
-                "probability": 0.03
-              },
-              {
-                "value": "6",
-                "probability": 0.1
-              },
-              {
-                "value": "7",
-                "probability": 0.01
-              },
-              {
-                "value": "8",
-                "probability": 0.02
-              },
-              {
-                "value": "9",
-                "probability": 0.05
-              },
-              {
-                "value": "10",
-                "probability": 0.11
-              },
-              {
-                "value": "11",
-                "probability": 0.03
-              },
-              {
-                "value": "12",
-                "probability": 0.01
-              },
-              {
-                "value": "13",
-                "probability": 0.03
-              },
-              {
-                "value": "14",
-                "probability": 0.02
-              },
-              {
-                "value": "15",
-                "probability": 0.02
-              },
-              {
-                "value": "16",
-                "probability": 0.02
-              },
-              {
-                "value": "17",
-                "probability": 0.01
-              },
-              {
-                "value": "18",
-                "probability": 0.01
-              },
-              {
-                "value": "19",
-                "probability": 0.02
-              },
-              {
-                "value": "20",
-                "probability": 0.08
-              },
-              {
-                "value": "21",
-                "probability": 0.02
-              },
-              {
-                "value": "22",
-                "probability": 0.01
-              },
-              {
-                "value": "23",
-                "probability": 0.02
-              },
-              {
-                "value": "24",
-                "probability": 0.01
-              },
-              {
-                "value": "25",
-                "probability": 0.02
-              },
-              {
-                "value": "none",
-                "probability": 0.26
-              }
-            ],
-            "confidence": 0.23
-          },
-          {
-            "type": "choice",
-            "name": "weights_mark",
-            "choice": "5",
-            "probabilities": [
-              {
-                "value": "1",
-                "probability": 0.02
-              },
-              {
-                "value": "2",
-                "probability": 0.01
-              },
-              {
-                "value": "3",
-                "probability": 0
-              },
-              {
-                "value": "4",
-                "probability": 0.01
-              },
-              {
-                "value": "5",
-                "probability": 0.51
-              },
-              {
-                "value": "6",
-                "probability": 0.07
-              },
-              {
-                "value": "7",
-                "probability": 0
-              },
-              {
-                "value": "8",
-                "probability": 0.01
-              },
-              {
-                "value": "9",
-                "probability": 0.19
-              },
-              {
-                "value": "10",
-                "probability": 0.03
-              },
-              {
-                "value": "11",
-                "probability": 0
-              },
-              {
-                "value": "12",
-                "probability": 0
-              },
-              {
-                "value": "13",
-                "probability": 0.01
-              },
-              {
-                "value": "14",
-                "probability": 0
-              },
-              {
-                "value": "15",
-                "probability": 0.01
-              },
-              {
-                "value": "16",
-                "probability": 0
-              },
-              {
-                "value": "17",
-                "probability": 0
-              },
-              {
-                "value": "18",
-                "probability": 0
-              },
-              {
-                "value": "19",
-                "probability": 0.01
-              },
-              {
-                "value": "20",
-                "probability": 0.07
-              },
-              {
-                "value": "21",
-                "probability": 0.02
-              },
-              {
-                "value": "22",
-                "probability": 0
-              },
-              {
-                "value": "23",
-                "probability": 0
-              },
-              {
-                "value": "24",
-                "probability": 0.01
-              },
-              {
-                "value": "25",
-                "probability": 0.01
-              },
-              {
-                "value": "none",
-                "probability": 0.01
-              }
-            ],
-            "confidence": 0.49
-          },
-          {
-            "type": "choice",
-            "name": "weights_mark_2",
-            "choice": "5",
-            "probabilities": [
-              {
-                "value": "1",
-                "probability": 0.08
-              },
-              {
-                "value": "2",
-                "probability": 0.03
-              },
-              {
-                "value": "3",
-                "probability": 0.02
-              },
-              {
-                "value": "4",
-                "probability": 0.02
-              },
-              {
-                "value": "5",
-                "probability": 0.15
-              },
-              {
-                "value": "6",
-                "probability": 0.14
-              },
-              {
-                "value": "7",
-                "probability": 0.04
-              },
-              {
-                "value": "8",
-                "probability": 0.02
-              },
-              {
-                "value": "9",
-                "probability": 0.04
-              },
-              {
-                "value": "10",
-                "probability": 0.07
-              },
-              {
-                "value": "11",
-                "probability": 0.02
-              },
-              {
-                "value": "12",
-                "probability": 0.01
-              },
-              {
-                "value": "13",
-                "probability": 0.01
-              },
-              {
-                "value": "14",
-                "probability": 0.01
-              },
-              {
-                "value": "15",
-                "probability": 0.01
-              },
-              {
-                "value": "16",
-                "probability": 0.01
-              },
-              {
-                "value": "17",
-                "probability": 0.02
-              },
-              {
-                "value": "18",
-                "probability": 0.03
-              },
-              {
-                "value": "19",
-                "probability": 0.04
-              },
-              {
-                "value": "20",
-                "probability": 0.12
-              },
-              {
-                "value": "21",
-                "probability": 0.05
-              },
-              {
-                "value": "22",
-                "probability": 0.01
-              },
-              {
-                "value": "23",
-                "probability": 0.01
-              },
-              {
-                "value": "24",
-                "probability": 0.01
-              },
-              {
-                "value": "25",
-                "probability": 0.01
-              },
-              {
-                "value": "none",
-                "probability": 0.02
-              }
-            ],
-            "confidence": 0.12
-          },
-          {
-            "type": "choice",
-            "name": "iso_mark",
-            "choice": "20",
-            "probabilities": [
-              {
-                "value": "1",
-                "probability": 0.06
-              },
-              {
-                "value": "2",
-                "probability": 0.02
-              },
-              {
-                "value": "3",
-                "probability": 0.01
-              },
-              {
-                "value": "4",
-                "probability": 0.02
-              },
-              {
-                "value": "5",
-                "probability": 0.11
-              },
-              {
-                "value": "6",
-                "probability": 0.09
-              },
-              {
-                "value": "7",
-                "probability": 0.01
-              },
-              {
-                "value": "8",
-                "probability": 0.01
-              },
-              {
-                "value": "9",
-                "probability": 0.09
-              },
-              {
-                "value": "10",
-                "probability": 0.09
-              },
-              {
-                "value": "11",
-                "probability": 0.02
-              },
-              {
-                "value": "12",
-                "probability": 0.01
-              },
-              {
-                "value": "13",
-                "probability": 0.01
-              },
-              {
-                "value": "14",
-                "probability": 0.01
-              },
-              {
-                "value": "15",
-                "probability": 0.01
-              },
-              {
-                "value": "16",
-                "probability": 0.01
-              },
-              {
-                "value": "17",
-                "probability": 0.01
-              },
-              {
-                "value": "18",
-                "probability": 0.01
-              },
-              {
-                "value": "19",
-                "probability": 0.04
-              },
-              {
-                "value": "20",
-                "probability": 0.22
-              },
-              {
-                "value": "21",
-                "probability": 0.07
-              },
-              {
-                "value": "22",
-                "probability": 0.01
-              },
-              {
-                "value": "23",
-                "probability": 0.01
-              },
-              {
-                "value": "24",
-                "probability": 0.01
-              },
-              {
-                "value": "25",
-                "probability": 0.01
-              },
-              {
-                "value": "none",
-                "probability": 0.03
-              }
-            ],
-            "confidence": 0.19
-          },
-          {
-            "type": "choice",
-            "name": "iso_mark_2",
-            "choice": "20",
-            "probabilities": [
-              {
-                "value": "1",
-                "probability": 0.05
-              },
-              {
-                "value": "2",
-                "probability": 0.03
-              },
-              {
-                "value": "3",
-                "probability": 0.02
-              },
-              {
-                "value": "4",
-                "probability": 0.02
-              },
-              {
-                "value": "5",
-                "probability": 0.05
-              },
-              {
-                "value": "6",
-                "probability": 0.11
-              },
-              {
-                "value": "7",
-                "probability": 0.06
-              },
-              {
-                "value": "8",
-                "probability": 0.03
-              },
-              {
-                "value": "9",
-                "probability": 0.03
-              },
-              {
-                "value": "10",
-                "probability": 0.06
-              },
-              {
-                "value": "11",
-                "probability": 0.03
-              },
-              {
-                "value": "12",
-                "probability": 0.01
-              },
-              {
-                "value": "13",
-                "probability": 0.01
-              },
-              {
-                "value": "14",
-                "probability": 0.01
-              },
-              {
-                "value": "15",
-                "probability": 0.01
-              },
-              {
-                "value": "16",
-                "probability": 0.01
-              },
-              {
-                "value": "17",
-                "probability": 0.03
-              },
-              {
-                "value": "18",
-                "probability": 0.03
-              },
-              {
-                "value": "19",
-                "probability": 0.03
-              },
-              {
-                "value": "20",
-                "probability": 0.13
-              },
-              {
-                "value": "21",
-                "probability": 0.08
-              },
-              {
-                "value": "22",
-                "probability": 0.02
-              },
-              {
-                "value": "23",
-                "probability": 0.02
-              },
-              {
-                "value": "24",
-                "probability": 0.02
-              },
-              {
-                "value": "25",
-                "probability": 0.02
-              },
-              {
-                "value": "none",
-                "probability": 0.08
-              }
-            ],
-            "confidence": 0.1
-          },
-          {
-            "type": "choice",
-            "name": "hazard_1_mark",
-            "choice": "none",
-            "probabilities": [
-              {
-                "value": "1",
-                "probability": 0.01
-              },
-              {
-                "value": "2",
-                "probability": 0.01
-              },
-              {
-                "value": "3",
-                "probability": 0.01
-              },
-              {
-                "value": "4",
-                "probability": 0.01
-              },
-              {
-                "value": "5",
-                "probability": 0.01
-              },
-              {
-                "value": "6",
-                "probability": 0.01
-              },
-              {
-                "value": "7",
-                "probability": 0.01
-              },
-              {
-                "value": "8",
-                "probability": 0.02
-              },
-              {
-                "value": "9",
-                "probability": 0.14
-              },
-              {
-                "value": "10",
-                "probability": 0.08
-              },
-              {
-                "value": "11",
-                "probability": 0.03
-              },
-              {
-                "value": "12",
-                "probability": 0.01
-              },
-              {
-                "value": "13",
-                "probability": 0.03
-              },
-              {
-                "value": "14",
-                "probability": 0.02
-              },
-              {
-                "value": "15",
-                "probability": 0.02
-              },
-              {
-                "value": "16",
-                "probability": 0.01
-              },
-              {
-                "value": "17",
-                "probability": 0
-              },
-              {
-                "value": "18",
-                "probability": 0
-              },
-              {
-                "value": "19",
-                "probability": 0.01
-              },
-              {
-                "value": "20",
-                "probability": 0.12
-              },
-              {
-                "value": "21",
-                "probability": 0.03
-              },
-              {
-                "value": "22",
-                "probability": 0.01
-              },
-              {
-                "value": "23",
-                "probability": 0.02
-              },
-              {
-                "value": "24",
-                "probability": 0.01
-              },
-              {
-                "value": "25",
-                "probability": 0.02
-              },
-              {
-                "value": "none",
-                "probability": 0.35
-              }
-            ],
-            "confidence": 0.32
-          },
-          {
-            "type": "choice",
-            "name": "hazard_1_mark_2",
-            "choice": "none",
-            "probabilities": [
-              {
-                "value": "1",
-                "probability": 0.02
-              },
-              {
-                "value": "2",
-                "probability": 0.01
-              },
-              {
-                "value": "3",
-                "probability": 0.01
-              },
-              {
-                "value": "4",
-                "probability": 0
-              },
-              {
-                "value": "5",
-                "probability": 0.01
-              },
-              {
-                "value": "6",
-                "probability": 0.01
-              },
-              {
-                "value": "7",
-                "probability": 0
-              },
-              {
-                "value": "8",
-                "probability": 0.01
-              },
-              {
-                "value": "9",
-                "probability": 0.05
-              },
-              {
-                "value": "10",
-                "probability": 0.03
-              },
-              {
-                "value": "11",
-                "probability": 0.01
-              },
-              {
-                "value": "12",
-                "probability": 0.01
-              },
-              {
-                "value": "13",
-                "probability": 0.03
-              },
-              {
-                "value": "14",
-                "probability": 0.01
-              },
-              {
-                "value": "15",
-                "probability": 0
-              },
-              {
-                "value": "16",
-                "probability": 0.01
-              },
-              {
-                "value": "17",
-                "probability": 0
-              },
-              {
-                "value": "18",
-                "probability": 0.01
-              },
-              {
-                "value": "19",
-                "probability": 0.02
-              },
-              {
-                "value": "20",
-                "probability": 0.09
-              },
-              {
-                "value": "21",
-                "probability": 0.02
-              },
-              {
-                "value": "22",
-                "probability": 0.01
-              },
-              {
-                "value": "23",
-                "probability": 0.01
-              },
-              {
-                "value": "24",
-                "probability": 0.01
-              },
-              {
-                "value": "25",
-                "probability": 0.03
-              },
-              {
-                "value": "none",
-                "probability": 0.58
-              }
-            ],
-            "confidence": 0.56
-          },
-          {
-            "type": "choice",
-            "name": "hazard_2_mark",
-            "choice": "none",
-            "probabilities": [
-              {
-                "value": "1",
-                "probability": 0.02
-              },
-              {
-                "value": "2",
-                "probability": 0.01
-              },
-              {
-                "value": "3",
-                "probability": 0.01
-              },
-              {
-                "value": "4",
-                "probability": 0.01
-              },
-              {
-                "value": "5",
-                "probability": 0.02
-              },
-              {
-                "value": "6",
-                "probability": 0.01
-              },
-              {
-                "value": "7",
-                "probability": 0.01
-              },
-              {
-                "value": "8",
-                "probability": 0.02
-              },
-              {
-                "value": "9",
-                "probability": 0.09
-              },
-              {
-                "value": "10",
-                "probability": 0.04
-              },
-              {
-                "value": "11",
-                "probability": 0.02
-              },
-              {
-                "value": "12",
-                "probability": 0.02
-              },
-              {
-                "value": "13",
-                "probability": 0.04
-              },
-              {
-                "value": "14",
-                "probability": 0.02
-              },
-              {
-                "value": "15",
-                "probability": 0.02
-              },
-              {
-                "value": "16",
-                "probability": 0.02
-              },
-              {
-                "value": "17",
-                "probability": 0.01
-              },
-              {
-                "value": "18",
-                "probability": 0.01
-              },
-              {
-                "value": "19",
-                "probability": 0.02
-              },
-              {
-                "value": "20",
-                "probability": 0.04
-              },
-              {
-                "value": "21",
-                "probability": 0.02
-              },
-              {
-                "value": "22",
-                "probability": 0.01
-              },
-              {
-                "value": "23",
-                "probability": 0.02
-              },
-              {
-                "value": "24",
-                "probability": 0.01
-              },
-              {
-                "value": "25",
-                "probability": 0.02
-              },
-              {
-                "value": "none",
-                "probability": 0.46
-              }
-            ],
-            "confidence": 0.44
-          },
-          {
-            "type": "choice",
-            "name": "hazard_2_mark_2",
-            "choice": "none",
-            "probabilities": [
-              {
-                "value": "1",
-                "probability": 0.01
-              },
-              {
-                "value": "2",
-                "probability": 0.01
-              },
-              {
-                "value": "3",
-                "probability": 0.02
-              },
-              {
-                "value": "4",
-                "probability": 0.01
-              },
-              {
-                "value": "5",
-                "probability": 0.02
-              },
-              {
-                "value": "6",
-                "probability": 0.03
-              },
-              {
-                "value": "7",
-                "probability": 0.02
-              },
-              {
-                "value": "8",
-                "probability": 0.02
-              },
-              {
-                "value": "9",
-                "probability": 0.05
-              },
-              {
-                "value": "10",
-                "probability": 0.07
-              },
-              {
-                "value": "11",
-                "probability": 0.05
-              },
-              {
-                "value": "12",
-                "probability": 0.03
-              },
-              {
-                "value": "13",
-                "probability": 0.04
-              },
-              {
-                "value": "14",
-                "probability": 0.03
-              },
-              {
-                "value": "15",
-                "probability": 0.02
-              },
-              {
-                "value": "16",
-                "probability": 0.03
-              },
-              {
-                "value": "17",
-                "probability": 0.02
-              },
-              {
-                "value": "18",
-                "probability": 0.02
-              },
-              {
-                "value": "19",
-                "probability": 0.04
-              },
-              {
-                "value": "20",
-                "probability": 0.05
-              },
-              {
-                "value": "21",
-                "probability": 0.04
-              },
-              {
-                "value": "22",
-                "probability": 0.03
-              },
-              {
-                "value": "23",
-                "probability": 0.03
-              },
-              {
-                "value": "24",
-                "probability": 0.02
-              },
-              {
-                "value": "25",
-                "probability": 0.04
-              },
-              {
-                "value": "none",
-                "probability": 0.25
-              }
-            ],
-            "confidence": 0.22
-          },
-          {
-            "type": "choice",
-            "name": "hazard_3_mark",
-            "choice": "none",
-            "probabilities": [
-              {
-                "value": "1",
-                "probability": 0.01
-              },
-              {
-                "value": "2",
-                "probability": 0
-              },
-              {
-                "value": "3",
-                "probability": 0.01
-              },
-              {
-                "value": "4",
-                "probability": 0
-              },
-              {
-                "value": "5",
-                "probability": 0.01
-              },
-              {
-                "value": "6",
-                "probability": 0.01
-              },
-              {
-                "value": "7",
-                "probability": 0.01
-              },
-              {
-                "value": "8",
-                "probability": 0.01
-              },
-              {
-                "value": "9",
-                "probability": 0.05
-              },
-              {
-                "value": "10",
-                "probability": 0.02
-              },
-              {
-                "value": "11",
-                "probability": 0.02
-              },
-              {
-                "value": "12",
-                "probability": 0.01
-              },
-              {
-                "value": "13",
-                "probability": 0.02
-              },
-              {
-                "value": "14",
-                "probability": 0.01
-              },
-              {
-                "value": "15",
-                "probability": 0.01
-              },
-              {
-                "value": "16",
-                "probability": 0.01
-              },
-              {
-                "value": "17",
-                "probability": 0.01
-              },
-              {
-                "value": "18",
-                "probability": 0.01
-              },
-              {
-                "value": "19",
-                "probability": 0.01
-              },
-              {
-                "value": "20",
-                "probability": 0.02
-              },
-              {
-                "value": "21",
-                "probability": 0.01
-              },
-              {
-                "value": "22",
-                "probability": 0
-              },
-              {
-                "value": "23",
-                "probability": 0.01
-              },
-              {
-                "value": "24",
-                "probability": 0
-              },
-              {
-                "value": "25",
-                "probability": 0.02
-              },
-              {
-                "value": "none",
-                "probability": 0.7
-              }
-            ],
-            "confidence": 0.69
-          },
-          {
-            "type": "choice",
-            "name": "hazard_3_mark_2",
-            "choice": "none",
-            "probabilities": [
-              {
-                "value": "1",
-                "probability": 0.03
-              },
-              {
-                "value": "2",
-                "probability": 0.02
-              },
-              {
-                "value": "3",
-                "probability": 0.02
-              },
-              {
-                "value": "4",
-                "probability": 0.01
-              },
-              {
-                "value": "5",
-                "probability": 0.01
-              },
-              {
-                "value": "6",
-                "probability": 0.02
-              },
-              {
-                "value": "7",
-                "probability": 0.02
-              },
-              {
-                "value": "8",
-                "probability": 0.02
-              },
-              {
-                "value": "9",
-                "probability": 0.04
-              },
-              {
-                "value": "10",
-                "probability": 0.06
-              },
-              {
-                "value": "11",
-                "probability": 0.03
-              },
-              {
-                "value": "12",
-                "probability": 0.01
-              },
-              {
-                "value": "13",
-                "probability": 0.02
-              },
-              {
-                "value": "14",
-                "probability": 0.02
-              },
-              {
-                "value": "15",
-                "probability": 0.01
-              },
-              {
-                "value": "16",
-                "probability": 0.01
-              },
-              {
-                "value": "17",
-                "probability": 0.01
-              },
-              {
-                "value": "18",
-                "probability": 0.02
-              },
-              {
-                "value": "19",
-                "probability": 0.03
-              },
-              {
-                "value": "20",
-                "probability": 0.03
-              },
-              {
-                "value": "21",
-                "probability": 0.03
-              },
-              {
-                "value": "22",
-                "probability": 0.02
-              },
-              {
-                "value": "23",
-                "probability": 0.02
-              },
-              {
-                "value": "24",
-                "probability": 0.02
-              },
-              {
-                "value": "25",
-                "probability": 0.03
-              },
-              {
-                "value": "none",
-                "probability": 0.44
-              }
-            ],
-            "confidence": 0.42
-          }
-        ],
-        "usage": {
-          "input_tokens": 6850,
-          "input_tokens_details": {
-            "cached_tokens": 0,
-            "cache_write_tokens": 0
-          },
-          "output_tokens": 0,
-          "output_tokens_details": {
-            "reasoning_tokens": 0
-          },
-          "total_tokens": 6850
-        }
-      },
-      "latencyMs": 1026,
-      "costUsd": 0.000685
+      "latencyMs": 572,
+      "costUsd": 0.0037018000000000003
     },
     {
       "request": "recheck",
@@ -9848,8 +8293,949 @@
           "total_tokens": 2532
         }
       },
-      "latencyMs": 459,
+      "latencyMs": 258,
       "costUsd": 0.00025320000000000003
+    },
+    {
+      "request": "door-damage",
+      "response": {
+        "model": "gpt-6-luna",
+        "answers": [
+          {
+            "type": "choice",
+            "name": "image_quality",
+            "choice": "limited",
+            "probabilities": [
+              {
+                "value": "good",
+                "probability": 0.24
+              },
+              {
+                "value": "limited",
+                "probability": 0.76
+              },
+              {
+                "value": "poor",
+                "probability": 0
+              }
+            ],
+            "confidence": 0.64
+          },
+          {
+            "type": "choice",
+            "name": "door_end_coverage",
+            "choice": "partial",
+            "probabilities": [
+              {
+                "value": "full",
+                "probability": 0
+              },
+              {
+                "value": "most",
+                "probability": 0.26
+              },
+              {
+                "value": "partial",
+                "probability": 0.74
+              },
+              {
+                "value": "not_inspectable",
+                "probability": 0
+              }
+            ],
+            "confidence": 0.65
+          },
+          {
+            "type": "predicate",
+            "name": "any_visible_defect",
+            "probability": 0.91
+          },
+          {
+            "type": "predicate",
+            "name": "potentially_significant_damage",
+            "probability": 0.52
+          },
+          {
+            "type": "choice",
+            "name": "D1T_visibility",
+            "choice": "partial",
+            "probabilities": [
+              {
+                "value": "clear",
+                "probability": 0.13
+              },
+              {
+                "value": "partial",
+                "probability": 0.87
+              },
+              {
+                "value": "not_visible",
+                "probability": 0
+              }
+            ],
+            "confidence": 0.8
+          },
+          {
+            "type": "choice",
+            "name": "D1T_deformation_shape",
+            "choice": "none",
+            "probabilities": [
+              {
+                "value": "none",
+                "probability": 0.7
+              },
+              {
+                "value": "local_dent",
+                "probability": 0.03
+              },
+              {
+                "value": "sharp_bend",
+                "probability": 0.01
+              },
+              {
+                "value": "broad_bow",
+                "probability": 0
+              },
+              {
+                "value": "mixed",
+                "probability": 0.01
+              },
+              {
+                "value": "uncertain",
+                "probability": 0.25
+              }
+            ],
+            "confidence": 0.64
+          },
+          {
+            "type": "predicate",
+            "name": "D1T_DT",
+            "probability": 0.06
+          },
+          {
+            "type": "predicate",
+            "name": "D1T_BT",
+            "probability": 0.05
+          },
+          {
+            "type": "predicate",
+            "name": "D1T_BW",
+            "probability": 0.05
+          },
+          {
+            "type": "predicate",
+            "name": "D1T_HO",
+            "probability": 0
+          },
+          {
+            "type": "predicate",
+            "name": "D1T_CK",
+            "probability": 0.02
+          },
+          {
+            "type": "predicate",
+            "name": "D1T_CW",
+            "probability": 0.02
+          },
+          {
+            "type": "predicate",
+            "name": "D1T_CO",
+            "probability": 0.09
+          },
+          {
+            "type": "predicate",
+            "name": "D1T_CH",
+            "probability": 0
+          },
+          {
+            "type": "predicate",
+            "name": "D1T_BR",
+            "probability": 0
+          },
+          {
+            "type": "score",
+            "name": "D1T_severity",
+            "score": 0.44,
+            "probabilities": [
+              {
+                "value": 0,
+                "label": "none",
+                "probability": 0.61
+              },
+              {
+                "value": 1,
+                "label": "cosmetic",
+                "probability": 0.34
+              },
+              {
+                "value": 2,
+                "label": "minor",
+                "probability": 0.05
+              },
+              {
+                "value": 3,
+                "label": "moderate",
+                "probability": 0
+              },
+              {
+                "value": 4,
+                "label": "major",
+                "probability": 0
+              }
+            ],
+            "confidence": 0.63
+          },
+          {
+            "type": "choice",
+            "name": "D1M_visibility",
+            "choice": "partial",
+            "probabilities": [
+              {
+                "value": "clear",
+                "probability": 0.35
+              },
+              {
+                "value": "partial",
+                "probability": 0.65
+              },
+              {
+                "value": "not_visible",
+                "probability": 0
+              }
+            ],
+            "confidence": 0.48
+          },
+          {
+            "type": "choice",
+            "name": "D1M_deformation_shape",
+            "choice": "none",
+            "probabilities": [
+              {
+                "value": "none",
+                "probability": 0.72
+              },
+              {
+                "value": "local_dent",
+                "probability": 0.06
+              },
+              {
+                "value": "sharp_bend",
+                "probability": 0.01
+              },
+              {
+                "value": "broad_bow",
+                "probability": 0
+              },
+              {
+                "value": "mixed",
+                "probability": 0.01
+              },
+              {
+                "value": "uncertain",
+                "probability": 0.2
+              }
+            ],
+            "confidence": 0.66
+          },
+          {
+            "type": "predicate",
+            "name": "D1M_DT",
+            "probability": 0.07
+          },
+          {
+            "type": "predicate",
+            "name": "D1M_BT",
+            "probability": 0.05
+          },
+          {
+            "type": "predicate",
+            "name": "D1M_BW",
+            "probability": 0.06
+          },
+          {
+            "type": "predicate",
+            "name": "D1M_HO",
+            "probability": 0
+          },
+          {
+            "type": "predicate",
+            "name": "D1M_CK",
+            "probability": 0.02
+          },
+          {
+            "type": "predicate",
+            "name": "D1M_CW",
+            "probability": 0.01
+          },
+          {
+            "type": "predicate",
+            "name": "D1M_CO",
+            "probability": 0.23
+          },
+          {
+            "type": "predicate",
+            "name": "D1M_CH",
+            "probability": 0
+          },
+          {
+            "type": "predicate",
+            "name": "D1M_BR",
+            "probability": 0.01
+          },
+          {
+            "type": "score",
+            "name": "D1M_severity",
+            "score": 0.84,
+            "probabilities": [
+              {
+                "value": 0,
+                "label": "none",
+                "probability": 0.45
+              },
+              {
+                "value": 1,
+                "label": "cosmetic",
+                "probability": 0.3
+              },
+              {
+                "value": 2,
+                "label": "minor",
+                "probability": 0.22
+              },
+              {
+                "value": 3,
+                "label": "moderate",
+                "probability": 0.02
+              },
+              {
+                "value": 4,
+                "label": "major",
+                "probability": 0.01
+              }
+            ],
+            "confidence": 0.3
+          },
+          {
+            "type": "choice",
+            "name": "D1B_visibility",
+            "choice": "partial",
+            "probabilities": [
+              {
+                "value": "clear",
+                "probability": 0.15
+              },
+              {
+                "value": "partial",
+                "probability": 0.85
+              },
+              {
+                "value": "not_visible",
+                "probability": 0
+              }
+            ],
+            "confidence": 0.77
+          },
+          {
+            "type": "choice",
+            "name": "D1B_deformation_shape",
+            "choice": "none",
+            "probabilities": [
+              {
+                "value": "none",
+                "probability": 0.66
+              },
+              {
+                "value": "local_dent",
+                "probability": 0.07
+              },
+              {
+                "value": "sharp_bend",
+                "probability": 0.01
+              },
+              {
+                "value": "broad_bow",
+                "probability": 0
+              },
+              {
+                "value": "mixed",
+                "probability": 0.01
+              },
+              {
+                "value": "uncertain",
+                "probability": 0.25
+              }
+            ],
+            "confidence": 0.59
+          },
+          {
+            "type": "predicate",
+            "name": "D1B_DT",
+            "probability": 0.08
+          },
+          {
+            "type": "predicate",
+            "name": "D1B_BT",
+            "probability": 0.06
+          },
+          {
+            "type": "predicate",
+            "name": "D1B_BW",
+            "probability": 0.06
+          },
+          {
+            "type": "predicate",
+            "name": "D1B_HO",
+            "probability": 0
+          },
+          {
+            "type": "predicate",
+            "name": "D1B_CK",
+            "probability": 0.03
+          },
+          {
+            "type": "predicate",
+            "name": "D1B_CW",
+            "probability": 0.03
+          },
+          {
+            "type": "predicate",
+            "name": "D1B_CO",
+            "probability": 0.39
+          },
+          {
+            "type": "predicate",
+            "name": "D1B_CH",
+            "probability": 0.02
+          },
+          {
+            "type": "predicate",
+            "name": "D1B_BR",
+            "probability": 0.03
+          },
+          {
+            "type": "score",
+            "name": "D1B_severity",
+            "score": 0.73,
+            "probabilities": [
+              {
+                "value": 0,
+                "label": "none",
+                "probability": 0.43
+              },
+              {
+                "value": 1,
+                "label": "cosmetic",
+                "probability": 0.43
+              },
+              {
+                "value": 2,
+                "label": "minor",
+                "probability": 0.13
+              },
+              {
+                "value": 3,
+                "label": "moderate",
+                "probability": 0
+              },
+              {
+                "value": 4,
+                "label": "major",
+                "probability": 0.01
+              }
+            ],
+            "confidence": 0.39
+          },
+          {
+            "type": "choice",
+            "name": "D2T_visibility",
+            "choice": "not_visible",
+            "probabilities": [
+              {
+                "value": "clear",
+                "probability": 0.1
+              },
+              {
+                "value": "partial",
+                "probability": 0.05
+              },
+              {
+                "value": "not_visible",
+                "probability": 0.85
+              }
+            ],
+            "confidence": 0.77
+          },
+          {
+            "type": "choice",
+            "name": "D2T_deformation_shape",
+            "choice": "none",
+            "probabilities": [
+              {
+                "value": "none",
+                "probability": 0.74
+              },
+              {
+                "value": "local_dent",
+                "probability": 0.04
+              },
+              {
+                "value": "sharp_bend",
+                "probability": 0.01
+              },
+              {
+                "value": "broad_bow",
+                "probability": 0.01
+              },
+              {
+                "value": "mixed",
+                "probability": 0.01
+              },
+              {
+                "value": "uncertain",
+                "probability": 0.19
+              }
+            ],
+            "confidence": 0.69
+          },
+          {
+            "type": "predicate",
+            "name": "D2T_DT",
+            "probability": 0.05
+          },
+          {
+            "type": "predicate",
+            "name": "D2T_BT",
+            "probability": 0.01
+          },
+          {
+            "type": "predicate",
+            "name": "D2T_BW",
+            "probability": 0.07
+          },
+          {
+            "type": "predicate",
+            "name": "D2T_HO",
+            "probability": 0
+          },
+          {
+            "type": "predicate",
+            "name": "D2T_CK",
+            "probability": 0
+          },
+          {
+            "type": "predicate",
+            "name": "D2T_CW",
+            "probability": 0
+          },
+          {
+            "type": "predicate",
+            "name": "D2T_CO",
+            "probability": 0.1
+          },
+          {
+            "type": "predicate",
+            "name": "D2T_CH",
+            "probability": 0
+          },
+          {
+            "type": "predicate",
+            "name": "D2T_BR",
+            "probability": 0
+          },
+          {
+            "type": "score",
+            "name": "D2T_severity",
+            "score": 0.41,
+            "probabilities": [
+              {
+                "value": 0,
+                "label": "none",
+                "probability": 0.78
+              },
+              {
+                "value": 1,
+                "label": "cosmetic",
+                "probability": 0.1
+              },
+              {
+                "value": 2,
+                "label": "minor",
+                "probability": 0.08
+              },
+              {
+                "value": 3,
+                "label": "moderate",
+                "probability": 0.01
+              },
+              {
+                "value": 4,
+                "label": "major",
+                "probability": 0.03
+              }
+            ],
+            "confidence": 0.66
+          },
+          {
+            "type": "choice",
+            "name": "D2M_visibility",
+            "choice": "not_visible",
+            "probabilities": [
+              {
+                "value": "clear",
+                "probability": 0.31
+              },
+              {
+                "value": "partial",
+                "probability": 0.06
+              },
+              {
+                "value": "not_visible",
+                "probability": 0.63
+              }
+            ],
+            "confidence": 0.45
+          },
+          {
+            "type": "choice",
+            "name": "D2M_deformation_shape",
+            "choice": "none",
+            "probabilities": [
+              {
+                "value": "none",
+                "probability": 0.91
+              },
+              {
+                "value": "local_dent",
+                "probability": 0.03
+              },
+              {
+                "value": "sharp_bend",
+                "probability": 0
+              },
+              {
+                "value": "broad_bow",
+                "probability": 0
+              },
+              {
+                "value": "mixed",
+                "probability": 0.01
+              },
+              {
+                "value": "uncertain",
+                "probability": 0.05
+              }
+            ],
+            "confidence": 0.89
+          },
+          {
+            "type": "predicate",
+            "name": "D2M_DT",
+            "probability": 0.07
+          },
+          {
+            "type": "predicate",
+            "name": "D2M_BT",
+            "probability": 0
+          },
+          {
+            "type": "predicate",
+            "name": "D2M_BW",
+            "probability": 0.1
+          },
+          {
+            "type": "predicate",
+            "name": "D2M_HO",
+            "probability": 0
+          },
+          {
+            "type": "predicate",
+            "name": "D2M_CK",
+            "probability": 0
+          },
+          {
+            "type": "predicate",
+            "name": "D2M_CW",
+            "probability": 0
+          },
+          {
+            "type": "predicate",
+            "name": "D2M_CO",
+            "probability": 0.08
+          },
+          {
+            "type": "predicate",
+            "name": "D2M_CH",
+            "probability": 0
+          },
+          {
+            "type": "predicate",
+            "name": "D2M_BR",
+            "probability": 0
+          },
+          {
+            "type": "score",
+            "name": "D2M_severity",
+            "score": 0.67,
+            "probabilities": [
+              {
+                "value": 0,
+                "label": "none",
+                "probability": 0.69
+              },
+              {
+                "value": 1,
+                "label": "cosmetic",
+                "probability": 0.09
+              },
+              {
+                "value": 2,
+                "label": "minor",
+                "probability": 0.14
+              },
+              {
+                "value": 3,
+                "label": "moderate",
+                "probability": 0.02
+              },
+              {
+                "value": 4,
+                "label": "major",
+                "probability": 0.06
+              }
+            ],
+            "confidence": 0.44
+          },
+          {
+            "type": "choice",
+            "name": "D2B_visibility",
+            "choice": "not_visible",
+            "probabilities": [
+              {
+                "value": "clear",
+                "probability": 0.11
+              },
+              {
+                "value": "partial",
+                "probability": 0.04
+              },
+              {
+                "value": "not_visible",
+                "probability": 0.85
+              }
+            ],
+            "confidence": 0.77
+          },
+          {
+            "type": "choice",
+            "name": "D2B_deformation_shape",
+            "choice": "none",
+            "probabilities": [
+              {
+                "value": "none",
+                "probability": 0.75
+              },
+              {
+                "value": "local_dent",
+                "probability": 0.03
+              },
+              {
+                "value": "sharp_bend",
+                "probability": 0.01
+              },
+              {
+                "value": "broad_bow",
+                "probability": 0.01
+              },
+              {
+                "value": "mixed",
+                "probability": 0.01
+              },
+              {
+                "value": "uncertain",
+                "probability": 0.19
+              }
+            ],
+            "confidence": 0.7
+          },
+          {
+            "type": "predicate",
+            "name": "D2B_DT",
+            "probability": 0.09
+          },
+          {
+            "type": "predicate",
+            "name": "D2B_BT",
+            "probability": 0.04
+          },
+          {
+            "type": "predicate",
+            "name": "D2B_BW",
+            "probability": 0.09
+          },
+          {
+            "type": "predicate",
+            "name": "D2B_HO",
+            "probability": 0
+          },
+          {
+            "type": "predicate",
+            "name": "D2B_CK",
+            "probability": 0
+          },
+          {
+            "type": "predicate",
+            "name": "D2B_CW",
+            "probability": 0.01
+          },
+          {
+            "type": "predicate",
+            "name": "D2B_CO",
+            "probability": 0.25
+          },
+          {
+            "type": "predicate",
+            "name": "D2B_CH",
+            "probability": 0
+          },
+          {
+            "type": "predicate",
+            "name": "D2B_BR",
+            "probability": 0
+          },
+          {
+            "type": "score",
+            "name": "D2B_severity",
+            "score": 0.49,
+            "probabilities": [
+              {
+                "value": 0,
+                "label": "none",
+                "probability": 0.72
+              },
+              {
+                "value": 1,
+                "label": "cosmetic",
+                "probability": 0.14
+              },
+              {
+                "value": 2,
+                "label": "minor",
+                "probability": 0.1
+              },
+              {
+                "value": 3,
+                "label": "moderate",
+                "probability": 0.01
+              },
+              {
+                "value": 4,
+                "label": "major",
+                "probability": 0.03
+              }
+            ],
+            "confidence": 0.59
+          },
+          {
+            "type": "predicate",
+            "name": "left_leaf_locking_bar_bent",
+            "probability": 0.05
+          },
+          {
+            "type": "predicate",
+            "name": "left_leaf_locking_bar_broken",
+            "probability": 0.04
+          },
+          {
+            "type": "predicate",
+            "name": "right_leaf_locking_bar_bent",
+            "probability": 0.01
+          },
+          {
+            "type": "predicate",
+            "name": "right_leaf_locking_bar_broken",
+            "probability": 0
+          },
+          {
+            "type": "predicate",
+            "name": "cam_keeper_damage",
+            "probability": 0.04
+          },
+          {
+            "type": "predicate",
+            "name": "left_leaf_hinge_damage",
+            "probability": 0.05
+          },
+          {
+            "type": "predicate",
+            "name": "right_leaf_hinge_damage",
+            "probability": 0
+          },
+          {
+            "type": "predicate",
+            "name": "door_gasket_damage",
+            "probability": 0.06
+          },
+          {
+            "type": "predicate",
+            "name": "door_header_bent",
+            "probability": 0.05
+          },
+          {
+            "type": "predicate",
+            "name": "door_header_corrosion",
+            "probability": 0.11
+          },
+          {
+            "type": "predicate",
+            "name": "door_header_broken",
+            "probability": 0.05
+          },
+          {
+            "type": "predicate",
+            "name": "door_sill_bent",
+            "probability": 0.11
+          },
+          {
+            "type": "predicate",
+            "name": "door_sill_corrosion",
+            "probability": 0.58
+          },
+          {
+            "type": "predicate",
+            "name": "door_sill_broken",
+            "probability": 0.06
+          },
+          {
+            "type": "predicate",
+            "name": "left_corner_post_damage",
+            "probability": 0.09
+          },
+          {
+            "type": "predicate",
+            "name": "right_corner_post_damage",
+            "probability": 0.1
+          },
+          {
+            "type": "predicate",
+            "name": "corner_casting_damage",
+            "probability": 0.06
+          }
+        ],
+        "usage": {
+          "input_tokens": 23642,
+          "input_tokens_details": {
+            "cached_tokens": 0,
+            "cache_write_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "reasoning_tokens": 0
+          },
+          "total_tokens": 23642
+        }
+      },
+      "latencyMs": 1505,
+      "costUsd": 0.0023642000000000003
     },
     {
       "request": "side-damage",
@@ -11279,1763 +10665,8 @@
           "total_tokens": 32550
         }
       },
-      "latencyMs": 1556,
+      "latencyMs": 1515,
       "costUsd": 0.003255
-    },
-    {
-      "request": "door-damage",
-      "response": {
-        "model": "gpt-6-luna",
-        "answers": [
-          {
-            "type": "choice",
-            "name": "image_quality",
-            "choice": "limited",
-            "probabilities": [
-              {
-                "value": "good",
-                "probability": 0.24
-              },
-              {
-                "value": "limited",
-                "probability": 0.76
-              },
-              {
-                "value": "poor",
-                "probability": 0
-              }
-            ],
-            "confidence": 0.64
-          },
-          {
-            "type": "choice",
-            "name": "door_end_coverage",
-            "choice": "partial",
-            "probabilities": [
-              {
-                "value": "full",
-                "probability": 0
-              },
-              {
-                "value": "most",
-                "probability": 0.26
-              },
-              {
-                "value": "partial",
-                "probability": 0.74
-              },
-              {
-                "value": "not_inspectable",
-                "probability": 0
-              }
-            ],
-            "confidence": 0.65
-          },
-          {
-            "type": "predicate",
-            "name": "any_visible_defect",
-            "probability": 0.91
-          },
-          {
-            "type": "predicate",
-            "name": "potentially_significant_damage",
-            "probability": 0.52
-          },
-          {
-            "type": "choice",
-            "name": "D1T_visibility",
-            "choice": "partial",
-            "probabilities": [
-              {
-                "value": "clear",
-                "probability": 0.13
-              },
-              {
-                "value": "partial",
-                "probability": 0.87
-              },
-              {
-                "value": "not_visible",
-                "probability": 0
-              }
-            ],
-            "confidence": 0.8
-          },
-          {
-            "type": "choice",
-            "name": "D1T_deformation_shape",
-            "choice": "none",
-            "probabilities": [
-              {
-                "value": "none",
-                "probability": 0.7
-              },
-              {
-                "value": "local_dent",
-                "probability": 0.03
-              },
-              {
-                "value": "sharp_bend",
-                "probability": 0.01
-              },
-              {
-                "value": "broad_bow",
-                "probability": 0
-              },
-              {
-                "value": "mixed",
-                "probability": 0.01
-              },
-              {
-                "value": "uncertain",
-                "probability": 0.25
-              }
-            ],
-            "confidence": 0.64
-          },
-          {
-            "type": "predicate",
-            "name": "D1T_DT",
-            "probability": 0.06
-          },
-          {
-            "type": "predicate",
-            "name": "D1T_BT",
-            "probability": 0.05
-          },
-          {
-            "type": "predicate",
-            "name": "D1T_BW",
-            "probability": 0.05
-          },
-          {
-            "type": "predicate",
-            "name": "D1T_HO",
-            "probability": 0
-          },
-          {
-            "type": "predicate",
-            "name": "D1T_CK",
-            "probability": 0.02
-          },
-          {
-            "type": "predicate",
-            "name": "D1T_CW",
-            "probability": 0.02
-          },
-          {
-            "type": "predicate",
-            "name": "D1T_CO",
-            "probability": 0.09
-          },
-          {
-            "type": "predicate",
-            "name": "D1T_CH",
-            "probability": 0
-          },
-          {
-            "type": "predicate",
-            "name": "D1T_BR",
-            "probability": 0
-          },
-          {
-            "type": "score",
-            "name": "D1T_severity",
-            "score": 0.44,
-            "probabilities": [
-              {
-                "value": 0,
-                "label": "none",
-                "probability": 0.61
-              },
-              {
-                "value": 1,
-                "label": "cosmetic",
-                "probability": 0.34
-              },
-              {
-                "value": 2,
-                "label": "minor",
-                "probability": 0.05
-              },
-              {
-                "value": 3,
-                "label": "moderate",
-                "probability": 0
-              },
-              {
-                "value": 4,
-                "label": "major",
-                "probability": 0
-              }
-            ],
-            "confidence": 0.63
-          },
-          {
-            "type": "choice",
-            "name": "D1M_visibility",
-            "choice": "partial",
-            "probabilities": [
-              {
-                "value": "clear",
-                "probability": 0.35
-              },
-              {
-                "value": "partial",
-                "probability": 0.65
-              },
-              {
-                "value": "not_visible",
-                "probability": 0
-              }
-            ],
-            "confidence": 0.48
-          },
-          {
-            "type": "choice",
-            "name": "D1M_deformation_shape",
-            "choice": "none",
-            "probabilities": [
-              {
-                "value": "none",
-                "probability": 0.72
-              },
-              {
-                "value": "local_dent",
-                "probability": 0.06
-              },
-              {
-                "value": "sharp_bend",
-                "probability": 0.01
-              },
-              {
-                "value": "broad_bow",
-                "probability": 0
-              },
-              {
-                "value": "mixed",
-                "probability": 0.01
-              },
-              {
-                "value": "uncertain",
-                "probability": 0.2
-              }
-            ],
-            "confidence": 0.66
-          },
-          {
-            "type": "predicate",
-            "name": "D1M_DT",
-            "probability": 0.07
-          },
-          {
-            "type": "predicate",
-            "name": "D1M_BT",
-            "probability": 0.05
-          },
-          {
-            "type": "predicate",
-            "name": "D1M_BW",
-            "probability": 0.06
-          },
-          {
-            "type": "predicate",
-            "name": "D1M_HO",
-            "probability": 0
-          },
-          {
-            "type": "predicate",
-            "name": "D1M_CK",
-            "probability": 0.02
-          },
-          {
-            "type": "predicate",
-            "name": "D1M_CW",
-            "probability": 0.01
-          },
-          {
-            "type": "predicate",
-            "name": "D1M_CO",
-            "probability": 0.23
-          },
-          {
-            "type": "predicate",
-            "name": "D1M_CH",
-            "probability": 0
-          },
-          {
-            "type": "predicate",
-            "name": "D1M_BR",
-            "probability": 0.01
-          },
-          {
-            "type": "score",
-            "name": "D1M_severity",
-            "score": 0.84,
-            "probabilities": [
-              {
-                "value": 0,
-                "label": "none",
-                "probability": 0.45
-              },
-              {
-                "value": 1,
-                "label": "cosmetic",
-                "probability": 0.3
-              },
-              {
-                "value": 2,
-                "label": "minor",
-                "probability": 0.22
-              },
-              {
-                "value": 3,
-                "label": "moderate",
-                "probability": 0.02
-              },
-              {
-                "value": 4,
-                "label": "major",
-                "probability": 0.01
-              }
-            ],
-            "confidence": 0.3
-          },
-          {
-            "type": "choice",
-            "name": "D1B_visibility",
-            "choice": "partial",
-            "probabilities": [
-              {
-                "value": "clear",
-                "probability": 0.15
-              },
-              {
-                "value": "partial",
-                "probability": 0.85
-              },
-              {
-                "value": "not_visible",
-                "probability": 0
-              }
-            ],
-            "confidence": 0.77
-          },
-          {
-            "type": "choice",
-            "name": "D1B_deformation_shape",
-            "choice": "none",
-            "probabilities": [
-              {
-                "value": "none",
-                "probability": 0.66
-              },
-              {
-                "value": "local_dent",
-                "probability": 0.07
-              },
-              {
-                "value": "sharp_bend",
-                "probability": 0.01
-              },
-              {
-                "value": "broad_bow",
-                "probability": 0
-              },
-              {
-                "value": "mixed",
-                "probability": 0.01
-              },
-              {
-                "value": "uncertain",
-                "probability": 0.25
-              }
-            ],
-            "confidence": 0.59
-          },
-          {
-            "type": "predicate",
-            "name": "D1B_DT",
-            "probability": 0.08
-          },
-          {
-            "type": "predicate",
-            "name": "D1B_BT",
-            "probability": 0.06
-          },
-          {
-            "type": "predicate",
-            "name": "D1B_BW",
-            "probability": 0.06
-          },
-          {
-            "type": "predicate",
-            "name": "D1B_HO",
-            "probability": 0
-          },
-          {
-            "type": "predicate",
-            "name": "D1B_CK",
-            "probability": 0.03
-          },
-          {
-            "type": "predicate",
-            "name": "D1B_CW",
-            "probability": 0.03
-          },
-          {
-            "type": "predicate",
-            "name": "D1B_CO",
-            "probability": 0.39
-          },
-          {
-            "type": "predicate",
-            "name": "D1B_CH",
-            "probability": 0.02
-          },
-          {
-            "type": "predicate",
-            "name": "D1B_BR",
-            "probability": 0.03
-          },
-          {
-            "type": "score",
-            "name": "D1B_severity",
-            "score": 0.73,
-            "probabilities": [
-              {
-                "value": 0,
-                "label": "none",
-                "probability": 0.43
-              },
-              {
-                "value": 1,
-                "label": "cosmetic",
-                "probability": 0.43
-              },
-              {
-                "value": 2,
-                "label": "minor",
-                "probability": 0.13
-              },
-              {
-                "value": 3,
-                "label": "moderate",
-                "probability": 0
-              },
-              {
-                "value": 4,
-                "label": "major",
-                "probability": 0.01
-              }
-            ],
-            "confidence": 0.39
-          },
-          {
-            "type": "choice",
-            "name": "D2T_visibility",
-            "choice": "not_visible",
-            "probabilities": [
-              {
-                "value": "clear",
-                "probability": 0.1
-              },
-              {
-                "value": "partial",
-                "probability": 0.05
-              },
-              {
-                "value": "not_visible",
-                "probability": 0.85
-              }
-            ],
-            "confidence": 0.77
-          },
-          {
-            "type": "choice",
-            "name": "D2T_deformation_shape",
-            "choice": "none",
-            "probabilities": [
-              {
-                "value": "none",
-                "probability": 0.74
-              },
-              {
-                "value": "local_dent",
-                "probability": 0.04
-              },
-              {
-                "value": "sharp_bend",
-                "probability": 0.01
-              },
-              {
-                "value": "broad_bow",
-                "probability": 0.01
-              },
-              {
-                "value": "mixed",
-                "probability": 0.01
-              },
-              {
-                "value": "uncertain",
-                "probability": 0.19
-              }
-            ],
-            "confidence": 0.69
-          },
-          {
-            "type": "predicate",
-            "name": "D2T_DT",
-            "probability": 0.05
-          },
-          {
-            "type": "predicate",
-            "name": "D2T_BT",
-            "probability": 0.01
-          },
-          {
-            "type": "predicate",
-            "name": "D2T_BW",
-            "probability": 0.07
-          },
-          {
-            "type": "predicate",
-            "name": "D2T_HO",
-            "probability": 0
-          },
-          {
-            "type": "predicate",
-            "name": "D2T_CK",
-            "probability": 0
-          },
-          {
-            "type": "predicate",
-            "name": "D2T_CW",
-            "probability": 0
-          },
-          {
-            "type": "predicate",
-            "name": "D2T_CO",
-            "probability": 0.1
-          },
-          {
-            "type": "predicate",
-            "name": "D2T_CH",
-            "probability": 0
-          },
-          {
-            "type": "predicate",
-            "name": "D2T_BR",
-            "probability": 0
-          },
-          {
-            "type": "score",
-            "name": "D2T_severity",
-            "score": 0.41,
-            "probabilities": [
-              {
-                "value": 0,
-                "label": "none",
-                "probability": 0.78
-              },
-              {
-                "value": 1,
-                "label": "cosmetic",
-                "probability": 0.1
-              },
-              {
-                "value": 2,
-                "label": "minor",
-                "probability": 0.08
-              },
-              {
-                "value": 3,
-                "label": "moderate",
-                "probability": 0.01
-              },
-              {
-                "value": 4,
-                "label": "major",
-                "probability": 0.03
-              }
-            ],
-            "confidence": 0.66
-          },
-          {
-            "type": "choice",
-            "name": "D2M_visibility",
-            "choice": "not_visible",
-            "probabilities": [
-              {
-                "value": "clear",
-                "probability": 0.31
-              },
-              {
-                "value": "partial",
-                "probability": 0.06
-              },
-              {
-                "value": "not_visible",
-                "probability": 0.63
-              }
-            ],
-            "confidence": 0.45
-          },
-          {
-            "type": "choice",
-            "name": "D2M_deformation_shape",
-            "choice": "none",
-            "probabilities": [
-              {
-                "value": "none",
-                "probability": 0.91
-              },
-              {
-                "value": "local_dent",
-                "probability": 0.03
-              },
-              {
-                "value": "sharp_bend",
-                "probability": 0
-              },
-              {
-                "value": "broad_bow",
-                "probability": 0
-              },
-              {
-                "value": "mixed",
-                "probability": 0.01
-              },
-              {
-                "value": "uncertain",
-                "probability": 0.05
-              }
-            ],
-            "confidence": 0.89
-          },
-          {
-            "type": "predicate",
-            "name": "D2M_DT",
-            "probability": 0.07
-          },
-          {
-            "type": "predicate",
-            "name": "D2M_BT",
-            "probability": 0
-          },
-          {
-            "type": "predicate",
-            "name": "D2M_BW",
-            "probability": 0.1
-          },
-          {
-            "type": "predicate",
-            "name": "D2M_HO",
-            "probability": 0
-          },
-          {
-            "type": "predicate",
-            "name": "D2M_CK",
-            "probability": 0
-          },
-          {
-            "type": "predicate",
-            "name": "D2M_CW",
-            "probability": 0
-          },
-          {
-            "type": "predicate",
-            "name": "D2M_CO",
-            "probability": 0.08
-          },
-          {
-            "type": "predicate",
-            "name": "D2M_CH",
-            "probability": 0
-          },
-          {
-            "type": "predicate",
-            "name": "D2M_BR",
-            "probability": 0
-          },
-          {
-            "type": "score",
-            "name": "D2M_severity",
-            "score": 0.67,
-            "probabilities": [
-              {
-                "value": 0,
-                "label": "none",
-                "probability": 0.69
-              },
-              {
-                "value": 1,
-                "label": "cosmetic",
-                "probability": 0.09
-              },
-              {
-                "value": 2,
-                "label": "minor",
-                "probability": 0.14
-              },
-              {
-                "value": 3,
-                "label": "moderate",
-                "probability": 0.02
-              },
-              {
-                "value": 4,
-                "label": "major",
-                "probability": 0.06
-              }
-            ],
-            "confidence": 0.44
-          },
-          {
-            "type": "choice",
-            "name": "D2B_visibility",
-            "choice": "not_visible",
-            "probabilities": [
-              {
-                "value": "clear",
-                "probability": 0.11
-              },
-              {
-                "value": "partial",
-                "probability": 0.04
-              },
-              {
-                "value": "not_visible",
-                "probability": 0.85
-              }
-            ],
-            "confidence": 0.77
-          },
-          {
-            "type": "choice",
-            "name": "D2B_deformation_shape",
-            "choice": "none",
-            "probabilities": [
-              {
-                "value": "none",
-                "probability": 0.75
-              },
-              {
-                "value": "local_dent",
-                "probability": 0.03
-              },
-              {
-                "value": "sharp_bend",
-                "probability": 0.01
-              },
-              {
-                "value": "broad_bow",
-                "probability": 0.01
-              },
-              {
-                "value": "mixed",
-                "probability": 0.01
-              },
-              {
-                "value": "uncertain",
-                "probability": 0.19
-              }
-            ],
-            "confidence": 0.7
-          },
-          {
-            "type": "predicate",
-            "name": "D2B_DT",
-            "probability": 0.09
-          },
-          {
-            "type": "predicate",
-            "name": "D2B_BT",
-            "probability": 0.04
-          },
-          {
-            "type": "predicate",
-            "name": "D2B_BW",
-            "probability": 0.09
-          },
-          {
-            "type": "predicate",
-            "name": "D2B_HO",
-            "probability": 0
-          },
-          {
-            "type": "predicate",
-            "name": "D2B_CK",
-            "probability": 0
-          },
-          {
-            "type": "predicate",
-            "name": "D2B_CW",
-            "probability": 0.01
-          },
-          {
-            "type": "predicate",
-            "name": "D2B_CO",
-            "probability": 0.25
-          },
-          {
-            "type": "predicate",
-            "name": "D2B_CH",
-            "probability": 0
-          },
-          {
-            "type": "predicate",
-            "name": "D2B_BR",
-            "probability": 0
-          },
-          {
-            "type": "score",
-            "name": "D2B_severity",
-            "score": 0.49,
-            "probabilities": [
-              {
-                "value": 0,
-                "label": "none",
-                "probability": 0.72
-              },
-              {
-                "value": 1,
-                "label": "cosmetic",
-                "probability": 0.14
-              },
-              {
-                "value": 2,
-                "label": "minor",
-                "probability": 0.1
-              },
-              {
-                "value": 3,
-                "label": "moderate",
-                "probability": 0.01
-              },
-              {
-                "value": 4,
-                "label": "major",
-                "probability": 0.03
-              }
-            ],
-            "confidence": 0.59
-          },
-          {
-            "type": "predicate",
-            "name": "left_leaf_locking_bar_bent",
-            "probability": 0.05
-          },
-          {
-            "type": "predicate",
-            "name": "left_leaf_locking_bar_broken",
-            "probability": 0.04
-          },
-          {
-            "type": "predicate",
-            "name": "right_leaf_locking_bar_bent",
-            "probability": 0.01
-          },
-          {
-            "type": "predicate",
-            "name": "right_leaf_locking_bar_broken",
-            "probability": 0
-          },
-          {
-            "type": "predicate",
-            "name": "cam_keeper_damage",
-            "probability": 0.04
-          },
-          {
-            "type": "predicate",
-            "name": "left_leaf_hinge_damage",
-            "probability": 0.05
-          },
-          {
-            "type": "predicate",
-            "name": "right_leaf_hinge_damage",
-            "probability": 0
-          },
-          {
-            "type": "predicate",
-            "name": "door_gasket_damage",
-            "probability": 0.06
-          },
-          {
-            "type": "predicate",
-            "name": "door_header_bent",
-            "probability": 0.05
-          },
-          {
-            "type": "predicate",
-            "name": "door_header_corrosion",
-            "probability": 0.11
-          },
-          {
-            "type": "predicate",
-            "name": "door_header_broken",
-            "probability": 0.05
-          },
-          {
-            "type": "predicate",
-            "name": "door_sill_bent",
-            "probability": 0.11
-          },
-          {
-            "type": "predicate",
-            "name": "door_sill_corrosion",
-            "probability": 0.58
-          },
-          {
-            "type": "predicate",
-            "name": "door_sill_broken",
-            "probability": 0.06
-          },
-          {
-            "type": "predicate",
-            "name": "left_corner_post_damage",
-            "probability": 0.09
-          },
-          {
-            "type": "predicate",
-            "name": "right_corner_post_damage",
-            "probability": 0.1
-          },
-          {
-            "type": "predicate",
-            "name": "corner_casting_damage",
-            "probability": 0.06
-          }
-        ],
-        "usage": {
-          "input_tokens": 23642,
-          "input_tokens_details": {
-            "cached_tokens": 0,
-            "cache_write_tokens": 0
-          },
-          "output_tokens": 0,
-          "output_tokens_details": {
-            "reasoning_tokens": 0
-          },
-          "total_tokens": 23642
-        }
-      },
-      "latencyMs": 1564,
-      "costUsd": 0.0023642000000000003
-    },
-    {
-      "request": "crop",
-      "response": {
-        "model": "gpt-6-luna",
-        "answers": [
-          {
-            "type": "choice",
-            "name": "id_char_01",
-            "choice": "S",
-            "probabilities": [
-              {
-                "value": "A",
-                "probability": 0.06
-              },
-              {
-                "value": "B",
-                "probability": 0.04
-              },
-              {
-                "value": "C",
-                "probability": 0.06
-              },
-              {
-                "value": "D",
-                "probability": 0.02
-              },
-              {
-                "value": "E",
-                "probability": 0.05
-              },
-              {
-                "value": "F",
-                "probability": 0.01
-              },
-              {
-                "value": "G",
-                "probability": 0.01
-              },
-              {
-                "value": "H",
-                "probability": 0.01
-              },
-              {
-                "value": "I",
-                "probability": 0.02
-              },
-              {
-                "value": "J",
-                "probability": 0.01
-              },
-              {
-                "value": "K",
-                "probability": 0.03
-              },
-              {
-                "value": "L",
-                "probability": 0.06
-              },
-              {
-                "value": "M",
-                "probability": 0.02
-              },
-              {
-                "value": "N",
-                "probability": 0.03
-              },
-              {
-                "value": "O",
-                "probability": 0.06
-              },
-              {
-                "value": "P",
-                "probability": 0.04
-              },
-              {
-                "value": "Q",
-                "probability": 0.03
-              },
-              {
-                "value": "R",
-                "probability": 0.06
-              },
-              {
-                "value": "S",
-                "probability": 0.15
-              },
-              {
-                "value": "T",
-                "probability": 0.06
-              },
-              {
-                "value": "U",
-                "probability": 0.09
-              },
-              {
-                "value": "V",
-                "probability": 0.02
-              },
-              {
-                "value": "W",
-                "probability": 0.03
-              },
-              {
-                "value": "X",
-                "probability": 0.01
-              },
-              {
-                "value": "Y",
-                "probability": 0.01
-              },
-              {
-                "value": "Z",
-                "probability": 0.01
-              }
-            ],
-            "confidence": 0.12
-          },
-          {
-            "type": "choice",
-            "name": "id_char_02",
-            "choice": "U",
-            "probabilities": [
-              {
-                "value": "A",
-                "probability": 0.05
-              },
-              {
-                "value": "B",
-                "probability": 0.02
-              },
-              {
-                "value": "C",
-                "probability": 0.05
-              },
-              {
-                "value": "D",
-                "probability": 0.02
-              },
-              {
-                "value": "E",
-                "probability": 0.04
-              },
-              {
-                "value": "F",
-                "probability": 0.01
-              },
-              {
-                "value": "G",
-                "probability": 0.01
-              },
-              {
-                "value": "H",
-                "probability": 0.02
-              },
-              {
-                "value": "I",
-                "probability": 0.03
-              },
-              {
-                "value": "J",
-                "probability": 0.01
-              },
-              {
-                "value": "K",
-                "probability": 0.04
-              },
-              {
-                "value": "L",
-                "probability": 0.05
-              },
-              {
-                "value": "M",
-                "probability": 0.02
-              },
-              {
-                "value": "N",
-                "probability": 0.05
-              },
-              {
-                "value": "O",
-                "probability": 0.06
-              },
-              {
-                "value": "P",
-                "probability": 0.03
-              },
-              {
-                "value": "Q",
-                "probability": 0.04
-              },
-              {
-                "value": "R",
-                "probability": 0.07
-              },
-              {
-                "value": "S",
-                "probability": 0.11
-              },
-              {
-                "value": "T",
-                "probability": 0.07
-              },
-              {
-                "value": "U",
-                "probability": 0.18
-              },
-              {
-                "value": "V",
-                "probability": 0
-              },
-              {
-                "value": "W",
-                "probability": 0.01
-              },
-              {
-                "value": "X",
-                "probability": 0
-              },
-              {
-                "value": "Y",
-                "probability": 0
-              },
-              {
-                "value": "Z",
-                "probability": 0.01
-              }
-            ],
-            "confidence": 0.15
-          },
-          {
-            "type": "choice",
-            "name": "id_char_03",
-            "choice": "U",
-            "probabilities": [
-              {
-                "value": "A",
-                "probability": 0.04
-              },
-              {
-                "value": "B",
-                "probability": 0.02
-              },
-              {
-                "value": "C",
-                "probability": 0.07
-              },
-              {
-                "value": "D",
-                "probability": 0.01
-              },
-              {
-                "value": "E",
-                "probability": 0.03
-              },
-              {
-                "value": "F",
-                "probability": 0.01
-              },
-              {
-                "value": "G",
-                "probability": 0.01
-              },
-              {
-                "value": "H",
-                "probability": 0.01
-              },
-              {
-                "value": "I",
-                "probability": 0.03
-              },
-              {
-                "value": "J",
-                "probability": 0.01
-              },
-              {
-                "value": "K",
-                "probability": 0.04
-              },
-              {
-                "value": "L",
-                "probability": 0.07
-              },
-              {
-                "value": "M",
-                "probability": 0.02
-              },
-              {
-                "value": "N",
-                "probability": 0.04
-              },
-              {
-                "value": "O",
-                "probability": 0.06
-              },
-              {
-                "value": "P",
-                "probability": 0.04
-              },
-              {
-                "value": "Q",
-                "probability": 0.03
-              },
-              {
-                "value": "R",
-                "probability": 0.07
-              },
-              {
-                "value": "S",
-                "probability": 0.12
-              },
-              {
-                "value": "T",
-                "probability": 0.08
-              },
-              {
-                "value": "U",
-                "probability": 0.13
-              },
-              {
-                "value": "V",
-                "probability": 0.01
-              },
-              {
-                "value": "W",
-                "probability": 0.02
-              },
-              {
-                "value": "X",
-                "probability": 0.01
-              },
-              {
-                "value": "Y",
-                "probability": 0.01
-              },
-              {
-                "value": "Z",
-                "probability": 0.01
-              }
-            ],
-            "confidence": 0.1
-          },
-          {
-            "type": "choice",
-            "name": "id_char_04",
-            "choice": "U",
-            "probabilities": [
-              {
-                "value": "A",
-                "probability": 0
-              },
-              {
-                "value": "B",
-                "probability": 0
-              },
-              {
-                "value": "C",
-                "probability": 0
-              },
-              {
-                "value": "D",
-                "probability": 0
-              },
-              {
-                "value": "E",
-                "probability": 0
-              },
-              {
-                "value": "F",
-                "probability": 0
-              },
-              {
-                "value": "G",
-                "probability": 0
-              },
-              {
-                "value": "H",
-                "probability": 0
-              },
-              {
-                "value": "I",
-                "probability": 0
-              },
-              {
-                "value": "J",
-                "probability": 0
-              },
-              {
-                "value": "K",
-                "probability": 0
-              },
-              {
-                "value": "L",
-                "probability": 0
-              },
-              {
-                "value": "M",
-                "probability": 0
-              },
-              {
-                "value": "N",
-                "probability": 0
-              },
-              {
-                "value": "O",
-                "probability": 0
-              },
-              {
-                "value": "P",
-                "probability": 0
-              },
-              {
-                "value": "Q",
-                "probability": 0
-              },
-              {
-                "value": "R",
-                "probability": 0
-              },
-              {
-                "value": "S",
-                "probability": 0
-              },
-              {
-                "value": "T",
-                "probability": 0
-              },
-              {
-                "value": "U",
-                "probability": 1
-              },
-              {
-                "value": "V",
-                "probability": 0
-              },
-              {
-                "value": "W",
-                "probability": 0
-              },
-              {
-                "value": "X",
-                "probability": 0
-              },
-              {
-                "value": "Y",
-                "probability": 0
-              },
-              {
-                "value": "Z",
-                "probability": 0
-              }
-            ],
-            "confidence": 1
-          },
-          {
-            "type": "choice",
-            "name": "id_char_05",
-            "choice": "2",
-            "probabilities": [
-              {
-                "value": "0",
-                "probability": 0.01
-              },
-              {
-                "value": "1",
-                "probability": 0.02
-              },
-              {
-                "value": "2",
-                "probability": 0.95
-              },
-              {
-                "value": "3",
-                "probability": 0.01
-              },
-              {
-                "value": "4",
-                "probability": 0.01
-              },
-              {
-                "value": "5",
-                "probability": 0
-              },
-              {
-                "value": "6",
-                "probability": 0
-              },
-              {
-                "value": "7",
-                "probability": 0
-              },
-              {
-                "value": "8",
-                "probability": 0
-              },
-              {
-                "value": "9",
-                "probability": 0
-              }
-            ],
-            "confidence": 0.94
-          },
-          {
-            "type": "choice",
-            "name": "id_char_06",
-            "choice": "0",
-            "probabilities": [
-              {
-                "value": "0",
-                "probability": 0.52
-              },
-              {
-                "value": "1",
-                "probability": 0.08
-              },
-              {
-                "value": "2",
-                "probability": 0.18
-              },
-              {
-                "value": "3",
-                "probability": 0.03
-              },
-              {
-                "value": "4",
-                "probability": 0.04
-              },
-              {
-                "value": "5",
-                "probability": 0.03
-              },
-              {
-                "value": "6",
-                "probability": 0.04
-              },
-              {
-                "value": "7",
-                "probability": 0.02
-              },
-              {
-                "value": "8",
-                "probability": 0.02
-              },
-              {
-                "value": "9",
-                "probability": 0.04
-              }
-            ],
-            "confidence": 0.47
-          },
-          {
-            "type": "choice",
-            "name": "id_char_07",
-            "choice": "6",
-            "probabilities": [
-              {
-                "value": "0",
-                "probability": 0.32
-              },
-              {
-                "value": "1",
-                "probability": 0.02
-              },
-              {
-                "value": "2",
-                "probability": 0.02
-              },
-              {
-                "value": "3",
-                "probability": 0.01
-              },
-              {
-                "value": "4",
-                "probability": 0.02
-              },
-              {
-                "value": "5",
-                "probability": 0.04
-              },
-              {
-                "value": "6",
-                "probability": 0.5
-              },
-              {
-                "value": "7",
-                "probability": 0.02
-              },
-              {
-                "value": "8",
-                "probability": 0.02
-              },
-              {
-                "value": "9",
-                "probability": 0.03
-              }
-            ],
-            "confidence": 0.44
-          },
-          {
-            "type": "choice",
-            "name": "id_char_08",
-            "choice": "6",
-            "probabilities": [
-              {
-                "value": "0",
-                "probability": 0.07
-              },
-              {
-                "value": "1",
-                "probability": 0.03
-              },
-              {
-                "value": "2",
-                "probability": 0.08
-              },
-              {
-                "value": "3",
-                "probability": 0.05
-              },
-              {
-                "value": "4",
-                "probability": 0.06
-              },
-              {
-                "value": "5",
-                "probability": 0.07
-              },
-              {
-                "value": "6",
-                "probability": 0.45
-              },
-              {
-                "value": "7",
-                "probability": 0.06
-              },
-              {
-                "value": "8",
-                "probability": 0.07
-              },
-              {
-                "value": "9",
-                "probability": 0.06
-              }
-            ],
-            "confidence": 0.39
-          },
-          {
-            "type": "choice",
-            "name": "id_char_09",
-            "choice": "9",
-            "probabilities": [
-              {
-                "value": "0",
-                "probability": 0.04
-              },
-              {
-                "value": "1",
-                "probability": 0.02
-              },
-              {
-                "value": "2",
-                "probability": 0.06
-              },
-              {
-                "value": "3",
-                "probability": 0.02
-              },
-              {
-                "value": "4",
-                "probability": 0.02
-              },
-              {
-                "value": "5",
-                "probability": 0.02
-              },
-              {
-                "value": "6",
-                "probability": 0.17
-              },
-              {
-                "value": "7",
-                "probability": 0.02
-              },
-              {
-                "value": "8",
-                "probability": 0.21
-              },
-              {
-                "value": "9",
-                "probability": 0.42
-              }
-            ],
-            "confidence": 0.36
-          },
-          {
-            "type": "choice",
-            "name": "id_char_10",
-            "choice": "0",
-            "probabilities": [
-              {
-                "value": "0",
-                "probability": 0.5
-              },
-              {
-                "value": "1",
-                "probability": 0.02
-              },
-              {
-                "value": "2",
-                "probability": 0.03
-              },
-              {
-                "value": "3",
-                "probability": 0.01
-              },
-              {
-                "value": "4",
-                "probability": 0.01
-              },
-              {
-                "value": "5",
-                "probability": 0.01
-              },
-              {
-                "value": "6",
-                "probability": 0.02
-              },
-              {
-                "value": "7",
-                "probability": 0
-              },
-              {
-                "value": "8",
-                "probability": 0.01
-              },
-              {
-                "value": "9",
-                "probability": 0.39
-              }
-            ],
-            "confidence": 0.44
-          },
-          {
-            "type": "choice",
-            "name": "id_char_11",
-            "choice": "2",
-            "probabilities": [
-              {
-                "value": "0",
-                "probability": 0.01
-              },
-              {
-                "value": "1",
-                "probability": 0.01
-              },
-              {
-                "value": "2",
-                "probability": 0.97
-              },
-              {
-                "value": "3",
-                "probability": 0
-              },
-              {
-                "value": "4",
-                "probability": 0.01
-              },
-              {
-                "value": "5",
-                "probability": 0
-              },
-              {
-                "value": "6",
-                "probability": 0
-              },
-              {
-                "value": "7",
-                "probability": 0
-              },
-              {
-                "value": "8",
-                "probability": 0
-              },
-              {
-                "value": "9",
-                "probability": 0
-              }
-            ],
-            "confidence": 0.97
-          }
-        ],
-        "usage": {
-          "input_tokens": 5797,
-          "input_tokens_details": {
-            "cached_tokens": 0,
-            "cache_write_tokens": 0
-          },
-          "output_tokens": 0,
-          "output_tokens_details": {
-            "reasoning_tokens": 0
-          },
-          "total_tokens": 5797
-        }
-      },
-      "latencyMs": 798,
-      "costUsd": 0.0005797,
-      "crop": {
-        "x": 90,
-        "y": 0,
-        "width": 630,
-        "height": 900,
-        "outWidth": 1433,
-        "outHeight": 2048
-      }
     }
   ]
 }
