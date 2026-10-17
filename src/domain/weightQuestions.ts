@@ -15,6 +15,7 @@ import type { CertaintyLabel } from './inspection'
 import { usableIdBox, type IdBox } from './cropRead'
 import type { ChoiceQuestion, SharedAnswer, SharedQuestion } from './questionSet'
 import type { SurveyPart } from './survey'
+import { weightsExport } from './weightsExport'
 import {
   evaluateWeights,
   WEIGHT_QUANTITIES,
@@ -306,4 +307,6 @@ export const weightsPart: SurveyPart = {
     return { readings: readWeights(answers), box }
   },
   apply: (record, finding) => ({ ...record, weights: evaluateWeights(finding.readings) }),
+  // Both units whatever the display units are (weightsExport.ts).
+  export: (record) => weightsExport(record.weights),
 }

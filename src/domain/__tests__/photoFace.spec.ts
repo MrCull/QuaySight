@@ -1,7 +1,8 @@
 import { describe, it, expect } from 'vitest'
 import { FACE_QUESTION, faceOf, facePart } from '../photoFace'
 import { readAnswers, questionSet, toWireRequest, type QuestionWireFormat } from '../questionSet'
-import { SURVEY_PARTS, surveyQuestionSet } from '../survey'
+import { questionFamilies } from '../questionRegistry'
+import { surveyQuestionSet } from '../survey'
 
 const PHOTO = 'data:image/jpeg;base64,AAAA'
 
@@ -23,8 +24,8 @@ describe('the face question', () => {
     ])
   })
 
-  it('is one survey part, asked once, after the ID questions', () => {
-    expect(SURVEY_PARTS).toContain(facePart)
+  it('is one question family, asked once, after the ID questions', () => {
+    expect(questionFamilies()).toContain(facePart)
     for (const questionSet of ['luna', 'jev'] as const) {
       const names = surveyQuestionSet({ questionSet, box: false }).questions.map((q) => q.name)
       expect(names.filter((n) => n === FACE_QUESTION.name)).toHaveLength(1)

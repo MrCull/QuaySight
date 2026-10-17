@@ -19,6 +19,9 @@ import type { CertaintyLabel, InspectionRecord } from './inspection'
 import { decodeSizeCode, type EquipmentType } from './isoSizeCode'
 import type { SharedAnswer } from './questionSet'
 import type { SurveyPart } from './survey'
+import { detailsExport } from './detailsExport'
+import { sizeCodeLine } from './exportWording'
+import type { FamilyExport } from './questionRegistry'
 import {
   COMMON_SIZE_CODES,
   DETAIL_QUESTION_NAMES,
@@ -207,10 +210,45 @@ export function applyContainerDetails(
   return { ...record, details, sizeCode: details.sizeCode.decoded }
 }
 
-/** The survey part for the container details. */
+/**
+ * What the details add to the exports: a live survey's printed code, what it decodes to, the checks and the
+ * markings; without a survey, the decoded size code a recorded run carries, or that it is not read.
+ */
+function containerDetailsExport(record: InspectionRecord): FamilyExport {
+  if (record.details) return detailsExport(record.details)
+  const out: FamilyExport = { values: [], unresolved: [], conflicts: [], summary: [] }
+  if (record.sizeCode) {
+    for (const [field, value] of [
+      ['sizeCode', record.sizeCode.code],
+      ['sizeCode.meaning', record.sizeCode.summary],
+    ] as const) {
+      out.values.push({
+        field,
+        category: 'derived',
+        value,
+        provenance: 'decoded',
+        certainty: record.sizeCode.certainty,
+        uncertainty: null,
+      })
+    }
+    out.summary.push(
+      sizeCodeLine(record.sizeCode.code, record.sizeCode.summary, record.sizeCode.certainty),
+    )
+  } else {
+    out.unresolved.push({
+      field: 'sizeCode',
+      category: 'unresolved',
+      reason: 'Not read or not decoded.',
+    })
+  }
+  return out
+}
+
+/** The question family for the container details. */
 export const containerDetailsPart: SurveyPart = {
   key: 'details',
   questions: () => containerDetailQuestions(),
   read: (answers) => readContainerDetails(answers),
   apply: applyContainerDetails,
+  export: containerDetailsExport,
 }
