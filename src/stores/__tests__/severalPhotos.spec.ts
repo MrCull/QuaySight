@@ -28,7 +28,7 @@ const json = (body: unknown) =>
   })
 
 /** An OpenAI Decisions reply: the ID (a "?" is answered too weakly to read), and the face. */
-function surveyReply(id: string, face: string, p = 0.98) {
+function surveyReply(id: string, face: string, p = 0.98, shows: string[] = []) {
   const choice = (name: string, value: string, probability: number) => ({
     type: 'choice',
     name,
@@ -45,6 +45,9 @@ function surveyReply(id: string, face: string, p = 0.98) {
       ),
     )
   answers.push(choice('photo_face', face, 0.96))
+  for (const shown of shows) {
+    answers.push({ type: 'predicate', name: `shows_${shown}`, probability: 0.95 } as never)
+  }
   return { model: 'gpt-6-luna', answers, usage: { input_tokens: 6000, output_tokens: 0 } }
 }
 
@@ -78,6 +81,8 @@ interface Photo {
   id: string
   face: string
   p?: number
+  /** Further faces the survey says the photo shows (`rear_doors`, `long_side`). */
+  shows?: string[]
 }
 
 describe('several photos of one container', () => {
@@ -98,7 +103,7 @@ describe('several photos of one container', () => {
       const body = String(init?.body)
       if (isDoor(body) || isSide(body)) return json(damageReply())
       const photo = photos.find((p) => photoOf(body).includes(`${p.width}x`))!
-      return json(surveyReply(photo.id, photo.face, photo.p))
+      return json(surveyReply(photo.id, photo.face, photo.p, photo.shows))
     })
     vi.stubGlobal('fetch', fetchMock)
     const store = useInspectionStore()
@@ -163,6 +168,23 @@ describe('several photos of one container', () => {
       ['doors.jpg', 'rear-doors'],
       ['side.jpg', 'long-side'],
     ])
+  })
+
+  it('sends the damage set of every face a corner photo shows, and the chip names both', async () => {
+    const { store, requests } = run([
+      { ...DOORS, shows: ['rear_doors', 'long_side'] },
+      { ...SIDE, shows: ['long_side'] },
+    ])
+
+    await store.start()
+
+    expect(
+      requests()
+        .filter((r) => r.kind === 'door' || r.kind === 'side')
+        .map((r) => `${r.photo}:${r.kind}`)
+        .sort(),
+    ).toEqual(['doors.jpg:door', 'doors.jpg:side', 'side.jpg:side'])
+    expect(store.record?.photos?.[0]?.face?.shown).toEqual(['rear-doors', 'long-side'])
   })
 
   it('makes one record with the ID combined across the photos and one cost total', async () => {

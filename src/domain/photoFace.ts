@@ -5,7 +5,7 @@
 import { applyMargin, certaintyOfProbability } from './certainty'
 import type { CertaintyLabel } from './inspection'
 import { withPhotoFace } from './damageSets'
-import type { ChoiceQuestion, SharedAnswer } from './questionSet'
+import type { ChoiceQuestion, PredicateQuestion, SharedAnswer } from './questionSet'
 import type { SurveyPart } from './survey'
 
 export type PhotoFace =
@@ -27,6 +27,17 @@ export interface FaceReading {
   /** The model's probability for the face it chose. */
   probability: number
   certainty: CertaintyLabel
+  /**
+   * Every face the photo shows, the main face first (a corner photo shows doors and a long side). Absent
+   * when the model answered none of the "shows" questions: the photo then shows its main face only.
+   */
+  shown?: PhotoFace[]
+}
+
+/** The faces a photo shows, the main face first. A close-up, a non-container and an unknown face show only themselves. */
+export function facesShown(reading: Pick<FaceReading, 'face' | 'shown'> | null | undefined): PhotoFace[] {
+  if (!reading) return []
+  return reading.shown && reading.shown.length > 0 ? reading.shown : [reading.face]
 }
 
 const CLOSE_UP_OF_VALUE: Record<string, CloseUpSubject> = {
@@ -47,6 +58,31 @@ const FACE_OF_VALUE: Record<string, PhotoFace> = {
   not_a_container: 'not-container',
   unknown: 'unknown',
 }
+
+/** Whether a photo shows some of a face at all (even beside its main face): one yes/no question per face. */
+const SHOWS_QUESTIONS: { name: string; face: PhotoFace; instructions: string }[] = [
+  {
+    name: 'shows_rear_doors',
+    face: 'rear-doors',
+    instructions:
+      'Does this photo show any of the container door end (door leaves, locking bars, cams or hinges), even if it is not the main subject?',
+  },
+  {
+    name: 'shows_long_side',
+    face: 'long-side',
+    instructions:
+      'Does this photo show any of a long side wall (corrugated sheet between the corner posts), even if it is not the main subject?',
+  },
+  {
+    name: 'shows_front_end',
+    face: 'front-end',
+    instructions:
+      'Does this photo show any of the plain end wall opposite the doors, even if it is not the main subject?',
+  },
+]
+
+/** A face counts as shown beside the main one when the model puts it above even odds. */
+const SHOWN_MIN = 0.5
 
 /** The survey's face question. Answer values are wire-safe names; readPhotoFace maps them back. */
 export const FACE_QUESTION: ChoiceQuestion = {
@@ -116,7 +152,24 @@ export function faceOf(answers: Record<string, SharedAnswer>): FaceReading | nul
     ...(subject ? { closeUpSubject: subject } : {}),
     probability,
     certainty: applyMargin(certaintyOfProbability(probability), probability, runnerUp),
+    ...shownBeside(face, answers),
   }
+}
+
+/**
+ * The other faces the photo shows, the main face first. Only a photo of a container face has any; a close-up,
+ * a non-container or an unknown face shows only itself. Nothing is returned when no "shows" question was answered.
+ */
+function shownBeside(face: PhotoFace, answers: Record<string, SharedAnswer>): { shown?: PhotoFace[] } {
+  const faceKinds: PhotoFace[] = ['rear-doors', 'long-side', 'front-end']
+  if (!faceKinds.includes(face)) return {}
+  const asked = SHOWS_QUESTIONS.filter((q) => answers[q.name]?.type === 'predicate')
+  if (asked.length === 0) return {}
+  const others = asked.filter(
+    (q) =>
+      q.face !== face && ((answers[q.name] as { probability: number }).probability ?? 0) >= SHOWN_MIN,
+  )
+  return { shown: [face, ...others.map((q) => q.face)] }
 }
 
 declare module './survey' {
@@ -129,7 +182,16 @@ declare module './survey' {
 /** The survey part that asks which face the photo shows; the damage shown follows it (damageSets.ts). */
 export const facePart: SurveyPart = {
   key: 'face',
-  questions: () => [FACE_QUESTION],
+  questions: () => [
+    FACE_QUESTION,
+    ...SHOWS_QUESTIONS.map(
+      (q): PredicateQuestion => ({
+        type: 'predicate',
+        name: q.name,
+        instructions: q.instructions,
+      }),
+    ),
+  ],
   read: (answers) => faceOf(answers),
   apply: (record, face) => withPhotoFace(record, face),
 }
@@ -147,6 +209,18 @@ export function faceChipLabel(
   face: PhotoFace | null,
   side: 'left' | 'right' | null = null,
   subject: CloseUpSubject | null = null,
+  shown: readonly PhotoFace[] = [],
+): string {
+  const main = mainFaceLabel(face, side, subject)
+  // The other faces the photo shows follow the main one: "Doors · Right side".
+  const others = shown.filter((f) => f !== face).map((f) => mainFaceLabel(f, side, null))
+  return [main, ...others].join(' · ')
+}
+
+function mainFaceLabel(
+  face: PhotoFace | null,
+  side: 'left' | 'right' | null,
+  subject: CloseUpSubject | null,
 ): string {
   switch (face) {
     case 'close-up':
