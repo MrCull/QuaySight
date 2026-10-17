@@ -6,7 +6,7 @@ vi.mock('../../services/imageCodec')
 
 import { useInspectionStore } from '../inspection'
 import { useLedgerStore } from '../ledger'
-import { OWNER_CODES } from '../../domain/ownerCodes'
+import { OFFERED_OWNER_CODES } from '../../domain/ownerCodes'
 import { onlyRequests } from '../../plan/registry'
 import { survey } from '../../plan/requests/survey'
 import { idRecheck } from '../../plan/requests/idRecheck'
@@ -67,7 +67,7 @@ describe('the owner-code question through live runs', () => {
     await store.start()
 
     const ask = sentQuestions(fetchMock.mock.calls[0]![1]).owner_code!
-    expect(Object.keys(ask.criteria!)).toEqual(['none', ...OWNER_CODES])
+    expect(Object.keys(ask.criteria!)).toEqual(['none', ...OFFERED_OWNER_CODES])
     expect(store.record!.containerId).toMatchObject({
       value: 'CAXU6921109',
       checkDigitValid: true,
