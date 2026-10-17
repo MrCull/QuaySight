@@ -229,6 +229,14 @@ export function withModelLength(
   return reassess({ ...record, modelLength: reading })
 }
 
+/** The shape estimate of the length folded in: the drawing's length is chosen again. */
+export function withShapeLength(
+  record: InspectionRecord,
+  reading: LengthReading | null,
+): InspectionRecord {
+  return reassess({ ...record, shapeLength: reading })
+}
+
 /** The survey's face folded in: the damage is chosen again. */
 export function withPhotoFace(
   record: InspectionRecord,

@@ -91,6 +91,14 @@ const STAGGER = { card: 0, alternative: 1, explanation: 2 } as const
 const idState = computed(() =>
   record.value?.containerId ? idResultState(record.value.containerId) : null,
 )
+// The size code in plain words, decoded from the ISO code with no model call (ticket #66). Said only when
+// the code itself was read at Confident or Likely.
+const sizeLine = computed(() => {
+  const size = record.value?.sizeCode
+  return size && (size.certainty === 'Confident' || size.certainty === 'Likely')
+    ? size.summary
+    : null
+})
 const alternatives = computed(() =>
   record.value?.containerId ? visibleAlternatives(record.value.containerId) : [],
 )
@@ -208,6 +216,7 @@ const showInsufficient = computed(() => idState.value === 'insufficient')
       </p>
       <template v-else>
         <ContainerId :reading="record.containerId" />
+        <p v-if="sizeLine" class="rs-note qs-type-body-sm">{{ sizeLine }}</p>
 
         <p
           v-for="alt in alternatives"
