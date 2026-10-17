@@ -52,7 +52,7 @@ describe('the Seal card', () => {
         .join(''),
     ).toBe('4217095')
     expect(card.get('.qs-cert').text()).toContain('Confident')
-    expect(card.get('.rs-crop figcaption').text()).toBe('Where we read the seal')
+    expect(card.get('.rs-crop figcaption').text()).toBe('Where we read the seal · Photo 1')
     expect(card.get('.rs-crop img').attributes('src')).toBe('blob:door')
   })
 

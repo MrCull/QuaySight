@@ -1,3 +1,4 @@
+import { idCloseUp, sealCloseUp } from '../domain/closeUpSources'
 import { chosenLength } from '../domain/chosenLength'
 import type { CertaintyLabel, InspectionRecord } from '../domain/inspection'
 
@@ -88,10 +89,8 @@ function facesRead(record: InspectionRecord): (string | null)[] {
   return record.photoFace ? [record.photoFace.face] : []
 }
 
-/** The 1-based photo a close-up beside a reading is cut from; null when the reading has no box. */
-function closeUpPhoto(reading: { box?: unknown; photo?: number } | null | undefined) {
-  return reading?.box ? (reading.photo ?? 1) : null
-}
+/** The 1-based photo a close-up on screen is cut from (closeUpSources.ts); null when none is shown. */
+const closeUpPhoto = (source: { photo: number } | null) => source?.photo ?? null
 
 /** The face of the first photo that is not a close-up: the one the record's own face stands for. */
 function firstFace(expected: Expected): string | null {
@@ -115,7 +114,7 @@ function scoreFaces(record: InspectionRecord, expected: Expected): ScoreResult {
 }
 
 function scoreCloseUps(record: InspectionRecord, expected: Expected): ScoreResult {
-  const read = { id: closeUpPhoto(record.containerId), seal: closeUpPhoto(record.seal) }
+  const read = { id: closeUpPhoto(idCloseUp(record)), seal: closeUpPhoto(sealCloseUp(record)) }
   const truth = expected.closeUpFrom
   if (read.id === truth.id && read.seal === truth.seal) return 'hit'
   const absent = read.id === null && read.seal === null

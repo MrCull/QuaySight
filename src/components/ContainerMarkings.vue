@@ -5,6 +5,7 @@ import { markingRows } from './containerDetailRows'
 import { placardRows } from './placardRows'
 import CertaintyChip from './CertaintyChip.vue'
 import PhotoCrop from './PhotoCrop.vue'
+import { placardCloseUp, type CloseUpSource } from '../domain/closeUpSources'
 
 const props = defineProps<{
   record: InspectionRecord
@@ -14,8 +15,11 @@ const props = defineProps<{
   photos?: string[]
 }>()
 
+// The photo a close-up is cut from: the one its reading names (photo 1 where it names none).
 const cropSource = (photoNumber: number | null) =>
-  (photoNumber ? props.photos?.[photoNumber - 1] : null) ?? props.photo ?? null
+  (photoNumber ? props.photos?.[photoNumber - 1] : null) ??
+  (photoNumber === 1 ? props.photo : null) ??
+  null
 
 // One row per marking, each checked separately (spec 4.4). A marking that was seen is a MarkingBadge:
 // the hazard diamond only for DG placards and safety markings, neutral for the high-container caution.
@@ -23,8 +27,14 @@ const cropSource = (photoNumber: number | null) =>
 const details = computed(() => markingRows(props.record))
 const placards = computed(() => placardRows(props.record))
 const rows = computed(() => [
-  ...(details.value ?? []).map((row) => ({ ...row, key: row.label, box: null, photo: null })),
-  ...placards.value,
+  ...(details.value ?? []).map((row) => ({ ...row, key: row.label, closeUp: null })),
+  ...placards.value.map((row) => {
+    const index = row.key.startsWith('placard-') ? Number(row.key.slice('placard-'.length)) : NaN
+    const closeUp: CloseUpSource | null = Number.isInteger(index)
+      ? placardCloseUp(props.record, index)
+      : null
+    return { ...row, closeUp }
+  }),
 ])
 </script>
 
@@ -55,10 +65,13 @@ const rows = computed(() => [
         <CertaintyChip :level="row.certainty" />
       </div>
       <PhotoCrop
-        v-if="row.box && cropSource(row.photo)"
+        v-if="row.closeUp && cropSource(row.closeUp.photo)"
         class="rs-marking-row__crop"
-        :src="cropSource(row.photo)!"
-        :box="row.box"
+        :src="cropSource(row.closeUp.photo)!"
+        :box="row.closeUp.box"
+        :margin="row.closeUp.margin"
+        :photo-number="row.closeUp.photo"
+        outline="hazard"
         :caption="`Where we read ${row.label.toLowerCase()}`"
         :label="`The ${row.label.toLowerCase()}`"
       />

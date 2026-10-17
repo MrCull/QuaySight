@@ -31,6 +31,8 @@ export interface SealReading {
   box?: ReadingBox
   /** Several photos (ticket #72): the 1-based photo the box, and so the crop, belongs to. */
   photo?: number
+  /** The area found for the seal on that photo (fractions); a close-up is cut from it when present. */
+  area?: { top: number; bottom: number; left: number; right: number }
 }
 
 declare module './survey' {
@@ -150,7 +152,7 @@ const rankOf = (l: CertaintyLabel) => CERTAINTY_LABELS.indexOf(l)
 /** The weaker of two labels; with `better`, the stronger (two copies that agree stand on the better one). */
 function weakerLabel(a: CertaintyLabel, b: CertaintyLabel, better = false): CertaintyLabel {
   const aWeaker = rankOf(a) >= rankOf(b)
-  return (aWeaker !== better) ? a : b
+  return aWeaker !== better ? a : b
 }
 
 function weakest(labels: CertaintyLabel[]): CertaintyLabel {
@@ -196,7 +198,10 @@ export function readSeal(
     if (a.value === b.value) {
       return {
         kind: 'read',
-        character: { value: a.value, certainty: oneStepUp(weakerLabel(a.certainty, b.certainty, true)) },
+        character: {
+          value: a.value,
+          certainty: oneStepUp(weakerLabel(a.certainty, b.certainty, true)),
+        },
       }
     }
     const best = rankOf(a.certainty) <= rankOf(b.certainty) ? a : b

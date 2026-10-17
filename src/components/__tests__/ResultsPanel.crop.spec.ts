@@ -24,7 +24,7 @@ describe('the ID card’s enlarged crop', () => {
     const wrapper = await mounted({ box: BOX }, 'blob:door')
     const img = wrapper.get('.rs-crop img')
     expect(img.attributes('src')).toBe('blob:door')
-    expect(wrapper.get('.rs-crop figcaption').text()).toBe('Where we read the ID')
+    expect(wrapper.get('.rs-crop figcaption').text()).toBe('Where we read the ID · Photo 1')
   })
 
   it('arrives with the card: it rises in as part of the card, like the alternatives', async () => {

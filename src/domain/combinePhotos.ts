@@ -408,6 +408,22 @@ export function combinePhotoRuns(
     for (const photo of from) add(photo, 'details', [field])
   }
 
+  // Close-ups (ticket #85): the ID and the seal carry the photo whose reading won and the area found on it.
+  const runOf = (photo: number) => runs.find((r) => r.index === photo)?.record
+  if (containerId && idResult?.kind === 'combined') {
+    const winner = Object.entries(idResult.taken)
+      .map(([photo, positions]) => ({ photo: Number(photo), count: positions.length }))
+      .sort((a, b) => b.count - a.count || a.photo - b.photo)[0]
+    const own = winner ? runOf(winner.photo) : undefined
+    const area = own?.idCropRead?.box ?? own?.regions?.found?.id?.box
+    if (winner) containerId = { ...containerId, photo: winner.photo, ...(area ? { area } : {}) }
+  }
+  const sealFrom = merged.fields.seal?.photo
+  const sealRun = sealFrom ? runOf(sealFrom) : undefined
+  const sealArea = sealRun?.sealZoomRead?.box ?? sealRun?.regions?.found?.seal?.box
+  const seal =
+    merged.fields.seal && sealArea ? { ...merged.fields.seal, area: sealArea } : merged.fields.seal
+
   const photos: PhotoSummary[] = runs.map((r) => ({
     index: r.index,
     name: r.name,
@@ -424,6 +440,7 @@ export function combinePhotoRuns(
   return {
     ...base,
     ...merged.fields,
+    ...(seal ? { seal } : {}),
     id: options.id,
     resolvedVersion: records.map((r) => r.resolvedVersion).find(Boolean) ?? '',
     rawResponses: records.flatMap((r) => r.rawResponses),

@@ -16,9 +16,15 @@ import WhatWeFound from './WhatWeFound.vue'
 import { DIFFERENT_CONTAINERS_MESSAGE, droppedPhotoMessage } from '../domain/combinePhotos'
 import { causeSentence } from '../domain/requestFailure'
 import { unavailableStages } from '../domain/whatWeFound'
+import { idCloseUp, sealCloseUp } from '../domain/closeUpSources'
 
 const store = useInspectionStore()
 const record = computed(() => store.record)
+
+// Close-ups (ticket #85): the area found for the ID and the seal, cut from the photo whose reading won.
+const idClose = computed(() => (record.value ? idCloseUp(record.value) : null))
+const sealClose = computed(() => (record.value ? sealCloseUp(record.value) : null))
+const photoUrl = (n: number | undefined) => (n ? store.photos[n - 1]?.url : undefined)
 
 // "Recorded demonstration: [provider/model]" (spec 13). Shown only for recorded runs.
 const recordedLabel = computed(() => {
@@ -254,11 +260,13 @@ const showInsufficient = computed(() => idState.value === 'insufficient')
 
         <!-- Where the ID was read, cut from the photo on screen; absent when the reading has no usable box. -->
         <PhotoCrop
-          v-if="store.photo"
+          v-if="idClose && photoUrl(idClose.photo)"
           class="qs-rise"
           :style="{ '--i': STAGGER.crop }"
-          :src="store.photo.url"
-          :box="record.containerId.box"
+          :src="photoUrl(idClose.photo)!"
+          :box="idClose.box"
+          :margin="idClose.margin"
+          :photo-number="idClose.photo"
           caption="Where we read the ID"
           label="The container ID"
         />
@@ -302,11 +310,8 @@ const showInsufficient = computed(() => idState.value === 'insufficient')
     <SealCard
       v-if="idLanded && record?.seal"
       :reading="record.seal"
-      :photo-url="
-        (record.seal.photo ? store.photos[record.seal.photo - 1]?.url : null) ??
-        store.photo?.url ??
-        null
-      "
+      :photo-url="photoUrl(sealClose?.photo) ?? null"
+      :close-up="sealClose"
       :class="['qs-rise', { 'qs-arrived': arrivedEarly }]"
       :style="{ '--i': STAGGER.card }"
     />

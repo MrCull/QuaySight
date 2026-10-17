@@ -144,6 +144,10 @@ declare module './inspection' {
   interface ContainerIdReading {
     /** Where the ID was read in the photo (ticket #67), when the model gave a usable box. Shown as an enlarged crop. */
     box?: IdBox
+    /** Several photos: the 1-based photo this reading, and so its close-up, comes from. Absent means photo 1. */
+    photo?: number
+    /** The area the reading was found in on that photo (fractions); a close-up is cut from it when present. */
+    area?: { top: number; bottom: number; left: number; right: number }
   }
   interface InspectionRecord {
     /** The crop read of the container ID (ticket #31), when one was started. Absent on other runs. */
