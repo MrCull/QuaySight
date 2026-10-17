@@ -5,11 +5,16 @@
 **Product type:** AI-powered container recognition and damage inspection POC  
 
 **Product requirements specification**  
-**Version:** 1.6  
-**Status:** Multi-provider requirements for a live innovation-event demonstration  
+**Version:** 1.7  
+**Status:** Multi-provider, multi-photo requirements for a live innovation-event demonstration  
 **Initial AI providers:** OpenAI GPT-6 Luna (Decisions API) and TypeSafe Jev (System One API)  
 **Additional providers:** Designed to be added later without redesigning inspection features  
 **Target experience:** Modern, visually striking Vue 3 static web application
+
+**Change log**
+
+- **1.7** (17 Oct 2026, spec #51): several photos per inspection (up to 4) with the face of each named by the model; door-end to side mapping flipped; spend cap of 30 requests and $0.50 per container inspection; one model at a time, following the last key entered or the menu pick, with keys in memory only; length from shape; the size code in plain words; Seal card; placards in Markings; enlarged crops; ID display rules; damage card wording; payload display rule; failure causes kept and shown. Replaces the one-photo, left-side, earlier-cap and default-model wording of 1.6.
+- **1.6**: multi-provider requirements (Luna and Jev), owner-code pick, flat damage schematic with two fixed views.
 
 **Naming requirement:** Use **Quay Sight** as the user-facing application name (including page title and primary branding) and **`QuaySight`** as the repository/project name.
 
@@ -25,7 +30,7 @@ The app must be credible about what is *visually observed/classified*, *inferred
 
 An attendee should be able to see, in one short demonstration:
 
-1. A container photograph is uploaded and analysed using the presenter-selected provider and model (initially Luna or Jev).
+1. One to four photographs of a container are uploaded and analysed using one model (initially Luna or Jev), the one whose key the presenter entered last or picked from the menu.
 2. The app identifies the container and key equipment characteristics where supported by evidence.
 3. A photograph with damage produces approximate schematic location markers and clear descriptions of the CEDEX damage types that fit.
 4. Uncertain identification can lead to a focused second attempt with constrained, check-digit-valid candidates, using the same selected provider/model unless an explicitly separate run is started. This happens behind the scenes: the audience sees only the outcome, never passes or candidate mechanics.
@@ -33,7 +38,7 @@ An attendee should be able to see, in one short demonstration:
 6. Suspected damage is located on an attractive, neutral container schematic, without pretending to render the physical defect.
 7. A compact cost monitor shows this container's API cost and the current session total, with expandable request-level detail.
 8. The result becomes a readable, interactive inspection record, with transparent certainty, costs and underlying answers.
-9. The presenter can switch provider/model for a new run and see the same consistent inspection interface, with clearly attributed results and charges.
+9. The presenter can switch provider/model, which clears the results, and see the same consistent inspection interface for the new run, with clearly attributed results and charges.
 
 The experience must work **without an arrival manifest**. A manifest is optional additional context, not a prerequisite.
 
@@ -44,8 +49,11 @@ Priority labels: **MUST** = core innovation-event POC; **SHOULD** = strongly des
 ### MUST
 
 - Single-screen or cohesive single-application inspection journey.
-- Select an AI provider and supported image-capable model/version, enter that provider's API key and run a live inspection. **OpenAI/Luna and TypeSafe/Jev must both work** for the initial POC.
+- Select an AI provider and supported image-capable model/version, enter that provider's API key and run a live inspection with that one model. **OpenAI/Luna and TypeSafe/Jev must both work** for the initial POC.
 - Provider/model switch must not change the core equipment/damage presentation, validations or uncertainty semantics.
+- One model at a time: an inspection is never run by two models, and there is no ensemble or second opinion.
+- One to four photographs of the same container per inspection (§3.1, §7), combined into one result: one ID, one set of details, one seal, one set of placards and one damage drawing.
+- Seal reading, placard reading (class and UN number) and an enlarged crop beside each ID, seal and placard reading (§4.5, §4.6, §8.2).
 - Provider-independent inspection questions/findings and a shared, evidence-rich inspection record. Two initial provider integrations; later providers must be addable without rewriting the results experience.
 - Provider-specific image request encoding, question-type translation, response parsing and errors, without pretending every provider has identical capabilities.
 - Equipment identification and standard characteristics/markings.
@@ -65,9 +73,7 @@ Priority labels: **MUST** = core innovation-event POC; **SHOULD** = strongly des
 
 ### SHOULD
 
-- Multiple photographs of the **same** container per inspection.
 - Model/version picker showing eligible models for the selected provider, with a stable recommended default and warning for moving `latest`/`preview` aliases.
-- Optional *compare providers/models* action: run the same photo and inspection goals independently and present differences without merging them or claiming the more confident model is more accurate.
 - Experimental provider-specific localisation (e.g. Jev single bounding boxes) when supported, guarded by a separate defect-presence check and clearly labelled as approximate.
 - Optional user-supplied expected container numbers or manifest list.
 - Focused second-pass damage or markings inspection using crops or alternative choices.
@@ -93,6 +99,7 @@ Priority labels: **MUST** = core innovation-event POC; **SHOULD** = strongly des
 - No requirement to support arbitrary models that cannot accept photographs or produce interpretable structured classifications. Such models must be labelled unsupported, not forced through an incompatible interface.
 - No mandatory live two-model comparison as a prerequisite to presenting one inspection.
 - No full design system, screen mock-ups or fixed brand direction in this document.
+- Running several models on the same photo (ensemble or second opinion), correcting a photo's face by hand, keeping keys across page reloads, comparing the seal number or missing placards against a manifest or booking, more than 4 photos, and roof or underside faces.
 - Asking an attendee or presenter to decipher characters, select a candidate, enter a missing number or manually confirm the model's results. (The optional manifest retry in §3.2 is the only exception, and it never blocks a result.)
 - Generating an apparently photorealistic reconstruction of damage or claiming pixel-precise localisation from region decisions or experimental box estimates.
 
@@ -102,21 +109,22 @@ Priority labels: **MUST** = core innovation-event POC; **SHOULD** = strongly des
 
 **MUST**
 
-- Select a **provider** (OpenAI Decisions or TypeSafe Jev initially) and a compatible **model/version** before analysis. Provide a clear recommended default while keeping the selection unobtrusive for the presenter.
+- Select a **provider** (OpenAI Decisions or TypeSafe Jev initially) and a compatible **model/version** before analysis, keeping the selection unobtrusive for the presenter.
 - Enter the relevant provider's API key at runtime. Label the key field for the chosen provider; allow editing, reveal/hide and clearing it. Never silently send one provider's key to another.
+- Keep each provider's key in memory only; keys are never stored in the browser and are forgotten when the page closes. Switching provider or model keeps the keys already entered (while the page is open) and clears the results, so results from two models are never mixed.
+- The active model is the one whose key was entered most recently, or the one the presenter picks from the menu once several keys are in. There is no fixed default model.
 - Selecting a provider changes only the relevant setup capabilities and advanced technical detail, not the main inspection workflow.
 - Preserve the selected provider and model with every inspection and with every request in that inspection; switching provider starts a distinct run, not a silent mid-inspection fallback.
-- Add a photograph of a container from the device. Drag/drop, file selection and straightforward replacement must work.
-- Display the actual selected photo, its orientation and whether it is suitable for inspection.
+- Add up to **4 photographs** of one container from the device, at once. Drag/drop and file selection accept several files; a 5th photo is refused with a plain message that the limit is 4. Straightforward replacement must work.
+- Display each selected photo, its orientation, whether it is suitable for inspection, and a chip naming the face the model found in it (doors, front end, left side, right side, can't tell).
 - Do not require the user to know or supply the container ID, length, face, orientation, equipment type or any other classification.
-- Infer photographic face/orientation only where defensible, otherwise leave it unknown and use image-relative positions. No mandatory classification questions to the user.
+- The model works out which face each photo shows (doors, front end, left side, right side, not a container, or can't tell) from the survey of that photo. The presenter cannot correct it. Where the face cannot be told, use image-relative positions. No mandatory classification questions to the user.
+- A photo that does not show a container is dropped with "Photo N doesn't show a container", gets no further requests and does not spoil the result.
 - Start analysis explicitly, with visible progress through understandable stages; use provider-neutral terms in the main flow and specific provider/model labels in detail.
 
 **SHOULD**
 
-- Accept multiple pictures assigned to one inspection, including rear doors, left/right side, front and close-ups.
-- Automatically classify the visible face when supported; otherwise display 'face unknown' and preserve image-relative regions.
-- Detect apparent mixed-container photographs and show a nonblocking notice instead of merging their evidence into a misleading single inspection.
+- Detect apparent mixed-container photographs and show a nonblocking notice instead of merging their evidence into a misleading single inspection (§7).
 - Support common formats including JPEG, PNG and WebP; preserve sufficient resolution for small printed markings.
 - Provide image zoom, pan and rotation/orientation correction for review.
 
@@ -155,6 +163,7 @@ Use multiple complementary structured questions through the **selected provider*
 - Three owner-code letters and equipment-category letter as separate choices. The equipment-category letter (4th character) is always **U** for this product: the model is told so, and the app sets position 4 to U whatever comes back.
 - Six serial digits individually, with alternative probabilities retained.
 - Serial digits in logical groups (first three and last three), with an explicit 'other / unreadable' outcome.
+- Owner codes come from the app's list of common BIC owner codes, checked against the BIC register (bic-code.org). The list's header records the source and the check date, and includes real owners such as COYU.
 - Visible check digit, assessed independently.
 - Optional full-ID choice **only when genuine candidate IDs have been supplied or generated from evidence**.
 
@@ -168,9 +177,10 @@ When the exact text cannot be represented by a finite choice list, the app shoul
 
 - When the model is confident (Likely or Confident) in its pick from the owner-code list, that pick is the owner code.
 - Otherwise, use the letter-by-letter reading. Trust it less when its 4th character came back as something other than U.
-- Candidate IDs that pass the check digit rank above those that fail.
+- Candidate IDs that pass the check digit always rank above those that fail. Within each group, candidates rank by their own certainty.
 - If one candidate is Likely or Confident and passes the check digit, and no other candidate passes, show no "Also possible".
 - Otherwise, the losing reading and near-matches stay as "Also possible".
+- **ID display rules.** When fewer than 6 of the 11 characters are read, the ID shows only "ID not readable in this photo": no best reading, no "Also possible" and no check-digit line. In the summary the sentence reads "The container ID: Can't tell" (the same pattern for the other certainty labels).
 
 **MUST** retain the distinction between a number **visibly recognised**, a **generated candidate** constrained by the check digit, and a **manifest match**. A candidate winning a limited choice set does not turn it into observed text.
 
@@ -202,7 +212,7 @@ When the exact text cannot be represented by a finite choice list, the app shoul
 | Field | Required treatment |
 | --- | --- |
 | ISO 6346 size/type code | Whole-code classification from common ISO codes, plus `other`, `unreadable`, `not visible`. |
-| Length | Standard industry categories, respecting the ISO size code. A new survey question asks the model to choose 20, 40 or 45 ft; it is used for the damage schematic only when the size-type code is not Confident (see 6.3). |
+| Length | 20, 40 or 45 ft. A readable ISO size code wins; otherwise the length is estimated from the shape of a side photo (§4.3.1). The Length row says where the value came from: "Decoded from ISO" or "Estimated from shape". |
 | Height / High Cube | Prefer consistent decoding of known ISO code over estimation from perspective. |
 | Width | Standard vs pallet-wide/other; do not infer unusual width without evidence. |
 | Equipment type | General purpose, reefer, open top, tank, flat rack, platform, insulated, ventilated, bulk, special/unknown. |
@@ -213,9 +223,20 @@ When the exact text cannot be represented by a finite choice list, the app shoul
 | Reefer / open top / tank / flat rack | Separate useful yes/no/unknown classifications. |
 | Visible rear doors | Evidence relevant to orientation and further inspection. |
 | Special operational markings | Separate checks, not one ambiguous 'multiple warnings' answer. |
-| DG placards | Visible symbol/class only; actual hazardous cargo status is unknown without declaration. |
+| DG placards | Class (1-9) and UN number of each visible placard, plus the marine pollutant and limited quantity marks (§4.6); actual hazardous cargo status is unknown without declaration. |
+| Seal | Whether a seal is visible on the door and its number, read character by character (§4.5). |
 
 **MUST** distinguish maximum authorised gross mass, tare, maximum payload and **actual current loaded weight**. Never present a maximum as a measured load or VGM.
+
+#### 4.3.1 Length from shape, and the size code in plain words
+
+**MUST**
+
+- Ask the model for the container's length (20, 40 or 45 ft) from the cues visible on a side photo: the length-to-height proportion, the number of corrugated panels, a gooseneck tunnel or label (40 ft or more) and forklift pockets (20 ft only).
+- Cap the certainty of the shape estimate at **Confident** for 20 and 40 ft, and at **Likely** for 45 ft, so the hard 40-vs-45 call is never over-claimed.
+- Choose the length in this order: a Confident ISO size code; otherwise the shape estimate; otherwise the model's other length reading; otherwise 40 ft.
+- When the ISO code and the shape both give a reading and disagree, show the length as **Uncertain**, with the other length as the alternative, and show a warning under the ID saying the size code says one length and the photo shows another.
+- Decode the ISO size code into one plain-English line shown under the ID, e.g. "20 ft standard height, general purpose". The decoding is deterministic and makes no model call.
 
 **MUST** distinguish *printed* values from *decoded/inferred* properties and *calculated* quantities. The ISO code `45G1` means a standard-width 40-foot High Cube general-purpose container, not a 45-foot container.
 
@@ -230,8 +251,25 @@ When the exact text cannot be represented by a finite choice list, the app shoul
 - Flag disagreements between the model's printed-value choice, its band choice and any arithmetic-derived value.
 - Separate 'SUPER HEAVY', high-container caution stripes/signage, overwidth markings, fumigation and marine-pollutant labels. A high-container warning must not be reported as an overwidth warning.
 - Report 'no hazardous-goods placard visible' rather than 'cargo is non-hazardous'.
+- **Payload display.** When the calculated payload is Confident and the printed payload is not (for example the printed kg and lb values disagree), show only the calculated payload on screen. The hidden printed reading stays in the JSON export and the summary download, marked as not shown.
 
 **SHOULD** allow a focused follow-up for conflicting weight or ISO-code readings, using only the relevant region of the image, provided the next question still includes `other`/`unreadable` options.
+
+### 4.5 Seal
+
+**MUST**
+
+- Show a Seal card under the ID with whether a seal is visible on the door and the seal number read character by character, each character with its own certainty, as for the ID. Seals have no check digit.
+- Use only the fixed certainty words. When no seal is visible in any photo the card says **Not seen**. Never state that the container is "sealed", "secure" or "safe".
+
+### 4.6 Placards
+
+**MUST**
+
+- List every visible placard in the Markings card with its class (1-9) and its UN number (4 digits, read per character), and report the marine pollutant mark and the limited quantity mark.
+- Draw the class symbol in the hazard colours, a visual axis separate from certainty and damage severity; never mix their colours.
+- "No placards seen" is a valid result, not a failure, and never means the cargo is non-hazardous.
+- Do not compare placards against a manifest or booking.
 
 ## 5. Adaptive identification and refinement
 
@@ -273,7 +311,7 @@ Thresholds must be explicit, adjustable during evaluation and treated as POC heu
 - Preserve first-pass and second-pass outputs in the consolidated JSON and raw provider responses for technical evaluation. They are **not** shown in the user interface (see §8.2 and §9).
 - Avoid presenting second-pass probability as directly comparable to first-pass probability when the choice sets differ.
 - Compare second-pass results with observed groups and calculated check digits before promoting a candidate.
-- Default to **no more than one automatic refinement per unresolved field/region**, with a configurable overall per-inspection request and estimated-spend cap. Stop automatically when the limit is reached; do **not** ask for permission to keep guessing.
+- Default to **no more than one automatic refinement per unresolved field/region**, with an overall cap of **30 requests and $0.50 per container inspection** (POC values; the cap covers all of the container's photos). Stop automatically when the limit is reached; do **not** ask for permission to keep guessing.
 - Allow cancellation and show that a partial inspection is usable even if a refinement call fails.
 
 ### 5.4 Autonomous finalisation when still uncertain
@@ -310,7 +348,7 @@ Definitions must explicitly distinguish **local dents in corrugated panels**, **
 
 **MUST**
 
-- Associate each photographed view with an identified or unknown face: rear doors, front, left, right, roof, or close-up/unknown.
+- Associate each photographed view with the face the model named for it: doors, front end, left side, right side, or can't tell (a photo that shows no container is dropped, §3.1). Damage from a photo whose face can't be told is listed as "Damage on a face we couldn't identify" and is not drawn on the schematic.
 - Record regions in an **image-relative** grid when face orientation is unknown. Never label a position as `RT3N` solely because it is third from the left of a photograph.
 - Use ISO 9897 / CEDEX **four-character location codes** only when face, door-end orientation, nominal length and affected zone can be established reliably.
 - Distinguish panels, rails, corner posts, corner castings, doors, door gear and other visible components, with CEDEX component codes when supported.
@@ -336,13 +374,16 @@ Definitions must explicitly distinguish **local dents in corrugated panels**, **
 
 - An illustrative, generic container diagram or simplified 2D/3D schematic that clearly separates relevant faces (for example side, rear, front and roof where available).
 - Draw the container as **two fixed 3D views**, stacked one above the other (side by side only on wide screens), each showing one end, one long side and the roof: *rear doors and right side*, and *front end and left side*. Together they cover every face. The roof appears in both views but is always **greyed out**, so it never competes with the photographed faces. Each finding is drawn in the view that holds its face. A fixed view with no photographed face is hidden and replaced by one line saying that side was not photographed.
-- When a long side is photographed, work out which side it is from where the doors are in the photo: doors at photo-left means the left side, doors at photo-right means the right side, and the damage is drawn on the matching fixed view. When the doors do not settle it, draw the damage on the top view ("Rear and right side") with a visible note that the side is not certain. There is no separate "Long side, image-relative" figure.
-- Draw the schematic to the container's length: 20, 40 or 45 ft. The length comes from the ISO size-type code when that is Confident, otherwise from the survey question asking the model to choose 20, 40 or 45 ft, otherwise 40 ft.
+- When a long side is photographed, work out which side it is from where the doors are in the photo: doors at photo-left means the **right** side, doors at photo-right means the **left** side (standing outside a side and facing it, the doors are on your right when it is the left side), and the damage is drawn on the matching fixed view. The section numbering from the door end follows that side. When the doors do not settle it, draw the damage on the top view ("Rear and right side") with a visible note that the side is assumed. There is no separate "Long side, image-relative" figure.
+- Draw the schematic to the container's length: 20, 40 or 45 ft, chosen as in §4.3.1.
+- Fill in each face that has a photo; only faces with no photo stay **Not seen**.
 - Place discrete **pointers, markers or highlighted zones** on the schematic to indicate approximate suspected damage locations; selecting a marker reveals its CEDEX candidate(s), plain-English description, visual severity, probability, evidence photograph and inspection-coverage caveats.
 - Indicate the correct face only where orientation is supported. For a long side the doors decide the side (above); if they do not, use the top view with the visible uncertainty note rather than inventing which side of the real container is damaged.
 - Use visual treatments that distinguish **location**, **damage concern/severity** and **certainty**. Do not paint a fictional dent, hole, crack or rust patch onto the neutral representation.
 - Never suggest that marker placement is pixel-precise, measurement-grade or a certified CEDEX location when the source only gives broad regions.
 - Show multiple findings in a region accessibly (for example grouped markers) and indicate unseen/unassessed surfaces.
+
+**Damage cards.** The cards listing the findings are sorted by their number (card 1 first). Each card words its location in the drawing's own sections, using the CEDEX section of the drawn length, e.g. "Section 3 of 10 from the door end"; photo-column wording is not used. A severity the model did not rate shows as **Can't tell**; "Not rated" is never shown.
 
 **SHOULD** additionally offer an optional corresponding region highlight on the **original photograph**, with drill-down and a clear *approximate area* label. Where the provider supports bounding boxes (e.g. Jev 1.14 experimental `box`), retain the source box and map it to the same shared region/face record. A photograph overlay complements the neutral schematic but is not required to depict the defect's physical appearance. Luna Decisions does not natively return object-detection bounding boxes. Providers that do supply a box still require a separate presence/classification judgment; do not assume the box corresponds to real damage.
 
@@ -360,14 +401,23 @@ Definitions must explicitly distinguish **local dents in corrugated panels**, **
 
 ## 7. Multiple-photo behaviour
 
+**MUST**
+
+- An inspection holds 1 to 4 photos of one container. The single-photo path remains effortless. More than 4 are refused with a message.
+- Each photo gets a survey that also names its face (§3.1). A photo that shows no container gets no further requests. A photo whose face can't be told still adds its ID, weights and seal.
+- Plan requests across the whole container: a survey per photo; the ID re-check, crop reads and weight check only for photos that show those markings; one damage request per photo of each face. The stage list shows progress for the whole container, and the cost is one container total with per-request lines in the cost list.
+- Merge the per-photo readings into one result:
+  - **ID:** combine character by character from every photo that shows it. A combination that passes the check digit wins. If two photos give two different IDs that both pass, show "These photos may be of different containers" and do not merge the IDs.
+  - **Agreement:** the same reading in two photos rises one certainty step (e.g. Likely to Confident); a reading that differs between photos is **Uncertain**, with the other reading as the alternative. No reading becomes more certain than the check digit allows. Two photos of the same face serve as extra verification, not duplication.
+  - **Details, weights and seal:** the most certain reading wins, adjusted by the agreement rule.
+  - **Damage:** findings on the same face, of the same damage type, in the same CEDEX section are one damage; it keeps the higher severity and certainty and lists every photo it was seen in. Different damage types in the same section stay separate. Findings from a face that can't be told go to a separate list.
+  - **Placards:** duplicates are removed by class and UN number; each is listed once with the faces it was seen on.
+- Show which photo supports which reading or suspected damage, and an inspection-coverage summary of photographed, adequately assessed, partially visible and not photographed surfaces.
+- Do not require the user to reconcile contradictions.
+
 **SHOULD**
 
-- Allow one or several photos for one container; the single-photo path remains effortless.
-- Clearly show which photo supports which reading or suspected damage.
-- Reconcile duplicate container IDs, weights and overlapping damage without assuming independent photos are different containers.
-- Highlight contradictions between images (e.g. differing container IDs) and avoid silently combining contradictory readings. Do not require the user to reconcile them.
-- Use a clear inspection-coverage summary, showing photographed, adequately assessed, partially visible and not photographed surfaces.
-- When appropriate, **suggest** a specific optional additional photograph (e.g. closer ID, small print of tare, detail of a suspected hole). The user is never required to act, and no inspection result is blocked.
+- **Suggest** a specific optional additional photograph (e.g. closer ID, small print of tare, detail of a suspected hole). The user is never required to act, and no inspection result is blocked.
 
 ## 8. Results and interaction requirements
 
@@ -375,7 +425,8 @@ Definitions must explicitly distinguish **local dents in corrugated panels**, **
 
 **MUST** present an instantly understandable overview comprising:
 
-- Container ID and its evidence/certainty status, including a partial reading if that is all the evidence supports.
+- Container ID and its evidence/certainty status, including a partial reading if that is all the evidence supports (but see the display rule in §4.1 for a barely read ID).
+- ISO size code in plain words, the Seal card and the placards (§4.3.1, §4.5, §4.6).
 - ISO code and human-readable size/type, length, height, width and High Cube/reefer indicators.
 - Maximum gross, tare, maximum payload and capacity, with source/provenance labels.
 - Visible special markings and DG placard status, with cargo-status caveat.
@@ -390,6 +441,8 @@ Definitions must explicitly distinguish **local dents in corrugated panels**, **
 **MUST**
 
 - Give the image a central role: zoom/pan and switch between supplied photos.
+- Show an **enlarged crop** of where the ID, the seal and each placard was read, beside that reading, so it can be checked at a glance. Each crop is taken from the photo the reading came from, with generous padding because the model's box is approximate. With no usable box there is no crop.
+- Say in plain words why a part of the inspection failed, e.g. "OpenAI was busy; try again" (busy or rate-limited, refused, unreadable reply, offline). The details card says the details couldn't be read when the survey failed; "this run read the container ID only" is used only when the details genuinely weren't asked.
 - Make the neutral container diagram's damage markers and photo-relative regions selectable so their types, probabilities, locations and apparent severity are inspectable.
 - Make uncertain results and failed checks prominent **without turning every low probability into an alarming error**.
 - Provide a clean view of the **selected provider's raw answers** and all available alternatives for technical attendees; retain provider-specific diagnostics rather than dropping them during normalisation.
@@ -403,7 +456,9 @@ Definitions must explicitly distinguish **local dents in corrugated panels**, **
 **MUST** provide:
 
 1. A consolidated inspection JSON for the POC, including resolved values, provenance and uncertainty.
-2. The full raw **provider** response(s), including question names, available probabilities, usage and relevant model/endpoint details.
+2. The full raw **provider** response(s), including question names, available probabilities, usage and relevant model/endpoint details. When a reply was received but could not be read, its raw body is included.
+
+The JSON export lists each photo, its face and which readings came from it, and keeps the printed payload reading hidden on screen (§4.4). Each failed request keeps its error kind and message on the inspection record and on its line in the cost list.
 
 **SHOULD** additionally provide a shareable or easily copied summary for discussion, clearly labelled POC / non-certified.
 
@@ -443,7 +498,8 @@ The consolidated record must retain distinctions between printed/visually classi
 - Clearly distinguish **estimated API usage cost** from an actual provider invoice, and **live calls** from recorded sample results. Sample mode must show *no live API charge* even when recorded usage metadata is demonstrated.
 - Display tiny sub-cent costs with enough precision to be meaningful (e.g. `$0.0016`, not `$0.00`); handle zero, unknown and incomplete usage separately.
 - Include automatic refinements and any chargeable retries in totals. Where usage is missing or a provider's billing basis is unknown, mark the estimate as incomplete rather than silently assuming the request was free.
-- A manifest retry (§3.2) is a live call on the same provider and model. It counts toward the per-inspection request/spend cap and appears as its own line in the ledger.
+- Show one total for the container across all its photos, with the per-request lines in the expanded list.
+- A manifest retry (§3.2) is a live call on the same provider and model. It counts toward the per-inspection request/spend cap of 30 requests and $0.50 and appears as its own line in the ledger.
 - Source usage from **each provider's actual response fields** and use configurable, timestamped, provider/model/endpoint-specific price schedules. Support distinct input/output/image/request billing where applicable; never apply Luna token pricing to Jev.
 - Show usage in-session only by default; no billing account integration or persistent server-side tracking is required. Totals across providers are estimates in a common display currency, not a consolidated invoice.
 
@@ -512,7 +568,7 @@ The consolidated record must retain distinctions between printed/visually classi
 
 **MUST**
 
-- Let users choose the provider and an **image-capable, supported model/version**. Show a recommended stable choice per provider; select versions from a maintained supported-model catalogue rather than hardcoding options throughout the UI.
+- Let users choose the provider and an **image-capable, supported model/version**; the active model follows the last key entered or the menu pick (§3.1). Show a recommended stable choice per provider; select versions from a maintained supported-model catalogue rather than hardcoding options throughout the UI.
 - Separate **provider**, **endpoint/API family**, **model identifier**, **display name**, **capability profile**, **experimental opt-ins**, **limits** and **pricing/version metadata**. Model identifiers are not interchangeable with provider names.
 - Prefer reproducible pinned versions for innovation-event demonstrations. If a moving alias such as `jev-latest` or `jev-preview` is offered, visibly label it as a moving target and record the actual requested identifier and any resolved version reported by the API.
 - Mark models that lack image input or required structured-decision support as unavailable for this inspection; unsupported modes must never appear to work by pretending they supplied evidence.
@@ -520,7 +576,7 @@ The consolidated record must retain distinctions between printed/visually classi
 - Keep provider/model identity attached to each inspection, source answer, damage finding, refinement, recorded fixture and cost entry. No silent fallbacks between vendors or cross-provider merging.
 - Surface a provider/model's **experimental** capabilities and constraints without burying the presenter in warnings on the main screen.
 
-**SHOULD** offer a provider/model comparison view as a separate, deliberate action that analyses the same photo/inspection goals independently. Show output differences, time, spend, unavailable capabilities and unresolved findings. **Never equate higher reported probability with higher ground-truth accuracy.** This is not required for the first polished release.
+There is no provider/model comparison view, ensemble or second opinion: one model runs an inspection. **Never equate higher reported probability with higher ground-truth accuracy.** Model accuracy is compared offline with recorded replies (§12.3).
 
 ### 11.2 Provider-independent inspection contract
 
@@ -538,6 +594,8 @@ The consolidated record must retain distinctions between printed/visually classi
 - The distinction between **visible observation**, **standard-derived value**, **deterministic calculation**, **generated candidate** and **unresolved** finding.
 - Image-relative locations with optional provider-supplied box coordinates; a box is supporting localisation, never proof that damage exists.
 - Not-supported/not-assessed/not-visible states as different outcomes.
+
+Each question family (ID characters, owner code, details, weights, length, face, side and damage sets, seal, placards) is declared in one place with its questions, how its answers are read and combined, what it adds to the record and what it exports; both providers build their requests from that. One shared adapter sends a question set and reads the reply, and each provider supplies only its endpoint, auth header, wire translation and error traits (no direct TypeSafe call and no relay, per ADR 0001).
 
 Provider adapters are responsible for authentication headers, supported image payloads, question-schema translation, request chunking/limits, response mapping, usage/cost extraction and error translation. Common domain rules, automatic refinement decisions, ISO check digits, mass arithmetic and the visual report must **not** need provider-specific rewrites.
 
@@ -589,7 +647,7 @@ The exact supported version catalogue, model limits and prices should be verifie
 - Check **CORS/direct browser connectivity independently for both** initial provider endpoints before assuming a fully client-only implementation is possible.
 - Use **bring-your-own-key** credentials specific to the selected provider. Clearly label whose endpoint receives the image and key. Never send an OpenAI key to TypeSafe, a TypeSafe key to OpenAI, or either key to unrelated services.
 - Recognise that BYOK credentials held in browser JavaScript are accessible to code running in the page. A static frontend cannot promise server-grade secret protection.
-- Never bake a key into static assets, source, URLs, analytics, logs, exception messages or exported inspection files; keep it in memory only and make clearing it simple. Do not use localStorage for credentials.
+- Never bake a key into static assets, source, URLs, analytics, logs, exception messages or exported inspection files; keep it in memory only (it is forgotten when the page closes) and make clearing it simple. Do not use localStorage for credentials.
 - Avoid third-party scripts/analytics that could observe runtime credentials or uploaded photographs.
 - If browser-to-provider calls are technically blocked or unacceptably risky, permit a **minimal trusted serverless relay** as a documented deployment fallback. This is a deviation from *strictly static* and must be made explicit; keys must remain transient and must not be logged or persisted by the relay.
 - Preserve usable partial analysis when a provider fails, becomes unavailable or rejects an unsupported model/feature; show provider-specific errors clearly and allow deliberate retries without unlimited chargeable loops.
@@ -631,17 +689,21 @@ This is a *demonstration and learning POC*. The goal is to demonstrate the poten
 | Model confident about wrong character or weight | App surfaces incompatible evidence or validation failures instead of silently certifying the value. |
 | Unseen side or roof | Schematic marks it uninspected, not undamaged, in whichever of the two views holds that face; the roof stays greyed out. |
 | Automatic re-check runs | Cost indicator and expanded ledger include that additional call; the UI shows only the outcome and its certainty, with no pass wording. |
+| Several photos of one container | One ID, one set of details, one seal, one set of placards and one damage drawing; agreement raises certainty a step and disagreement shows Uncertain with the alternative. |
+| Photos of two different containers | "These photos may be of different containers"; the IDs are not merged. |
+| Barely read ID | Only "ID not readable in this photo"; no best reading, alternatives or check-digit line. |
+| Request fails | The screen says why in plain words and the cost list line keeps the cause. |
 | Multiple containers inspected | Session cost accumulates across the full current browsing session; per-container costs remain individually inspectable. |
 | Jev live inspection | Experimental image opt-in applied, Jev schema correctly interpreted, equipment/damage results rendered using the same inspection screens as Luna. |
 | Jev experimental `box` unavailable or wrong | Preserve region-based damage assessment; don't invent or display a verified damage location merely because a box was returned. |
-| Switch provider after a run | Prior result stays attributed to its originating provider/model; next run uses the newly selected credentials and request format. |
-| Switch model version | Supported/versioned model selection applies to new requests, while recorded reports retain their original model identifier. |
+| Switch provider after a run | The results are cleared; each key entered stays in memory while the page is open; next run uses the newly selected credentials and request format. |
+| Switch model version | Supported/versioned model selection applies to new requests and clears the results, while recorded reports retain their original model identifier. |
 | Add a future provider | Requires adding an adapter/capability/pricing/fixture configuration without rewriting shared identification, damage or results presentation. |
 | Mixed-model demo session | Costs add up by call while expanded detail attributes each charge to the correct provider/model and marks missing estimates. |
 
 ### 12.2 POC acceptance criteria
 
-- [ ] A presenter can open the app, choose Luna or Jev and an appropriate model/version, supply the matching key, choose one photo and start inspection with minimal explanation.
+- [ ] A presenter can open the app, choose Luna or Jev and an appropriate model/version, supply the matching key, choose up to four photos and start inspection with minimal explanation.
 - [ ] Luna and Jev perform **real** image-based classification through their own supported APIs; the same user-facing result model and neutral damage schematic work for both.
 - [ ] Changing provider/model starts a separate clearly attributed run without reusing incompatible responses, prompts or credentials.
 - [ ] Model catalogue flags prevent unsupported model/capability choices and allow additional provider integrations without changes to the main results presentation.
@@ -679,12 +741,15 @@ This is a *demonstration and learning POC*. The goal is to demonstrate the poten
 - For the **same labelled photos**, compare model answers and first/second-pass changes, but report observed ground-truth accuracy separately from reported probabilities.
 - Correct treatment of uncertainty and the rate at which autonomous refinement truly improves final results.
 
+A set of recorded live replies for the bundled samples on both models, each with a hand-written expected result (true ID, size code, weights, face, length and expected damage), lets a prompt or mapping change be scored field by field without live spend.
+
 Include examples that are **not** tailored to the prompt's choices. Prompt changes should be evaluated across multiple images and **per supported provider**, not judged only by improved results on the original APHU photo.
 
 ## 13. Demo resilience, trust and practical safeguards
 
 **MUST**
 
+- Demo mode gains a recorded multi-photo inspection of one real container once the presenter supplies those photos; until then the single-photo samples stay.
 - Provide at least three pre-validated, visually distinct demo scenarios **for the initial providers**: legible rear doors with markings, obvious side damage, and an apparently clean/low-defect view. Ideally also include a deliberately ambiguous container number to demonstrate how uncertainty and alternatives are shown.
 - Keep sample observations and responses labelled **Recorded demonstration: [provider/model]** and never merge their token/cost records into the live usage ledger.
 - Let the presenter run consecutive inspections with the same provider without re-entering its key during the current page session; keep each provider's credential transient and provide clear/reset actions.
