@@ -2,7 +2,8 @@
 //
 // The standard splits the long side into 5 sections for a 20 ft container and 10 for a 40 ft one (a 45 ft
 // one uses 10 as well), numbered from the door end. A face's u runs from photo left to photo right and is
-// not mirrored: the left side has the doors at u = 0 (section 1 at the left), the right side at u = 1.
+// not mirrored: doors at photo left mean the right side (section 1 at the left), doors at photo right
+// the left side (section 1 at the right).
 import type { ContainerLengthFt } from './chosenLength'
 import type { DamageAssessment, FindingZone } from './damage'
 
@@ -25,7 +26,7 @@ export function sectionsOfZone(
   const first = Math.max(0, Math.floor(zone.u0 * n + EDGE))
   const last = Math.min(n - 1, Math.ceil(zone.u1 * n - EDGE) - 1)
   const sections: number[] = []
-  for (let i = first; i <= last; i++) sections.push(side === 'left' ? i + 1 : n - i)
+  for (let i = first; i <= last; i++) sections.push(side === 'right' ? i + 1 : n - i)
   return sections.sort((a, b) => a - b)
 }
 

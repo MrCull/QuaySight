@@ -98,7 +98,7 @@ describe('a live long-side assessment in the damage view', () => {
     const wrapper = mount(DamageView, {
       props: { assessment: liveSide((a) => delete a.Z1B_visibility) },
     })
-    const figure = wrapper.find('figure[data-view="rear-right"]')
+    const figure = wrapper.find('figure[data-view="front-left"]')
     expect(figure.findAll('.qs-c-zone')).toHaveLength(10)
     expect(figure.findAll('.qs-c-zone--partial')).toHaveLength(1)
     const unseen = figure.findAll('.qs-c-zone--unseen')
@@ -167,22 +167,22 @@ describe('which side a live long-side photo is drawn on', () => {
       .find((li) => li.text().startsWith(name))!
       .text()
 
-  it('draws doors at photo-left on the left side of Front and left side, with the right side Not seen', () => {
+  it('draws doors at photo-left on the right side of Rear and right side, with the left side Not seen', () => {
     const wrapper = mount(DamageView, { props: { assessment: door('image_left') } })
-    expect(left(wrapper).findAll('.qs-pin').length).toBeGreaterThan(0)
-    expect(left(wrapper).findAll('.qs-c-zone')).toHaveLength(10)
-    expect(left(wrapper).text()).toContain('Left side')
-    expect(right(wrapper).exists()).toBe(false)
-    expect(coverage(wrapper, 'Left side')).toContain('Photo 1')
-    expect(coverage(wrapper, 'Right side')).toContain('Not seen')
+    expect(right(wrapper).findAll('.qs-pin').length).toBeGreaterThan(0)
+    expect(right(wrapper).findAll('.qs-c-zone')).toHaveLength(10)
+    expect(right(wrapper).text()).toContain('Right side')
+    expect(left(wrapper).exists()).toBe(false)
+    expect(coverage(wrapper, 'Right side')).toContain('Photo 1')
+    expect(coverage(wrapper, 'Left side')).toContain('Not seen')
     expect(wrapper.text()).not.toContain('side Uncertain')
     expect(wrapper.find('figure[data-view="image-relative"]').exists()).toBe(false)
   })
 
-  it('draws doors at photo-right on the right side of Rear and right side', () => {
+  it('draws doors at photo-right on the left side of Front and left side', () => {
     const wrapper = mount(DamageView, { props: { assessment: door('image_right') } })
-    expect(right(wrapper).findAll('.qs-pin').length).toBeGreaterThan(0)
-    expect(left(wrapper).exists()).toBe(false)
+    expect(left(wrapper).findAll('.qs-pin').length).toBeGreaterThan(0)
+    expect(right(wrapper).exists()).toBe(false)
     expect(wrapper.text()).not.toContain('side Uncertain')
     expect(wrapper.find('figure[data-view="image-relative"]').exists()).toBe(false)
   })
@@ -333,12 +333,12 @@ describe('a fixed view with nothing photographed', () => {
     expect(wrapper.text()).not.toContain('No photos')
   })
 
-  it('draws only Front and left side for a left-side-only assessment', () => {
+  it('draws only Rear and right side for a doors-at-photo-left assessment', () => {
     const wrapper = mount(DamageView, {
       props: { assessment: liveSide((a) => (a.door_end_in_image = choice('image_left'))) },
     })
-    expect(drawn(wrapper)).toEqual(['front-left'])
-    expect(lines(wrapper)).toEqual(['Rear and right side: not photographed'])
+    expect(drawn(wrapper)).toEqual(['rear-right'])
+    expect(lines(wrapper)).toEqual(['Front and left side: not photographed'])
   })
 
   it('leaves no gap: every child of the views grid is a drawing or the one line', () => {
