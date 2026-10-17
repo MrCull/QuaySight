@@ -12,7 +12,7 @@ import {
 import { faceStatus, sortFindings, type DamageFace } from './damage'
 import type { CertaintyLabel, ContainerIdReading, InspectionRecord } from './inspection'
 import type { Units } from './unitPreference'
-import { payloadConflictText, type WeightRow, type WeightChecks } from './weights'
+import { payloadConflictText, printedPayloadHidden, type WeightRow, type WeightChecks } from './weights'
 import * as words from './foundWording'
 
 export interface FoundParts {
@@ -142,7 +142,7 @@ export function weightParts(
   if (conflict) caveats.unshift(conflict)
   // The printed payload's own two units can disagree, too.
   const printed = weights.printedPayload
-  if (printed?.units === 'conflict')
+  if (printed?.units === 'conflict' && !printedPayloadHidden(weights))
     caveats.push(words.unitsDisagreeText('Printed payload', printed))
   return { statement: sentences.join(' '), caveats }
 }
