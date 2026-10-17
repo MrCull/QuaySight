@@ -6,11 +6,13 @@ import type { WeightChecks } from './weights'
 // normalises into this shape. Later tickets extend it (checks, findings, costs) without changing
 // the fields below, so schemaVersion bumps only on breaking changes.
 //
-// A live request adds its own fields from its own module, by augmenting InspectionRecord there with
-// optional fields (`declare module '<path>/domain/inspection' { interface InspectionRecord { … } }`),
-// so this file is not edited for each new request. See src/plan/requestPlan.ts.
+// Fields are declared on InspectionRecord itself, as optional fields. Do not add fields to it from
+// another module with `declare module`. Some earlier request fields (details, idCropRead) still do.
 
 import type { DamageAssessment } from './damage'
+import type { LengthReading } from './chosenLength'
+import type { DamageSetReading } from './damageSets'
+import type { FaceReading } from './photoFace'
 
 export const INSPECTION_SCHEMA_VERSION = 1
 
@@ -114,6 +116,12 @@ export interface InspectionRecord {
   rechecks?: RecheckRecord[]
   /** Requests that failed in this run, with their cause (ticket #53). Absent or empty when none did. */
   failures?: RequestFailureNote[]
+  /** The model's answer to the length question; null when it gave no usable one, absent when not asked. */
+  modelLength?: LengthReading | null
+  /** The face the survey says the photo shows. Absent until the survey answers; null when it gave none. */
+  photoFace?: FaceReading | null
+  /** Every damage set's reading of the photo, one per face, before the face chooses among them. */
+  damageReadings?: DamageSetReading[]
   /** Printed maximum gross and tare, calculated payload, and any printed-versus-arithmetic conflict. */
   weights: WeightChecks | null
 }
