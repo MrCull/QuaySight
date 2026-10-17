@@ -6,6 +6,7 @@ import { parsePlanRecording } from '../../plan/recording'
 import { labelsFor } from '../../domain/providers'
 import type { ProviderId } from '../../domain/inspection'
 import expected from '../expected.json'
+import { potentiallySignificant } from '../../domain/damage'
 import { replayInspection } from '../replayInspection'
 import {
   formatScoreTable,
@@ -81,6 +82,15 @@ describe('regression set', () => {
         `All fields: ${models.map((m) => `${m} ${total(m, SCORE_FIELDS)}`).join(', ')}`,
       )
       process.stdout.write(lines.join('\n') + '\n')
+    }
+  })
+
+  it('does not raise the closer-inspection banner for the rust on the JDLU photos', () => {
+    const truth = truths.find((t) => t.id === 'jdlu-four-photos')!
+    for (const route of ROUTES) {
+      const damage = replayInspection(truth, recordings, route).damage!
+      expect(damage.findings.length).toBeGreaterThan(0)
+      expect(potentiallySignificant(damage)).toBe(false)
     }
   })
 })

@@ -88,3 +88,42 @@ describe('DamageView states', () => {
     expect(wrapper.text()).toContain('1 suspected finding')
   })
 })
+
+describe('DamageView surface wear', () => {
+  const [base] = recordedSideDamage.findings
+  const wear = {
+    ...base!,
+    id: 2,
+    title: 'Surface wear on the side sheet',
+    severity: 'cosmetic' as const,
+    surfaceWear: true,
+  }
+  const real = { ...base!, id: 1, title: 'Dent in the side sheet', severity: 'major' as const }
+  const banner = 'Potentially significant damage, closer inspection advised'
+
+  it('shows surface wear at the lowest severity without the closer-inspection banner', () => {
+    const assessment = {
+      ...recordedSideDamage,
+      significantProbability: 0.9,
+      findings: [{ ...wear, id: 1 }],
+    }
+    const wrapper = mount(DamageView, { props: { assessment } })
+    expect(wrapper.text()).not.toContain(banner)
+    expect(wrapper.find('[data-finding="1"] .qs-sev').classes()).toContain('qs-sev--cosmetic')
+  })
+
+  it('lists surface wear after real findings, which still raise the banner', () => {
+    const assessment = {
+      ...recordedSideDamage,
+      significantProbability: 0.9,
+      findings: [real, wear],
+    }
+    const wrapper = mount(DamageView, { props: { assessment } })
+    expect(wrapper.text()).toContain(banner)
+    const cards = wrapper.findAll('.qs-finding')
+    expect(cards.map((c) => c.find('.qs-finding__title').text())).toEqual([
+      'Dent in the side sheet',
+      'Surface wear on the side sheet',
+    ])
+  })
+})

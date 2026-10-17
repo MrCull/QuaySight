@@ -15,6 +15,7 @@ import {
   type FindingCertainty,
   type FindingZone,
   type ImageQuality,
+  type Severity,
   type ZoneVisibility,
 } from './damage'
 import type { SharedAnswer } from './questionSet'
@@ -126,18 +127,23 @@ export function panelFinding(
 ): Omit<DamageFinding, 'id'> | null {
   const score = answers[`${region.id}_severity`]
   if (score?.type !== 'score' || visibility === 'not-visible') return null
-  const severity = severityOfLevel(score.label)
-  if (!severity) return null
+  const level = severityOfLevel(score.label)
+  if (!level) return null
 
   const allTypes = typesOf(answers, region.id)
   const listed = allTypes.filter((t, i) => i === 0 || (t.probability ?? 0) >= LISTED_MIN)
   const top = allTypes[0]
   const named = top && (top.probability ?? 0) >= PRESENT_MIN ? top : null
   const noun = named ? CEDEX_TYPES.find((t) => t.code === named.code)?.noun : null
-  const corrosion = named?.code === 'CO' || named?.code === 'CH'
-  const title = noun
-    ? `${noun} ${corrosion ? 'on' : 'in'} ${words.surface}`
-    : `Possible damage in ${words.surface}`
+  // Rust is surface wear: its own class at the lowest severity. Corrosion that holed the metal is real damage.
+  // Cosmetic with no damage type named is the rubric's "superficial marks only": rust or paint wear.
+  const surfaceWear = named?.code === 'CO' || (level === 'cosmetic' && !named)
+  const severity: Severity = surfaceWear ? 'cosmetic' : level
+  const title = surfaceWear
+    ? `Surface wear on ${words.surface}`
+    : noun
+      ? `${noun} ${named?.code === 'CH' ? 'on' : 'in'} ${words.surface}`
+      : `Possible damage in ${words.surface}`
 
   const hasDistribution = score.probabilities.some((p) => p > 0)
   const damaged = hasDistribution ? 1 - (score.probabilities[0] ?? 0) : (named?.probability ?? 0.5)
@@ -154,10 +160,10 @@ export function panelFinding(
 
   const alternative = score.probabilities
     .map((p, i) => ({ p, level: SEVERITY_LEVELS[i] }))
-    .filter((e) => e.level !== undefined && e.level !== severity && e.p >= ALTERNATIVE_MIN)
+    .filter((e) => e.level !== undefined && e.level !== level && e.p >= ALTERNATIVE_MIN)
     .sort((a, b) => b.p - a.p)[0]
   const shape = SHAPE[choiceOf(answers[`${region.id}_deformation_shape`]) ?? '']
-  const what = noun ? noun.toLowerCase() : 'damage'
+  const what = surfaceWear ? 'surface wear' : noun ? noun.toLowerCase() : 'damage'
 
   return {
     face: region.face,
@@ -177,6 +183,7 @@ export function panelFinding(
       : 'Depth and extent cannot be judged precisely from one photo.',
     types: listed,
     severity,
+    ...(surfaceWear ? { surfaceWear } : {}),
     ...(hasDistribution ? { severityProbabilities: [...score.probabilities] } : {}),
     certainty,
     caveats,
@@ -196,7 +203,7 @@ export interface ComponentCheck {
   fallback?: string
 }
 
-/** The component finding, or null when no check reaches PRESENT_MIN. Never rated: the photo gives no severity. */
+/** The component finding, or null when no check reaches PRESENT_MIN. Never rated, unless it is only rust (surface wear). */
 export function componentFinding(
   answers: Record<string, SharedAnswer>,
   check: ComponentCheck,
@@ -212,18 +219,25 @@ export function componentFinding(
     const type = CEDEX_TYPES.find((t) => t.code === c.code)
     return type ? [{ code: type.code, name: type.name, probability: c.probability }] : []
   })
+  // A part showing only rust is surface wear: the lowest severity, listed after real findings.
+  const surfaceWear = seen.every((c) => c.code === 'CO')
   return {
     face,
     zone: check.zone,
     component: check.component,
     visibility: null,
     location: check.location,
-    title: check.title,
+    title: surfaceWear ? check.title.replace(/^Damage to/, 'Surface wear on') : check.title,
     description: `${check.location}: ${types.length > 0 ? types.map((t) => t.name.toLowerCase()).join(', ') : (check.fallback ?? 'visibly dented, bent, cracked or broken')}.`,
-    bestInterpretation: 'visible damage to this component.',
-    uncertainty: 'The photo gives no severity rating for this component.',
+    bestInterpretation: surfaceWear
+      ? 'apparent surface wear on this component.'
+      : 'visible damage to this component.',
+    uncertainty: surfaceWear
+      ? 'Rust or paint wear only; depth cannot be judged from one photo.'
+      : 'The photo gives no severity rating for this component.',
     types,
-    severity: null,
+    severity: surfaceWear ? 'cosmetic' : null,
+    ...(surfaceWear ? { surfaceWear } : {}),
     certainty: findingCertainty(strongest.probability),
     caveats: ['Approximate location on an illustrative drawing.', SEVERITY_CAVEAT],
   }
