@@ -11,6 +11,8 @@ import {
   readIdCharacters,
   type ChoiceReading,
 } from '../../domain/idQuestions'
+import { withCategoryLetter } from '../../domain/idCandidates'
+import { combineOwnerReading } from '../../domain/ownerPick'
 import { jevCaveatsOf, jevIdReading, type JevCaveats } from '../../domain/jev'
 import { assembleLunaReading } from '../../domain/luna'
 import { questionSetOf } from '../../domain/providers'
@@ -120,7 +122,8 @@ export const idCropRead: PlanRequest<CropAnswer> = {
       case 'answered': {
         const { readings, caveats, region } = outcome.answer
         // Behind a Luna re-check's fill-ins, when that has answered: the zoomed read joins the best whole-photo reading.
-        const combined = combineIdReadings(recheckedReadings(plan) ?? first.readings, readings, zoomMode(plan.route))
+        const wholeReadings = recheckedReadings(plan) ?? first.readings
+        const combined = combineIdReadings(wholeReadings, readings, zoomMode(plan.route))
         const luna = questionSetOf(plan.route.entry) === 'luna'
         const reading = luna
           ? assembleLunaReading(combined.readings, first.ownerPick, combined.corroborated)
@@ -145,6 +148,7 @@ export const idCropRead: PlanRequest<CropAnswer> = {
             disagreements: combined.disagreements,
             reason: null,
             read: { readings, caveats },
+            whole: withCategoryLetter(combineOwnerReading(wholeReadings, first.ownerPick).readings),
           },
         }
       }

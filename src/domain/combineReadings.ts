@@ -45,13 +45,19 @@ export interface Agreed<T> {
   certainty: CertaintyLabel
   /** The photos whose reading was taken (every photo that gave the chosen value). */
   from: number[]
-  /** The other reading, when the photos disagreed. */
+  /** The other reading, when the photos disagreed and it was not dropped as a weaker lone outlier. */
   alternative: T | null
+  /** Votes for the chosen value (each whole-photo read and each zoomed read is one vote). */
+  votes: number
+  /** A lone weaker reading that disagreed with two or more agreeing votes: dropped, certainty not lowered. */
+  dropped: T | null
 }
 
 /**
  * The agreement rule for one reading across photos. `same` says when two values are the same reading.
  * Candidates are in photo order; a reading with no certainty (Not seen) is skipped when any photo saw it.
+ * Two or more agreeing votes raise certainty one step; a lone weaker disagreeing vote is dropped without
+ * lowering it; only a conflict between strong readings (or a tie of votes) lowers it to Uncertain at best.
  */
 export function agree<T>(
   candidates: readonly Candidate<T>[],
@@ -81,6 +87,25 @@ export function agree<T>(
       certainty: winner.length > 1 ? oneStepUp(top.certainty) : top.certainty,
       from: winner.map((c) => c.photo),
       alternative: null,
+      votes: winner.length,
+      dropped: null,
+    }
+  }
+  // Readings weaker than the winner's that are not strong themselves (below Likely), or a lone one against two
+  // or more agreeing votes, are outliers: dropped, the certainty not lowered. Only a conflict between strong
+  // readings, or between equal ones, lowers it.
+  const rest = ordered.slice(1)
+  const droppable = (g: Candidate<T>[]) =>
+    rank(best(g).certainty) > rank(top.certainty) &&
+    (rank(best(g).certainty) > rank('Likely') || (winner.length > 1 && g.length === 1))
+  if (rest.every(droppable)) {
+    return {
+      value: top.value,
+      certainty: winner.length > 1 ? oneStepUp(top.certainty) : top.certainty,
+      from: winner.map((c) => c.photo),
+      alternative: null,
+      votes: winner.length,
+      dropped: rest[0]![0]!.value,
     }
   }
   return {
@@ -88,6 +113,8 @@ export function agree<T>(
     certainty: weakerOf(top.certainty, 'Uncertain'),
     from: winner.map((c) => c.photo),
     alternative: ordered[1]![0]!.value,
+    votes: winner.length,
+    dropped: null,
   }
 }
 
@@ -97,7 +124,25 @@ export function agree<T>(
 export interface IdSource {
   /** 1-based photo number. */
   photo: number
+  /** The photo's own reading of the ID. */
   reading: ContainerIdReading
+  /**
+   * The independent reads behind it, each one vote per position: the whole-photo read and the zoomed
+   * read (ticket #86). Absent: the reading itself is the one vote.
+   */
+  reads?: readonly IdRead[]
+}
+
+/** One independent read, with the character each position was next likely to be (what the check digit may pick instead). */
+export type IdRead = ContainerIdReading & {
+  runnerUps?: readonly ({ value: string; certainty: CertaintyLabel } | null)[]
+}
+
+declare module './inspection' {
+  interface ContainerIdReading {
+    /** Several photos (ticket #86): the 1-based photo whose read won, so a close-up is cut from that photo. */
+    photo?: number
+  }
 }
 
 export type IdCombination =
@@ -106,6 +151,8 @@ export type IdCombination =
       reading: ContainerIdReading
       /** For each photo, the 1-based positions of the ID that were taken from it. */
       taken: Record<number, number[]>
+      /** The photo whose reads won the most positions, the most certain first, then the earlier photo. */
+      winner: number
     }
   /** Two photos each read a different complete ID that passes the check digit: not one container. */
   | { kind: 'different'; ids: string[] }
@@ -122,10 +169,15 @@ const normalised = (r: ContainerIdReading) =>
  */
 export function combineContainerIds(sources: readonly IdSource[]): IdCombination | null {
   if (sources.length === 0) return null
-  if (sources.length === 1) {
+  if (sources.length === 1 && (sources[0]!.reads?.length ?? 0) < 2) {
     const only = sources[0]!
     const taken = [...normalised(only.reading)].flatMap((c, i) => (c === UNREAD ? [] : [i + 1]))
-    return { kind: 'combined', reading: only.reading, taken: { [only.photo]: taken } }
+    return {
+      kind: 'combined',
+      reading: only.reading,
+      taken: { [only.photo]: taken },
+      winner: only.photo,
+    }
   }
 
   // Only a complete, check-digit-passing ID that is at least Likely votes for "different containers".
@@ -141,26 +193,33 @@ export function combineContainerIds(sources: readonly IdSource[]): IdCombination
   if (validOwn.length > 1) return { kind: 'different', ids: validOwn }
 
   const positions = Array.from({ length: 11 }, (_, i) => {
-    const candidates: Candidate<string>[] = sources.flatMap((s) => {
-      const ch = normalised(s.reading)[i]!
-      if (ch === UNREAD) return []
-      return [
-        {
-          value: ch,
-          certainty: s.reading.positionCertainty?.[i] ?? s.reading.certainty,
-          photo: s.photo,
-        },
-      ]
-    })
-    return { candidates, agreed: agree(candidates) }
+    const candidates: Candidate<string>[] = sources.flatMap((s) =>
+      (s.reads ?? [s.reading]).flatMap((read) => {
+        const ch = normalised(read)[i]!
+        if (ch === UNREAD) return []
+        return [
+          { value: ch, certainty: read.positionCertainty?.[i] ?? read.certainty, photo: s.photo },
+        ]
+      }),
+    )
+    // What a read's character was next likely to be: never a vote, only what the check digit may pick instead.
+    const runnerUps: Candidate<string>[] = sources.flatMap((s) =>
+      (s.reads ?? []).flatMap((read) => {
+        const next = read.runnerUps?.[i]
+        return next ? [{ value: next.value, certainty: next.certainty, photo: s.photo }] : []
+      }),
+    )
+    return { candidates, runnerUps, agreed: agree(candidates) }
   })
 
   // Every character any photo read at each position: the combinations the check digit can choose among.
-  const options = positions.map((p) => [...new Set(p.candidates.map((c) => c.value))])
+  const options = positions.map((p) => [
+    ...new Set([...p.candidates, ...p.runnerUps].map((c) => c.value)),
+  ])
   const chosen = positions.map((p) => p.agreed?.value ?? UNREAD)
   let id = chosen.join('')
-  if (!passesCheck(id) && options.every((o) => o.length > 0)) {
-    const found = firstPassing(options, chosen)
+  if (!passesCheck(id) && positions.every((p) => p.candidates.length > 0)) {
+    const found = firstPassing(options, chosen, positions)
     if (found) id = found
   }
 
@@ -177,12 +236,27 @@ export function combineContainerIds(sources: readonly IdSource[]): IdCombination
       return
     }
     const mine = p.candidates.filter((c) => c.value === ch)
+    if (mine.length === 0) {
+      // Picked by the check digit from what the reads called their next choice: Uncertain, or Likely when
+      // two independent reads named it.
+      const named = p.runnerUps.filter((c) => c.value === ch)
+      certainty.push(named.length > 1 ? 'Likely' : 'Uncertain')
+      corroborated = false
+      for (const photo of new Set(named.map((c) => c.photo))) (taken[photo] ??= []).push(i + 1)
+      return
+    }
     // The check digit may have picked a reading other than the rule's: that reading is judged by the rule too.
-    const decided = ch === p.agreed.value ? p.agreed : agree(mine)!
-    const disagreed = new Set(p.candidates.map((c) => c.value)).size > 1
+    // A weaker or lone reading against agreeing votes is dropped (agree); so are readings whose character
+    // would fail the check digit where the chosen ID passes it.
+    const others = p.candidates.filter((c) => c.value !== ch)
+    const failsCheck = (other: string) =>
+      passesCheck(id) && !passesCheck(id.slice(0, i) + other + id.slice(i + 1))
+    const outlier = mine.length > 1 && others.every((c) => failsCheck(c.value))
+    const decided = ch === p.agreed.value && !outlier ? p.agreed : agree(mine)!
+    const disagreed = others.length > 0 && !outlier && decided.dropped === null
     if (disagreed || mine.length < 2) corroborated = false
     certainty.push(disagreed ? weakerOf(decided.certainty, 'Uncertain') : decided.certainty)
-    for (const photo of mine.map((c) => c.photo)) (taken[photo] ??= []).push(i + 1)
+    for (const photo of new Set(mine.map((c) => c.photo))) (taken[photo] ??= []).push(i + 1)
     if (disagreed) {
       const other = p.candidates.find((c) => c.value !== ch)!.value
       alternatives.push(id.slice(0, i) + other + id.slice(i + 1))
@@ -202,7 +276,28 @@ export function combineContainerIds(sources: readonly IdSource[]): IdCombination
   if (shown.length > 0 && !(overall === 'Confident' && passesCheck(printed))) {
     reading.alternatives = shown
   }
-  return { kind: 'combined', reading, taken }
+  return { kind: 'combined', reading, taken, winner: winningPhoto(positions, id) }
+}
+
+/** The photo whose votes matched the most characters of the ID; the more certain, then the earlier photo, settles a tie. */
+function winningPhoto(
+  positions: readonly { candidates: Candidate<string>[] }[],
+  id: string,
+): number {
+  const score = new Map<number, { matched: number; weakest: number }>()
+  positions.forEach((p, i) => {
+    for (const c of p.candidates) {
+      if (c.value !== id[i]) continue
+      const own = score.get(c.photo) ?? { matched: 0, weakest: 0 }
+      own.matched += 1
+      own.weakest += rank(c.certainty)
+      score.set(c.photo, own)
+    }
+  })
+  const best = [...score.entries()].sort(
+    ([pa, a], [pb, b]) => b.matched - a.matched || a.weakest - b.weakest || pa - pb,
+  )[0]
+  return best?.[0] ?? 1
 }
 
 function partialReading(
@@ -221,28 +316,44 @@ function partialReading(
   }
 }
 
-/** The first combination of the read characters (the chosen ones first) that passes the check digit. */
-function firstPassing(options: string[][], chosen: string[]): string | null {
+/** Most positions the check digit may change from the chosen reading. */
+const MAX_SWAPS = 3
+
+/**
+ * The combination of the read characters that passes the check digit with the fewest positions changed
+ * from the chosen reading; among those, the one whose changed characters were read most certainly.
+ */
+function firstPassing(
+  options: string[][],
+  chosen: string[],
+  positions: readonly { candidates: Candidate<string>[]; runnerUps: Candidate<string>[] }[],
+): string | null {
   const open = options.map((o, i) => (o.length > 1 ? i : -1)).filter((i) => i >= 0)
-  if (open.length === 0 || open.length > 8) return null
-  let found: string | null = null
-  let fewestSwaps = Infinity
-  const walk = (at: number, id: string[], swaps: number) => {
-    if (at === open.length) {
-      const text = id.join('')
-      if (swaps < fewestSwaps && passesCheck(text)) {
-        found = text
-        fewestSwaps = swaps
-      }
-      return
-    }
-    const position = open[at]!
-    for (const ch of options[position]!) {
-      id[position] = ch
-      walk(at + 1, id, swaps + (ch === chosen[position] ? 0 : 1))
-    }
-    id[position] = chosen[position]!
+  // How well a character at a position is supported: by how many reads name it (as their reading or their
+  // next choice), then by how certainly the best of them did (a next choice counts a step lower).
+  const weight = (position: number, ch: string) => {
+    const p = positions[position]!
+    const own = p.candidates.filter((c) => c.value === ch).map((c) => rank(c.certainty))
+    const next = p.runnerUps.filter((c) => c.value === ch).map((c) => rank(c.certainty) + 1)
+    const support = Math.min(own.length + next.length, ORDER.length)
+    return (ORDER.length + 1 - support) * 10 + Math.min(...own, ...next, ORDER.length)
   }
-  walk(0, [...chosen], 0)
-  return found
+  let best: { id: string; cost: number } | null = null
+  const walk = (from: number, left: number, id: string[], cost: number) => {
+    if (id.join('') !== chosen.join('') && passesCheck(id.join(''))) {
+      if (!best || cost < best.cost) best = { id: id.join(''), cost }
+    }
+    if (left === 0) return
+    for (let k = from; k < open.length; k++) {
+      const position = open[k]!
+      for (const ch of options[position]!) {
+        if (ch === chosen[position]) continue
+        id[position] = ch
+        walk(k + 1, left - 1, id, cost + weight(position, ch))
+      }
+      id[position] = chosen[position]!
+    }
+  }
+  for (let swaps = 1; swaps <= MAX_SWAPS && !best; swaps++) walk(0, swaps, [...chosen], 0)
+  return (best as { id: string } | null)?.id ?? null
 }
