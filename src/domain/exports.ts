@@ -52,6 +52,7 @@ function photoExports(record: InspectionRecord): ExportPhoto[] {
         containerId: { positions: p.contributed.containerId },
         details: p.contributed.details,
         weights: p.contributed.weights,
+        damage: p.contributed.damage,
       },
       passIds: p.passIds,
     }))
@@ -73,6 +74,7 @@ function photoExports(record: InspectionRecord): ExportPhoto[] {
         },
         details: record.details ? ['all'] : [],
         weights: record.weights ? ['all'] : [],
+        damage: (record.damage?.findings ?? []).map((f) => f.id),
       },
       passIds: record.rawResponses.map((r) => r.passId),
     },

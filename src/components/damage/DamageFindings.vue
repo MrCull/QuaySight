@@ -45,6 +45,10 @@ function uncertaintyClass(f: DamageFinding): string {
       </span>
       <span class="qs-finding__more">
         <span>{{ f.description }}</span>
+        <span v-if="f.photos && f.photos.length > 0"
+          ><strong>Seen in:</strong> {{ f.photos.length === 1 ? 'photo' : 'photos' }}
+          {{ f.photos.join(', ') }}</span
+        >
         <span><strong>Best interpretation:</strong> {{ f.bestInterpretation }}</span>
         <span><strong>What remains uncertain:</strong> {{ f.uncertainty }}</span>
         <span class="qs-finding__probs" aria-label="Damage types">

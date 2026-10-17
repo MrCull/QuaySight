@@ -5,6 +5,7 @@ import {
   faceStatus,
   potentiallySignificant,
   type DamageFace,
+  type DamageFinding,
   type FindingZone,
 } from './damage'
 import { sectionScheme, sectionsOfZone } from './sideSections'
@@ -44,6 +45,9 @@ export function damageExport(record: InspectionRecord): {
         : 'Not assessed.',
     })
   }
+  /** The photos (by name) a finding was seen in; empty for a single photo's own findings. */
+  const photosOf = (f: DamageFinding): string[] =>
+    (f.photos ?? []).map((n) => record.photos?.find((p) => p.index === n)?.name ?? `Photo ${n}`)
   return {
     unresolved,
     damage: {
@@ -76,7 +80,10 @@ export function damageExport(record: InspectionRecord): {
         numberedFrom:
           assessment?.sideInference?.basis === 'defaulted' ? 'assumed door end' : 'door end',
       },
-      findings: (assessment?.findings ?? []).map((f) => ({
+      findings: [
+        ...(assessment?.findings ?? []).map((f) => ({ f, unidentifiedFace: false })),
+        ...(assessment?.unplaced ?? []).map((f) => ({ f, unidentifiedFace: true })),
+      ].map(({ f, unidentifiedFace }) => ({
         findingId: f.id,
         title: f.title,
         face: f.face,
@@ -92,7 +99,9 @@ export function damageExport(record: InspectionRecord): {
         types: f.types.map((t) => t.code),
         region: { location: f.location, zone: f.zone },
         sections: sectionsOf(scheme, f.face, f.zone),
-        photo: assessment?.photos.find((p) => p.face === f.face)?.photo ?? null,
+        photo: photosOf(f)[0] ?? assessment?.photos.find((p) => p.face === f.face)?.photo ?? null,
+        photos: photosOf(f),
+        unidentifiedFace,
         sourcePass: { passId: assessment?.passId ?? record.id, kind: sourcePassKind(record) },
       })),
     },
