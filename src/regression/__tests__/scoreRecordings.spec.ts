@@ -1,11 +1,19 @@
-// The regression set: replays every recording in src/fixtures/live/plan/ and scores each model against
-// src/regression/expected.json, field by field. Free: nothing is sent. Run `npm run score` to see the table.
+// The regression set: replays every expected inspection (1 to 4 photos) from the recordings in
+// src/fixtures/live/plan/ and scores each model against src/regression/expected.json, field by field.
+// Free: nothing is sent. Run `npm run score` to see the table.
 import { describe, it, expect } from 'vitest'
 import { parsePlanRecording } from '../../plan/recording'
-import { replayRecording } from '../../plan/replay'
 import { labelsFor } from '../../domain/providers'
+import type { ProviderId } from '../../domain/inspection'
 import expected from '../expected.json'
-import { formatScoreTable, scoreRecord, SCORE_FIELDS, type Expected } from '../score'
+import { replayInspection } from '../replayInspection'
+import {
+  formatScoreTable,
+  scoreRecord,
+  ORIGINAL_SCORE_FIELDS,
+  SCORE_FIELDS,
+  type Expected,
+} from '../score'
 
 const files = import.meta.glob<unknown>('../../fixtures/live/plan/*.json', {
   eager: true,
@@ -13,31 +21,36 @@ const files = import.meta.glob<unknown>('../../fixtures/live/plan/*.json', {
 })
 const recordings = Object.values(files).map((f) => parsePlanRecording(f))
 const truths = expected as Expected[]
+const ROUTES: ProviderId[] = ['luna', 'openrouter']
 
 describe('regression set', () => {
-  it('has an expected result for each of the 4 samples, and a recording of each on both models', () => {
-    expect(truths).toHaveLength(4)
+  it('describes whole inspections of 1 to 4 photos, each recorded on both models', () => {
+    expect(truths.map((t) => t.id)).toEqual(['coyu-doors', 'chsu-doors', 'aphu-doors', 'grey-side'])
     for (const truth of truths) {
-      const own = recordings.filter((r) => r.photo === truth.photo)
-      expect({ photo: truth.photo, routes: own.map((r) => r.provider).sort() }).toEqual({
-        photo: truth.photo,
-        routes: ['luna', 'openrouter'],
-      })
+      expect(truth.photos.length).toBeGreaterThanOrEqual(1)
+      expect(truth.photos.length).toBeLessThanOrEqual(4)
+      for (const photo of truth.photos) {
+        const own = recordings.filter((r) => r.photo === photo.photo)
+        expect({ photo: photo.photo, routes: own.map((r) => r.provider).sort() }).toEqual({
+          photo: photo.photo,
+          routes: ['luna', 'openrouter'],
+        })
+      }
     }
   })
 
-  it('replays every recording and scores it', () => {
-    const rows = recordings
-      .filter((r) => truths.some((t) => t.photo === r.photo))
-      .map((r) => {
-        const truth = truths.find((t) => t.photo === r.photo)!
-        const record = replayRecording(r, { id: 'score', photo: null })
+  it('replays every inspection and scores it', () => {
+    const rows = ROUTES.flatMap((route) =>
+      truths.map((truth) => {
+        const record = replayInspection(truth, recordings, route)
+        const recording = recordings.find((r) => r.provider === route)!
         return {
-          photo: r.photo,
-          model: labelsFor(r.provider, r.model).model,
+          entry: truth.id,
+          model: labelsFor(route, recording.model).model,
           scores: scoreRecord(record, truth),
         }
-      })
+      }),
+    )
     expect(rows.every((r) => r.scores.length === SCORE_FIELDS.length)).toBe(true)
 
     if (process.env.SCORE_REPORT) {
@@ -46,17 +59,20 @@ describe('regression set', () => {
       const lines: string[] = []
       for (const [model, own] of byModel) {
         lines.push(
-          `\n${model}\n` +
-            formatScoreTable(
-              own.map((r) => ({ model: r.photo.replace('samples/', ''), scores: r.scores })),
-            ),
+          `\n${model}\n` + formatScoreTable(own.map((r) => ({ model: r.entry, scores: r.scores }))),
         )
       }
-      const total = (model: string) => {
-        const all = (byModel.get(model) ?? []).flatMap((r) => r.scores)
+      const total = (model: string, fields: readonly string[]) => {
+        const all = (byModel.get(model) ?? [])
+          .flatMap((r) => r.scores)
+          .filter((s) => fields.includes(s.field))
         return `${all.filter((s) => s.result === 'hit').length}/${all.length}`
       }
-      lines.push(`\nHits: ${[...byModel.keys()].map((m) => `${m} ${total(m)}`).join(', ')}`)
+      const models = [...byModel.keys()]
+      lines.push(
+        `\nOriginal fields: ${models.map((m) => `${m} ${total(m, ORIGINAL_SCORE_FIELDS)}`).join(', ')}`,
+        `All fields: ${models.map((m) => `${m} ${total(m, SCORE_FIELDS)}`).join(', ')}`,
+      )
       process.stdout.write(lines.join('\n') + '\n')
     }
   })
