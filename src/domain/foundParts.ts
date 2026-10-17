@@ -9,7 +9,7 @@ import {
   MARKING_CHECKS,
   type EquipmentCheck,
 } from './containerDetails'
-import { faceStatus, sortFindings, type DamageFace } from './damage'
+import { faceStatus, potentiallySignificant, sortFindings, type DamageFace } from './damage'
 import type { CertaintyLabel, ContainerIdReading, InspectionRecord } from './inspection'
 import type { Units } from './unitPreference'
 import {
@@ -234,7 +234,7 @@ export function damageParts(damage: InspectionRecord['damage']): {
       .map((f) => words.findingText(f.title, f.severity, f.certainty))
     sentences.push(words.findingsText(n, listed, LISTED, face))
   }
-  if ((damage.significantProbability ?? 0) >= 0.5) sentences.push(words.SIGNIFICANT_TEXT)
+  if (potentiallySignificant(damage)) sentences.push(words.SIGNIFICANT_TEXT)
   if (FIXED_FACES.some((f) => faceStatus(damage, f) !== 'photographed')) {
     sentences.push(words.OTHER_FACES_TEXT)
   }

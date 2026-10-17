@@ -136,7 +136,20 @@ describe('reading the long-side answers', () => {
     answers.Z1T_CO = predicate(0.65)
     answers.Z1T_severity = severity([0.2, 0.7, 0.05, 0.03, 0.02])
     const [finding] = readSideDamage(answers).findings
-    expect(finding).toMatchObject({ severity: 'cosmetic', title: 'Corrosion on the side sheet' })
+    expect(finding).toMatchObject({ severity: 'cosmetic', title: 'Surface wear on the side sheet' })
+  })
+
+  it('reports rust as surface wear at the lowest severity, listed after real findings', () => {
+    const answers = cleanSide()
+    answers.Z1T_CO = predicate(0.8)
+    answers.Z1T_severity = severity([0.1, 0.1, 0.2, 0.5, 0.1])
+    answers.Z3B_DT = predicate(0.8)
+    answers.Z3B_severity = severity([0.05, 0.05, 0.8, 0.05, 0.05])
+    const { findings } = readSideDamage(answers)
+    expect(findings.map((f) => [f.id, f.surfaceWear === true, f.severity])).toEqual([
+      [1, false, 'minor'],
+      [2, true, 'cosmetic'],
+    ])
   })
 
   it('shows an unseen zone as not visible and never makes it a finding', () => {
