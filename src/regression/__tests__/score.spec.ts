@@ -105,7 +105,9 @@ describe('scoreRecord: whole-inspection fields', () => {
     const alts = recordWith({ containerId: id({ alternatives: ['COYU2068130'] }) })
     expect(resultsOf(alts).alternatives).toBe('miss')
     expect(resultsOf(alts, { ...expected, alternativesAllowed: true }).alternatives).toBe('hit')
-    expect(resultsOf(recordWith({ containerId: id({ alternatives: [] }) })).alternatives).toBe('hit')
+    expect(resultsOf(recordWith({ containerId: id({ alternatives: [] }) })).alternatives).toBe(
+      'hit',
+    )
   })
 
   it('compares the different-containers warning with whether it was expected', () => {

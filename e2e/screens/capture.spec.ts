@@ -106,12 +106,16 @@ async function enterDemo(page: Page) {
 
 // The damaged side has no recording yet (spec #27, ticket #37), so it is not offered; its captures return
 // when that photo is recorded with the whole plan.
-type SampleName = 'Rear doors with markings' | 'Clean grey rear doors'
+type SampleName =
+  | 'Rear doors with markings'
+  | 'Clean grey rear doors'
+  | 'Blue doors with a bolt seal'
+  | 'Dusty blue container, four photos'
 
 /** Demo mode: puts a bundled sample on the stage, ready to start. */
 async function openSample(page: Page, name: SampleName) {
   await page.getByRole('button', { name: new RegExp(name) }).click()
-  await page.locator('.rs-photo__img').waitFor()
+  await page.locator('.rs-photo__img').first().waitFor()
 }
 
 /** On the setup card: types the placeholder and presses Enter, which continues to the inspection screen. */
@@ -480,6 +484,28 @@ const CAPTURES: Capture[] = [
     ],
     motion: 'frozen',
     run: (page) => demoResult(page, 'Rear doors with markings'),
+  },
+  {
+    state: 'demo-coyu-seal-result',
+    screen: 'results',
+    steps: ['Demo mode', 'Blue doors with a bolt seal (two photos)', 'Start inspection, settle'],
+    motion: 'frozen',
+    viewports: [{ width: 1440, height: 900 }],
+    run: async (page) => {
+      await demoResult(page, 'Blue doors with a bolt seal')
+      await expect(page.getByText('These photos may be of different containers')).toHaveCount(0)
+    },
+  },
+  {
+    state: 'demo-jdlu-four-result',
+    screen: 'results',
+    steps: ['Demo mode', 'Dusty blue container, four photos', 'Start inspection, settle'],
+    motion: 'frozen',
+    viewports: [{ width: 1440, height: 900 }],
+    run: async (page) => {
+      await demoResult(page, 'Dusty blue container, four photos')
+      await expect(page.getByText('These photos may be of different containers')).toHaveCount(0)
+    },
   },
   {
     state: 'demo-cost-expanded',

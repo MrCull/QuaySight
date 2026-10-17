@@ -12,6 +12,8 @@ export interface ExpectedPhoto {
   faces: string[]
   /** Set on a close-up photo: what it shows. */
   closeUp?: 'seal' | 'id' | 'weights' | 'placard' | 'damage'
+  /** What the photo shows that the faces do not say, such as which long side. Not scored. */
+  note?: string
 }
 
 /**
