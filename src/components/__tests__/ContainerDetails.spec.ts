@@ -169,4 +169,39 @@ describe('ContainerDetails', () => {
     const live = mount(ContainerDetails, { props: { record: await liveDetailsRecord() } })
     expect(live.text()).not.toMatch(FORBIDDEN)
   })
+
+  describe('length from the shape (ticket #66)', () => {
+    const shape = (feet: 20 | 40 | 45) => ({
+      feet,
+      probability: 0.95,
+      certainty: 'Confident' as const,
+    })
+
+    it('says "40 ft" with the Estimated from shape tag when no code decided', async () => {
+      const base = await liveDetailsRecord()
+      const record = { ...base, sizeCode: null, shapeLength: shape(40) }
+      const wrapper = mount(ContainerDetails, { props: { record } })
+      const row = wrapper.findAll('.qs-field').find((r) => r.text().startsWith('LENGTH'))!
+      expect(row.find('.qs-field__value').text()).toBe('40 ft Estimated from shape')
+      expect(row.text()).toContain('Confident')
+      expect(row.text()).not.toContain('Decoded from ISO')
+    })
+
+    it('keeps "Decoded from ISO" when the code decided', async () => {
+      const record = { ...(await liveDetailsRecord()), shapeLength: shape(20) }
+      const wrapper = mount(ContainerDetails, { props: { record } })
+      const row = wrapper.findAll('.qs-field').find((r) => r.text().startsWith('LENGTH'))!
+      expect(row.text()).toContain('Decoded from ISO')
+      expect(wrapper.text()).not.toContain('The size code says')
+    })
+
+    it('warns, and marks the length Uncertain with the shape as the alternative, on disagreement', async () => {
+      const record = { ...(await liveDetailsRecord()), shapeLength: shape(40) }
+      const wrapper = mount(ContainerDetails, { props: { record } })
+      const row = wrapper.findAll('.qs-field').find((r) => r.text().startsWith('LENGTH'))!
+      expect(row.text()).toContain('Uncertain')
+      expect(row.text()).toContain('Also possible: 40 ft')
+      expect(wrapper.text()).toContain('The size code says 20 ft but the shape')
+    })
+  })
 })

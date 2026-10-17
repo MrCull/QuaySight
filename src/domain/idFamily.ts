@@ -11,6 +11,7 @@ import {
   type ChoiceReading,
 } from './idQuestions'
 import { idResultState } from './certainty'
+import { usableIdBox } from './cropRead'
 import type { ContainerIdReading, InspectionRecord } from './inspection'
 import { jevIdReadingOf, type JevBox } from './jev'
 import { assembleLunaReading } from './luna'
@@ -161,6 +162,10 @@ export const idFamily: QuestionFamily = {
       box: ask.box ? jev.box : null,
     }
   },
-  apply: (record, finding) => ({ ...record, containerId: finding.containerId }),
+  apply: (record, finding) => {
+    // The reading carries the box it was read at, so it can be shown enlarged (ticket #67).
+    const box = usableIdBox(finding.box)
+    return { ...record, containerId: box ? { ...finding.containerId, box } : finding.containerId }
+  },
   export: idExport,
 }

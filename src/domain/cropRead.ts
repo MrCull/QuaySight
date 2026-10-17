@@ -123,6 +123,10 @@ export interface IdCropReadRecord {
 }
 
 declare module './inspection' {
+  interface ContainerIdReading {
+    /** Where the ID was read in the photo (ticket #67), when the model gave a usable box. Shown as an enlarged crop. */
+    box?: IdBox
+  }
   interface InspectionRecord {
     /** The crop read of the container ID (ticket #31), when one was started. Absent on other runs. */
     idCropRead?: IdCropReadRecord

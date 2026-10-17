@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import type { InspectionRecord } from '../domain/inspection'
+import { lengthDisagreement } from '../domain/shapeLength'
 import { detailGroups } from './containerDetailRows'
 import CertaintyChip from './CertaintyChip.vue'
 import UnitsToggle from './UnitsToggle.vue'
@@ -12,6 +13,7 @@ const props = defineProps<{ record: InspectionRecord }>()
 // Metric or Imperial: display only, remembered in this browser. The record and the exports never change.
 const { units, set: setUnits } = useUnits()
 
+const lengthWarning = computed(() => lengthDisagreement(props.record))
 const groups = computed(() => detailGroups(props.record, units.value))
 
 // A run that read none of the details (an ID-only run) has nothing to say about them: one plain
@@ -59,6 +61,11 @@ const notAssessed = computed(() => groups.value.flatMap((g) => g.notAssessed ?? 
         </span>
         <CertaintyChip :level="row.certainty" />
         <span v-if="row.note" class="qs-field__note">{{ row.note }}</span>
+      </div>
+      <div v-if="lengthWarning" class="qs-notice qs-notice--partial" role="status">
+        <div>
+          <div class="qs-notice__title">{{ lengthWarning }}</div>
+        </div>
       </div>
       <p v-for="line in notAssessed" :key="line" class="rs-note qs-type-body-sm">{{ line }}</p>
     </template>

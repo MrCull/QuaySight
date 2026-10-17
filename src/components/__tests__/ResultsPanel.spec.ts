@@ -78,4 +78,14 @@ describe('ResultsPanel deterministic checks', () => {
     expect(wrapper.text()).toContain('28,630 kg')
     expect(wrapper.text()).toContain('Calculated')
   })
+
+  it('says the size code in plain words under the ID, from the code alone', async () => {
+    const store = useInspectionStore()
+    const base = await recordedInspection('luna', { delayMs: 0 })
+    store.record = base
+    store.status = 'complete'
+    expect(mount(ResultsPanel).text()).toContain('40 ft High Cube, general purpose')
+    store.record = { ...base, sizeCode: null }
+    expect(mount(ResultsPanel).text()).not.toContain('general purpose')
+  })
 })
