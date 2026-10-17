@@ -160,7 +160,7 @@ export interface ChoiceReading {
 const RUNNER_UP_MIN = 0.15
 const UNREAD_CHARACTER: ChoiceReading = { value: null, certainty: "Can't tell", runnerUp: null }
 
-function readCharacter(answer: SharedAnswer | undefined, allowed: string[]): ChoiceReading {
+export function readCharacter(answer: SharedAnswer | undefined, allowed: string[]): ChoiceReading {
   if (answer?.type !== 'choice' || !allowed.includes(answer.value)) return UNREAD_CHARACTER
   const scored = Object.entries(answer.probabilities)
     .filter(([value]) => allowed.includes(value))
@@ -180,6 +180,7 @@ function readCharacter(answer: SharedAnswer | undefined, allowed: string[]): Cho
     value: chosen.value,
     certainty,
     runnerUp: runner?.value ?? null,
+    ...(runner ? { runnerUpCertainty: certaintyOfProbability(runner.probability) } : {}),
     probability: chosen.probability,
   }
 }

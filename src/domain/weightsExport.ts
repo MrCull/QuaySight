@@ -5,6 +5,7 @@
 import type { ExportUnresolved, ExportValue } from './exports'
 import {
   payloadConflictText,
+  printedPayloadHidden,
   toImperial,
   type CapacityRow,
   type WeightChecks,
@@ -18,6 +19,9 @@ export interface WeightsExport {
   /** Lines for the plain-text summary. */
   summary: string[]
 }
+
+const NOT_SHOWN =
+  'Not shown on screen: the calculated payload is Confident and this reading is not.'
 
 const fmt = (n: number) => n.toLocaleString('en-GB')
 
@@ -114,6 +118,7 @@ export function weightsExport(weights: WeightChecks | null): WeightsExport {
   const tare = weights?.tare ?? null
   const payload = weights?.payload ?? null
   const printed = weights?.printedPayload ?? null
+  const hidden = printedPayloadHidden(weights)
   values.push(
     ...weightValues({
       field: 'maxGross',
@@ -126,7 +131,10 @@ export function weightsExport(weights: WeightChecks | null): WeightsExport {
       field: 'payload.printed',
       row: printed,
       derived: false,
-      note: 'The most the container may carry, not a cargo weight.',
+      note: join(
+        'The most the container may carry, not a cargo weight.',
+        hidden ? NOT_SHOWN : null,
+      ),
     }),
     ...weightValues({
       field: 'payload',
@@ -177,7 +185,11 @@ export function weightsExport(weights: WeightChecks | null): WeightsExport {
     )
   }
   if (tare) summary.push(`Tare (printed): ${AMOUNT(tare)}${tag(tare)}`)
-  if (printed) summary.push(`Payload (printed): ${AMOUNT(printed)}${tag(printed)}`)
+  if (printed) {
+    summary.push(
+      `Payload (printed): ${AMOUNT(printed)}${tag(printed)}${hidden ? ' - not shown on screen' : ''}`,
+    )
+  }
   if (payload) summary.push(`Payload (calculated): ${AMOUNT(payload)} - ${payload.certainty}`)
   if (capacity) {
     summary.push(

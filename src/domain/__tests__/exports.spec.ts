@@ -1,5 +1,6 @@
 import { describe, it, expect } from 'vitest'
 import { recordedInspection } from '../../__tests__/recordedInspection'
+import { coyuReading, liveWeightsRecord, read } from '../../__tests__/liveWeights'
 import { buildContainerIdReading } from '../containerId'
 import {
   buildInspectionExport,
@@ -257,7 +258,7 @@ describe('live damage in the exports', () => {
       photo: 'side.jpg',
       sourcePass: { passId: 'live-openrouter-1-side-damage', kind: 'provider-call' },
     })
-    expect(rail).toMatchObject({ component: 'rail', severity: 'not rated', visibility: null })
+    expect(rail).toMatchObject({ component: 'rail', severity: "can't tell", visibility: null })
   })
 
   it('carries the face, the photo checks, the significance flag and every zone’s visibility', async () => {
@@ -284,6 +285,18 @@ describe('live damage in the exports', () => {
     const sections = zones.flatMap((z) => z.sections ?? [])
     expect(new Set(sections).size).toBe(longSideSections!.count)
     for (const f of json.damage.findings) expect(f).toHaveProperty('sections')
+  })
+
+  it('numbers the sections from the door end of the side the doors put it on', async () => {
+    const record = await liveSideRecord()
+    const first = (side: 'left' | 'right') =>
+      buildInspectionExport({
+        ...record,
+        damage: record.damage && { ...record.damage, sideInference: { side, basis: 'inferred' } },
+      }).damage.zones.find((z) => z.id === 'Z1T')?.sections
+    // Z1T is photo column 1: by the doors when they are at photo left (the right side).
+    expect(first('right')).toEqual([1, 2])
+    expect(first('left')).toEqual([9, 10])
   })
 
   it('records that the door end is assumed when the side was defaulted', async () => {
@@ -327,7 +340,7 @@ describe('live damage in the exports', () => {
   it('puts the significance flag and the unrated component in the summary, never as a repair verdict', async () => {
     const summary = buildSummaryText(await liveSideRecord())
     expect(summary).toContain('Potentially significant damage, closer inspection advised.')
-    expect(summary).toContain('- Damage to the bottom side rail - Likely, severity not rated')
+    expect(summary).toContain("- Damage to the bottom side rail - Likely, severity can't tell")
     expect(summary).not.toMatch(/repair required|unserviceable/i)
   })
 })
@@ -369,6 +382,25 @@ describe('plain-text summary', () => {
     expect(text).toContain('Dents in the side panel - Likely, minor')
     expect(text).toContain('side-dented-grey.jpg')
     expect(text).toContain('run-luna-1')
+  })
+
+  it('says the ID is not readable, with no reading or check digit, when fewer than 6 characters were read', async () => {
+    const base = await lunaRecord()
+    const barely = (printed: string): InspectionRecord => ({
+      ...base,
+      containerId: {
+        ...buildContainerIdReading({ printed: 'APHU6586847', certainty: 'Likely' }),
+        value: printed,
+        alternatives: ['APHU6586840'],
+      },
+    })
+    const hidden = buildSummaryText(barely('???U??0000?'))
+    expect(hidden).toContain('Container ID: ID not readable in this photo')
+    expect(hidden).not.toContain('Container ID (printed)')
+    expect(hidden).not.toContain('Check digit')
+    expect(hidden).not.toContain('Also possible')
+    const shown = buildSummaryText(barely('???U??00000'))
+    expect(shown).toContain('Container ID (printed): ???U??00000')
   })
 
   it('never uses the forbidden status words', async () => {
@@ -420,5 +452,41 @@ describe('no API key in any export', () => {
     expect(buildInspectionExport.length).toBe(1)
     expect(buildRawResponsesExport.length).toBe(1)
     expect(buildSummaryText.length).toBe(1)
+  })
+})
+
+describe('the hidden printed payload in the exports (ticket #65)', () => {
+  const C = 'Confident' as const
+  const coyuRecord = () =>
+    liveWeightsRecord(
+      coyuReading({
+        maxGross: { metric: read(30480, C), imperial: read(67200, C) },
+        tare: { metric: read(2180, C), imperial: read(4810, C) },
+        payload: { metric: read(22330, C), imperial: read(63390, C) },
+      }),
+    )
+
+  it('keeps the printed reading in the JSON, marked as not shown', async () => {
+    const exported = buildInspectionExport(await coyuRecord())
+    const printed = exported.values.find((v) => v.field === 'payload.printed')
+    expect(printed).toMatchObject({ value: 22330, unit: 'kg' })
+    expect(printed?.uncertainty).toContain('Not shown')
+    expect(exported.values.find((v) => v.field === 'payload.printed.lb')).toMatchObject({
+      value: 63390,
+    })
+    expect(exported.values.find((v) => v.field === 'payload')?.uncertainty ?? '').not.toContain(
+      'Not shown',
+    )
+  })
+
+  it('keeps the printed reading in the summary, marked as not shown', async () => {
+    const text = buildSummaryText(await coyuRecord())
+    expect(text).toMatch(/Payload \(printed\): 22,330 kg.*not shown/)
+  })
+
+  it('does not mark the printed payload when it is shown', async () => {
+    const record = await liveWeightsRecord()
+    const printed = buildInspectionExport(record).values.find((v) => v.field === 'payload.printed')
+    expect(printed?.uncertainty ?? '').not.toContain('Not shown')
   })
 })

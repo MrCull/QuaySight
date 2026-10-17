@@ -1,4 +1,5 @@
 import type { ProviderId } from './inspection'
+import { failureOf, type RequestFailure } from './requestFailure'
 import { findRate, type RateSchedule, type SpendCaps } from './rates'
 
 // Live cost ledger (spec 8.5, 11.6). Estimates and provider-reported costs: never an invoice.
@@ -39,6 +40,8 @@ export interface LedgerEntry {
   costUsd: number | null
   costState: CostState
   rateEffectiveFrom: string | null
+  /** Why a failed request failed (ticket #53). Absent on complete and cancelled lines. */
+  failure?: RequestFailure
 }
 
 export interface Totals {
@@ -240,6 +243,7 @@ export async function runChargeable(
       usage: null,
       costUsd: null,
       costState: 'unavailable',
+      ...(cancelled ? {} : { failure: failureOf(error) }),
     }
     ledger.record(entry)
     return cancelled ? { status: 'cancelled', entry } : { status: 'failed', entry, error }

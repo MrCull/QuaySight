@@ -24,8 +24,11 @@ const COVERAGE: { face: FixedFace; name: string }[] = [
   { face: 'roof', name: 'Roof' },
 ]
 
-function photoNumber(face: FixedFace): number {
-  return props.assessment.photos.findIndex((p) => p.face === face) + 1
+/** Which photos show a face: their numbers when the inspection has several, else the one photo. */
+function photoNumbers(face: FixedFace): string {
+  const photos = props.assessment.photos
+  const numbers = photos.flatMap((p, i) => (p.face === face ? [p.index ?? i + 1] : []))
+  return [...new Set(numbers)].join(', ')
 }
 
 // A side picked by default, not from the doors, is said to be uncertain wherever it is named.
@@ -36,7 +39,7 @@ function sideUncertain(face: FixedFace): boolean {
 
 function coverageText(face: FixedFace, status: FaceStatus): string {
   if (status === 'photographed') {
-    return `Photo ${photoNumber(face)}${sideUncertain(face) ? ' · side Uncertain' : ''}`
+    return `Photo${photoNumbers(face).includes(',') ? 's' : ''} ${photoNumbers(face)}${sideUncertain(face) ? ' · side Uncertain' : ''}`
   }
   if (status === 'side-unknown') return "Can't tell"
   return 'Not seen'

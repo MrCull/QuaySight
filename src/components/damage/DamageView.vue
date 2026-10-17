@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import { potentiallySignificant, type DamageAssessment } from '../../domain/damage'
+import { UNIDENTIFIED_FACE_HEADING } from '../../domain/combineDamage'
 import DamageSchematic from './DamageSchematic.vue'
 import DamageFindings from './DamageFindings.vue'
 import '../../styles/damage.css'
@@ -25,7 +26,7 @@ const assessed = computed(() =>
 const summary = computed(() => {
   const a = assessed.value
   if (!a) return ''
-  const n = a.findings.length
+  const n = a.findings.length + (a.unplaced?.length ?? 0)
   if (n === 0) return 'No suspected damage in the photographed faces'
   return `${n} suspected finding${n === 1 ? '' : 's'}`
 })
@@ -80,7 +81,17 @@ const significant = computed(() => !!assessed.value && potentiallySignificant(as
 
       <div class="rs-damage__grid">
         <DamageSchematic :assessment="assessed" :selected-id="selectedId" @select="select" />
-        <DamageFindings :findings="assessed.findings" :selected-id="selectedId" @select="select" />
+        <div class="rs-damage__cards">
+          <DamageFindings :findings="assessed.findings" :selected-id="selectedId" @select="select" />
+          <template v-if="assessed.unplaced?.length">
+            <h3 class="qs-type-body-sm rs-damage__unplaced">{{ UNIDENTIFIED_FACE_HEADING }}</h3>
+            <DamageFindings
+              :findings="assessed.unplaced"
+              :selected-id="selectedId"
+              @select="select"
+            />
+          </template>
+        </div>
       </div>
     </template>
 

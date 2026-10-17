@@ -11,6 +11,7 @@ import { rankIdCandidates, withCategoryLetter } from './idCandidates'
 import { CERTAINTY_LABELS, UNREAD } from './certainty'
 import type { CertaintyLabel, ContainerIdReading } from './inspection'
 import type { Usage } from './ledger'
+import type { DecisionsWire } from './decisionsWire'
 import { classifyFailedCall, type ProviderErrorTraits } from './failedCall'
 import { ProviderError, providerMessage, redact } from './providerErrors'
 import {
@@ -277,4 +278,11 @@ export function mapLunaManifestResponse(
 ): ManifestMapping {
   const reply = readOpenAiReply(response, manifestQuestionSet(questions), requestedModel)
   return manifestMappingOf(reply, questions)
+}
+
+/** What the shared Decisions adapter needs of OpenAI: its endpoint and its error wording. */
+export const LUNA_WIRE: DecisionsWire = {
+  endpoint: LUNA_ENDPOINT,
+  thrown: (online) => lunaFetchFailure(online),
+  failed: (status, body, apiKey) => lunaFailure(status, body, apiKey),
 }

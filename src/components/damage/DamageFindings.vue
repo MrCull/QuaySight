@@ -1,13 +1,13 @@
 <script setup lang="ts">
 import { computed } from 'vue'
-import { sortFindings, type DamageFinding } from '../../domain/damage'
+import type { DamageFinding } from '../../domain/damage'
 import CertaintyChip from '../CertaintyChip.vue'
 import SeverityBadge from './SeverityBadge.vue'
 
 const props = defineProps<{ findings: DamageFinding[]; selectedId: number | null }>()
 const emit = defineEmits<{ select: [id: number] }>()
 
-const ordered = computed(() => sortFindings(props.findings))
+const ordered = computed(() => [...props.findings].sort((a, b) => a.id - b.id))
 
 function uncertaintyClass(f: DamageFinding): string {
   return f.certainty === 'Likely'
@@ -45,6 +45,10 @@ function uncertaintyClass(f: DamageFinding): string {
       </span>
       <span class="qs-finding__more">
         <span>{{ f.description }}</span>
+        <span v-if="f.photos && f.photos.length > 0"
+          ><strong>Seen in:</strong> {{ f.photos.length === 1 ? 'photo' : 'photos' }}
+          {{ f.photos.join(', ') }}</span
+        >
         <span><strong>Best interpretation:</strong> {{ f.bestInterpretation }}</span>
         <span><strong>What remains uncertain:</strong> {{ f.uncertainty }}</span>
         <span class="qs-finding__probs" aria-label="Damage types">

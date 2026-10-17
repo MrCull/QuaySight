@@ -5,6 +5,7 @@
 // One JSON body: `state` holds an instruction text part and the photo as a base64 data-URL part;
 // `questions` is a map of typed questions (noul, choice, score, box). OpenRouter's errors carry CORS
 // headers, so every failed status is readable in the browser and gets its own message.
+import type { DecisionsWire } from './decisionsWire'
 import { classifyFailedCall, type ProviderErrorTraits } from './failedCall'
 import { ProviderError, providerMessage, redact } from './providerErrors'
 import { JevError, mapJevResponse, type JevMapping } from './jev'
@@ -259,4 +260,13 @@ export function mapOpenRouterManifestResponse(
 ): OpenRouterManifestMapping {
   const reply = readOpenRouterReply(response, manifestQuestionSet(questions), requestedModel)
   return { ...manifestMappingOf(reply, questions), reportedCostUsd: reply.reportedCostUsd }
+}
+
+/** What the shared Decisions adapter needs of OpenRouter: its endpoint, attribution headers and error wording. */
+export const OPENROUTER_WIRE: DecisionsWire = {
+  endpoint: OPENROUTER_ENDPOINT,
+  headers: OPENROUTER_ATTRIBUTION_HEADERS,
+  // OpenRouter's errors carry CORS headers, so a thrown fetch is unreachable, online or not.
+  thrown: () => openRouterFetchFailure(),
+  failed: (status, body, apiKey, describe) => openRouterFailure(status, body, apiKey, describe),
 }

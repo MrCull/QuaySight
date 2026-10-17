@@ -1,9 +1,11 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import type { InspectionRecord } from '../domain/inspection'
+import { lengthDisagreement } from '../domain/shapeLength'
 import { detailGroups } from './containerDetailRows'
 import CertaintyChip from './CertaintyChip.vue'
 import UnitsToggle from './UnitsToggle.vue'
+import { causeSentence } from '../domain/requestFailure'
 import { useUnits } from '../composables/units'
 
 const props = defineProps<{ record: InspectionRecord }>()
@@ -11,6 +13,7 @@ const props = defineProps<{ record: InspectionRecord }>()
 // Metric or Imperial: display only, remembered in this browser. The record and the exports never change.
 const { units, set: setUnits } = useUnits()
 
+const lengthWarning = computed(() => lengthDisagreement(props.record))
 const groups = computed(() => detailGroups(props.record, units.value))
 
 // A run that read none of the details (an ID-only run) has nothing to say about them: one plain
@@ -20,6 +23,11 @@ const assessed = computed(
     props.record.details !== undefined ||
     props.record.sizeCode !== null ||
     props.record.weights !== null,
+)
+
+// The survey was asked and failed: say the details could not be read, which is not the same as not asked.
+const detailsFailure = computed(() =>
+  props.record.failures?.find((f) => f.stages.includes('details')),
 )
 
 // Each value keeps its source label: Printed, Decoded from ISO, Calculated or Model-selected (spec 4.3, 4.4).
@@ -33,11 +41,15 @@ const notAssessed = computed(() => groups.value.flatMap((g) => g.notAssessed ?? 
       <span class="rs-k">Container details</span>
       <UnitsToggle v-if="assessed" :model-value="units" @update:model-value="setUnits" />
     </div>
-    <p v-if="!assessed" class="rs-note qs-type-body-sm">
+    <p v-if="detailsFailure" class="rs-note qs-type-body-sm">
+      The container details could not be read in this inspection.
+      {{ causeSentence(detailsFailure) }}
+    </p>
+    <p v-if="!assessed && !detailsFailure" class="rs-note qs-type-body-sm">
       Not assessed in this inspection: this run read the container ID only. Nothing is said about
       the size code or the weights.
     </p>
-    <template v-else>
+    <template v-else-if="assessed">
       <div v-for="row in rows" :key="row.label" class="qs-field">
         <span class="qs-field__label">{{ row.label }}</span>
         <span :class="['qs-field__value', { 'qs-field__value--absent': row.value === null }]">
@@ -49,6 +61,11 @@ const notAssessed = computed(() => groups.value.flatMap((g) => g.notAssessed ?? 
         </span>
         <CertaintyChip :level="row.certainty" />
         <span v-if="row.note" class="qs-field__note">{{ row.note }}</span>
+      </div>
+      <div v-if="lengthWarning" class="qs-notice qs-notice--partial" role="status">
+        <div>
+          <div class="qs-notice__title">{{ lengthWarning }}</div>
+        </div>
       </div>
       <p v-for="line in notAssessed" :key="line" class="rs-note qs-type-body-sm">{{ line }}</p>
     </template>

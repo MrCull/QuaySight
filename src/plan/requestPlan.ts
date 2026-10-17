@@ -1,6 +1,7 @@
 import type { CropRegion } from '../domain/cropRead'
 import type { InspectionRecord, ProviderId } from '../domain/inspection'
 import type { CapReason, ChargeableRequest, ChargeableResult, Usage } from '../domain/ledger'
+import { failureOf, unreadableBody } from '../domain/requestFailure'
 import type { FailureModel } from '../domain/openrouter'
 import type { ModelOption } from '../domain/providers'
 import type { PlannedRequestState, RequestState, StageId } from '../domain/runStages'
@@ -123,6 +124,8 @@ export interface PlanRunOptions {
   onState(states: PlannedRequestState[]): void
   /** A started request settled. Called once per started request, in settle order. */
   onSettled(settled: SettledRequest): void
+  /** Several photos share one inspection: `idPrefix` goes ahead of each request's pass id (`p2-`), `purposeSuffix` after its purpose. */
+  photoLabel?: { idPrefix: string; purposeSuffix: string }
   now?: () => number
 }
 
@@ -200,12 +203,13 @@ export function runPlan(options: PlanRunOptions): PlanRun {
   async function send(r: PlanRequest) {
     const controller = new AbortController()
     controllers.set(r, controller)
-    const passId = `${options.inspectionId}-${r.id}`
+    const label = options.photoLabel
+    const passId = `${options.inspectionId}-${label?.idPrefix ?? ''}${r.id}`
     let reply: RequestReply<unknown> | null = null
     const result = await options.charge({
       id: passId,
       inspectionId: options.inspectionId,
-      purpose: r.purpose,
+      purpose: r.purpose + (label?.purposeSuffix ?? ''),
       provider: options.route.provider,
       endpoint: options.route.endpoint,
       model: options.route.model,
@@ -298,6 +302,31 @@ export function runPlan(options: PlanRunOptions): PlanRun {
 export function foldSettled(record: InspectionRecord, settled: SettledRequest): InspectionRecord {
   const { request, outcome, reply, passId, plan } = settled
   let next = request.apply(record, outcome, plan)
+  if (outcome.status === 'failed') {
+    next = {
+      ...next,
+      failures: [
+        ...(next.failures ?? []),
+        { ...failureOf(outcome.error), requestId: request.id, stages: request.stages },
+      ],
+    }
+    const unreadable = unreadableBody(outcome.error)
+    if (unreadable) {
+      next = {
+        ...next,
+        rawResponses: [
+          ...next.rawResponses,
+          {
+            passId,
+            provider: plan.route.provider,
+            model: plan.route.model,
+            capturedFrom: 'provider',
+            body: unreadable.body,
+          },
+        ],
+      }
+    }
+  }
   if (reply) {
     next = {
       ...next,

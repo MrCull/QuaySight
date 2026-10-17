@@ -41,6 +41,12 @@ function sideReading(overrides: Partial<DamageSetReading> = {}): DamageSetReadin
   }
 }
 
+const placedDent = {
+  ...dent,
+  face: 'right' as const,
+  location: 'Sections 3 and 4 of 10 from the assumed door end, lower half of the side sheet',
+}
+
 const seen = (face: PhotoFace): FaceReading => ({ face, probability: 0.95, certainty: 'Confident' })
 
 describe('choosing the damage for the face the photo shows', () => {
@@ -49,7 +55,7 @@ describe('choosing the damage for the face the photo shows', () => {
     expect(damage).toMatchObject({
       source: 'live',
       photos: [{ photo: 'side.jpg', face: 'right' }],
-      findings: [{ ...dent, face: 'right' }],
+      findings: [placedDent],
       sideInference: { side: 'right', basis: 'defaulted' },
       imageQuality: 'good',
       coverage: 'most',
@@ -58,6 +64,45 @@ describe('choosing the damage for the face the photo shows', () => {
     })
     expect(damage?.notAssessed).toBeUndefined()
   })
+
+  it.each([
+    [20, 'Section 2 of 5 from the door end'],
+    [40, 'Sections 3 and 4 of 10 from the door end'],
+  ] as const)(
+    'words a side card in the drawing’s sections for a %s ft container, never photo columns',
+    (lengthFt, words) => {
+      const damage = assessDamage(
+        seen('long-side'),
+        [sideReading({ doorEnd: 'image-left' })],
+        'side.jpg',
+        lengthFt,
+      )
+      const finding = damage!.findings[0]!
+      expect(finding.location).toBe(`${words}, lower half of the side sheet`)
+      expect(JSON.stringify(damage)).not.toMatch(/photo column/i)
+    },
+  )
+
+  it.each([[null], ['image-left'], ['image-right']] as const)(
+    'never words a side card or zone in photo columns, with the door end %s',
+    (doorEnd) => {
+      const reading = sideReading({
+        doorEnd,
+        zones: [
+          {
+            id: 'Z2B',
+            face: 'long-side',
+            zone: dent.zone!,
+            label: 'photo column 2 of 5 from the left, lower half of the side sheet',
+            visibility: 'clear',
+          },
+        ],
+      })
+      const damage = assessDamage(seen('long-side'), [reading], 'side.jpg')
+      expect(JSON.stringify(damage)).not.toMatch(/photo column/i)
+      expect(damage?.findings[0]?.location).toMatch(/door end, lower half/)
+    },
+  )
 
   it('takes nothing from a set whose own coverage says its face is not inspectable', () => {
     const damage = assessDamage(
@@ -94,9 +139,7 @@ describe('choosing the damage for the face the photo shows', () => {
   })
 
   it('without a detected face, uses the one set whose own coverage says its face is inspectable', () => {
-    expect(assessDamage(undefined, [sideReading()], 'side.jpg')?.findings).toEqual([
-      { ...dent, face: 'right' },
-    ])
+    expect(assessDamage(undefined, [sideReading()], 'side.jpg')?.findings).toEqual([placedDent])
     expect(
       assessDamage(undefined, [sideReading({ inspectable: false })], 'side.jpg')?.notAssessed
         ?.reason,
@@ -115,7 +158,7 @@ describe('folding into the record, whichever request answers first', () => {
   it('gives the same damage when the face lands before or after the set', () => {
     const faceFirst = withDamageReading(withPhotoFace(record, seen('long-side')), sideReading())
     const setFirst = withPhotoFace(withDamageReading(record, sideReading()), seen('long-side'))
-    expect(faceFirst.damage?.findings).toEqual([{ ...dent, face: 'right' }])
+    expect(faceFirst.damage?.findings).toEqual([placedDent])
     expect(setFirst.damage).toEqual(faceFirst.damage)
     expect(setFirst.photoFace).toEqual(seen('long-side'))
   })

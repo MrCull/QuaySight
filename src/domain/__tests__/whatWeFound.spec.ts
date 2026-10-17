@@ -121,7 +121,7 @@ describe('an uncertain ID', () => {
 
     expect(found.headline).toBe('Some of what we found is uncertain')
     expect(found.caveats[0]).toBe(
-      'The container ID is Uncertain. Best reading: COYU 266813 0. Also possible: COYU 266818 0.',
+      'The container ID: Uncertain. Best reading: COYU 266813 0. Also possible: COYU 266818 0.',
     )
     // The caveat says all of it, so the statements do not repeat it.
     expect(statement(found, 'id')).toBeUndefined()
@@ -151,7 +151,7 @@ describe('an uncertain ID', () => {
   it('says plainly that no ID could be read', async () => {
     const found = buildWhatWeFound({ ...(await fullLive()), containerId: null })
     expect(statement(found, 'id')).toBeUndefined()
-    expect(found.caveats).toContain('No container ID could be read from this photo.')
+    expect(found.caveats).toContain('ID not readable in this photo.')
     expect(found.headline).toBe('Some of what we found is uncertain')
   })
 })
@@ -406,7 +406,7 @@ describe('the damage verdict', () => {
       }),
     })
     expect(statement(found, 'damage')).toBe(
-      '4 suspected findings on the long side: Dent in the side sheet, moderate (Confident); Scrape on the lower rail, cosmetic (Likely); Bent corner post, not rated (Likely); and 1 more. Potentially significant damage, closer inspection advised. Other faces were not in the photo, so we have not seen them.',
+      "4 suspected findings on the long side: Dent in the side sheet, moderate (Confident); Scrape on the lower rail, cosmetic (Likely); Bent corner post, can't tell (Likely); and 1 more. Potentially significant damage, closer inspection advised. Other faces were not in the photo, so we have not seen them.",
     )
     expect(found.caveats).toContain('Hole in the side sheet is Uncertain.')
   })
@@ -428,7 +428,7 @@ describe('the damage verdict', () => {
       }),
     })
     expect(statement(found, 'damage')).toContain(
-      '1 suspected finding on the door end: Bent locking bar, not rated (Confident).',
+      "1 suspected finding on the door end: Bent locking bar, can't tell (Confident).",
     )
   })
 
@@ -454,6 +454,35 @@ describe('the damage verdict', () => {
       'Only part of the long side is visible.',
       'Part of the long side could not be seen (Not seen).',
     ])
+  })
+})
+
+describe('the printed payload in What we found (ticket #65)', () => {
+  const C = 'Confident' as const
+  type Pair = { metric: ReturnType<typeof read>; imperial: ReturnType<typeof read> }
+  const confident = {
+    maxGross: { metric: read(30480, C), imperial: read(67200, C) },
+    tare: { metric: read(2180, C), imperial: read(4810, C) },
+  }
+  const found = async (payload: Pair, rest: object = confident) =>
+    buildWhatWeFound({
+      ...(await fullLive()),
+      weights: evaluateWeights(coyuReading({ ...rest, payload })),
+    })
+
+  it('says only the Confident calculated payload when the printed one disagrees with itself', async () => {
+    const f = await found({ metric: read(22330, C), imperial: read(63390, C) })
+    expect(statement(f, 'weights')).toContain('Payload 28,300 kg')
+    expect(everything(f)).not.toMatch(/22,330|63,390|Printed payload/)
+  })
+
+  it('keeps the printed payload caveat when neither is Confident', async () => {
+    // Maximum gross disagrees with itself, so the calculated payload is Uncertain too.
+    const f = await found(
+      { metric: read(22330, C), imperial: read(63390, C) },
+      { ...confident, maxGross: { metric: read(30480, C), imperial: read(67900, C) } },
+    )
+    expect(f.caveats.join(' ')).toContain('Printed payload')
   })
 })
 
@@ -487,7 +516,7 @@ describe('a partial result', () => {
     )
     expect(found.statements.map((s) => s.topic)).not.toContain('id')
     expect(found.gaps).toEqual(['Not finished: the container ID.'])
-    expect(found.caveats).not.toContain('No container ID could be read from this photo.')
+    expect(found.caveats).not.toContain('ID not readable in this photo.')
   })
 })
 

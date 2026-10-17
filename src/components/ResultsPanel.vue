@@ -7,10 +7,14 @@ import type { StageId } from '../domain/runStages'
 import CertaintyChip from './CertaintyChip.vue'
 import ContainerId from './ContainerId.vue'
 import ManifestRetry from './ManifestRetry.vue'
+import PhotoCrop from './PhotoCrop.vue'
+import SealCard from './SealCard.vue'
 import ContainerDetails from './ContainerDetails.vue'
 import ContainerMarkings from './ContainerMarkings.vue'
 import ExportActions from './ExportActions.vue'
 import WhatWeFound from './WhatWeFound.vue'
+import { DIFFERENT_CONTAINERS_MESSAGE, droppedPhotoMessage } from '../domain/combinePhotos'
+import { causeSentence } from '../domain/requestFailure'
 import { unavailableStages } from '../domain/whatWeFound'
 
 const store = useInspectionStore()
@@ -37,6 +41,12 @@ const liveLabel = computed(() => {
       : `Answered by ${r.resolvedVersion}.`,
   }
 })
+
+// Several photos (ticket #70): photos that show no container are named, and so are photos of different containers.
+const droppedPhotos = computed(() =>
+  (record.value?.photos ?? []).filter((p) => p.dropped).map((p) => droppedPhotoMessage(p.index)),
+)
+const differentContainers = computed(() => record.value?.differentContainers === true)
 
 // Each part of the result lands on its own once its stage has settled, ahead of the rest of the run.
 const running = computed(() => store.status === 'running')
@@ -77,13 +87,27 @@ const failedParts = computed(() =>
   partial.value ? store.stages.filter((s) => s.state === 'failed').map((s) => s.id) : [],
 )
 
+/** The cause of a failed part in plain words, then what is kept. */
+function failureBody(part: StageId): string {
+  const failure = record.value?.failures?.find((f) => f.stages.includes(part))
+  return `${failure ? `${causeSentence(failure)} ` : ''}Everything else found is shown.`
+}
+
 // Stagger position of each card in the arrival choreography (read by .qs-rise as --i).
-const STAGGER = { card: 0, alternative: 1, explanation: 2 } as const
+const STAGGER = { card: 0, alternative: 1, crop: 1, explanation: 2 } as const
 
 // Plain explanation for the uncertain, partial and insufficient-evidence states (spec 5.4, 8.4).
 const idState = computed(() =>
   record.value?.containerId ? idResultState(record.value.containerId) : null,
 )
+// The size code in plain words, decoded from the ISO code with no model call (ticket #66). Said only when
+// the code itself was read at Confident or Likely.
+const sizeLine = computed(() => {
+  const size = record.value?.sizeCode
+  return size && (size.certainty === 'Confident' || size.certainty === 'Likely')
+    ? size.summary
+    : null
+})
 const alternatives = computed(() =>
   record.value?.containerId ? visibleAlternatives(record.value.containerId) : [],
 )
@@ -138,6 +162,31 @@ const showInsufficient = computed(() => idState.value === 'insufficient')
       <span class="qs-notice__kicker">Live</span>
     </div>
 
+    <div v-if="differentContainers" class="qs-notice qs-notice--partial" role="status">
+      <i class="qs-glyph qs-glyph--cross" aria-hidden="true"></i>
+      <div>
+        <div class="qs-notice__title">{{ DIFFERENT_CONTAINERS_MESSAGE }}</div>
+        <div class="qs-notice__body">
+          Two photos read different container IDs, so nothing from them is combined. Start a new
+          inspection for each container.
+        </div>
+      </div>
+      <span class="qs-notice__kicker">Check</span>
+    </div>
+
+    <div
+      v-for="message in droppedPhotos"
+      :key="message"
+      class="qs-notice qs-notice--partial"
+      role="status"
+    >
+      <i class="qs-glyph qs-glyph--cross" aria-hidden="true"></i>
+      <div>
+        <div class="qs-notice__title">{{ message }}</div>
+        <div class="qs-notice__body">Nothing from it is used.</div>
+      </div>
+    </div>
+
     <div v-if="store.status === 'failed'" class="qs-notice qs-notice--error" role="alert">
       <i class="qs-glyph qs-glyph--error" aria-hidden="true"></i>
       <div>
@@ -171,7 +220,7 @@ const showInsufficient = computed(() => idState.value === 'insufficient')
       <i class="qs-glyph qs-glyph--error" aria-hidden="true"></i>
       <div>
         <div class="qs-notice__title">{{ FAILED_TITLE[part] }}</div>
-        <div class="qs-notice__body">Everything else found is shown.</div>
+        <div class="qs-notice__body">{{ failureBody(part) }}</div>
       </div>
     </div>
 
@@ -196,45 +245,49 @@ const showInsufficient = computed(() => idState.value === 'insufficient')
         <span class="rs-k">Container ID</span>
         <CertaintyChip :level="record.containerId.certainty" />
       </div>
-      <ContainerId :reading="record.containerId" />
-
-      <p
-        v-for="alt in alternatives"
-        :key="alt"
-        class="rs-also qs-rise qs-type-body-sm"
-        :style="{ '--i': STAGGER.alternative }"
-      >
-        Also possible: <span class="qs-type-data">{{ groupedId(alt) }}</span>
+      <p v-if="showInsufficient" class="rs-note qs-type-body-sm" role="status">
+        ID not readable in this photo
       </p>
+      <template v-else>
+        <ContainerId :reading="record.containerId" />
+        <p v-if="sizeLine" class="rs-note qs-type-body-sm">{{ sizeLine }}</p>
 
-      <div
-        v-if="showExplanation"
-        class="rs-explain qs-rise qs-type-body-sm"
-        :style="{ '--i': STAGGER.explanation }"
-      >
-        <p>
-          <b>Best interpretation: </b>
-          <span class="qs-type-data">{{ groupedId(bestInterpretation) }}</span>
+        <!-- Where the ID was read, cut from the photo on screen; absent when the reading has no usable box. -->
+        <PhotoCrop
+          v-if="store.photo"
+          class="qs-rise"
+          :style="{ '--i': STAGGER.crop }"
+          :src="store.photo.url"
+          :box="record.containerId.box"
+          caption="Where we read the ID"
+          label="The container ID"
+        />
+
+        <p
+          v-for="alt in alternatives"
+          :key="alt"
+          class="rs-also qs-rise qs-type-body-sm"
+          :style="{ '--i': STAGGER.alternative }"
+        >
+          Also possible: <span class="qs-type-data">{{ groupedId(alt) }}</span>
         </p>
-        <p><b>What remains uncertain:</b> {{ remainsUncertain }}</p>
-      </div>
 
-      <div
-        v-if="showInsufficient"
-        class="qs-notice qs-notice--suggestion rs-explain qs-rise qs-type-body-sm"
-        :style="{ '--i': STAGGER.explanation }"
-        role="status"
-      >
-        <i class="qs-glyph qs-glyph--unseen" aria-hidden="true"></i>
-        <div>
-          <div class="qs-notice__title">The container ID could not be read from this photo.</div>
-          <div class="qs-notice__body">A closer photo of the door markings may help.</div>
+        <div
+          v-if="showExplanation"
+          class="rs-explain qs-rise qs-type-body-sm"
+          :style="{ '--i': STAGGER.explanation }"
+        >
+          <p>
+            <b>Best interpretation: </b>
+            <span class="qs-type-data">{{ groupedId(bestInterpretation) }}</span>
+          </p>
+          <p><b>What remains uncertain:</b> {{ remainsUncertain }}</p>
         </div>
-      </div>
+      </template>
     </div>
 
     <div
-      v-else-if="idLanded && record"
+      v-else-if="idLanded && record && !differentContainers"
       :class="['rs-card', 'qs-rise', { 'qs-arrived': arrivedEarly }]"
       :style="{ '--i': STAGGER.card }"
     >
@@ -245,12 +298,30 @@ const showInsufficient = computed(() => idState.value === 'insufficient')
       <p class="rs-note qs-type-body-sm">The container ID could not be read from this photo.</p>
     </div>
 
+    <!-- The seal, under the ID. Absent when the survey did not assess it. -->
+    <SealCard
+      v-if="idLanded && record?.seal"
+      :reading="record.seal"
+      :photo-url="
+        (record.seal.photo ? store.photos[record.seal.photo - 1]?.url : null) ??
+        store.photo?.url ??
+        null
+      "
+      :class="['qs-rise', { 'qs-arrived': arrivedEarly }]"
+      :style="{ '--i': STAGGER.card }"
+    />
+
     <!-- Live: a live call on the same model. Demo: the sample's own recorded check. Never a replay against another photo. -->
-    <ManifestRetry v-if="store.canCheckManifest" />
+    <ManifestRetry v-if="store.canCheckManifest && !differentContainers" />
 
     <template v-if="record && detailsLanded">
       <ContainerDetails :record="record" :class="{ 'qs-arrived': detailsEarly }" />
-      <ContainerMarkings :record="record" :class="{ 'qs-arrived': detailsEarly }" />
+      <ContainerMarkings
+        :record="record"
+        :photo="store.photo?.url ?? null"
+        :photos="store.photos.map((p) => p.url)"
+        :class="{ 'qs-arrived': detailsEarly }"
+      />
     </template>
 
     <ExportActions v-if="!running" />

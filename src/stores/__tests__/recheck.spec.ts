@@ -4,54 +4,41 @@ import { setActivePinia, createPinia } from 'pinia'
 // jsdom has no image decoder or canvas; photo preparation runs on the fake codec.
 vi.mock('../../services/imageCodec')
 
-const callLunaMock = vi.fn<(...args: unknown[]) => unknown>()
-vi.mock('../../services/luna', () => ({
-  callLuna: (...args: unknown[]) => callLunaMock(...args),
-}))
-
 import { useInspectionStore } from '../inspection'
 import { useLedgerStore } from '../ledger'
-import { LunaError, type ChoiceReading } from '../../domain/luna'
-import { buildContainerIdReading } from '../../domain/containerId'
 import { jsonResponse, openAiSurveyReply } from '../../__tests__/surveyReplies'
 
 const KEY = 'test-only-key-value-0000'
 
 // Hand-written: APHU658684 with check digit 7 is the worked example. Positions 7 and 9 are unread on the
-// first pass, which is the survey's reading (fetch stubbed); the re-check goes through callLuna (mocked).
+// first pass, which is the survey's reading (fetch stubbed); the re-check is a second fetch (stubbed).
 const FIRST_PRINTED = 'APHU65?6?47'
 const FULL_ID = 'APHU6586847'
 
-function readingsOf(value: string): ChoiceReading[] {
-  return value
-    .split('')
-    .map((c) =>
-      c === '?'
-        ? { value: null, certainty: "Can't tell", runnerUp: null }
-        : { value: c, certainty: 'Confident', runnerUp: null },
-    )
-}
-
-function recheckResult() {
-  return {
-    containerId: buildContainerIdReading({ printed: FULL_ID, certainty: 'Confident' }),
-    readings: readingsOf(FULL_ID),
-    raw: { answers: ['recheck'] },
-    resolvedModel: 'gpt-6-luna-20260922',
-    usage: { inputTokens: 2100, outputTokens: null },
-    latencyMs: 400,
-  }
-}
-
-/** A re-check reply that reads only the requested positions. Positions 7 and 9 here are the unread ones. */
+/** An OpenAI reply to a re-check that reads only the given positions (1-based, value by position). */
 function recheckReply(overrides: Partial<Record<number, string>> = {}) {
-  const readings: ChoiceReading[] = Array.from({ length: 11 }, (_, i) => {
-    const value = overrides[i + 1]
-    return value
-      ? { value, certainty: 'Likely', runnerUp: null }
-      : { value: null, certainty: "Can't tell", runnerUp: null }
+  return jsonResponse({
+    model: 'gpt-6-luna-20260922',
+    answers: Object.entries(overrides).map(([position, value]) => ({
+      type: 'choice',
+      name: `id_char_${position.padStart(2, '0')}`,
+      choice: value,
+      probabilities: [{ value, probability: 0.8 }],
+    })),
+    usage: { input_tokens: 2100 },
   })
-  return { ...recheckResult(), readings }
+}
+
+/** The re-check is the run's second request: the survey is the first. */
+function recheckCall(fetchMock: ReturnType<typeof vi.fn<typeof fetch>>) {
+  const [, init] = fetchMock.mock.calls[1] as unknown as [string, RequestInit]
+  return {
+    positions: (JSON.parse(String(init.body)).questions as { name: string }[]).map((q) =>
+      Number(q.name.slice(-2)),
+    ),
+    apiKey: String((init.headers as Record<string, string>).Authorization).replace('Bearer ', ''),
+    signal: init.signal as AbortSignal,
+  }
 }
 
 function choosePhoto(store: ReturnType<typeof useInspectionStore>) {
@@ -86,7 +73,6 @@ describe('automatic re-check of unresolved container ID positions (live Luna)', 
 
   beforeEach(() => {
     setActivePinia(createPinia())
-    callLunaMock.mockReset()
     fetchMock = vi.fn<typeof fetch>()
     vi.stubGlobal('fetch', fetchMock)
   })
@@ -98,7 +84,7 @@ describe('automatic re-check of unresolved container ID positions (live Luna)', 
 
   it('re-asks only the unread positions once, on the same model, and merges the answer', async () => {
     firstReading()
-    callLunaMock.mockResolvedValueOnce(recheckReply({ 7: '8', 9: '8' }))
+    fetchMock.mockResolvedValueOnce(recheckReply({ 7: '8', 9: '8' }))
     const store = useInspectionStore()
     store.setProvider('luna')
     store.setApiKey(KEY)
@@ -106,8 +92,8 @@ describe('automatic re-check of unresolved container ID positions (live Luna)', 
 
     await store.start()
 
-    expect(callLunaMock).toHaveBeenCalledTimes(1)
-    const second = callLunaMock.mock.calls[0]?.[0] as { positions: number[]; apiKey: string }
+    expect(fetchMock).toHaveBeenCalledTimes(2)
+    const second = recheckCall(fetchMock)
     expect(second.positions).toEqual([7, 9])
     expect(second.apiKey).toBe(KEY)
 
@@ -133,7 +119,7 @@ describe('automatic re-check of unresolved container ID positions (live Luna)', 
 
   it('shows the re-check as its own ledger line on the same model and provider', async () => {
     firstReading()
-    callLunaMock.mockResolvedValueOnce(recheckReply({ 7: '8', 9: '8' }))
+    fetchMock.mockResolvedValueOnce(recheckReply({ 7: '8', 9: '8' }))
     const store = useInspectionStore()
     store.setProvider('luna')
     const ledger = useLedgerStore()
@@ -156,9 +142,7 @@ describe('automatic re-check of unresolved container ID positions (live Luna)', 
 
   it('keeps the first result visible when the re-check fails', async () => {
     firstReading()
-    callLunaMock.mockRejectedValueOnce(
-      new LunaError('http', 'OpenAI is unavailable right now.', 503),
-    )
+    fetchMock.mockResolvedValueOnce(jsonResponse({ error: { message: 'down' } }, 503))
     const store = useInspectionStore()
     store.setProvider('luna')
     const ledger = useLedgerStore()
@@ -191,7 +175,7 @@ describe('automatic re-check of unresolved container ID positions (live Luna)', 
     await store.start()
 
     expect(gate).toHaveBeenCalledTimes(2)
-    expect(callLunaMock).not.toHaveBeenCalled()
+    expect(fetchMock).toHaveBeenCalledTimes(1)
     expect(store.status).toBe('complete')
     expect(store.record?.containerId?.value).toBe(FIRST_PRINTED)
     expect(store.record?.rechecks?.[0]).toMatchObject({
@@ -202,16 +186,16 @@ describe('automatic re-check of unresolved container ID positions (live Luna)', 
   })
 
   it('keeps the ID stage at work until the re-check settles, so the first reading never shows on its own', async () => {
-    let answerRecheck: (value: unknown) => void = () => {}
+    let answerRecheck: (value: Response) => void = () => {}
     firstReading()
-    callLunaMock.mockReturnValueOnce(new Promise((resolve) => (answerRecheck = resolve)))
+    fetchMock.mockReturnValueOnce(new Promise((resolve) => (answerRecheck = resolve)))
     const store = useInspectionStore()
     store.setProvider('luna')
     store.setApiKey(KEY)
     choosePhoto(store)
 
     const run = store.start()
-    await vi.waitFor(() => expect(callLunaMock).toHaveBeenCalledTimes(1))
+    await vi.waitFor(() => expect(fetchMock).toHaveBeenCalledTimes(2))
     expect(store.stages[0]?.state).toBe('active')
     expect(store.landed('id')).toBe(false)
 
@@ -223,19 +207,23 @@ describe('automatic re-check of unresolved container ID positions (live Luna)', 
 
   it('Cancel during the re-check keeps the first reading, marked partial', async () => {
     firstReading()
-    callLunaMock.mockReturnValueOnce(new Promise(() => {}))
+    fetchMock.mockImplementationOnce(
+      (_url, init) =>
+        new Promise((_resolve, reject) =>
+          init?.signal?.addEventListener('abort', () => reject(init.signal?.reason)),
+        ),
+    )
     const store = useInspectionStore()
     store.setProvider('luna')
     store.setApiKey(KEY)
     choosePhoto(store)
 
     const run = store.start()
-    await vi.waitFor(() => expect(callLunaMock).toHaveBeenCalledTimes(1))
+    await vi.waitFor(() => expect(fetchMock).toHaveBeenCalledTimes(2))
     store.cancel()
     await run
 
-    const signal = (callLunaMock.mock.calls[0]![0] as { signal: AbortSignal }).signal
-    expect(signal.aborted).toBe(true)
+    expect(recheckCall(fetchMock).signal.aborted).toBe(true)
     expect(store.status).toBe('complete')
     expect(store.record?.status).toBe('partial')
     expect(store.record?.containerId?.value).toBe(FIRST_PRINTED)
@@ -256,7 +244,6 @@ describe('automatic re-check of unresolved container ID positions (live Luna)', 
 
     await store.start()
 
-    expect(callLunaMock).not.toHaveBeenCalled()
     expect(fetchMock).toHaveBeenCalledTimes(1)
     expect(store.record?.rechecks ?? []).toEqual([])
   })

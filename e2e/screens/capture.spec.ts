@@ -26,6 +26,7 @@ import { buildIndex, certaintyLabelsIn, shotFileName, type ShotInput } from './i
 import {
   CONFLICTING_WEIGHTS,
   HOLD,
+  SERVER_ERROR,
   MARKINGS_SEEN,
   kindOfRequest,
   longSideScript,
@@ -89,8 +90,7 @@ interface Capture {
 
 const open = (page: Page) => page.goto('/')
 
-const choosePhoto = (page: Page) =>
-  page.locator('input[type="file"]').setInputFiles(samplePhoto)
+const choosePhoto = (page: Page) => page.locator('input[type="file"]').setInputFiles(samplePhoto)
 
 /** On the setup card: picks OpenAI. OpenRouter is pre-selected; the Luna captures replay OpenAI responses. */
 async function chooseOpenAI(page: Page) {
@@ -163,22 +163,79 @@ async function liveRun(page: Page) {
  * A Jev reading of the APHU sample through OpenRouter, in the response shape seen live on 16 Oct 2026, with the
  * details answered like a clean door and the damage sets answering as OpenRouter's keyed shape does.
  */
-function openRouterJevScript(): Script {
+function openRouterJevScript(placards: Record<string, unknown> = {}): Script {
   return (kind) => {
     if (kind === 'door') return jevDoorReply()
     if (kind === 'side') return notASideReply()
+    const reply = openRouterSurveyReply('APHU6586847', {
+      box: true,
+      details: {
+        size_type_code: [['45G1', 0.9]],
+        photo_face: [['rear_doors', 0.95]],
+      },
+      cost: 0.000077448,
+    })
     return {
-      ...openRouterSurveyReply('APHU6586847', {
-        details: {
-          size_type_code: [['45G1', 0.9]],
-          photo_face: [['rear_doors', 0.95]],
-        },
-        cost: 0.000077448,
-      }),
+      ...reply,
+      answers: { ...reply.answers, ...placards },
       id: 'gen-dec-screenshot',
       provider: 'TypeSafe',
     }
   }
+}
+
+// Hand-written placard answers in OpenRouter's keyed shape (ticket #69).
+const yes = (probability: number) => ({ type: 'predicate', probability })
+const pick = (value: string, p = 0.96) => ({
+  type: 'choice',
+  choice: value,
+  probabilities: { [value]: p },
+  confidence: p,
+})
+function placardAnswers(
+  n: number,
+  klass: string,
+  un: string,
+  left: number,
+): Record<string, unknown> {
+  const out: Record<string, unknown> = {
+    [`placard_${n}_present`]: yes(0.96),
+    [`placard_${n}_class`]: pick(klass),
+    [`placard_${n}_box`]: {
+      type: 'box',
+      box: { top: 0.3, bottom: 0.4, left, right: left + 0.1 },
+      confidence: 0.85,
+    },
+  }
+  ;[...un].forEach((ch, i) => {
+    out[`placard_${n}_un_${i + 1}`] = pick(ch === '?' ? 'unreadable' : ch)
+  })
+  return out
+}
+const NO_PLACARDS = {
+  placards_present: yes(0.03),
+  marine_pollutant_mark: yes(0.02),
+  limited_quantity_mark: yes(0.02),
+}
+const TWO_PLACARDS = {
+  placards_present: yes(0.97),
+  ...placardAnswers(1, 'class_3', '1203', 0.3),
+  ...placardAnswers(2, 'class_9', '3082', 0.55),
+  marine_pollutant_mark: yes(0.94),
+  limited_quantity_mark: yes(0.9),
+}
+const UNREAD_UN = {
+  placards_present: yes(0.97),
+  ...placardAnswers(1, 'class_3', '12?3', 0.3),
+  marine_pollutant_mark: yes(0.03),
+  limited_quantity_mark: yes(0.03),
+}
+
+async function jevResult(page: Page) {
+  await open(page)
+  await liveKey(page, 'OpenRouter API key')
+  await choosePhoto(page)
+  await startAndSettle(page, 'Run live inspection')
 }
 
 /** GPT-6 Luna Decisions through OpenRouter: the recorded smoke response answers the survey; no damage question is answered. */
@@ -200,7 +257,9 @@ function lunaVariant(kind: 'uncertain' | 'partial' | 'insufficient') {
   const body = structuredClone(lunaSmoke)
   if (kind === 'insufficient') body.answers = []
   if (kind === 'partial') {
-    body.answers = body.answers.filter((a) => !['id_char_05', 'id_char_09'].includes(String(a.name)))
+    body.answers = body.answers.filter(
+      (a) => !['id_char_05', 'id_char_09'].includes(String(a.name)),
+    )
   }
   if (kind === 'uncertain') {
     for (const answer of body.answers) {
@@ -221,9 +280,7 @@ function idVariantScript(kind: 'uncertain' | 'partial' | 'insufficient'): Script
   const base = rearDoorsScript({ face: 'rear_doors' })
   const answers = lunaVariant(kind).answers
   return (k, n) =>
-    k === 'survey'
-      ? surveyWithIdAnswers(answers, { id: 'APHU6586847' })
-      : base(k, n)
+    k === 'survey' ? surveyWithIdAnswers(answers, { id: 'APHU6586847' }) : base(k, n)
 }
 
 /** Starts a live run on the COYU door photo (or another) and returns without waiting for it to finish. */
@@ -260,7 +317,11 @@ const CAPTURES: Capture[] = [
   {
     state: 'setup-provider-list',
     screen: 'setup',
-    steps: ['Open /', 'Press ArrowDown on the provider button (list open, OpenAI active)', 'Press ArrowDown'],
+    steps: [
+      'Open /',
+      'Press ArrowDown on the provider button (list open, OpenAI active)',
+      'Press ArrowDown',
+    ],
     motion: 'frozen',
     run: async (page) => {
       await open(page)
@@ -348,7 +409,10 @@ const CAPTURES: Capture[] = [
   {
     state: 'demo-sample-ready',
     screen: 'demo',
-    steps: ['Demo-picker steps', 'Choose Rear doors with markings (photo on the stage, Start inspection)'],
+    steps: [
+      'Demo-picker steps',
+      'Choose Rear doors with markings (photo on the stage, Start inspection)',
+    ],
     motion: 'frozen',
     run: async (page) => {
       await open(page)
@@ -370,7 +434,11 @@ const CAPTURES: Capture[] = [
   {
     state: 'analysing-mid',
     screen: 'analysing',
-    steps: ['Demo-sample-ready steps', 'Click Start inspection', 'Capture 500ms in, during the staged progress (animations live)'],
+    steps: [
+      'Demo-sample-ready steps',
+      'Click Start inspection',
+      'Capture 500ms in, during the staged progress (animations live)',
+    ],
     motion: 'animated',
     run: async (page) => {
       await open(page)
@@ -384,7 +452,12 @@ const CAPTURES: Capture[] = [
   {
     state: 'analysing-reduced-motion',
     screen: 'analysing',
-    steps: ['Reduced-motion emulation', 'Demo-sample-ready steps', 'Click Start inspection', 'Capture 500ms in'],
+    steps: [
+      'Reduced-motion emulation',
+      'Demo-sample-ready steps',
+      'Click Start inspection',
+      'Capture 500ms in',
+    ],
     motion: 'animated',
     viewports: [{ width: 1440, height: 900 }],
     reducedMotion: true,
@@ -400,7 +473,11 @@ const CAPTURES: Capture[] = [
   {
     state: 'demo-rear-result',
     screen: 'results',
-    steps: ['Demo mode', 'Rear doors with markings (recorded Luna, earlier ID-only run)', 'Start inspection, settle'],
+    steps: [
+      'Demo mode',
+      'Rear doors with markings (recorded Luna, earlier ID-only run)',
+      'Start inspection, settle',
+    ],
     motion: 'frozen',
     run: (page) => demoResult(page, 'Rear doors with markings'),
   },
@@ -427,7 +504,11 @@ const CAPTURES: Capture[] = [
   {
     state: 'demo-clean-result',
     screen: 'results',
-    steps: ['Demo mode', 'Clean grey rear doors (recorded Jev latest through OpenRouter, uncertain digits)', 'Start inspection, settle'],
+    steps: [
+      'Demo mode',
+      'Clean grey rear doors (recorded Jev latest through OpenRouter, uncertain digits)',
+      'Start inspection, settle',
+    ],
     motion: 'frozen',
     run: (page) => demoResult(page, 'Clean grey rear doors'),
   },
@@ -473,6 +554,27 @@ const CAPTURES: Capture[] = [
       await startAndSettle(page, 'Run live inspection')
     },
   },
+  ...(
+    [
+      ['placards-none', 'no placards seen', NO_PLACARDS],
+      [
+        'placards-two',
+        'two placards with the marine pollutant and limited quantity marks',
+        TWO_PLACARDS,
+      ],
+      ['placards-unread-un', 'one placard whose UN number has an unread digit', UNREAD_UN],
+    ] as const
+  ).map(([state, what, answers]): Capture => ({
+    state,
+    screen: 'results',
+    steps: [
+      'OpenRouter live result steps',
+      `Mocked Jev reading with boxes: ${what}; the Markings card shows the placards with crops`,
+    ],
+    motion: 'frozen',
+    script: () => openRouterJevScript(answers),
+    run: jevResult,
+  })),
   {
     state: 'openrouter-luna-result',
     screen: 'results',
@@ -512,7 +614,13 @@ const CAPTURES: Capture[] = [
   {
     state: 'live-uncertain',
     screen: 'results',
-    steps: ['Open /', 'Type placeholder key, Enter', 'Choose photo', 'Run live inspection (mocked Decisions: uncertain)', 'settle'],
+    steps: [
+      'Open /',
+      'Type placeholder key, Enter',
+      'Choose photo',
+      'Run live inspection (mocked Decisions: uncertain)',
+      'settle',
+    ],
     motion: 'frozen',
     script: () => idVariantScript('uncertain'),
     run: liveRun,
@@ -520,15 +628,42 @@ const CAPTURES: Capture[] = [
   {
     state: 'live-partial',
     screen: 'results',
-    steps: ['Open /', 'Type placeholder key, Enter', 'Choose photo', 'Run live inspection (mocked Decisions: positions 5 and 9 unread)', 'settle'],
+    steps: [
+      'Open /',
+      'Type placeholder key, Enter',
+      'Choose photo',
+      'Run live inspection (mocked Decisions: positions 5 and 9 unread)',
+      'settle',
+    ],
     motion: 'frozen',
     script: () => idVariantScript('partial'),
     run: liveRun,
   },
   {
+    state: 'live-survey-failed',
+    screen: 'results',
+    steps: [
+      'Open /',
+      'Type placeholder key, Enter',
+      'Choose photo',
+      'Run live inspection (mocked: the survey fails with an HTTP 500, damage answers)',
+      'settle',
+    ],
+    motion: 'frozen',
+    viewports: [{ width: 1440, height: 900 }],
+    script: () => rearDoorsScript({}, { survey: SERVER_ERROR }),
+    run: liveRun,
+  },
+  {
     state: 'live-insufficient',
     screen: 'results',
-    steps: ['Open /', 'Type placeholder key, Enter', 'Choose photo', 'Run live inspection (mocked Decisions: nothing read)', 'settle'],
+    steps: [
+      'Open /',
+      'Type placeholder key, Enter',
+      'Choose photo',
+      'Run live inspection (mocked Decisions: nothing read)',
+      'settle',
+    ],
     motion: 'frozen',
     script: () => idVariantScript('insufficient'),
     run: liveRun,
@@ -543,7 +678,11 @@ const CAPTURES: Capture[] = [
   {
     state: 'manifest-checking',
     screen: 'manifest-retry',
-    steps: ['Manifest offer steps', 'Paste APHU 658684 and click Check again with this manifest', 'Capture 500ms in'],
+    steps: [
+      'Manifest offer steps',
+      'Paste APHU 658684 and click Check again with this manifest',
+      'Capture 500ms in',
+    ],
     motion: 'animated',
     run: async (page) => {
       await unidentifiedRun(page)
@@ -573,7 +712,11 @@ const CAPTURES: Capture[] = [
   {
     state: 'manifest-no-match',
     screen: 'manifest-retry',
-    steps: ['Manifest offer steps', 'Paste APHU 658684 and click Check again with this manifest', 'No entry matches; the panel stays open'],
+    steps: [
+      'Manifest offer steps',
+      'Paste APHU 658684 and click Check again with this manifest',
+      'No entry matches; the panel stays open',
+    ],
     motion: 'frozen',
     run: async (page) => {
       await unidentifiedRun(page)
@@ -639,10 +782,7 @@ const CAPTURES: Capture[] = [
   {
     state: 'progress-cancel-focused',
     screen: 'analysing',
-    steps: [
-      'Progress (survey pending) steps',
-      'Tab to Cancel so the keyboard focus ring shows',
-    ],
+    steps: ['Progress (survey pending) steps', 'Tab to Cancel so the keyboard focus ring shows'],
     motion: 'frozen',
     script: () => rearDoorsScript({}, { survey: HOLD }),
     run: async (page) => {
@@ -748,11 +888,11 @@ const CAPTURES: Capture[] = [
     screen: 'results',
     steps: [
       'Settings-chip steps (OpenAI), choose the dented grey side photo',
-      'Run live inspection (mocked: face long side; findings at each of the four severities and a bent bottom rail; the door-end set sees no door end)',
+      'Run live inspection (mocked: face long side, no readable size code so the length is estimated from shape; findings at each of the four severities and a bent bottom rail; the door-end set sees no door end)',
       'settle',
     ],
     motion: 'frozen',
-    script: () => longSideScript(),
+    script: () => longSideScript({ shapeLength: '40_ft', sizeTypeCode: [['not_visible', 0.95]] }),
     run: (page) => liveLanded(page, sidePhoto),
   },
   {
@@ -780,7 +920,12 @@ function writeIndex() {
 }
 
 /** Routes every request: the app origin passes; each Decisions request is answered by the script; the rest is aborted. */
-async function guardNetwork(page: Page, origin: string, script: Script | undefined, blocked: string[]) {
+async function guardNetwork(
+  page: Page,
+  origin: string,
+  script: Script | undefined,
+  blocked: string[],
+) {
   let calls = 0
   await page.route('**/*', async (route) => {
     const url = route.request().url()
@@ -792,6 +937,13 @@ async function guardNetwork(page: Page, origin: string, script: Script | undefin
       const reply = script(kindOfRequest(route.request().postData() ?? ''), calls)
       // A held request stays in flight until the page aborts it or the capture ends.
       if (reply === HOLD) return
+      if (reply === SERVER_ERROR) {
+        return route.fulfill({
+          status: 500,
+          contentType: 'application/json',
+          body: JSON.stringify({ error: { message: 'server error' } }),
+        })
+      }
       return route.fulfill({
         status: 200,
         contentType: 'application/json',

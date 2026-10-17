@@ -1,7 +1,8 @@
 import { describe, it, expect } from 'vitest'
 import { FACE_QUESTION, faceOf, facePart } from '../photoFace'
 import { readAnswers, questionSet, toWireRequest, type QuestionWireFormat } from '../questionSet'
-import { SURVEY_PARTS, surveyQuestionSet } from '../survey'
+import { questionFamilies } from '../questionRegistry'
+import { surveyQuestionSet } from '../survey'
 
 const PHOTO = 'data:image/jpeg;base64,AAAA'
 
@@ -11,7 +12,7 @@ function readPhotoFace(wire: QuestionWireFormat, raw: unknown) {
 }
 
 describe('the face question', () => {
-  it('offers the six faces a photo can show', () => {
+  it('offers the faces a photo can show, and that it is no container', () => {
     expect(FACE_QUESTION.type).toBe('choice')
     expect(FACE_QUESTION.choices.map((c) => c.value)).toEqual([
       'rear_doors',
@@ -19,12 +20,13 @@ describe('the face question', () => {
       'front_end',
       'roof',
       'close_up',
+      'not_a_container',
       'unknown',
     ])
   })
 
-  it('is one survey part, asked once, after the ID questions', () => {
-    expect(SURVEY_PARTS).toContain(facePart)
+  it('is one question family, asked once, after the ID questions', () => {
+    expect(questionFamilies()).toContain(facePart)
     for (const questionSet of ['luna', 'jev'] as const) {
       const names = surveyQuestionSet({ questionSet, box: false }).questions.map((q) => q.name)
       expect(names.filter((n) => n === FACE_QUESTION.name)).toHaveLength(1)

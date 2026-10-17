@@ -277,7 +277,7 @@ describe('manifest check after a live inspection', () => {
     const ledger = useLedgerStore()
     // A check whose reported cost uses up the inspection's spend limit.
     fetchMock.mockImplementationOnce(async (_input, init) =>
-      json(openRouterManifestAnswer(String(init?.body), null, 0.93, 0.06)),
+      json(openRouterManifestAnswer(String(init?.body), null, 0.93, 0.6)),
     )
     await store.retryManifest(MANIFEST)
 

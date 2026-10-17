@@ -171,8 +171,8 @@ describe('long-side damage on a live run', () => {
 
     const damage = store.record?.damage
     expect(damage?.findings.map((f) => f.location)).toEqual([
-      'Photo column 2 of 5 from the left, lower half of the side sheet',
-      'Photo column 3 of 5 from the left, lower half of the side sheet',
+      'Sections 3 and 4 of 10 from the assumed door end, lower half of the side sheet',
+      'Sections 5 and 6 of 10 from the assumed door end, lower half of the side sheet',
     ])
     expect(damage?.findings[0]).toMatchObject({
       face: 'right',
@@ -207,9 +207,9 @@ describe('long-side damage on a live run', () => {
   })
 
   it.each([
-    ['image_left', 'left', 'inferred', 'from the door end'],
-    ['image_right', 'right', 'inferred', 'from the front end'],
-    ['not_identifiable', 'right', 'defaulted', 'from the left'],
+    ['image_left', 'right', 'inferred', 'Sections 3 and 4 of 10 from the door end'],
+    ['image_right', 'left', 'inferred', 'Sections 7 and 8 of 10 from the door end'],
+    ['not_identifiable', 'right', 'defaulted', 'Sections 3 and 4 of 10 from the assumed door end'],
   ] as const)(
     'with the door end %s, puts the findings on the %s side (%s)',
     async (doorEnd, side, basis, words) => {

@@ -14,22 +14,15 @@ import type {
   DamageFace,
   DamageFinding,
   FaceCoverage,
+  FindingZone,
   ImageQuality,
   SideInference,
   ZoneCoverage,
 } from './damage'
 import type { InspectionRecord } from './inspection'
-import { chosenLength, type LengthReading } from './chosenLength'
+import { sectionWords } from './sideSections'
+import { chosenLength, type ContainerLengthFt, type LengthReading } from './chosenLength'
 import type { FaceReading, PhotoFace } from './photoFace'
-
-declare module './inspection' {
-  interface InspectionRecord {
-    /** The face the survey says the photo shows. Absent until the survey answers; null when it gave none. */
-    photoFace?: FaceReading | null
-    /** Every damage set's reading of the photo, one per face, before the face chooses among them. */
-    damageReadings?: DamageSetReading[]
-  }
-}
 
 /** One damage set's reading of one photo: what it found on its own face, and its own checks. */
 export interface DamageSetReading {
@@ -60,6 +53,7 @@ const FACE_NAME: Record<PhotoFace, string> = {
   'front-end': 'front end',
   roof: 'roof',
   'close-up': 'close-up',
+  'not-container': 'photo that is not a container',
   unknown: 'unknown view',
 }
 
@@ -70,14 +64,13 @@ function notAssessed(reason: string): DamageAssessment {
 }
 
 /**
- * The side a long-side photo shows, from where the doors are in it. Photo-left is drawn as the face's
- * start and photo-right as its end on both fixed views (the end face drawn beside the side is the rear
- * on the right side and the front on the left side), so a photo whose doors are at photo-left lines up
- * with the left side's door end and one with doors at photo-right with the right side's: no mirroring.
+ * The side a long-side photo shows, from where the doors are in it. Standing outside the container's left
+ * side and facing it, the doors are on your right: doors at photo-left mean the right side, doors at
+ * photo-right the left side. Without the doors the side is assumed (right) and flagged.
  */
 function sideFor(doorEnd: DamageSetReading['doorEnd']): SideInference {
-  if (doorEnd === 'image-left') return { side: 'left', basis: 'inferred' }
-  if (doorEnd === 'image-right') return { side: 'right', basis: 'inferred' }
+  if (doorEnd === 'image-left') return { side: 'right', basis: 'inferred' }
+  if (doorEnd === 'image-right') return { side: 'left', basis: 'inferred' }
   return { side: 'right', basis: 'defaulted' }
 }
 
@@ -96,24 +89,62 @@ function inContainerTerms(
     .replace(/at photo right/g, `at ${rightName}`)
 }
 
-function placeOnSide(reading: DamageSetReading, inference: SideInference) {
+const lowerFirst = (t: string) => t.charAt(0).toLowerCase() + t.slice(1)
+
+/** A panel zone's place in the drawing's own words: its CEDEX section(s) and half of the sheet. */
+function placeWords(
+  zone: FindingZone,
+  inference: SideInference,
+  lengthFt: ContainerLengthFt,
+): string {
+  const half = zone.v0 < 0.5 ? 'upper' : 'lower'
+  const section = sectionWords(zone, lengthFt, inference.side, inference.basis)
+  return `${section}, ${half} half of the side sheet`
+}
+
+function placeOnSide(
+  reading: DamageSetReading,
+  inference: SideInference,
+  lengthFt: ContainerLengthFt,
+) {
   const words = (t: string) => inContainerTerms(t, inference, reading.doorEnd)
+  const inSections = (zone: FindingZone | null, text: string) =>
+    zone ? placeWords(zone, inference, lengthFt) : words(text)
   return {
-    findings: reading.findings.map((f) => ({
-      ...f,
+    findings: reading.findings.map((f) => {
+      const panel = f.component === 'panel'
+      const location = panel ? inSections(f.zone, f.location) : words(f.location)
+      return {
+        ...f,
+        face: inference.side,
+        title: words(f.title),
+        location,
+        description: words(f.description),
+        bestInterpretation: words(f.bestInterpretation),
+        uncertainty: words(f.uncertainty),
+        caveats: f.caveats.map((c) =>
+          panel && f.zone
+            ? c.replace(
+                `Approximate area: ${lowerFirst(f.location)}.`,
+                `Approximate area: ${lowerFirst(location)}.`,
+              )
+            : words(c),
+        ),
+      }
+    }),
+    zones: reading.zones.map((z) => ({
+      ...z,
       face: inference.side,
-      title: words(f.title),
-      location: words(f.location),
-      description: words(f.description),
-      bestInterpretation: words(f.bestInterpretation),
-      uncertainty: words(f.uncertainty),
-      caveats: f.caveats.map(words),
+      label: lowerFirst(placeWords(z.zone, inference, lengthFt)),
     })),
-    zones: reading.zones.map((z) => ({ ...z, face: inference.side, label: words(z.label) })),
   }
 }
 
-function fromReading(reading: DamageSetReading, photo: string | null): DamageAssessment {
+function fromReading(
+  reading: DamageSetReading,
+  photo: string | null,
+  lengthFt: ContainerLengthFt,
+): DamageAssessment {
   const face = DAMAGE_SET_FACES[reading.face]
   if (!reading.inspectable || !face) {
     return notAssessed(`The ${FACE_NAME[reading.face]} is not inspectable in this photo.`)
@@ -123,7 +154,7 @@ function fromReading(reading: DamageSetReading, photo: string | null): DamageAss
     return {
       source: 'live',
       photos: photo ? [{ photo, face: sideInference.side }] : [],
-      ...placeOnSide(reading, sideInference),
+      ...placeOnSide(reading, sideInference, lengthFt),
       imageQuality: reading.imageQuality,
       coverage: reading.coverage,
       significantProbability: reading.significantProbability,
@@ -158,6 +189,7 @@ export function assessDamage(
   face: FaceReading | null | undefined,
   readings: readonly DamageSetReading[],
   photo: string | null,
+  lengthFt: ContainerLengthFt = 40,
 ): DamageAssessment | null {
   if (face) {
     if (face.face === 'unknown') return notAssessed(UNIDENTIFIED)
@@ -170,20 +202,24 @@ export function assessDamage(
       )
     }
     const reading = readings.find((r) => r.face === face.face)
-    return reading ? fromReading(reading, photo) : null
+    return reading ? fromReading(reading, photo, lengthFt) : null
   }
   if (readings.length === 0) return null
   const inspectable = readings.filter((r) => r.inspectable && DAMAGE_SET_FACES[r.face])
-  return inspectable.length === 1 ? fromReading(inspectable[0]!, photo) : notAssessed(UNIDENTIFIED)
+  return inspectable.length === 1
+    ? fromReading(inspectable[0]!, photo, lengthFt)
+    : notAssessed(UNIDENTIFIED)
 }
 
 function reassess(record: InspectionRecord): InspectionRecord {
+  const lengthFt = chosenLength(record).feet
   const damage = assessDamage(
     record.photoFace,
     record.damageReadings ?? [],
     record.photo?.name ?? null,
+    lengthFt,
   )
-  return { ...record, damage: damage && { ...damage, lengthFt: chosenLength(record).feet } }
+  return { ...record, damage: damage && { ...damage, lengthFt } }
 }
 
 /** The model's length answer folded in: the drawing's length is chosen again. */
@@ -192,6 +228,14 @@ export function withModelLength(
   reading: LengthReading | null,
 ): InspectionRecord {
   return reassess({ ...record, modelLength: reading })
+}
+
+/** The shape estimate of the length folded in: the drawing's length is chosen again. */
+export function withShapeLength(
+  record: InspectionRecord,
+  reading: LengthReading | null,
+): InspectionRecord {
+  return reassess({ ...record, shapeLength: reading })
 }
 
 /** The survey's face folded in: the damage is chosen again. */
