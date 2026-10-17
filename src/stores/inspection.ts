@@ -501,6 +501,7 @@ export const useInspectionStore = defineStore('inspection', {
             route,
             apiKey,
             photo: sent[n]!,
+            original: photos[n]!.file as Blob,
             inspectionId,
             photoLabel: several
               ? { idPrefix: idPrefix(n), purposeSuffix: ` (photo ${n + 1})` }

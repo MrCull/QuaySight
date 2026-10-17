@@ -68,12 +68,17 @@ function widen(lo: number, hi: number, want: number, max: number): [number, numb
  * where needed so it can be scaled to the model's minimum short side, then scaled up (or down) to the
  * largest size within the model's side and pixel limits, aspect ratio kept. Null when no such size exists.
  */
-export function cropRegion(photo: PhotoSize, box: IdBox, limits: PhotoLimits): CropRegion | null {
+export function cropRegion(
+  photo: PhotoSize,
+  box: IdBox,
+  limits: PhotoLimits,
+  margin: number = CROP_MARGIN,
+): CropRegion | null {
   const boxWidth = (box.right - box.left) * photo.width
   const boxHeight = (box.bottom - box.top) * photo.height
   if (!(boxWidth > 0 && boxHeight > 0)) return null
 
-  const pad = CROP_MARGIN * Math.max(boxWidth, boxHeight)
+  const pad = margin * Math.max(boxWidth, boxHeight)
   let x0 = Math.max(0, box.left * photo.width - pad)
   let x1 = Math.min(photo.width, box.right * photo.width + pad)
   let y0 = Math.max(0, box.top * photo.height - pad)
@@ -104,8 +109,15 @@ export function cropRegion(photo: PhotoSize, box: IdBox, limits: PhotoLimits): C
  */
 export interface IdCropReadRecord {
   outcome: 'combined' | 'failed' | 'cancelled' | 'skipped-cap'
-  /** The box the crop was cut around, as the full-photo read gave it. */
+  /** The area the crop was cut around: the numbered regions' area for the ID (ticket #84), as fractions of the photo. */
   box: IdBox
+  /** The marks the model named for that area (ticket #84). */
+  marks?: number[]
+  /**
+   * The zoomed read itself, one reading per position: available as an independent read beside the
+   * whole-photo one, so a later step can rebuild the ID from both whatever order the requests landed in.
+   */
+  read?: { readings: ChoiceReading[]; caveats: { hardToRead: boolean; partlyOutOfFrame: boolean } }
   /** The region cut from the prepared photo and the size it was sent at; null when no reply came back. */
   crop: {
     x: number
@@ -190,15 +202,24 @@ function disagreement(
  * becomes its plausible alternative, and the shared margin rule applies between the two: two close
  * readings lower the certainty a level, and a reading that falls to Can't tell is left unread.
  */
-export function combineIdReadings(full: ChoiceReading[], crop: ChoiceReading[]): CombinedReadings {
+export function combineIdReadings(
+  full: ChoiceReading[],
+  crop: ChoiceReading[],
+  /** `fill-only`: the zoomed read fills an unread character and corroborates, but never overrules or lowers a whole-photo one. */
+  mode: 'weigh' | 'fill-only' = 'weigh',
+): CombinedReadings {
   const disagreements: IdDisagreement[] = []
   const readings = full.map((f, i): ChoiceReading => {
     const c = crop[i] ?? UNREAD_CHARACTER
     if (f.value === null) return c.value === null ? UNREAD_CHARACTER : c
     if (c.value === null) return f
-    const fullWins = moreConfident(f, c)
+    const fullWins = mode === 'fill-only' || moreConfident(f, c)
     const [winner, loser] = fullWins ? [f, c] : [c, f]
     if (f.value === c.value) return winner
+    if (mode === 'fill-only') {
+      disagreements.push(disagreement(i + 1, f, c, 'full'))
+      return f
+    }
 
     disagreements.push(disagreement(i + 1, f, c, fullWins ? 'full' : 'crop'))
     const certainty =

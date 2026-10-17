@@ -3,6 +3,7 @@
 // so a live run through the store sends the bytes a presenter's browser would. Not used by the default run.
 // Set PW_CHROMIUM_PATH to use a pre-installed Chromium.
 import { chromium, type Browser, type Page } from '@playwright/test'
+import { drawOverlay, type PhotoOverlay } from '../drawOverlay'
 import type { DecodedPhoto, PhotoRegion } from '../imageCodec'
 
 const JPEG_QUALITY = 0.9
@@ -44,9 +45,15 @@ export async function decodePhoto(blob: Blob): Promise<DecodedPhoto> {
     return { index: w.photos.length - 1, width: img.naturalWidth, height: img.naturalHeight }
   }, source)
 
-  const draw = async (region: PhotoRegion | null, width: number, height: number) => {
+  const overlaySource = drawOverlay.toString()
+  const draw = async (
+    region: PhotoRegion | null,
+    width: number,
+    height: number,
+    overlay: PhotoOverlay | null = null,
+  ) => {
     const base64 = await p.evaluate(
-      ({ index, region, width, height, quality }) => {
+      ({ index, region, width, height, quality, overlay, overlaySource }) => {
         const img = (window as unknown as PhotoWindow).photos![index]!
         const r = region ?? { x: 0, y: 0, width: img.naturalWidth, height: img.naturalHeight }
         const canvas = document.createElement('canvas')
@@ -57,9 +64,19 @@ export async function decodePhoto(blob: Blob): Promise<DecodedPhoto> {
         context.fillRect(0, 0, width, height)
         context.imageSmoothingQuality = 'high'
         context.drawImage(img, r.x, r.y, r.width, r.height, 0, 0, width, height)
+        if (overlay) {
+          // The app's own overlay drawing, run in the page.
+          const drawOverlayHere = (0, eval)(`(${overlaySource})`) as (
+            c: CanvasRenderingContext2D,
+            w: number,
+            h: number,
+            o: unknown,
+          ) => void
+          drawOverlayHere(context, width, height, overlay)
+        }
         return canvas.toDataURL('image/jpeg', quality).split(',')[1]!
       },
-      { index: decoded.index, region, width, height, quality: JPEG_QUALITY },
+      { index: decoded.index, region, width, height, quality: JPEG_QUALITY, overlay, overlaySource },
     )
     return new Blob([Buffer.from(base64, 'base64')], { type: 'image/jpeg' })
   }
@@ -69,6 +86,7 @@ export async function decodePhoto(blob: Blob): Promise<DecodedPhoto> {
     height: decoded.height,
     toJpeg: (width, height) => draw(null, width, height),
     toJpegRegion: (region, width, height) => draw(region, width, height),
+    toJpegMarked: (width, height, overlay) => draw(null, width, height, overlay),
     close: () => {},
   }
 }

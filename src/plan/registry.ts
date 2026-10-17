@@ -2,6 +2,8 @@ import type { PlanRequest } from './requestPlan'
 import { doorDamage } from './requests/doorDamage'
 import { idCropRead } from './requests/idCropRead'
 import { idRecheck } from './requests/idRecheck'
+import { regions } from './requests/regions'
+import { sealZoom } from './requests/sealZoom'
 import { sideDamage } from './requests/sideDamage'
 import { survey } from './requests/survey'
 import { weightCheck } from './requests/weightCheck'
@@ -13,8 +15,10 @@ import { weightCheck } from './requests/weightCheck'
  */
 const registered: PlanRequest[] = [
   survey,
+  regions,
   idRecheck,
   idCropRead,
+  sealZoom,
   sideDamage,
   doorDamage,
   weightCheck,

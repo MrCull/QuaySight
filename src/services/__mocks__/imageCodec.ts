@@ -19,6 +19,8 @@ export async function decodePhoto(blob: Blob): Promise<DecodedPhoto> {
       new Blob([`jpeg ${w}x${h} from ${r.width}x${r.height} at ${r.x},${r.y}`], {
         type: 'image/jpeg',
       }),
+    toJpegMarked: async (w, h, o) =>
+      new Blob([`jpeg ${w}x${h} marked ${o.labels.length}`], { type: 'image/jpeg' }),
     close: () => {},
   }
 }

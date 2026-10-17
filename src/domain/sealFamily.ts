@@ -93,7 +93,8 @@ function characterQuestion(position: number, second = false): ChoiceQuestion {
   }
 }
 
-function questions(ask: { box: boolean }): SharedQuestion[] {
+/** The seal questions: whether one is visible, how many characters, each character, and a second printed copy. */
+export function sealQuestions(ask: { box: boolean }): SharedQuestion[] {
   const out: SharedQuestion[] = [
     {
       type: 'predicate',
@@ -270,7 +271,7 @@ function sealExport(record: Parameters<NonNullable<QuestionFamily['export']>>[0]
 /** The seal family, asked in the survey after the ID. */
 export const sealFamily: QuestionFamily = {
   key: 'seal',
-  questions,
+  questions: sealQuestions,
   read: (answers, ask) => readSeal(answers, ask),
   apply: (record, finding) => (finding ? { ...record, seal: finding } : record),
   export: sealExport,

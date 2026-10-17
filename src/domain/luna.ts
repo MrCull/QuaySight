@@ -188,10 +188,12 @@ export function mapLunaResponse(
 export function assembleLunaReading(
   rawReadings: ChoiceReading[],
   ownerPick?: OwnerPick | null,
+  /** The whole-photo and zoomed reads agreed on every character (two independent reads, ticket #84). */
+  corroborated = false,
 ): ContainerIdReading {
   const owner = combineOwnerReading(rawReadings, ownerPick)
   const readings = withCategoryLetter(owner.readings)
-  const ranked = rankIdCandidates(readings, 'Confident', owner.alternatives)
+  const ranked = rankIdCandidates(readings, 'Confident', owner.alternatives, corroborated)
   const { positionCertainty, certainty } = ranked
   const chars = ranked.chars
   const printed = chars.join('')
