@@ -12,7 +12,12 @@ import {
 import { faceStatus, sortFindings, type DamageFace } from './damage'
 import type { CertaintyLabel, ContainerIdReading, InspectionRecord } from './inspection'
 import type { Units } from './unitPreference'
-import { payloadConflictText, printedPayloadHidden, type WeightRow, type WeightChecks } from './weights'
+import {
+  payloadConflictText,
+  printedPayloadHidden,
+  type WeightRow,
+  type WeightChecks,
+} from './weights'
 import * as words from './foundWording'
 
 export interface FoundParts {
