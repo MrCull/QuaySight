@@ -37,6 +37,8 @@ export interface RequestContext extends PlanView {
   apiKey: string
   /** The photo as sent: upright and fitted to the model. */
   photo: Blob
+  /** The photo as it was chosen (full resolution), when the run has it: zoomed reads are cut from it. */
+  original?: Blob
   /** This request's own abort signal. Cancel, New inspection and a provider or model change abort it. */
   signal: AbortSignal
 }
@@ -117,6 +119,8 @@ export interface PlanRunOptions {
   route: RunRoute
   apiKey: string
   photo: Blob
+  /** The photo as chosen, for crops at full resolution. */
+  original?: Blob
   inspectionId: string
   /** The cost ledger: runs one chargeable call under the per-inspection cap. */
   charge(request: ChargeableRequest): Promise<ChargeableResult>
@@ -219,6 +223,7 @@ export function runPlan(options: PlanRunOptions): PlanRun {
           ...view,
           apiKey: options.apiKey,
           photo: options.photo,
+          original: options.original,
           signal: controller.signal,
         })
         return {

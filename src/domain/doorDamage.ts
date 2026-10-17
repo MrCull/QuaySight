@@ -20,7 +20,7 @@ import {
   type ComponentCheck,
   type PanelRegion,
 } from './damageReading'
-import type { DamageFinding, FindingZone, ZoneCoverage } from './damage'
+import { surfaceWearLast, type DamageFinding, type FindingZone, type ZoneCoverage } from './damage'
 import type { DamageSetReading } from './damageSets'
 import { parseQuestionSet, type SharedAnswer, type SharedQuestionSet } from './questionSet'
 
@@ -182,7 +182,7 @@ export function readDoorDamage(answers: Record<string, SharedAnswer>): DamageSet
   return {
     face: 'rear-doors',
     inspectable: coverage !== 'not-inspectable',
-    findings: found.map((f, i) => ({ id: i + 1, ...f })),
+    findings: surfaceWearLast(found).map((f, i) => ({ id: i + 1, ...f })),
     zones,
     imageQuality: QUALITY[choiceOf(answers.image_quality) ?? ''] ?? null,
     coverage,

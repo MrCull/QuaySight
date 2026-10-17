@@ -6,6 +6,7 @@ import { findSample } from './domain/demoSamples'
 import { needsManifest } from './domain/manifest'
 import SetupCard from './components/SetupCard.vue'
 import SettingsChip from './components/SettingsChip.vue'
+import BuildStamp from './components/BuildStamp.vue'
 import SettingsDrawer from './components/SettingsDrawer.vue'
 import PhotoPanel from './components/PhotoPanel.vue'
 import ResultsPanel from './components/ResultsPanel.vue'
@@ -142,5 +143,6 @@ function start() {
       />
     </main>
     <SettingsDrawer v-if="setup.view === 'inspection' && setup.drawerOpen" />
+    <footer><BuildStamp /></footer>
   </div>
 </template>

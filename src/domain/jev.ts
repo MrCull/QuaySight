@@ -234,24 +234,25 @@ export function jevCaveatsOf(answers: Record<string, SharedAnswer>): JevCaveats 
 /**
  * The shared container-ID reading from one reading per position and the caveats. Missing positions stay
  * UNREAD; the check digit is calculated here, not taken from the model; a caveat makes the reading at
- * most Uncertain. Used for the full-photo reading and for the full-photo and crop readings combined.
+ * most Uncertain. Used for the full-photo reading and for the full-photo and crop readings combined,
+ * where `corroborated` says the two reads agreed on every character.
  */
 export function jevIdReading(
   rawReadings: ChoiceReading[],
   caveats: JevCaveats,
   ownerPick?: OwnerPick | null,
+  corroborated = false,
 ): ContainerIdReading {
   const owner = combineOwnerReading(rawReadings, ownerPick)
   const readings = withCategoryLetter(owner.readings)
   const { hardToRead, partlyOutOfFrame } = caveats
-  const positionCertainty = readings.map((r) => r.certainty)
-  let certainty = worstOf(positionCertainty)
-  if (hardToRead || partlyOutOfFrame) certainty = atLeastUncertain(certainty)
   const ranked = rankIdCandidates(
     readings,
     hardToRead || partlyOutOfFrame ? atLeastUncertain('Confident') : 'Confident',
     owner.alternatives,
+    corroborated,
   )
+  const { positionCertainty, certainty } = ranked
   const chars = ranked.chars
   const printed = chars.join('')
 

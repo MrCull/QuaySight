@@ -147,7 +147,8 @@ describe('mapJevResponse', () => {
     }
     const result = mapJevResponse(okBody({ answers }), 'jev-latest')
     expect(result.containerId.positionCertainty?.[9]).toBe('Likely')
-    expect(result.containerId.certainty).toBe('Likely')
+    // Every character is at least Likely and the ID passes the check digit on a listed owner.
+    expect(result.containerId.certainty).toBe('Confident')
   })
 
   it('caps the certainty to Uncertain when the score says the identification is hard to read', () => {

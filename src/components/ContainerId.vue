@@ -2,6 +2,7 @@
 import { computed } from 'vue'
 import type { CertaintyLabel, ContainerIdReading } from '../domain/inspection'
 import { UNREAD } from '../domain/certainty'
+import { ownerIsListed } from '../domain/idConfidence'
 
 const props = defineProps<{ reading: ContainerIdReading }>()
 
@@ -46,6 +47,14 @@ const layout = computed(() => {
 const UNREAD_CELL: Cell = { ch: '·', index: 10, notRead: true, state: 'unknown' }
 
 const incomplete = computed(() => chars.value.some((c) => c.notRead))
+
+// The check digit passes but the owner code is not on the list: that is why the ID is Likely at best.
+const ownerNotListed = computed(
+  () =>
+    !incomplete.value &&
+    props.reading.checkDigitValid &&
+    !ownerIsListed(chars.value.map((c) => c.ch).join('')),
+)
 
 function charState(level: CertaintyLabel): string | undefined {
   if (level === 'Confident') return undefined
@@ -111,6 +120,7 @@ const spelled = computed(() => {
       <span v-else :class="['qs-prov', { 'qs-prov--calculated': reading.checkDigitValid }]">
         {{ reading.checkDigitValid ? 'Check digit valid' : 'Check digit does not match' }}
       </span>
+      <span v-if="ownerNotListed" class="qs-prov">Owner not on our list</span>
       <span
         v-if="
           !incomplete &&

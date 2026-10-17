@@ -3,6 +3,7 @@
 // Live runs (ticket #34) read each weight in both kg and lb, and the cubic capacity in m3 and cu ft. The
 // rules that compare the two readings, and printed payload against max gross minus tare, are here and pure.
 import type { CertaintyLabel, Provenance } from './inspection'
+import { inferWeights, poolDists } from './weightInference'
 
 /** 1 kg = 2.20462 lb. */
 export const LB_PER_KG = 2.20462
@@ -180,7 +181,17 @@ export interface Figure {
   /** The figure, only when read. */
   value: number | null
   certainty: CertaintyLabel
+  /**
+   * An unclear figure's answers place by place, lowest place first: how likely each digit (and 'none', no
+   * digit at this place) was. What the other unit and the arithmetic settle the figure from (weightInference.ts).
+   */
+  dist?: PlaceDist[]
+  /** Set on a figure that was settled from the other unit and the arithmetic, not read. */
+  filled?: true
 }
+
+/** One place of a figure: the probability of each digit '0' to '9', and of 'none'. Absent places say nothing. */
+export type PlaceDist = Record<string, number>
 
 /** A quantity as printed in both unit systems: kg and lb, or m3 and cu ft. */
 export interface QuantityReading {
@@ -221,11 +232,13 @@ function evalQuantity(kind: QuantityKind, q: QuantityReading | undefined): Quant
   if (readOf(m) && readOf(i)) {
     if (unitsAgree(kind, m.value, i.value)) {
       const best = stronger(m.certainty, i.certainty)
+      // A figure filled from the other unit is not a second reading, so it adds no certainty.
+      const filled = m.filled || i.filled
       return {
         metric: m.value,
         imperial: i.value,
         units: 'agree',
-        certainty: BUMP[best] ?? best,
+        certainty: filled ? weaker(m.certainty, i.certainty) : (BUMP[best] ?? best),
         unread: null,
       }
     }
@@ -265,6 +278,15 @@ export function mergeWeightReadings(
   return merged(first, second)
 }
 
+/** One figure from its two looks: the second's when it read it, else the first's; two unclear looks pool what each said of every digit. */
+function mergedFigure(a: Figure | undefined, b: Figure | undefined): Figure {
+  if (!a) return b!
+  if (readOf(b)) return b
+  if (!b || readOf(a) || (b.state === 'not-visible' && a.state !== 'not-visible')) return a
+  if (a.dist && b.dist) return { ...b, dist: poolDists(a.dist, b.dist) }
+  return b.dist || b.state === 'not-visible' ? b : a
+}
+
 function merged(first: WeightsReading, second: WeightsReading | null | undefined): WeightsReading {
   const out: WeightsReading = {}
   for (const quantity of WEIGHT_QUANTITIES) {
@@ -272,15 +294,16 @@ function merged(first: WeightsReading, second: WeightsReading | null | undefined
     const b = second?.[quantity]
     if (!a && !b) continue
     out[quantity] = {
-      metric: readOf(b?.metric) || !a ? (b?.metric ?? a!.metric) : a.metric,
-      imperial: readOf(b?.imperial) || !a ? (b?.imperial ?? a!.imperial) : a.imperial,
+      metric: mergedFigure(a?.metric, b?.metric),
+      imperial: mergedFigure(a?.imperial, b?.imperial),
     }
   }
   return out
 }
 
+/** Door plates print kilograms in tens (30,480; 2,180), so a kg figure worked out from lb is rounded to ten. */
 const roundedKg = (e: QuantityEval) =>
-  e.metric ?? (e.imperial === null ? null : Math.round(toMetric('weight', e.imperial)))
+  e.metric ?? (e.imperial === null ? null : Math.round(toMetric('weight', e.imperial) / 10) * 10)
 const roundedLb = (e: QuantityEval) =>
   e.imperial ?? (e.metric === null ? null : Math.round(toImperial('weight', e.metric)))
 
@@ -348,7 +371,10 @@ export function payloadConflictText(
 }
 
 function evaluate(first: WeightsReading, second: WeightsReading | null | undefined) {
-  const reading = merged(first, second)
+  const reading = inferWeights(merged(first, second), {
+    lbPerKg: LB_PER_KG,
+    tolerance: UNIT_TOLERANCE,
+  })
   const gross = evalQuantity('weight', reading.maxGross)
   const tare = evalQuantity('weight', reading.tare)
   const net = evalQuantity('weight', reading.payload)
@@ -460,6 +486,20 @@ export function rereadQuantities(first: WeightsReading): WeightQuantity[] {
   if (net.units === 'conflict') wanted.add('payload')
   if (capacity.units === 'conflict') wanted.add('capacity')
   if (payloadConflict) for (const q of ['maxGross', 'tare', 'payload'] as const) wanted.add(q)
+  return WEIGHT_QUANTITIES.filter((q) => wanted.has(q))
+}
+
+/**
+ * The weights to look at again with a zoomed second look: those whose two units disagree (rereadQuantities),
+ * and each of max gross, tare and payload that neither unit gave (after the units have filled each other's
+ * weak digits). A weight that is in no photo is not looked for again.
+ */
+export function secondLookQuantities(first: WeightsReading): WeightQuantity[] {
+  const { gross, tare, net } = evaluate(first, null)
+  const wanted = new Set<WeightQuantity>(rereadQuantities(first))
+  if (gross.unread === 'unclear') wanted.add('maxGross')
+  if (tare.unread === 'unclear') wanted.add('tare')
+  if (net.unread === 'unclear') wanted.add('payload')
   return WEIGHT_QUANTITIES.filter((q) => wanted.has(q))
 }
 

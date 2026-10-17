@@ -2,7 +2,8 @@
 // A candidate is the best reading with some characters swapped for their runner-ups. Candidates that
 // pass the check digit rank above those that fail; the app calculates the check digit, never the model.
 import { CERTAINTY_LABELS, MAX_ALTERNATIVES, UNREAD } from './certainty'
-import { checkDigitMatches } from './iso6346'
+import { idCertainty, ownerIsListed, passesCheckDigit } from './idConfidence'
+import { ownerCodeRank } from './ownerCodes'
 import type { CertaintyLabel } from './inspection'
 import type { ChoiceReading } from './idQuestions'
 
@@ -24,8 +25,12 @@ export function withCategoryLetter(readings: ChoiceReading[]): ChoiceReading[] {
 export interface RankedIds {
   /** The top-ranked candidate, as one character per position. */
   chars: string[]
-  /** Other candidates in rank order, at most MAX_ALTERNATIVES. Empty when the best reading stands alone. */
+  /** Other candidates that pass the check digit, listed owners first, at most MAX_ALTERNATIVES. Empty when the best reading is Confident and passes. */
   alternatives: string[]
+  /** Certainty of each position of the top candidate: a swapped position takes its runner-up's certainty. */
+  positionCertainty: CertaintyLabel[]
+  /** The top candidate's certainty as a whole (see idConfidence). */
+  certainty: CertaintyLabel
 }
 
 const SWAP_LIMIT = 12
@@ -34,8 +39,15 @@ function worstOf(labels: CertaintyLabel[]): CertaintyLabel {
   return CERTAINTY_LABELS[Math.max(...labels.map((l) => CERTAINTY_LABELS.indexOf(l)))]!
 }
 
+/** A character taken from its runner-up counts at the runner-up's certainty, no worse than Uncertain (the check digit chose it). */
+function swappedCertainty(reading: ChoiceReading): CertaintyLabel {
+  const label = reading.runnerUpCertainty ?? reading.certainty
+  const floor = CERTAINTY_LABELS.indexOf('Uncertain')
+  return CERTAINTY_LABELS.indexOf(label) > floor ? 'Uncertain' : label
+}
+
 function passes(chars: string[]): boolean {
-  return !chars.includes(UNREAD) && checkDigitMatches(chars.join(''))
+  return passesCheckDigit(chars.join(''))
 }
 
 /** Earlier swapped positions first, so single swaps keep their position order. */
@@ -59,6 +71,7 @@ export function rankIdCandidates(
   readings: ChoiceReading[],
   ceiling: CertaintyLabel,
   ownerAlternatives: string[] = [],
+  corroborated = false,
 ): RankedIds {
   const chars = readings.map((r) => r.value ?? UNREAD)
   const swappable = readings
@@ -103,7 +116,11 @@ export function rankIdCandidates(
       if (a.passes !== b.passes) return a.passes ? -1 : 1
       if (a.own !== b.own) return a.own - b.own
       if (a.swapped.length !== b.swapped.length) return a.swapped.length - b.swapped.length
-      return compareSwaps(a.swapped, b.swapped)
+      return (
+        compareSwaps(a.swapped, b.swapped) ||
+        (ownerCodeRank(a.chars.slice(0, 4).join('')) ?? Infinity) -
+          (ownerCodeRank(b.chars.slice(0, 4).join('')) ?? Infinity)
+      )
     })
     .filter((c) => {
       const key = c.chars.join('')
@@ -113,16 +130,25 @@ export function rankIdCandidates(
     })
 
   const [best, ...rest] = candidates
-  const certainty = worstOf([
+  // A character taken from a runner-up counts at the runner-up's certainty, but no worse than Uncertain:
+  // the check digit passing is what chose it.
+  const positionCertainty = readings.map((r, i) =>
+    best!.runnerSwaps.includes(i) ? swappedCertainty(r) : r.certainty,
+  )
+  const certainty = idCertainty({
+    id: best!.chars.join(''),
+    positionCertainty,
+    corroborated,
     ceiling,
-    ...readings.map((r, i) =>
-      best!.runnerSwaps.includes(i) ? (r.runnerUpCertainty ?? r.certainty) : r.certainty,
-    ),
-  ])
-  const settled = best!.passes && (certainty === 'Confident' || certainty === 'Likely')
-  const alone = settled && !rest.some((c) => c.passes)
-  return {
-    chars: best!.chars,
-    alternatives: alone ? [] : rest.slice(0, MAX_ALTERNATIVES).map((c) => c.chars.join('')),
-  }
+  })
+  const alternatives =
+    best!.passes && certainty === 'Confident'
+      ? []
+      : rest
+          .filter((c) => c.passes)
+          .map((c) => c.chars.join(''))
+          // Stable: listed owners first, the rank order above kept within each group.
+          .sort((a, b) => Number(ownerIsListed(b)) - Number(ownerIsListed(a)))
+          .slice(0, MAX_ALTERNATIVES)
+  return { chars: best!.chars, alternatives, positionCertainty, certainty }
 }

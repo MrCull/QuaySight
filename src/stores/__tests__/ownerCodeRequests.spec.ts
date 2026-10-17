@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeEach, vi, afterEach, beforeAll, afterAll } from 'vitest'
+import { describe, it, expect, beforeEach, vi, afterEach } from 'vitest'
 import { setActivePinia, createPinia } from 'pinia'
 
 // jsdom has no image decoder or canvas; photo preparation runs on the fake codec.
@@ -6,11 +6,12 @@ vi.mock('../../services/imageCodec')
 
 import { useInspectionStore } from '../inspection'
 import { useLedgerStore } from '../ledger'
-import { OWNER_CODES } from '../../domain/ownerCodes'
+import { OFFERED_OWNER_CODES } from '../../domain/ownerCodes'
 import { onlyRequests } from '../../plan/registry'
 import { survey } from '../../plan/requests/survey'
 import { idRecheck } from '../../plan/requests/idRecheck'
 import { idCropRead } from '../../plan/requests/idCropRead'
+import { regions } from '../../plan/requests/regions'
 import { jsonResponse, openRouterSurveyReply } from '../../__tests__/surveyReplies'
 
 // Ticket #43 test gaps: the owner-code question on the Jev request, the survey's owner pick carried into
@@ -22,10 +23,10 @@ const PICK = { owner_code: [['CAXU', 0.95]] as [string, number][] }
 const LUNA = 'openai/gpt-6-luna-decisions-20261006'
 
 let restoreRequests = () => {}
-beforeAll(() => {
+beforeEach(() => {
   restoreRequests = onlyRequests(survey, idRecheck, idCropRead)
 })
-afterAll(() => restoreRequests())
+afterEach(() => restoreRequests())
 
 type Questions = Record<string, { criteria?: Record<string, unknown> }>
 const sentQuestions = (init: RequestInit | undefined) =>
@@ -67,7 +68,7 @@ describe('the owner-code question through live runs', () => {
     await store.start()
 
     const ask = sentQuestions(fetchMock.mock.calls[0]![1]).owner_code!
-    expect(Object.keys(ask.criteria!)).toEqual(['none', ...OWNER_CODES])
+    expect(Object.keys(ask.criteria!)).toEqual(['none', ...OFFERED_OWNER_CODES])
     expect(store.record!.containerId).toMatchObject({
       value: 'CAXU6921109',
       checkDigitValid: true,
@@ -94,15 +95,24 @@ describe('the owner-code question through live runs', () => {
     expect(store.record!.containerId).toMatchObject({ value: 'CAXU6921109', checkDigitValid: true })
   })
 
-  it('carries the survey owner pick into the Jev crop read combination', async () => {
+  it('carries the survey owner pick into the Jev zoomed read combination', async () => {
+    restoreRequests()
+    restoreRequests = onlyRequests(survey, regions, idRecheck, idCropRead)
     const full = openRouterSurveyReply('CXXU6921109', { box: true, details: PICK })
     ;(full.answers.container_box as { box: unknown }).box = COYU_BOX
     fetchMock.mockImplementation((_input, init) =>
       Promise.resolve(
         jsonResponse(
-          String(init?.body).includes('container_box')
-            ? full
-            : openRouterSurveyReply('CXXU6921109'),
+          String(init?.body).includes('id_mark')
+            ? {
+                model: 'typesafe/jev-1.14-20261014',
+                answers: {
+                  id_mark: { type: 'choice', choice: '3', probabilities: { '3': 0.8 }, confidence: 0.8 },
+                },
+              }
+            : String(init?.body).includes('container_box')
+              ? full
+              : openRouterSurveyReply('CXXU6921109'),
         ),
       ),
     )
@@ -110,7 +120,7 @@ describe('the owner-code question through live runs', () => {
 
     await store.start()
 
-    expect(fetchMock).toHaveBeenCalledTimes(2)
+    expect(fetchMock).toHaveBeenCalledTimes(3)
     expect(store.record!.idCropRead).toMatchObject({ outcome: 'combined' })
     expect(store.record!.containerId).toMatchObject({ value: 'CAXU6921109', checkDigitValid: true })
   })

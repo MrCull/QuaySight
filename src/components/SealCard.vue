@@ -7,11 +7,14 @@ import type { CertaintyLabel } from '../domain/inspection'
 import type { SealReading } from '../domain/sealFamily'
 import CertaintyChip from './CertaintyChip.vue'
 import PhotoCrop from './PhotoCrop.vue'
+import type { CloseUpSource } from '../domain/closeUpSources'
 
 const props = defineProps<{
   reading: SealReading
-  /** The photo on screen, which the crop is cut from. */
+  /** The photo the close-up is cut from (the photo whose reading won). */
   photoUrl: string | null
+  /** The area and photo number of the close-up; none means no close-up. */
+  closeUp: CloseUpSource | null
 }>()
 
 function charState(level: CertaintyLabel): string | undefined {
@@ -23,7 +26,7 @@ function charState(level: CertaintyLabel): string | undefined {
 
 const chars = computed(() =>
   props.reading.characters.map((c, index) => ({
-    ch: c.value ?? '·',
+    ch: c.value ?? '?',
     index,
     state: c.value === null ? 'unknown' : charState(c.certainty),
   })),
@@ -67,11 +70,13 @@ const spelled = computed(() =>
         </span>
       </div>
       <PhotoCrop
-        v-if="photoUrl"
+        v-if="photoUrl && closeUp"
         class="qs-rise"
         :style="{ '--i': 1 }"
         :src="photoUrl"
-        :box="reading.box"
+        :box="closeUp.box"
+        :margin="closeUp.margin"
+        :photo-number="closeUp.photo"
         caption="Where we read the seal"
         label="The seal"
       />

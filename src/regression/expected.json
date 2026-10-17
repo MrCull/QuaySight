@@ -1,46 +1,166 @@
 [
   {
-    "photo": "samples/rear-door-coyu-22g1.jpg",
+    "id": "coyu-doors",
+    "photos": [
+      {
+        "photo": "samples/rear-door-coyu-22g1.jpg",
+        "faces": ["rear-doors"]
+      }
+    ],
     "containerId": "COYU2668130",
     "sizeCode": "22G1",
     "maxGrossKg": 30480,
     "tareKg": 2180,
     "payloadKg": 28300,
-    "face": "rear-doors",
+    "seal": null,
+    "idCertainty": "Confident",
+    "alternativesAllowed": false,
+    "differentContainersWarning": false,
+    "closeUpFrom": {
+      "id": 1,
+      "seal": null
+    },
     "lengthFt": 20,
     "damage": "none"
   },
   {
-    "photo": "samples/rear-door-chsu-22g1.jpg",
+    "id": "chsu-doors",
+    "photos": [
+      {
+        "photo": "samples/rear-door-chsu-22g1.jpg",
+        "faces": ["rear-doors"]
+      }
+    ],
     "containerId": "CHSU2051831",
     "sizeCode": "22G1",
     "maxGrossKg": 30480,
     "tareKg": 2100,
     "payloadKg": 28380,
-    "face": "rear-doors",
+    "seal": null,
+    "idCertainty": "Confident",
+    "alternativesAllowed": false,
+    "differentContainersWarning": false,
+    "closeUpFrom": {
+      "id": 1,
+      "seal": null
+    },
     "lengthFt": 20,
     "damage": "none"
   },
   {
-    "photo": "samples/rear-door-aphu-45g1.jpg",
+    "id": "aphu-doors",
+    "photos": [
+      {
+        "photo": "samples/rear-door-aphu-45g1.jpg",
+        "faces": ["rear-doors"]
+      }
+    ],
     "containerId": "APHU6586847",
     "sizeCode": "45G1",
     "maxGrossKg": 32500,
     "tareKg": 3870,
     "payloadKg": 28630,
-    "face": "rear-doors",
+    "seal": null,
+    "idCertainty": "Confident",
+    "alternativesAllowed": false,
+    "differentContainersWarning": false,
+    "closeUpFrom": {
+      "id": 1,
+      "seal": null
+    },
     "lengthFt": 45,
     "damage": "some"
   },
   {
-    "photo": "samples/side-dented-grey.jpg",
+    "id": "grey-side",
+    "photos": [
+      {
+        "photo": "samples/side-dented-grey.jpg",
+        "faces": ["long-side"]
+      }
+    ],
     "containerId": null,
     "sizeCode": null,
     "maxGrossKg": null,
     "tareKg": null,
     "payloadKg": null,
-    "face": "long-side",
+    "seal": null,
+    "idCertainty": null,
+    "alternativesAllowed": false,
+    "differentContainersWarning": false,
+    "closeUpFrom": {
+      "id": null,
+      "seal": null
+    },
     "lengthFt": 40,
+    "damage": "some"
+  },
+  {
+    "id": "coyu-door-and-seal",
+    "photos": [
+      {
+        "photo": "samples/rear-door-coyu-22g1.jpg",
+        "faces": ["rear-doors"]
+      },
+      {
+        "photo": "samples/seal-closeup-coyu-0154620.jpg",
+        "faces": ["close-up"],
+        "closeUp": "seal"
+      }
+    ],
+    "containerId": "COYU2668130",
+    "sizeCode": "22G1",
+    "maxGrossKg": 30480,
+    "tareKg": 2180,
+    "payloadKg": 28300,
+    "seal": "0154620",
+    "idCertainty": "Confident",
+    "alternativesAllowed": false,
+    "differentContainersWarning": false,
+    "closeUpFrom": {
+      "id": 1,
+      "seal": 2
+    },
+    "lengthFt": 20,
+    "damage": "none"
+  },
+  {
+    "id": "jdlu-four-photos",
+    "photos": [
+      {
+        "photo": "samples/jdlu-200690-1-rear-doors.jpg",
+        "faces": ["rear-doors"]
+      },
+      {
+        "photo": "samples/jdlu-200690-2-corner-doors-left.jpg",
+        "faces": ["rear-doors", "long-side"],
+        "note": "Doors at photo-left: the right long side."
+      },
+      {
+        "photo": "samples/jdlu-200690-3-corner-doors-right.jpg",
+        "faces": ["long-side", "rear-doors"],
+        "note": "Doors at photo-right: the left long side."
+      },
+      {
+        "photo": "samples/jdlu-200690-4-long-side.jpg",
+        "faces": ["long-side"],
+        "note": "Doors out of frame, so no side can be settled."
+      }
+    ],
+    "containerId": "JDLU2006902",
+    "sizeCode": "22G1",
+    "maxGrossKg": 32500,
+    "tareKg": 2180,
+    "payloadKg": 30320,
+    "seal": null,
+    "idCertainty": "Confident",
+    "alternativesAllowed": false,
+    "differentContainersWarning": false,
+    "closeUpFrom": {
+      "id": 1,
+      "seal": null
+    },
+    "lengthFt": 20,
     "damage": "some"
   }
 ]

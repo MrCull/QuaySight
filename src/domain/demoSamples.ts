@@ -1,7 +1,14 @@
 import aphuPhoto from '../../samples/rear-door-aphu-45g1.jpg'
 import sidePhoto from '../../samples/side-dented-grey.jpg'
 import chsuPhoto from '../../samples/rear-door-chsu-22g1.jpg'
+import coyuPhoto from '../../samples/rear-door-coyu-22g1.jpg'
+import coyuSealPhoto from '../../samples/seal-closeup-coyu-0154620.jpg'
+import jdlu1Photo from '../../samples/jdlu-200690-1-rear-doors.jpg'
+import jdlu2Photo from '../../samples/jdlu-200690-2-corner-doors-left.jpg'
+import jdlu3Photo from '../../samples/jdlu-200690-3-corner-doors-right.jpg'
+import jdlu4Photo from '../../samples/jdlu-200690-4-long-side.jpg'
 import { SHIPPED_RECORDINGS } from '../fixtures/demoRecordings'
+import { combinePhotoRuns } from './combinePhotos'
 import { replayRecording } from '../plan/replay'
 import type { PlanRecording } from '../plan/recording'
 import { ManifestRetryError, needsManifest } from './manifest'
@@ -14,12 +21,18 @@ import type { ContainerIdReading, InspectionRecord, ProviderId } from './inspect
  * answer mappers a live run uses. Nothing here makes a network call or needs a key, and nothing here is
  * hand-written: a sample whose photo has no recording yet is not offered (see pendingDemoRecordings).
  */
-export type DemoSampleId = 'rear-aphu' | 'side-dented' | 'rear-chsu'
+export type DemoSampleId = 'rear-aphu' | 'side-dented' | 'rear-chsu' | 'coyu-seal' | 'jdlu-four'
 
 /** The models the demo is recorded on, in the order a sample prefers them. */
 const LUNA = { provider: 'luna', model: 'gpt-6-luna' } as const
 const JEV = { provider: 'openrouter', model: '~typesafe/jev-latest' } as const
 type DemoRoute = { provider: ProviderId; model: string }
+
+export interface SamplePhoto {
+  name: string
+  url: string
+  orientation: 'landscape' | 'portrait' | 'square'
+}
 
 export interface DemoSample {
   id: DemoSampleId
@@ -27,7 +40,9 @@ export interface DemoSample {
   title: string
   /** One line on the photo, not on what a result will show. */
   hint: string
-  photo: { name: string; url: string; orientation: 'landscape' | 'portrait' | 'square' }
+  photo: SamplePhoto
+  /** Every photo of the sample in order, the first being `photo`. Several for a several-photo inspection. */
+  photos: readonly SamplePhoto[]
   /** Who answered the recording this sample replays. */
   provider: ProviderId
   model: string
@@ -38,9 +53,11 @@ interface SampleDefinition {
   id: DemoSampleId
   title: string
   hint: string
-  photo: DemoSample['photo']
+  photo: SamplePhoto
   /** The photo as the recordings name it. */
   photoPath: string
+  /** The photos after the first, for a several-photo inspection, each with the path its recordings name. */
+  more?: readonly { photo: SamplePhoto; photoPath: string }[]
   /** The routes it may replay, preferred first. */
   routes: readonly DemoRoute[]
 }
@@ -70,6 +87,63 @@ const DEFINITIONS: readonly SampleDefinition[] = [
     photoPath: 'samples/rear-door-chsu-22g1.jpg',
     routes: [JEV, LUNA],
   },
+  // The presenter's real containers (spec #75, ticket #73). Each photo is replayed from its own recording
+  // and the photos are combined as a live run combines them. Jev first: on both containers its recording
+  // reads the ID right today, which Luna's does not on COYU.
+  {
+    id: 'coyu-seal',
+    title: 'Blue doors with a bolt seal',
+    hint: 'Two photos of one container: the door end and a seal close-up',
+    photo: { name: 'rear-door-coyu-22g1.jpg', url: coyuPhoto, orientation: 'square' },
+    photoPath: 'samples/rear-door-coyu-22g1.jpg',
+    more: [
+      {
+        photo: {
+          name: 'seal-closeup-coyu-0154620.jpg',
+          url: coyuSealPhoto,
+          orientation: 'portrait',
+        },
+        photoPath: 'samples/seal-closeup-coyu-0154620.jpg',
+      },
+    ],
+    routes: [JEV, LUNA],
+  },
+  {
+    id: 'jdlu-four',
+    title: 'Dusty blue container, four photos',
+    hint: 'One container from the doors, both corners and the long side',
+    photo: { name: 'jdlu-200690-1-rear-doors.jpg', url: jdlu1Photo, orientation: 'portrait' },
+    photoPath: 'samples/jdlu-200690-1-rear-doors.jpg',
+    more: [
+      {
+        photo: {
+          name: 'jdlu-200690-2-corner-doors-left.jpg',
+          url: jdlu2Photo,
+          orientation: 'portrait',
+        },
+        photoPath: 'samples/jdlu-200690-2-corner-doors-left.jpg',
+      },
+      {
+        photo: {
+          name: 'jdlu-200690-3-corner-doors-right.jpg',
+          url: jdlu3Photo,
+          orientation: 'portrait',
+        },
+        photoPath: 'samples/jdlu-200690-3-corner-doors-right.jpg',
+      },
+      {
+        photo: { name: 'jdlu-200690-4-long-side.jpg', url: jdlu4Photo, orientation: 'portrait' },
+        photoPath: 'samples/jdlu-200690-4-long-side.jpg',
+      },
+    ],
+    routes: [JEV, LUNA],
+  },
+]
+
+/** A sample's photos with the path their recordings name, the first photo first. */
+const photosOf = (definition: SampleDefinition) => [
+  { photo: definition.photo, photoPath: definition.photoPath },
+  ...(definition.more ?? []),
 ]
 
 /** Recordings added by a test (see registerDemoRecording); the shipped ones are always there. */
@@ -92,17 +166,44 @@ const askedWholePlan = (r: PlanRecording) => !r.entries.some((e) => e.asked === 
  * plan beats one that asked only the ID; then the sample's preferred route; then the newest.
  */
 function recordingOf(definition: SampleDefinition): PlanRecording | null {
-  const candidates = [...SHIPPED_RECORDINGS, ...registered]
+  return recordingsOf(definition)?.[0] ?? null
+}
+
+/**
+ * The recording of each photo of the sample, in order, all on one route: the first route (in the sample's
+ * preference) that has every photo, whole-plan recordings first. Null when no route has them all.
+ */
+function recordingsOf(definition: SampleDefinition): PlanRecording[] | null {
+  const all = [...SHIPPED_RECORDINGS, ...registered]
+  const photos = photosOf(definition)
+  const first = all
     .filter((r) => r.photo === definition.photoPath)
     .filter((r) => definition.routes.some((route) => sameRoute(route, r)))
-  candidates.sort(
+  first.sort(
     (a, b) =>
       Number(askedWholePlan(b)) - Number(askedWholePlan(a)) ||
       definition.routes.findIndex((r) => sameRoute(r, a)) -
         definition.routes.findIndex((r) => sameRoute(r, b)) ||
       b.recordedAt.localeCompare(a.recordedAt),
   )
-  return candidates[0] ?? null
+  // A several-photo sample stays on one route: a candidate for the first photo that every other photo
+  // has a recording for on the same route.
+  for (const head of first) {
+    const rest = photos
+      .slice(1)
+      .map(
+        ({ photoPath }) =>
+          all
+            .filter((r) => r.photo === photoPath && sameRoute(head, r))
+            .sort(
+              (a, b) =>
+                Number(askedWholePlan(b)) - Number(askedWholePlan(a)) ||
+                b.recordedAt.localeCompare(a.recordedAt),
+            )[0],
+      )
+    if (rest.every((r) => r !== undefined)) return [head, ...(rest as PlanRecording[])]
+  }
+  return null
 }
 
 function sampleOf(definition: SampleDefinition, recording: PlanRecording): DemoSample {
@@ -111,6 +212,7 @@ function sampleOf(definition: SampleDefinition, recording: PlanRecording): DemoS
     title: definition.title,
     hint: definition.hint,
     photo: definition.photo,
+    photos: photosOf(definition).map((p) => p.photo),
     provider: recording.provider,
     model: recording.model,
   }
@@ -155,16 +257,18 @@ export function pendingDemoRecordings(): PendingRecording[] {
   const all = [...SHIPPED_RECORDINGS, ...registered]
   return DEFINITIONS.flatMap((definition) =>
     definition.routes.flatMap((route) => {
-      const own = all.filter((r) => r.photo === definition.photoPath && sameRoute(route, r))
-      if (own.some(askedWholePlan)) return []
-      return [
-        {
-          sample: definition.id,
-          photo: definition.photoPath,
-          route: { ...route },
-          covers: own.length > 0 ? ('id-only' as const) : ('nothing' as const),
-        },
-      ]
+      return photosOf(definition).flatMap(({ photoPath }) => {
+        const own = all.filter((r) => r.photo === photoPath && sameRoute(route, r))
+        if (own.some(askedWholePlan)) return []
+        return [
+          {
+            sample: definition.id,
+            photo: photoPath,
+            route: { ...route },
+            covers: own.length > 0 ? ('id-only' as const) : ('nothing' as const),
+          },
+        ]
+      })
     }),
   )
 }
@@ -175,19 +279,39 @@ async function pause(delayMs: number | undefined) {
 
 let counter = 0
 
-/** Replays a sample's recording against its own photo. */
+/** A sample's recordings replayed against its own photos: one photo's own record, or the photos combined. */
+function replaySample(id: DemoSampleId, recordId: string): InspectionRecord {
+  const sample = findSample(id)
+  const recordings = recordingsOf(definitionOf(id))!
+  if (recordings.length === 1) {
+    return replayRecording(recordings[0]!, {
+      id: recordId,
+      photo: { name: sample.photo.name, orientation: sample.photo.orientation },
+    })
+  }
+  // Several photos: each from its own recording, then combined as a live run combines them.
+  return combinePhotoRuns(
+    recordings.map((recording, n) => ({
+      index: n + 1,
+      name: sample.photos[n]!.name,
+      record: replayRecording(recording, {
+        id: `${recordId}-p${n + 1}`,
+        photo: { name: sample.photos[n]!.name, orientation: sample.photos[n]!.orientation },
+      }),
+    })),
+    { id: recordId },
+  )
+}
+
+/** Replays a sample's recordings against its own photos. */
 export async function runDemoSample(
   id: DemoSampleId,
   options: { delayMs?: number } = {},
 ): Promise<InspectionRecord> {
-  const sample = findSample(id)
-  const recording = recordingOf(definitionOf(id))!
+  findSample(id)
   await pause(options.delayMs)
   counter += 1
-  return replayRecording(recording, {
-    id: `demo-${id}-${counter}`,
-    photo: { name: sample.photo.name, orientation: sample.photo.orientation },
-  })
+  return replaySample(id, `demo-${id}-${counter}`)
 }
 
 /**
@@ -215,7 +339,7 @@ export async function runDemoManifestRetry(
   if (!recording) throw new Error(`No recording for demo sample ${id}`)
   await pause(options.delayMs)
   if (options.fail) throw new ManifestRetryError(SIMULATED_FAILURE[recording.provider])
-  const reading = replayRecording(recording, { id: `demo-${id}-check`, photo: null }).containerId
+  const reading = replaySample(id, `demo-${id}-check`).containerId
   // A reading with a position unread cannot equal any entry: nothing the photo showed matches.
   if (!reading || needsManifest(reading)) return null
   const matched = entries.some((entry) => entry.replace(/\s+/g, '').toUpperCase() === reading.value)

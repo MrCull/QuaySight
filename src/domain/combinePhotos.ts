@@ -14,8 +14,12 @@ import {
   type SizeCodeReading,
 } from './containerDetailTypes'
 import { withCodeConflict } from './containerDetails'
-import { agree, combineContainerIds, weakerOf, type Candidate } from './combineReadings'
+import { agree, combineContainerIds, weakerOf, type Candidate, type IdRead } from './combineReadings'
 import { combineDamage } from './combineDamage'
+import { withCategoryLetter } from './idCandidates'
+import { weakestOf } from './idConfidence'
+import type { ChoiceReading } from './idQuestions'
+import { UNREAD } from './certainty'
 import { combineLengthSealPlacards } from './combineLengthSealPlacards'
 import { decodeSizeCode } from './isoSizeCode'
 import type { CertaintyLabel, ContainerIdReading, InspectionRecord } from './inspection'
@@ -62,9 +66,53 @@ export function droppedPhotoMessage(index: number): string {
 
 export const DIFFERENT_CONTAINERS_MESSAGE = 'These photos may be of different containers'
 
-const NO_CONTRIBUTION = (): PhotoContribution => ({ containerId: [], details: [], weights: [], damage: [] })
+const NO_CONTRIBUTION = (): PhotoContribution => ({
+  containerId: [],
+  details: [],
+  weights: [],
+  damage: [],
+})
 
 const isDropped = (run: PhotoRun) => run.record.photoFace?.face === 'not-container'
+const isCloseUp = (run: PhotoRun) => run.record.photoFace?.face === 'close-up'
+
+/**
+ * Whether a photo may give a reading of `subject`. A close-up gives only the readings of what it shows
+ * (a close-up whose subject is unknown: the seal, weights and placards it read itself); it never gives
+ * a face, details or length (an ID close-up votes in the ID only; see combinePhotoRuns). Every other photo gives everything.
+ */
+function mayGive(run: PhotoRun, subject: 'seal' | 'weights' | 'placard'): boolean {
+  if (!isCloseUp(run)) return true
+  const shows = run.record.photoFace?.closeUpSubject
+  return shows === undefined || shows === subject
+}
+
+/** A reading as one string and certainty per position, from per-position choice readings. */
+function readingOfChoices(readings: readonly ChoiceReading[]): IdRead {
+  const positionCertainty = readings.map((r) => r.certainty)
+  return {
+    value: readings.map((r) => r.value ?? UNREAD).join(''),
+    observedCheckDigit: null,
+    calculatedCheckDigit: null,
+    checkDigitValid: false,
+    certainty: weakestOf(positionCertainty),
+    provenance: 'printed',
+    positionCertainty,
+    runnerUps: readings.map((r) =>
+      r.runnerUp ? { value: r.runnerUp, certainty: r.runnerUpCertainty ?? r.certainty } : null,
+    ),
+  }
+}
+
+/**
+ * The independent reads of one photo's ID that each cast a vote (ticket #86): the whole-photo read and
+ * the zoomed read when both were made, else the photo's reading alone.
+ */
+function idVotes(record: InspectionRecord): IdRead[] | undefined {
+  const crop = record.idCropRead
+  if (crop?.outcome !== 'combined' || !crop.whole || !crop.read) return undefined
+  return [crop.whole, withCategoryLetter(crop.read.readings)].map(readingOfChoices)
+}
 
 function sideOf(record: InspectionRecord): 'left' | 'right' | null {
   const inference = record.damage?.sideInference
@@ -279,15 +327,35 @@ export function combinePhotoRuns(
   const add = (photo: number, field: 'details' | 'weights', names: string[]) =>
     contributions.get(photo)![field].push(...names)
 
-  const idSources = kept.flatMap((r) =>
-    r.record.containerId ? [{ photo: r.index, reading: r.record.containerId }] : [],
+  // A close-up gives no ID, except one of the ID itself (stories 40-41): its characters vote in the
+  // combined reading it shows, but it never votes for "different containers". A close-up whose subject
+  // is unknown (old recordings) stays out.
+  const idRuns = kept.filter((r) => !isCloseUp(r) || r.record.photoFace?.closeUpSubject === 'id')
+  const idSources = idRuns.flatMap((r) =>
+    r.record.containerId
+      ? [
+          {
+            photo: r.index,
+            reading: r.record.containerId,
+            reads: idVotes(r.record),
+            ...(isCloseUp(r) ? { voteOnly: true } : {}),
+          },
+        ]
+      : [],
   )
   const idResult = combineContainerIds(idSources)
   const different = idResult?.kind === 'different'
 
   let containerId: ContainerIdReading | null = null
   if (idResult?.kind === 'combined') {
-    containerId = idResult.reading
+    // The winning photo and the area its read came from, so a close-up is cut from that photo.
+    const winner = idRuns.find((r) => r.index === idResult.winner)
+    const area = winner?.record.containerId?.box ?? winner?.record.idCropRead?.box
+    containerId = {
+      ...idResult.reading,
+      photo: idResult.winner,
+      ...(area ? { box: area } : {}),
+    }
     for (const [photo, positions] of Object.entries(idResult.taken)) {
       contributions.get(Number(photo))!.containerId = [...positions].sort((a, b) => a - b)
     }
@@ -296,9 +364,9 @@ export function combinePhotoRuns(
   let details: InspectionRecord['details']
   let weights: InspectionRecord['weights'] = null
   if (!different) {
-    const withDetails = kept.flatMap((r) =>
-      r.record.details ? [{ photo: r.index, details: r.record.details }] : [],
-    )
+    const withDetails = kept
+      .filter((r) => !isCloseUp(r))
+      .flatMap((r) => (r.record.details ? [{ photo: r.index, details: r.record.details }] : []))
     if (withDetails.length === 1) {
       details = withDetails[0]!.details
       add(withDetails[0]!.photo, 'details', ['all'])
@@ -309,9 +377,9 @@ export function combinePhotoRuns(
         for (const photo of photos) add(photo, 'details', [field])
       }
     }
-    const withWeights = kept.flatMap((r) =>
-      r.record.weights ? [{ photo: r.index, weights: r.record.weights }] : [],
-    )
+    const withWeights = kept
+      .filter((r) => mayGive(r, 'weights'))
+      .flatMap((r) => (r.record.weights ? [{ photo: r.index, weights: r.record.weights }] : []))
     if (withWeights.length === 1) {
       weights = withWeights[0]!.weights
       add(withWeights[0]!.photo, 'weights', ['all'])
@@ -332,12 +400,38 @@ export function combinePhotoRuns(
 
   // Length from shape, seal and placards (combineLengthSealPlacards.ts).
   const merged = combineLengthSealPlacards(
-    kept.map((r) => ({ photo: r.index, record: r.record })),
+    kept.map((r) => ({
+      photo: r.index,
+      record: isCloseUp(r)
+        ? {
+            ...r.record,
+            shapeLength: undefined,
+            seal: mayGive(r, 'seal') ? r.record.seal : undefined,
+            placards: mayGive(r, 'placard') ? r.record.placards : undefined,
+          }
+        : r.record,
+    })),
     different,
   )
   for (const [field, from] of Object.entries(merged.from)) {
     for (const photo of from) add(photo, 'details', [field])
   }
+
+  // Close-ups (ticket #85): the ID and the seal carry the photo whose reading won and the area found on it.
+  const runOf = (photo: number) => runs.find((r) => r.index === photo)?.record
+  if (containerId && idResult?.kind === 'combined') {
+    const winner = Object.entries(idResult.taken)
+      .map(([photo, positions]) => ({ photo: Number(photo), count: positions.length }))
+      .sort((a, b) => b.count - a.count || a.photo - b.photo)[0]
+    const own = winner ? runOf(winner.photo) : undefined
+    const area = own?.idCropRead?.box ?? own?.regions?.found?.id?.box
+    if (winner) containerId = { ...containerId, photo: winner.photo, ...(area ? { area } : {}) }
+  }
+  const sealFrom = merged.fields.seal?.photo
+  const sealRun = sealFrom ? runOf(sealFrom) : undefined
+  const sealArea = sealRun?.sealZoomRead?.box ?? sealRun?.regions?.found?.seal?.box
+  const seal =
+    merged.fields.seal && sealArea ? { ...merged.fields.seal, area: sealArea } : merged.fields.seal
 
   const photos: PhotoSummary[] = runs.map((r) => ({
     index: r.index,
@@ -355,6 +449,7 @@ export function combinePhotoRuns(
   return {
     ...base,
     ...merged.fields,
+    ...(seal ? { seal } : {}),
     id: options.id,
     resolvedVersion: records.map((r) => r.resolvedVersion).find(Boolean) ?? '',
     rawResponses: records.flatMap((r) => r.rawResponses),

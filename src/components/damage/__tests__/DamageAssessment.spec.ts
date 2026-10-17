@@ -312,13 +312,14 @@ describe('a live door-end assessment in the damage view', () => {
     const sill = assessment.findings.find((f) => f.component === 'sill')!
     const gasket = assessment.findings.find((f) => f.component === 'gasket')!
     const wrapper = mount(DamageView, { props: { assessment } })
-    for (const f of [bar, sill]) {
-      expect(wrapper.find(`.qs-region[data-finding="${f.id}"]`).classes()).toContain(
-        'qs-region--unrated',
-      )
-      expect(wrapper.find(`.qs-pin[data-finding="${f.id}"]`).exists()).toBe(true)
-      expect(cardFor(wrapper, f).find('.qs-sev').text()).toContain("Can't tell")
-    }
+    expect(wrapper.find(`.qs-region[data-finding="${bar.id}"]`).classes()).toContain(
+      'qs-region--unrated',
+    )
+    expect(wrapper.find(`.qs-pin[data-finding="${bar.id}"]`).exists()).toBe(true)
+    expect(cardFor(wrapper, bar).find('.qs-sev').text()).toContain("Can't tell")
+    // Rust on the sill is surface wear: the lowest severity, not an unrated part.
+    expect(sill.surfaceWear).toBe(true)
+    expect(cardFor(wrapper, sill).find('.qs-sev').classes()).toContain('qs-sev--cosmetic')
     expect(cardFor(wrapper, gasket).exists()).toBe(true)
     expect(wrapper.find(`.qs-pin[data-finding="${gasket.id}"]`).exists()).toBe(false)
   })

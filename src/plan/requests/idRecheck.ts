@@ -1,3 +1,4 @@
+import { combineIdReadings } from '../../domain/cropRead'
 import { assembleLunaReading, lunaMappingOf } from '../../domain/luna'
 import { lunaIdQuestionSet } from '../../domain/idQuestions'
 import { questionSetAsk } from '../../domain/questionSetAsk'
@@ -25,6 +26,17 @@ export interface IdAnswer {
 /** The positions the whole-photo reading left unread. */
 function askedOf(plan: PlanView): number[] {
   return unresolvedPositions(plan.answer(survey)?.readings ?? [])
+}
+
+/**
+ * The whole-photo readings with the re-check's fill-ins merged in once it has answered; the survey's own
+ * readings before that. The zoomed read (idCropRead.ts) joins these.
+ */
+export function recheckedReadings(plan: PlanView): ChoiceReading[] | null {
+  const first = plan.answer(survey)
+  if (!first) return null
+  const again = plan.answer(idRecheck)
+  return again ? mergeRecheck(first.readings, again.readings, askedOf(plan)).readings : first.readings
 }
 
 /** The Luna ID set for just these positions, on whichever route the run is on. */
@@ -79,9 +91,14 @@ export const idRecheck: PlanRequest<IdAnswer> = {
       case 'answered': {
         const again = outcome.answer.readings
         const merged = mergeRecheck(first.readings, again, asked)
+        // The zoomed read may have landed first: it joins the filled-in readings, whichever settled last.
+        const zoomed = record.idCropRead?.read
+        const joined = zoomed ? combineIdReadings(merged.readings, zoomed.readings) : null
         return {
           ...record,
-          containerId: assembleLunaReading(merged.readings, first.ownerPick),
+          containerId: joined
+            ? assembleLunaReading(joined.readings, first.ownerPick, joined.corroborated)
+            : assembleLunaReading(merged.readings, first.ownerPick),
           rechecks: [
             recheckRecord({
               ...base,

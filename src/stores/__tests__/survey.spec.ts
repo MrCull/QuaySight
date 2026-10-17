@@ -8,7 +8,6 @@ import { useInspectionStore } from '../inspection'
 import { useLedgerStore } from '../ledger'
 import { registerRequest, onlyRequests } from '../../plan/registry'
 import { idRecheck } from '../../plan/requests/idRecheck'
-import { idCropRead } from '../../plan/requests/idCropRead'
 import { survey } from '../../plan/requests/survey'
 import type { SurveyAnswer } from '../../domain/survey'
 import {
@@ -92,7 +91,7 @@ describe('the survey request reads the container details with the ID', () => {
 
   beforeEach(() => {
     // This spec covers the survey; the damage request has its own spec.
-    restoreRequests = onlyRequests(survey, idRecheck, idCropRead)
+    restoreRequests = onlyRequests(survey, idRecheck)
     setActivePinia(createPinia())
     fetchMock = vi.fn<typeof fetch>()
     vi.stubGlobal('fetch', fetchMock)

@@ -1,3 +1,7 @@
+import { drawOverlay, type PhotoOverlay } from './drawOverlay'
+
+export type { PhotoOverlay }
+
 /**
  * The browser's image decoder and canvas, behind the one boundary photo preparation needs. Tests fake this
  * module (jsdom has no decoder or canvas); the real behaviour is covered end to end.
@@ -19,6 +23,8 @@ export interface DecodedPhoto {
   toJpeg(width: number, height: number): Promise<Blob>
   /** Draws one region of the upright photo (in its own pixels) at this size and encodes it as a JPEG. */
   toJpegRegion(region: PhotoRegion, width: number, height: number): Promise<Blob>
+  /** Draws the upright photo at this size with the overlay on it and encodes it as a JPEG (the numbered regions). */
+  toJpegMarked(width: number, height: number, overlay: PhotoOverlay): Promise<Blob>
   /** Releases the decoded photo. */
   close(): void
 }
@@ -31,6 +37,7 @@ function draw(
   region: PhotoRegion,
   width: number,
   height: number,
+  overlay?: PhotoOverlay,
 ): Promise<Blob> {
   const canvas = document.createElement('canvas')
   canvas.width = width
@@ -42,6 +49,7 @@ function draw(
   context.fillRect(0, 0, width, height)
   context.imageSmoothingQuality = 'high'
   context.drawImage(img, region.x, region.y, region.width, region.height, 0, 0, width, height)
+  if (overlay) drawOverlay(context, width, height, overlay)
   return new Promise((resolve, reject) => {
     canvas.toBlob(
       (jpeg) => (jpeg ? resolve(jpeg) : reject(new Error('JPEG encoding failed'))),
@@ -75,6 +83,10 @@ export async function decodePhoto(blob: Blob): Promise<DecodedPhoto> {
     },
     toJpegRegion(region, width, height) {
       return draw(img, region, width, height)
+    },
+    toJpegMarked(width, height, overlay) {
+      const whole = { x: 0, y: 0, width: img.naturalWidth, height: img.naturalHeight }
+      return draw(img, whole, width, height, overlay)
     },
     close() {
       URL.revokeObjectURL(url)

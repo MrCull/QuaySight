@@ -20,6 +20,7 @@ import {
   evaluateWeights,
   WEIGHT_QUANTITIES,
   type Figure,
+  type PlaceDist,
   type WeightQuantity,
   type WeightsReading,
 } from './weights'
@@ -209,6 +210,37 @@ const weakest = (labels: CertaintyLabel[]) =>
     'Confident' as CertaintyLabel,
   )
 
+/** One place's answer as how likely each digit (and 'none') was; undefined when the reply gave none of them. */
+function placeDist(answer: SharedAnswer | undefined): PlaceDist | undefined {
+  if (answer?.type !== 'choice') return undefined
+  const dist: PlaceDist = {}
+  let total = 0
+  for (const key of [...DIGITS, NO_DIGIT]) {
+    const p = answer.probabilities[key]
+    if (p !== undefined && p > 0) {
+      dist[key] = p
+      total += p
+    }
+  }
+  // A place the model called unreadable or not visible says nothing about its digit.
+  if (total < 0.2) return undefined
+  for (const key in dist) dist[key] = dist[key]! / total
+  return dist
+}
+
+/** An unclear figure keeps what every place said, for the other unit and the arithmetic to settle it (weightInference.ts). */
+function unclearFigure(
+  answers: Record<string, SharedAnswer>,
+  quantity: WeightQuantity,
+  layout: Layout,
+): Figure {
+  if (layout.tenths) return UNCLEAR
+  const dist = layout.whole.map((place) =>
+    placeDist(answers[weightQuestionName(quantity, layout.unit, place)]),
+  )
+  return dist.some((d) => d) ? { ...UNCLEAR, dist: dist as PlaceDist[] } : UNCLEAR
+}
+
 function readFigure(
   answers: Record<string, SharedAnswer>,
   quantity: WeightQuantity,
@@ -231,7 +263,7 @@ function readFigure(
   // Highest place first: nothing but no-digit may sit above the first digit, and none below it.
   for (let i = reads.length - 1; i >= 0; i--) {
     const read = reads[i]
-    if (!read || read.value === UNREADABLE) return UNCLEAR
+    if (!read || read.value === UNREADABLE) return unclearFigure(answers, quantity, layout)
     certainties.push(read.certainty)
     const noDigit = read.value === NO_DIGIT || read.value === NOT_VISIBLE
     if (noDigit) {
@@ -243,7 +275,7 @@ function readFigure(
     sawDigit = true
     whole += Number(read.value) * 10 ** i
   }
-  if (gap) return UNCLEAR
+  if (gap) return unclearFigure(answers, quantity, layout)
   let value = whole
   if (layout.tenths) {
     const tenths = readDigit(answers[name('tenths')], [

@@ -8,7 +8,12 @@ import { useInspectionStore } from '../../stores/inspection'
 import { useLedgerStore } from '../../stores/ledger'
 import { recordRun, parsePlanRecording } from '../recording'
 import { replayRecording } from '../replay'
-import { weightChoices, COYU_WEIGHTS } from '../../__tests__/weightReplies'
+import {
+  weightChoices,
+  COYU_WEIGHTS,
+  openAiChoiceReply,
+  openRouterChoiceReply,
+} from '../../__tests__/weightReplies'
 import { openRouterSurveyReply, openAiSurveyReply } from '../../__tests__/surveyReplies'
 import type { SurveyChoice } from '../../__tests__/surveyReplies'
 import { doorReply, notASideReply, openAiShape } from '../../__tests__/planReplies'
@@ -48,9 +53,17 @@ function json(body: unknown, status = 200): Response {
   })
 }
 
-type Replies = Partial<Record<'survey' | 'side' | 'door' | 'crop' | 'weights', unknown>>
+type Kind = 'survey' | 'side' | 'door' | 'crop' | 'weights' | 'regions'
+type Replies = Partial<Record<Kind, unknown>>
 
-function kindOf(body: string): 'survey' | 'side' | 'door' | 'crop' | 'weights' {
+/** The numbered regions' answer: the ID in marks 3 and 4 (top row, right half). */
+const REGION_CHOICES: Record<string, SurveyChoice> = {
+  id_mark: [['3', 0.8]],
+  id_mark_2: [['4', 0.7]],
+}
+
+function kindOf(body: string): Kind {
+  if (body.includes('id_mark')) return 'regions'
   if (body.includes('D1T_DT')) return 'door'
   if (body.includes('Z1T_DT')) return 'side'
   if (body.includes('size_type_code')) return 'survey'
@@ -86,12 +99,18 @@ describe('replaying a recorded run of the whole plan', () => {
                   details: { ...DETAILS, ...weightChoices(COYU_WEIGHTS) },
                 }),
           )
+        case 'regions':
+          return json(
+            provider === 'luna'
+              ? openAiChoiceReply(REGION_CHOICES)
+              : openRouterChoiceReply(REGION_CHOICES),
+          )
         case 'side':
           return json(provider === 'luna' ? openAiShape(notASideReply()) : notASideReply())
         case 'door':
           return json(provider === 'luna' ? openAiShape(doorReply()) : doorReply())
         default:
-          return json(openRouterSurveyReply(COYU))
+          return json(provider === 'luna' ? openAiSurveyReply(COYU) : openRouterSurveyReply(COYU))
       }
     })
     const store = useInspectionStore()
@@ -137,6 +156,7 @@ describe('replaying a recorded run of the whole plan', () => {
       'photoFace',
       'damage',
       'idCropRead',
+      'regions',
       'resolvedVersion',
       'provider',
       'model',
@@ -161,12 +181,14 @@ describe('replaying a recorded run of the whole plan', () => {
     )
   })
 
-  it('replays on OpenAI too, where there is no box and so no crop read', async () => {
+  it('replays on OpenAI too: the same numbered regions, zoomed read and combination', async () => {
     const { live, recording } = await liveRun('luna')
 
     const replayed = replayRecording(recording, { id: live.id, photo: PHOTO })
 
-    expect(replayed.idCropRead).toBeUndefined()
+    expect(replayed.regions).toMatchObject({ outcome: 'located' })
+    expect(replayed.idCropRead).toMatchObject({ outcome: 'combined', marks: [3, 4] })
+    expect(replayed.idCropRead).toEqual(live.idCropRead)
     expect(replayed.containerId).toEqual(live.containerId)
     expect(replayed.details).toEqual(live.details)
     expect(replayed.damage).toEqual(live.damage)

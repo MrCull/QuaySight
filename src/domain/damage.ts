@@ -90,6 +90,11 @@ export interface DamageFinding {
   severityProbabilities?: number[]
   certainty: FindingCertainty
   caveats: string[]
+  /**
+   * Rust or paint wear: the lowest-severity class. Listed after real findings and never raises the
+   * closer-inspection banner.
+   */
+  surfaceWear?: boolean
   /** The photos (1-based) the damage was seen in, when the inspection has several photos. */
   photos?: number[]
 }
@@ -152,6 +157,8 @@ export interface DamageAssessment {
 export const SIGNIFICANT_MIN = 0.5
 
 export function potentiallySignificant(assessment: DamageAssessment): boolean {
+  const { findings } = assessment
+  if (findings.length > 0 && findings.every((f) => f.surfaceWear)) return false
   return (assessment.significantProbability ?? 0) >= SIGNIFICANT_MIN
 }
 
@@ -191,10 +198,16 @@ const CERTAINTY_RANK: Record<FindingCertainty, number> = { Confident: 0, Likely:
 const SEVERITY_RANK: Record<Severity, number> = { major: 0, moderate: 1, minor: 2, cosmetic: 3 }
 const UNRATED_RANK = 4
 
-/** Confident before Likely before Uncertain; within that, more serious first. */
+/** Real findings first, surface wear after them; each group keeps its order. */
+export function surfaceWearLast<T extends { surfaceWear?: boolean }>(findings: T[]): T[] {
+  return [...findings.filter((f) => !f.surfaceWear), ...findings.filter((f) => f.surfaceWear)]
+}
+
+/** Real findings first, surface wear last. Within each: Confident before Likely before Uncertain, then more serious first. */
 export function sortFindings(findings: DamageFinding[]): DamageFinding[] {
   return [...findings].sort(
     (a, b) =>
+      Number(!!a.surfaceWear) - Number(!!b.surfaceWear) ||
       CERTAINTY_RANK[a.certainty] - CERTAINTY_RANK[b.certainty] ||
       (a.severity ? SEVERITY_RANK[a.severity] : UNRATED_RANK) -
         (b.severity ? SEVERITY_RANK[b.severity] : UNRATED_RANK) ||

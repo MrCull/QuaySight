@@ -7,6 +7,7 @@
 // apply. On COYU 266813 0 (16 Oct 2026) Jev read one wrong digit on the full photo and every character at
 // about 1.0 from the crop. Luna read worse from a crop, so it never gets one.
 import { applyMargin, CERTAINTY_LABELS } from './certainty'
+import { oneStepUp } from './combineReadings'
 import type { ChoiceReading } from './idQuestions'
 import type { CertaintyLabel } from './inspection'
 import { largestWithin, type PhotoSize } from './photoFit'
@@ -68,12 +69,17 @@ function widen(lo: number, hi: number, want: number, max: number): [number, numb
  * where needed so it can be scaled to the model's minimum short side, then scaled up (or down) to the
  * largest size within the model's side and pixel limits, aspect ratio kept. Null when no such size exists.
  */
-export function cropRegion(photo: PhotoSize, box: IdBox, limits: PhotoLimits): CropRegion | null {
+export function cropRegion(
+  photo: PhotoSize,
+  box: IdBox,
+  limits: PhotoLimits,
+  margin: number = CROP_MARGIN,
+): CropRegion | null {
   const boxWidth = (box.right - box.left) * photo.width
   const boxHeight = (box.bottom - box.top) * photo.height
   if (!(boxWidth > 0 && boxHeight > 0)) return null
 
-  const pad = CROP_MARGIN * Math.max(boxWidth, boxHeight)
+  const pad = margin * Math.max(boxWidth, boxHeight)
   let x0 = Math.max(0, box.left * photo.width - pad)
   let x1 = Math.min(photo.width, box.right * photo.width + pad)
   let y0 = Math.max(0, box.top * photo.height - pad)
@@ -104,8 +110,20 @@ export function cropRegion(photo: PhotoSize, box: IdBox, limits: PhotoLimits): C
  */
 export interface IdCropReadRecord {
   outcome: 'combined' | 'failed' | 'cancelled' | 'skipped-cap'
-  /** The box the crop was cut around, as the full-photo read gave it. */
+  /** The area the crop was cut around: the numbered regions' area for the ID (ticket #84), as fractions of the photo. */
   box: IdBox
+  /** The marks the model named for that area (ticket #84). */
+  marks?: number[]
+  /**
+   * The zoomed read itself, one reading per position: available as an independent read beside the
+   * whole-photo one, so a later step can rebuild the ID from both whatever order the requests landed in.
+   */
+  read?: { readings: ChoiceReading[]; caveats: { hardToRead: boolean; partlyOutOfFrame: boolean } }
+  /**
+   * The whole-photo read it was combined with, as one reading per position (the owner pick folded in): the other
+   * independent vote when several photos are combined (ticket #86).
+   */
+  whole?: ChoiceReading[]
   /** The region cut from the prepared photo and the size it was sent at; null when no reply came back. */
   crop: {
     x: number
@@ -126,6 +144,10 @@ declare module './inspection' {
   interface ContainerIdReading {
     /** Where the ID was read in the photo (ticket #67), when the model gave a usable box. Shown as an enlarged crop. */
     box?: IdBox
+    /** Several photos: the 1-based photo this reading, and so its close-up, comes from. Absent means photo 1. */
+    photo?: number
+    /** The area the reading was found in on that photo (fractions); a close-up is cut from it when present. */
+    area?: { top: number; bottom: number; left: number; right: number }
   }
   interface InspectionRecord {
     /** The crop read of the container ID (ticket #31), when one was started. Absent on other runs. */
@@ -146,6 +168,8 @@ export interface IdDisagreement {
 export interface CombinedReadings {
   readings: ChoiceReading[]
   disagreements: IdDisagreement[]
+  /** The two readings both read every position and agreed on every character: two independent reads. */
+  corroborated: boolean
 }
 
 const UNREAD_CHARACTER: ChoiceReading = { value: null, certainty: "Can't tell", runnerUp: null }
@@ -188,15 +212,25 @@ function disagreement(
  * becomes its plausible alternative, and the shared margin rule applies between the two: two close
  * readings lower the certainty a level, and a reading that falls to Can't tell is left unread.
  */
-export function combineIdReadings(full: ChoiceReading[], crop: ChoiceReading[]): CombinedReadings {
+export function combineIdReadings(
+  full: ChoiceReading[],
+  crop: ChoiceReading[],
+  /** `fill-only`: the zoomed read fills an unread character and corroborates, but never overrules or lowers a whole-photo one. */
+  mode: 'weigh' | 'fill-only' = 'weigh',
+): CombinedReadings {
   const disagreements: IdDisagreement[] = []
   const readings = full.map((f, i): ChoiceReading => {
     const c = crop[i] ?? UNREAD_CHARACTER
     if (f.value === null) return c.value === null ? UNREAD_CHARACTER : c
     if (c.value === null) return f
-    const fullWins = moreConfident(f, c)
+    const fullWins = mode === 'fill-only' || moreConfident(f, c)
     const [winner, loser] = fullWins ? [f, c] : [c, f]
-    if (f.value === c.value) return winner
+    // Two independent reads of the same character: one level more certain (ticket #86).
+    if (f.value === c.value) return { ...winner, certainty: oneStepUp(winner.certainty) }
+    if (mode === 'fill-only') {
+      disagreements.push(disagreement(i + 1, f, c, 'full'))
+      return f
+    }
 
     disagreements.push(disagreement(i + 1, f, c, fullWins ? 'full' : 'crop'))
     const certainty =
@@ -208,5 +242,7 @@ export function combineIdReadings(full: ChoiceReading[], crop: ChoiceReading[]):
     if (certainty === "Can't tell") return UNREAD_CHARACTER
     return { ...winner, certainty, runnerUp: loser.value }
   })
-  return { readings, disagreements }
+  const corroborated =
+    full.length > 0 && full.every((f, i) => f.value !== null && f.value === crop[i]?.value)
+  return { readings, disagreements, corroborated }
 }

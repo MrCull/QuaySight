@@ -3,7 +3,7 @@
 import { applyMargin, CERTAINTY_LABELS, certaintyOfProbability } from './certainty'
 import type { CertaintyLabel } from './inspection'
 import type { ChoiceReading } from './idQuestions'
-import { OWNER_CODES } from './ownerCodes'
+import { OFFERED_OWNER_CODES, OWNER_CODES } from './ownerCodes'
 import type { ChoiceQuestion, SharedAnswer } from './questionSet'
 
 export const OWNER_QUESTION_NAME = 'owner_code'
@@ -21,7 +21,7 @@ export function ownerQuestion(image: string): ChoiceQuestion {
     instructions: `The container number on ${image} starts with a four-letter owner code, the last letter of which is U. Which of these is the owner code? Answer ${NONE_OF_THESE} if it is not on the list or cannot be read.`,
     choices: [
       { value: NONE_OF_THESE, description: 'None of these' },
-      ...OWNER_CODES.map((code) => ({ value: code, description: `Owner code ${code}` })),
+      ...OFFERED_OWNER_CODES.map((code) => ({ value: code, description: `Owner code ${code}` })),
     ],
   }
 }
@@ -81,6 +81,7 @@ export function combineOwnerReading(
   const near = letters
     ? OWNER_CODES.map((code) => code.slice(0, OWNER_LETTERS))
         .filter((prefix) => distance(prefix, letters) <= NEAR_LETTERS)
+        // OWNER_CODES is in rank order and the sort is stable, so equally near prefixes keep their rank order.
         .sort((a, b) => distance(a, letters) - distance(b, letters))
         .slice(0, MAX_NEAR_MATCHES)
     : []
