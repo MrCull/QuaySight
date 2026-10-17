@@ -19,7 +19,9 @@ export function drawOverlay(
   overlay: PhotoOverlay,
 ): void {
   const unit = Math.min(width, height)
-  const stroke = (lineWidth: number, style: string) => {
+  // Plain named colours with their opacity set on the canvas: these are the pixels the model sees, not UI colours.
+  const stroke = (lineWidth: number, style: string, alpha: number) => {
+    context.globalAlpha = alpha
     context.lineWidth = lineWidth
     context.strokeStyle = style
     for (const l of overlay.lines) {
@@ -29,8 +31,9 @@ export function drawOverlay(
       context.stroke()
     }
   }
-  stroke(Math.max(3, unit / 250), 'rgba(0,0,0,0.85)')
-  stroke(Math.max(1, unit / 600), 'rgba(255,255,255,0.95)')
+  stroke(Math.max(3, unit / 250), 'black', 0.85)
+  stroke(Math.max(1, unit / 600), 'white', 0.95)
+  context.globalAlpha = 1
 
   const size = Math.max(12, Math.round(unit / 40))
   context.font = `bold ${size}px sans-serif`
@@ -41,14 +44,16 @@ export function drawOverlay(
     const y = label.y * height
     const w = context.measureText(label.text).width + size * 0.7
     const h = size * 1.3
-    context.fillStyle = label.alt ? '#ffd400' : 'rgba(0,0,0,0.7)'
-    context.strokeStyle = label.alt ? '#000000' : '#ffffff'
+    context.fillStyle = label.alt ? 'gold' : 'black'
+    context.strokeStyle = label.alt ? 'black' : 'white'
     context.lineWidth = Math.max(1.5, size / 12)
     context.beginPath()
     context.roundRect(x - w / 2, y - h / 2, w, h, h / 4)
+    context.globalAlpha = label.alt ? 1 : 0.7
     context.fill()
+    context.globalAlpha = 1
     context.stroke()
-    context.fillStyle = label.alt ? '#000000' : '#ffffff'
+    context.fillStyle = label.alt ? 'black' : 'white'
     context.fillText(label.text, x, y + size * 0.04)
   }
 }

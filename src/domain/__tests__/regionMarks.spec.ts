@@ -63,15 +63,11 @@ describe('the numbered regions', () => {
         'hazard_3_mark_2',
       ]),
     )
-    for (const q of regionsQuestions()) {
-      expect(q.type).toBe('choice')
-      if (q.type === 'choice') {
-        expect(q.choices.map((c) => c.value)).toEqual([
-          ...Array.from({ length: 25 }, (_, i) => String(i + 1)),
-          'none',
-        ])
-      }
-    }
+    const offered = regionsQuestions().map((q) =>
+      q.type === 'choice' ? q.choices.map((c) => c.value).join(',') : q.type,
+    )
+    const marks = [...Array.from({ length: 25 }, (_, i) => String(i + 1)), 'none'].join(',')
+    expect(new Set(offered)).toEqual(new Set([marks]))
   })
 
   it('read the marks named, with "none" and a mark the model is unsure of both giving no area', () => {

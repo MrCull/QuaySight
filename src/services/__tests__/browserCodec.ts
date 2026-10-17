@@ -15,6 +15,8 @@ async function canvasPage(): Promise<Page> {
   if (page) return page
   browser = await chromium.launch({ executablePath: process.env.PW_CHROMIUM_PATH || undefined })
   page = await browser.newPage()
+  // The app's own overlay drawing, so the page draws the numbered regions exactly as the app does.
+  await page.addScriptTag({ content: `window.drawOverlay = ${drawOverlay.toString()}` })
   return page
 }
 
@@ -45,7 +47,6 @@ export async function decodePhoto(blob: Blob): Promise<DecodedPhoto> {
     return { index: w.photos.length - 1, width: img.naturalWidth, height: img.naturalHeight }
   }, source)
 
-  const overlaySource = drawOverlay.toString()
   const draw = async (
     region: PhotoRegion | null,
     width: number,
@@ -53,7 +54,7 @@ export async function decodePhoto(blob: Blob): Promise<DecodedPhoto> {
     overlay: PhotoOverlay | null = null,
   ) => {
     const base64 = await p.evaluate(
-      ({ index, region, width, height, quality, overlay, overlaySource }) => {
+      ({ index, region, width, height, quality, overlay }) => {
         const img = (window as unknown as PhotoWindow).photos![index]!
         const r = region ?? { x: 0, y: 0, width: img.naturalWidth, height: img.naturalHeight }
         const canvas = document.createElement('canvas')
@@ -65,18 +66,13 @@ export async function decodePhoto(blob: Blob): Promise<DecodedPhoto> {
         context.imageSmoothingQuality = 'high'
         context.drawImage(img, r.x, r.y, r.width, r.height, 0, 0, width, height)
         if (overlay) {
-          // The app's own overlay drawing, run in the page.
-          const drawOverlayHere = (0, eval)(`(${overlaySource})`) as (
-            c: CanvasRenderingContext2D,
-            w: number,
-            h: number,
-            o: unknown,
-          ) => void
-          drawOverlayHere(context, width, height, overlay)
+          // The app's own overlay drawing, installed in the page below.
+          const w = window as unknown as { drawOverlay: (...args: unknown[]) => void }
+          w.drawOverlay(context, width, height, overlay)
         }
         return canvas.toDataURL('image/jpeg', quality).split(',')[1]!
       },
-      { index: decoded.index, region, width, height, quality: JPEG_QUALITY, overlay, overlaySource },
+      { index: decoded.index, region, width, height, quality: JPEG_QUALITY, overlay },
     )
     return new Blob([Buffer.from(base64, 'base64')], { type: 'image/jpeg' })
   }
