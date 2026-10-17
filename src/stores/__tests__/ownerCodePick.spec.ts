@@ -105,28 +105,30 @@ describe('owner code picked from the list, through a live Luna run', () => {
     expect(store.record!.containerId).toMatchObject({ value: 'CMAU6921100' })
   })
 
-  it('falls back to the letters when the list pick is not confident, and shows the pick as possible', async () => {
-    // Neither CMAU nor CAXU passes with check digit 5, so both stay in view.
+  it('falls back to the letters when the list pick is not confident', async () => {
+    // Neither CMAU nor CAXU passes with check digit 5: the letters stand, and no failing ID is offered.
     const store = await run(lunaReply('CMAU6921105', { choice: 'CAXU', probability: 0.4 }))
 
     const reading = store.record!.containerId!
     expect(reading.value).toBe('CMAU6921105')
-    expect(reading.alternatives).toContain('CAXU6921105')
+    expect(reading.alternatives).toBeUndefined()
   })
 
-  it('shows the losing reading as "Also possible" when nothing passes the check digit', async () => {
+  it('never shows the losing reading as "Also possible" when it fails the check digit', async () => {
     const store = await run(lunaReply('CXXU6921105', { choice: 'CAXU', probability: 0.95 }))
 
     const reading = store.record!.containerId!
     expect(reading.value).toBe('CAXU6921105')
-    expect(reading.alternatives).toContain('CXXU6921105')
+    expect(reading.certainty).toBe('Uncertain')
+    expect(reading.alternatives).toBeUndefined()
   })
 
   it('hides the disagreement when only the list pick passes the check digit', async () => {
+    // A Likely pick on the list with every other character Confident: every character is at least Likely.
     const store = await run(lunaReply('CXXU6921109', { choice: 'CAXU', probability: 0.8 }))
 
     const reading = store.record!.containerId!
-    expect(reading).toMatchObject({ value: 'CAXU6921109', certainty: 'Likely' })
+    expect(reading).toMatchObject({ value: 'CAXU6921109', certainty: 'Confident' })
     expect(reading.alternatives).toBeUndefined()
   })
 
@@ -136,6 +138,6 @@ describe('owner code picked from the list, through a live Luna run', () => {
     const reading = store.record!.containerId!
     expect(reading.value).toBe('CAXU6921105')
     expect(reading.certainty).not.toBe('Confident')
-    expect(reading.alternatives).toContain('CMAU6921105')
+    expect(reading.alternatives).toBeUndefined()
   })
 })

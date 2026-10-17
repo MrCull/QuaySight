@@ -146,6 +146,8 @@ export interface IdDisagreement {
 export interface CombinedReadings {
   readings: ChoiceReading[]
   disagreements: IdDisagreement[]
+  /** The two readings both read every position and agreed on every character: two independent reads. */
+  corroborated: boolean
 }
 
 const UNREAD_CHARACTER: ChoiceReading = { value: null, certainty: "Can't tell", runnerUp: null }
@@ -208,5 +210,7 @@ export function combineIdReadings(full: ChoiceReading[], crop: ChoiceReading[]):
     if (certainty === "Can't tell") return UNREAD_CHARACTER
     return { ...winner, certainty, runnerUp: loser.value }
   })
-  return { readings, disagreements }
+  const corroborated =
+    full.length > 0 && full.every((f, i) => f.value !== null && f.value === crop[i]?.value)
+  return { readings, disagreements, corroborated }
 }

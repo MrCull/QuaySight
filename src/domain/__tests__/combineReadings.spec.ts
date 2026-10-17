@@ -104,7 +104,41 @@ describe('combining the container ID across photos', () => {
     expect(combined.reading.checkDigitValid).toBe(true)
     // The disagreeing position reads Uncertain, with the other reading as the alternative.
     expect(combined.reading.positionCertainty?.[10]).toBe('Uncertain')
-    expect(combined.reading.alternatives).toContain('COYU2668137')
+    // The other reading fails the check digit, so it is never shown.
+    expect(combined.reading.alternatives).toBeUndefined()
+  })
+
+  it('is Confident when two photos agree on every character, even from weak single reads', () => {
+    const weak = Array<CertaintyLabel>(11).fill('Uncertain')
+    const combined = combineContainerIds([
+      { photo: 1, reading: idReading(COYU, 'Uncertain', weak) },
+      { photo: 2, reading: idReading(COYU, 'Uncertain', weak) },
+    ])
+    if (combined?.kind !== 'combined') throw new Error('expected a combined ID')
+    expect(combined.reading.certainty).toBe('Confident')
+    expect(combined.reading.alternatives).toBeUndefined()
+  })
+
+  it('stays Likely at best when the owner code is not on the list, however many photos agree', () => {
+    // ZZZU 000000 5 passes the check digit; ZZZU is not on the owner list.
+    const combined = combineContainerIds([
+      { photo: 1, reading: idReading('ZZZU0000005', 'Confident') },
+      { photo: 2, reading: idReading('ZZZU0000005', 'Confident') },
+    ])
+    if (combined?.kind !== 'combined') throw new Error('expected a combined ID')
+    expect(combined.reading.checkDigitValid).toBe(true)
+    expect(combined.reading.certainty).toBe('Likely')
+  })
+
+  it('shows an alternative the photos disagree on only when it passes the check digit', () => {
+    // Photo 2 differs at the 7th digit (COYU 260813 0 also passes) and at the check digit (7 fails).
+    const combined = combineContainerIds([
+      { photo: 1, reading: idReading(COYU, 'Confident') },
+      { photo: 2, reading: idReading('COYU2608137', 'Likely') },
+    ])
+    if (combined?.kind !== 'combined') throw new Error('expected a combined ID')
+    expect(combined.reading.certainty).toBe('Uncertain')
+    expect(combined.reading.alternatives).toEqual(['COYU2608130'])
   })
 
   it('never goes past what the check digit allows', () => {

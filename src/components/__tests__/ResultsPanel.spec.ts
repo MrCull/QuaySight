@@ -51,6 +51,35 @@ describe('ResultsPanel', () => {
     )
   })
 
+  it('tags an ID whose check digit passes but whose owner is not on our list', async () => {
+    const store = useInspectionStore()
+    const recorded = await recordedInspection('luna', { delayMs: 0 })
+    // ZZZU 000000 5 passes the check digit; ZZZU is not on the owner list.
+    store.record = {
+      ...recorded,
+      containerId: {
+        ...recorded.containerId!,
+        value: 'ZZZU0000005',
+        observedCheckDigit: 5,
+        calculatedCheckDigit: 5,
+        checkDigitValid: true,
+        certainty: 'Likely',
+        alternatives: undefined,
+      },
+    }
+    store.status = 'complete'
+    const wrapper = mount(ResultsPanel)
+    expect(wrapper.text()).toContain('Owner not on our list')
+  })
+
+  it('does not tag an ID whose owner is on the list', async () => {
+    const store = useInspectionStore()
+    store.record = await recordedInspection('luna', { delayMs: 0 })
+    store.status = 'complete'
+    const wrapper = mount(ResultsPanel)
+    expect(wrapper.text()).not.toContain('Owner not on our list')
+  })
+
   it('shows no result or sample label before a run completes', () => {
     const wrapper = mount(ResultsPanel)
     expect(wrapper.text()).not.toContain('Recorded demonstration')

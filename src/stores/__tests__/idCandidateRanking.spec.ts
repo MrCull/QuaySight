@@ -84,7 +84,7 @@ describe('container ID candidates through a live Luna run', () => {
     expect(raw).not.toMatch(CHECK_DIGIT_ALGORITHM)
   })
 
-  it('ranks COYU 266813 0 first because its check digit passes, and still offers COUU as it is only a weak reading (#64)', async () => {
+  it('ranks COYU 266813 0 first because its check digit passes, and hides COUU, whose check digit fails (#79)', async () => {
     const store = await run(lunaReply('COUU2668130', COUU))
 
     const reading = store.record!.containerId!
@@ -92,10 +92,11 @@ describe('container ID candidates through a live Luna run', () => {
       value: 'COYU2668130',
       checkDigitValid: true,
       calculatedCheckDigit: 0,
-      certainty: 'Likely',
     })
-    expect(reading.alternatives).toEqual(['COUU2668130'])
-    expect(buildSummaryText(store.record!)).toContain('Also possible: COUU2668130')
+    // The swapped letter was only a weak reading, so this is not Confident; COUU fails the check digit and is never shown.
+    expect(reading.certainty).not.toBe('Confident')
+    expect(reading.alternatives).toBeUndefined()
+    expect(buildSummaryText(store.record!)).not.toContain('Also possible')
   })
 
   it('shows U in the 4th place whatever comes back', async () => {
@@ -104,12 +105,12 @@ describe('container ID candidates through a live Luna run', () => {
     expect(store.record!.containerId).toMatchObject({ value: 'COYU2668130', checkDigitValid: true })
   })
 
-  it('keeps the alternatives as before when nothing passes the check digit', async () => {
+  it('offers no alternatives when nothing passes the check digit', async () => {
     // Check digit 5 fails for COUU and for COYU alike.
     const store = await run(lunaReply('COUU2668135', COUU))
 
     const reading = store.record!.containerId!
     expect(reading).toMatchObject({ value: 'COUU2668135', checkDigitValid: false })
-    expect(reading.alternatives).toEqual(['COYU2668135'])
+    expect(reading.alternatives).toBeUndefined()
   })
 })

@@ -94,11 +94,11 @@ describe('check-digit validation stays in the app', () => {
     })
   })
 
-  it('flags the misreading COYU 266113 0, whose check digit fails, and does not keep it Confident', () => {
+  it('flags the misreading COYU 266113 0, whose check digit fails, and keeps it at Uncertain at best', () => {
     const answers = 'COYU2661130'.split('').map((ch, i) => answer(i, ch))
     const reading = mapLunaResponse({ answers }, 'gpt-6-luna').containerId
     expect(reading.checkDigitValid).toBe(false)
     expect(reading.value).toBe('COYU2661130')
-    expect(reading.certainty).toBe('Likely')
+    expect(reading.certainty).toBe('Uncertain')
   })
 })

@@ -5,7 +5,8 @@
 // - a disagreement is Uncertain, with the other reading kept as the alternative;
 // - nothing goes past what the check digit allows (a container ID whose check digit fails is never Confident).
 // A reading that only one photo gives is kept as it is.
-import { UNREAD } from './certainty'
+import { MAX_ALTERNATIVES, UNREAD } from './certainty'
+import { idCertainty, ownerIsListed } from './idConfidence'
 import type { CertaintyLabel, ContainerIdReading } from './inspection'
 import { buildContainerIdReading } from './containerId'
 import { checkDigitMatches } from './iso6346'
@@ -113,11 +114,6 @@ const passesCheck = (id: string) => /^[A-Z]{4}\d{7}$/.test(id) && checkDigitMatc
 const normalised = (r: ContainerIdReading) =>
   r.value.replace(/\s+/g, '').toUpperCase().padEnd(11, UNREAD).slice(0, 11)
 
-/** The ID's weakest known position, the way a single photo's reading takes its overall certainty. */
-function weakest(certainties: CertaintyLabel[]): CertaintyLabel {
-  return certainties.reduce<CertaintyLabel>((a, c) => weakerOf(a, c), 'Confident')
-}
-
 /**
  * Combines the container IDs of several photos character by character. Each position takes the most
  * certain reading by the agreement rule; where photos disagree, a combination that passes the check
@@ -161,17 +157,21 @@ export function combineContainerIds(sources: readonly IdSource[]): IdCombination
 
   const certainty: CertaintyLabel[] = []
   const alternatives: string[] = []
+  // Two independent reads (two photos) agree on every one of the 11 characters.
+  let corroborated = true
   const taken: Record<number, number[]> = {}
   positions.forEach((p, i) => {
     const ch = id[i]!
     if (ch === UNREAD || !p.agreed) {
       certainty.push("Can't tell")
+      corroborated = false
       return
     }
     const mine = p.candidates.filter((c) => c.value === ch)
     // The check digit may have picked a reading other than the rule's: that reading is judged by the rule too.
     const decided = ch === p.agreed.value ? p.agreed : agree(mine)!
     const disagreed = new Set(p.candidates.map((c) => c.value)).size > 1
+    if (disagreed || mine.length < 2) corroborated = false
     certainty.push(disagreed ? weakerOf(decided.certainty, 'Uncertain') : decided.certainty)
     for (const photo of mine.map((c) => c.photo)) (taken[photo] ??= []).push(i + 1)
     if (disagreed) {
@@ -181,11 +181,18 @@ export function combineContainerIds(sources: readonly IdSource[]): IdCombination
   })
 
   const printed = id
-  const overall = weakest(certainty)
+  const overall = idCertainty({ id: printed, positionCertainty: certainty, corroborated })
   const reading: ContainerIdReading = printed.includes(UNREAD)
     ? partialReading(printed, overall, certainty)
     : { ...buildContainerIdReading({ printed, certainty: overall }), positionCertainty: certainty }
-  if (alternatives.length > 0) reading.alternatives = alternatives
+  // Only readings that pass the check digit are offered, none beside a Confident one that passes, listed owners first.
+  const shown = [...new Set(alternatives)]
+    .filter(passesCheck)
+    .sort((a, b) => Number(ownerIsListed(b)) - Number(ownerIsListed(a)))
+    .slice(0, MAX_ALTERNATIVES)
+  if (shown.length > 0 && !(overall === 'Confident' && passesCheck(printed))) {
+    reading.alternatives = shown
+  }
   return { kind: 'combined', reading, taken }
 }
 

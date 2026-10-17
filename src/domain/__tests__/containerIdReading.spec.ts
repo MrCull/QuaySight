@@ -17,12 +17,12 @@ describe('container ID reading with deterministic check digit', () => {
     expect(reading.observedCheckDigit).toBe(8)
     expect(reading.calculatedCheckDigit).toBe(7)
     expect(reading.checkDigitValid).toBe(false)
-    expect(reading.certainty).toBe('Likely')
+    expect(reading.certainty).toBe('Uncertain')
   })
 
-  it('caps a Confident reading at Likely when its check digit does not match', () => {
+  it('caps a Confident reading at Uncertain when its check digit does not match', () => {
     const reading = buildContainerIdReading({ printed: 'APHU6586848', certainty: 'Confident' })
-    expect(reading.certainty).toBe('Likely')
+    expect(reading.certainty).toBe('Uncertain')
   })
 
   it('maps a remainder of 10 to a check digit of 0', () => {
