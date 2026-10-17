@@ -15,7 +15,7 @@ defineEmits<{ enlarge: [frame: HTMLElement] }>()
     :aria-label="label"
     @click="$emit('enlarge', $event.currentTarget as HTMLElement)"
   >
-    <img class="rs-frame__img" :src="url" :alt="alt" />
+    <img class="rs-photo__img" :src="url" :alt="alt" />
     <slot />
     <span class="rs-analysing"><span class="rs-sweep" aria-hidden="true"></span></span>
   </button>
@@ -34,7 +34,7 @@ defineEmits<{ enlarge: [frame: HTMLElement] }>()
   outline: 2px solid var(--focus-ring);
   outline-offset: 2px;
 }
-.rs-frame__img {
+.rs-photo__img {
   display: block;
   width: 100%;
   height: 100%;
