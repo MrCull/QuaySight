@@ -9,8 +9,9 @@ The loupe is a magnifier. When the presenter rests the mouse on the main contain
 
 ## Behaviour
 - **Delay:** it appears after **330ms** of the pointer resting on a photo, never sooner. Once shown it follows the pointer straight away.
-- **Hiding:** straight away, when the pointer leaves the photo or moves onto the letterbox bars of the `contain`-fitted image. Pressing the photo hides it too; the click still opens `PhotoViewer`.
-- **Carry-over:** if the pointer reaches another photo within about **150ms**, the loupe carries over with no new delay. After a longer gap the full 330ms applies again.
+- **Hiding:** straight away, when the pointer leaves the photo or moves onto the letterbox bars of the `contain`-fitted image. Pressing the photo, or opening `PhotoViewer` any way (Enter and Space included), hides it too and drops one still waiting to appear; after the viewer closes it comes back only once the pointer moves and rests again.
+- **Carry-over:** if the pointer reaches another photo within about **150ms**, the loupe carries over with no new delay. After a longer gap, or on coming back to the same photo, the full 330ms applies again.
+- **Size and gap come from the CSS:** the app measures a rendered `.qs-loupe` and reads its `--qs-loupe-gap`, so changing the tokens moves the geometry with them.
 - **Placement:** `--space-5` below and to the right of the pointer, so it never covers the spot being looked at. Near the right or bottom edge of the viewport it flips to the left or above.
 - **Magnification:** about 3× the displayed size, capped at the original's real resolution, so one original pixel is never stretched over more than one loupe pixel (no blurry upscaling). There is no mouse-wheel zoom; the wheel keeps scrolling the page.
 - **Layer:** z-index 35, above the top bar (21) and the cost bottom sheet (30), below `PhotoViewer` (40). It is hidden while the viewer is open.

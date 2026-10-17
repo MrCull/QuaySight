@@ -5,7 +5,8 @@ The photo viewer shows the original container photo filling the screen. The pres
 ## The one sanctioned full-screen layer
 Elsewhere this system says "never a modal" (`Notice`, `NewInspection`, `SettingsDrawer`). The viewer is the single exception, because **the photo is the hero**: the presenter is showing the container itself, and nothing else on screen matters while they do. No other component may become a full-screen or modal layer by pointing at this one.
 
-- **Backdrop:** the `scrim` token, with a light blur. Never a solid colour.
+- **Backdrop:** the `scrim` token. Never a solid colour.
+- **Modal while open:** it is teleported to the page body. Tab and Shift+Tab cycle through its own buttons, the page behind does not scroll, and Esc and the arrow keys go no further (an open settings drawer stays open).
 - **z-index 40**, above every other layer: cost panel 10 (30 as the narrow-screen bottom sheet), demo banner 20, settings drawer 20, top bar 21. It covers the analysing sweep too: the viewer opens during analysis as well as after results.
 
 ## Anatomy

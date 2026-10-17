@@ -150,11 +150,8 @@ function openPicker() {
             :url="photo.url"
             :alt="`Container photo ${i + 1}: ${photo.name}`"
             :label="`Enlarge photo ${i + 1} of ${store.photos.length}`"
+            :loupe="loupe"
             @enlarge="enlarge(i, $event)"
-            @pointerenter="loupe.track($event, photo.url)"
-            @pointermove="loupe.track($event, photo.url)"
-            @pointerleave="loupe.leave()"
-            @pointerdown="loupe.leave()"
           />
           <!-- Under the photo, never over it. -->
           <div class="rs-photos__cap">
@@ -171,11 +168,8 @@ function openPicker() {
         :url="store.photo.url"
         :alt="`Container photo: ${store.photo.name}`"
         label="Enlarge photo"
+        :loupe="loupe"
         @enlarge="enlarge(0, $event)"
-        @pointerenter="loupe.track($event, store.photo.url)"
-        @pointermove="loupe.track($event, store.photo.url)"
-        @pointerleave="loupe.leave()"
-        @pointerdown="loupe.leave()"
       >
         <span class="rs-photo__bar">
           <span class="rs-pill">

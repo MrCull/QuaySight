@@ -568,7 +568,7 @@
 
 /* ---------- Photo viewer (the one sanctioned full-screen layer: the photo is the hero) ---------- */
 /* Above every other layer: cost panel 10 (30 as a bottom sheet), demo banner 20, drawer 20, top bar 21. */
-.qs-viewer { position: fixed; inset: 0; z-index: 40; display: grid; grid-template: minmax(0, 1fr) / minmax(0, 1fr); padding: var(--space-6); background: var(--scrim); backdrop-filter: blur(6px); cursor: zoom-out; animation: qs-viewer-in var(--duration-base) ease-out both; }
+.qs-viewer { position: fixed; inset: 0; z-index: 40; display: grid; grid-template: minmax(0, 1fr) / minmax(0, 1fr); padding: var(--space-6); background: var(--scrim); cursor: zoom-out; animation: qs-viewer-in var(--duration-base) ease-out both; }
 .qs-viewer:focus { outline: none; }
 /* The box fills the layer; the photo letterboxes inside it, never cropped. */
 .qs-viewer__img { display: block; width: 100%; height: 100%; min-height: 0; object-fit: contain; image-orientation: from-image; }
@@ -592,12 +592,13 @@
 }
 /* Appears instantly under reduced motion: no fade at all, not a zero-length one. */
 @media (prefers-reduced-motion: reduce) { .qs-viewer { animation: none; } }
+/* Teleported to the body, outside the element carrying qs-reduced-motion: the app mirrors the class onto the layer. */
 .qs-reduced-motion .qs-viewer, .qs-viewer.qs-reduced-motion { animation: none; }
 
 /* ---------- Loupe (hover magnifier over a container photo; decorative, mouse only) ---------- */
-/* Above the top bar 21 and the cost bottom sheet 30, below the photo viewer 40. The app sets left/top and the
+/* Above the top bar 21 and the cost bottom sheet 30, below the photo viewer 40. --qs-loupe-gap is the gap from the pointer; the app reads it and the rendered size. The app sets left/top and the
    background (the original photo, its size and position) inline as the pointer moves. */
-.qs-loupe { position: fixed; z-index: 35; width: calc(var(--space-8) * 3.5); height: calc(var(--space-8) * 3.5); border: 1px solid var(--line-strong); border-radius: var(--radius-md); background-color: var(--surface-raised); background-repeat: no-repeat; box-shadow: var(--shadow-raised); pointer-events: none; animation: qs-loupe-in var(--duration-fast) ease-out both; }
+.qs-loupe { --qs-loupe-gap: var(--space-5); position: fixed; z-index: 35; width: calc(var(--space-8) * 3.5); height: calc(var(--space-8) * 3.5); border: 1px solid var(--line-strong); border-radius: var(--radius-md); background-color: var(--surface-raised); background-repeat: no-repeat; box-shadow: var(--shadow-raised); pointer-events: none; animation: qs-loupe-in var(--duration-fast) ease-out both; }
 @keyframes qs-loupe-in { from { opacity: 0; } to { opacity: 1; } }
 /* Appears instantly under reduced motion. */
 @media (prefers-reduced-motion: reduce) { .qs-loupe { animation: none; } }

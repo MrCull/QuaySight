@@ -6,8 +6,10 @@
  */
 import { computed } from 'vue'
 import type { LoupeView } from '../composables/loupe'
+import { reducedMotionClassSet } from '../composables/reducedMotion'
 
 const props = defineProps<{ view: LoupeView }>()
+const reducedMotion = reducedMotionClassSet()
 
 const style = computed(() => {
   const { url, lens, left, top } = props.view
@@ -23,6 +25,10 @@ const style = computed(() => {
 
 <template>
   <Teleport to="body">
-    <div class="qs-loupe" aria-hidden="true" :style="style"></div>
+    <div
+      :class="['qs-loupe', { 'qs-reduced-motion': reducedMotion }]"
+      aria-hidden="true"
+      :style="style"
+    ></div>
   </Teleport>
 </template>

@@ -1,4 +1,4 @@
-import { afterEach, beforeEach, describe, expect, it } from 'vitest'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { mount, type VueWrapper } from '@vue/test-utils'
 import { createPinia, setActivePinia } from 'pinia'
 import { useInspectionStore } from '../../stores/inspection'
@@ -131,5 +131,103 @@ describe('PhotoViewer', () => {
     const panel = mountPanel()
     await panel.get('button[aria-label="Enlarge photo"]').trigger('click')
     expect(viewer()).not.toBeNull()
+  })
+
+  it.each(['Enter', ' '])('opens from a focused photo on %j', async (key) => {
+    useInspectionStore().setPhotos([photo('a.jpg'), photo('b.jpg')])
+    const panel = mountPanel()
+    const frame = panel.get('button[aria-label="Enlarge photo 2 of 2"]')
+    ;(frame.element as HTMLElement).focus()
+    await frame.trigger('keydown', { key })
+    expect(viewer()).not.toBeNull()
+    expect(viewerImg()?.getAttribute('src')).toBe('blob:b.jpg')
+  })
+
+  it('sits on the page body, outside the app', async () => {
+    useInspectionStore().setPhoto(photo('door.jpg'))
+    const panel = mountPanel()
+    await panel.get('button[aria-label="Enlarge photo"]').trigger('click')
+    expect(viewer()?.parentElement).toBe(document.body)
+    expect(panel.element.contains(viewer())).toBe(false)
+  })
+
+  it('carries the reduced-motion class the app set elsewhere on the page', async () => {
+    useInspectionStore().setPhoto(photo('door.jpg'))
+    document.body.classList.add('qs-reduced-motion')
+    try {
+      const panel = mountPanel()
+      await panel.get('button[aria-label="Enlarge photo"]').trigger('click')
+      expect(viewer()?.classList.contains('qs-reduced-motion')).toBe(true)
+    } finally {
+      document.body.classList.remove('qs-reduced-motion')
+    }
+  })
+
+  it('keeps Tab and Shift+Tab inside the viewer', async () => {
+    useInspectionStore().setPhotos([photo('a.jpg'), photo('b.jpg')])
+    const panel = mountPanel()
+    await panel.get('button[aria-label="Enlarge photo 1 of 2"]').trigger('click')
+    const buttons = [...viewer()!.querySelectorAll<HTMLButtonElement>('button')]
+    const first = buttons[0]!
+    const last = buttons[buttons.length - 1]!
+
+    last.focus()
+    last.dispatchEvent(
+      new KeyboardEvent('keydown', { key: 'Tab', bubbles: true, cancelable: true }),
+    )
+    expect(document.activeElement).toBe(first)
+
+    first.focus()
+    first.dispatchEvent(
+      new KeyboardEvent('keydown', { key: 'Tab', shiftKey: true, bubbles: true, cancelable: true }),
+    )
+    expect(document.activeElement).toBe(last)
+
+    viewer()!.focus()
+    viewer()!.dispatchEvent(
+      new KeyboardEvent('keydown', { key: 'Tab', shiftKey: true, bubbles: true, cancelable: true }),
+    )
+    expect(document.activeElement).toBe(last)
+  })
+
+  it('locks the page scroll while open and gives it back on close', async () => {
+    useInspectionStore().setPhoto(photo('door.jpg'))
+    document.body.style.overflow = 'auto'
+    const panel = mountPanel()
+    await panel.get('button[aria-label="Enlarge photo"]').trigger('click')
+    expect(document.body.style.overflow).toBe('hidden')
+    await press('Escape')
+    await settle()
+    expect(document.body.style.overflow).toBe('auto')
+    document.body.style.overflow = ''
+  })
+
+  it('keeps its Esc from reaching other Esc handlers on the page', async () => {
+    useInspectionStore().setPhoto(photo('door.jpg'))
+    const other = vi.fn<(event: KeyboardEvent) => void>()
+    document.addEventListener('keydown', other)
+    try {
+      const panel = mountPanel()
+      await panel.get('button[aria-label="Enlarge photo"]').trigger('click')
+      await press('Escape')
+      await settle()
+      expect(viewer()).toBeNull()
+      expect(other).not.toHaveBeenCalled()
+    } finally {
+      document.removeEventListener('keydown', other)
+    }
+  })
+
+  it('captions the photo it shows when the photos change while open', async () => {
+    const store = useInspectionStore()
+    store.setPhotos([photo('a.jpg'), photo('b.jpg'), photo('c.jpg')])
+    const panel = mountPanel()
+    await panel.get('button[aria-label="Enlarge photo 3 of 3"]').trigger('click')
+    store.setPhotos([photo('d.jpg'), photo('e.jpg')])
+    await settle()
+    const src = viewerImg()?.getAttribute('src')
+    const n = ['blob:d.jpg', 'blob:e.jpg'].indexOf(src!) + 1
+    expect(n).toBeGreaterThan(0)
+    expect(viewer()?.querySelector('.qs-viewer__cap')?.textContent?.trim()).toBe(`Photo ${n} of 2`)
   })
 })

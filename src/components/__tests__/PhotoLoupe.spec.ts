@@ -195,4 +195,68 @@ describe('PhotoLoupe', () => {
     await wrapper!.vm.$nextTick()
     expect(document.querySelector('[role="dialog"]')).not.toBeNull()
   })
+
+  it.each([
+    ['showing', 330],
+    ['still waiting', 100],
+  ])('does not come back after the viewer opened by keyboard while it was %s', async (_s, ms) => {
+    mountWith('door.jpg')
+    const [frame] = frames()
+    await pointer(frame!, 'pointerenter')
+    await wait(ms)
+
+    frame!.focus()
+    frame!.dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter', bubbles: true }))
+    await wrapper!.vm.$nextTick()
+    expect(document.querySelector('[role="dialog"]')).not.toBeNull()
+    document.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', bubbles: true }))
+    await wait(1000)
+
+    expect(document.querySelector('[role="dialog"]')).toBeNull()
+    expect(loupe()).toBeNull()
+  })
+
+  it('waits the full 330ms again on coming back to the same photo', async () => {
+    mountWith('door.jpg')
+    const [frame] = frames()
+    await pointer(frame!, 'pointerenter')
+    await wait(330)
+    await pointer(frame!, 'pointerleave')
+    await wait(50)
+    await pointer(frame!, 'pointerenter')
+    expect(loupe()).toBeNull()
+    await wait(330)
+    expect(loupe()).not.toBeNull()
+  })
+
+  it('takes its size and gap from the rendered loupe, not fixed numbers', async () => {
+    const rect = HTMLElement.prototype.getBoundingClientRect
+    const style = window.getComputedStyle
+    HTMLElement.prototype.getBoundingClientRect = function (this: HTMLElement) {
+      if (this.classList.contains('qs-loupe'))
+        return { left: 0, top: 0, width: 300, height: 300, right: 300, bottom: 300 } as DOMRect
+      return rect.call(this)
+    }
+    window.getComputedStyle = ((el: Element, pseudo?: string | null) => {
+      const s = style(el, pseudo)
+      if (!el.classList.contains('qs-loupe')) return s
+      return new Proxy(s, {
+        get: (t, k) =>
+          k === 'getPropertyValue'
+            ? (name: string) => (name === '--qs-loupe-gap' ? ' 40px' : t.getPropertyValue(name))
+            : Reflect.get(t, k),
+      })
+    }) as typeof window.getComputedStyle
+    try {
+      mountWith('door.jpg')
+      const [frame] = frames()
+      await pointer(frame!, 'pointerenter', { x: 200, y: 100 })
+      await wait(330)
+      expect(loupe()!.style.left).toBe('240px')
+      expect(loupe()!.style.width).toBe('')
+    } finally {
+      HTMLElement.prototype.getBoundingClientRect = rect
+      window.getComputedStyle = style
+    }
+  })
 })

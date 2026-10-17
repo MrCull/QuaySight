@@ -27,7 +27,8 @@ test.describe('photo viewer', () => {
     await expect(viewer(page)).toBeVisible()
     const img = viewer(page).locator('img')
     await expect(img).toBeVisible()
-    if (SHOTS) await page.screenshot({ path: path.join(SHOTS, 'viewer.png'), animations: 'disabled' })
+    if (SHOTS)
+      await page.screenshot({ path: path.join(SHOTS, 'viewer.png'), animations: 'disabled' })
     const box = await img.boundingBox()
     // Fitted to the screen: far larger than the stage photo it came from.
     expect(box!.width > 900 || box!.height > 600).toBe(true)
@@ -45,6 +46,14 @@ test.describe('photo viewer', () => {
     await page.keyboard.press('Escape')
     await expect(viewer(page)).toHaveCount(0)
     await expect(photo).toBeFocused()
+
+    // Space opens it too; Tab stays inside it while it is open.
+    await photo.press(' ')
+    await expect(viewer(page)).toBeVisible()
+    for (let i = 0; i < 3; i++) await page.keyboard.press('Tab')
+    await expect(viewer(page).getByRole('button', { name: 'Close photo' })).toBeFocused()
+    await page.keyboard.press('Escape')
+    await expect(viewer(page)).toHaveCount(0)
   })
 
   test('opens while the inspection is analysing, over the sweep', async ({ page }) => {
