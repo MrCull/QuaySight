@@ -203,6 +203,25 @@ describe('the crop read of the container ID (Jev)', () => {
     ])
   })
 
+  it('keeps the box on the ID reading, after the crop read combines its readings too', async () => {
+    edge.answer('full', () => json(jevBody('COYU2661130', { box: COYU_BOX })))
+    edge.answer('crop', () => json(jevBody('COYU2668130')))
+    const store = liveStore()
+
+    await store.start()
+
+    expect(store.record?.containerId?.box).toEqual({ ...COYU_BOX, confidence: 0.77 })
+  })
+
+  it('carries no box on the ID reading when none was usable', async () => {
+    edge.answer('full', () => json(jevBody('COYU2668130', { box: COYU_BOX, boxConfidence: 0.3 })))
+    const store = liveStore()
+
+    await store.start()
+
+    expect(store.record?.containerId).not.toHaveProperty('box')
+  })
+
   it('records the crop read as its own ledger line, with its own reported cost', async () => {
     edge.answer('full', () => json(jevBody('COYU2668130', { box: COYU_BOX })))
     edge.answer('crop', () => json(jevBody('COYU2668130')))

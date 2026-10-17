@@ -81,7 +81,7 @@ export const idCropRead: PlanRequest<CropAnswer> = {
         return {
           ...record,
           // The crop is the closer look at the same number: its legibility and framing answers stand.
-          containerId: jevIdReading(combined.readings, caveats, first.ownerPick),
+          containerId: { ...jevIdReading(combined.readings, caveats, first.ownerPick), box },
           idCropRead: {
             outcome: 'combined',
             box,
