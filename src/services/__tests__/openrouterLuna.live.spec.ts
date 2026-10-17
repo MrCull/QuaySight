@@ -25,7 +25,7 @@ import { fileURLToPath } from 'node:url'
 import { EnvHttpProxyAgent, setGlobalDispatcher } from 'undici'
 import { liveLuna } from './liveCalls'
 import { OPENROUTER_ENDPOINT } from '../../domain/openrouter'
-import { findModel, labelsFor, questionSetOf } from '../../domain/providers'
+import { findModel, questionSetOf } from '../../domain/providers'
 
 const apiKey = process.env.OPENROUTER_API_KEY ?? ''
 if (apiKey && (process.env.HTTPS_PROXY || process.env.https_proxy)) {
