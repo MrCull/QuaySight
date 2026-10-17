@@ -165,7 +165,9 @@ export function combineDamage(runs: readonly DamageRun[]): {
   }
 
   const probabilities = assessed.flatMap((r) => assessedDamage(r)!.significantProbability ?? [])
-  const withSide = assessed.map((r) => assessedDamage(r)!).find((d) => d.sideInference)
+  // A side the doors settled beats one that was only assumed.
+  const sides = assessed.map((r) => assessedDamage(r)!).filter((d) => d.sideInference)
+  const withSide = sides.find((d) => d.sideInference!.basis === 'inferred') ?? sides[0]
   return {
     damage: {
       ...base,

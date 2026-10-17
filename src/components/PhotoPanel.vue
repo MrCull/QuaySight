@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue'
 import { MAX_PHOTOS, TOO_MANY_PHOTOS, useInspectionStore } from '../stores/inspection'
-import { faceChipLabel } from '../domain/photoFace'
+import { faceChipLabel, facesShown } from '../domain/photoFace'
 import { readPhotoFile, PHOTO_ACCEPT } from '../services/readPhoto'
 import AnalysingStages from './AnalysingStages.vue'
 
@@ -28,7 +28,12 @@ const orientationLabel = computed(() => {
 function chipFor(index: number): string | null {
   const photo = store.record?.photos?.[index]
   return photo
-    ? faceChipLabel(photo.face?.face ?? null, photo.side, photo.face?.closeUpSubject ?? null)
+    ? faceChipLabel(
+        photo.face?.face ?? null,
+        photo.side,
+        photo.face?.closeUpSubject ?? null,
+        facesShown(photo.face),
+      )
     : null
 }
 
