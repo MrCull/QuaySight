@@ -170,6 +170,7 @@ function openRouterJevScript(): Script {
     if (kind === 'side') return notASideReply()
     return {
       ...openRouterSurveyReply('APHU6586847', {
+        box: true,
         details: {
           size_type_code: [['45G1', 0.9]],
           photo_face: [['rear_doors', 0.95]],

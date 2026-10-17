@@ -7,6 +7,7 @@ import type { StageId } from '../domain/runStages'
 import CertaintyChip from './CertaintyChip.vue'
 import ContainerId from './ContainerId.vue'
 import ManifestRetry from './ManifestRetry.vue'
+import PhotoCrop from './PhotoCrop.vue'
 import ContainerDetails from './ContainerDetails.vue'
 import ContainerMarkings from './ContainerMarkings.vue'
 import ExportActions from './ExportActions.vue'
@@ -85,7 +86,7 @@ function failureBody(part: StageId): string {
 }
 
 // Stagger position of each card in the arrival choreography (read by .qs-rise as --i).
-const STAGGER = { card: 0, alternative: 1, explanation: 2 } as const
+const STAGGER = { card: 0, alternative: 1, crop: 1, explanation: 2 } as const
 
 // Plain explanation for the uncertain, partial and insufficient-evidence states (spec 5.4, 8.4).
 const idState = computed(() =>
@@ -208,6 +209,17 @@ const showInsufficient = computed(() => idState.value === 'insufficient')
       </p>
       <template v-else>
         <ContainerId :reading="record.containerId" />
+
+        <!-- Where the ID was read, cut from the photo on screen; absent when the reading has no usable box. -->
+        <PhotoCrop
+          v-if="store.photo"
+          class="qs-rise"
+          :style="{ '--i': STAGGER.crop }"
+          :src="store.photo.url"
+          :box="record.containerId.box"
+          caption="Where we read the ID"
+          label="The container ID"
+        />
 
         <p
           v-for="alt in alternatives"
