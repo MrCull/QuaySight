@@ -124,6 +124,8 @@ export interface PlanRunOptions {
   onState(states: PlannedRequestState[]): void
   /** A started request settled. Called once per started request, in settle order. */
   onSettled(settled: SettledRequest): void
+  /** Several photos share one inspection: `idPrefix` goes ahead of each request's pass id (`p2-`), `purposeSuffix` after its purpose. */
+  photoLabel?: { idPrefix: string; purposeSuffix: string }
   now?: () => number
 }
 
@@ -201,12 +203,13 @@ export function runPlan(options: PlanRunOptions): PlanRun {
   async function send(r: PlanRequest) {
     const controller = new AbortController()
     controllers.set(r, controller)
-    const passId = `${options.inspectionId}-${r.id}`
+    const label = options.photoLabel
+    const passId = `${options.inspectionId}-${label?.idPrefix ?? ''}${r.id}`
     let reply: RequestReply<unknown> | null = null
     const result = await options.charge({
       id: passId,
       inspectionId: options.inspectionId,
-      purpose: r.purpose,
+      purpose: r.purpose + (label?.purposeSuffix ?? ''),
       provider: options.route.provider,
       endpoint: options.route.endpoint,
       model: options.route.model,

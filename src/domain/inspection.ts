@@ -13,6 +13,7 @@ import type { DamageAssessment } from './damage'
 import type { LengthReading } from './chosenLength'
 import type { DamageSetReading } from './damageSets'
 import type { FaceReading } from './photoFace'
+import type { PhotoSummary } from './combinePhotos'
 
 export const INSPECTION_SCHEMA_VERSION = 1
 
@@ -122,6 +123,10 @@ export interface InspectionRecord {
   photoFace?: FaceReading | null
   /** Every damage set's reading of the photo, one per face, before the face chooses among them. */
   damageReadings?: DamageSetReading[]
+  /** Several photos (ticket #70): each photo, its face and which readings came from it. Absent for a single photo. */
+  photos?: PhotoSummary[]
+  /** Several photos: two of them read different complete IDs that both pass the check digit. Nothing is combined then. */
+  differentContainers?: boolean
   /** Printed maximum gross and tare, calculated payload, and any printed-versus-arithmetic conflict. */
   weights: WeightChecks | null
 }

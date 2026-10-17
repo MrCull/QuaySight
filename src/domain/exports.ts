@@ -10,6 +10,7 @@ import type { InspectionRecord } from './inspection'
 import { familyExports } from './questionRegistry'
 import type {
   ExportCandidate,
+  ExportPhoto,
   ExportUnresolved,
   ExportValue,
   InspectionExport,
@@ -35,6 +36,48 @@ export * from './exportTypes'
 export { EXPORT_NOTICE }
 
 export const EXPORT_SCHEMA_VERSION = 1
+
+/** Each photo with its face and the readings taken from it. One photo is listed too: everything came from it. */
+function photoExports(record: InspectionRecord): ExportPhoto[] {
+  if (record.photos) {
+    return record.photos.map((p) => ({
+      index: p.index,
+      photo: p.name,
+      face: p.face?.face ?? null,
+      faceCertainty: p.face?.certainty ?? null,
+      side: p.side,
+      dropped: p.dropped,
+      containerId: p.containerId?.value ?? null,
+      readings: {
+        containerId: { positions: p.contributed.containerId },
+        details: p.contributed.details,
+        weights: p.contributed.weights,
+      },
+      passIds: p.passIds,
+    }))
+  }
+  if (!record.photo) return []
+  const value = record.containerId?.value ?? null
+  return [
+    {
+      index: 1,
+      photo: record.photo.name,
+      face: record.photoFace?.face ?? null,
+      faceCertainty: record.photoFace?.certainty ?? null,
+      side: null,
+      dropped: false,
+      containerId: value,
+      readings: {
+        containerId: {
+          positions: [...(value ?? '')].flatMap((c, i) => (c === '?' ? [] : [i + 1])),
+        },
+        details: record.details ? ['all'] : [],
+        weights: record.weights ? ['all'] : [],
+      },
+      passIds: record.rawResponses.map((r) => r.passId),
+    },
+  ]
+}
 
 export function buildInspectionExport(record: InspectionRecord): InspectionExport {
   const values: ExportValue[] = []
@@ -71,6 +114,8 @@ export function buildInspectionExport(record: InspectionRecord): InspectionExpor
     conflicts,
     rechecks: record.rechecks ?? [],
     idCropRead: record.idCropRead ?? null,
+    photos: photoExports(record),
+    differentContainers: record.differentContainers ?? false,
     containerLength: chosenLength(record),
     damage,
   }

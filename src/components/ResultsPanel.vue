@@ -13,6 +13,7 @@ import ContainerDetails from './ContainerDetails.vue'
 import ContainerMarkings from './ContainerMarkings.vue'
 import ExportActions from './ExportActions.vue'
 import WhatWeFound from './WhatWeFound.vue'
+import { DIFFERENT_CONTAINERS_MESSAGE, droppedPhotoMessage } from '../domain/combinePhotos'
 import { causeSentence } from '../domain/requestFailure'
 import { unavailableStages } from '../domain/whatWeFound'
 
@@ -40,6 +41,12 @@ const liveLabel = computed(() => {
       : `Answered by ${r.resolvedVersion}.`,
   }
 })
+
+// Several photos (ticket #70): photos that show no container are named, and so are photos of different containers.
+const droppedPhotos = computed(() =>
+  (record.value?.photos ?? []).filter((p) => p.dropped).map((p) => droppedPhotoMessage(p.index)),
+)
+const differentContainers = computed(() => record.value?.differentContainers === true)
 
 // Each part of the result lands on its own once its stage has settled, ahead of the rest of the run.
 const running = computed(() => store.status === 'running')
@@ -155,6 +162,31 @@ const showInsufficient = computed(() => idState.value === 'insufficient')
       <span class="qs-notice__kicker">Live</span>
     </div>
 
+    <div v-if="differentContainers" class="qs-notice qs-notice--partial" role="status">
+      <i class="qs-glyph qs-glyph--cross" aria-hidden="true"></i>
+      <div>
+        <div class="qs-notice__title">{{ DIFFERENT_CONTAINERS_MESSAGE }}</div>
+        <div class="qs-notice__body">
+          Two photos read different container IDs, so nothing from them is combined. Start a new
+          inspection for each container.
+        </div>
+      </div>
+      <span class="qs-notice__kicker">Check</span>
+    </div>
+
+    <div
+      v-for="message in droppedPhotos"
+      :key="message"
+      class="qs-notice qs-notice--partial"
+      role="status"
+    >
+      <i class="qs-glyph qs-glyph--cross" aria-hidden="true"></i>
+      <div>
+        <div class="qs-notice__title">{{ message }}</div>
+        <div class="qs-notice__body">Nothing from it is used.</div>
+      </div>
+    </div>
+
     <div v-if="store.status === 'failed'" class="qs-notice qs-notice--error" role="alert">
       <i class="qs-glyph qs-glyph--error" aria-hidden="true"></i>
       <div>
@@ -255,7 +287,7 @@ const showInsufficient = computed(() => idState.value === 'insufficient')
     </div>
 
     <div
-      v-else-if="idLanded && record"
+      v-else-if="idLanded && record && !differentContainers"
       :class="['rs-card', 'qs-rise', { 'qs-arrived': arrivedEarly }]"
       :style="{ '--i': STAGGER.card }"
     >
@@ -276,7 +308,7 @@ const showInsufficient = computed(() => idState.value === 'insufficient')
     />
 
     <!-- Live: a live call on the same model. Demo: the sample's own recorded check. Never a replay against another photo. -->
-    <ManifestRetry v-if="store.canCheckManifest" />
+    <ManifestRetry v-if="store.canCheckManifest && !differentContainers" />
 
     <template v-if="record && detailsLanded">
       <ContainerDetails :record="record" :class="{ 'qs-arrived': detailsEarly }" />
