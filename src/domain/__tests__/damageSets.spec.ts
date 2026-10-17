@@ -83,6 +83,27 @@ describe('choosing the damage for the face the photo shows', () => {
     },
   )
 
+  it.each([[null], ['image-left'], ['image-right']] as const)(
+    'never words a side card or zone in photo columns, with the door end %s',
+    (doorEnd) => {
+      const reading = sideReading({
+        doorEnd,
+        zones: [
+          {
+            id: 'Z2B',
+            face: 'long-side',
+            zone: dent.zone!,
+            label: 'photo column 2 of 5 from the left, lower half of the side sheet',
+            visibility: 'clear',
+          },
+        ],
+      })
+      const damage = assessDamage(seen('long-side'), [reading], 'side.jpg')
+      expect(JSON.stringify(damage)).not.toMatch(/photo column/i)
+      expect(damage?.findings[0]?.location).toMatch(/door end, lower half/)
+    },
+  )
+
   it('takes nothing from a set whose own coverage says its face is not inspectable', () => {
     const damage = assessDamage(
       seen('long-side'),

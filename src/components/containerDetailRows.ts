@@ -94,8 +94,8 @@ function lengthRow(record: InspectionRecord): DetailRow | null {
       value: text,
       absentText: NOT_VISIBLE,
       ...SHAPE_ESTIMATED,
-      certainty: record.shapeLength?.certainty ?? 'Likely',
-      note: null,
+      certainty: chosen.certainty ?? record.shapeLength?.certainty ?? 'Likely',
+      note: chosen.alternative !== undefined ? `Also possible: ${chosen.alternative} ft.` : null,
     }
   }
   if (chosen.alternative !== undefined) {

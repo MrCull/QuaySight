@@ -183,8 +183,7 @@ function openPicker() {
 .rs-facechip {
   display: inline-flex;
   align-items: center;
-  height: 24px;
-  padding: 0 var(--space-3);
+  padding: var(--space-1) var(--space-3);
   border-radius: var(--radius-pill);
   border: 1px solid var(--line-strong);
   background: var(--surface-sunken);
