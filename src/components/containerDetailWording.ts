@@ -13,6 +13,10 @@ export const NOT_CLEAR = 'Not clear from this photo'
 export const PRINTED = { provenance: 'Printed', provenanceClass: '' }
 export const DECODED = { provenance: 'Decoded from ISO', provenanceClass: '' }
 export const MODEL_SELECTED = { provenance: 'Model-selected', provenanceClass: 'qs-prov--model' }
+export const SHAPE_ESTIMATED = {
+  provenance: 'Estimated from shape',
+  provenanceClass: 'qs-prov--model',
+}
 export const CALCULATED = { provenance: 'Calculated', provenanceClass: 'qs-prov--calculated' }
 
 export const MAXIMUM_NOTE = 'A maximum rating, not the cargo weight.'

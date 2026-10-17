@@ -138,4 +138,28 @@ describe('container length from the survey', () => {
     })
     expect(buildInspectionExport(record).containerLength).toEqual({ feet: 40, source: 'default' })
   })
+
+  it('uses the shape estimate over the model when no ISO code was read (ticket #66)', async () => {
+    const record = await runWith({
+      size_type_code: [['not_visible', 0.95]],
+      shape_length: [['40_ft', 0.95]],
+      container_length: [['20_ft', 0.94]],
+    })
+    expect(buildInspectionExport(record).containerLength).toEqual({ feet: 40, source: 'shape' })
+    expect(record.shapeLength).toMatchObject({ feet: 40, certainty: 'Confident' })
+  })
+
+  it('keeps the code length, Uncertain, and warns when the shape disagrees', async () => {
+    const record = await runWith({
+      size_type_code: CODE_22G1_CONFIDENT,
+      shape_length: [['40_ft', 0.95]],
+    })
+    const exported = buildInspectionExport(record)
+    expect(exported.containerLength).toMatchObject({
+      feet: 20,
+      certainty: 'Uncertain',
+      alternative: 40,
+    })
+    expect(exported.conflicts.join(' ')).toMatch(/size code says 20 ft/)
+  })
 })

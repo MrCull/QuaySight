@@ -78,7 +78,9 @@ export function formatScoreTable(rows: readonly ScoredRow[]): string {
   const labelWidth = Math.max(5, ...rows.map((r) => r.model.length))
   const widths = fields.map((f) => Math.max(f.length, 6))
   const line = (label: string, cells: string[]) =>
-    [label.padEnd(labelWidth), ...cells.map((c, i) => c.padEnd(widths[i] ?? 0))].join('  ').trimEnd()
+    [label.padEnd(labelWidth), ...cells.map((c, i) => c.padEnd(widths[i] ?? 0))]
+      .join('  ')
+      .trimEnd()
   return [
     line('', [...fields]),
     ...rows.map((r) =>

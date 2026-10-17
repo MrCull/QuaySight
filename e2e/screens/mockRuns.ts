@@ -35,6 +35,10 @@ export interface SurveyOptions {
   /** Marking answers by name; the rest are answered no. */
   markings?: Record<string, SurveyChoice>
   dg?: SurveyChoice
+  /** The size/type code answer; default a Confident 22G1. */
+  sizeTypeCode?: SurveyChoice
+  /** The length the side photo's shape suggests (ticket #66); not answered when absent. */
+  shapeLength?: '20_ft' | '40_ft' | '45_ft'
 }
 
 const NO = (p = 0.95): SurveyChoice => [['no', p]]
@@ -42,7 +46,7 @@ const YES = (p = 0.9): SurveyChoice => [['yes', p]]
 
 export function surveyReply(options: SurveyOptions = {}) {
   const details: Record<string, SurveyChoice> = {
-    size_type_code: [['22G1', 0.95]],
+    size_type_code: options.sizeTypeCode ?? [['22G1', 0.95]],
     equipment_reefer: NO(),
     equipment_open_top: NO(),
     equipment_tank: NO(),
@@ -54,6 +58,7 @@ export function surveyReply(options: SurveyOptions = {}) {
     marking_marine_pollutant: NO(),
     dg_placard: options.dg ?? [['none', 0.95]],
     photo_face: [[options.face ?? 'rear_doors', 0.96]],
+    ...(options.shapeLength ? { shape_length: [[options.shapeLength, 0.95]] } : {}),
     ...options.markings,
     ...(options.weights === null ? {} : weightChoices(options.weights ?? COYU_WEIGHTS)),
   }

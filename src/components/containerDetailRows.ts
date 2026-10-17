@@ -7,6 +7,7 @@
 //
 // This file decides which rows exist and with what certainty; the words of each row are in
 // containerDetailWording.ts (ticket #54). The Markings card's rows are in markingRows.ts, re-exported here.
+import { chosenLength } from '../domain/chosenLength'
 import type { CheckReading } from '../domain/containerDetails'
 import { EQUIPMENT_CHECKS } from '../domain/containerDetails'
 import type { CertaintyLabel, InspectionRecord } from '../domain/inspection'
@@ -35,6 +36,7 @@ import {
   PAYLOAD_NOTE,
   PAYLOAD_NOT_CALCULATED,
   PRINTED,
+  SHAPE_ESTIMATED,
   WEIGHTS_NOT_ASSESSED,
   absentCodeText,
   capacityEvidence,
@@ -79,8 +81,45 @@ function absent(label: string, absentText: string, certainty: CertaintyLabel): D
   }
 }
 
-/** The size/type code as printed, then what it decodes to. */
+/**
+ * The LENGTH row when the shape of a side photo has a say (ticket #66): the shape's estimate when no
+ * Confident code decided, or the code's length Uncertain when the shape disagrees. Null: the row stands.
+ */
+function lengthRow(record: InspectionRecord): DetailRow | null {
+  const chosen = chosenLength(record)
+  const text = `${chosen.feet} ft`
+  if (chosen.source === 'shape') {
+    return {
+      label: 'LENGTH',
+      value: text,
+      absentText: NOT_VISIBLE,
+      ...SHAPE_ESTIMATED,
+      certainty: record.shapeLength?.certainty ?? 'Likely',
+      note: null,
+    }
+  }
+  if (chosen.alternative !== undefined) {
+    return {
+      label: 'LENGTH',
+      value: text,
+      absentText: NOT_VISIBLE,
+      ...DECODED,
+      certainty: 'Uncertain',
+      note: `Also possible: ${chosen.alternative} ft.`,
+    }
+  }
+  return null
+}
+
+/** The size/type code as printed, then what it decodes to; the length may come from the shape instead. */
 export function sizeGroup(record: InspectionRecord): DetailGroup {
+  const group = decodedSizeGroup(record)
+  const length = lengthRow(record)
+  if (!length) return group
+  return { ...group, rows: group.rows.map((r) => (r.label === 'LENGTH' ? length : r)) }
+}
+
+function decodedSizeGroup(record: InspectionRecord): DetailGroup {
   const reading = record.details?.sizeCode
   const size = record.sizeCode
   if (size) {

@@ -43,7 +43,9 @@ export async function liveLuna(
     : liveRoute('luna', LUNA_MODEL)
   const reply = await askDecisions(
     { route, apiKey: options.apiKey, photo: options.photo, fetchImpl: options.fetchImpl },
-    questionSetAsk(lunaIdQuestionSet(options.positions), (r) => lunaMappingOf(r, options.positions)),
+    questionSetAsk(lunaIdQuestionSet(options.positions), (r) =>
+      lunaMappingOf(r, options.positions),
+    ),
   )
   return flat(reply)
 }
