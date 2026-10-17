@@ -56,12 +56,10 @@ describe('export summary wording', () => {
     expect(damageNotAssessedLine('Roof view.')).toBe(
       'Damage: not assessed for this view. Roof view.',
     )
-    const finding = json.damage.findings[0]
-    if (finding) {
-      const [head, detail] = findingLines(finding)
-      expect(head).toContain(`- ${finding.title} - ${finding.certainty}, `)
-      expect(detail).toContain(`source pass: ${finding.sourcePass.passId}`)
-    }
+    const finding = json.damage.findings[0]!
+    const [head, detail] = findingLines(finding)
+    expect(head).toContain(`- ${finding.title} - ${finding.certainty}, `)
+    expect(detail).toContain(`source pass: ${finding.sourcePass.passId}`)
     expect(
       findingLines({ ...json.damage.findings[0]!, severity: 'not rated', photo: null })[1],
     ).toContain('Photo: not linked')
