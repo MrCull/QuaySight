@@ -13,6 +13,10 @@ it up with no code change.
 The four samples (COYU, CHSU and APHU doors, the grey 40 ft side) are the regression set. Their true values,
 read from the photos, are hand-written in `src/regression/expected.json`.
 
+- An expected entry is a whole inspection of 1 to 4 photos (`photos`, in order, each with its faces and
+  whether it is a close-up), with the container's expected values, seal, ID certainty, whether alternatives
+  may be shown, whether the "different containers" warning is expected, and which photo each close-up
+  comes from. Each photo is replayed from its own recording, then the photos are combined as the app does.
 - Score: `npm run score` replays every recording here (free, nothing is sent) and prints, per model, a
   hit / miss / unread table by sample and field (ID, size code, max gross, tare, payload, face, length,
   damage present). Run it before and after a change to a prompt or a mapping and compare.
