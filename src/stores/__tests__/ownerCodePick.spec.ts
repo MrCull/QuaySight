@@ -5,7 +5,7 @@ import { setActivePinia, createPinia } from 'pinia'
 vi.mock('../../services/imageCodec')
 
 import { useInspectionStore } from '../inspection'
-import { OWNER_CODES } from '../../domain/ownerCodes'
+import { OFFERED_OWNER_CODES } from '../../domain/ownerCodes'
 import { onlyRequests } from '../../plan/registry'
 import { survey } from '../../plan/requests/survey'
 import { idRecheck } from '../../plan/requests/idRecheck'
@@ -85,7 +85,7 @@ describe('owner code picked from the list, through a live Luna run', () => {
     }
     const ask = body.questions.owner_code!
     expect(ask.instructions).toContain('owner code')
-    expect(Object.keys(ask.criteria)).toEqual(['none', ...OWNER_CODES])
+    expect(Object.keys(ask.criteria)).toEqual(['none', ...OFFERED_OWNER_CODES])
   })
 
   it('uses a Likely-or-better list pick as the owner code over the letters', async () => {
