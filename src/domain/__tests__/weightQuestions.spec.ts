@@ -161,9 +161,16 @@ describe('reading the weights back', () => {
     answers[weightQuestionName('tare', 'lb', 'hundreds')] = choice('8', 0.4, ['3', 0.38]) // below Uncertain
     delete answers[weightQuestionName('maxGross', 'kg', 'units')]
     const w = readWeights(answers)
-    expect(w.tare?.metric).toEqual({ state: 'unclear', value: null, certainty: "Can't tell" })
+    expect(w.tare?.metric).toMatchObject({ state: 'unclear', value: null, certainty: "Can't tell" })
+    // What every place said is kept, so the other unit and the arithmetic can settle the figure (weightInference.ts).
+    expect(w.tare?.metric.dist?.[0]).toMatchObject({ '0': expect.any(Number) })
+    expect(w.tare?.metric.dist?.[1]).toBeUndefined()
     expect(w.tare?.imperial.state).toBe('unclear')
-    expect(w.maxGross?.metric).toEqual({ state: 'unclear', value: null, certainty: "Can't tell" })
+    expect(w.maxGross?.metric).toMatchObject({
+      state: 'unclear',
+      value: null,
+      certainty: "Can't tell",
+    })
     expect(w.maxGross?.imperial.value).toBe(67200)
   })
 

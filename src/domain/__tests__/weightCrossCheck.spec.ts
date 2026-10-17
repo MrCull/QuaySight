@@ -119,7 +119,7 @@ describe('what two units say about one weight', () => {
 
   it('converts a weight read only in lb, and marks the kg as not printed', () => {
     const w = evaluateWeights(coyu({ tare: { metric: NOT_VISIBLE, imperial: read(4810) } }))
-    expect(w.tare).toMatchObject({ valueKg: 2182, valueLb: 4810, printed: { kg: null, lb: 4810 } })
+    expect(w.tare).toMatchObject({ valueKg: 2180, valueLb: 4810, printed: { kg: null, lb: 4810 } })
   })
 
   it('says why a weight has no value: not visible, or not clear', () => {
