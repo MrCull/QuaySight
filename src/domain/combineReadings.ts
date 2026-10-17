@@ -128,7 +128,16 @@ export function combineContainerIds(sources: readonly IdSource[]): IdCombination
     return { kind: 'combined', reading: only.reading, taken: { [only.photo]: taken } }
   }
 
-  const validOwn = [...new Set(sources.map((s) => normalised(s.reading)).filter(passesCheck))]
+  // Only a complete, check-digit-passing ID that is at least Likely votes for "different containers".
+  const strong = (r: ContainerIdReading) => r.certainty === 'Confident' || r.certainty === 'Likely'
+  const validOwn = [
+    ...new Set(
+      sources
+        .filter((s) => strong(s.reading))
+        .map((s) => normalised(s.reading))
+        .filter(passesCheck),
+    ),
+  ]
   if (validOwn.length > 1) return { kind: 'different', ids: validOwn }
 
   const positions = Array.from({ length: 11 }, (_, i) => {

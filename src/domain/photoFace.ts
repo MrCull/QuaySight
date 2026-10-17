@@ -17,14 +17,28 @@ export type PhotoFace =
   | 'not-container'
   | 'unknown'
 
+/** What a close-up photo shows. Only readings of this subject may come from it. */
+export type CloseUpSubject = 'seal' | 'id' | 'weights' | 'placard' | 'damage'
+
 export interface FaceReading {
   face: PhotoFace
+  /** For a close-up: what it shows; absent when the model did not say. */
+  closeUpSubject?: CloseUpSubject
   /** The model's probability for the face it chose. */
   probability: number
   certainty: CertaintyLabel
 }
 
+const CLOSE_UP_OF_VALUE: Record<string, CloseUpSubject> = {
+  close_up_seal: 'seal',
+  close_up_id: 'id',
+  close_up_weights: 'weights',
+  close_up_placard: 'placard',
+  close_up_damage: 'damage',
+}
+
 const FACE_OF_VALUE: Record<string, PhotoFace> = {
+  ...Object.fromEntries(Object.keys(CLOSE_UP_OF_VALUE).map((v) => [v, 'close-up' as const])),
   rear_doors: 'rear-doors',
   long_side: 'long-side',
   front_end: 'front-end',
@@ -52,8 +66,28 @@ export const FACE_QUESTION: ChoiceQuestion = {
     { value: 'front_end', description: 'The plain end wall opposite the doors, with no doors.' },
     { value: 'roof', description: 'The roof, seen from above.' },
     {
+      value: 'close_up_seal',
+      description: 'A close-up of the seal, too close to tell which face it is.',
+    },
+    {
+      value: 'close_up_id',
+      description: 'A close-up of the container ID, too close to tell which face it is.',
+    },
+    {
+      value: 'close_up_weights',
+      description: 'A close-up of the weights panel, too close to tell which face it is.',
+    },
+    {
+      value: 'close_up_placard',
+      description: 'A close-up of a hazard placard, too close to tell which face it is.',
+    },
+    {
+      value: 'close_up_damage',
+      description: 'A close-up of one damaged spot, too close to tell which face it is.',
+    },
+    {
       value: 'close_up',
-      description: 'A close-up of one part or marking, too close to tell which face it is.',
+      description: 'A close-up of some other part or marking, too close to tell which face it is.',
     },
     {
       value: 'not_a_container',
@@ -76,8 +110,10 @@ export function faceOf(answers: Record<string, SharedAnswer>): FaceReading | nul
   const runnerUp = Object.entries(answer.probabilities)
     .filter(([value]) => value !== answer.value)
     .reduce<number | null>((best, [, p]) => (best === null || p > best ? p : best), null)
+  const subject = CLOSE_UP_OF_VALUE[answer.value]
   return {
     face,
+    ...(subject ? { closeUpSubject: subject } : {}),
     probability,
     certainty: applyMargin(certaintyOfProbability(probability), probability, runnerUp),
   }
@@ -98,12 +134,23 @@ export const facePart: SurveyPart = {
   apply: (record, face) => withPhotoFace(record, face),
 }
 
+const SUBJECT_WORD: Record<CloseUpSubject, string> = {
+  seal: 'Seal',
+  id: 'ID',
+  weights: 'Weights',
+  placard: 'Placard',
+  damage: 'Damage',
+}
+
 /** The words on a photo's face chip (ticket #70). A long side is named left or right once the doors settle it. */
 export function faceChipLabel(
   face: PhotoFace | null,
   side: 'left' | 'right' | null = null,
+  subject: CloseUpSubject | null = null,
 ): string {
   switch (face) {
+    case 'close-up':
+      return subject ? `Close-up · ${SUBJECT_WORD[subject]}` : 'Close-up'
     case 'rear-doors':
       return 'Doors'
     case 'front-end':
