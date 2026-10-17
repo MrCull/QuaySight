@@ -7,6 +7,7 @@ import {
   SEVERITY_LEVELS,
   severityOfLevel,
   sortFindings,
+  potentiallySignificant,
   viewHasPhotos,
   type DamageAssessment,
   type DamageFinding,
@@ -89,6 +90,33 @@ describe('finding order', () => {
     })
     const sorted = sortFindings([make(1, null), make(2, 'cosmetic'), make(3, 'minor')])
     expect(sorted.map((f) => f.id)).toEqual([3, 2, 1])
+  })
+})
+
+describe('surface wear', () => {
+  const [base] = recordedSideDamage.findings
+  const make = (id: number, surfaceWear: boolean, severity: DamageFinding['severity']) => ({
+    ...base!,
+    id,
+    certainty: 'Confident' as const,
+    severity,
+    ...(surfaceWear ? { surfaceWear } : {}),
+  })
+
+  it('is listed after real findings, even a lesser real one', () => {
+    const sorted = sortFindings([make(1, true, 'cosmetic'), make(2, false, null)])
+    expect(sorted.map((f) => f.id)).toEqual([2, 1])
+  })
+
+  it('never raises the closer-inspection banner on its own', () => {
+    const only = {
+      ...recordedSideDamage,
+      significantProbability: 0.9,
+      findings: [make(1, true, 'cosmetic')],
+    }
+    expect(potentiallySignificant(only)).toBe(false)
+    const mixed = { ...only, findings: [make(1, true, 'cosmetic'), make(2, false, 'major')] }
+    expect(potentiallySignificant(mixed)).toBe(true)
   })
 })
 

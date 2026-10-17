@@ -163,7 +163,7 @@ describe('reading the door-end answers', () => {
     expect(finding).toMatchObject({
       severity: 'cosmetic',
       certainty: 'Likely',
-      title: 'Corrosion on the door panel',
+      title: 'Surface wear on the door panel',
     })
     expect(finding!.caveats.join(' ')).toMatch(/only part of this region/i)
   })
@@ -187,11 +187,13 @@ describe('reading the door-end answers', () => {
       ['hinge', 'Damage to the hinges on the photo-right door leaf'],
       ['gasket', 'Damage to a door gasket'],
       ['header', 'Damage to the door header'],
-      ['sill', 'Damage to the door sill'],
       ['corner-post', 'Damage to the corner post at photo left'],
       ['casting', 'Damage to a corner casting'],
+      ['sill', 'Surface wear on the door sill'],
     ])
-    expect(findings.every((f) => f.face === 'rear' && f.severity === null)).toBe(true)
+    // Rust on the sill is surface wear: lowest severity, listed after the real findings.
+    expect(findings[findings.length - 1]).toMatchObject({ surfaceWear: true, severity: 'cosmetic' })
+    expect(findings.slice(0, -1).every((f) => f.face === 'rear' && f.severity === null)).toBe(true)
     expect(findings.map((f) => f.id)).toEqual([1, 2, 3, 4, 5, 6, 7, 8])
     const bar = findings[0]!
     expect(bar.types.map((t) => t.code)).toEqual(['BT'])
