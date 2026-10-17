@@ -11,273 +11,34 @@
 //   about the cargo.
 //
 // Weights (max gross, tare, payload, capacity) are not asked here yet; they land in `record.weights`.
+//
+// The shapes and tables are in containerDetailTypes.ts, the questions in containerDetailQuestions.ts and
+// the conflict wording in containerDetailWording.ts (ticket #54); the first two are re-exported here.
 import { applyMargin, certaintyOfProbability } from './certainty'
 import type { CertaintyLabel, InspectionRecord } from './inspection'
-import { decodeSizeCode, type DecodedSizeCode, type EquipmentType } from './isoSizeCode'
-import type { ChoiceQuestion, SharedAnswer, SharedQuestion } from './questionSet'
+import { decodeSizeCode, type EquipmentType } from './isoSizeCode'
+import type { SharedAnswer } from './questionSet'
 import type { SurveyPart } from './survey'
+import {
+  COMMON_SIZE_CODES,
+  DETAIL_QUESTION_NAMES,
+  DG_CLASSES,
+  EQUIPMENT_CHECKS,
+  MARKING_CHECKS,
+  SIZE_CODE_NOT_VISIBLE,
+  SIZE_CODE_OTHER,
+  SIZE_CODE_UNREADABLE,
+  type CheckReading,
+  type ContainerDetailsReading,
+  type DgPlacardReading,
+  type EquipmentCheck,
+  type SizeCodeReading,
+} from './containerDetailTypes'
+import { containerDetailQuestions } from './containerDetailQuestions'
+import { codeSaysButPhotoNotText, photoSaysButCodeNotText } from './containerDetailWording'
 
-/** Where a detail came from: printed on the container, decoded from the ISO code, or judged from the photo. */
-export type DetailSource = 'printed' | 'decoded' | 'observed'
-
-/**
- * read: a common code was read. other: a code is printed but is not one of the common codes.
- * unreadable: a code is printed but cannot be read. not-visible: no code in the photo. unclear: no
- * answer clear enough to say which.
- */
-export type SizeCodeState = 'read' | 'other' | 'unreadable' | 'not-visible' | 'unclear'
-
-export interface SizeCodeReading {
-  state: SizeCodeState
-  /** The printed code, only when read. */
-  code: string | null
-  certainty: CertaintyLabel
-  source: 'printed'
-  /** A plausible other common code ("Also possible"), or null. */
-  alternative: string | null
-  /** What the code decodes to; null when not read or not in the decoding table. */
-  decoded: DecodedSizeCode | null
-}
-
-/** One yes/no/unknown check. answer null: can't tell. */
-export interface CheckReading {
-  answer: 'yes' | 'no' | null
-  /** A marking answered no is Not seen: it is in no photo. */
-  certainty: CertaintyLabel
-  source: 'observed'
-  /** Plain words when the check disagrees with the decoded size/type code, or null. */
-  conflict: string | null
-}
-
-export const EQUIPMENT_CHECKS = ['reefer', 'openTop', 'tank', 'flatRack'] as const
-export type EquipmentCheck = (typeof EQUIPMENT_CHECKS)[number]
-
-export const MARKING_CHECKS = [
-  'superHeavy',
-  'highContainer',
-  'overwidth',
-  'fumigation',
-  'marinePollutant',
-] as const
-export type MarkingCheck = (typeof MARKING_CHECKS)[number]
-
-/** The DG placard as seen: its class and symbol only. Never a statement about the cargo. */
-export interface DgPlacardReading {
-  /** placard: one is visible. none: no placard visible. null: can't tell. */
-  answer: 'placard' | 'none' | null
-  /** The class number on the placard (1 to 9), when read. */
-  dgClass: number | null
-  /** The placard's symbol, from its class. */
-  symbol: string | null
-  certainty: CertaintyLabel
-}
-
-export interface ContainerDetailsReading {
-  sizeCode: SizeCodeReading
-  equipment: Record<EquipmentCheck, CheckReading>
-  markings: Record<MarkingCheck, CheckReading>
-  dgPlacard: DgPlacardReading
-}
-
-declare module './inspection' {
-  interface InspectionRecord {
-    /**
-     * Container details read live by the survey (ticket #32). Absent when they were not asked: recorded
-     * runs, and live runs whose survey did not answer. Absent means not assessed, never Not seen.
-     */
-    details?: ContainerDetailsReading
-  }
-}
-
-// ---------------------------------------------------------------------------------------------------
-// Questions
-
-/** Common ISO 6346 size/type codes offered as whole-code choices (spec 4.3). */
-export const COMMON_SIZE_CODES = [
-  '22G1',
-  '22G0',
-  '20G1',
-  '20G0',
-  '25G1',
-  '22R1',
-  '22R0',
-  '22U1',
-  '22U6',
-  '22T6',
-  '22T0',
-  '22P1',
-  '22P3',
-  '22V1',
-  '22B0',
-  '22H0',
-  '42G1',
-  '42G0',
-  '40G1',
-  '45G1',
-  '45G0',
-  '42R1',
-  '45R1',
-  '45R0',
-  '42U1',
-  '45U1',
-  '42P1',
-  '42P3',
-  '45P3',
-  '42T6',
-  'L5G1',
-  'L2G1',
-  'LEG1',
-] as const
-
-export const SIZE_CODE_OTHER = 'other'
-export const SIZE_CODE_UNREADABLE = 'unreadable'
-export const SIZE_CODE_NOT_VISIBLE = 'not_visible'
-
-export const DETAIL_QUESTION_NAMES = {
-  sizeCode: 'size_type_code',
-  equipment: {
-    reefer: 'equipment_reefer',
-    openTop: 'equipment_open_top',
-    tank: 'equipment_tank',
-    flatRack: 'equipment_flat_rack',
-  } satisfies Record<EquipmentCheck, string>,
-  markings: {
-    superHeavy: 'marking_super_heavy',
-    highContainer: 'marking_high_container',
-    overwidth: 'marking_overwidth',
-    fumigation: 'marking_fumigation',
-    marinePollutant: 'marking_marine_pollutant',
-  } satisfies Record<MarkingCheck, string>,
-  dgPlacard: 'dg_placard',
-} as const
-
-const YES_NO_UNKNOWN = (yes: string, no: string): ChoiceQuestion['choices'] => [
-  { value: 'yes', description: yes },
-  { value: 'no', description: no },
-  { value: 'unknown', description: 'This photo does not show enough to say' },
-]
-
-const EQUIPMENT_INSTRUCTIONS: Record<EquipmentCheck, [question: string, yes: string, no: string]> =
-  {
-    reefer: [
-      'Is this a refrigerated (reefer) container, with a refrigeration unit or machinery panel built into one end?',
-      'A reefer container',
-      'Not a reefer container',
-    ],
-    openTop: [
-      'Is this an open-top container, with no solid steel roof, closed by a removable tarpaulin over roof bows?',
-      'An open-top container',
-      'Not an open-top container',
-    ],
-    tank: [
-      'Is this a tank container: a cylindrical tank held inside a steel frame?',
-      'A tank container',
-      'Not a tank container',
-    ],
-    flatRack: [
-      'Is this a flat rack or platform: a floor with end walls or corner posts, but no side walls and no roof?',
-      'A flat rack or platform',
-      'Not a flat rack or platform',
-    ],
-  }
-
-const MARKING_INSTRUCTIONS: Record<MarkingCheck, [question: string, yes: string, no: string]> = {
-  superHeavy: [
-    'Is a SUPER HEAVY marking visible on the container?',
-    'A SUPER HEAVY marking is visible',
-    'No SUPER HEAVY marking is visible',
-  ],
-  highContainer: [
-    'Is the high-container caution visible: yellow and black diagonal stripes along the top edge or at the top corners, or a sign warning that the container is taller than usual? This is a height warning, not a width warning.',
-    'High-container caution stripes or signage are visible',
-    'No high-container caution is visible',
-  ],
-  overwidth: [
-    'Is an overwidth marking visible, warning that the container is wider than standard? Do not count the high-container caution stripes: they warn about height, not width.',
-    'An overwidth marking is visible',
-    'No overwidth marking is visible',
-  ],
-  fumigation: [
-    'Is a fumigation warning sign visible, saying the container is or was under fumigation?',
-    'A fumigation warning sign is visible',
-    'No fumigation warning sign is visible',
-  ],
-  marinePollutant: [
-    'Is the marine pollutant mark visible: a triangle showing a dead fish and a dead tree?',
-    'The marine pollutant mark is visible',
-    'No marine pollutant mark is visible',
-  ],
-}
-
-/** The DG classes and their placard symbols (UN Model Regulations). Symbol and class only. */
-const DG_CLASSES: Record<number, { name: string; symbol: string }> = {
-  1: { name: 'explosives', symbol: 'Exploding bomb' },
-  2: { name: 'gases', symbol: 'Gas cylinder, flame or skull and crossbones' },
-  3: { name: 'flammable liquids', symbol: 'Flame' },
-  4: { name: 'flammable solids', symbol: 'Flame' },
-  5: { name: 'oxidisers and organic peroxides', symbol: 'Flame over circle' },
-  6: { name: 'toxic and infectious substances', symbol: 'Skull and crossbones' },
-  7: { name: 'radioactive material', symbol: 'Radiation trefoil' },
-  8: { name: 'corrosives', symbol: 'Liquids eating into a hand and metal' },
-  9: { name: 'miscellaneous dangerous goods', symbol: 'Seven vertical stripes' },
-}
-
-/** The DG class's plain name, e.g. "flammable liquids". */
-export function dgClassName(dgClass: number): string | null {
-  return DG_CLASSES[dgClass]?.name ?? null
-}
-
-/** The survey's container-detail questions, in the shared format (11 questions). */
-export function containerDetailQuestions(): SharedQuestion[] {
-  const names = DETAIL_QUESTION_NAMES
-  const sizeCode: ChoiceQuestion = {
-    type: 'choice',
-    name: names.sizeCode,
-    instructions:
-      'The ISO size/type code is printed on the container as four characters, usually below or beside the container number (for example 22G1 or 45G1). Which code is printed? Read it exactly as printed; do not work it out from the container size.',
-    choices: [
-      ...COMMON_SIZE_CODES.map((code) => ({ value: code, description: `Code ${code}` })),
-      {
-        value: SIZE_CODE_OTHER,
-        description: 'A size/type code is printed, but it is none of the codes listed',
-      },
-      {
-        value: SIZE_CODE_UNREADABLE,
-        description: 'A size/type code is printed, but it cannot be read clearly',
-      },
-      { value: SIZE_CODE_NOT_VISIBLE, description: 'No size/type code is visible in this photo' },
-    ],
-  }
-  const check = (name: string, [question, yes, no]: [string, string, string]): ChoiceQuestion => ({
-    type: 'choice',
-    name,
-    instructions: question,
-    choices: YES_NO_UNKNOWN(yes, no),
-  })
-  const dgPlacard: ChoiceQuestion = {
-    type: 'choice',
-    name: names.dgPlacard,
-    instructions:
-      'Is a dangerous-goods (DG) placard visible on the container: a diamond-shaped label with a symbol and a class number at its bottom corner? If one is visible, which class does it show?',
-    choices: [
-      { value: 'none', description: 'No dangerous-goods placard is visible' },
-      ...Object.entries(DG_CLASSES).map(([n, c]) => ({
-        value: `class_${n}`,
-        description: `A class ${n} placard (${c.name}): ${c.symbol.toLowerCase()}`,
-      })),
-      {
-        value: 'unreadable',
-        description: 'A dangerous-goods placard is visible, but its class cannot be read',
-      },
-    ],
-  }
-  return [
-    sizeCode,
-    ...EQUIPMENT_CHECKS.map((c) => check(names.equipment[c], EQUIPMENT_INSTRUCTIONS[c])),
-    ...MARKING_CHECKS.map((c) => check(names.markings[c], MARKING_INSTRUCTIONS[c])),
-    dgPlacard,
-  ]
-}
+export * from './containerDetailTypes'
+export { containerDetailQuestions }
 
 // ---------------------------------------------------------------------------------------------------
 // Answers
@@ -383,12 +144,6 @@ const CHECK_EQUIPMENT: Record<EquipmentCheck, readonly EquipmentType[]> = {
   tank: ['tank'],
   flatRack: ['flat-rack', 'platform'],
 }
-const CHECK_NAME: Record<EquipmentCheck, string> = {
-  reefer: 'a reefer',
-  openTop: 'an open top',
-  tank: 'a tank',
-  flatRack: 'a flat rack or platform',
-}
 
 function weakerThanLikely(certainty: CertaintyLabel): CertaintyLabel {
   return certainty === 'Confident' || certainty === 'Likely' ? 'Uncertain' : certainty
@@ -411,14 +166,14 @@ function withCodeConflict(
     return {
       ...reading,
       certainty: weakerThanLikely(reading.certainty),
-      conflict: `The size/type code ${decoded.code} is ${CHECK_NAME[check]} code, but the photo was read as not ${CHECK_NAME[check]}.`,
+      conflict: codeSaysButPhotoNotText(check, decoded.code),
     }
   }
   if (!codeSays && reading.answer === 'yes') {
     return {
       ...reading,
       certainty: weakerThanLikely(reading.certainty),
-      conflict: `The photo was read as ${CHECK_NAME[check]}, but the size/type code ${decoded.code} is ${decoded.type.label.toLowerCase()}.`,
+      conflict: photoSaysButCodeNotText(check, decoded.code, decoded.type.label),
     }
   }
   return reading
