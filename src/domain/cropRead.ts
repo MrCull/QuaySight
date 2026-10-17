@@ -7,6 +7,7 @@
 // apply. On COYU 266813 0 (16 Oct 2026) Jev read one wrong digit on the full photo and every character at
 // about 1.0 from the crop. Luna read worse from a crop, so it never gets one.
 import { applyMargin, CERTAINTY_LABELS } from './certainty'
+import { oneStepUp } from './combineReadings'
 import type { ChoiceReading } from './idQuestions'
 import type { CertaintyLabel } from './inspection'
 import { largestWithin, type PhotoSize } from './photoFit'
@@ -118,6 +119,11 @@ export interface IdCropReadRecord {
    * whole-photo one, so a later step can rebuild the ID from both whatever order the requests landed in.
    */
   read?: { readings: ChoiceReading[]; caveats: { hardToRead: boolean; partlyOutOfFrame: boolean } }
+  /**
+   * The whole-photo read it was combined with, as one reading per position (the owner pick folded in): the other
+   * independent vote when several photos are combined (ticket #86).
+   */
+  whole?: ChoiceReading[]
   /** The region cut from the prepared photo and the size it was sent at; null when no reply came back. */
   crop: {
     x: number
@@ -215,7 +221,8 @@ export function combineIdReadings(
     if (c.value === null) return f
     const fullWins = mode === 'fill-only' || moreConfident(f, c)
     const [winner, loser] = fullWins ? [f, c] : [c, f]
-    if (f.value === c.value) return winner
+    // Two independent reads of the same character: one level more certain (ticket #86).
+    if (f.value === c.value) return { ...winner, certainty: oneStepUp(winner.certainty) }
     if (mode === 'fill-only') {
       disagreements.push(disagreement(i + 1, f, c, 'full'))
       return f
