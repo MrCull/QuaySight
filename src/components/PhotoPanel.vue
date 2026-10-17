@@ -1,9 +1,11 @@
 <script setup lang="ts">
-import { computed, ref } from 'vue'
+import { computed, nextTick, ref } from 'vue'
 import { MAX_PHOTOS, TOO_MANY_PHOTOS, useInspectionStore } from '../stores/inspection'
 import { faceChipLabel, facesShown } from '../domain/photoFace'
 import { readPhotoFile, PHOTO_ACCEPT } from '../services/readPhoto'
 import AnalysingStages from './AnalysingStages.vue'
+import PhotoFrame from './PhotoFrame.vue'
+import PhotoViewer, { type ViewerPhoto } from './PhotoViewer.vue'
 
 const store = useInspectionStore()
 const picker = ref<HTMLInputElement | null>(null)
@@ -35,6 +37,30 @@ function chipFor(index: number): string | null {
         facesShown(photo.face),
       )
     : null
+}
+
+/** The photo shown full screen, by index; null when the viewer is closed. */
+const viewing = ref<number | null>(null)
+const viewerPhotos = computed<ViewerPhoto[]>(() =>
+  store.photos.map((photo, i) => ({
+    url: photo.url,
+    alt: `Container photo ${i + 1}: ${photo.name}`,
+    face: store.photos.length > 1 ? chipFor(i) : null,
+  })),
+)
+let opener: HTMLElement | null = null
+
+/** Opens the viewer on a photo; focus comes back to the frame that opened it. */
+function enlarge(index: number, frame: HTMLElement) {
+  opener = frame
+  viewing.value = index
+}
+
+async function closeViewer() {
+  viewing.value = null
+  await nextTick()
+  opener?.focus()
+  opener = null
 }
 
 async function take(files: File[]) {
@@ -114,14 +140,13 @@ function openPicker() {
     <template v-else>
       <ul v-if="store.photos.length > 1" class="rs-photos">
         <li v-for="(photo, i) in store.photos" :key="photo.url" class="rs-photos__item">
-          <div class="rs-photos__frame">
-            <img
-              class="rs-photo__img"
-              :src="photo.url"
-              :alt="`Container photo ${i + 1}: ${photo.name}`"
-            />
-            <div class="rs-analysing"><div class="rs-sweep" aria-hidden="true"></div></div>
-          </div>
+          <PhotoFrame
+            class="rs-photos__frame"
+            :url="photo.url"
+            :alt="`Container photo ${i + 1}: ${photo.name}`"
+            :label="`Enlarge photo ${i + 1} of ${store.photos.length}`"
+            @enlarge="enlarge(i, $event)"
+          />
           <!-- Under the photo, never over it. -->
           <div class="rs-photos__cap">
             <span class="rs-photos__n qs-type-body-sm">Photo {{ i + 1 }}</span>
@@ -131,21 +156,27 @@ function openPicker() {
           </div>
         </li>
       </ul>
-      <div v-else class="rs-photo">
-        <img
-          class="rs-photo__img"
-          :src="store.photo.url"
-          :alt="`Container photo: ${store.photo.name}`"
-        />
-        <div class="rs-photo__bar">
+      <PhotoFrame
+        v-else
+        class="rs-photo"
+        :url="store.photo.url"
+        :alt="`Container photo: ${store.photo.name}`"
+        label="Enlarge photo"
+        @enlarge="enlarge(0, $event)"
+      >
+        <span class="rs-photo__bar">
           <span class="rs-pill">
             <i class="qs-glyph qs-glyph--photo" aria-hidden="true"></i>{{ orientationLabel }}
           </span>
-        </div>
-        <div class="rs-analysing">
-          <div class="rs-sweep" aria-hidden="true"></div>
-        </div>
-      </div>
+        </span>
+      </PhotoFrame>
+      <!-- The one full-screen layer: the original photo, over everything, analysing sweep included. -->
+      <PhotoViewer
+        v-if="viewing !== null"
+        :photos="viewerPhotos"
+        :start="viewing"
+        @close="closeViewer"
+      />
       <!-- Under the photo, never over it: no text sits on the photo at any point in a run. -->
       <div class="rs-stages"><AnalysingStages /></div>
       <div v-if="!store.demo">
@@ -199,13 +230,6 @@ function openPicker() {
   border: 1px solid var(--line-strong);
   background: var(--surface-sunken);
   color: var(--ink);
-}
-.rs-photo__img {
-  display: block;
-  width: 100%;
-  height: 100%;
-  object-fit: contain;
-  image-orientation: from-image;
 }
 .photo-picker {
   position: absolute;

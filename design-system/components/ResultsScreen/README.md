@@ -24,7 +24,7 @@ The results screen is the main inspection screen once photos are uploaded and re
 ## In the app today
 The preview shows the whole intended screen. The app already ships the top bar, **What we found** (the `WhatWeFound` card at the top of the readings column, caveats first), the photo stage with the analysing sweep and stage card, `ContainerId` with *Also possible* and the *Best interpretation* / *What remains uncertain* explanation, `ManifestRetry`, the readings (`FieldRow`s, under *Container details*), the damage view and the arrival choreography. These parts are deliberately not built yet; each is a follow-up, not a parity fix:
 - The **thumbnail strip** with *Add photo* (multi-photo is deferred); a single photo shows a *Replace photo* button instead.
-- **Photo areas** drawn on the photo (photo-relative highlight is deferred), and the stand-in and zoom controls.
+- **Photo areas** drawn on the photo (photo-relative highlight is deferred), and the stand-in and zoom controls. Clicking the photo opens it full screen in `PhotoViewer`; zoom inside the stage is still deferred.
 - The suggestion `Notice`.
 - **Export** in the top bar: the app puts *Export JSON*, *Download raw response* and *Download summary* under the readings.
 
