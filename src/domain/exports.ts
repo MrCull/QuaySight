@@ -6,6 +6,7 @@ import { labelsFor, recordedDemonstrationLabel } from './providers'
 import { damageExport } from './damageExport'
 import { chosenLength } from './chosenLength'
 import type { InspectionRecord } from './inspection'
+import { idResultState } from './certainty'
 import { detailsExport } from './detailsExport'
 import { weightsExport } from './weightsExport'
 import type {
@@ -17,6 +18,7 @@ import type {
 } from './exportTypes'
 import {
   EXPORT_NOTICE,
+  idNotReadableLine,
   NOT_ESTABLISHED_HEAD,
   REPLAYED_LINE,
   SIGNIFICANT_LINE,
@@ -45,11 +47,17 @@ function unreadPositions(value: string): number[] {
   return [...value].flatMap((ch, i) => (ch === '?' ? [i] : []))
 }
 
+/** The ID reading, or null when too little of it was read to show (it is then exported as not read). */
+function readableId(record: InspectionRecord) {
+  const reading = record.containerId
+  return reading && idResultState(reading) !== 'insufficient' ? reading : null
+}
+
 export function buildInspectionExport(record: InspectionRecord): InspectionExport {
   const values: ExportValue[] = []
   const unresolved: ExportUnresolved[] = []
   const conflicts: string[] = []
-  const reading = record.containerId
+  const reading = readableId(record)
 
   if (reading) {
     values.push({
@@ -199,11 +207,13 @@ export function buildSummaryText(record: InspectionRecord): string {
     '',
   )
 
-  const reading = record.containerId
+  const reading = readableId(record)
   if (reading) {
     lines.push(idLine(reading))
     if (reading.observedCheckDigit !== null) lines.push(checkDigitLine(reading))
     for (const alt of json.candidates) lines.push(alsoPossibleLine(alt.value))
+  } else if (record.containerId) {
+    lines.push(idNotReadableLine)
   }
   for (const check of json.rechecks) lines.push(recheckLine(check))
   if (record.details) {

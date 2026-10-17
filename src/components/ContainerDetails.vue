@@ -40,7 +40,8 @@ const notAssessed = computed(() => groups.value.flatMap((g) => g.notAssessed ?? 
       <UnitsToggle v-if="assessed" :model-value="units" @update:model-value="setUnits" />
     </div>
     <p v-if="detailsFailure" class="rs-note qs-type-body-sm">
-      The container details could not be read in this inspection. {{ causeSentence(detailsFailure) }}
+      The container details could not be read in this inspection.
+      {{ causeSentence(detailsFailure) }}
     </p>
     <p v-if="!assessed && !detailsFailure" class="rs-note qs-type-body-sm">
       Not assessed in this inspection: this run read the container ID only. Nothing is said about

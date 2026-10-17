@@ -67,17 +67,32 @@ describe('ResultsPanel result states', () => {
     expect(wrapper.text()).toContain('the last digits are hard to read')
   })
 
-  it('explains insufficient evidence and suggests a closer photo, with no input requested', async () => {
+  it('shows only "ID not readable in this photo" when 5 of 11 characters were read, with no input requested', async () => {
     const wrapper = await withReading({
-      value: '???????????',
+      value: '???U??0000?',
       certainty: "Can't tell",
       checkDigitValid: false,
       observedCheckDigit: null,
+      alternatives: ['APHU6586840'],
     })
-    expect(wrapper.text()).toContain('A closer photo of the door markings may help.')
+    expect(wrapper.text()).toContain('ID not readable in this photo')
+    expect(wrapper.find('.qs-id').exists()).toBe(false)
+    expect(wrapper.text()).not.toContain('Also possible')
+    expect(wrapper.text()).not.toMatch(/check digit/i)
     expect(wrapper.find('input').exists()).toBe(false)
     expect(wrapper.find('textarea').exists()).toBe(false)
     expect(wrapper.find('select').exists()).toBe(false)
+  })
+
+  it('shows the reading at 6 of 11 characters read', async () => {
+    const wrapper = await withReading({
+      value: '???U??00000',
+      certainty: 'Uncertain',
+      checkDigitValid: false,
+      observedCheckDigit: null,
+    })
+    expect(wrapper.find('.qs-id').exists()).toBe(true)
+    expect(wrapper.text()).not.toContain('ID not readable in this photo')
   })
 
   it('never uses pass, refinement, candidate or retry wording', async () => {

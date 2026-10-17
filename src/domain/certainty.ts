@@ -52,6 +52,9 @@ export function certaintyOfProbability(probability: number): CertaintyLabel {
 /** Marks a character position that was not read. Never filled in as fact. */
 export const UNREAD = '?'
 
+/** Fewer characters read than this and the ID is not shown at all. */
+export const MIN_READ_CHARACTERS = 6
+
 export type IdResultState = 'settled' | 'uncertain' | 'partial' | 'insufficient'
 
 /** Alternatives to show: at most MAX_ALTERNATIVES, without repeating the best reading. */
@@ -73,7 +76,7 @@ export function visibleAlternatives(reading: ContainerIdReading): string[] {
 export function idResultState(reading: ContainerIdReading): IdResultState {
   const value = normalise(reading.value)
   const knownChars = [...value].filter((ch) => ch !== UNREAD).length
-  if (knownChars === 0) return 'insufficient'
+  if (knownChars < MIN_READ_CHARACTERS) return 'insufficient'
   if (value.includes(UNREAD)) return 'partial'
   if (reading.certainty === 'Confident' || reading.certainty === 'Likely') return 'settled'
   return 'uncertain'
