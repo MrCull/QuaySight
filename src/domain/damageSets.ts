@@ -70,14 +70,13 @@ function notAssessed(reason: string): DamageAssessment {
 }
 
 /**
- * The side a long-side photo shows, from where the doors are in it. Photo-left is drawn as the face's
- * start and photo-right as its end on both fixed views (the end face drawn beside the side is the rear
- * on the right side and the front on the left side), so a photo whose doors are at photo-left lines up
- * with the left side's door end and one with doors at photo-right with the right side's: no mirroring.
+ * The side a long-side photo shows, from where the doors are in it. Standing outside the container's left
+ * side and facing it, the doors are on your right: doors at photo-left mean the right side, doors at
+ * photo-right the left side. Without the doors the side is assumed (right) and flagged.
  */
 function sideFor(doorEnd: DamageSetReading['doorEnd']): SideInference {
-  if (doorEnd === 'image-left') return { side: 'left', basis: 'inferred' }
-  if (doorEnd === 'image-right') return { side: 'right', basis: 'inferred' }
+  if (doorEnd === 'image-left') return { side: 'right', basis: 'inferred' }
+  if (doorEnd === 'image-right') return { side: 'left', basis: 'inferred' }
   return { side: 'right', basis: 'defaulted' }
 }
 

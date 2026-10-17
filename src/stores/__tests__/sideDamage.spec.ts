@@ -207,8 +207,8 @@ describe('long-side damage on a live run', () => {
   })
 
   it.each([
-    ['image_left', 'left', 'inferred', 'from the door end'],
-    ['image_right', 'right', 'inferred', 'from the front end'],
+    ['image_left', 'right', 'inferred', 'from the door end'],
+    ['image_right', 'left', 'inferred', 'from the front end'],
     ['not_identifiable', 'right', 'defaulted', 'from the left'],
   ] as const)(
     'with the door end %s, puts the findings on the %s side (%s)',
