@@ -43,10 +43,8 @@ describe('the seal questions', () => {
     ])
     const first = seal[1]
     expect(first?.type).toBe('choice')
-    if (first?.type === 'choice') {
-      const values = first.choices.map((c) => c.value)
-      expect(values).toEqual(expect.arrayContaining(['0', '9', 'A', 'Z', 'none', 'unreadable']))
-    }
+    const values = first?.type === 'choice' ? first.choices.map((c) => c.value) : []
+    expect(values).toEqual(expect.arrayContaining(['0', '9', 'A', 'Z', 'none', 'unreadable']))
   })
 
   it('ask for the box only of a model that takes box questions', () => {
