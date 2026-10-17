@@ -54,7 +54,7 @@ export interface ExportFindingLink {
   component: DamageComponent
   /** How well the finding's zone was seen, or null when the set did not say. */
   visibility: ZoneVisibility | null
-  /** Apparent visual severity, or 'not rated' for a component the photo gives no severity for. */
+  /** Apparent visual severity, or "can't tell" for a component the photo gives no severity for. */
   severity: string
   /** The model's probability for each severity level, when it gave them. */
   severityProbabilities: Partial<Record<SeverityLevel, number>> | null

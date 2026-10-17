@@ -11,14 +11,14 @@ const LABEL: Record<Severity | 'unrated', string> = {
   minor: 'Minor',
   moderate: 'Moderate',
   major: 'Major',
-  unrated: 'Not rated',
+  unrated: "Can't tell",
 }
 const level = computed(() => props.severity ?? 'unrated')
 const label = computed(() => LABEL[level.value])
 const ariaLabel = computed(() =>
   props.severity
     ? `Apparent visual severity: ${label.value.toLowerCase()}`
-    : 'Visual severity not rated',
+    : "Visual severity: can't tell",
 )
 </script>
 

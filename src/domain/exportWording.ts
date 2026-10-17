@@ -19,6 +19,8 @@ export const inspectionLine = (id: string) => `Inspection: ${id}`
 export const idLine = (reading: NonNullable<InspectionRecord['containerId']>) =>
   `Container ID (printed): ${reading.value} - ${reading.certainty}`
 
+export const idNotReadableLine = 'Container ID: ID not readable in this photo'
+
 export const checkDigitLine = (reading: NonNullable<InspectionRecord['containerId']>) =>
   reading.calculatedCheckDigit === null
     ? `  Check digit: observed ${reading.observedCheckDigit}, not calculated (ID incomplete)`
@@ -44,7 +46,7 @@ export const findingCountLine = (n: number) => `Suspected damage: ${n} finding${
 export const SIGNIFICANT_LINE = 'Potentially significant damage, closer inspection advised.'
 
 export function findingLines(f: ExportFindingLink): string[] {
-  const severity = f.severity === 'not rated' ? 'severity not rated' : f.severity
+  const severity = f.severity === "can't tell" ? "severity can't tell" : f.severity
   return [
     `- ${f.title} - ${f.certainty}, ${severity}`,
     `  Photo: ${f.photo ?? 'not linked'}, region: ${f.region.location}, source pass: ${f.sourcePass.passId} (${f.sourcePass.kind})`,

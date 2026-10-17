@@ -42,3 +42,25 @@ export function sectionScheme(
   const lengthFt = assessment.lengthFt ?? 40
   return { side: assessment.sideInference.side, lengthFt, count: sectionCount(lengthFt) }
 }
+
+/**
+ * A zone's place on the long side in the drawing's own words, e.g. "Section 3 of 10 from the door end".
+ * The door end is "assumed" when the photo did not show the doors and the side was defaulted.
+ */
+export function sectionWords(
+  zone: FindingZone,
+  lengthFt: ContainerLengthFt,
+  side: LongSide,
+  basis: 'inferred' | 'defaulted',
+): string {
+  const sections = sectionsOfZone(zone, lengthFt, side)
+  const first = sections[0]!
+  const last = sections[sections.length - 1]!
+  const which =
+    sections.length === 1
+      ? `Section ${first}`
+      : sections.length === 2
+        ? `Sections ${first} and ${last}`
+        : `Sections ${first} to ${last}`
+  return `${which} of ${sectionCount(lengthFt)} from the ${basis === 'defaulted' ? 'assumed ' : ''}door end`
+}

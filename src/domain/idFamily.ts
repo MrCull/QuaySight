@@ -10,12 +10,19 @@ import {
   readIdCharacters,
   type ChoiceReading,
 } from './idQuestions'
-import type { ContainerIdReading } from './inspection'
+import { idResultState } from './certainty'
+import type { ContainerIdReading, InspectionRecord } from './inspection'
 import { jevIdReadingOf, type JevBox } from './jev'
 import { assembleLunaReading } from './luna'
 import { readOwnerPick, type OwnerPick } from './ownerPick'
 import type { FamilyExport, QuestionFamily } from './questionRegistry'
-import { alsoPossibleLine, checkDigitLine, idLine, recheckLine } from './exportWording'
+import {
+  alsoPossibleLine,
+  checkDigitLine,
+  idLine,
+  idNotReadableLine,
+  recheckLine,
+} from './exportWording'
 
 /** What the ID questions read: the ID as read, each position, the owner pick and where the ID is. */
 export interface IdFinding {
@@ -36,6 +43,12 @@ declare module './survey' {
 
 const LUNA_SURVEY_INSTRUCTIONS = `${LUNA_IDENTIFICATION_INSTRUCTIONS} The questions after the container identification ask about the container's other markings and its type; answer each from what is visible in this photo.`
 
+/** The ID reading, or null when too little of it was read to show (it is then exported as not read). */
+function readableId(record: InspectionRecord) {
+  const reading = record.containerId
+  return reading && idResultState(reading) !== 'insufficient' ? reading : null
+}
+
 function unreadPositions(value: string): number[] {
   return [...value].flatMap((ch, i) => (ch === '?' ? [i] : []))
 }
@@ -48,7 +61,7 @@ function idExport(record: Parameters<NonNullable<QuestionFamily['export']>>[0]):
     summary: [],
     candidates: [],
   }
-  const reading = record.containerId
+  const reading = readableId(record)
   if (reading) {
     out.values.push({
       field: 'containerId',
@@ -112,6 +125,8 @@ function idExport(record: Parameters<NonNullable<QuestionFamily['export']>>[0]):
     out.summary.push(idLine(reading))
     if (reading.observedCheckDigit !== null) out.summary.push(checkDigitLine(reading))
     for (const alt of out.candidates) out.summary.push(alsoPossibleLine(alt.value))
+  } else if (record.containerId) {
+    out.summary.push(idNotReadableLine)
   }
   for (const check of record.rechecks ?? []) out.summary.push(recheckLine(check))
   return out

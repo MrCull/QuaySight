@@ -124,6 +124,15 @@ describe('a live long-side assessment in the damage view', () => {
     )
   })
 
+  it('lists the cards in the order of their number, whatever their certainty or severity', () => {
+    const assessment = liveSide()
+    expect(new Set(assessment.findings.map((f) => f.severity)).size).toBeGreaterThan(1)
+    const wrapper = mount(DamageView, { props: { assessment } })
+    const numbers = wrapper.findAll('.qs-finding').map((c) => Number(c.attributes('data-finding')))
+    expect(numbers).toEqual([...numbers].sort((a, b) => a - b))
+    expect(numbers).toHaveLength(assessment.findings.length)
+  })
+
   it('shows rail and casting damage as component findings with no severity rating', () => {
     const assessment = liveSide()
     const rail = assessment.findings.find((f) => f.component === 'rail')!
@@ -133,7 +142,7 @@ describe('a live long-side assessment in the damage view', () => {
     const railCard = cardFor(wrapper, rail)
     expect(railCard.text()).toContain('Bottom side rail')
     expect(railCard.find('.qs-sev').classes()).toContain('qs-sev--unrated')
-    expect(railCard.find('.qs-sev').text()).toContain('Not rated')
+    expect(railCard.find('.qs-sev').text()).toContain("Can't tell")
     expect(wrapper.find(`.qs-pin[data-finding="${rail.id}"]`).classes()).toContain(
       'qs-marker--unrated',
     )
@@ -149,7 +158,7 @@ describe('a live long-side assessment in the damage view', () => {
     await cardFor(wrapper, dent).trigger('click')
     const card = cardFor(wrapper, dent)
     expect(card.text()).toContain(
-      'Photo column 2 of 5 from the front end, lower half of the side sheet',
+      'Sections 7 and 8 of 10 from the door end, lower half of the side sheet',
     )
     expect(card.text()).toContain('Moderate')
     expect(card.text()).toContain('0.92')
@@ -192,10 +201,10 @@ describe('which side a live long-side photo is drawn on', () => {
       w.findAll('.qs-c-zone title').map((t) => t.text())
     // Doors at photo-left: the first column is by the doors, at the far end from the front wall.
     const l = mount(DamageView, { props: { assessment: door('image_left') } })
-    expect(dentZone(l)[0]).toContain('Photo column 1 of 5 from the door end')
+    expect(dentZone(l)[0]).toContain('Sections 1 and 2 of 10 from the door end')
     // Doors at photo-right: the last column is by the doors, beside the rear end.
     const r = mount(DamageView, { props: { assessment: door('image_right') } })
-    expect(dentZone(r)[0]).toContain('Photo column 1 of 5 from the front end')
+    expect(dentZone(r)[0]).toContain('Sections 9 and 10 of 10 from the door end')
     const first = (a: DamageAssessment) => a.zones!.find((z) => z.id === 'Z1T')!.zone
     expect(first(door('image_left'))).toEqual(first(door('image_right')))
   })
@@ -308,7 +317,7 @@ describe('a live door-end assessment in the damage view', () => {
         'qs-region--unrated',
       )
       expect(wrapper.find(`.qs-pin[data-finding="${f.id}"]`).exists()).toBe(true)
-      expect(cardFor(wrapper, f).find('.qs-sev').text()).toContain('Not rated')
+      expect(cardFor(wrapper, f).find('.qs-sev').text()).toContain("Can't tell")
     }
     expect(cardFor(wrapper, gasket).exists()).toBe(true)
     expect(wrapper.find(`.qs-pin[data-finding="${gasket.id}"]`).exists()).toBe(false)

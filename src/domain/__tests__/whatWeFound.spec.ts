@@ -121,7 +121,7 @@ describe('an uncertain ID', () => {
 
     expect(found.headline).toBe('Some of what we found is uncertain')
     expect(found.caveats[0]).toBe(
-      'The container ID is Uncertain. Best reading: COYU 266813 0. Also possible: COYU 266818 0.',
+      'The container ID: Uncertain. Best reading: COYU 266813 0. Also possible: COYU 266818 0.',
     )
     // The caveat says all of it, so the statements do not repeat it.
     expect(statement(found, 'id')).toBeUndefined()
@@ -151,7 +151,7 @@ describe('an uncertain ID', () => {
   it('says plainly that no ID could be read', async () => {
     const found = buildWhatWeFound({ ...(await fullLive()), containerId: null })
     expect(statement(found, 'id')).toBeUndefined()
-    expect(found.caveats).toContain('No container ID could be read from this photo.')
+    expect(found.caveats).toContain('ID not readable in this photo.')
     expect(found.headline).toBe('Some of what we found is uncertain')
   })
 })
@@ -406,7 +406,7 @@ describe('the damage verdict', () => {
       }),
     })
     expect(statement(found, 'damage')).toBe(
-      '4 suspected findings on the long side: Dent in the side sheet, moderate (Confident); Scrape on the lower rail, cosmetic (Likely); Bent corner post, not rated (Likely); and 1 more. Potentially significant damage, closer inspection advised. Other faces were not in the photo, so we have not seen them.',
+      "4 suspected findings on the long side: Dent in the side sheet, moderate (Confident); Scrape on the lower rail, cosmetic (Likely); Bent corner post, can't tell (Likely); and 1 more. Potentially significant damage, closer inspection advised. Other faces were not in the photo, so we have not seen them.",
     )
     expect(found.caveats).toContain('Hole in the side sheet is Uncertain.')
   })
@@ -428,7 +428,7 @@ describe('the damage verdict', () => {
       }),
     })
     expect(statement(found, 'damage')).toContain(
-      '1 suspected finding on the door end: Bent locking bar, not rated (Confident).',
+      "1 suspected finding on the door end: Bent locking bar, can't tell (Confident).",
     )
   })
 
@@ -516,7 +516,7 @@ describe('a partial result', () => {
     )
     expect(found.statements.map((s) => s.topic)).not.toContain('id')
     expect(found.gaps).toEqual(['Not finished: the container ID.'])
-    expect(found.caveats).not.toContain('No container ID could be read from this photo.')
+    expect(found.caveats).not.toContain('ID not readable in this photo.')
   })
 })
 

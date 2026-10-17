@@ -258,7 +258,7 @@ describe('live damage in the exports', () => {
       photo: 'side.jpg',
       sourcePass: { passId: 'live-openrouter-1-side-damage', kind: 'provider-call' },
     })
-    expect(rail).toMatchObject({ component: 'rail', severity: 'not rated', visibility: null })
+    expect(rail).toMatchObject({ component: 'rail', severity: "can't tell", visibility: null })
   })
 
   it('carries the face, the photo checks, the significance flag and every zone’s visibility', async () => {
@@ -340,7 +340,7 @@ describe('live damage in the exports', () => {
   it('puts the significance flag and the unrated component in the summary, never as a repair verdict', async () => {
     const summary = buildSummaryText(await liveSideRecord())
     expect(summary).toContain('Potentially significant damage, closer inspection advised.')
-    expect(summary).toContain('- Damage to the bottom side rail - Likely, severity not rated')
+    expect(summary).toContain("- Damage to the bottom side rail - Likely, severity can't tell")
     expect(summary).not.toMatch(/repair required|unserviceable/i)
   })
 })
@@ -382,6 +382,25 @@ describe('plain-text summary', () => {
     expect(text).toContain('Dents in the side panel - Likely, minor')
     expect(text).toContain('side-dented-grey.jpg')
     expect(text).toContain('run-luna-1')
+  })
+
+  it('says the ID is not readable, with no reading or check digit, when fewer than 6 characters were read', async () => {
+    const base = await lunaRecord()
+    const barely = (printed: string): InspectionRecord => ({
+      ...base,
+      containerId: {
+        ...buildContainerIdReading({ printed: 'APHU6586847', certainty: 'Likely' }),
+        value: printed,
+        alternatives: ['APHU6586840'],
+      },
+    })
+    const hidden = buildSummaryText(barely('???U??0000?'))
+    expect(hidden).toContain('Container ID: ID not readable in this photo')
+    expect(hidden).not.toContain('Container ID (printed)')
+    expect(hidden).not.toContain('Check digit')
+    expect(hidden).not.toContain('Also possible')
+    const shown = buildSummaryText(barely('???U??00000'))
+    expect(shown).toContain('Container ID (printed): ???U??00000')
   })
 
   it('never uses the forbidden status words', async () => {

@@ -2,7 +2,7 @@
 // inspection record the way that part's own card does and decides which statement and which caveats
 // apply. Pure. The sentences themselves come from foundWording.ts. A part whose whole content is a caveat
 // (an uncertain ID, a code that cannot be read) is a caveat only, so nothing is said twice.
-import { UNREAD, visibleAlternatives } from './certainty'
+import { idResultState, UNREAD, visibleAlternatives } from './certainty'
 import {
   dgClassName,
   EQUIPMENT_CHECKS,
@@ -33,8 +33,7 @@ export function idParts(reading: ContainerIdReading | null): FoundParts {
   const value = words.groupedId(reading.value)
   const caveats: string[] = []
   const unread = reading.value.includes(UNREAD)
-  const known = [...reading.value].some((ch) => ch !== UNREAD)
-  if (!known) return { caveats: [words.NO_ID_TEXT] }
+  if (idResultState(reading) === 'insufficient') return { caveats: [words.NO_ID_TEXT] }
 
   if (reading.observedCheckDigit !== null && reading.calculatedCheckDigit !== null) {
     if (!reading.checkDigitValid) {

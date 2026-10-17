@@ -1,13 +1,13 @@
 <script setup lang="ts">
 import { computed } from 'vue'
-import { sortFindings, type DamageFinding } from '../../domain/damage'
+import type { DamageFinding } from '../../domain/damage'
 import CertaintyChip from '../CertaintyChip.vue'
 import SeverityBadge from './SeverityBadge.vue'
 
 const props = defineProps<{ findings: DamageFinding[]; selectedId: number | null }>()
 const emit = defineEmits<{ select: [id: number] }>()
 
-const ordered = computed(() => sortFindings(props.findings))
+const ordered = computed(() => [...props.findings].sort((a, b) => a.id - b.id))
 
 function uncertaintyClass(f: DamageFinding): string {
   return f.certainty === 'Likely'

@@ -29,7 +29,8 @@ export function groupedId(id: string): string {
     : marked
 }
 
-export const NO_ID_TEXT = 'No container ID could be read from this photo.'
+/** Shown instead of the ID when fewer than 6 of its 11 characters were read. */
+export const NO_ID_TEXT = 'ID not readable in this photo.'
 
 export const checkDigitMismatchText = (observed: number, calculated: number) =>
   `The printed check digit (${observed}) does not match the one calculated from the other ten characters (${calculated}).`
@@ -42,7 +43,7 @@ export function idUncertainText(
   also: string[],
 ): string {
   return [
-    `The container ID is ${certainty}.`,
+    `The container ID: ${certainty}.`,
     `Best reading: ${best}.`,
     unread ? 'Some positions were not read, marked ·.' : null,
     also.length > 0 ? `Also possible: ${also.join(', ')}.` : null,
@@ -203,7 +204,7 @@ export const partNotSeenText = (face: string) => `Part of the ${face} could not 
 export const findingUncertainText = (title: string) => `${title} is Uncertain.`
 
 export const findingText = (title: string, severity: string | null, certainty: CertaintyLabel) =>
-  `${title}, ${severity ?? 'not rated'} (${certainty})`
+  `${title}, ${severity ?? "can't tell"} (${certainty})`
 
 export const noDamageText = (face: string) => `No suspected damage on the ${face}.`
 

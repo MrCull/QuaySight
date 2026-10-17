@@ -58,4 +58,24 @@ describe('ranking candidate container IDs', () => {
     )
     expect(rankIdCandidates(readings, 'Confident').alternatives).toEqual(['COUU2668130'])
   })
+
+  it('ranks passing candidates by their own certainty', () => {
+    const readings = read('COUU2668135', { 3: 'Y', 7: '1' }).map((r, i) =>
+      i === 2
+        ? { ...r, runnerUpCertainty: 'Uncertain' as const }
+        : i === 6
+          ? { ...r, runnerUpCertainty: 'Likely' as const }
+          : r,
+    )
+    const ranked = rankIdCandidates(readings, 'Likely')
+    // None pass: the more certain swap (position 7) outranks the earlier but weaker one (position 3).
+    expect(ranked.alternatives).toEqual(['COUU2618135', 'COYU2668135'])
+  })
+
+  it('ranks a passing candidate above a more certain one that fails', () => {
+    const readings = read('COUU2668130', { 3: 'Y', 7: '3' }).map((r, i) =>
+      i === 2 ? { ...r, runnerUpCertainty: "Can't tell" as const } : r,
+    )
+    expect(rankIdCandidates(readings, 'Likely').chars.join('')).toBe('COYU2668130')
+  })
 })
