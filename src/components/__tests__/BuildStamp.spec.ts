@@ -41,14 +41,14 @@ describe('Build stamp', () => {
     it('is in the footer of the setup screen', () => {
       const wrapper = mount(App)
       expect(wrapper.find('.qs-setupcard').exists()).toBe(true)
-      expect(wrapper.get('footer .qs-buildstamp').text()).toMatch(stamp)
+      expect(wrapper.get('footer .rs-buildstamp').text()).toMatch(stamp)
     })
 
     it('is in the footer of the inspection screen', () => {
       useSetupStore().view = 'inspection'
       const wrapper = mount(App)
       expect(wrapper.find('#stage').exists()).toBe(true)
-      expect(wrapper.get('footer .qs-buildstamp').text()).toMatch(stamp)
+      expect(wrapper.get('footer .rs-buildstamp').text()).toMatch(stamp)
     })
   })
 })

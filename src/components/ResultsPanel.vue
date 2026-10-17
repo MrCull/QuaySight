@@ -21,10 +21,12 @@ import { idCloseUp, sealCloseUp } from '../domain/closeUpSources'
 const store = useInspectionStore()
 const record = computed(() => store.record)
 
+const photoUrl = (n: number | undefined) => (n ? store.photos[n - 1]?.url : undefined)
+
 // Close-ups (ticket #85): the area found for the ID and the seal, cut from the photo whose reading won.
 const idClose = computed(() => (record.value ? idCloseUp(record.value) : null))
+const idCloseUrl = computed(() => photoUrl(idClose.value?.photo))
 const sealClose = computed(() => (record.value ? sealCloseUp(record.value) : null))
-const photoUrl = (n: number | undefined) => (n ? store.photos[n - 1]?.url : undefined)
 
 // "Recorded demonstration: [provider/model]" (spec 13). Shown only for recorded runs.
 const recordedLabel = computed(() => {
@@ -260,10 +262,10 @@ const showInsufficient = computed(() => idState.value === 'insufficient')
 
         <!-- Where the ID was read, cut from the photo on screen; absent when the reading has no usable box. -->
         <PhotoCrop
-          v-if="idClose && photoUrl(idClose.photo)"
+          v-if="idClose && idCloseUrl"
           class="qs-rise"
           :style="{ '--i': STAGGER.crop }"
-          :src="photoUrl(idClose.photo)!"
+          :src="idCloseUrl"
           :box="idClose.box"
           :margin="idClose.margin"
           :photo-number="idClose.photo"

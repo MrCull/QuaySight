@@ -29,10 +29,8 @@ const placards = computed(() => placardRows(props.record))
 const rows = computed(() => [
   ...(details.value ?? []).map((row) => ({ ...row, key: row.label, closeUp: null })),
   ...placards.value.map((row) => {
-    const index = row.key.startsWith('placard-') ? Number(row.key.slice('placard-'.length)) : NaN
-    const closeUp: CloseUpSource | null = Number.isInteger(index)
-      ? placardCloseUp(props.record, index)
-      : null
+    const closeUp: CloseUpSource | null =
+      row.placard === null ? null : placardCloseUp(props.record, row.placard)
     return { ...row, closeUp }
   }),
 ])
@@ -71,7 +69,6 @@ const rows = computed(() => [
         :box="row.closeUp.box"
         :margin="row.closeUp.margin"
         :photo-number="row.closeUp.photo"
-        outline="hazard"
         :caption="`Where we read ${row.label.toLowerCase()}`"
         :label="`The ${row.label.toLowerCase()}`"
       />

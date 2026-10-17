@@ -9,6 +9,8 @@ import type { MarkingRow } from './markingRows'
 
 export interface PlacardRow extends MarkingRow {
   key: string
+  /** Which placard of the record this row is (its `closeUp` source); null for the other rows. */
+  placard: number | null
   /** Where this placard is in the photo; the card shows a crop beside it when usable. */
   box: ReadingBox | null
   /** Several photos: the 1-based photo the box belongs to. */
@@ -39,6 +41,7 @@ function placardRow(p: PlacardReading, index: number): PlacardRow {
     .join(' ')
   return {
     key: `placard-${index}`,
+    placard: index,
     label: `PLACARD ${index + 1}`,
     badge: {
       text: `${p.dgClass === null ? 'Class not read' : `Class ${p.dgClass}`}, ${un.text}`,
@@ -56,6 +59,7 @@ function placardRow(p: PlacardReading, index: number): PlacardRow {
 function markRow(key: string, label: string, seen: string, mark: MarkReading): PlacardRow {
   return {
     key,
+    placard: null,
     label,
     badge:
       mark.answer === 'yes' ? { text: seen, caveat: null, hazard: true, glyph: 'hazard' } : null,
@@ -72,6 +76,7 @@ export function placardRows(record: InspectionRecord): PlacardRow[] {
   if (!reading) return []
   const headRow = (badge: PlacardRow['badge']): PlacardRow => ({
     key: 'placards',
+    placard: null,
     label: 'PLACARDS',
     badge,
     absentText: NOT_CLEAR,

@@ -37,6 +37,9 @@ Other app details the preview does not show:
 - A result that is missing a part (cancelled, or one part's request failed) carries a notice above the ID: `qs-notice--partial` after Cancel, `qs-notice--error` naming the part that failed. Everything that arrived is shown.
 - The stage card is titled with the model: *Analysing with Jev latest*.
 
+## Crops
+The ID, the seal and each placard carry an enlarged crop of where it was read (`PhotoCrop`), captioned "Where we read the ID" (or "…the seal", "…placard 1"), with " · Photo N" when there are several photos. Tapping the crop shows the full photo with the region outlined using `qs-photo-region` (one outline style for all; hazard colour stays on the `MarkingBadge` diamond). Tapping again returns to the close-up. No usable box, or a photo that will not load: no crop and no caption.
+
 ## Rules
 - Never surface passes, refinement or candidate generation. Any re-check happens inside the stage it serves, and only its outcome lands.
 - The order of arrival follows importance: identity, then readings, then damage. Never animate a value that isn't real yet.
