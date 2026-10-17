@@ -22,15 +22,6 @@ import type { InspectionRecord } from './inspection'
 import { chosenLength, type LengthReading } from './chosenLength'
 import type { FaceReading, PhotoFace } from './photoFace'
 
-declare module './inspection' {
-  interface InspectionRecord {
-    /** The face the survey says the photo shows. Absent until the survey answers; null when it gave none. */
-    photoFace?: FaceReading | null
-    /** Every damage set's reading of the photo, one per face, before the face chooses among them. */
-    damageReadings?: DamageSetReading[]
-  }
-}
-
 /** One damage set's reading of one photo: what it found on its own face, and its own checks. */
 export interface DamageSetReading {
   /** The face the set is written for. */

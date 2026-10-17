@@ -23,13 +23,6 @@ export interface LengthReading {
   certainty: CertaintyLabel
 }
 
-declare module './inspection' {
-  interface InspectionRecord {
-    /** The model's answer to the length question; null when it gave no usable one, absent when not asked. */
-    modelLength?: LengthReading | null
-  }
-}
-
 /** The length to draw and where it came from. */
 export function chosenLength(record: InspectionRecord): ChosenLength {
   const decoded = record.sizeCode

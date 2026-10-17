@@ -309,6 +309,17 @@ function capacityRow(e: QuantityEval): CapacityRow | null {
 }
 
 const fmt = (n: number) => n.toLocaleString('en-GB')
+/**
+ * Whether the printed payload is left off the screen and out of "What we found" (ticket #65): the
+ * calculated payload is Confident and the printed one is not. The exports still carry it.
+ */
+export function printedPayloadHidden(weights: WeightChecks | null | undefined): boolean {
+  const printed = weights?.printedPayload
+  return Boolean(
+    printed && printed.certainty !== 'Confident' && weights?.payload?.certainty === 'Confident',
+  )
+}
+
 const both = (kgValue: number | null, lbValue: number | null) =>
   [kgValue === null ? null : `${fmt(kgValue)} kg`, lbValue === null ? null : `${fmt(lbValue)} lb`]
     .filter(Boolean)

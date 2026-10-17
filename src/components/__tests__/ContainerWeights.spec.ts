@@ -224,6 +224,46 @@ describe('the weights in Container details', () => {
     expect(rowOf(wrapper, 'PAYLOAD').find('.qs-field__value').text()).toContain('63,118 lb')
   })
 
+  describe('the printed payload when it disagrees with itself (ticket #65)', () => {
+    const C = 'Confident' as const
+    const disagreeing = { metric: read(22330, C), imperial: read(63390, C) }
+    const rowsFor = async (payload: typeof disagreeing, grossLb = 67200) =>
+      mount(ContainerDetails, {
+        props: {
+          record: await liveWeightsRecord(
+            coyuReading({
+              maxGross: { metric: read(30480, C), imperial: read(grossLb, C) },
+              tare: { metric: read(2180, C), imperial: read(4810, C) },
+              payload,
+            }),
+          ),
+        },
+      })
+
+    it('shows only the calculated payload when it is Confident and the printed one is not', async () => {
+      const wrapper = await rowsFor(disagreeing)
+      expect(labels(wrapper)).not.toContain('PAYLOAD')
+      const calculated = rowOf(wrapper, 'PAYLOAD (CALCULATED)')
+      expect(calculated.find('.qs-field__value').text()).toContain('28,300 kg')
+      expect(calculated.find('.qs-cert').text()).toContain('Confident')
+      expect(wrapper.text()).not.toContain('22,330')
+    })
+
+    it('shows both when both are Confident', async () => {
+      const wrapper = await rowsFor({ metric: read(28300, C), imperial: read(62390, C) })
+      expect(rowOf(wrapper, 'PAYLOAD').find('.qs-cert').text()).toContain('Confident')
+    })
+
+    it('shows both when neither is Confident', async () => {
+      // Maximum gross disagrees with itself, so the calculated payload is Uncertain too.
+      const wrapper = await rowsFor(disagreeing, 67900)
+      expect(rowOf(wrapper, 'PAYLOAD (CALCULATED)').find('.qs-cert').text()).not.toContain(
+        'Confident',
+      )
+      expect(labels(wrapper)).toContain('PAYLOAD')
+    })
+  })
+
   it('keeps the heading toggle off a run that read none of the details', async () => {
     const record = await recordedInspection('luna', { delayMs: 0 })
     record.sizeCode = null

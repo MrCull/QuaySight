@@ -1,5 +1,6 @@
 import { describe, it, expect } from 'vitest'
 import { recordedInspection } from '../../__tests__/recordedInspection'
+import { coyuReading, liveWeightsRecord, read } from '../../__tests__/liveWeights'
 import { buildContainerIdReading } from '../containerId'
 import {
   buildInspectionExport,
@@ -432,5 +433,41 @@ describe('no API key in any export', () => {
     expect(buildInspectionExport.length).toBe(1)
     expect(buildRawResponsesExport.length).toBe(1)
     expect(buildSummaryText.length).toBe(1)
+  })
+})
+
+describe('the hidden printed payload in the exports (ticket #65)', () => {
+  const C = 'Confident' as const
+  const coyuRecord = () =>
+    liveWeightsRecord(
+      coyuReading({
+        maxGross: { metric: read(30480, C), imperial: read(67200, C) },
+        tare: { metric: read(2180, C), imperial: read(4810, C) },
+        payload: { metric: read(22330, C), imperial: read(63390, C) },
+      }),
+    )
+
+  it('keeps the printed reading in the JSON, marked as not shown', async () => {
+    const exported = buildInspectionExport(await coyuRecord())
+    const printed = exported.values.find((v) => v.field === 'payload.printed')
+    expect(printed).toMatchObject({ value: 22330, unit: 'kg' })
+    expect(printed?.uncertainty).toContain('Not shown')
+    expect(exported.values.find((v) => v.field === 'payload.printed.lb')).toMatchObject({
+      value: 63390,
+    })
+    expect(exported.values.find((v) => v.field === 'payload')?.uncertainty ?? '').not.toContain(
+      'Not shown',
+    )
+  })
+
+  it('keeps the printed reading in the summary, marked as not shown', async () => {
+    const text = buildSummaryText(await coyuRecord())
+    expect(text).toMatch(/Payload \(printed\): 22,330 kg.*not shown/)
+  })
+
+  it('does not mark the printed payload when it is shown', async () => {
+    const record = await liveWeightsRecord()
+    const printed = buildInspectionExport(record).values.find((v) => v.field === 'payload.printed')
+    expect(printed?.uncertainty ?? '').not.toContain('Not shown')
   })
 })
