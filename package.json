@@ -24,6 +24,7 @@
     "check:tests": "npx vitest run --run && npx playwright test --project=chromium",
     "check:all": "npm run check && npm run check:tests",
     "format": "oxfmt src/",
+    "score": "SCORE_REPORT=1 vitest run src/regression/__tests__/scoreRecordings.spec.ts",
     "screenshots": "node e2e/screens/run-screenshots.mjs"
   },
   "dependencies": {

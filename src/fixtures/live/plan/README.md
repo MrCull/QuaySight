@@ -6,5 +6,19 @@ One JSON file per live run of the whole request plan, written by the opt-in reco
 headers, no request body), in the order they landed, with each request's latency and cost.
 
 Demo mode replays any file here for the sample whose photo it names (`src/domain/demoSamples.ts`), picking
-it up with no code change. Never edit one by hand: a recording is what a model answered. To record, see
+it up with no code change.
+
+## Regression set: re-record and score
+
+The four samples (COYU, CHSU and APHU doors, the grey 40 ft side) are the regression set. Their true values,
+read from the photos, are hand-written in `src/regression/expected.json`.
+
+- Score: `npm run score` replays every recording here (free, nothing is sent) and prints, per model, a
+  hit / miss / unread table by sample and field (ID, size code, max gross, tare, payload, face, length,
+  damage present). Run it before and after a change to a prompt or a mapping and compare.
+- Re-record (chargeable, about $0.005 a run, 8 runs): with `OPENAI_API_KEY` and `OPENROUTER_API_KEY` in the
+  environment, `npx vitest run src/services/__tests__/planRecording.live.spec.ts`. Then `npm run check:secrets`
+  and commit the changed files. Re-recording changes the scores: say so in the commit.
+
+Never edit one by hand: a recording is what a model answered. To record, see
 `docs/research/live-api-findings-2026-10-16.md (the last section)`.
