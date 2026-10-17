@@ -1,0 +1,23 @@
+<!-- @dsCard group="Evidence" height=520 subtitle="The original photo, full screen, with caption and arrows" -->
+<!doctype html>
+<html><head><link rel="stylesheet" href="../../tokens.css"><link rel="stylesheet" href="../bundle.css"><meta charset="utf-8"><title>Photo viewer</title>
+<style>
+body{margin:0;background:var(--bg);min-height:100vh}
+/* The preview pins the layer inside the card; in the app it is position: fixed over the whole screen. */
+.demo{position:relative;height:100vh;overflow:hidden}
+.demo .qs-viewer{position:absolute}
+.qs-viewer__img.stand-in{place-self:center;width:min(100%,calc((100vh - 2 * var(--space-6)) * 1.5625));height:auto;aspect-ratio:1000/640;background:repeating-linear-gradient(90deg,var(--surface-sunken) 0 var(--space-5),var(--surface) var(--space-5) var(--space-6));border-radius:var(--radius-sm);box-shadow:var(--shadow-raised)}
+</style></head>
+<body class="qs-root">
+<div class="demo">
+  <!-- Several photos: caption on scrim in a corner, ←/→ arrows that wrap, and ×. -->
+  <div class="qs-viewer" role="dialog" aria-modal="true" aria-label="Photo 2 of 3 · Long side" tabindex="-1">
+    <!-- In the app this is <img class="qs-viewer__img" src="(the original photo)" alt="…">. -->
+    <div class="qs-viewer__img stand-in" role="img" aria-label="Container photo 2: side.jpg"></div>
+    <p class="qs-viewer__cap qs-type-caption">Photo 2 of 3 · Long side</p>
+    <button type="button" class="qs-viewer__nav qs-viewer__nav--prev" aria-label="Previous photo"><i class="qs-glyph qs-glyph--chevron" aria-hidden="true"></i></button>
+    <button type="button" class="qs-viewer__nav qs-viewer__nav--next" aria-label="Next photo"><i class="qs-glyph qs-glyph--chevron" aria-hidden="true"></i></button>
+    <button type="button" class="qs-viewer__close" aria-label="Close photo"><i class="qs-glyph qs-glyph--cross" aria-hidden="true"></i></button>
+  </div>
+</div>
+</body></html>

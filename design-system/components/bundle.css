@@ -565,3 +565,41 @@
   .qs-found { padding: var(--space-4); }
   .qs-found__fact { grid-template-columns: minmax(0, 1fr); row-gap: var(--space-1); }
 }
+
+/* ---------- Photo viewer (the one sanctioned full-screen layer: the photo is the hero) ---------- */
+/* Above every other layer: cost panel 10 (30 as a bottom sheet), demo banner 20, drawer 20, top bar 21. */
+.qs-viewer { position: fixed; inset: 0; z-index: 40; display: grid; grid-template: minmax(0, 1fr) / minmax(0, 1fr); padding: var(--space-6); background: var(--scrim); cursor: zoom-out; animation: qs-viewer-in var(--duration-base) ease-out both; }
+.qs-viewer:focus { outline: none; }
+/* The box fills the layer; the photo letterboxes inside it, never cropped. */
+.qs-viewer__img { display: block; width: 100%; height: 100%; min-height: 0; object-fit: contain; image-orientation: from-image; }
+.qs-viewer__cap { position: absolute; left: var(--space-5); bottom: var(--space-5); margin: 0; padding: var(--space-1) var(--space-3); border-radius: var(--radius-sm); background: var(--scrim); color: var(--ink); pointer-events: none; }
+.qs-viewer__close, .qs-viewer__nav { position: absolute; display: grid; place-items: center; width: var(--control-md); height: var(--control-md); padding: 0; border: 1px solid var(--line-strong); border-radius: var(--radius-pill); background: var(--scrim); color: var(--ink); cursor: pointer; transition: background-color var(--duration-fast), border-color var(--duration-fast); }
+.qs-viewer__close:hover, .qs-viewer__nav:hover { background: var(--surface-raised); border-color: var(--ink-muted); }
+.qs-viewer__close:focus-visible, .qs-viewer__nav:focus-visible { outline: 2px solid var(--focus-ring); outline-offset: 2px; }
+.qs-viewer__close { top: var(--space-5); right: var(--space-5); }
+.qs-viewer__nav { top: 50%; margin-top: calc(var(--control-md) / -2); }
+.qs-viewer__nav--prev { left: var(--space-5); }
+.qs-viewer__nav--next { right: var(--space-5); }
+.qs-viewer__nav--prev .qs-glyph { transform: rotate(90deg); }
+.qs-viewer__nav--next .qs-glyph { transform: rotate(-90deg); }
+@keyframes qs-viewer-in { from { opacity: 0; } to { opacity: 1; } }
+@media (max-width: 480px) {
+  .qs-viewer { padding: var(--space-3); }
+  .qs-viewer__cap { left: var(--space-3); bottom: var(--space-3); }
+  .qs-viewer__close { top: var(--space-3); right: var(--space-3); }
+  .qs-viewer__nav--prev { left: var(--space-3); }
+  .qs-viewer__nav--next { right: var(--space-3); }
+}
+/* Appears instantly under reduced motion: no fade at all, not a zero-length one. */
+@media (prefers-reduced-motion: reduce) { .qs-viewer { animation: none; } }
+/* Teleported to the body, outside the element carrying qs-reduced-motion: the app mirrors the class onto the layer. */
+.qs-reduced-motion .qs-viewer, .qs-viewer.qs-reduced-motion { animation: none; }
+
+/* ---------- Loupe (hover magnifier over a container photo; decorative, mouse only) ---------- */
+/* Above the top bar 21 and the cost bottom sheet 30, below the photo viewer 40. --qs-loupe-gap is the gap from the pointer; the app reads it and the rendered size. The app sets left/top and the
+   background (the original photo, its size and position) inline as the pointer moves. */
+.qs-loupe { --qs-loupe-gap: var(--space-5); position: fixed; z-index: 35; width: calc(var(--space-8) * 3.5); height: calc(var(--space-8) * 3.5); border: 1px solid var(--line-strong); border-radius: var(--radius-md); background-color: var(--surface-raised); background-repeat: no-repeat; box-shadow: var(--shadow-raised); pointer-events: none; animation: qs-loupe-in var(--duration-fast) ease-out both; }
+@keyframes qs-loupe-in { from { opacity: 0; } to { opacity: 1; } }
+/* Appears instantly under reduced motion. */
+@media (prefers-reduced-motion: reduce) { .qs-loupe { animation: none; } }
+.qs-reduced-motion .qs-loupe, .qs-loupe.qs-reduced-motion { animation: none; }
