@@ -8,7 +8,14 @@ import { withPhotoFace } from './damageSets'
 import type { ChoiceQuestion, SharedAnswer } from './questionSet'
 import type { SurveyPart } from './survey'
 
-export type PhotoFace = 'rear-doors' | 'long-side' | 'front-end' | 'roof' | 'close-up' | 'unknown'
+export type PhotoFace =
+  | 'rear-doors'
+  | 'long-side'
+  | 'front-end'
+  | 'roof'
+  | 'close-up'
+  | 'not-container'
+  | 'unknown'
 
 export interface FaceReading {
   face: PhotoFace
@@ -23,6 +30,7 @@ const FACE_OF_VALUE: Record<string, PhotoFace> = {
   front_end: 'front-end',
   roof: 'roof',
   close_up: 'close-up',
+  not_a_container: 'not-container',
   unknown: 'unknown',
 }
 
@@ -47,7 +55,11 @@ export const FACE_QUESTION: ChoiceQuestion = {
       value: 'close_up',
       description: 'A close-up of one part or marking, too close to tell which face it is.',
     },
-    { value: 'unknown', description: 'No container face can be identified.' },
+    {
+      value: 'not_a_container',
+      description: 'The photo does not show a freight container at all.',
+    },
+    { value: 'unknown', description: 'A container is shown but no face can be identified.' },
   ],
 }
 
@@ -84,4 +96,23 @@ export const facePart: SurveyPart = {
   questions: () => [FACE_QUESTION],
   read: (answers) => faceOf(answers),
   apply: (record, face) => withPhotoFace(record, face),
+}
+
+/** The words on a photo's face chip (ticket #70). A long side is named left or right once the doors settle it. */
+export function faceChipLabel(
+  face: PhotoFace | null,
+  side: 'left' | 'right' | null = null,
+): string {
+  switch (face) {
+    case 'rear-doors':
+      return 'Doors'
+    case 'front-end':
+      return 'Front end'
+    case 'long-side':
+      return side === 'left' ? 'Left side' : side === 'right' ? 'Right side' : 'Long side'
+    case 'not-container':
+      return 'Not a container'
+    default:
+      return "Can't tell"
+  }
 }

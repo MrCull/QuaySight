@@ -87,6 +87,10 @@ export interface InspectionExport {
   rechecks: RecheckRecord[]
   /** Jev's crop read of the container ID: the crop and any character it disagreed on. Never shown in the UI. */
   idCropRead: IdCropReadRecord | null
+  /** Every photo of the inspection (ticket #70): its face, and which readings of the result came from it. */
+  photos: ExportPhoto[]
+  /** True when two photos read different complete IDs that both pass the check digit; nothing was combined. */
+  differentContainers: boolean
   /** The container length the drawing used and where it came from (ISO code, model, or default). */
   containerLength: ChosenLength
   damage: {
@@ -134,4 +138,27 @@ export interface RawResponsesExport {
   source: 'recorded demonstration, not a live provider response' | 'live provider response'
   inspectionId: string
   responses: InspectionRecord['rawResponses']
+}
+
+export interface ExportPhoto {
+  /** 1-based, in the order given. */
+  index: number
+  photo: string
+  /** The face the survey says the photo shows; null when it gave none. */
+  face: FaceReading['face'] | null
+  faceCertainty: FaceReading['certainty'] | null
+  /** The long side, when the doors in the photo settled it. */
+  side: 'left' | 'right' | null
+  /** True for a photo that shows no container: nothing from it is used. */
+  dropped: boolean
+  /** The ID this photo gave on its own. */
+  containerId: string | null
+  /** Which readings of the result came from this photo. */
+  readings: {
+    containerId: { positions: number[] }
+    details: string[]
+    weights: string[]
+  }
+  /** The raw responses (rawResponses[].passId) this photo's requests gave. */
+  passIds: string[]
 }

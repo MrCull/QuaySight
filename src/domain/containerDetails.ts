@@ -156,7 +156,7 @@ function weakerThanLikely(certainty: CertaintyLabel): CertaintyLabel {
  * A check that disagrees with the decoded code keeps its answer, gains a plain note and reads no more
  * than Uncertain. Only a code read Likely or better is weighed against a check.
  */
-function withCodeConflict(
+export function withCodeConflict(
   check: EquipmentCheck,
   reading: CheckReading,
   code: SizeCodeReading,

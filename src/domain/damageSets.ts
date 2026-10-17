@@ -53,6 +53,7 @@ const FACE_NAME: Record<PhotoFace, string> = {
   'front-end': 'front end',
   roof: 'roof',
   'close-up': 'close-up',
+  'not-container': 'photo that is not a container',
   unknown: 'unknown view',
 }
 

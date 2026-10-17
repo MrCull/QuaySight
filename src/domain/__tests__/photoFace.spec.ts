@@ -12,7 +12,7 @@ function readPhotoFace(wire: QuestionWireFormat, raw: unknown) {
 }
 
 describe('the face question', () => {
-  it('offers the six faces a photo can show', () => {
+  it('offers the faces a photo can show, and that it is no container', () => {
     expect(FACE_QUESTION.type).toBe('choice')
     expect(FACE_QUESTION.choices.map((c) => c.value)).toEqual([
       'rear_doors',
@@ -20,6 +20,7 @@ describe('the face question', () => {
       'front_end',
       'roof',
       'close_up',
+      'not_a_container',
       'unknown',
     ])
   })
