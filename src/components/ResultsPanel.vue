@@ -11,6 +11,7 @@ import ContainerDetails from './ContainerDetails.vue'
 import ContainerMarkings from './ContainerMarkings.vue'
 import ExportActions from './ExportActions.vue'
 import WhatWeFound from './WhatWeFound.vue'
+import { causeSentence } from '../domain/requestFailure'
 import { unavailableStages } from '../domain/whatWeFound'
 
 const store = useInspectionStore()
@@ -76,6 +77,12 @@ const unfinished = computed(() =>
 const failedParts = computed(() =>
   partial.value ? store.stages.filter((s) => s.state === 'failed').map((s) => s.id) : [],
 )
+
+/** The cause of a failed part in plain words, then what is kept. */
+function failureBody(part: StageId): string {
+  const failure = record.value?.failures?.find((f) => f.stages.includes(part))
+  return `${failure ? `${causeSentence(failure)} ` : ''}Everything else found is shown.`
+}
 
 // Stagger position of each card in the arrival choreography (read by .qs-rise as --i).
 const STAGGER = { card: 0, alternative: 1, explanation: 2 } as const
@@ -171,7 +178,7 @@ const showInsufficient = computed(() => idState.value === 'insufficient')
       <i class="qs-glyph qs-glyph--error" aria-hidden="true"></i>
       <div>
         <div class="qs-notice__title">{{ FAILED_TITLE[part] }}</div>
-        <div class="qs-notice__body">Everything else found is shown.</div>
+        <div class="qs-notice__body">{{ failureBody(part) }}</div>
       </div>
     </div>
 

@@ -1,4 +1,5 @@
 import type { DecodedSizeCode } from './isoSizeCode'
+import type { RequestFailureNote } from './requestFailure'
 import type { WeightChecks } from './weights'
 
 // Shared inspection record (spec 11.2). Provider-independent: every adapter, recorded or live,
@@ -111,6 +112,8 @@ export interface InspectionRecord {
   sizeCode: DecodedSizeCode | null
   /** Automatic re-checks for unresolved fields (live only). Absent or empty when none ran. */
   rechecks?: RecheckRecord[]
+  /** Requests that failed in this run, with their cause (ticket #53). Absent or empty when none did. */
+  failures?: RequestFailureNote[]
   /** Printed maximum gross and tare, calculated payload, and any printed-versus-arithmetic conflict. */
   weights: WeightChecks | null
 }

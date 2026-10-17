@@ -32,6 +32,11 @@ export class ProviderError<Kind extends string = string> extends Error {
   readonly status: number | null
   /** The message without the closing sentence, for a panel that says what is kept in its own words. */
   readonly advice: string
+  /**
+   * A reply that arrived but could not be mapped: its body, kept for the raw-response download.
+   * Set by the request that read it, never shown. Holds no headers and no key.
+   */
+  rawBody?: unknown
 
   constructor(kind: Kind, advice: string, status: number | null = null) {
     super(`${advice} ${PARTIAL_RESULTS_KEPT}`)

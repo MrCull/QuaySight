@@ -26,6 +26,7 @@ import { buildIndex, certaintyLabelsIn, shotFileName, type ShotInput } from './i
 import {
   CONFLICTING_WEIGHTS,
   HOLD,
+  SERVER_ERROR,
   MARKINGS_SEEN,
   kindOfRequest,
   longSideScript,
@@ -526,6 +527,15 @@ const CAPTURES: Capture[] = [
     run: liveRun,
   },
   {
+    state: 'live-survey-failed',
+    screen: 'results',
+    steps: ['Open /', 'Type placeholder key, Enter', 'Choose photo', 'Run live inspection (mocked: the survey fails with an HTTP 500, damage answers)', 'settle'],
+    motion: 'frozen',
+    viewports: [{ width: 1440, height: 900 }],
+    script: () => rearDoorsScript({}, { survey: SERVER_ERROR }),
+    run: liveRun,
+  },
+  {
     state: 'live-insufficient',
     screen: 'results',
     steps: ['Open /', 'Type placeholder key, Enter', 'Choose photo', 'Run live inspection (mocked Decisions: nothing read)', 'settle'],
@@ -792,6 +802,13 @@ async function guardNetwork(page: Page, origin: string, script: Script | undefin
       const reply = script(kindOfRequest(route.request().postData() ?? ''), calls)
       // A held request stays in flight until the page aborts it or the capture ends.
       if (reply === HOLD) return
+      if (reply === SERVER_ERROR) {
+        return route.fulfill({
+          status: 500,
+          contentType: 'application/json',
+          body: JSON.stringify({ error: { message: 'server error' } }),
+        })
+      }
       return route.fulfill({
         status: 200,
         contentType: 'application/json',
