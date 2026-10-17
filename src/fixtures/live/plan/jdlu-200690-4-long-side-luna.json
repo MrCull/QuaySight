@@ -1,6 +1,6 @@
 {
   "format": 1,
-  "recordedAt": "2026-10-17T12:05:17.878Z",
+  "recordedAt": "2026-10-17T12:11:56.922Z",
   "photo": "samples/jdlu-200690-4-long-side.jpg",
   "provider": "luna",
   "model": "gpt-6-luna",
@@ -6571,888 +6571,8 @@
           "total_tokens": 32102
         }
       },
-      "latencyMs": 927,
+      "latencyMs": 653,
       "costUsd": 0.0032102000000000003
-    },
-    {
-      "request": "door-damage",
-      "response": {
-        "model": "gpt-6-luna",
-        "answers": [
-          {
-            "type": "choice",
-            "name": "image_quality",
-            "choice": "poor",
-            "probabilities": [
-              {
-                "value": "good",
-                "probability": 0.03
-              },
-              {
-                "value": "limited",
-                "probability": 0.12
-              },
-              {
-                "value": "poor",
-                "probability": 0.85
-              }
-            ],
-            "confidence": 0.77
-          },
-          {
-            "type": "choice",
-            "name": "door_end_coverage",
-            "choice": "not_inspectable",
-            "probabilities": [
-              {
-                "value": "full",
-                "probability": 0
-              },
-              {
-                "value": "most",
-                "probability": 0
-              },
-              {
-                "value": "partial",
-                "probability": 0.02
-              },
-              {
-                "value": "not_inspectable",
-                "probability": 0.98
-              }
-            ],
-            "confidence": 0.97
-          },
-          {
-            "type": "predicate",
-            "name": "any_visible_defect",
-            "probability": 0.02
-          },
-          {
-            "type": "predicate",
-            "name": "potentially_significant_damage",
-            "probability": 0.05
-          },
-          {
-            "type": "choice",
-            "name": "D1T_visibility",
-            "choice": "not_visible",
-            "probabilities": [
-              {
-                "value": "clear",
-                "probability": 0
-              },
-              {
-                "value": "partial",
-                "probability": 0.01
-              },
-              {
-                "value": "not_visible",
-                "probability": 0.99
-              }
-            ],
-            "confidence": 0.99
-          },
-          {
-            "type": "choice",
-            "name": "D1T_deformation_shape",
-            "choice": "none",
-            "probabilities": [
-              {
-                "value": "none",
-                "probability": 0.61
-              },
-              {
-                "value": "local_dent",
-                "probability": 0.01
-              },
-              {
-                "value": "sharp_bend",
-                "probability": 0
-              },
-              {
-                "value": "broad_bow",
-                "probability": 0
-              },
-              {
-                "value": "mixed",
-                "probability": 0.01
-              },
-              {
-                "value": "uncertain",
-                "probability": 0.37
-              }
-            ],
-            "confidence": 0.53
-          },
-          {
-            "type": "predicate",
-            "name": "D1T_DT",
-            "probability": 0.01
-          },
-          {
-            "type": "predicate",
-            "name": "D1T_BT",
-            "probability": 0.01
-          },
-          {
-            "type": "predicate",
-            "name": "D1T_BW",
-            "probability": 0.03
-          },
-          {
-            "type": "predicate",
-            "name": "D1T_HO",
-            "probability": 0
-          },
-          {
-            "type": "predicate",
-            "name": "D1T_CK",
-            "probability": 0
-          },
-          {
-            "type": "predicate",
-            "name": "D1T_CW",
-            "probability": 0
-          },
-          {
-            "type": "predicate",
-            "name": "D1T_CO",
-            "probability": 0.01
-          },
-          {
-            "type": "predicate",
-            "name": "D1T_CH",
-            "probability": 0
-          },
-          {
-            "type": "predicate",
-            "name": "D1T_BR",
-            "probability": 0
-          },
-          {
-            "type": "score",
-            "name": "D1T_severity",
-            "score": 0.1,
-            "probabilities": [
-              {
-                "value": 0,
-                "label": "none",
-                "probability": 0.95
-              },
-              {
-                "value": 1,
-                "label": "cosmetic",
-                "probability": 0.02
-              },
-              {
-                "value": 2,
-                "label": "minor",
-                "probability": 0.02
-              },
-              {
-                "value": 3,
-                "label": "moderate",
-                "probability": 0
-              },
-              {
-                "value": 4,
-                "label": "major",
-                "probability": 0.01
-              }
-            ],
-            "confidence": 0.92
-          },
-          {
-            "type": "choice",
-            "name": "D1M_visibility",
-            "choice": "not_visible",
-            "probabilities": [
-              {
-                "value": "clear",
-                "probability": 0.01
-              },
-              {
-                "value": "partial",
-                "probability": 0.01
-              },
-              {
-                "value": "not_visible",
-                "probability": 0.98
-              }
-            ],
-            "confidence": 0.97
-          },
-          {
-            "type": "choice",
-            "name": "D1M_deformation_shape",
-            "choice": "none",
-            "probabilities": [
-              {
-                "value": "none",
-                "probability": 0.64
-              },
-              {
-                "value": "local_dent",
-                "probability": 0.02
-              },
-              {
-                "value": "sharp_bend",
-                "probability": 0.01
-              },
-              {
-                "value": "broad_bow",
-                "probability": 0.01
-              },
-              {
-                "value": "mixed",
-                "probability": 0.01
-              },
-              {
-                "value": "uncertain",
-                "probability": 0.31
-              }
-            ],
-            "confidence": 0.57
-          },
-          {
-            "type": "predicate",
-            "name": "D1M_DT",
-            "probability": 0.07
-          },
-          {
-            "type": "predicate",
-            "name": "D1M_BT",
-            "probability": 0
-          },
-          {
-            "type": "predicate",
-            "name": "D1M_BW",
-            "probability": 0.08
-          },
-          {
-            "type": "predicate",
-            "name": "D1M_HO",
-            "probability": 0.03
-          },
-          {
-            "type": "predicate",
-            "name": "D1M_CK",
-            "probability": 0.01
-          },
-          {
-            "type": "predicate",
-            "name": "D1M_CW",
-            "probability": 0
-          },
-          {
-            "type": "predicate",
-            "name": "D1M_CO",
-            "probability": 0.07
-          },
-          {
-            "type": "predicate",
-            "name": "D1M_CH",
-            "probability": 0
-          },
-          {
-            "type": "predicate",
-            "name": "D1M_BR",
-            "probability": 0
-          },
-          {
-            "type": "score",
-            "name": "D1M_severity",
-            "score": 0.17,
-            "probabilities": [
-              {
-                "value": 0,
-                "label": "none",
-                "probability": 0.91
-              },
-              {
-                "value": 1,
-                "label": "cosmetic",
-                "probability": 0.04
-              },
-              {
-                "value": 2,
-                "label": "minor",
-                "probability": 0.03
-              },
-              {
-                "value": 3,
-                "label": "moderate",
-                "probability": 0.01
-              },
-              {
-                "value": 4,
-                "label": "major",
-                "probability": 0.01
-              }
-            ],
-            "confidence": 0.86
-          },
-          {
-            "type": "choice",
-            "name": "D1B_visibility",
-            "choice": "not_visible",
-            "probabilities": [
-              {
-                "value": "clear",
-                "probability": 0.01
-              },
-              {
-                "value": "partial",
-                "probability": 0.02
-              },
-              {
-                "value": "not_visible",
-                "probability": 0.97
-              }
-            ],
-            "confidence": 0.96
-          },
-          {
-            "type": "choice",
-            "name": "D1B_deformation_shape",
-            "choice": "uncertain",
-            "probabilities": [
-              {
-                "value": "none",
-                "probability": 0.43
-              },
-              {
-                "value": "local_dent",
-                "probability": 0.01
-              },
-              {
-                "value": "sharp_bend",
-                "probability": 0.01
-              },
-              {
-                "value": "broad_bow",
-                "probability": 0.01
-              },
-              {
-                "value": "mixed",
-                "probability": 0.01
-              },
-              {
-                "value": "uncertain",
-                "probability": 0.53
-              }
-            ],
-            "confidence": 0.44
-          },
-          {
-            "type": "predicate",
-            "name": "D1B_DT",
-            "probability": 0.1
-          },
-          {
-            "type": "predicate",
-            "name": "D1B_BT",
-            "probability": 0.05
-          },
-          {
-            "type": "refusal",
-            "name": "D1B_BW"
-          },
-          {
-            "type": "predicate",
-            "name": "D1B_HO",
-            "probability": 0.01
-          },
-          {
-            "type": "predicate",
-            "name": "D1B_CK",
-            "probability": 0
-          },
-          {
-            "type": "predicate",
-            "name": "D1B_CW",
-            "probability": 0
-          },
-          {
-            "type": "predicate",
-            "name": "D1B_CO",
-            "probability": 0.05
-          },
-          {
-            "type": "predicate",
-            "name": "D1B_CH",
-            "probability": 0
-          },
-          {
-            "type": "predicate",
-            "name": "D1B_BR",
-            "probability": 0.08
-          },
-          {
-            "type": "score",
-            "name": "D1B_severity",
-            "score": 0.22,
-            "probabilities": [
-              {
-                "value": 0,
-                "label": "none",
-                "probability": 0.89
-              },
-              {
-                "value": 1,
-                "label": "cosmetic",
-                "probability": 0.05
-              },
-              {
-                "value": 2,
-                "label": "minor",
-                "probability": 0.03
-              },
-              {
-                "value": 3,
-                "label": "moderate",
-                "probability": 0.01
-              },
-              {
-                "value": 4,
-                "label": "major",
-                "probability": 0.02
-              }
-            ],
-            "confidence": 0.82
-          },
-          {
-            "type": "choice",
-            "name": "D2T_visibility",
-            "choice": "not_visible",
-            "probabilities": [
-              {
-                "value": "clear",
-                "probability": 0.01
-              },
-              {
-                "value": "partial",
-                "probability": 0.01
-              },
-              {
-                "value": "not_visible",
-                "probability": 0.98
-              }
-            ],
-            "confidence": 0.97
-          },
-          {
-            "type": "choice",
-            "name": "D2T_deformation_shape",
-            "choice": "uncertain",
-            "probabilities": [
-              {
-                "value": "none",
-                "probability": 0.28
-              },
-              {
-                "value": "local_dent",
-                "probability": 0.01
-              },
-              {
-                "value": "sharp_bend",
-                "probability": 0
-              },
-              {
-                "value": "broad_bow",
-                "probability": 0
-              },
-              {
-                "value": "mixed",
-                "probability": 0.01
-              },
-              {
-                "value": "uncertain",
-                "probability": 0.7
-              }
-            ],
-            "confidence": 0.64
-          },
-          {
-            "type": "predicate",
-            "name": "D2T_DT",
-            "probability": 0.04
-          },
-          {
-            "type": "predicate",
-            "name": "D2T_BT",
-            "probability": 0.04
-          },
-          {
-            "type": "predicate",
-            "name": "D2T_BW",
-            "probability": 0.2
-          },
-          {
-            "type": "predicate",
-            "name": "D2T_HO",
-            "probability": 0
-          },
-          {
-            "type": "predicate",
-            "name": "D2T_CK",
-            "probability": 0
-          },
-          {
-            "type": "predicate",
-            "name": "D2T_CW",
-            "probability": 0
-          },
-          {
-            "type": "predicate",
-            "name": "D2T_CO",
-            "probability": 0.03
-          },
-          {
-            "type": "predicate",
-            "name": "D2T_CH",
-            "probability": 0
-          },
-          {
-            "type": "predicate",
-            "name": "D2T_BR",
-            "probability": 0
-          },
-          {
-            "type": "score",
-            "name": "D2T_severity",
-            "score": 0.04,
-            "probabilities": [
-              {
-                "value": 0,
-                "label": "none",
-                "probability": 0.97
-              },
-              {
-                "value": 1,
-                "label": "cosmetic",
-                "probability": 0.02
-              },
-              {
-                "value": 2,
-                "label": "minor",
-                "probability": 0.01
-              },
-              {
-                "value": 3,
-                "label": "moderate",
-                "probability": 0
-              },
-              {
-                "value": 4,
-                "label": "major",
-                "probability": 0
-              }
-            ],
-            "confidence": 0.97
-          },
-          {
-            "type": "choice",
-            "name": "D2M_visibility",
-            "choice": "not_visible",
-            "probabilities": [
-              {
-                "value": "clear",
-                "probability": 0
-              },
-              {
-                "value": "partial",
-                "probability": 0
-              },
-              {
-                "value": "not_visible",
-                "probability": 1
-              }
-            ],
-            "confidence": 1
-          },
-          {
-            "type": "choice",
-            "name": "D2M_deformation_shape",
-            "choice": "none",
-            "probabilities": [
-              {
-                "value": "none",
-                "probability": 0.53
-              },
-              {
-                "value": "local_dent",
-                "probability": 0.02
-              },
-              {
-                "value": "sharp_bend",
-                "probability": 0.01
-              },
-              {
-                "value": "broad_bow",
-                "probability": 0.01
-              },
-              {
-                "value": "mixed",
-                "probability": 0.01
-              },
-              {
-                "value": "uncertain",
-                "probability": 0.42
-              }
-            ],
-            "confidence": 0.44
-          },
-          {
-            "type": "predicate",
-            "name": "D2M_DT",
-            "probability": 0.04
-          },
-          {
-            "type": "predicate",
-            "name": "D2M_BT",
-            "probability": 0.01
-          },
-          {
-            "type": "predicate",
-            "name": "D2M_BW",
-            "probability": 0.06
-          },
-          {
-            "type": "predicate",
-            "name": "D2M_HO",
-            "probability": 0
-          },
-          {
-            "type": "predicate",
-            "name": "D2M_CK",
-            "probability": 0
-          },
-          {
-            "type": "predicate",
-            "name": "D2M_CW",
-            "probability": 0
-          },
-          {
-            "type": "predicate",
-            "name": "D2M_CO",
-            "probability": 0.05
-          },
-          {
-            "type": "predicate",
-            "name": "D2M_CH",
-            "probability": 0
-          },
-          {
-            "type": "predicate",
-            "name": "D2M_BR",
-            "probability": 0
-          },
-          {
-            "type": "refusal",
-            "name": "D2M_severity"
-          },
-          {
-            "type": "choice",
-            "name": "D2B_visibility",
-            "choice": "not_visible",
-            "probabilities": [
-              {
-                "value": "clear",
-                "probability": 0
-              },
-              {
-                "value": "partial",
-                "probability": 0.01
-              },
-              {
-                "value": "not_visible",
-                "probability": 0.99
-              }
-            ],
-            "confidence": 0.99
-          },
-          {
-            "type": "choice",
-            "name": "D2B_deformation_shape",
-            "choice": "uncertain",
-            "probabilities": [
-              {
-                "value": "none",
-                "probability": 0.42
-              },
-              {
-                "value": "local_dent",
-                "probability": 0.01
-              },
-              {
-                "value": "sharp_bend",
-                "probability": 0.01
-              },
-              {
-                "value": "broad_bow",
-                "probability": 0.01
-              },
-              {
-                "value": "mixed",
-                "probability": 0.01
-              },
-              {
-                "value": "uncertain",
-                "probability": 0.54
-              }
-            ],
-            "confidence": 0.45
-          },
-          {
-            "type": "predicate",
-            "name": "D2B_DT",
-            "probability": 0.01
-          },
-          {
-            "type": "predicate",
-            "name": "D2B_BT",
-            "probability": 0.01
-          },
-          {
-            "type": "refusal",
-            "name": "D2B_BW"
-          },
-          {
-            "type": "predicate",
-            "name": "D2B_HO",
-            "probability": 0.01
-          },
-          {
-            "type": "predicate",
-            "name": "D2B_CK",
-            "probability": 0
-          },
-          {
-            "type": "predicate",
-            "name": "D2B_CW",
-            "probability": 0
-          },
-          {
-            "type": "predicate",
-            "name": "D2B_CO",
-            "probability": 0.08
-          },
-          {
-            "type": "predicate",
-            "name": "D2B_CH",
-            "probability": 0
-          },
-          {
-            "type": "predicate",
-            "name": "D2B_BR",
-            "probability": 0
-          },
-          {
-            "type": "refusal",
-            "name": "D2B_severity"
-          },
-          {
-            "type": "predicate",
-            "name": "left_leaf_locking_bar_bent",
-            "probability": 0
-          },
-          {
-            "type": "predicate",
-            "name": "left_leaf_locking_bar_broken",
-            "probability": 0.01
-          },
-          {
-            "type": "predicate",
-            "name": "right_leaf_locking_bar_bent",
-            "probability": 0.01
-          },
-          {
-            "type": "predicate",
-            "name": "right_leaf_locking_bar_broken",
-            "probability": 0.01
-          },
-          {
-            "type": "predicate",
-            "name": "cam_keeper_damage",
-            "probability": 0.02
-          },
-          {
-            "type": "predicate",
-            "name": "left_leaf_hinge_damage",
-            "probability": 0.01
-          },
-          {
-            "type": "predicate",
-            "name": "right_leaf_hinge_damage",
-            "probability": 0.09
-          },
-          {
-            "type": "predicate",
-            "name": "door_gasket_damage",
-            "probability": 0
-          },
-          {
-            "type": "predicate",
-            "name": "door_header_bent",
-            "probability": 0.01
-          },
-          {
-            "type": "refusal",
-            "name": "door_header_corrosion"
-          },
-          {
-            "type": "predicate",
-            "name": "door_header_broken",
-            "probability": 0.15
-          },
-          {
-            "type": "predicate",
-            "name": "door_sill_bent",
-            "probability": 0.01
-          },
-          {
-            "type": "predicate",
-            "name": "door_sill_corrosion",
-            "probability": 0
-          },
-          {
-            "type": "predicate",
-            "name": "door_sill_broken",
-            "probability": 0.02
-          },
-          {
-            "type": "predicate",
-            "name": "left_corner_post_damage",
-            "probability": 0.06
-          },
-          {
-            "type": "predicate",
-            "name": "right_corner_post_damage",
-            "probability": 0.02
-          },
-          {
-            "type": "predicate",
-            "name": "corner_casting_damage",
-            "probability": 0.01
-          }
-        ],
-        "usage": {
-          "input_tokens": 22436,
-          "input_tokens_details": {
-            "cached_tokens": 0,
-            "cache_write_tokens": 0
-          },
-          "output_tokens": 0,
-          "output_tokens_details": {
-            "reasoning_tokens": 0
-          },
-          "total_tokens": 22436
-        }
-      },
-      "latencyMs": 1112,
-      "costUsd": 0.0022436
     },
     {
       "request": "side-damage",
@@ -8882,7 +8002,7 @@
           "total_tokens": 32550
         }
       },
-      "latencyMs": 1213,
+      "latencyMs": 921,
       "costUsd": 0.003255
     },
     {
@@ -9000,8 +8120,888 @@
           "total_tokens": 2056
         }
       },
-      "latencyMs": 514,
+      "latencyMs": 263,
       "costUsd": 0.0002056
+    },
+    {
+      "request": "door-damage",
+      "response": {
+        "model": "gpt-6-luna",
+        "answers": [
+          {
+            "type": "choice",
+            "name": "image_quality",
+            "choice": "poor",
+            "probabilities": [
+              {
+                "value": "good",
+                "probability": 0.03
+              },
+              {
+                "value": "limited",
+                "probability": 0.12
+              },
+              {
+                "value": "poor",
+                "probability": 0.85
+              }
+            ],
+            "confidence": 0.77
+          },
+          {
+            "type": "choice",
+            "name": "door_end_coverage",
+            "choice": "not_inspectable",
+            "probabilities": [
+              {
+                "value": "full",
+                "probability": 0
+              },
+              {
+                "value": "most",
+                "probability": 0
+              },
+              {
+                "value": "partial",
+                "probability": 0.02
+              },
+              {
+                "value": "not_inspectable",
+                "probability": 0.98
+              }
+            ],
+            "confidence": 0.97
+          },
+          {
+            "type": "predicate",
+            "name": "any_visible_defect",
+            "probability": 0.02
+          },
+          {
+            "type": "predicate",
+            "name": "potentially_significant_damage",
+            "probability": 0.05
+          },
+          {
+            "type": "choice",
+            "name": "D1T_visibility",
+            "choice": "not_visible",
+            "probabilities": [
+              {
+                "value": "clear",
+                "probability": 0
+              },
+              {
+                "value": "partial",
+                "probability": 0.01
+              },
+              {
+                "value": "not_visible",
+                "probability": 0.99
+              }
+            ],
+            "confidence": 0.99
+          },
+          {
+            "type": "choice",
+            "name": "D1T_deformation_shape",
+            "choice": "none",
+            "probabilities": [
+              {
+                "value": "none",
+                "probability": 0.61
+              },
+              {
+                "value": "local_dent",
+                "probability": 0.01
+              },
+              {
+                "value": "sharp_bend",
+                "probability": 0
+              },
+              {
+                "value": "broad_bow",
+                "probability": 0
+              },
+              {
+                "value": "mixed",
+                "probability": 0.01
+              },
+              {
+                "value": "uncertain",
+                "probability": 0.37
+              }
+            ],
+            "confidence": 0.53
+          },
+          {
+            "type": "predicate",
+            "name": "D1T_DT",
+            "probability": 0.01
+          },
+          {
+            "type": "predicate",
+            "name": "D1T_BT",
+            "probability": 0.01
+          },
+          {
+            "type": "predicate",
+            "name": "D1T_BW",
+            "probability": 0.03
+          },
+          {
+            "type": "predicate",
+            "name": "D1T_HO",
+            "probability": 0
+          },
+          {
+            "type": "predicate",
+            "name": "D1T_CK",
+            "probability": 0
+          },
+          {
+            "type": "predicate",
+            "name": "D1T_CW",
+            "probability": 0
+          },
+          {
+            "type": "predicate",
+            "name": "D1T_CO",
+            "probability": 0.01
+          },
+          {
+            "type": "predicate",
+            "name": "D1T_CH",
+            "probability": 0
+          },
+          {
+            "type": "predicate",
+            "name": "D1T_BR",
+            "probability": 0
+          },
+          {
+            "type": "score",
+            "name": "D1T_severity",
+            "score": 0.1,
+            "probabilities": [
+              {
+                "value": 0,
+                "label": "none",
+                "probability": 0.95
+              },
+              {
+                "value": 1,
+                "label": "cosmetic",
+                "probability": 0.02
+              },
+              {
+                "value": 2,
+                "label": "minor",
+                "probability": 0.02
+              },
+              {
+                "value": 3,
+                "label": "moderate",
+                "probability": 0
+              },
+              {
+                "value": 4,
+                "label": "major",
+                "probability": 0.01
+              }
+            ],
+            "confidence": 0.92
+          },
+          {
+            "type": "choice",
+            "name": "D1M_visibility",
+            "choice": "not_visible",
+            "probabilities": [
+              {
+                "value": "clear",
+                "probability": 0.01
+              },
+              {
+                "value": "partial",
+                "probability": 0.01
+              },
+              {
+                "value": "not_visible",
+                "probability": 0.98
+              }
+            ],
+            "confidence": 0.97
+          },
+          {
+            "type": "choice",
+            "name": "D1M_deformation_shape",
+            "choice": "none",
+            "probabilities": [
+              {
+                "value": "none",
+                "probability": 0.64
+              },
+              {
+                "value": "local_dent",
+                "probability": 0.02
+              },
+              {
+                "value": "sharp_bend",
+                "probability": 0.01
+              },
+              {
+                "value": "broad_bow",
+                "probability": 0.01
+              },
+              {
+                "value": "mixed",
+                "probability": 0.01
+              },
+              {
+                "value": "uncertain",
+                "probability": 0.31
+              }
+            ],
+            "confidence": 0.57
+          },
+          {
+            "type": "predicate",
+            "name": "D1M_DT",
+            "probability": 0.07
+          },
+          {
+            "type": "predicate",
+            "name": "D1M_BT",
+            "probability": 0
+          },
+          {
+            "type": "predicate",
+            "name": "D1M_BW",
+            "probability": 0.08
+          },
+          {
+            "type": "predicate",
+            "name": "D1M_HO",
+            "probability": 0.03
+          },
+          {
+            "type": "predicate",
+            "name": "D1M_CK",
+            "probability": 0.01
+          },
+          {
+            "type": "predicate",
+            "name": "D1M_CW",
+            "probability": 0
+          },
+          {
+            "type": "predicate",
+            "name": "D1M_CO",
+            "probability": 0.07
+          },
+          {
+            "type": "predicate",
+            "name": "D1M_CH",
+            "probability": 0
+          },
+          {
+            "type": "predicate",
+            "name": "D1M_BR",
+            "probability": 0
+          },
+          {
+            "type": "score",
+            "name": "D1M_severity",
+            "score": 0.17,
+            "probabilities": [
+              {
+                "value": 0,
+                "label": "none",
+                "probability": 0.91
+              },
+              {
+                "value": 1,
+                "label": "cosmetic",
+                "probability": 0.04
+              },
+              {
+                "value": 2,
+                "label": "minor",
+                "probability": 0.03
+              },
+              {
+                "value": 3,
+                "label": "moderate",
+                "probability": 0.01
+              },
+              {
+                "value": 4,
+                "label": "major",
+                "probability": 0.01
+              }
+            ],
+            "confidence": 0.86
+          },
+          {
+            "type": "choice",
+            "name": "D1B_visibility",
+            "choice": "not_visible",
+            "probabilities": [
+              {
+                "value": "clear",
+                "probability": 0.01
+              },
+              {
+                "value": "partial",
+                "probability": 0.02
+              },
+              {
+                "value": "not_visible",
+                "probability": 0.97
+              }
+            ],
+            "confidence": 0.96
+          },
+          {
+            "type": "choice",
+            "name": "D1B_deformation_shape",
+            "choice": "uncertain",
+            "probabilities": [
+              {
+                "value": "none",
+                "probability": 0.43
+              },
+              {
+                "value": "local_dent",
+                "probability": 0.01
+              },
+              {
+                "value": "sharp_bend",
+                "probability": 0.01
+              },
+              {
+                "value": "broad_bow",
+                "probability": 0.01
+              },
+              {
+                "value": "mixed",
+                "probability": 0.01
+              },
+              {
+                "value": "uncertain",
+                "probability": 0.53
+              }
+            ],
+            "confidence": 0.44
+          },
+          {
+            "type": "predicate",
+            "name": "D1B_DT",
+            "probability": 0.1
+          },
+          {
+            "type": "predicate",
+            "name": "D1B_BT",
+            "probability": 0.05
+          },
+          {
+            "type": "refusal",
+            "name": "D1B_BW"
+          },
+          {
+            "type": "predicate",
+            "name": "D1B_HO",
+            "probability": 0.01
+          },
+          {
+            "type": "predicate",
+            "name": "D1B_CK",
+            "probability": 0
+          },
+          {
+            "type": "predicate",
+            "name": "D1B_CW",
+            "probability": 0
+          },
+          {
+            "type": "predicate",
+            "name": "D1B_CO",
+            "probability": 0.05
+          },
+          {
+            "type": "predicate",
+            "name": "D1B_CH",
+            "probability": 0
+          },
+          {
+            "type": "predicate",
+            "name": "D1B_BR",
+            "probability": 0.08
+          },
+          {
+            "type": "score",
+            "name": "D1B_severity",
+            "score": 0.22,
+            "probabilities": [
+              {
+                "value": 0,
+                "label": "none",
+                "probability": 0.89
+              },
+              {
+                "value": 1,
+                "label": "cosmetic",
+                "probability": 0.05
+              },
+              {
+                "value": 2,
+                "label": "minor",
+                "probability": 0.03
+              },
+              {
+                "value": 3,
+                "label": "moderate",
+                "probability": 0.01
+              },
+              {
+                "value": 4,
+                "label": "major",
+                "probability": 0.02
+              }
+            ],
+            "confidence": 0.82
+          },
+          {
+            "type": "choice",
+            "name": "D2T_visibility",
+            "choice": "not_visible",
+            "probabilities": [
+              {
+                "value": "clear",
+                "probability": 0.01
+              },
+              {
+                "value": "partial",
+                "probability": 0.01
+              },
+              {
+                "value": "not_visible",
+                "probability": 0.98
+              }
+            ],
+            "confidence": 0.97
+          },
+          {
+            "type": "choice",
+            "name": "D2T_deformation_shape",
+            "choice": "uncertain",
+            "probabilities": [
+              {
+                "value": "none",
+                "probability": 0.28
+              },
+              {
+                "value": "local_dent",
+                "probability": 0.01
+              },
+              {
+                "value": "sharp_bend",
+                "probability": 0
+              },
+              {
+                "value": "broad_bow",
+                "probability": 0
+              },
+              {
+                "value": "mixed",
+                "probability": 0.01
+              },
+              {
+                "value": "uncertain",
+                "probability": 0.7
+              }
+            ],
+            "confidence": 0.64
+          },
+          {
+            "type": "predicate",
+            "name": "D2T_DT",
+            "probability": 0.04
+          },
+          {
+            "type": "predicate",
+            "name": "D2T_BT",
+            "probability": 0.04
+          },
+          {
+            "type": "predicate",
+            "name": "D2T_BW",
+            "probability": 0.2
+          },
+          {
+            "type": "predicate",
+            "name": "D2T_HO",
+            "probability": 0
+          },
+          {
+            "type": "predicate",
+            "name": "D2T_CK",
+            "probability": 0
+          },
+          {
+            "type": "predicate",
+            "name": "D2T_CW",
+            "probability": 0
+          },
+          {
+            "type": "predicate",
+            "name": "D2T_CO",
+            "probability": 0.03
+          },
+          {
+            "type": "predicate",
+            "name": "D2T_CH",
+            "probability": 0
+          },
+          {
+            "type": "predicate",
+            "name": "D2T_BR",
+            "probability": 0
+          },
+          {
+            "type": "score",
+            "name": "D2T_severity",
+            "score": 0.04,
+            "probabilities": [
+              {
+                "value": 0,
+                "label": "none",
+                "probability": 0.97
+              },
+              {
+                "value": 1,
+                "label": "cosmetic",
+                "probability": 0.02
+              },
+              {
+                "value": 2,
+                "label": "minor",
+                "probability": 0.01
+              },
+              {
+                "value": 3,
+                "label": "moderate",
+                "probability": 0
+              },
+              {
+                "value": 4,
+                "label": "major",
+                "probability": 0
+              }
+            ],
+            "confidence": 0.97
+          },
+          {
+            "type": "choice",
+            "name": "D2M_visibility",
+            "choice": "not_visible",
+            "probabilities": [
+              {
+                "value": "clear",
+                "probability": 0
+              },
+              {
+                "value": "partial",
+                "probability": 0
+              },
+              {
+                "value": "not_visible",
+                "probability": 1
+              }
+            ],
+            "confidence": 1
+          },
+          {
+            "type": "choice",
+            "name": "D2M_deformation_shape",
+            "choice": "none",
+            "probabilities": [
+              {
+                "value": "none",
+                "probability": 0.53
+              },
+              {
+                "value": "local_dent",
+                "probability": 0.02
+              },
+              {
+                "value": "sharp_bend",
+                "probability": 0.01
+              },
+              {
+                "value": "broad_bow",
+                "probability": 0.01
+              },
+              {
+                "value": "mixed",
+                "probability": 0.01
+              },
+              {
+                "value": "uncertain",
+                "probability": 0.42
+              }
+            ],
+            "confidence": 0.44
+          },
+          {
+            "type": "predicate",
+            "name": "D2M_DT",
+            "probability": 0.04
+          },
+          {
+            "type": "predicate",
+            "name": "D2M_BT",
+            "probability": 0.01
+          },
+          {
+            "type": "predicate",
+            "name": "D2M_BW",
+            "probability": 0.06
+          },
+          {
+            "type": "predicate",
+            "name": "D2M_HO",
+            "probability": 0
+          },
+          {
+            "type": "predicate",
+            "name": "D2M_CK",
+            "probability": 0
+          },
+          {
+            "type": "predicate",
+            "name": "D2M_CW",
+            "probability": 0
+          },
+          {
+            "type": "predicate",
+            "name": "D2M_CO",
+            "probability": 0.05
+          },
+          {
+            "type": "predicate",
+            "name": "D2M_CH",
+            "probability": 0
+          },
+          {
+            "type": "predicate",
+            "name": "D2M_BR",
+            "probability": 0
+          },
+          {
+            "type": "refusal",
+            "name": "D2M_severity"
+          },
+          {
+            "type": "choice",
+            "name": "D2B_visibility",
+            "choice": "not_visible",
+            "probabilities": [
+              {
+                "value": "clear",
+                "probability": 0
+              },
+              {
+                "value": "partial",
+                "probability": 0.01
+              },
+              {
+                "value": "not_visible",
+                "probability": 0.99
+              }
+            ],
+            "confidence": 0.99
+          },
+          {
+            "type": "choice",
+            "name": "D2B_deformation_shape",
+            "choice": "uncertain",
+            "probabilities": [
+              {
+                "value": "none",
+                "probability": 0.42
+              },
+              {
+                "value": "local_dent",
+                "probability": 0.01
+              },
+              {
+                "value": "sharp_bend",
+                "probability": 0.01
+              },
+              {
+                "value": "broad_bow",
+                "probability": 0.01
+              },
+              {
+                "value": "mixed",
+                "probability": 0.01
+              },
+              {
+                "value": "uncertain",
+                "probability": 0.54
+              }
+            ],
+            "confidence": 0.45
+          },
+          {
+            "type": "predicate",
+            "name": "D2B_DT",
+            "probability": 0.01
+          },
+          {
+            "type": "predicate",
+            "name": "D2B_BT",
+            "probability": 0.01
+          },
+          {
+            "type": "refusal",
+            "name": "D2B_BW"
+          },
+          {
+            "type": "predicate",
+            "name": "D2B_HO",
+            "probability": 0.01
+          },
+          {
+            "type": "predicate",
+            "name": "D2B_CK",
+            "probability": 0
+          },
+          {
+            "type": "predicate",
+            "name": "D2B_CW",
+            "probability": 0
+          },
+          {
+            "type": "predicate",
+            "name": "D2B_CO",
+            "probability": 0.08
+          },
+          {
+            "type": "predicate",
+            "name": "D2B_CH",
+            "probability": 0
+          },
+          {
+            "type": "predicate",
+            "name": "D2B_BR",
+            "probability": 0
+          },
+          {
+            "type": "refusal",
+            "name": "D2B_severity"
+          },
+          {
+            "type": "predicate",
+            "name": "left_leaf_locking_bar_bent",
+            "probability": 0
+          },
+          {
+            "type": "predicate",
+            "name": "left_leaf_locking_bar_broken",
+            "probability": 0.01
+          },
+          {
+            "type": "predicate",
+            "name": "right_leaf_locking_bar_bent",
+            "probability": 0.01
+          },
+          {
+            "type": "predicate",
+            "name": "right_leaf_locking_bar_broken",
+            "probability": 0.01
+          },
+          {
+            "type": "predicate",
+            "name": "cam_keeper_damage",
+            "probability": 0.02
+          },
+          {
+            "type": "predicate",
+            "name": "left_leaf_hinge_damage",
+            "probability": 0.01
+          },
+          {
+            "type": "predicate",
+            "name": "right_leaf_hinge_damage",
+            "probability": 0.09
+          },
+          {
+            "type": "predicate",
+            "name": "door_gasket_damage",
+            "probability": 0
+          },
+          {
+            "type": "predicate",
+            "name": "door_header_bent",
+            "probability": 0.01
+          },
+          {
+            "type": "refusal",
+            "name": "door_header_corrosion"
+          },
+          {
+            "type": "predicate",
+            "name": "door_header_broken",
+            "probability": 0.15
+          },
+          {
+            "type": "predicate",
+            "name": "door_sill_bent",
+            "probability": 0.01
+          },
+          {
+            "type": "predicate",
+            "name": "door_sill_corrosion",
+            "probability": 0
+          },
+          {
+            "type": "predicate",
+            "name": "door_sill_broken",
+            "probability": 0.02
+          },
+          {
+            "type": "predicate",
+            "name": "left_corner_post_damage",
+            "probability": 0.06
+          },
+          {
+            "type": "predicate",
+            "name": "right_corner_post_damage",
+            "probability": 0.02
+          },
+          {
+            "type": "predicate",
+            "name": "corner_casting_damage",
+            "probability": 0.01
+          }
+        ],
+        "usage": {
+          "input_tokens": 22436,
+          "input_tokens_details": {
+            "cached_tokens": 0,
+            "cache_write_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "reasoning_tokens": 0
+          },
+          "total_tokens": 22436
+        }
+      },
+      "latencyMs": 1137,
+      "costUsd": 0.0022436
     }
   ]
 }
