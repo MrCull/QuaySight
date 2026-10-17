@@ -59,16 +59,20 @@ describe('demo mode', () => {
     expect(fetchMock).not.toHaveBeenCalled()
   })
 
-  it('offers the three bundled containers: rear doors with markings, a damaged side, clean rear doors', () => {
+  it('offers the bundled containers: three single photos and two several-photo inspections', () => {
     expect(demoSamples().map((sample) => sample.photo.name)).toEqual([
       'rear-door-aphu-45g1.jpg',
       'side-dented-grey.jpg',
       'rear-door-chsu-22g1.jpg',
+      'rear-door-coyu-22g1.jpg',
+      'jdlu-200690-1-rear-doors.jpg',
     ])
     expect(demoSamples().map((sample) => sample.title)).toEqual([
       'Rear doors with markings',
       'Damaged grey side',
       'Clean grey rear doors',
+      'Blue doors with a bolt seal',
+      'Dusty blue container, four photos',
     ])
   })
 

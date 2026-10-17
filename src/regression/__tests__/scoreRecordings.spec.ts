@@ -25,7 +25,14 @@ const ROUTES: ProviderId[] = ['luna', 'openrouter']
 
 describe('regression set', () => {
   it('describes whole inspections of 1 to 4 photos, each recorded on both models', () => {
-    expect(truths.map((t) => t.id)).toEqual(['coyu-doors', 'chsu-doors', 'aphu-doors', 'grey-side'])
+    expect(truths.map((t) => t.id)).toEqual([
+      'coyu-doors',
+      'chsu-doors',
+      'aphu-doors',
+      'grey-side',
+      'coyu-door-and-seal',
+      'jdlu-four-photos',
+    ])
     for (const truth of truths) {
       expect(truth.photos.length).toBeGreaterThanOrEqual(1)
       expect(truth.photos.length).toBeLessThanOrEqual(4)

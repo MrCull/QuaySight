@@ -283,8 +283,13 @@ export const useInspectionStore = defineStore('inspection', {
     /** Demo mode: puts a bundled sample on screen, ready to start. */
     chooseSample(id: DemoSampleId) {
       if (!this.demo) return
-      const { photo } = findSample(id)
-      this.showPhoto({ name: photo.name, url: photo.url, orientation: photo.orientation })
+      const { photos } = findSample(id)
+      const [first, ...others] = photos.map(({ name, url, orientation }) => ({
+        name,
+        url,
+        orientation,
+      }))
+      this.showPhoto(first!, others)
       this.sample = id
     },
     /** Shared by setPhoto and chooseSample: a new photo on screen drops any run, result and selection. */

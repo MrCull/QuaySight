@@ -51,6 +51,13 @@ const PHOTOS = [
   { name: 'side-dented-grey', orientation: 'landscape' },
   { name: 'rear-door-chsu-22g1', orientation: 'landscape' },
   { name: 'rear-door-coyu-22g1', orientation: 'square' },
+  // The presenter's photos (ticket #73): the COYU seal close-up, and the four JDLU 200690 2 photos.
+  // Each photo is recorded on its own; the regression set combines them (src/regression/).
+  { name: 'seal-closeup-coyu-0154620', orientation: 'portrait' },
+  { name: 'jdlu-200690-1-rear-doors', orientation: 'portrait' },
+  { name: 'jdlu-200690-2-corner-doors-left', orientation: 'portrait' },
+  { name: 'jdlu-200690-3-corner-doors-right', orientation: 'portrait' },
+  { name: 'jdlu-200690-4-long-side', orientation: 'portrait' },
 ] as const
 
 const ROUTES: readonly {

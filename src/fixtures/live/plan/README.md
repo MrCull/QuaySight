@@ -10,8 +10,11 @@ it up with no code change.
 
 ## Regression set: re-record and score
 
-The four samples (COYU, CHSU and APHU doors, the grey 40 ft side) are the regression set. Their true values,
-read from the photos, are hand-written in `src/regression/expected.json`.
+The four single-photo samples (COYU, CHSU and APHU doors, the grey 40 ft side) and the presenter's two
+several-photo inspections (COYU 266813 0: door photo plus seal close-up; JDLU 200690 2: four photos) are the
+regression set. Their true values, read from the photos, are hand-written in `src/regression/expected.json`.
+Each photo has its own recording per model; an inspection's cost is the sum of its photos' recordings.
+Demo mode plays both several-photo inspections (`src/domain/demoSamples.ts`).
 
 - An expected entry is a whole inspection of 1 to 4 photos (`photos`, in order, each with its faces and
   whether it is a close-up), with the container's expected values, seal, ID certainty, whether alternatives
