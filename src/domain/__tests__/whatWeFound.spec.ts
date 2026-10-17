@@ -121,7 +121,7 @@ describe('an uncertain ID', () => {
 
     expect(found.headline).toBe('Some of what we found is uncertain')
     expect(found.caveats[0]).toBe(
-      'The container ID is Uncertain. Best reading: COYU 266813 0. Also possible: COYU 266818 0.',
+      'The container ID: Uncertain. Best reading: COYU 266813 0. Also possible: COYU 266818 0.',
     )
     // The caveat says all of it, so the statements do not repeat it.
     expect(statement(found, 'id')).toBeUndefined()
@@ -151,7 +151,7 @@ describe('an uncertain ID', () => {
   it('says plainly that no ID could be read', async () => {
     const found = buildWhatWeFound({ ...(await fullLive()), containerId: null })
     expect(statement(found, 'id')).toBeUndefined()
-    expect(found.caveats).toContain('No container ID could be read from this photo.')
+    expect(found.caveats).toContain('ID not readable in this photo.')
     expect(found.headline).toBe('Some of what we found is uncertain')
   })
 })
@@ -487,7 +487,7 @@ describe('a partial result', () => {
     )
     expect(found.statements.map((s) => s.topic)).not.toContain('id')
     expect(found.gaps).toEqual(['Not finished: the container ID.'])
-    expect(found.caveats).not.toContain('No container ID could be read from this photo.')
+    expect(found.caveats).not.toContain('ID not readable in this photo.')
   })
 })
 

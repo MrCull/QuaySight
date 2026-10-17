@@ -19,6 +19,8 @@ export const inspectionLine = (id: string) => `Inspection: ${id}`
 export const idLine = (reading: NonNullable<InspectionRecord['containerId']>) =>
   `Container ID (printed): ${reading.value} - ${reading.certainty}`
 
+export const idNotReadableLine = 'Container ID: ID not readable in this photo'
+
 export const checkDigitLine = (reading: NonNullable<InspectionRecord['containerId']>) =>
   reading.calculatedCheckDigit === null
     ? `  Check digit: observed ${reading.observedCheckDigit}, not calculated (ID incomplete)`

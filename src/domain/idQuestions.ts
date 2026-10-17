@@ -180,6 +180,7 @@ function readCharacter(answer: SharedAnswer | undefined, allowed: string[]): Cho
     value: chosen.value,
     certainty,
     runnerUp: runner?.value ?? null,
+    ...(runner ? { runnerUpCertainty: certaintyOfProbability(runner.probability) } : {}),
     probability: chosen.probability,
   }
 }

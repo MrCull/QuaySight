@@ -24,7 +24,9 @@ describe('question set refusal wording', () => {
     expect(tooManyQuestionsText(201, 'openrouter-decisions', 200)).toBe(
       '201 questions; openrouter-decisions takes at most 200 questions per request. Split the set first.',
     )
-    expect(boxNotTakenText('where')).toBe('Question where is a box question, which OpenAI does not take.')
+    expect(boxNotTakenText('where')).toBe(
+      'Question where is a box question, which OpenAI does not take.',
+    )
   })
 
   it('reaches the caller unchanged when the container-details set is asked twice', () => {

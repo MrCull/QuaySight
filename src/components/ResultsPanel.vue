@@ -203,41 +203,33 @@ const showInsufficient = computed(() => idState.value === 'insufficient')
         <span class="rs-k">Container ID</span>
         <CertaintyChip :level="record.containerId.certainty" />
       </div>
-      <ContainerId :reading="record.containerId" />
-
-      <p
-        v-for="alt in alternatives"
-        :key="alt"
-        class="rs-also qs-rise qs-type-body-sm"
-        :style="{ '--i': STAGGER.alternative }"
-      >
-        Also possible: <span class="qs-type-data">{{ groupedId(alt) }}</span>
+      <p v-if="showInsufficient" class="rs-note qs-type-body-sm" role="status">
+        ID not readable in this photo
       </p>
+      <template v-else>
+        <ContainerId :reading="record.containerId" />
 
-      <div
-        v-if="showExplanation"
-        class="rs-explain qs-rise qs-type-body-sm"
-        :style="{ '--i': STAGGER.explanation }"
-      >
-        <p>
-          <b>Best interpretation: </b>
-          <span class="qs-type-data">{{ groupedId(bestInterpretation) }}</span>
+        <p
+          v-for="alt in alternatives"
+          :key="alt"
+          class="rs-also qs-rise qs-type-body-sm"
+          :style="{ '--i': STAGGER.alternative }"
+        >
+          Also possible: <span class="qs-type-data">{{ groupedId(alt) }}</span>
         </p>
-        <p><b>What remains uncertain:</b> {{ remainsUncertain }}</p>
-      </div>
 
-      <div
-        v-if="showInsufficient"
-        class="qs-notice qs-notice--suggestion rs-explain qs-rise qs-type-body-sm"
-        :style="{ '--i': STAGGER.explanation }"
-        role="status"
-      >
-        <i class="qs-glyph qs-glyph--unseen" aria-hidden="true"></i>
-        <div>
-          <div class="qs-notice__title">The container ID could not be read from this photo.</div>
-          <div class="qs-notice__body">A closer photo of the door markings may help.</div>
+        <div
+          v-if="showExplanation"
+          class="rs-explain qs-rise qs-type-body-sm"
+          :style="{ '--i': STAGGER.explanation }"
+        >
+          <p>
+            <b>Best interpretation: </b>
+            <span class="qs-type-data">{{ groupedId(bestInterpretation) }}</span>
+          </p>
+          <p><b>What remains uncertain:</b> {{ remainsUncertain }}</p>
         </div>
-      </div>
+      </template>
     </div>
 
     <div

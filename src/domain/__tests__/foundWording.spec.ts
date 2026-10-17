@@ -18,7 +18,7 @@ describe('what we found, wording', () => {
     )
     expect(words.groupedId('aphu6586?47')).toBe('APHU 6586·4 7')
     expect(words.idUncertainText("Can't tell", 'APHU 65868· 7', true, ['APHU 658680 7'])).toBe(
-      "The container ID is Can't tell. Best reading: APHU 65868· 7. Some positions were not read, marked ·. Also possible: APHU 658680 7.",
+      "The container ID: Can't tell. Best reading: APHU 65868· 7. Some positions were not read, marked ·. Also possible: APHU 658680 7.",
     )
     expect(words.checkDigitMismatchText(3, 7)).toBe(
       'The printed check digit (3) does not match the one calculated from the other ten characters (7).',

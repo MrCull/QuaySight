@@ -48,7 +48,7 @@ function compareSwaps(a: number[], b: number[]): number {
 
 /**
  * Builds every candidate from the readings and their runner-ups, ranks the passing ones first (then
- * fewer swaps, then earlier positions), and picks the best. When the best is Likely or Confident, passes,
+ * by the candidate's own certainty, then fewer swaps, then earlier positions), and picks the best. When the best is Likely or Confident, passes,
  * and no other candidate passes, there are no alternatives to show. "Likely or Confident" is judged on the
  * winning candidate's own certainty: the worst across its positions, taking a swapped position's runner-up
  * certainty, and no better than `ceiling` (the caveats on the whole photo). `ownerAlternatives` are other
@@ -85,11 +85,23 @@ export function rankIdCandidates(
         const candidate = [...start]
         for (const index of swapped) candidate[index] = readings[index]!.runnerUp!
         const all = [...changed, ...swapped].sort((a, b) => a - b)
-        return { chars: candidate, swapped: all, passes: passes(candidate), runnerSwaps: swapped }
+        const own = worstOf(
+          readings.map((r, i) =>
+            swapped.includes(i) ? (r.runnerUpCertainty ?? r.certainty) : r.certainty,
+          ),
+        )
+        return {
+          chars: candidate,
+          swapped: all,
+          passes: passes(candidate),
+          runnerSwaps: swapped,
+          own: CERTAINTY_LABELS.indexOf(own),
+        }
       }),
     )
     .sort((a, b) => {
       if (a.passes !== b.passes) return a.passes ? -1 : 1
+      if (a.own !== b.own) return a.own - b.own
       if (a.swapped.length !== b.swapped.length) return a.swapped.length - b.swapped.length
       return compareSwaps(a.swapped, b.swapped)
     })

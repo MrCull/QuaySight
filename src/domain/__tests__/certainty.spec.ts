@@ -62,6 +62,13 @@ describe('idResultState', () => {
     expect(idResultState(reading({ value: 'APHU65868?', certainty: 'Likely' }))).toBe('partial')
   })
 
+  it('is partial with 6 of the 11 characters read, insufficient with 5', () => {
+    expect(idResultState(reading({ value: 'APHU65?????', certainty: 'Likely' }))).toBe('partial')
+    expect(idResultState(reading({ value: 'APHU6??????', certainty: 'Likely' }))).toBe(
+      'insufficient',
+    )
+  })
+
   it('is insufficient when no character can be read at all', () => {
     expect(idResultState(reading({ value: '?????????????', certainty: "Can't tell" }))).toBe(
       'insufficient',

@@ -383,6 +383,25 @@ describe('plain-text summary', () => {
     expect(text).toContain('run-luna-1')
   })
 
+  it('says the ID is not readable, with no reading or check digit, when fewer than 6 characters were read', async () => {
+    const base = await lunaRecord()
+    const barely = (printed: string): InspectionRecord => ({
+      ...base,
+      containerId: {
+        ...buildContainerIdReading({ printed: 'APHU6586847', certainty: 'Likely' }),
+        value: printed,
+        alternatives: ['APHU6586840'],
+      },
+    })
+    const hidden = buildSummaryText(barely('???U??0000?'))
+    expect(hidden).toContain('Container ID: ID not readable in this photo')
+    expect(hidden).not.toContain('Container ID (printed)')
+    expect(hidden).not.toContain('Check digit')
+    expect(hidden).not.toContain('Also possible')
+    const shown = buildSummaryText(barely('???U??00000'))
+    expect(shown).toContain('Container ID (printed): ???U??00000')
+  })
+
   it('never uses the forbidden status words', async () => {
     for (const record of [await lunaRecord(), await jevRecord()]) {
       const text = buildSummaryText(record).toLowerCase()
