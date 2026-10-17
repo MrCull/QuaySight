@@ -9,6 +9,7 @@ import { useLedgerStore } from '../ledger'
 import { buildInspectionExport } from '../../domain/exports'
 import { onlyRequests } from '../../plan/registry'
 import { idRecheck } from '../../plan/requests/idRecheck'
+import { regions } from '../../plan/requests/regions'
 import { survey } from '../../plan/requests/survey'
 import { weightCheck } from '../../plan/requests/weightCheck'
 import {
@@ -51,7 +52,7 @@ const DETAILS: Record<string, SurveyChoice> = {
 // The weight block on the COYU door, as Jev's box for it, and that box cut from the 1079 x 1080 photo.
 const WEIGHT_BOX = { top: 0.4, bottom: 0.62, left: 0.5, right: 0.95 }
 
-type Kind = 'survey' | 'id-crop' | 'weights'
+type Kind = 'survey' | 'regions' | 'id-crop' | 'weights'
 
 /** Fetch routed by what each call asks; every call is recorded. A route not set answers 500. */
 function networkEdge() {
@@ -61,9 +62,11 @@ function networkEdge() {
     const body = String(init?.body)
     const kind: Kind = body.includes('size_type_code')
       ? 'survey'
-      : body.includes('id_char_01')
-        ? 'id-crop'
-        : 'weights'
+      : body.includes('id_mark')
+        ? 'regions'
+        : body.includes('id_char_01')
+          ? 'id-crop'
+          : 'weights'
     calls.push({ kind, body })
     return Promise.resolve(routes.get(kind)?.() ?? json({ error: 'unrouted' }, 500))
   })
@@ -108,8 +111,17 @@ describe('the weights are read in the survey, in both units', () => {
   beforeEach(() => {
     setActivePinia(createPinia())
     // The damage requests are other tickets' business: keep them out of the fetch counts.
-    restoreRequests = onlyRequests(survey, idRecheck, weightCheck)
+    restoreRequests = onlyRequests(survey, regions, idRecheck, weightCheck)
     edge = networkEdge()
+    // The numbered regions find nothing here, so the second look falls back to the survey's box (or the whole photo).
+    const NO_MARKS = { id_mark: [['none', 0.9]] } as Record<string, SurveyChoice>
+    edge.on('regions', () =>
+      json(
+        edge.fetchMock.mock.lastCall?.[1]?.body?.toString().includes('"input"')
+          ? openAiChoiceReply(NO_MARKS)
+          : openRouterChoiceReply(NO_MARKS),
+      ),
+    )
     vi.stubGlobal('fetch', edge.fetchMock)
   })
 
@@ -163,7 +175,7 @@ describe('the weights are read in the survey, in both units', () => {
 
     await lunaStore().start()
 
-    expect(edge.fetchMock).toHaveBeenCalledTimes(1)
+    expect(edge.fetchMock).toHaveBeenCalledTimes(2)
     const names = askedNames(edge.last('survey'))
     // 11 ID characters, 11 details, 37 weight digits.
     expect(names).toEqual(
@@ -181,7 +193,7 @@ describe('the weights are read in the survey, in both units', () => {
     expect(names.filter((n) => /^(max_gross|tare|payload|capacity)_/.test(n))).toHaveLength(37)
     expect(names.length).toBeLessThanOrEqual(200)
     // The weights are not a second request: one ledger line for the survey.
-    expect(useLedgerStore().entries()).toHaveLength(1)
+    expect(useLedgerStore().entries()).toHaveLength(2)
   })
 
   it('reads COYU 30,480 kg / 67,200 lb, 2,180 / 4,810, 28,300 / 62,390 and 33.2 m3 / 1,173 cu ft, in agreement', async () => {
@@ -199,7 +211,7 @@ describe('the weights are read in the survey, in both units', () => {
     expect(w.maxGross?.certainty).toBe('Confident')
     expect(w.conflict).toBeNull()
     expect(store.record!.status).toBe('complete')
-    expect(edge.fetchMock).toHaveBeenCalledTimes(1)
+    expect(edge.fetchMock).toHaveBeenCalledTimes(2)
   })
 
   it('reads the weights on Jev the same way, and asks where the weight block is', async () => {
@@ -224,7 +236,7 @@ describe('the weights are read in the survey, in both units', () => {
     await store.start()
 
     expect(edge.count('weights')).toBe(1)
-    expect(edge.fetchMock).toHaveBeenCalledTimes(2)
+    expect(edge.fetchMock).toHaveBeenCalledTimes(3)
     const names = askedNames(edge.last('weights'))
     expect(names).toHaveLength(10)
     expect(names.every((n) => n.startsWith('tare_'))).toBe(true)
@@ -240,7 +252,7 @@ describe('the weights are read in the survey, in both units', () => {
     expect(store.record!.status).toBe('complete')
     // Its own ledger line, plain words.
     const lines = useLedgerStore().entries()
-    expect(lines).toHaveLength(2)
+    expect(lines).toHaveLength(3)
     expect(lines.map((l) => l.purpose)).toContain('Checking the weights')
   })
 
@@ -326,7 +338,7 @@ describe('the weights are read in the survey, in both units', () => {
 
     await store.start()
 
-    expect(edge.fetchMock).toHaveBeenCalledTimes(1)
+    expect(edge.fetchMock).toHaveBeenCalledTimes(2)
     expect(store.record!.weights!.tare).toMatchObject({
       valueKg: 2180,
       valueLb: 4806,
@@ -350,8 +362,30 @@ describe('the weights are read in the survey, in both units', () => {
     expect(store.record!.weights!.tare).toMatchObject({ units: 'agree' })
     // The whole run: the survey and the weights look: two ledger lines, none blocked.
     const lines = useLedgerStore().entries()
-    expect(lines).toHaveLength(2)
+    expect(lines).toHaveLength(3)
     expect(lines.every((l) => l.status === 'complete')).toBe(true)
+  })
+
+  it('looks again on a zoom of the numbered weights area at a weight no unit gave, and reads it', async () => {
+    // The whole photo gave no weight digits at all; the regions say the weights panel is in mark 7.
+    edge.on('survey', () => json(openAiSurveyReply(COYU, { details: DETAILS })))
+    edge.on('regions', () => json(openAiChoiceReply({ weights_mark: [['7', 0.8]] })))
+    edge.on('weights', () => json(openAiChoiceReply(weightChoices(COYU_WEIGHTS))))
+    const store = lunaStore()
+
+    await store.start()
+
+    expect(edge.count('weights')).toBe(1)
+    expect(sentImage(edge.last('weights'))).toMatch(/^jpeg \d+x\d+ from \d+x\d+ at \d+,\d+$/)
+    const names = askedNames(edge.last('weights'))
+    expect(names).toContain('max_gross_kg_units')
+    expect(names).toContain('tare_lb_tens')
+    expect(names.some((n) => n.startsWith('capacity_'))).toBe(false)
+    expect(store.record!.weights!).toMatchObject({
+      maxGross: { valueKg: 30480, valueLb: 67200 },
+      tare: { valueKg: 2180, valueLb: 4810 },
+      reread: 'settled',
+    })
   })
 
   it('sends the second look on the whole photo when there is no usable box for the weights', async () => {

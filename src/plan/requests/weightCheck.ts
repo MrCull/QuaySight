@@ -4,14 +4,16 @@ import { questionSetAsk } from '../../domain/questionSetAsk'
 import { readWeights, weightQuestions } from '../../domain/weightQuestions'
 import {
   evaluateWeights,
-  rereadQuantities,
+  secondLookQuantities,
   weightsAfterReread,
   type WeightQuantity,
   type WeightsReading,
 } from '../../domain/weights'
 import { askDecisions } from '../../services/askDecisions'
-import { cropPhoto } from '../../services/scalePhoto'
+import { cropForRead, cropPhoto } from '../../services/scalePhoto'
 import type { PlanRequest, PlanView } from '../requestPlan'
+import { ZOOM_MARGIN } from './idCropRead'
+import { regions } from './regions'
 import { survey } from './survey'
 
 /** The second look's answer: just the weights asked again, and the crop it was asked on, if any. */
@@ -36,33 +38,45 @@ function weightsAsk(quantities: WeightQuantity[], crop: CropRegion | null) {
   }))
 }
 
-/** The weights the first reading left in disagreement. */
+/** The weights the first reading left in disagreement or unread (domain/weights.ts). */
 function askedOf(plan: PlanView): WeightQuantity[] {
   const first = plan.answer(survey)?.findings.weights
-  return first ? rereadQuantities(first.readings) : []
+  return first ? secondLookQuantities(first.readings) : []
 }
 
 /**
- * The second look at the weights (spec #27, E): when the survey's kg and lb readings of a weight
- * disagree after conversion, or printed and calculated payload conflict, just those weights are asked
- * again, once, on a crop of the weight block when the model located it. A refinement of a usable
- * reading: its failure keeps the first readings, which then read Uncertain with both shown.
+ * The second look at the weights (spec #27, E; ticket #87): when the survey's kg and lb readings of a
+ * weight disagree after conversion, printed and calculated payload conflict, or a weight came back
+ * unclear in both units, just those weights are asked again, once, on a zoomed crop of the weights
+ * panel. The crop is the area the numbered regions named (ticket #84), else the survey's own box.
+ * A refinement of a usable reading: its failure keeps the first readings, which then read Uncertain
+ * with both shown.
  */
 export const weightCheck: PlanRequest<WeightCheckAnswer> = {
   id: 'weights',
   purpose: WEIGHT_CHECK_PURPOSE,
   stages: ['details'],
-  after: [survey],
+  after: [survey, regions],
   optional: true,
   needed: (plan) => askedOf(plan).length > 0,
   async send(ctx) {
     const quantities = askedOf(ctx)
-    const box = usableIdBox(ctx.answer(survey)?.findings.weights.box)
+    const area = ctx.answer(regions)?.weights
+    const zoomBox = area ? usableIdBox({ ...area.box, confidence: 1 }) : null
+    const box = zoomBox ?? usableIdBox(ctx.answer(survey)?.findings.weights.box)
     let photo = ctx.photo
     let crop: CropRegion | null = null
     if (box) {
       try {
-        const cropped = await cropPhoto(ctx.photo, box, ctx.route.entry.photoLimits)
+        const cropped = zoomBox
+          ? await cropForRead(
+              ctx.photo,
+              ctx.original,
+              box,
+              ctx.route.entry.photoLimits,
+              ZOOM_MARGIN,
+            )
+          : await cropPhoto(ctx.photo, box, ctx.route.entry.photoLimits)
         photo = cropped.photo
         crop = cropped.region
       } catch {
