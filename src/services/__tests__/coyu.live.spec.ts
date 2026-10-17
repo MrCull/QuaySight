@@ -29,12 +29,10 @@ vi.mock('../imageCodec', () => import('./browserCodec'))
 import { closeBrowserCodec } from './browserCodec'
 import { useInspectionStore } from '../../stores/inspection'
 import { useLedgerStore } from '../../stores/ledger'
-import { callLuna } from '../luna'
-import { callOpenRouterLuna } from '../openrouter'
+import { liveLuna } from './liveCalls'
 import { LUNA_ENDPOINT, LUNA_MODEL, assembleLunaReading, type LunaMapping } from '../../domain/luna'
 import { mergeRecheck, unresolvedPositions } from '../../domain/recheck'
 import { OPENROUTER_ENDPOINT } from '../../domain/openrouter'
-import { findModel, labelsFor } from '../../domain/providers'
 
 const openAiKey = process.env.OPENAI_API_KEY ?? ''
 const openRouterKey = process.env.OPENROUTER_API_KEY ?? ''
@@ -132,7 +130,7 @@ describe('COYU 266813 0 live smoke test (opt-in, chargeable)', () => {
     async () => {
       const sent = await photo()
       const read = await readLikeTheApp((positions, fetchImpl) =>
-        callLuna({ apiKey: openAiKey, photo: sent, positions, fetchImpl }),
+        liveLuna({ apiKey: openAiKey, photo: sent, positions, fetchImpl }),
       )
       await record(
         'coyu-luna.json',
@@ -148,20 +146,9 @@ describe('COYU 266813 0 live smoke test (opt-in, chargeable)', () => {
     'GPT-6 Luna Decisions through OpenRouter never misreads COYU 266813 0 from the original file bytes (not the app preparation path)',
     async () => {
       const model = 'openai/gpt-6-luna-decisions'
-      const entry = findModel('openrouter', model)!
       const sent = await photo()
       const read = await readLikeTheApp((positions, fetchImpl) =>
-        callOpenRouterLuna({
-          apiKey: openRouterKey,
-          photo: sent,
-          model,
-          positions,
-          describe: {
-            name: labelsFor('openrouter', model).model,
-            maxSide: entry.photoLimits.maxSide,
-          },
-          fetchImpl,
-        }),
+        liveLuna({ apiKey: openRouterKey, photo: sent, model, positions, fetchImpl }),
       )
       await record(
         'coyu-openrouter-luna.json',

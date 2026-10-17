@@ -22,9 +22,9 @@ import { readFile, writeFile, mkdir } from 'node:fs/promises'
 import { dirname, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { EnvHttpProxyAgent, setGlobalDispatcher } from 'undici'
-import { callOpenRouterJev } from '../openrouter'
+import { liveJev } from './liveCalls'
 import { OPENROUTER_ENDPOINT } from '../../domain/openrouter'
-import { findModel, labelsFor } from '../../domain/providers'
+import { findModel } from '../../domain/providers'
 
 const apiKey = process.env.OPENROUTER_API_KEY ?? ''
 if (apiKey && (process.env.HTTPS_PROXY || process.env.https_proxy)) {
@@ -62,14 +62,7 @@ describe.skipIf(!apiKey)('OpenRouter Jev live smoke test (opt-in, one chargeable
       return response
     }
 
-    const result = await callOpenRouterJev({
-      apiKey,
-      photo,
-      model: MODEL,
-      box: entry!.box,
-      describe: { name: labelsFor('openrouter', MODEL).model, maxSide: entry!.photoLimits.maxSide },
-      fetchImpl: capturing,
-    })
+    const result = await liveJev({ apiKey, photo, model: MODEL, fetchImpl: capturing })
 
     expect(status).toBe(200)
     expect(result.containerId.value.length).toBe(11)

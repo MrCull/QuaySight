@@ -1,7 +1,7 @@
 import type { CropRegion } from '../domain/cropRead'
 import type { InspectionRecord, ProviderId } from '../domain/inspection'
 import type { CapReason, ChargeableRequest, ChargeableResult, Usage } from '../domain/ledger'
-import { describeFailure, unreadableBody } from '../domain/requestFailure'
+import { failureOf, unreadableBody } from '../domain/requestFailure'
 import type { FailureModel } from '../domain/openrouter'
 import type { ModelOption } from '../domain/providers'
 import type { PlannedRequestState, RequestState, StageId } from '../domain/runStages'
@@ -304,7 +304,7 @@ export function foldSettled(record: InspectionRecord, settled: SettledRequest): 
       ...next,
       failures: [
         ...(next.failures ?? []),
-        { ...describeFailure(outcome.error), requestId: request.id, stages: request.stages },
+        { ...failureOf(outcome.error), requestId: request.id, stages: request.stages },
       ],
     }
     const unreadable = unreadableBody(outcome.error)

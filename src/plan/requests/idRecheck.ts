@@ -1,5 +1,6 @@
-import { assembleLunaReading, mapLunaResponse } from '../../domain/luna'
-import { mapOpenRouterLunaResponse } from '../../domain/openrouter'
+import { assembleLunaReading, lunaMappingOf } from '../../domain/luna'
+import { lunaIdQuestionSet } from '../../domain/idQuestions'
+import { questionSetAsk } from '../../domain/questionSetAsk'
 import { questionSetOf } from '../../domain/providers'
 import {
   mergeRecheck,
@@ -11,9 +12,8 @@ import {
 } from '../../domain/recheck'
 import type { ContainerIdReading, RecheckRecord } from '../../domain/inspection'
 import type { ChoiceReading } from '../../domain/luna'
-import { callLuna } from '../../services/luna'
-import { callOpenRouterLuna } from '../../services/openrouter'
-import type { PlanRequest, PlanView, RequestContext, RequestReply } from '../requestPlan'
+import { askDecisions } from '../../services/askDecisions'
+import type { PlanRequest, PlanView } from '../requestPlan'
 import { survey } from './survey'
 
 /** The re-check's answer: the asked positions as read again. */
@@ -27,28 +27,12 @@ function askedOf(plan: PlanView): number[] {
   return unresolvedPositions(plan.answer(survey)?.readings ?? [])
 }
 
-/** The Luna ID set for just these positions, on the run's route: OpenAI direct, or OpenRouter. */
-async function readLuna(ctx: RequestContext, positions: number[]): Promise<RequestReply<IdAnswer>> {
-  const { route, apiKey, photo, signal } = ctx
-  const call =
-    route.entry.wireFormat === 'openrouter-decisions'
-      ? await callOpenRouterLuna({
-          apiKey,
-          photo,
-          model: route.model,
-          positions,
-          describe: route.describe,
-          signal,
-        })
-      : { ...(await callLuna({ apiKey, photo, positions, signal })), reportedCostUsd: null }
-  return {
-    answer: { containerId: call.containerId, readings: call.readings },
-    resolvedModel: call.resolvedModel,
-    usage: call.usage,
-    latencyMs: call.latencyMs,
-    reportedCostUsd: call.reportedCostUsd,
-    raw: call.raw,
-  }
+/** The Luna ID set for just these positions, on whichever route the run is on. */
+function recheckAsk(positions: number[]) {
+  return questionSetAsk(lunaIdQuestionSet(positions), (reply) => {
+    const { containerId, readings } = lunaMappingOf(reply, positions)
+    return { containerId, readings }
+  })
 }
 
 /**
@@ -64,15 +48,9 @@ export const idRecheck: PlanRequest<IdAnswer> = {
   optional: true,
   appliesTo: (route) => questionSetOf(route.entry) === 'luna',
   needed: (plan) => askedOf(plan).length > 0,
-  send: (ctx) => readLuna(ctx, askedOf(ctx)),
+  send: (ctx) => askDecisions(ctx, recheckAsk(askedOf(ctx))),
   replay(raw, plan) {
-    const { route } = plan
-    const asked = askedOf(plan)
-    const mapped =
-      route.entry.wireFormat === 'openrouter-decisions'
-        ? mapOpenRouterLunaResponse(raw, route.model, asked)
-        : mapLunaResponse(raw, route.model, asked)
-    return { containerId: mapped.containerId, readings: mapped.readings }
+    return recheckAsk(askedOf(plan)).map(raw, plan.route)
   },
   apply(record, outcome, plan) {
     const first = plan.answer(survey)
