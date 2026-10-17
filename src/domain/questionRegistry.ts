@@ -27,6 +27,7 @@ import { idFamily } from './idFamily'
 import { lengthPart } from './containerLength'
 import { shapeLengthFamily } from './shapeLength'
 import { facePart } from './photoFace'
+import { sealFamily } from './sealFamily'
 import { weightsPart } from './weightQuestions'
 
 /** What a family adds to the JSON export and the plain-text summary. */
@@ -77,6 +78,7 @@ const FAMILIES: QuestionFamily[] = [
   facePart,
   weightsPart,
   lengthPart,
+  sealFamily,
   shapeLengthFamily,
   sideDamageFamily,
   doorDamageFamily,
