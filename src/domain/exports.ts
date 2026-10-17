@@ -13,8 +13,11 @@ import {
   type FindingZone,
   type ImageQuality,
   type SeverityLevel,
+  type SideInference,
   type ZoneVisibility,
 } from './damage'
+import { chosenLength, type ChosenLength, type ContainerLengthFt } from './chosenLength'
+import { sectionScheme, sectionsOfZone } from './sideSections'
 import type { FaceReading } from './photoFace'
 import type { CertaintyLabel, InspectionRecord, Provenance, RecheckRecord } from './inspection'
 import type { DetailSource } from './containerDetails'
@@ -73,6 +76,8 @@ export interface ExportFindingLink {
   certainty: string
   types: string[]
   region: { location: string; zone: FindingZone | null }
+  /** The CEDEX/IICL long-side sections the finding lies in, numbered from the door end; null off the long side or with no area. */
+  sections: number[] | null
   photo: string | null
   sourcePass: { passId: string; kind: 'recorded-run' | 'provider-call' }
 }
@@ -97,6 +102,8 @@ export interface InspectionExport {
   rechecks: RecheckRecord[]
   /** Jev's crop read of the container ID: the crop and any character it disagreed on. Never shown in the UI. */
   idCropRead: IdCropReadRecord | null
+  /** The container length the drawing used and where it came from (ISO code, model, or default). */
+  containerLength: ChosenLength
   damage: {
     assessed: boolean
     /** Why the photo's view was not assessed (roof, close-up, unknown view, a face not inspectable), or null. */
@@ -110,10 +117,27 @@ export interface InspectionExport {
     significantProbability: number | null
     /** Which edge of the photo the door end is at, only when the photo shows it directly. */
     doorEnd: 'image-left' | 'image-right' | null
+    /** The long side a long-side photo was drawn on, and whether the doors inferred it or it was defaulted; null for other faces. */
+    sideInference: SideInference | null
     photos: { photo: string; face: DamageFace }[]
     faces: { face: 'rear' | 'front' | 'left' | 'right' | 'roof'; status: FaceExportStatus }[]
     /** Every photo-relative zone the set judged, with its visibility: an unseen zone is never clean. */
-    zones: { id: string; face: DamageFace; label: string; visibility: ZoneVisibility | null }[]
+    zones: {
+      id: string
+      face: DamageFace
+      label: string
+      visibility: ZoneVisibility | null
+      /** The CEDEX/IICL long-side sections the zone covers, numbered from the door end; null off the long side. */
+      sections: number[] | null
+    }[]
+    /** The long-side section scheme drawn: side, length and section count (5 for 20 ft, 10 for 40 and 45 ft); null off the long side. */
+    longSideSections: {
+      side: 'left' | 'right'
+      lengthFt: ContainerLengthFt
+      count: number
+      /** 'assumed door end' when the side was defaulted, so the door end is not known. */
+      numberedFrom: 'door end' | 'assumed door end'
+    } | null
     findings: ExportFindingLink[]
   }
 }
@@ -125,6 +149,16 @@ export interface RawResponsesExport {
   source: 'recorded demonstration, not a live provider response' | 'live provider response'
   inspectionId: string
   responses: InspectionRecord['rawResponses']
+}
+
+function sectionsOf(
+  scheme: ReturnType<typeof sectionScheme>,
+  face: DamageFace,
+  zone: FindingZone | null,
+): number[] | null {
+  return scheme && zone && (face === 'left' || face === 'right')
+    ? sectionsOfZone(zone, scheme.lengthFt, scheme.side)
+    : null
 }
 
 const FIXED_FACES = ['rear', 'front', 'left', 'right', 'roof'] as const
@@ -240,6 +274,7 @@ export function buildInspectionExport(record: InspectionRecord): InspectionExpor
   conflicts.push(...weights.conflicts)
 
   const assessment = record.damage?.notAssessed ? null : record.damage
+  const scheme = assessment ? sectionScheme(assessment) : null
   const notAssessedReason = record.damage?.notAssessed?.reason ?? null
   if (!assessment) {
     unresolved.push({
@@ -269,6 +304,7 @@ export function buildInspectionExport(record: InspectionRecord): InspectionExpor
     conflicts,
     rechecks: record.rechecks ?? [],
     idCropRead: record.idCropRead ?? null,
+    containerLength: chosenLength(record),
     damage: {
       assessed: assessment !== null,
       notAssessedReason,
@@ -281,6 +317,7 @@ export function buildInspectionExport(record: InspectionRecord): InspectionExpor
           : null,
       significantProbability: assessment?.significantProbability ?? null,
       doorEnd: assessment?.doorEnd ?? null,
+      sideInference: assessment?.sideInference ?? null,
       photos: assessment?.photos ?? [],
       faces: FIXED_FACES.map((face) => ({
         face,
@@ -291,7 +328,13 @@ export function buildInspectionExport(record: InspectionRecord): InspectionExpor
         face: z.face,
         label: z.label,
         visibility: z.visibility,
+        sections: sectionsOf(scheme, z.face, z.zone),
       })),
+      longSideSections: scheme && {
+        ...scheme,
+        numberedFrom:
+          assessment?.sideInference?.basis === 'defaulted' ? 'assumed door end' : 'door end',
+      },
       findings: (assessment?.findings ?? []).map((f) => ({
         findingId: f.id,
         title: f.title,
@@ -307,6 +350,7 @@ export function buildInspectionExport(record: InspectionRecord): InspectionExpor
         certainty: f.certainty,
         types: f.types.map((t) => t.code),
         region: { location: f.location, zone: f.zone },
+        sections: sectionsOf(scheme, f.face, f.zone),
         photo: assessment?.photos.find((p) => p.face === f.face)?.photo ?? null,
         sourcePass: { passId: assessment?.passId ?? record.id, kind: sourcePassKind(record) },
       })),

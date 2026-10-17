@@ -6,6 +6,8 @@
 // response model/version or usage fields; the mapper reads them defensively and reports what is absent.
 import { calculateCheckDigit } from './iso6346'
 import { buildContainerIdReading } from './containerId'
+import { combineOwnerReading, readOwnerPick, type OwnerPick } from './ownerPick'
+import { rankIdCandidates, withCategoryLetter } from './idCandidates'
 import { CERTAINTY_LABELS, UNREAD } from './certainty'
 import type { CertaintyLabel, ContainerIdReading } from './inspection'
 import type { Usage } from './ledger'
@@ -125,6 +127,8 @@ export interface LunaMapping {
   containerId: ContainerIdReading
   /** One reading per position (11 entries). Positions not asked, or not answered, are unread. */
   readings: ChoiceReading[]
+  /** The model's pick from the owner-code list, when a full ID read asked it. */
+  ownerPick: OwnerPick | null
   /** The model the response reports, or the requested model when it reports none. */
   resolvedModel: string
   /** Usage from the response's own fields, or null when the response carries none. */
@@ -161,9 +165,11 @@ export function readOpenAiReply(
 /** A Luna ID-set reply, read by meaning, as the shared container-ID reading. The same on either route. */
 export function lunaMappingOf(reply: AnswersReading, positions?: number[]): LunaMapping {
   const readings = readIdCharacters(reply.answers, positions)
+  const ownerPick = positions ? null : readOwnerPick(reply.answers)
   return {
-    containerId: assembleLunaReading(readings),
+    containerId: assembleLunaReading(readings, ownerPick),
     readings,
+    ownerPick,
     resolvedModel: reply.resolvedModel,
     usage: reply.usage,
   }
@@ -184,11 +190,17 @@ export function mapLunaResponse(
 }
 
 /** Builds the shared container-ID reading from one reading per position. Pure; used by the first pass and any re-check merge. */
-export function assembleLunaReading(readings: ChoiceReading[]): ContainerIdReading {
-  const chars = readings.map((r) => r.value ?? UNREAD)
+export function assembleLunaReading(
+  rawReadings: ChoiceReading[],
+  ownerPick?: OwnerPick | null,
+): ContainerIdReading {
+  const owner = combineOwnerReading(rawReadings, ownerPick)
+  const readings = withCategoryLetter(owner.readings)
   const positionCertainty = readings.map((r) => r.certainty)
-  const printed = chars.join('')
   const certainty = worstOf(positionCertainty)
+  const ranked = rankIdCandidates(readings, 'Confident', owner.alternatives)
+  const chars = ranked.chars
+  const printed = chars.join('')
 
   let containerId: ContainerIdReading
   if (!printed.includes(UNREAD)) {
@@ -211,14 +223,7 @@ export function assembleLunaReading(readings: ChoiceReading[]): ContainerIdReadi
     }
   }
 
-  const alternatives: string[] = []
-  readings.forEach((reading, index) => {
-    if (reading.runnerUp === null || alternatives.length >= 2) return
-    const swapped = [...chars]
-    swapped[index] = reading.runnerUp
-    alternatives.push(swapped.join(''))
-  })
-  if (alternatives.length > 0) containerId.alternatives = alternatives
+  if (ranked.alternatives.length > 0) containerId.alternatives = ranked.alternatives
 
   const uncertainPositions = readings
     .map((r, i) => (r.certainty === 'Confident' ? null : i + 1))

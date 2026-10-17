@@ -50,8 +50,9 @@ describe('demo samples: each result is a recording of its own photo', () => {
   it('replays the real Jev latest response for the clean grey rear doors, with the version that answered', async () => {
     const record = await runDemoSample('rear-chsu')
     expect(record.resolvedVersion).toBe('typesafe/jev-1.14-20261014')
-    // Jev misread some digits of CHSU 205183 1 on this photo; the recording keeps that honest reading.
-    expect(record.containerId?.value).toBe('CHSG8318881')
+    // Jev misread some digits of CHSU 205183 1 on this photo and put G in the 4th place; the app sets U there
+    // and ranks the candidate that passes the check digit first.
+    expect(record.containerId?.value).toBe('CHSU8818181')
     expect(record.containerId?.certainty).not.toBe('Confident')
   })
 
@@ -99,7 +100,7 @@ describe('a sample with no recording yet', () => {
     const record = await runDemoSample('side-dented')
 
     expect(idResultState(record.containerId!)).toBe('insufficient')
-    expect(record.damage?.photos).toEqual([{ photo: 'side-dented-grey.jpg', face: 'long-side' }])
+    expect(record.damage?.photos).toEqual([{ photo: 'side-dented-grey.jpg', face: 'right' }])
     expect(record.damage?.findings.map((f) => f.location)).toHaveLength(1)
     expect(recordedDemonstrationLabel(record)).toBe(
       'Recorded demonstration: GPT-6 Luna / gpt-6-luna',
@@ -134,9 +135,9 @@ describe('which recording a sample replays', () => {
 
 describe('the recorded manifest check', () => {
   it('replays the recording’s own reading: a manifest entry that matches is confirmed', async () => {
-    const reading = await runDemoManifestRetry('rear-chsu', ['CHSG8318881'])
+    const reading = await runDemoManifestRetry('rear-chsu', ['CHSU8818181'])
     expect(reading).toMatchObject({
-      value: 'CHSG8318881',
+      value: 'CHSU8818181',
       provenance: 'manifest',
       manifestChecked: true,
     })

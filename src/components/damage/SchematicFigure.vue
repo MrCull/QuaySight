@@ -1,8 +1,10 @@
 <script setup lang="ts">
 import { computed } from 'vue'
+import { sectionCount } from '../../domain/sideSections'
+import type { ContainerLengthFt } from '../../domain/chosenLength'
 import type { DamageFinding, FaceStatus, FindingZone, ZoneCoverage } from '../../domain/damage'
 
-// One fixed view (or the image-relative long side) of the neutral container drawing, following
+// One fixed view of the neutral container drawing, following
 // design-system/components/ContainerSchematic. Markers are approximate areas on a flat face, drawn
 // with the same oblique projection in both views so they read as one object turned round.
 const props = defineProps<{
@@ -16,6 +18,8 @@ const props = defineProps<{
   selectedId: number | null
   /** The damage set's photo-relative zones on this view's faces, with how well each was seen. */
   zones?: ZoneCoverage[]
+  /** The container length the long side is drawn to: 20, 40 or 45 ft. 40 when not given. */
+  lengthFt?: ContainerLengthFt
 }>()
 
 const emit = defineEmits<{ select: [id: number] }>()
@@ -23,17 +27,62 @@ const emit = defineEmits<{ select: [id: number] }>()
 type Pt = [number, number]
 type Projection = (u: number, v: number) => Pt
 
-// Oblique projection taken from the design-system drawing: 40 ft long side, 8 ft end, 9.5 ft high.
-const sidePt: Projection = (u, v) => [34 + 698.4 * u, 91 + 122.4 * u + 171 * v]
-const endPt: Projection = (u, v) => [732.4 + 122.4 * u, 213.4 - 60.48 * u + 171 * v]
-const ROOF_POINTS = '34,91 732.4,213.4 854.8,152.92 156.4,30.52'
+// Oblique projection taken from the design-system drawing: 8 ft end, 9.5 ft high. The long side is drawn
+// to the container's length (20, 40 or 45 ft) at one scale, set so a 45 ft side fills the box the drawing
+// had; a shorter one is centred in it. The end face and the height do not change with the length.
+const MAX_FT = 45
+const RUN_X = 698.4 / MAX_FT
+const RUN_Y = 122.4 / MAX_FT
+const END_X = 122.4
+const END_Y = -60.48
+const HEIGHT = 171
+const LEFT = 34
+const TOP = 91
+
+const feet = computed(() => props.lengthFt ?? 40)
+const runX = computed(() => RUN_X * feet.value)
+const runY = computed(() => RUN_Y * feet.value)
+const left = computed(() => LEFT + (RUN_X * (MAX_FT - feet.value)) / 2)
+
+const sidePt: Projection = (u, v) => [
+  left.value + runX.value * u,
+  TOP + runY.value * u + HEIGHT * v,
+]
+const endPt: Projection = (u, v) => [
+  left.value + runX.value + END_X * u,
+  TOP + runY.value + END_Y * u + HEIGHT * v,
+]
+const ROOF_POINTS = computed(() =>
+  [
+    [left.value, TOP],
+    [left.value + runX.value, TOP + runY.value],
+    [left.value + runX.value + END_X, TOP + runY.value + END_Y],
+    [left.value + END_X, TOP + END_Y],
+  ]
+    .map(([x, y]) => `${x},${y}`)
+    .join(' '),
+)
+const roofTag = computed(
+  () => `translate(${left.value + (runX.value + END_X) / 2} ${TOP + (runY.value + END_Y) / 2})`,
+)
+const sideLabel = computed(() => sidePt(0.03, 1.1836))
+const endLabel = computed(() => endPt(0.1115, 1.2126))
 
 function quad(pt: Projection, u0: number, u1: number, v0: number, v1: number): string {
   return [pt(u0, v0), pt(u1, v0), pt(u1, v1), pt(u0, v1)].map(([x, y]) => `${x},${y}`).join(' ')
 }
 
-const SIDE_POINTS = quad(sidePt, 0, 1, 0, 1)
-const END_POINTS = quad(endPt, 0, 1, 0, 1)
+// The long side's CEDEX/IICL sections (5 for 20 ft, 10 for 40 and 45 ft), as columns along the face.
+const sectionShapes = computed(() => {
+  const n = sectionCount(feet.value)
+  return Array.from({ length: n }, (_, i) => ({
+    id: i,
+    points: quad(sidePt, i / n, (i + 1) / n, 0, 1),
+  }))
+})
+
+const SIDE_POINTS = computed(() => quad(sidePt, 0, 1, 0, 1))
+const END_POINTS = computed(() => quad(endPt, 0, 1, 0, 1))
 
 type Placed = DamageFinding & { zone: FindingZone }
 
@@ -136,7 +185,7 @@ function select(id: number) {
       <g v-if="roof" class="qs-c-roof">
         <polygon class="qs-c-top" :points="ROOF_POINTS" />
       </g>
-      <g v-if="roof" class="qs-c-unseen-tag" transform="translate(444.4 121.96)">
+      <g v-if="roof" class="qs-c-unseen-tag" :transform="roofTag">
         <rect x="-56.5" y="-13" width="113" height="26" rx="4" />
         <text x="0" y="1">Roof · Not seen</text>
       </g>
@@ -154,7 +203,12 @@ function select(id: number) {
         :points="SIDE_POINTS"
         :fill="`url(#${id}-hatch)`"
       />
-      <text class="qs-c-label" x="54.95" y="297.07">{{ side.text }}</text>
+      <g v-if="side.status !== 'not-seen'" class="qs-c-sections">
+        <g v-for="s in sectionShapes" :key="s.id" class="qs-c-section">
+          <polygon :points="s.points" />
+        </g>
+      </g>
+      <text class="qs-c-label" :x="sideLabel[0]" :y="sideLabel[1]">{{ side.text }}</text>
 
       <template v-if="end">
         <polygon class="qs-c-end" :points="END_POINTS" />
@@ -164,7 +218,7 @@ function select(id: number) {
           :points="END_POINTS"
           :fill="`url(#${id}-hatch)`"
         />
-        <text class="qs-c-label" x="746.05" y="414.02">{{ end.text }}</text>
+        <text class="qs-c-label" :x="endLabel[0]" :y="endLabel[1]">{{ end.text }}</text>
       </template>
 
       <g v-if="zoneShapes.length > 0" class="qs-c-zones">

@@ -93,7 +93,7 @@ body {
 .rs-startrow .qs-btn + .qs-btn {
   margin-left: var(--space-3);
 }
-/* Analysing overlay on the photo (design-system AnalysingScreen). Shown only while .qs-arriving. */
+/* Scan sweep over the photo (design-system AnalysingScreen); no text. Shown only while .qs-arriving. */
 .rs-analysing {
   position: absolute;
   inset: 0;
@@ -120,11 +120,15 @@ body {
   /* No duration token for the sweep: four arrival beats, so it loops at a token-derived pace. */
   animation: qs-sweep calc(var(--duration-arrive) * 4) cubic-bezier(0.4, 0, 0.2, 1) infinite;
 }
+/* The stage list sits directly under the photo, only while the run is in flight. */
+.rs-stages {
+  display: none;
+}
+.qs-arriving .rs-stages {
+  display: block;
+}
 .rs-stagecard {
-  position: absolute;
-  left: var(--space-4);
-  top: var(--space-4);
-  width: min(330px, calc(100% - var(--space-8)));
+  width: min(330px, 100%);
   padding: var(--space-3) var(--space-4) var(--space-1);
   background: var(--surface-raised);
   border: 1px solid var(--line);

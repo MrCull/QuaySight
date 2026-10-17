@@ -106,13 +106,15 @@ describe('AnalysingStages', () => {
 describe('PhotoPanel analysing overlay', () => {
   beforeEach(() => setActivePinia(createPinia()))
 
-  it('renders the stage card over the photo once a photo is chosen', () => {
+  it('keeps the scan sweep over the photo and the stage list outside it, right after it', () => {
     const store = useInspectionStore()
     store.setPhoto({ name: 'door.jpg', orientation: 'landscape', url: 'blob:x' } as never)
     const wrapper = mount(PhotoPanel)
-    const overlay = wrapper.find('.rs-photo .rs-analysing')
-    expect(overlay.exists()).toBe(true)
-    expect(overlay.find('.rs-sweep').exists()).toBe(true)
-    expect(overlay.findAll('.qs-stage__title').map((t) => t.text())).toEqual(STAGE_TITLES)
+    const photo = wrapper.get('.rs-photo')
+    expect(photo.find('.rs-analysing .rs-sweep').exists()).toBe(true)
+    expect(photo.find('.rs-stagecard').exists()).toBe(false)
+    expect(photo.text()).toBe('Landscape photo')
+    const list = wrapper.get('.rs-photo + .rs-stages')
+    expect(list.findAll('.qs-stage__title').map((t) => t.text())).toEqual(STAGE_TITLES)
   })
 })

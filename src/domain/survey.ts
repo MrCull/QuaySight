@@ -19,7 +19,9 @@ import {
   type ChoiceReading,
 } from './idQuestions'
 import type { ContainerIdReading, InspectionRecord } from './inspection'
+import { lengthPart } from './containerLength'
 import { facePart } from './photoFace'
+import { readOwnerPick, type OwnerPick } from './ownerPick'
 import { jevIdReadingOf, type JevBox } from './jev'
 import { assembleLunaReading } from './luna'
 import type { QuestionSet } from './providers'
@@ -61,13 +63,20 @@ interface PartOf<K extends keyof SurveyFindings> {
 export type SurveyPart = { [K in keyof SurveyFindings]: PartOf<K> }[keyof SurveyFindings]
 
 /** Every part the survey asks, in question order after the ID. */
-export const SURVEY_PARTS: readonly SurveyPart[] = [containerDetailsPart, facePart, weightsPart]
+export const SURVEY_PARTS: readonly SurveyPart[] = [
+  containerDetailsPart,
+  facePart,
+  weightsPart,
+  lengthPart,
+]
 
 /** The survey's answer: the ID as read, and each part's findings. */
 export interface SurveyAnswer {
   containerId: ContainerIdReading
   /** Per-position readings (11). Luna's re-check asks the unread ones again. */
   readings: ChoiceReading[]
+  /** The model's pick from the owner-code list; the re-check and the crop read combine their readings with it. */
+  ownerPick?: OwnerPick | null
   /** Where the ID is in the photo, on box-capable models that answered; otherwise null (the crop read starts from it). */
   box: JevBox | null
   findings: SurveyFindings
@@ -100,9 +109,11 @@ export function readSurvey(
   for (const part of parts) findings[part.key] = part.read(answers, ask)
   if (ask.questionSet === 'luna') {
     const readings = readIdCharacters(answers)
+    const ownerPick = readOwnerPick(answers)
     return {
-      containerId: assembleLunaReading(readings),
+      containerId: assembleLunaReading(readings, ownerPick),
       readings,
+      ownerPick,
       box: null,
       findings: findings as unknown as SurveyFindings,
     }
@@ -111,6 +122,7 @@ export function readSurvey(
   return {
     containerId: jev.containerId,
     readings: jev.readings,
+    ownerPick: jev.ownerPick,
     box: ask.box ? jev.box : null,
     findings: findings as unknown as SurveyFindings,
   }

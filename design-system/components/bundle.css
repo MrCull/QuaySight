@@ -201,7 +201,7 @@
 /* Photo-relative zone grid on the image-relative long side (5 × 2 over the side sheet). Each zone shows
    how well it was seen: clear zones stay plain, partly visible zones get a dashed edge, unseen zones are
    hatched and tagged Not seen (or Can't tell when the reply did not say). Never shown as clean. */
-.qs-c-zone polygon:not(.qs-c-unseen-face) { fill: none; stroke: var(--schem-grid); stroke-width: 1; stroke-dasharray: 3 4; vector-effect: non-scaling-stroke; }
+.qs-c-zone polygon:not(.qs-c-unseen-face), .qs-c-section polygon { fill: none; stroke: var(--schem-grid); stroke-width: 1; stroke-dasharray: 3 4; vector-effect: non-scaling-stroke; }
 .qs-c-zone--partial polygon:not(.qs-c-unseen-face) { stroke: var(--cert-unseen-fg); stroke-dasharray: 8 4; stroke-width: 1.5; }
 .qs-c-zone--unseen polygon:not(.qs-c-unseen-face) { stroke: var(--line-strong); }
 .qs-c-zone__tag rect { fill: var(--cert-unseen-bg); stroke: var(--line-strong); stroke-dasharray: 4 3; }

@@ -55,12 +55,13 @@ describe('Luna request', () => {
     expect(instructions).not.toMatch(/modulo|A=10/)
   })
 
-  it('asks eleven named choice questions: letters for positions 1-4, digits for 5-11', () => {
+  it('asks eleven character questions and the owner-code question: letters for positions 1-4, digits for 5-11', () => {
     const { questions } = buildLunaRequest(DATA_URL)
-    expect(questions).toHaveLength(11)
-    expect(questions.map((q) => q.name)).toEqual(
-      Array.from({ length: 11 }, (_, i) => `id_char_${String(i + 1).padStart(2, '0')}`),
-    )
+    expect(questions).toHaveLength(12)
+    expect(questions.map((q) => q.name)).toEqual([
+      ...Array.from({ length: 11 }, (_, i) => `id_char_${String(i + 1).padStart(2, '0')}`),
+      'owner_code',
+    ])
     const letters = questions[0]!
     expect(letters.type).toBe('choice')
     expect(letters.type === 'choice' && letters.choices.map((c) => c.value)).toHaveLength(26)
@@ -126,7 +127,8 @@ describe('Luna response mapping', () => {
     const mapped = mapLunaResponse(response, 'gpt-6-luna')
     expect(mapped.containerId.positionCertainty?.[9]).toBe('Likely')
     expect(mapped.containerId.certainty).toBe('Likely')
-    expect(mapped.containerId.alternatives).toEqual(['APHU65868' + '1' + '7'])
+    // APHU6586847 passes the check digit and the swapped reading does not, so it stands alone.
+    expect(mapped.containerId.alternatives).toBeUndefined()
   })
 
   it('does not read a position as Confident when the runner-up is within the margin (0.90 against 0.88)', () => {

@@ -4,7 +4,6 @@ import {
   VIEWS,
   faceStatus,
   findingsInView,
-  imageRelativeFindings,
   viewHasPhotos,
   type DamageAssessment,
   type FaceStatus,
@@ -29,8 +28,16 @@ function photoNumber(face: FixedFace): number {
   return props.assessment.photos.findIndex((p) => p.face === face) + 1
 }
 
+// A side picked by default, not from the doors, is said to be uncertain wherever it is named.
+function sideUncertain(face: FixedFace): boolean {
+  const inference = props.assessment.sideInference
+  return inference?.basis === 'defaulted' && inference.side === face
+}
+
 function coverageText(face: FixedFace, status: FaceStatus): string {
-  if (status === 'photographed') return `Photo ${photoNumber(face)}`
+  if (status === 'photographed') {
+    return `Photo ${photoNumber(face)}${sideUncertain(face) ? ' · side Uncertain' : ''}`
+  }
   if (status === 'side-unknown') return "Can't tell"
   return 'Not seen'
 }
@@ -42,8 +49,8 @@ const coverage = computed(() =>
   }),
 )
 
-function faceText(name: string, status: FaceStatus): string {
-  if (status === 'photographed') return name
+function faceText(name: string, status: FaceStatus, uncertain = false): string {
+  if (status === 'photographed') return uncertain ? `${name} · side Uncertain` : name
   if (status === 'side-unknown') return "Long side · Can't tell"
   return `${name} · Not seen`
 }
@@ -57,23 +64,29 @@ const views = computed(() =>
       spec,
       noPhotos: !viewHasPhotos(props.assessment, spec.id),
       markers: findingsInView(props.assessment, spec.id),
-      // The door set's regions are drawn on the end of the view that holds the end.
-      zones: (props.assessment.zones ?? []).filter((z) => z.face === spec.end),
+      // Zones are drawn on the face of the view that holds them: the door set's on its end, the side set's on its side.
+      zones: (props.assessment.zones ?? []).filter(
+        (z) => z.face === spec.end || z.face === spec.side,
+      ),
       side: {
         status: sideStatus,
-        text: faceText(`${spec.side === 'right' ? 'Right' : 'Left'} side`, sideStatus),
+        text: faceText(
+          `${spec.side === 'right' ? 'Right' : 'Left'} side`,
+          sideStatus,
+          sideUncertain(spec.side),
+        ),
       },
       end: { status: endStatus, text: faceText(endName, endStatus) },
     }
   }),
 )
 
-const imageFindings = computed(() => imageRelativeFindings(props.assessment))
-const showImage = computed(() => props.assessment.photos.some((p) => p.face === 'long-side'))
-// The long side's photo-relative zone grid (a live long-side assessment), with each zone's visibility.
-const imageZones = computed(() =>
-  (props.assessment.zones ?? []).filter((z) => z.face === 'long-side'),
-)
+// A view with no photographed face is replaced by one line, unless nothing at all was photographed:
+// then both drawings stay, as the empty state.
+const anyPhotographed = computed(() => views.value.some((v) => !v.noPhotos))
+const hidden = (v: { noPhotos: boolean }) => anyPhotographed.value && v.noPhotos
+
+const sideNotCertain = computed(() => props.assessment.sideInference?.basis === 'defaulted')
 // Any zone grid in the assessment keeps its dashed edges visible.
 const hasZones = computed(() => (props.assessment.zones ?? []).length > 0)
 </script>
@@ -82,37 +95,41 @@ const hasZones = computed(() => (props.assessment.zones ?? []).length > 0)
   <div :class="['qs-schem', { 'qs-schem--show-grid': hasZones }]">
     <div class="qs-schem__views">
       <div class="qs-schem__views-in">
-        <SchematicFigure
-          v-for="v in views"
-          :key="v.spec.id"
-          :id="v.spec.id"
-          :caption="v.spec.label"
-          :no-photos="v.noPhotos"
-          :side="v.side"
-          :end="v.end"
-          :roof="true"
-          :markers="v.markers"
-          :zones="v.zones"
-          :selected-id="selectedId"
-          @select="emit('select', $event)"
-        />
+        <template v-for="v in views" :key="v.spec.id">
+          <p
+            v-if="hidden(v)"
+            class="qs-coverage__item qs-coverage__item--unseen"
+            :data-view-hidden="v.spec.id"
+          >
+            <i class="qs-glyph qs-glyph--unseen" aria-hidden="true"></i>
+            <span>{{ v.spec.label }}: not photographed</span>
+          </p>
+          <SchematicFigure
+            v-else
+            :id="v.spec.id"
+            :caption="v.spec.label"
+            :no-photos="v.noPhotos"
+            :side="v.side"
+            :end="v.end"
+            :roof="true"
+            :markers="v.markers"
+            :zones="v.zones"
+            :length-ft="assessment.lengthFt"
+            :selected-id="selectedId"
+            @select="emit('select', $event)"
+          />
+        </template>
       </div>
     </div>
 
-    <div v-if="showImage" class="qs-schem__views">
-      <div class="qs-schem__views-in">
-        <SchematicFigure
-          id="image-relative"
-          caption="Long side, image-relative"
-          :no-photos="false"
-          :side="{ status: 'photographed', text: 'Long side' }"
-          :end="null"
-          :roof="false"
-          :markers="imageFindings"
-          :zones="imageZones"
-          :selected-id="selectedId"
-          @select="emit('select', $event)"
-        />
+    <div v-if="sideNotCertain" class="qs-notice" role="note">
+      <i class="qs-glyph qs-glyph--unknown" aria-hidden="true"></i>
+      <div>
+        <div class="qs-notice__title">Right side · side Uncertain</div>
+        <div class="qs-notice__body">
+          The door end cannot be made out in the photo, so we are unsure which long side it is. The
+          findings are drawn on the right side.
+        </div>
       </div>
     </div>
 

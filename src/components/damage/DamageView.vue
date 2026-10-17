@@ -46,7 +46,7 @@ const facts = computed(() => {
   const rows: { label: string; value: string }[] = []
   if (a.imageQuality) rows.push({ label: 'Photo quality', value: QUALITY[a.imageQuality] })
   if (a.coverage) {
-    const longSide = a.photos.some((p) => p.face === 'long-side')
+    const longSide = !!a.sideInference || a.photos.some((p) => p.face === 'long-side')
     const doorEnd = a.photos.some((p) => p.face === 'rear')
     rows.push({
       label: longSide ? 'Side sheet visible' : doorEnd ? 'Door end visible' : 'Face visible',

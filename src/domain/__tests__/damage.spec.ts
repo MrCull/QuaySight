@@ -4,7 +4,6 @@ import {
   VIEWS,
   faceStatus,
   findingsInView,
-  imageRelativeFindings,
   SEVERITY_LEVELS,
   severityOfLevel,
   sortFindings,
@@ -26,9 +25,9 @@ describe('face coverage', () => {
     expect(faceStatus(recordedSideDamage, 'roof')).toBe('not-seen')
   })
 
-  it("marks both long sides as can't tell when the photo does not establish which side it is", () => {
-    expect(faceStatus(recordedSideDamage, 'left')).toBe('side-unknown')
-    expect(faceStatus(recordedSideDamage, 'right')).toBe('side-unknown')
+  it('marks the side a long-side photo was drawn on as photographed and the other as not seen', () => {
+    expect(faceStatus(recordedSideDamage, 'right')).toBe('photographed')
+    expect(faceStatus(recordedSideDamage, 'left')).toBe('not-seen')
   })
 
   it('marks only the named side as photographed when the side is established', () => {
@@ -45,7 +44,7 @@ describe('the two fixed views', () => {
   })
 
   it('says a view has no photos when none of its faces was photographed', () => {
-    expect(viewHasPhotos(recordedSideDamage, 'rear-right')).toBe(false)
+    expect(viewHasPhotos(recordedSideDamage, 'rear-right')).toBe(true)
     expect(viewHasPhotos(recordedSideDamage, 'front-left')).toBe(false)
   })
 
@@ -58,10 +57,9 @@ describe('the two fixed views', () => {
     expect(viewHasPhotos(a, 'rear-right')).toBe(true)
   })
 
-  it('keeps a long-side finding out of both views, in the image-relative group', () => {
-    expect(findingsInView(recordedSideDamage, 'rear-right')).toEqual([])
+  it('draws a long-side finding in the view of its side only', () => {
+    expect(findingsInView(recordedSideDamage, 'rear-right').map((f) => f.id)).toEqual([1])
     expect(findingsInView(recordedSideDamage, 'front-left')).toEqual([])
-    expect(imageRelativeFindings(recordedSideDamage).map((f) => f.id)).toEqual([1])
   })
 })
 
@@ -106,9 +104,7 @@ describe('severity scale', () => {
 
 describe('recorded side-damage fixture', () => {
   it('is based on the single side photo in samples, with no provider probability invented', () => {
-    expect(recordedSideDamage.photos).toEqual([
-      { photo: 'side-dented-grey.jpg', face: 'long-side' },
-    ])
+    expect(recordedSideDamage.photos).toEqual([{ photo: 'side-dented-grey.jpg', face: 'right' }])
     expect(recordedSideDamage.findings).toHaveLength(1)
     const [finding] = recordedSideDamage.findings
     expect(finding!.types.map((t) => t.code)).toEqual(['DT'])

@@ -182,7 +182,6 @@ describe('the crop read of the container ID (Jev)', () => {
       value: 'COYU2668130',
       certainty: 'Confident',
       checkDigitValid: true,
-      alternatives: ['COYU2661130'],
     })
     expect(store.record?.idCropRead).toMatchObject({
       outcome: 'combined',

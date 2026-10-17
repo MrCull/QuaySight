@@ -7,6 +7,8 @@
 // question format, so the same translation and answer mapping serve both.
 import { calculateCheckDigit } from './iso6346'
 import { buildContainerIdReading } from './containerId'
+import { combineOwnerReading, readOwnerPick, type OwnerPick } from './ownerPick'
+import { rankIdCandidates, withCategoryLetter } from './idCandidates'
 import { CERTAINTY_LABELS, UNREAD } from './certainty'
 import type { CertaintyLabel, ContainerIdReading } from './inspection'
 import type { Usage } from './ledger'
@@ -234,13 +236,24 @@ export function jevCaveatsOf(answers: Record<string, SharedAnswer>): JevCaveats 
  * UNREAD; the check digit is calculated here, not taken from the model; a caveat makes the reading at
  * most Uncertain. Used for the full-photo reading and for the full-photo and crop readings combined.
  */
-export function jevIdReading(readings: ChoiceReading[], caveats: JevCaveats): ContainerIdReading {
+export function jevIdReading(
+  rawReadings: ChoiceReading[],
+  caveats: JevCaveats,
+  ownerPick?: OwnerPick | null,
+): ContainerIdReading {
+  const owner = combineOwnerReading(rawReadings, ownerPick)
+  const readings = withCategoryLetter(owner.readings)
   const { hardToRead, partlyOutOfFrame } = caveats
-  const chars = readings.map((r) => r.value ?? UNREAD)
   const positionCertainty = readings.map((r) => r.certainty)
-  const printed = chars.join('')
   let certainty = worstOf(positionCertainty)
   if (hardToRead || partlyOutOfFrame) certainty = atLeastUncertain(certainty)
+  const ranked = rankIdCandidates(
+    readings,
+    hardToRead || partlyOutOfFrame ? atLeastUncertain('Confident') : 'Confident',
+    owner.alternatives,
+  )
+  const chars = ranked.chars
+  const printed = chars.join('')
 
   let containerId: ContainerIdReading
   if (!printed.includes(UNREAD)) {
@@ -263,14 +276,7 @@ export function jevIdReading(readings: ChoiceReading[], caveats: JevCaveats): Co
     }
   }
 
-  const alternatives: string[] = []
-  readings.forEach((reading, index) => {
-    if (reading.runnerUp === null || alternatives.length >= 2) return
-    const swapped = [...chars]
-    swapped[index] = reading.runnerUp
-    alternatives.push(swapped.join(''))
-  })
-  if (alternatives.length > 0) containerId.alternatives = alternatives
+  if (ranked.alternatives.length > 0) containerId.alternatives = ranked.alternatives
 
   const notes: string[] = []
   const uncertainPositions = readings
@@ -327,6 +333,8 @@ export function mapJevResponse(
 export interface JevIdReading {
   containerId: ContainerIdReading
   readings: ChoiceReading[]
+  /** The model's pick from the owner-code list, or null when it was not asked or did not answer. */
+  ownerPick: OwnerPick | null
   caveats: JevCaveats
   box: JevBox | null
 }
@@ -338,9 +346,11 @@ export interface JevIdReading {
 export function jevIdReadingOf(answers: Record<string, SharedAnswer>): JevIdReading {
   const readings = readIdCharacters(answers)
   const caveats = jevCaveatsOf(answers)
+  const ownerPick = readOwnerPick(answers)
   return {
-    containerId: jevIdReading(readings, caveats),
+    containerId: jevIdReading(readings, caveats, ownerPick),
     readings,
+    ownerPick,
     caveats,
     box: boxOf(answers.container_box),
   }

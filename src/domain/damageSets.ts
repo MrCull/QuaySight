@@ -15,9 +15,11 @@ import type {
   DamageFinding,
   FaceCoverage,
   ImageQuality,
+  SideInference,
   ZoneCoverage,
 } from './damage'
 import type { InspectionRecord } from './inspection'
+import { chosenLength, type LengthReading } from './chosenLength'
 import type { FaceReading, PhotoFace } from './photoFace'
 
 declare module './inspection' {
@@ -67,10 +69,68 @@ function notAssessed(reason: string): DamageAssessment {
   return { source: 'live', photos: [], findings: [], notAssessed: { reason } }
 }
 
+/**
+ * The side a long-side photo shows, from where the doors are in it. Photo-left is drawn as the face's
+ * start and photo-right as its end on both fixed views (the end face drawn beside the side is the rear
+ * on the right side and the front on the left side), so a photo whose doors are at photo-left lines up
+ * with the left side's door end and one with doors at photo-right with the right side's: no mirroring.
+ */
+function sideFor(doorEnd: DamageSetReading['doorEnd']): SideInference {
+  if (doorEnd === 'image-left') return { side: 'left', basis: 'inferred' }
+  if (doorEnd === 'image-right') return { side: 'right', basis: 'inferred' }
+  return { side: 'right', basis: 'defaulted' }
+}
+
+/** Photo-relative wording in the long side's texts, in the container's own terms once the doors settle the side. */
+function inContainerTerms(
+  text: string,
+  inference: SideInference,
+  doorEnd: DamageSetReading['doorEnd'],
+): string {
+  if (inference.basis === 'defaulted' || !doorEnd) return text
+  const leftName = doorEnd === 'image-left' ? 'the door end' : 'the front end'
+  const rightName = doorEnd === 'image-left' ? 'the front end' : 'the door end'
+  return text
+    .replace(/from the left/g, `from ${leftName}`)
+    .replace(/at photo left/g, `at ${leftName}`)
+    .replace(/at photo right/g, `at ${rightName}`)
+}
+
+function placeOnSide(reading: DamageSetReading, inference: SideInference) {
+  const words = (t: string) => inContainerTerms(t, inference, reading.doorEnd)
+  return {
+    findings: reading.findings.map((f) => ({
+      ...f,
+      face: inference.side,
+      title: words(f.title),
+      location: words(f.location),
+      description: words(f.description),
+      bestInterpretation: words(f.bestInterpretation),
+      uncertainty: words(f.uncertainty),
+      caveats: f.caveats.map(words),
+    })),
+    zones: reading.zones.map((z) => ({ ...z, face: inference.side, label: words(z.label) })),
+  }
+}
+
 function fromReading(reading: DamageSetReading, photo: string | null): DamageAssessment {
   const face = DAMAGE_SET_FACES[reading.face]
   if (!reading.inspectable || !face) {
     return notAssessed(`The ${FACE_NAME[reading.face]} is not inspectable in this photo.`)
+  }
+  if (face === 'long-side') {
+    const sideInference = sideFor(reading.doorEnd)
+    return {
+      source: 'live',
+      photos: photo ? [{ photo, face: sideInference.side }] : [],
+      ...placeOnSide(reading, sideInference),
+      imageQuality: reading.imageQuality,
+      coverage: reading.coverage,
+      significantProbability: reading.significantProbability,
+      doorEnd: reading.doorEnd,
+      sideInference,
+      ...(reading.passId ? { passId: reading.passId } : {}),
+    }
   }
   return {
     source: 'live',
@@ -118,10 +178,20 @@ export function assessDamage(
 }
 
 function reassess(record: InspectionRecord): InspectionRecord {
-  return {
-    ...record,
-    damage: assessDamage(record.photoFace, record.damageReadings ?? [], record.photo?.name ?? null),
-  }
+  const damage = assessDamage(
+    record.photoFace,
+    record.damageReadings ?? [],
+    record.photo?.name ?? null,
+  )
+  return { ...record, damage: damage && { ...damage, lengthFt: chosenLength(record).feet } }
+}
+
+/** The model's length answer folded in: the drawing's length is chosen again. */
+export function withModelLength(
+  record: InspectionRecord,
+  reading: LengthReading | null,
+): InspectionRecord {
+  return reassess({ ...record, modelLength: reading })
 }
 
 /** The survey's face folded in: the damage is chosen again. */
