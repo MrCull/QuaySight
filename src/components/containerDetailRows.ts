@@ -13,6 +13,7 @@ import type { CertaintyLabel, InspectionRecord } from '../domain/inspection'
 import type { Units } from '../domain/unitPreference'
 import {
   payloadConflictText,
+  printedPayloadHidden,
   toImperial,
   type CapacityRow,
   type Unread,
@@ -220,6 +221,7 @@ export function weightGroup(record: InspectionRecord, units: Units = 'metric'): 
     return { id: 'weights', rows: [], notAssessed: WEIGHTS_NOT_ASSESSED }
   }
   const live = weights?.printedPayload !== undefined
+  const showPrinted = live && !printedPayloadHidden(weights)
   const conflict = weights?.payloadConflict
     ? payloadConflictText(weights.payloadConflict, units)
     : (weights?.conflict ?? null)
@@ -235,7 +237,7 @@ export function weightGroup(record: InspectionRecord, units: Units = 'metric'): 
     }),
     weightRow('TARE', weights?.tare ?? null, weights?.unread?.tare, units, { note: null }),
   ]
-  if (live) {
+  if (showPrinted) {
     rows.push(
       weightRow(
         'PAYLOAD',

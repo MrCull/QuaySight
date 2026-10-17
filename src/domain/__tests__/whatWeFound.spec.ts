@@ -457,6 +457,35 @@ describe('the damage verdict', () => {
   })
 })
 
+describe('the printed payload in What we found (ticket #65)', () => {
+  const C = 'Confident' as const
+  type Pair = { metric: ReturnType<typeof read>; imperial: ReturnType<typeof read> }
+  const confident = {
+    maxGross: { metric: read(30480, C), imperial: read(67200, C) },
+    tare: { metric: read(2180, C), imperial: read(4810, C) },
+  }
+  const found = async (payload: Pair, rest: object = confident) =>
+    buildWhatWeFound({
+      ...(await fullLive()),
+      weights: evaluateWeights(coyuReading({ ...rest, payload })),
+    })
+
+  it('says only the Confident calculated payload when the printed one disagrees with itself', async () => {
+    const f = await found({ metric: read(22330, C), imperial: read(63390, C) })
+    expect(statement(f, 'weights')).toContain('Payload 28,300 kg')
+    expect(everything(f)).not.toMatch(/22,330|63,390|Printed payload/)
+  })
+
+  it('keeps the printed payload caveat when neither is Confident', async () => {
+    // Maximum gross disagrees with itself, so the calculated payload is Uncertain too.
+    const f = await found(
+      { metric: read(22330, C), imperial: read(63390, C) },
+      { ...confident, maxGross: { metric: read(30480, C), imperial: read(67900, C) } },
+    )
+    expect(f.caveats.join(' ')).toContain('Printed payload')
+  })
+})
+
 describe('a partial result', () => {
   it('summarises only what arrived and says what is missing', async () => {
     const base = await fullLive()
