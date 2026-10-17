@@ -6,6 +6,7 @@
 import { CERTAINTY_LABELS } from './certainty'
 import { usableIdBox } from './cropRead'
 import type { ReadingBox } from './enlargedCrop'
+import { oneStepUp } from './combineReadings'
 import { readCharacter } from './idQuestions'
 import type { CertaintyLabel } from './inspection'
 import type { FamilyExport, QuestionFamily } from './questionRegistry'
@@ -57,19 +58,27 @@ const UNREADABLE = 'unreadable'
 const VISIBLE_MIN = 0.5
 
 const VISIBLE_QUESTION = 'seal_visible'
+const LENGTH_QUESTION = 'seal_length'
+const SECOND_QUESTION = 'seal_second_copy'
 const BOX_QUESTION = 'seal_box'
 const charName = (position: number) => `seal_char_${String(position).padStart(2, '0')}`
+const secondName = (position: number) => `seal_second_char_${String(position).padStart(2, '0')}`
+const LENGTHS = Array.from({ length: SEAL_POSITIONS }, (_, i) => String(i + 1))
 
 const ORDINALS = ['first', 'second', 'third', 'fourth', 'fifth', 'sixth', 'seventh', 'eighth']
 
 const LAYOUT =
   'The seal is the small tamper-evident device fitted to the door locking bar or handle of the container, with its own number printed or embossed on it. This is not the container identification.'
 
-function characterQuestion(position: number): ChoiceQuestion {
+function characterQuestion(position: number, second = false): ChoiceQuestion {
   return {
     type: 'choice',
-    name: charName(position),
-    instructions: `${LAYOUT} Read only the ${ORDINALS[position - 1]} character of the seal number, counting from its left. If the number is shorter than that, answer none.`,
+    name: second ? secondName(position) : charName(position),
+    instructions: `${LAYOUT} ${
+      second
+        ? 'The same number is printed a second time on the seal. Read it again, independently of the first copy, and only'
+        : 'Read only'
+    } the ${ORDINALS[position - 1]} character of the seal number, counting from its left. If the number is shorter than that, answer none.`,
     choices: [
       ...SEAL_CHARACTERS.map((value) => ({
         value,
@@ -91,7 +100,22 @@ function questions(ask: { box: boolean }): SharedQuestion[] {
       name: VISIBLE_QUESTION,
       instructions: `${LAYOUT} Is a seal visible in the photo?`,
     },
+    {
+      type: 'choice',
+      name: LENGTH_QUESTION,
+      instructions: `${LAYOUT} How many characters does the seal number have? Count every digit or letter of the number, including any you cannot read.`,
+      choices: [
+        ...LENGTHS.map((value) => ({ value, description: `${value} characters` })),
+        { value: UNREADABLE, description: 'The number cannot be counted' },
+      ],
+    },
     ...Array.from({ length: SEAL_POSITIONS }, (_, i) => characterQuestion(i + 1)),
+    {
+      type: 'predicate',
+      name: SECOND_QUESTION,
+      instructions: `${LAYOUT} Is the seal number printed a second time on the seal (bolt seals print it on both the bolt and the barrel), and can that second copy be seen?`,
+    },
+    ...Array.from({ length: SEAL_POSITIONS }, (_, i) => characterQuestion(i + 1, true)),
   ]
   if (ask.box) {
     out.push({
@@ -121,6 +145,13 @@ function placeAt(answer: SharedAnswer | undefined): Place {
     : { kind: 'read', character: { value: read.value, certainty: read.certainty } }
 }
 
+const rankOf = (l: CertaintyLabel) => CERTAINTY_LABELS.indexOf(l)
+/** The weaker of two labels; with `better`, the stronger (two copies that agree stand on the better one). */
+function weakerLabel(a: CertaintyLabel, b: CertaintyLabel, better = false): CertaintyLabel {
+  const aWeaker = rankOf(a) >= rankOf(b)
+  return (aWeaker !== better) ? a : b
+}
+
 function weakest(labels: CertaintyLabel[]): CertaintyLabel {
   return labels.reduce((worst, l) =>
     CERTAINTY_LABELS.indexOf(l) > CERTAINTY_LABELS.indexOf(worst) ? l : worst,
@@ -140,15 +171,42 @@ export function readSeal(
   }
 
   const places = Array.from({ length: SEAL_POSITIONS }, (_, i) => placeAt(answers[charName(i + 1)]))
-  // The number ends at its last read character, or at an unreadable one the model said was there.
-  // Places after it were answered "none", or too weakly to say: they are not part of the number.
+  const lengthRead = readCharacter(answers[LENGTH_QUESTION], LENGTHS)
+  const count = lengthRead.value === null ? null : Number(lengthRead.value)
+  // The count comes first. Without one (an older recording, or an unreadable count) the number ends at its
+  // last read character, or at an unreadable one the model said was there; places after it were answered
+  // "none", or too weakly to say.
   let end = 0
   places.forEach((p, i) => {
     if (p.kind === 'read' || p.kind === 'unreadable') end = i + 1
   })
-  const anyRead = places.some((p) => p.kind === 'read')
+  if (count !== null) end = count
+  // A second printed copy is a second, separate read of each place.
+  const secondSeen = answers[SECOND_QUESTION]
+  const second =
+    count !== null && secondSeen?.type === 'predicate' && secondSeen.probability >= VISIBLE_MIN
+      ? Array.from({ length: SEAL_POSITIONS }, (_, i) => placeAt(answers[secondName(i + 1)]))
+      : null
+  const merged = places.slice(0, end).map((p, i): Place => {
+    const other = second?.[i]
+    if (!other || other.kind !== 'read') return p
+    if (p.kind !== 'read') return other
+    const [a, b] = [p.character, other.character]
+    if (a.value === b.value) {
+      return {
+        kind: 'read',
+        character: { value: a.value, certainty: oneStepUp(weakerLabel(a.certainty, b.certainty, true)) },
+      }
+    }
+    const best = rankOf(a.certainty) <= rankOf(b.certainty) ? a : b
+    return {
+      kind: 'read',
+      character: { value: best.value, certainty: weakerLabel(best.certainty, 'Uncertain') },
+    }
+  })
+  const anyRead = merged.some((p) => p.kind === 'read')
   const characters = anyRead
-    ? places.slice(0, end).map((p): SealCharacter => (p.kind === 'read' ? p.character : UNREAD))
+    ? merged.map((p): SealCharacter => (p.kind === 'read' ? p.character : UNREAD))
     : []
 
   const read = characters.filter((c) => c.value !== null)

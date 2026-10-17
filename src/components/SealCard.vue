@@ -23,7 +23,7 @@ function charState(level: CertaintyLabel): string | undefined {
 
 const chars = computed(() =>
   props.reading.characters.map((c, index) => ({
-    ch: c.value ?? '·',
+    ch: c.value ?? '?',
     index,
     state: c.value === null ? 'unknown' : charState(c.certainty),
   })),
