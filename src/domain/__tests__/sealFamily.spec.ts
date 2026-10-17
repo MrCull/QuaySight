@@ -60,13 +60,13 @@ describe('the seal questions', () => {
 describe('a seal that was read', () => {
   const answers = spelled(['4', '2', '1', '7', '0', '9', '5'])
 
-  it('is shown character by character with its certainty', () => {
+  it('is shown character by character, one read no better than Likely', () => {
     const seal = record(answers).seal!
     expect(seal.visible).toBe(true)
     expect(seal.value).toBe('4217095')
     expect(seal.characters).toHaveLength(7)
-    expect(seal.characters.every((c) => c.certainty === 'Confident')).toBe(true)
-    expect(seal.certainty).toBe('Confident')
+    expect(seal.characters.every((c) => c.certainty === 'Likely')).toBe(true)
+    expect(seal.certainty).toBe('Likely')
   })
 
   it('carries the box it was read at when the model gave a usable one', () => {
@@ -84,10 +84,10 @@ describe('a seal that was read', () => {
   it('is in the JSON export and the summary, with no check digit', () => {
     const r = record(answers)
     expect(buildInspectionExport(r).values).toContainEqual(
-      expect.objectContaining({ field: 'seal', value: '4217095', certainty: 'Confident' }),
+      expect.objectContaining({ field: 'seal', value: '4217095', certainty: 'Likely' }),
     )
     const summary = buildSummaryText(r)
-    expect(summary).toContain('Seal: 4217095 - Confident')
+    expect(summary).toContain('Seal: 4217095 - Likely')
     expect(summary.toLowerCase()).not.toContain('seal check')
     expect(JSON.stringify(buildInspectionExport(r)).toLowerCase()).not.toContain('seal.check')
   })

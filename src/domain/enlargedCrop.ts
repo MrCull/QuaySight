@@ -12,7 +12,7 @@ export type ReadingBox = IdBox
  * Space kept around the box on every side, as a fraction of the box's long side. Model boxes are
  * approximate and often short, and a presenter checking a reading wants the surroundings too.
  */
-export const ENLARGED_MARGIN = 0.5
+export const ENLARGED_MARGIN = 0.8
 
 /** A region of the photo in its own pixels. */
 export interface CropFrame {
