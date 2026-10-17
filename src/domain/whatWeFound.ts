@@ -354,7 +354,7 @@ function facesOf(assessment: DamageAssessment): string {
 const LISTED = 3
 
 function findingText(f: DamageFinding): string {
-  return `${f.title}, ${f.severity ?? 'not rated'} (${f.certainty})`
+  return `${f.title}, ${f.severity ?? "can't tell"} (${f.certainty})`
 }
 
 const FIXED_FACES = ['rear', 'front', 'left', 'right', 'roof'] as const

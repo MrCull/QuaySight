@@ -119,7 +119,7 @@ function pinClass(f: DamageFinding): string[] {
 }
 
 function pinLabel(f: DamageFinding): string {
-  const severity = f.severity ? `apparent ${f.severity}` : 'severity not rated'
+  const severity = f.severity ? `apparent ${f.severity}` : "severity can't tell"
   return `Finding ${f.id}: ${f.title.toLowerCase()}, ${severity}, ${f.certainty.toLowerCase()}. ${f.location}`
 }
 

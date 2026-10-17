@@ -257,7 +257,7 @@ describe('live damage in the exports', () => {
       photo: 'side.jpg',
       sourcePass: { passId: 'live-openrouter-1-side-damage', kind: 'provider-call' },
     })
-    expect(rail).toMatchObject({ component: 'rail', severity: 'not rated', visibility: null })
+    expect(rail).toMatchObject({ component: 'rail', severity: "can't tell", visibility: null })
   })
 
   it('carries the face, the photo checks, the significance flag and every zone’s visibility', async () => {
@@ -339,7 +339,7 @@ describe('live damage in the exports', () => {
   it('puts the significance flag and the unrated component in the summary, never as a repair verdict', async () => {
     const summary = buildSummaryText(await liveSideRecord())
     expect(summary).toContain('Potentially significant damage, closer inspection advised.')
-    expect(summary).toContain('- Damage to the bottom side rail - Likely, severity not rated')
+    expect(summary).toContain("- Damage to the bottom side rail - Likely, severity can't tell")
     expect(summary).not.toMatch(/repair required|unserviceable/i)
   })
 })

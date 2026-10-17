@@ -58,7 +58,7 @@ describe('live door-end damage in the exports', () => {
       sourcePass: { passId: 'live-openrouter-2-door-damage', kind: 'provider-call' },
       region: { location: 'Photo-right door leaf, bottom third' },
     })
-    expect(hinge).toMatchObject({ component: 'hinge', severity: 'not rated', visibility: null })
+    expect(hinge).toMatchObject({ component: 'hinge', severity: "can't tell", visibility: null })
     expect(json.damage).toMatchObject({
       photoFace: { face: 'rear-doors' },
       coverage: 'most',

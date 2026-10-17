@@ -69,7 +69,7 @@ export interface ExportFindingLink {
   component: DamageComponent
   /** How well the finding's zone was seen, or null when the set did not say. */
   visibility: ZoneVisibility | null
-  /** Apparent visual severity, or 'not rated' for a component the photo gives no severity for. */
+  /** Apparent visual severity, or "can't tell" for a component the photo gives no severity for. */
   severity: string
   /** The model's probability for each severity level, when it gave them. */
   severityProbabilities: Partial<Record<SeverityLevel, number>> | null
@@ -341,7 +341,7 @@ export function buildInspectionExport(record: InspectionRecord): InspectionExpor
         face: f.face,
         component: f.component,
         visibility: f.visibility,
-        severity: f.severity ?? 'not rated',
+        severity: f.severity ?? "can't tell",
         severityProbabilities: f.severityProbabilities
           ? Object.fromEntries(
               SEVERITY_LEVELS.map((level, i) => [level, f.severityProbabilities![i] ?? 0]),
@@ -442,7 +442,7 @@ export function buildSummaryText(record: InspectionRecord): string {
       lines.push('Potentially significant damage, closer inspection advised.')
     }
     for (const f of json.damage.findings) {
-      const severity = f.severity === 'not rated' ? 'severity not rated' : f.severity
+      const severity = f.severity === "can't tell" ? "severity can't tell" : f.severity
       lines.push(`- ${f.title} - ${f.certainty}, ${severity}`)
       lines.push(
         `  Photo: ${f.photo ?? 'not linked'}, region: ${f.region.location}, source pass: ${f.sourcePass.passId} (${f.sourcePass.kind})`,
