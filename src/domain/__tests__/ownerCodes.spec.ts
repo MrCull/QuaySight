@@ -50,11 +50,12 @@ describe('owner code list', () => {
 })
 
 describe('the codes the whole-prefix question offers', () => {
-  it('are the top 250 by rank plus JDLU and RWTU, so at most 252 with "none" fitting the 255 limit', () => {
-    expect(OFFERED_OWNER_CODES).toHaveLength(252)
+  it('are the top 250 by rank plus JDLU, RWTU and COYU, so 253 with "none" fitting under the 255 limit', () => {
+    expect(OFFERED_OWNER_CODES).toHaveLength(253)
     expect(OFFERED_OWNER_CODES.slice(0, 250)).toEqual(OWNER_CODES.slice(0, 250))
     expect(OFFERED_OWNER_CODES).toContain('JDLU')
     expect(OFFERED_OWNER_CODES).toContain('RWTU')
+    expect(OFFERED_OWNER_CODES).toContain('COYU')
     expect(ownerCodeRank('JDLU')).toBeGreaterThan(250)
   })
 

@@ -42,9 +42,11 @@ export interface OwnerCodeEntry {
   source: OwnerCodeSource
 }
 
-/** The whole-prefix question offers this many codes by rank (plus ALWAYS_OFFERED), under the 255-choice limit. */
+/** The whole-prefix question offers this many codes by rank (plus the always-offered codes), under the 255-choice limit. */
 const OFFER_TOP = 250
-const ALWAYS_OFFERED = ['JDLU', 'RWTU']
+const ADDED = ['JDLU', 'RWTU']
+/** Also offered whatever their rank: COYU is a real container in the regression set, so the question must be able to name it. */
+const ALWAYS_OFFERED = [...ADDED, 'COYU']
 
 /** The supplied ranking, best first. */
 const SUPPLIED = `
@@ -88,7 +90,7 @@ function codesOf(block: string): string[] {
 
 const ORDERED: { code: string; source: OwnerCodeSource }[] = [
   ...codesOf(SUPPLIED).map((code) => ({ code, source: 'supplied' as const })),
-  ...ALWAYS_OFFERED.map((code) => ({ code, source: 'added' as const })),
+  ...ADDED.map((code) => ({ code, source: 'added' as const })),
   ...codesOf(VERIFIED_EXTRA).map((code) => ({ code, source: 'verified' as const })),
   ...Object.keys(UNCONFIRMED_OWNER_CODES)
     .filter((code) => !codesOf(SUPPLIED).includes(code))
@@ -104,7 +106,7 @@ export const OWNER_CODE_ENTRIES: readonly OwnerCodeEntry[] = ORDERED.map((entry,
 /** Every code on the list, best rank first. */
 export const OWNER_CODES: readonly string[] = OWNER_CODE_ENTRIES.map((entry) => entry.code)
 
-/** The codes the whole-prefix question offers: the top 250 by rank, with JDLU and RWTU always included. */
+/** The codes the whole-prefix question offers: the top 250 by rank, with JDLU, RWTU and COYU always included. */
 export const OFFERED_OWNER_CODES: readonly string[] = [
   ...new Set([...OWNER_CODES.slice(0, OFFER_TOP), ...ALWAYS_OFFERED]),
 ]

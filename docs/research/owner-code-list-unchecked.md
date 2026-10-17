@@ -41,12 +41,12 @@ Date: 17 October 2026. `src/domain/ownerCodes.ts` now holds 559 codes, each with
 
 How the list is used:
 
-- The whole-prefix question offers the top 250 by rank, plus JDLU and RWTU always (252 codes, 253 choices with
-  "none", under the registry's 255-choice limit).
+- The whole-prefix question offers the top 250 by rank, plus JDLU and RWTU always, as the spec says, and COYU
+  too (253 codes, 254 choices with "none", under the registry's 255-choice limit).
 - "On the list" (`isOnOwnerList`, and the near-match candidates) checks the full list, so a code outside the top 250
   still counts as known.
 - Rank only breaks ties between equally near readings. It never raises certainty and never rejects a reading.
 
-Known consequence: COYU and the other verified codes sit outside the top 250, so the whole-prefix question does not
-offer them. COYU is still on the list and is a near-match candidate. If COYU should be offered, add it to the
-always-offered codes.
+COYU is offered although it ranks outside the top 250 (rank 503 onward): it is a real container in the regression
+set, and without it Luna's recorded COYU pick is no longer a valid answer and the ID score fell from hit to miss.
+The other verified codes outside the top 250 are not offered, but they are on the list and are near-match candidates.
