@@ -49,13 +49,13 @@ async function startLive(page: Page) {
   await page.locator('input[type="file"]').setInputFiles(samplePhoto)
 }
 
-const stage = (page: Page, title: string) =>
-  page.locator('.rs-stagecard li.qs-stage', { hasText: title })
+// Progress shows in the key-facts tiles: Reading… until a part lands (the ID and the seal land together).
+const tile = (page: Page, id: 'id' | 'seal' | 'damage') => page.locator(`[data-tile="${id}"]`)
 
 test.describe('Live run progress and Cancel', () => {
   test.use({ viewport: { width: 1440, height: 900 } })
 
-  test('stages advance as their requests settle (the ID, the details and the face share a request, the damage check is its own)', async ({
+  test('tiles fill in as their requests settle (the ID, the details and the face share a request, the damage check is its own)', async ({
     page,
   }) => {
     // The survey (call 1) is held; the long-side and door-end damage requests (calls 2 and 3) answer at once.
@@ -63,16 +63,21 @@ test.describe('Live run progress and Cancel', () => {
     await startLive(page)
     await expect.poll(() => edge.held.length).toBe(1)
 
-    await expect(stage(page, 'Reading the ID')).toHaveClass(/qs-stage--active/)
-    await expect(stage(page, 'Reading container details')).toHaveClass(/qs-stage--active/)
-    await expect(stage(page, 'Checking for damage')).toHaveClass(/qs-stage--done/)
+    // The tiles are there from the start, reading, with the thin progress indicator.
+    await expect(tile(page, 'id')).toHaveAttribute('data-state', 'reading')
+    await expect(tile(page, 'id')).toContainText('Reading…')
+    await expect(tile(page, 'seal')).toHaveAttribute('data-state', 'reading')
+    await expect(page.getByRole('progressbar', { name: 'Inspection progress' })).toBeVisible()
+    // No stage list: the tiles and the thin indicator are the progress.
+    await expect(page.locator('.qs-stage')).toHaveCount(0)
 
     await edge.release(0)
     await page.locator('#stage.qs-arrived').waitFor()
-    await expect(stage(page, 'Reading the ID')).toHaveClass(/qs-stage--done/)
-    await expect(stage(page, 'Reading container details')).toHaveClass(/qs-stage--done/)
-    await expect(stage(page, 'Reading the ID').locator('.qs-stage__time')).toHaveText(/^\d+\.\d s$/)
-    await expect(page.locator('.qs-id')).toBeVisible()
+    await expect(tile(page, 'id')).toHaveAttribute('data-state', 'arrived')
+    await expect(tile(page, 'seal')).toHaveAttribute('data-state', 'arrived')
+    await expect(tile(page, 'damage')).toHaveAttribute('data-state', 'arrived')
+    await expect(tile(page, 'id').locator('.qs-id')).toBeVisible()
+    await expect(page.getByRole('progressbar')).toHaveCount(0)
     await expect(page.getByRole('button', { name: 'Cancel' })).toHaveCount(0)
   })
 
@@ -107,11 +112,13 @@ test.describe('Live run progress and Cancel', () => {
     const edge = await decisions(page, [2, 3])
     await startLive(page)
     await expect.poll(() => edge.held.length).toBe(2)
-    await expect(stage(page, 'Reading the ID')).toHaveClass(/qs-stage--done/)
+    await expect(tile(page, 'id')).toHaveAttribute('data-state', 'arrived')
+    await expect(tile(page, 'damage')).toHaveAttribute('data-state', 'reading')
     await expect(page.locator('#stage')).toHaveClass(/qs-arriving/)
 
     // Each card plays its own arrival and ends fully drawn, inside the still-arriving screen.
-    await expect(page.locator('.qs-found')).toHaveCSS('opacity', '1')
+    await expect(tile(page, 'id')).toHaveCSS('opacity', '1')
+    await expect(tile(page, 'damage')).toHaveCSS('opacity', '1')
     await expect(page.locator('.rs-card', { has: page.locator('.qs-id') })).toHaveCSS(
       'opacity',
       '1',
@@ -132,7 +139,7 @@ test.describe('Live run progress and Cancel', () => {
     const edge = await decisions(page, [2, 3])
     await startLive(page)
     await expect.poll(() => edge.held.length).toBe(2)
-    await expect(stage(page, 'Reading the ID')).toHaveClass(/qs-stage--done/)
+    await expect(tile(page, 'id')).toHaveAttribute('data-state', 'arrived')
 
     await page.getByRole('button', { name: 'Cancel' }).click()
 

@@ -1,5 +1,7 @@
 # StageProgress
 
+> The main screen no longer shows this list: the `KeyFactTile` row, with its **Reading…** placeholders and thin progress indicator, shows progress there. This component stays for other progress lists (the manifest check inside `ManifestRetry` uses it).
+
 Stage progress shows what the inspection is doing while the audience waits, in plain words and with measured times, never a made-up percentage.
 
 ## States

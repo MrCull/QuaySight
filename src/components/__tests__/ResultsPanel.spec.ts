@@ -19,6 +19,18 @@ describe('ResultsPanel', () => {
     expect(wrapper.text()).toContain('Check digit valid')
   })
 
+  it('shows the key-facts tiles between the notices and the detail, and no What we found summary', async () => {
+    const store = useInspectionStore()
+    store.record = await recordedInspection('luna', { delayMs: 0 })
+    store.status = 'complete'
+    const wrapper = mount(ResultsPanel)
+    expect(wrapper.text()).not.toContain('What we found')
+    const tiles = wrapper.get('[aria-label="Key facts"]').element
+    const detail = wrapper.get('.rs-detail').element
+    expect(tiles.compareDocumentPosition(detail) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy()
+    expect(wrapper.get('[data-tile="id"]').text()).toContain('Confident')
+  })
+
   it('labels a Jev recorded result with the model, maker and route', async () => {
     const store = useInspectionStore()
     store.record = await recordedInspection('openrouter', { delayMs: 0 })

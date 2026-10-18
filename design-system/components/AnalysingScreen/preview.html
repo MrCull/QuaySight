@@ -10,6 +10,8 @@ body{margin:0;background:var(--bg)}
 .rs-crumb{font:600 15px/20px var(--font-sans);color:var(--ink)} .rs-crumb span{color:var(--ink-muted);font-weight:400}
 .rs-spacer{flex:1}
 .rs-main{display:grid;grid-template-columns:minmax(0,1fr) 540px;gap:var(--space-6);padding:var(--space-6)}
+.pv-wait{display:none}.qs-arriving .pv-wait{display:grid;gap:var(--space-3)}.qs-arriving .pv-done{display:none}
+.qs-keyfacts__progress{display:none}.qs-arriving .qs-keyfacts__progress{display:block}
 .rs-left{display:grid;gap:var(--space-4);align-content:start}
 .rs-photo{position:relative;aspect-ratio:1000/640;border-radius:var(--radius-lg);overflow:hidden;background:var(--surface-sunken);border:1px solid var(--line)}
 .rs-photo__bar{position:absolute;left:var(--space-3);right:var(--space-3);top:var(--space-3);display:flex;align-items:center;gap:var(--space-2);flex-wrap:wrap}
@@ -22,12 +24,8 @@ body{margin:0;background:var(--bg)}
 .rs-zoom button{width:32px;height:32px;border:0;border-radius:var(--radius-sm);background:var(--scrim);color:#fff;font:600 18px/1 var(--font-sans);cursor:pointer}
 .rs-analysing{position:absolute;inset:0;pointer-events:none;transition:opacity var(--duration-base)}
 .rs-sweep{position:absolute;left:0;right:0;top:0;height:40%;background:linear-gradient(180deg,transparent,var(--brand) 50%,transparent);opacity:.18;animation:qs-sweep 2.2s cubic-bezier(.4,0,.2,1) infinite}
-.rs-stagecard{position:absolute;left:var(--space-4);top:var(--space-4);width:330px;padding:var(--space-3) var(--space-4) var(--space-1);background:var(--surface-raised);border:1px solid var(--line);border-radius:var(--radius-md);box-shadow:var(--shadow-raised)}
-.rs-stagecard__k{font:600 11px/16px var(--font-sans);letter-spacing:.08em;text-transform:uppercase;color:var(--ink-muted);margin-bottom:4px}
 .qs-arrived .rs-analysing{opacity:0}
-.qs-arrived .rs-stagecard{animation:rs-out var(--duration-arrive) ease-in both}
-@keyframes rs-out{to{opacity:0;transform:translateY(-8px) scale(.98)}}
-.rs-thumbs{display:flex;gap:var(--space-3)}
+.qs-arrived .rs-thumbs{display:flex;gap:var(--space-3)}
 .rs-thumb{display:grid;gap:6px;width:156px;padding:0;border:0;background:none;color:var(--ink-muted);font:500 13px/16px var(--font-sans);text-align:left;cursor:pointer}
 .rs-thumb__img{display:block;aspect-ratio:16/10;border-radius:var(--radius-md);overflow:hidden;border:2px solid var(--line)}
 .rs-thumb__img svg{display:block;width:100%;height:100%}
@@ -68,6 +66,23 @@ body{margin:0;background:var(--bg)}
 </header>
 
 <main class="rs-main qs-arriving" id="stage">
+<section class="qs-keyfacts" aria-label="Key facts" style="grid-column:1/-1">
+<div class="qs-keyfacts__progress" role="progressbar" aria-label="Inspection progress" aria-valuemin="0" aria-valuemax="3" aria-valuenow="0" id="pv-progress"><i id="pv-bar" style="width:0"></i></div>
+<ul class="qs-keytiles">
+<li class="qs-keytile qs-keytile--id"><div class="qs-keytile__body qs-rise" style="--i:0" role="button" tabindex="0" data-tile="id">
+<span class="qs-keytile__head"><span class="qs-keytile__label qs-type-label">Container ID</span><span class="qs-cert qs-cert--likely pv-done"><i class="qs-glyph qs-glyph--likely"></i>Likely</span></span>
+<span class="pv-wait" aria-busy="true"><span class="qs-skeleton qs-keytile__skeleton" aria-hidden="true"></span><span class="qs-keytile__value qs-type-display-md qs-keytile__value--quiet">Reading…</span></span>
+<span class="pv-done"><span class="qs-id" aria-label="Q S I U 3 0 7 4 2 8, check digit 8"><span class="qs-id__group"><span class="qs-id__ch">Q</span><span class="qs-id__ch">S</span><span class="qs-id__ch">I</span><span class="qs-id__ch">U</span></span><span class="qs-id__group"><span class="qs-id__ch">3</span><span class="qs-id__ch">0</span><span class="qs-id__ch">7</span></span><span class="qs-id__group"><span class="qs-id__ch" data-c="likely">4</span><span class="qs-id__ch">2</span><span class="qs-id__ch">8</span></span><span class="qs-id__check">8</span></span><span class="qs-id__meta"><span class="qs-prov">Printed</span><span class="qs-prov qs-prov--calculated">Check digit valid</span></span></span></div></li>
+<li class="qs-keytile qs-keytile--seal"><div class="qs-keytile__body qs-rise" style="--i:1" role="button" tabindex="0" data-tile="seal">
+<span class="qs-keytile__head"><span class="qs-keytile__label qs-type-label">Seal</span><span class="qs-cert qs-cert--confident pv-done"><i class="qs-glyph qs-glyph--confident"></i>Confident</span></span>
+<span class="pv-wait" aria-busy="true"><span class="qs-skeleton qs-keytile__skeleton" aria-hidden="true"></span><span class="qs-keytile__value qs-type-display-md qs-keytile__value--quiet">Reading…</span></span>
+<span class="pv-done"><span class="qs-keytile__value qs-type-display-md qs-keytile__value--mono">4217095</span></span></div></li>
+<li class="qs-keytile qs-keytile--damage"><div class="qs-keytile__body qs-rise" style="--i:2" role="button" tabindex="0" data-tile="damage">
+<span class="qs-keytile__head"><span class="qs-keytile__label qs-type-label">Damage</span></span>
+<span class="pv-wait" aria-busy="true"><span class="qs-skeleton qs-keytile__skeleton" aria-hidden="true"></span><span class="qs-keytile__value qs-type-display-md qs-keytile__value--quiet">Reading…</span></span>
+<span class="pv-done"><span class="qs-keytile__value qs-type-display-md">3 findings</span><span class="qs-keytile__extra"><span class="qs-sev qs-sev--major"><span class="qs-sev__bars"><i></i><i></i><i></i><i></i></span>Major</span></span></span></div></li>
+</ul>
+</section>
   <section class="rs-left">
     <div class="rs-photo" style="--base:250ms">
       <svg class="qs-photo" viewBox="0 0 1000 640" preserveAspectRatio="xMidYMid slice" role="img" aria-label="Illustrated stand-in photo of rear container doors">
@@ -140,11 +155,7 @@ body{margin:0;background:var(--bg)}
 <g class="qs-photo-region qs-photo-region--id" style="--i:0"><rect x="526" y="108" width="280" height="100" rx="10"/></g>
 </g>
 </svg>
-      <div class="rs-analysing"><div class="rs-sweep"></div><div class="rs-stagecard"><div class="rs-stagecard__k">Analysing with GPT-6 Luna</div><ol class="qs-stages" id="stages" aria-live="polite">
-<li class="qs-stage" data-s="0"><span class="qs-stage__dot"></span><span class="qs-stage__title">Reading the ID</span><span class="qs-stage__time"></span></li>
-<li class="qs-stage" data-s="1"><span class="qs-stage__dot"></span><span class="qs-stage__title">Reading container details</span><span class="qs-stage__time"></span></li>
-<li class="qs-stage" data-s="2"><span class="qs-stage__dot"></span><span class="qs-stage__title">Checking for damage</span><span class="qs-stage__time"></span></li>
-</ol></div></div>
+      <div class="rs-analysing"><div class="rs-sweep"></div></div>
       <div class="rs-photo__bar">
         <span class="rs-pill"><i class="qs-glyph qs-glyph--check"></i>Photo 1 of 2 · Rear doors (face identified)</span>
         <span class="rs-pill rs-pill--muted">Dashed areas are approximate</span>
@@ -231,24 +242,6 @@ body{margin:0;background:var(--bg)}
 <div class="rs-card"><div class="qs-skeleton" style="width:30%;height:14px"></div><div class="qs-skeleton" style="width:85%;height:46px"></div><div class="qs-skeleton" style="width:55%;height:22px"></div></div>
 <div class="rs-card"><div class="qs-skeleton" style="width:25%;height:14px"></div><div class="qs-skeleton" style="height:22px"></div><div class="qs-skeleton" style="height:22px"></div><div class="qs-skeleton" style="height:22px"></div><div class="qs-skeleton" style="height:22px;width:70%"></div></div>
 </div>
-    <section class="qs-found qs-rise" style="--i:0;--base:40ms" aria-labelledby="rs-found">
-      <h2 class="qs-found__k qs-type-label" id="rs-found">What we found</h2>
-      <p class="qs-found__headline qs-type-display-md">Some of what we found is uncertain</p>
-      <div class="qs-found__block">
-        <div class="qs-found__label qs-type-label">What remains uncertain</div>
-        <ul class="qs-found__list qs-type-body">
-          <li>Tare: Uncertain. Best reading 3,750 kg; it could be 3,780 kg.</li>
-          <li>A possible hole on the right side (Uncertain); it could be a decal.</li>
-        </ul>
-      </div>
-      <ul class="qs-found__facts">
-        <li class="qs-found__fact"><span class="qs-found__topic qs-type-label">ID</span><p class="qs-type-body">The container ID reads QSIU 307428 8 (Likely). Also possible: QSIU 307478 1.</p></li>
-        <li class="qs-found__fact"><span class="qs-found__topic qs-type-label">Type</span><p class="qs-type-body">The size and type code is 45G1: 40 ft High Cube, general purpose (Confident).</p></li>
-        <li class="qs-found__fact"><span class="qs-found__topic qs-type-label">Weights</span><p class="qs-type-body">Maximum gross 32,500 kg, a rating, not the cargo weight (Confident). Tare 3,750 kg (Uncertain). Payload 28,750 kg, the most it may carry, calculated (Likely).</p></li>
-        <li class="qs-found__fact"><span class="qs-found__topic qs-type-label">Markings</span><p class="qs-type-body">Seen: High-container caution (Confident). No DG placard visible, which says nothing about the cargo.</p></li>
-        <li class="qs-found__fact"><span class="qs-found__topic qs-type-label">Damage</span><p class="qs-type-body">3 suspected findings on the door end and the right side: Dent in the door panel, moderate (Confident); Surface corrosion, minor (Likely); Possible hole, major (Uncertain). The roof, left side and front end were not in the photo, so we have not seen them.</p></li>
-      </ul>
-    </section>
     <div class="rs-card qs-rise" style="--i:1;--base:80ms">
       <div class="rs-card__head"><span class="rs-k">Container ID</span><span class="qs-cert qs-cert--likely"><i class="qs-glyph qs-glyph--likely"></i>Likely</span></div>
       <div class="qs-id" style="--base:120ms" aria-label="Q S I U 3 0 7 4 2 8, check digit 8. Fifth serial digit uncertain."><span class="qs-id__group"><span class="qs-id__ch" style="--c:0">Q</span><span class="qs-id__ch" style="--c:1">S</span><span class="qs-id__ch" style="--c:2">I</span><span class="qs-id__ch" style="--c:3">U</span></span><span class="qs-id__group"><span class="qs-id__ch" style="--c:4">3</span><span class="qs-id__ch" style="--c:5">0</span><span class="qs-id__ch" style="--c:6">7</span></span><span class="qs-id__group"><span class="qs-id__ch" data-c="likely" style="--c:7">4</span><span class="qs-id__ch" data-c="uncertain" style="--c:8">2</span><span class="qs-id__ch" style="--c:9">8</span></span><span class="qs-id__check" style="--c:10">8</span></div>
@@ -377,14 +370,14 @@ function qsBindSelect(root){
   });
 }
 
-var stage=document.getElementById('stage'), pill=document.getElementById('cost'), stages=document.querySelectorAll('#stages .qs-stage');
+var stage=document.getElementById('stage'), pill=document.getElementById('cost');
 var reduce=window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 qsBindSelect(stage);
 var timers=[];
 function later(ms,fn){ timers.push(setTimeout(fn,ms)); }
 function money(v){ return '$'+v.toFixed(4); }
 function countTo(el,from,to,ms){ var t0=performance.now(); (function step(t){ var k=Math.min(1,(t-t0)/ms); k=1-Math.pow(1-k,3); el.textContent=money(from+(to-from)*k); if(k<1) requestAnimationFrame(step); })(t0); }
-function setStage(i,state,time){ var s=stages[i]; s.className='qs-stage'+(state?' qs-stage--'+state:''); s.querySelector('.qs-stage__dot').innerHTML= state==='done'?'<i class="qs-glyph qs-glyph--check"></i>':''; s.querySelector('.qs-stage__time').textContent=time||''; }
+var st=[0,0,0];function setStage(i,state,time){ st[i]=state==='done'?1:0; var n=st[0]+st[1]+st[2]; document.getElementById('pv-bar').style.width=(n/3*100)+'%'; document.getElementById('pv-progress').setAttribute('aria-valuenow',n); }
 function arrive(){
   stage.classList.remove('qs-arriving'); void stage.offsetWidth; stage.classList.add('qs-arrived');
   var c=document.getElementById('c-now'), s=document.getElementById('c-ses');

@@ -4,7 +4,6 @@ import { MAX_PHOTOS, TOO_MANY_PHOTOS, useInspectionStore } from '../stores/inspe
 import { faceChipLabel, facesShown } from '../domain/photoFace'
 import { readPhotoFile, PHOTO_ACCEPT } from '../services/readPhoto'
 import { useLoupe } from '../composables/loupe'
-import AnalysingStages from './AnalysingStages.vue'
 import PhotoFrame from './PhotoFrame.vue'
 import PhotoLoupe from './PhotoLoupe.vue'
 import PhotoViewer, { type ViewerPhoto } from './PhotoViewer.vue'
@@ -182,8 +181,6 @@ function openPicker() {
         :start="viewing"
         @close="closeViewer"
       />
-      <!-- Under the photo, never over it: no text sits on the photo at any point in a run. -->
-      <div class="rs-stages"><AnalysingStages /></div>
     </template>
 
     <p v-if="error" class="qs-hint qs-hint--warn" role="alert">{{ error }}</p>
