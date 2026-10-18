@@ -59,15 +59,23 @@ async function openWithTwoPhotos(page: Page) {
 test.describe('Several photos of one container', () => {
   test.use({ viewport: { width: 1440, height: 900 } })
 
-  test('takes several photos at once and refuses more than four', async ({ page }) => {
+  test('takes several photos at once and refuses more than five', async ({ page }) => {
     await openWithTwoPhotos(page)
     await expect(page.locator('.rs-photos__item')).toHaveCount(2)
     await expect(page.getByText('Photo 2')).toBeVisible()
     if (SHOTS) await page.screenshot({ path: path.join(SHOTS, 'intake.png') })
 
-    await page.locator('input[type="file"]').setInputFiles([...photos, ...photos, photos[0]!])
-    await expect(page.getByRole('alert')).toHaveText('Choose up to 4 photos of one container.')
+    await page.locator('input[type="file"]').setInputFiles([...photos, ...photos, ...photos, photos[0]!])
+    await expect(page.getByRole('alert')).toHaveText('Choose up to 5 photos of one container.')
     await expect(page.locator('.rs-photos__item')).toHaveCount(2)
+  })
+
+  test('inspects five photos together as one container', async ({ page }) => {
+    await answerWith(page, ['COYU2668130'])
+    await openWithTwoPhotos(page)
+    await page.locator('input[type="file"]').setInputFiles([...photos, ...photos, photos[0]!])
+    await expect(page.locator('.rs-photos__item')).toHaveCount(5)
+    await expect(page.getByRole('alert')).toHaveCount(0)
   })
 
   test('shows each photo’s face as a chip under it, never over it', async ({ page }) => {
