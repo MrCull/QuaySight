@@ -305,6 +305,11 @@ body {
     order: 1;
     margin-left: auto;
   }
+  /* The first row is never shorter than New inspection (a small button), so the chip and costs beneath stay
+     put when it appears or goes (the centre slot dissolves on phones and cannot hold the space itself). */
+  .rs-top .qs-brand {
+    min-height: var(--control-sm);
+  }
   /* No row gap: a zero-height line break follows New inspection, and the lines beneath space themselves. */
   .rs-top {
     row-gap: 0;

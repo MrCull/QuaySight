@@ -53,12 +53,21 @@ describe('the key gate: photos chosen with no key wait for one', () => {
     expect(fetchMock).not.toHaveBeenCalled()
   })
 
-  it('starts the waiting inspection once the key is saved', async () => {
+  it('starts the waiting inspection once the key is saved and the drawer closes', async () => {
     const store = useInspectionStore()
+    const setup = useSetupStore()
     store.setProvider('luna')
     await choosePhotos(store)
 
-    store.setApiKey(LUNA_KEY)
+    // The key field saves on every keystroke: no run starts on a half-typed key.
+    for (let i = 1; i <= LUNA_KEY.length; i++) {
+      store.setApiKey(LUNA_KEY.slice(0, i))
+      expect(store.status).toBe('idle')
+    }
+    expect(fetchMock).not.toHaveBeenCalled()
+    expect(setup.drawerOpen).toBe(true)
+
+    setup.closeDrawer()
 
     expect(store.status).toBe('running')
     await store.inFlight

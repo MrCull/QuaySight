@@ -44,7 +44,7 @@ const stageClass = computed(() => {
 // The damage view shows once damage has run to the end. After a failed damage request it is left out:
 // the error notice names damage as not checked, and "not assessed in this inspection" would be untrue.
 const showDamageView = computed(
-  () => store.landed('damage') && store.stages.find((s) => s.id === 'damage')?.state !== 'failed',
+  () => store.landed('damage') && store.stageState('damage') !== 'failed',
 )
 </script>
 

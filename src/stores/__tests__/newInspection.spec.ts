@@ -110,15 +110,17 @@ describe('New inspection', () => {
     expect(ledger.entries()).toHaveLength(session.requests)
   })
 
-  it('cancels a running inspection so no result from it lands afterwards', async () => {
+  it('during a run, aborts it and returns to idle: no result lands and the ledger line says cancelled', async () => {
     let answer!: (response: Response) => void
     fetchMock.mockImplementationOnce(() => new Promise<Response>((resolve) => (answer = resolve)))
     const store = useInspectionStore()
+    const ledger = useLedgerStore()
     store.setProvider('luna')
     store.setApiKey(LUNA_KEY)
     choosePhoto(store)
     const run = store.start()
     expect(store.status).toBe('running')
+    const runId = store.runId
     await vi.waitFor(() => expect(fetchMock).toHaveBeenCalled())
 
     store.newInspection()
@@ -130,6 +132,8 @@ describe('New inspection', () => {
     expect(store.status).toBe('idle')
     expect(store.record).toBeNull()
     expect(store.photo).toBeNull()
+    const lines = ledger.entries().filter((e) => e.inspectionId === runId)
+    expect(lines.map((e) => e.status)).toContain('cancelled')
   })
 
   it('lets the next container run straight after a cancelled one', async () => {

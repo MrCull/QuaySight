@@ -26,6 +26,7 @@ import {
   type PlannedRequestState,
   type StageId,
   type StageProgress,
+  type StageState,
 } from '../domain/runStages'
 import {
   foldSettled,
@@ -221,10 +222,13 @@ export const useInspectionStore = defineStore('inspection', {
      * A stage not in this run lands with the run.
      */
     landed(): (stage: StageId) => boolean {
+      const stateOf = this.stageState
+      return (stage) => this.status !== 'running' || stageSettled(stateOf(stage))
+    },
+    /** Where one progress stage of the run on screen is; a stage this run does not have is not-in-run. */
+    stageState(): (stage: StageId) => StageState {
       const stages = this.stages
-      return (stage) =>
-        this.status !== 'running' ||
-        stageSettled(stages.find((s) => s.id === stage)?.state ?? 'not-in-run')
+      return (stage) => stages.find((s) => s.id === stage)?.state ?? 'not-in-run'
     },
     /**
      * Demo: a bundled sample is on screen (no key). Live, the key gate: a photo, a key for the selected
@@ -257,9 +261,15 @@ export const useInspectionStore = defineStore('inspection', {
     },
   },
   actions: {
-    /** Saves the key for the selected provider. Photos waiting for a key start as soon as the gate opens. */
+    /**
+     * Holds the key for the selected provider. Starts nothing: the key field calls this on every keystroke,
+     * so photos waiting for a key start when the settings drawer closes (startIfAwaitingKey).
+     */
     setApiKey(key: string) {
       this.apiKeys[this.provider] = key
+    },
+    /** Photos waiting for a key start once the gate is open; otherwise nothing happens. */
+    startIfAwaitingKey() {
       if (this.awaitingKey && this.canStart) void this.start()
     },
     clearApiKey() {
@@ -360,7 +370,7 @@ export const useInspectionStore = defineStore('inspection', {
     },
     /**
      * Choosing photos is the go-ahead. Starts now, or, when only the key is missing, waits for it:
-     * the settings drawer opens, and saving the key (setApiKey) starts the run.
+     * the settings drawer opens, and closing it with a key (setup store closeDrawer) starts the run.
      */
     startWhenReady(): Promise<void> {
       if (!this.demo && this.photo && !this.canStart) {
@@ -543,9 +553,6 @@ export const useInspectionStore = defineStore('inspection', {
         const live: PlanRun = {
           done: Promise.all(lives.map((l) => l.done)).then(() => undefined),
           cancel: () => lives.forEach((l) => l.cancel()),
-          get cancelled() {
-            return lives.some((l) => l.cancelled)
-          },
         }
         activePlan = { token, run: live }
         await live.done

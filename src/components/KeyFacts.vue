@@ -19,7 +19,7 @@ const running = computed(() => store.status === 'running')
 const shown = computed(() => running.value || record.value !== null)
 
 function partState(stage: StageId): PartState {
-  const progress = store.stages.find((s) => s.id === stage)?.state
+  const progress = store.stageState(stage)
   if (progress === 'failed' || progress === 'cancelled') return 'unavailable'
   return store.landed(stage) && record.value ? 'arrived' : 'reading'
 }

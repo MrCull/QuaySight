@@ -63,6 +63,35 @@ async function liveRun(page: Page) {
 
 const primaryButtons = (page: Page) => page.locator('.qs-btn--primary:visible')
 
+/** The settings chip and the cost line in the header: where they sit, to check nothing moves. */
+async function headerMeta(page: Page) {
+  const chip = (await page.locator('.rs-top .qs-settingschip').boundingBox())!
+  const cost = (await page.locator('.rs-top .qs-cost').boundingBox())!
+  return { chip, cost }
+}
+
+test.describe('New inspection on a phone (390 px)', () => {
+  test.use({ viewport: { width: 390, height: 844 } })
+
+  test('appearing in the header leaves the chip and the costs where they were', async ({
+    page,
+  }) => {
+    await mockDecisions(page)
+    await continueWithKey(page)
+    await expect(page.getByText('Drop a container photo here')).toBeVisible()
+    await expect(newInspection(page)).toHaveCount(0)
+    const before = await headerMeta(page)
+
+    await choosePhoto(page)
+    await expect(newInspection(page)).toBeVisible()
+    const after = await headerMeta(page)
+    expect(after.chip.x).toBeCloseTo(before.chip.x, 0)
+    expect(after.chip.y).toBeCloseTo(before.chip.y, 0)
+    expect(after.cost.x).toBeCloseTo(before.cost.x, 0)
+    expect(after.cost.y).toBeCloseTo(before.cost.y, 0)
+  })
+})
+
 test.describe('New inspection', () => {
   test.use({ viewport: { width: 1440, height: 900 } })
 
