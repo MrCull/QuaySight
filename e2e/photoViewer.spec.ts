@@ -58,7 +58,6 @@ test.describe('photo viewer', () => {
 
   test('opens while the inspection is analysing, over the sweep', async ({ page }) => {
     await openSample(page)
-    await page.getByRole('button', { name: 'Start inspection' }).click()
     await page
       .getByRole('button', { name: /^Enlarge photo/ })
       .first()

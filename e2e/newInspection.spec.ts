@@ -30,13 +30,18 @@ const PLACEHOLDER_KEY = 'playwright-placeholder-not-a-key'
 /** The Decisions endpoint answers from the recorded smoke response; nothing else leaves the app origin. */
 async function mockDecisions(page: Page) {
   await page.route(/api\.openai\.com\/v1\/decisions/, (route) =>
-    route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify(lunaSmoke) }),
+    route.fulfill({
+      status: 200,
+      contentType: 'application/json',
+      body: JSON.stringify(lunaSmoke),
+    }),
   )
 }
 
 const choosePhoto = (page: Page) => page.locator('input[type="file"]').setInputFiles(samplePhoto)
 const costLine = (page: Page) => page.locator('.rs-top .qs-cost__toggle')
-const newInspection = (page: Page) => page.getByRole('button', { name: 'New inspection' })
+const newInspection = (page: Page) =>
+  page.getByRole('button', { name: /^(New inspection|Cancel)$/ })
 
 /** Types the placeholder on the setup card and continues to the inspection screen. */
 async function continueWithKey(page: Page) {
@@ -53,7 +58,6 @@ async function liveRun(page: Page) {
   await mockDecisions(page)
   await continueWithKey(page)
   await choosePhoto(page)
-  await page.getByRole('button', { name: 'Run live inspection' }).click()
   await page.locator('#stage.qs-arrived').waitFor()
 }
 
@@ -66,7 +70,10 @@ test.describe('New inspection', () => {
     await expect(button).toBeVisible()
 
     // Tab order in the top bar: the settings chip, the cost indicator, then New inspection.
-    await page.locator('.rs-top').getByRole('button', { name: /^Settings:/ }).focus()
+    await page
+      .locator('.rs-top')
+      .getByRole('button', { name: /^Settings:/ })
+      .focus()
     await page.keyboard.press('Tab')
     await page.keyboard.press('Tab')
     await expect(button).toBeFocused()
@@ -98,7 +105,7 @@ test.describe('New inspection', () => {
 
     // The key survived: a new photo can run live straight away.
     await choosePhoto(page)
-    await expect(page.getByRole('button', { name: 'Run live inspection' })).toBeEnabled()
+    await expect(page.locator('.rs-photo__img')).toBeVisible()
   })
 
   test('clears the manifest retry panel', async ({ page }) => {
@@ -106,7 +113,6 @@ test.describe('New inspection', () => {
     await page.goto('/')
     await page.getByRole('button', { name: 'Enter as demo user' }).click()
     await page.getByRole('button', { name: /Rear doors with markings/ }).click()
-    await page.getByRole('button', { name: 'Start inspection' }).click()
     await page.locator('#stage.qs-arrived').waitFor()
     const offer = page.getByRole('heading', { name: 'Container ID not identified' })
     await expect(offer).toBeVisible()
@@ -135,7 +141,6 @@ test.describe('New inspection', () => {
     })
     await continueWithKey(page)
     await choosePhoto(page)
-    await page.getByRole('button', { name: 'Run live inspection' }).click()
     const release = await held
     await expect(page.locator('#stage.qs-arriving')).toBeVisible()
 

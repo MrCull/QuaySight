@@ -184,6 +184,8 @@ export const useInspectionStore = defineStore('inspection', {
     planned: [] as PlannedRequestState[],
     /** Cancel was pressed during the current run. */
     cancelRequested: false,
+    /** Photos are chosen but the current provider has no key: the inspection starts once one is saved. */
+    awaitingKey: false,
   }),
   getters: {
     /** Every photo of the inspection, in order: the first, then the others. */
@@ -308,6 +310,7 @@ export const useInspectionStore = defineStore('inspection', {
       this.runId = null
       this.planned = []
       this.cancelRequested = false
+      this.awaitingKey = false
     },
     selectFinding(id: number | null) {
       this.selectedFinding = id
@@ -338,6 +341,7 @@ export const useInspectionStore = defineStore('inspection', {
       this.runId = null
       this.planned = []
       this.cancelRequested = false
+      this.awaitingKey = false
     },
     /** Enters demo mode on a blank screen, ready to choose a sample. */
     enterDemo() {
@@ -349,12 +353,24 @@ export const useInspectionStore = defineStore('inspection', {
       this.newInspection()
       this.demo = false
     },
+    /**
+     * Choosing photos is the go-ahead. Starts now, or, when only the key is missing, waits for it:
+     * the app shell opens the settings drawer and calls start() once the key is saved.
+     */
+    startWhenReady(): Promise<void> {
+      if (!this.demo && this.photo && !this.canStart) {
+        this.awaitingKey = true
+        return Promise.resolve()
+      }
+      return this.start()
+    },
     start(): Promise<void> {
       // Single-flight: repeated clicks while a run is in progress share it.
       if (this.inFlight) return this.inFlight
       // Live needs the key gate; demo needs a bundled sample on screen.
       if (!this.photo || !this.canStart) return Promise.resolve()
       this.cancelRequested = false
+      this.awaitingKey = false
       if (!this.demo) return this.startLive()
       const sample = this.sample
       if (!sample) return Promise.resolve()

@@ -48,13 +48,18 @@ test.describe('key-format warning', () => {
     await page.goto('/')
     await keyField(page).fill(OPENROUTER_SHAPED_KEY)
     await keyField(page).press('Enter')
-    await page.locator('.rs-top').getByRole('button', { name: /^Settings:/ }).click()
+    await page
+      .locator('.rs-top')
+      .getByRole('button', { name: /^Settings:/ })
+      .click()
     const drawer = page.getByRole('dialog', { name: 'Settings' })
     await drawer.getByLabel('OpenRouter API key', { exact: true }).fill(WRONG_PREFIX_KEY)
     await expect(drawer.locator('.qs-keywarn')).toContainText('OpenRouter keys start with sk-or-.')
     await drawer.getByRole('button', { name: 'Done' }).click()
     await page.locator('input[type="file"]').setInputFiles(samplePhoto)
-    await expect(page.getByRole('button', { name: 'Run live inspection' })).toBeEnabled()
+    await expect(
+      page.locator('#stage.qs-arriving, #stage.qs-arrived, .rs-photo__img').first(),
+    ).toBeVisible()
   })
 })
 
@@ -87,16 +92,15 @@ test.describe('focus after each step', () => {
     await expect(dropZone(page)).toBeFocused()
   })
 
-  test('in demo mode, choosing a sample moves focus to Start, and New inspection to the sample picker', async ({
+  test('in demo mode, choosing a sample starts it and moves focus to Cancel, and New inspection to the sample picker', async ({
     page,
   }) => {
     await page.goto('/')
     await page.getByRole('button', { name: 'Enter as demo user' }).click()
 
     await page.getByRole('button', { name: /Rear doors with markings/ }).click()
-    const start = page.getByRole('button', { name: 'Start inspection' })
-    await expect(start).toBeFocused()
-    await page.keyboard.press('Enter')
+    // The recorded inspection starts at once; New inspection reads Cancel meanwhile and holds focus.
+    await expect(page.locator('.rs-top .qs-newinsp')).toBeFocused()
     await page.locator('#stage.qs-arrived').waitFor()
 
     await newInspection(page).click()
@@ -105,14 +109,17 @@ test.describe('focus after each step', () => {
 
     // A keyboard user can run another sample straight away.
     await page.keyboard.press('Enter')
-    await expect(start).toBeFocused()
+    await expect(page.locator('.rs-top .qs-newinsp')).toBeFocused()
   })
 
   test('a provider change in the drawer leaves focus in the drawer', async ({ page }) => {
     await page.goto('/')
     await keyField(page).fill(OPENROUTER_SHAPED_KEY)
     await keyField(page).press('Enter')
-    await page.locator('.rs-top').getByRole('button', { name: /^Settings:/ }).click()
+    await page
+      .locator('.rs-top')
+      .getByRole('button', { name: /^Settings:/ })
+      .click()
     const drawer = page.getByRole('dialog', { name: 'Settings' })
     const model = drawer.getByLabel('Model version')
     await model.focus()
