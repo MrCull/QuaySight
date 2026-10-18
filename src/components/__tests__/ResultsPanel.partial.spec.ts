@@ -93,7 +93,7 @@ describe('ResultsPanel partial and landing states', () => {
       planned({ id: 'side', stages: ['damage'], state: 'sent' }),
     ]
     await wrapper.vm.$nextTick()
-    const card = wrapper.get('.qs-id').element.closest('.rs-card')!
+    const card = wrapper.get('#detail-id').element
     expect(card.classList.contains('qs-arrived')).toBe(true)
     expect(wrapper.find('.rs-id-skeleton').exists()).toBe(false)
     // Exports and the manifest offer wait for the whole run.

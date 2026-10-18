@@ -12,10 +12,9 @@ import SealCard from './SealCard.vue'
 import ContainerDetails from './ContainerDetails.vue'
 import ContainerMarkings from './ContainerMarkings.vue'
 import ExportActions from './ExportActions.vue'
-import WhatWeFound from './WhatWeFound.vue'
+import KeyFacts from './KeyFacts.vue'
 import { DIFFERENT_CONTAINERS_MESSAGE, droppedPhotoMessage } from '../domain/combinePhotos'
 import { causeSentence } from '../domain/requestFailure'
-import { unavailableStages } from '../domain/whatWeFound'
 import { idCloseUp, sealCloseUp } from '../domain/closeUpSources'
 
 const store = useInspectionStore()
@@ -48,14 +47,6 @@ const idLanded = computed(() => store.landed('id'))
 const arrivedEarly = computed(() => running.value && idLanded.value)
 const detailsLanded = computed(() => store.landed('details'))
 const detailsEarly = computed(() => running.value && detailsLanded.value)
-
-// What we found: first in the readings once anything has landed. A part that has not arrived is named
-// as missing (still arriving, failed, cancelled) and left out, never reported as not seen.
-const foundShown = computed(
-  () => !!record.value && (['id', 'details', 'damage'] as const).some((s) => store.landed(s)),
-)
-const foundEarly = computed(() => running.value && foundShown.value)
-const foundUnavailable = computed(() => unavailableStages(store.stages, running.value))
 
 // The parts a stage stands for, in plain words, for the partial and failure notices.
 const PART: Record<StageId, string> = {
@@ -218,17 +209,13 @@ const showInsufficient = computed(() => idState.value === 'insufficient')
       </div>
     </div>
 
+    <!-- The headline at a glance: Reading… placeholders from the start, filled in as each part arrives. -->
+    <KeyFacts />
+
     <!-- Detail: damage (the slot) wide on the left, the readings narrower on the right. -->
     <div class="rs-detail">
       <div class="rs-detail__main"><slot /></div>
       <section class="rs-right" aria-live="polite">
-        <WhatWeFound
-          v-if="foundShown && record"
-          :record="record"
-          :unavailable="foundUnavailable"
-          :class="{ 'qs-arrived': foundEarly }"
-        />
-
         <div v-if="running && !idLanded" class="rs-card" aria-busy="true">
           <div class="rs-card__head"><span class="rs-k">Container ID</span></div>
           <div class="qs-skeleton rs-id-skeleton"></div>
@@ -236,6 +223,9 @@ const showInsufficient = computed(() => idState.value === 'insufficient')
 
         <div
           v-if="idLanded && record?.containerId"
+          id="detail-id"
+          tabindex="-1"
+          data-detail
           :class="['rs-card', 'qs-rise', { 'qs-arrived': arrivedEarly }]"
           :style="{ '--i': STAGGER.card }"
         >
@@ -288,6 +278,9 @@ const showInsufficient = computed(() => idState.value === 'insufficient')
 
         <div
           v-else-if="idLanded && record && !differentContainers"
+          id="detail-id"
+          tabindex="-1"
+          data-detail
           :class="['rs-card', 'qs-rise', { 'qs-arrived': arrivedEarly }]"
           :style="{ '--i': STAGGER.card }"
         >
@@ -301,6 +294,9 @@ const showInsufficient = computed(() => idState.value === 'insufficient')
         <!-- The seal, under the ID. Absent when the survey did not assess it. -->
         <SealCard
           v-if="idLanded && record?.seal"
+          id="detail-seal"
+          tabindex="-1"
+          data-detail
           :reading="record.seal"
           :photo-url="photoUrl(sealClose?.photo) ?? null"
           :close-up="sealClose"
@@ -314,6 +310,9 @@ const showInsufficient = computed(() => idState.value === 'insufficient')
         <template v-if="record && detailsLanded">
           <ContainerDetails :record="record" :class="{ 'qs-arrived': detailsEarly }" />
           <ContainerMarkings
+            id="detail-markings"
+            tabindex="-1"
+            data-detail
             :record="record"
             :photo="store.photo?.url ?? null"
             :photos="store.photos.map((p) => p.url)"

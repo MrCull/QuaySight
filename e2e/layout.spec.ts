@@ -28,12 +28,12 @@ test.describe('phone width (390px)', () => {
       }))
     const analysing = await width()
     expect(analysing.scroll).toBeLessThanOrEqual(analysing.client)
-    // The stage list sits under the photo, not over it, and the photo stays on screen.
+    // The Reading… tiles sit under the photo, not over it, and the photo stays on screen.
     const photo = (await page.locator('.rs-photos__frame').first().boundingBox())!
-    const list = (await page.locator('.rs-stagecard').boundingBox())!
-    expect(list.y).toBeGreaterThanOrEqual(photo.y + photo.height)
+    const tiles = (await page.locator('.qs-keyfacts').boundingBox())!
+    expect(tiles.y).toBeGreaterThanOrEqual(photo.y + photo.height)
     expect(photo.y + photo.height).toBeLessThanOrEqual(844)
-    expect(await page.locator('.rs-photos__frame .rs-stagecard').count()).toBe(0)
+    expect(await page.locator('.rs-photos__frame .qs-keyfacts').count()).toBe(0)
     await expect(page.getByText('Recorded demonstration: GPT-6 Luna / gpt-6-luna')).toBeVisible()
     const landed = await width()
     expect(landed.scroll).toBeLessThanOrEqual(landed.client)
@@ -107,13 +107,11 @@ test.describe('tablet width (1000x800)', () => {
 test.describe('reduced motion', () => {
   test.use({ viewport: { width: 1440, height: 900 }, reducedMotion: 'reduce' })
 
-  test('the analysing sweep is removed; the stage card is still shown', async ({ page }) => {
+  test('the analysing sweep is removed; the Reading… tiles are still shown', async ({ page }) => {
     await prepareRecordedRun(page)
     const sweep = page.locator('.rs-sweep')
     await expect(sweep).toBeHidden()
-    await expect(page.locator('.rs-stagecard .qs-stage__title').first()).toHaveText(
-      'Reading the ID',
-    )
+    await expect(page.locator('[data-tile="id"]')).toContainText('Reading…')
   })
 })
 
@@ -140,9 +138,7 @@ async function liveRun(page: Page, hold: Array<'side' | 'door'>, cancel: boolean
   await key.press('Enter')
   await page.locator('input[type="file"]').setInputFiles(coyuPhoto)
   if (cancel) {
-    await expect(
-      page.locator('.rs-stagecard li.qs-stage', { hasText: 'Reading the ID' }),
-    ).toHaveClass(/qs-stage--done/)
+    await expect(page.locator('[data-tile="id"]')).toHaveAttribute('data-state', 'arrived')
     await page.getByRole('button', { name: 'Cancel' }).click()
     await page.getByText('Drop a container photo here').waitFor()
   } else {

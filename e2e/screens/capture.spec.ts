@@ -303,8 +303,10 @@ async function liveLanded(page: Page, photo = coyuPhoto) {
 const units = (page: Page, name: 'Metric' | 'Imperial') =>
   page.getByRole('group', { name: 'Units' }).getByRole('button', { name })
 
-const stageRow = (page: Page, title: string) =>
-  page.locator('.rs-stagecard li.qs-stage', { hasText: title })
+// The progress stages are the key-facts tiles now: the ID part lands in the Container ID tile, damage in its own.
+const TILE_OF = { 'Reading the ID': 'id', 'Checking for damage': 'damage' } as const
+const stageRow = (page: Page, title: keyof typeof TILE_OF) =>
+  page.locator(`[data-tile="${TILE_OF[title]}"]`)
 
 // ---- Captures -----------------------------------------------------------------------------------
 
@@ -543,7 +545,7 @@ const CAPTURES: Capture[] = [
     steps: [
       'Reduced-motion emulation',
       'Demo rear-doors result, captured as soon as it lands (no pause)',
-      'What we found is simply there, with no animation',
+      'The key-facts tiles are simply there, with no animation',
     ],
     motion: 'animated',
     viewports: [{ width: 1440, height: 900 }],
@@ -553,7 +555,7 @@ const CAPTURES: Capture[] = [
       await enterDemo(page)
       await openSample(page, 'Rear doors with markings')
       await page.locator('#stage.qs-arrived').waitFor()
-      await expect(page.locator('.qs-found')).toBeVisible()
+      await expect(page.locator('.qs-keyfacts')).toBeVisible()
     },
   },
   {
@@ -778,7 +780,7 @@ const CAPTURES: Capture[] = [
     script: () => rearDoorsScript({}, { survey: HOLD }),
     run: async (page) => {
       await liveStart(page)
-      await expect(stageRow(page, 'Checking for damage')).toHaveClass(/qs-stage--done/)
+      await expect(stageRow(page, 'Checking for damage')).toHaveAttribute('data-state', 'arrived')
       // The damage part has landed on its own; let its arrival finish. The ID and details are still in flight.
       await page.waitForTimeout(SETTLE_MS)
     },
@@ -795,7 +797,7 @@ const CAPTURES: Capture[] = [
     script: () => rearDoorsScript({}, { side: HOLD, door: HOLD }),
     run: async (page) => {
       await liveStart(page)
-      await expect(stageRow(page, 'Reading the ID')).toHaveClass(/qs-stage--done/)
+      await expect(stageRow(page, 'Reading the ID')).toHaveAttribute('data-state', 'arrived')
       // The ID and details have landed on their own; let their arrival finish. Damage is still in flight.
       await page.waitForTimeout(SETTLE_MS)
     },
@@ -808,7 +810,7 @@ const CAPTURES: Capture[] = [
     script: () => rearDoorsScript({}, { survey: HOLD }),
     run: async (page) => {
       await liveStart(page)
-      await expect(stageRow(page, 'Checking for damage')).toHaveClass(/qs-stage--done/)
+      await expect(stageRow(page, 'Checking for damage')).toHaveAttribute('data-state', 'arrived')
       await page.getByRole('button', { name: 'Cancel' }).focus()
       await page.keyboard.press('Shift+Tab')
       await page.keyboard.press('Tab')
@@ -840,7 +842,7 @@ const CAPTURES: Capture[] = [
     script: () => rearDoorsScript({}, { side: HOLD, door: HOLD }),
     run: async (page) => {
       await liveStart(page)
-      await expect(stageRow(page, 'Reading the ID')).toHaveClass(/qs-stage--done/)
+      await expect(stageRow(page, 'Reading the ID')).toHaveAttribute('data-state', 'arrived')
       await page.getByRole('button', { name: 'Cancel' }).click()
       await page.locator('.qs-notice--partial').waitFor()
       await page.waitForTimeout(SETTLE_MS)
@@ -887,7 +889,7 @@ const CAPTURES: Capture[] = [
     steps: [
       'Rear-door steps',
       'Mocked: max gross read as 30,480 kg but 67,900 lb, and the second look reads the same',
-      'settle: Uncertain with both readings, said first in What we found',
+      'settle: Uncertain with both readings, said in the Container details',
     ],
     motion: 'frozen',
     script: () => rearDoorsScript({ weights: CONFLICTING_WEIGHTS }),

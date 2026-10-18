@@ -117,6 +117,9 @@ watch(
       <ResultsPanel>
         <DamageView
           v-if="showDamageView && store.record"
+          id="detail-damage"
+          tabindex="-1"
+          data-detail
           :assessment="store.record.damage"
           :selected="store.selectedFinding"
           @update:selected="store.selectFinding"

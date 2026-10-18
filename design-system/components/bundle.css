@@ -550,21 +550,32 @@
 .qs-seg__opt[aria-pressed="true"] .qs-glyph { display: inline-block; }
 .qs-seg__opt:focus-visible { position: relative; outline-offset: -2px; } /* inside: the group clips anything outside its edge */
 
-/* ---------- What we found (the summary at the top of every result) ---------- */
-.qs-found { display: grid; gap: var(--space-4); padding: var(--space-5); background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius-md); color: var(--ink); }
-.qs-found__k { margin: 0; color: var(--ink-muted); }
-.qs-found__headline { margin: 0; color: var(--ink); }
-.qs-found__block { display: grid; gap: var(--space-2); padding: var(--space-3) var(--space-4); border-radius: var(--radius-sm); background: var(--surface-sunken); }
-.qs-found__label { color: var(--ink-muted); }
-.qs-found__list { margin: 0; padding: 0 0 0 var(--space-4); display: grid; gap: var(--space-2); list-style: disc; }
-.qs-found__facts { margin: 0; padding: 0; display: grid; gap: var(--space-3); list-style: none; }
-.qs-found__fact { display: grid; grid-template-columns: 112px minmax(0, 1fr); column-gap: var(--space-3); align-items: baseline; }
-.qs-found__topic { color: var(--ink-muted); }
-.qs-found__fact > p { margin: 0; max-width: 72ch; }
-@media (max-width: 480px) {
-  .qs-found { padding: var(--space-4); }
-  .qs-found__fact { grid-template-columns: minmax(0, 1fr); row-gap: var(--space-1); }
-}
+/* ---------- Key-facts tiles (the headline of a result, between the photo strip and the detail area) ---------- */
+.qs-keyfacts { display: grid; gap: var(--space-2); min-width: 0; }
+.qs-keyfacts__progress { height: var(--space-1); border-radius: var(--radius-pill); background: var(--line); overflow: hidden; }
+.qs-keyfacts__progress i { display: block; height: 100%; border-radius: var(--radius-pill); background: var(--brand); transition: width var(--duration-base) ease-out; }
+.qs-keytiles { margin: 0; padding: 0; list-style: none; display: flex; flex-wrap: wrap; gap: var(--space-3); }
+.qs-keytile { flex: 1 1 calc(var(--space-8) * 3); min-width: 0; display: grid; }
+.qs-keytile--id { flex: 2 1 min(100%, calc(var(--space-8) * 6)); }
+.qs-keytile__body { display: grid; align-content: start; gap: var(--space-3); min-width: 0; padding: var(--space-4); background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius-md); color: var(--ink); text-align: left; cursor: pointer; transition: border-color var(--duration-fast), background-color var(--duration-fast); }
+.qs-keytile__body:hover { border-color: var(--line-strong); background: var(--surface-raised); }
+.qs-keytile__body:focus-visible { outline: 2px solid var(--focus-ring); outline-offset: 2px; }
+.qs-keytile__head { display: flex; align-items: center; justify-content: space-between; gap: var(--space-3); flex-wrap: wrap; }
+.qs-keytile__label { color: var(--ink-muted); }
+.qs-keytile__value { margin: 0; color: var(--ink); overflow-wrap: anywhere; }
+.qs-keytile__value--mono { font-family: var(--font-mono); letter-spacing: 0.06em; }
+.qs-keytile__value--quiet { color: var(--ink-muted); }
+.qs-keytile__skeleton { display: block; height: var(--space-4); width: 60%; }
+.qs-keytile__extra { display: flex; flex-wrap: wrap; gap: var(--space-2); }
+.qs-keytile__notes { color: var(--ink-muted); }
+/* The section a tile leads to is outlined for a moment after the jump; under reduced motion the outline is still. */
+.qs-flash { animation: qs-flash 1.8s ease-out; }
+@keyframes qs-flash { from { box-shadow: 0 0 0 var(--space-1) var(--focus-ring); } to { box-shadow: 0 0 0 var(--space-1) transparent; } }
+@media (prefers-reduced-motion: reduce) { .qs-flash { animation: none; outline: 2px solid var(--focus-ring); outline-offset: 2px; } }
+.qs-reduced-motion .qs-flash { animation: none; outline: 2px solid var(--focus-ring); outline-offset: 2px; }
+/* Below laptop width the ID in its tile is the medium size, so ten characters and the check digit fit a phone. */
+@media (max-width: 1100px) { .qs-keytile .qs-id { font-size: 28px; line-height: 36px; gap: var(--space-3); } .qs-keytile .qs-id__ch { padding-bottom: 6px; } .qs-keytile .qs-id__check { margin-bottom: 6px; border-width: 2px; } }
+@media (max-width: 480px) { .qs-keytile__body { padding: var(--space-3); } }
 
 /* ---------- Photo viewer (the one sanctioned full-screen layer: the photo is the hero) ---------- */
 /* Above every other layer: cost panel 10 (30 as a bottom sheet), demo banner 20, drawer 20, top bar 21. */
