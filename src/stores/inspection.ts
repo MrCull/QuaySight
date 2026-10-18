@@ -64,7 +64,7 @@ export interface ManifestRetryState {
 }
 
 /** A container inspection takes at most this many photos (spec #51). */
-export const MAX_PHOTOS = 4
+export const MAX_PHOTOS = 5
 export const TOO_MANY_PHOTOS = `Choose up to ${MAX_PHOTOS} photos of one container.`
 
 /** Pause before a recorded result lands, so the staged progress can read. Within the 1.6s arrival budget. */

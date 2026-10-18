@@ -1,6 +1,6 @@
 # PhotoDrop
 
-The photo drop is the start screen: drop or browse for photos of one container, or open a sample container if you don't have one.
+The photo drop is the start screen: drop or browse for photos of one container, or open a sample container if you don't have one. An inspection takes up to 5 photos of one container (for example front, back, both sides and a seal close-up); a 6th is refused with a plain message that the limit is 5.
 
 ## Parts
 - `.qs-drop`: a `<label>` wrapping a hidden `<input type="file" accept="image/jpeg,image/png,image/webp" multiple>`, the photo glyph, a `display` title ("Drop container photos here") and a meta line with the formats. Add `qs-drop--over` during drag-over.
