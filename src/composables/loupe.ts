@@ -47,7 +47,7 @@ function measureMetrics(): LoupeMetrics {
   try {
     const size = probe.getBoundingClientRect().width
     const gap = parseFloat(getComputedStyle(probe).getPropertyValue('--qs-loupe-gap'))
-    return { size: size > 0 ? size : 224, gap: Number.isFinite(gap) ? gap : 24 }
+    return { size: size > 0 ? size : 384, gap: Number.isFinite(gap) ? gap : 24 }
   } finally {
     probe.remove()
   }
