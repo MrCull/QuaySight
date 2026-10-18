@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed } from 'vue'
+import { computed, watch } from 'vue'
 import { useInspectionStore } from './stores/inspection'
 import { useSetupStore } from './stores/setup'
 import { findSample } from './domain/demoSamples'
@@ -20,10 +20,6 @@ import RunChip from './components/RunChip.vue'
 const store = useInspectionStore()
 const setup = useSetupStore()
 
-const running = computed(() => store.status === 'running')
-// The key gate lives in the store: a photo, a key for the selected provider and a valid model.
-const canStart = computed(() => store.canStart && !running.value)
-const needsKey = computed(() => !store.demo && !!store.photo && !store.canStart && !running.value)
 // Demo mode: a sample-only option while its manifest offer is open (the recorded ID has a position unread).
 const showSampleOptions = computed(
   () =>
@@ -34,8 +30,6 @@ const showSampleOptions = computed(
 const recordedRun = computed(() =>
   store.demo && store.sample && store.status !== 'idle' ? findSample(store.sample) : null,
 )
-// After the result lands, the next step is New inspection, not a second charge on the same photo.
-const showStart = computed(() => (!store.demo || !!store.photo) && store.status !== 'complete')
 // Before any photo, the drop zone or the sample picker has the whole width.
 const startScreen = computed(() => !store.photo && !store.record && store.status === 'idle')
 
@@ -53,9 +47,20 @@ const showDamageView = computed(() => {
   return store.landed('damage') && state !== 'cancelled' && state !== 'failed'
 })
 
-function start() {
-  void store.start()
-}
+// Photos were chosen with no key for this provider: open settings, then start once the key is saved.
+watch(
+  () => store.awaitingKey,
+  (waiting) => {
+    if (waiting) setup.openDrawer()
+  },
+  { immediate: true },
+)
+watch(
+  () => store.canStart,
+  (ready) => {
+    if (ready && store.awaitingKey) void store.start()
+  },
+)
 </script>
 
 <template>
@@ -100,38 +105,6 @@ function start() {
             />
             Make the manifest check fail</label
           >
-        </div>
-        <div v-if="showStart" class="rs-startrow">
-          <p v-if="needsKey" class="qs-hint rs-gate-hint">
-            Enter this provider's key in
-            <button type="button" class="qs-link" @click="setup.openDrawer()">settings</button> to
-            start.
-          </p>
-          <button
-            type="button"
-            class="qs-btn qs-btn--primary qs-btn--lg"
-            data-next-step="start"
-            :disabled="!canStart"
-            :aria-busy="running ? 'true' : 'false'"
-            @click="start"
-          >
-            {{
-              running
-                ? 'Analysing…'
-                : store.mode === 'live'
-                  ? 'Run live inspection'
-                  : 'Start inspection'
-            }}
-          </button>
-          <!-- Stops what is still in flight; whatever already arrived stays, marked partial. -->
-          <button
-            v-if="running"
-            type="button"
-            class="qs-btn qs-btn--secondary"
-            @click="store.cancel()"
-          >
-            Cancel
-          </button>
         </div>
       </section>
       <ResultsPanel />

@@ -21,7 +21,8 @@ async function blockProviders(page: Page): Promise<string[]> {
 
 const banner = (page: Page) => page.getByRole('region', { name: 'Demo mode' })
 const setupCard = (page: Page) => page.getByRole('region', { name: 'Set up a provider' })
-const sampleTile = (page: Page, name: string) => page.getByRole('button', { name: new RegExp(name) })
+const sampleTile = (page: Page, name: string) =>
+  page.getByRole('button', { name: new RegExp(name) })
 
 async function enterDemo(page: Page) {
   await page.goto('/')
@@ -30,7 +31,6 @@ async function enterDemo(page: Page) {
 
 async function inspectSample(page: Page, name: string) {
   await sampleTile(page, name).click()
-  await page.getByRole('button', { name: 'Start inspection' }).click()
   await page.locator('#stage.qs-arrived').waitFor()
 }
 
@@ -84,13 +84,18 @@ test.describe('demo mode', () => {
     ] as const
     for (const [name, photo, label, run] of samples) {
       await inspectSample(page, name)
-      await expect(page.locator('.rs-photo__img')).toHaveAttribute('alt', `Container photo: ${photo}`)
+      await expect(page.locator('.rs-photo__img')).toHaveAttribute(
+        'alt',
+        `Container photo: ${photo}`,
+      )
       await expect(page.getByText(label)).toBeVisible()
       // The run chip names who answered the recording, where the settings chip would be.
       await expect(page.locator('.rs-top .qs-runchip__detail')).toHaveText(run)
       await expect(banner(page)).toBeVisible()
       await expect(cost).toContainText('Saved result · no live API charge')
-      await expect(page.getByRole('button', { name: 'Replace photo' })).toHaveCount(0)
+      await expect(
+        page.getByRole('button', { name: /Replace photo|Start inspection/ }),
+      ).toHaveCount(0)
 
       // New inspection returns to the sample picker, still in demo mode.
       await page.getByRole('button', { name: 'New inspection' }).click()
@@ -105,7 +110,6 @@ test.describe('demo mode', () => {
   test('the banner stays on screen while analysing and when the page scrolls', async ({ page }) => {
     await enterDemo(page)
     await sampleTile(page, 'Rear doors with markings').click()
-    await page.getByRole('button', { name: 'Start inspection' }).click()
     await expect(page.locator('#stage.qs-arriving')).toBeVisible()
     await expect(banner(page)).toBeVisible()
     await page.locator('#stage.qs-arrived').waitFor()
@@ -173,7 +177,6 @@ test.describe('demo mode at phone width (390px)', () => {
     await noSideScroll(page)
     // The longest run label: Jev latest reached through OpenRouter.
     await sampleTile(page, 'Clean grey rear doors').click()
-    await page.getByRole('button', { name: 'Start inspection' }).click()
     await expect(page.locator('#stage.qs-arriving')).toBeVisible()
     await noSideScroll(page)
     await page.locator('#stage.qs-arrived').waitFor()

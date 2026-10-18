@@ -11,7 +11,6 @@ async function prepareRecordedRun(page: Page) {
 
 async function runSample(page: Page) {
   await prepareRecordedRun(page)
-  await page.getByRole('button', { name: 'Start inspection' }).click()
   await expect(page.getByText('Recorded demonstration: GPT-6 Luna / gpt-6-luna')).toBeVisible()
 }
 
@@ -22,7 +21,6 @@ test.describe('phone width (390px)', () => {
     page,
   }) => {
     await prepareRecordedRun(page)
-    await page.getByRole('button', { name: 'Start inspection' }).click()
     const width = () =>
       page.evaluate(() => ({
         scroll: document.documentElement.scrollWidth,
@@ -66,7 +64,6 @@ test.describe('reduced motion', () => {
 
   test('the analysing sweep is removed; the stage card is still shown', async ({ page }) => {
     await prepareRecordedRun(page)
-    await page.getByRole('button', { name: 'Start inspection' }).click()
     const sweep = page.locator('.rs-sweep')
     await expect(sweep).toBeHidden()
     await expect(page.locator('.rs-stagecard .qs-stage__title').first()).toHaveText(
@@ -84,7 +81,11 @@ async function liveRun(page: Page, hold: Array<'side' | 'door'>, cancel: boolean
   await page.route(/api\.openai\.com\/v1\/decisions/, (route) => {
     const reply = script(kindOfRequest(route.request().postData() ?? ''), 1)
     if (reply === HOLD) return
-    return route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify(reply) })
+    return route.fulfill({
+      status: 200,
+      contentType: 'application/json',
+      body: JSON.stringify(reply),
+    })
   })
   await page.goto('/')
   await page.locator('#provider-button').click()
@@ -93,22 +94,19 @@ async function liveRun(page: Page, hold: Array<'side' | 'door'>, cancel: boolean
   await key.fill('playwright-placeholder-not-a-key')
   await key.press('Enter')
   await page.locator('input[type="file"]').setInputFiles(coyuPhoto)
-  await page.getByRole('button', { name: 'Run live inspection' }).click()
   if (cancel) {
-    await expect(page.locator('.rs-stagecard li.qs-stage', { hasText: 'Reading the ID' })).toHaveClass(
-      /qs-stage--done/,
-    )
+    await expect(
+      page.locator('.rs-stagecard li.qs-stage', { hasText: 'Reading the ID' }),
+    ).toHaveClass(/qs-stage--done/)
     await page.getByRole('button', { name: 'Cancel' }).click()
-    await page.locator('.qs-notice--partial').waitFor()
+    await page.getByText('Drop a container photo here').waitFor()
   } else {
     await page.locator('#stage.qs-arrived').waitFor()
   }
 }
 
 const overflow = (page: Page) =>
-  page.evaluate(
-    () => document.documentElement.scrollWidth - document.documentElement.clientWidth,
-  )
+  page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth)
 
 for (const viewport of [
   { width: 390, height: 844 },
@@ -118,7 +116,7 @@ for (const viewport of [
   test.describe(`live result at ${viewport.width}px`, () => {
     test.use({ viewport })
 
-    test('a landed result and a cancelled partial result have no horizontal page scroll', async ({
+    test('a landed result and a cancelled run (back at the empty picker) have no horizontal page scroll', async ({
       page,
     }) => {
       await liveRun(page, [], false)

@@ -81,7 +81,6 @@ test.describe('Several photos of one container', () => {
   test('shows each photo’s face as a chip under it, never over it', async ({ page }) => {
     await answerWith(page, ['COYU2668130'])
     await openWithTwoPhotos(page)
-    await page.getByRole('button', { name: 'Run live inspection' }).click()
     await page.locator('#stage.qs-arrived').waitFor()
 
     const chips = page.locator('[data-face-chip]')
@@ -97,7 +96,6 @@ test.describe('Several photos of one container', () => {
   }) => {
     await answerWith(page, ['COYU2668130', 'APHU6586847'])
     await openWithTwoPhotos(page)
-    await page.getByRole('button', { name: 'Run live inspection' }).click()
     await page.locator('#stage.qs-arrived').waitFor()
 
     await expect(page.getByText('These photos may be of different containers')).toBeVisible()

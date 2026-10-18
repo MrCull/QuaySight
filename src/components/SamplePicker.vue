@@ -5,13 +5,14 @@ import { focusNextStep } from './nextStepFocus'
 
 // design-system/components/PhotoDrop (demo mode): the bundled samples take the place of the drop zone.
 // There is no upload: a visitor's own photo would have no recorded result.
-// The first tile takes focus after New inspection; choosing a sample moves focus to Start.
+// The first tile takes focus after New inspection; choosing a sample starts the recorded inspection and moves focus to Cancel.
 const store = useInspectionStore()
 // The samples that have a recording; a photo with none yet is not offered.
 const samples = demoSamples()
 
 function choose(id: DemoSampleId) {
   store.chooseSample(id)
+  void store.start()
   void focusNextStep('start')
 }
 </script>

@@ -87,8 +87,8 @@ async function take(files: File[]) {
       }
     }
     for (const url of previous) URL.revokeObjectURL(url)
-    // Choosing photos is the go-ahead. Without a key, start() does nothing and the key hint stays.
-    void store.start()
+    // Choosing photos is the go-ahead. Without a key the app shell opens settings and waits for one.
+    void store.startWhenReady()
   } catch (err) {
     error.value = err instanceof Error ? err.message : 'That photo could not be read.'
   }
@@ -188,16 +188,6 @@ function openPicker() {
       />
       <!-- Under the photo, never over it: no text sits on the photo at any point in a run. -->
       <div class="rs-stages"><AnalysingStages /></div>
-      <div v-if="!store.demo">
-        <button
-          type="button"
-          class="qs-btn qs-btn--secondary qs-btn--sm"
-          :disabled="busy"
-          @click="openPicker"
-        >
-          {{ store.photos.length > 1 ? 'Replace photos' : 'Replace photo' }}
-        </button>
-      </div>
     </template>
 
     <p v-if="error" class="qs-hint qs-hint--warn" role="alert">{{ error }}</p>

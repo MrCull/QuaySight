@@ -114,7 +114,6 @@ async function runLuna(page: Page, photo: Buffer): Promise<string> {
   await page
     .locator('input[type="file"]')
     .setInputFiles({ name: 'phone.jpg', mimeType: 'image/jpeg', buffer: photo })
-  await page.getByRole('button', { name: 'Run live inspection' }).click()
   await page.locator('#stage.qs-arrived').waitFor()
   expect(sent.length).toBeGreaterThan(0)
   return sent[0]!

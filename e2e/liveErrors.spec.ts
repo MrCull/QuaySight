@@ -14,7 +14,7 @@ const samplePhoto = path.resolve(
 )
 const PLACEHOLDER_KEY = 'playwright-placeholder-not-a-key'
 
-async function liveOpenAI(page: Page) {
+async function liveOpenAI(page: Page, beforePhoto?: () => Promise<void>) {
   await page.route(/api\.openai\.com\/v1\/decisions/, (route) => route.abort('failed'))
   await page.goto('/')
   await page.locator('#provider-button').click()
@@ -22,6 +22,7 @@ async function liveOpenAI(page: Page) {
   const key = page.getByLabel('OpenAI API key', { exact: true })
   await key.fill(PLACEHOLDER_KEY)
   await key.press('Enter')
+  await beforePhoto?.()
   await page.locator('input[type="file"]').setInputFiles(samplePhoto)
 }
 
@@ -29,7 +30,6 @@ test('a refused OpenAI call while online says it was refused and names the likel
   page,
 }) => {
   await liveOpenAI(page)
-  await page.getByRole('button', { name: 'Run live inspection' }).click()
   const alert = page.getByRole('alert')
   await expect(alert).toContainText('OpenAI refused the request.')
   await expect(alert).toContainText('Check the key, then try again.')
@@ -38,11 +38,35 @@ test('a refused OpenAI call while online says it was refused and names the likel
 })
 
 test('an offline browser says it could not reach OpenAI', async ({ page, context }) => {
-  await liveOpenAI(page)
-  await context.setOffline(true)
-  await page.getByRole('button', { name: 'Run live inspection' }).click()
+  await liveOpenAI(page, () => context.setOffline(true))
   const alert = page.getByRole('alert')
   await expect(alert).toContainText('Could not reach OpenAI.')
   await expect(alert).not.toContainText('refused')
   await context.setOffline(false)
+})
+
+test('a failed run offers Try again, which starts a new run on the same photo', async ({
+  page,
+}) => {
+  let calls = 0
+  await page.route(/api\.openai\.com\/v1\/decisions/, (route) => {
+    calls += 1
+    return route.abort('failed')
+  })
+  await page.goto('/')
+  await page.locator('#provider-button').click()
+  await page.getByTestId('provider-option-luna').click()
+  const key = page.getByLabel('OpenAI API key', { exact: true })
+  await key.fill(PLACEHOLDER_KEY)
+  await key.press('Enter')
+  await page.locator('input[type="file"]').setInputFiles(samplePhoto)
+
+  await expect(page.getByRole('alert')).toContainText('OpenAI refused the request.')
+  await expect(
+    page.getByRole('button', { name: /Run live inspection|Start inspection/ }),
+  ).toHaveCount(0)
+  const before = calls
+  await page.getByRole('button', { name: 'Try again' }).click()
+  await expect.poll(() => calls).toBeGreaterThan(before)
+  await expect(page.locator('.rs-photo__img')).toBeVisible()
 })

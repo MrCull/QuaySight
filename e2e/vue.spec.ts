@@ -49,16 +49,17 @@ test('a live run cannot start without a key', async ({ page }) => {
   await page.getByRole('button', { name: 'Clear' }).click()
   await page.keyboard.press('Escape')
   await choosePhoto(page)
-  const start = page.getByRole('button', { name: 'Run live inspection' })
-  await expect(start).toBeDisabled()
-  await expect(page.getByText("Enter this provider's key in settings to start")).toBeVisible()
+  // Choosing photos with no key opens the settings drawer instead of starting.
+  await expect(page.getByRole('dialog', { name: 'Settings' })).toBeVisible()
+  await expect(
+    page.getByRole('button', { name: /Run live inspection|Start inspection/ }),
+  ).toHaveCount(0)
   expect(providerRequests).toEqual([])
 })
 
 test('the cost line is quiet and the detailed panel opens only on click', async ({ page }) => {
   await page.goto('/')
   await openRearDoorsSample(page)
-  await page.getByRole('button', { name: 'Start inspection' }).click()
   await expect(page.getByText('Recorded demonstration: GPT-6 Luna / gpt-6-luna')).toBeVisible()
 
   const toggle = page.locator('button.qs-cost__toggle')
@@ -77,9 +78,6 @@ test('recorded run shows the container ID and the recorded label', async ({ page
   const providerRequests = trackProviderRequests(page)
   await page.goto('/')
   await openRearDoorsSample(page)
-  const start = page.getByRole('button', { name: 'Start inspection' })
-  await expect(start).toBeEnabled()
-  await start.click()
   await expect(page.getByText('Recorded demonstration: GPT-6 Luna / gpt-6-luna')).toBeVisible()
   // Scope to the Container ID card: other cards (details, checks) also carry certainty chips.
   const idCard = page

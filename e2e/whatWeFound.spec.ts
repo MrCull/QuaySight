@@ -30,7 +30,6 @@ async function runLive(page: Page) {
   await key.fill(PLACEHOLDER_KEY)
   await key.press('Enter')
   await page.locator('input[type="file"]').setInputFiles(samplePhoto)
-  await page.getByRole('button', { name: 'Run live inspection' }).click()
   await page.locator('#stage.qs-arrived').waitFor()
 }
 
@@ -38,7 +37,6 @@ async function runDemo(page: Page) {
   await page.goto('/')
   await page.getByRole('button', { name: 'Enter as demo user' }).click()
   await page.getByRole('button', { name: /Rear doors with markings/ }).click()
-  await page.getByRole('button', { name: 'Start inspection' }).click()
   await page.locator('#stage.qs-arrived').waitFor()
 }
 
@@ -113,7 +111,6 @@ test.describe('What we found', () => {
     await key.fill(PLACEHOLDER_KEY)
     await key.press('Enter')
     await page.locator('input[type="file"]').setInputFiles(samplePhoto)
-    await page.getByRole('button', { name: 'Run live inspection' }).click()
     await page.locator('#stage.qs-arrived').waitFor()
 
     const card = found(page)

@@ -129,9 +129,8 @@ async function liveKey(page: Page, label = 'OpenAI API key') {
 const settingsChip = (page: Page) => page.getByRole('button', { name: /^Settings:/ })
 
 /** Waits for the arriving stage, then for the arrived stage, then lets the choreography finish. */
-async function startAndSettle(page: Page, button = 'Start inspection') {
-  await page.getByRole('button', { name: button }).click()
-  await page.locator('#stage.qs-arriving').waitFor()
+async function startAndSettle(page: Page, _button?: string) {
+  // The inspection started itself when the photos were chosen.
   await page.locator('#stage.qs-arrived').waitFor()
   await page.waitForTimeout(SETTLE_MS)
 }
@@ -292,7 +291,6 @@ async function liveStart(page: Page, photo = coyuPhoto) {
   await open(page)
   await liveKey(page)
   await page.locator('input[type="file"]').setInputFiles(photo)
-  await page.getByRole('button', { name: 'Run live inspection' }).click()
 }
 
 /** A live run on the COYU door photo, landed. */
@@ -448,7 +446,6 @@ const CAPTURES: Capture[] = [
       await open(page)
       await enterDemo(page)
       await openSample(page, 'Rear doors with markings')
-      await page.getByRole('button', { name: 'Start inspection' }).click()
       await page.locator('.rs-analysing').waitFor()
       await page.waitForTimeout(500)
     },
@@ -469,7 +466,6 @@ const CAPTURES: Capture[] = [
       await open(page)
       await enterDemo(page)
       await openSample(page, 'Rear doors with markings')
-      await page.getByRole('button', { name: 'Start inspection' }).click()
       await page.locator('.rs-analysing').waitFor()
       await page.waitForTimeout(500)
     },
@@ -556,7 +552,6 @@ const CAPTURES: Capture[] = [
       await open(page)
       await enterDemo(page)
       await openSample(page, 'Rear doors with markings')
-      await page.getByRole('button', { name: 'Start inspection' }).click()
       await page.locator('#stage.qs-arrived').waitFor()
       await expect(page.locator('.qs-found')).toBeVisible()
     },

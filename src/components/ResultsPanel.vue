@@ -201,6 +201,11 @@ const showInsufficient = computed(() => idState.value === 'insufficient')
         <div class="qs-notice__title">
           {{ store.errorMessage ?? 'The recorded result could not be loaded.' }}
         </div>
+        <div class="qs-notice__body">
+          <button type="button" class="qs-btn qs-btn--secondary qs-btn--sm" @click="store.start()">
+            Try again
+          </button>
+        </div>
       </div>
     </div>
 
