@@ -7,7 +7,9 @@ body {
   top: 0;
   /* Above the demo banner, so the cost ledger can open over it. */
   z-index: 21;
-  display: flex;
+  /* Three zones: brand left, New inspection centred, model chip and costs right (muted). */
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
   white-space: nowrap;
   align-items: center;
   gap: var(--space-5);
@@ -16,6 +18,21 @@ body {
   background: var(--surface);
   border-bottom: 1px solid var(--line);
 }
+.rs-top__brand {
+  display: flex;
+  align-items: center;
+  gap: var(--space-5);
+  min-width: 0;
+  justify-self: start;
+}
+.rs-top__meta {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: var(--space-5);
+  min-width: 0;
+  justify-self: end;
+}
 .rs-crumb {
   font: 600 15px/20px var(--font-sans);
   color: var(--ink);
@@ -23,9 +40,6 @@ body {
 .rs-crumb span {
   color: var(--ink-muted);
   font-weight: 400;
-}
-.rs-spacer {
-  flex: 1;
 }
 .rs-main {
   display: grid;
@@ -298,7 +312,7 @@ body {
 /* Desktop: a long cost line ("Cost unavailable Partial estimate" after a cancel) wraps to two lines, so the chip
    keeps naming the model instead of truncating (the chip only shrinks on phones). */
 @media (min-width: 961px) {
-  .rs-top .qs-settingschip {
+  .rs-top .rs-top__meta .qs-settingschip {
     flex: none;
   }
   .rs-top .qs-cost {
@@ -307,6 +321,7 @@ body {
 }
 @media (max-width: 960px) {
   .rs-top {
+    display: flex;
     flex-wrap: wrap;
     height: auto;
     min-height: 64px;
@@ -344,8 +359,10 @@ body {
   .rs-top .qs-cost {
     flex: 1 1 10rem;
   }
-  .rs-top .rs-spacer {
-    display: none;
+  /* The zone wrappers dissolve, so brand, New inspection and the details wrap as separate items. */
+  .rs-top__brand,
+  .rs-top__meta {
+    display: contents;
   }
   /* design-system RunChip: on phones only the monogram and the name show. */
   .rs-top .qs-runchip__detail {

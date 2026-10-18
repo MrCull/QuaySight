@@ -494,7 +494,6 @@
 .qs-notice__kicker { font: 600 11px/22px var(--font-sans); letter-spacing: 0.06em; text-transform: uppercase; color: var(--ink-muted); }
 .qs-notice--suggestion > .qs-glyph { color: var(--brand); }
 .qs-notice--recorded { border-style: dashed; border-color: var(--line-strong); background: repeating-linear-gradient(135deg, var(--surface) 0 10px, var(--cert-unseen-bg) 10px 11px); }
-.qs-notice--live { grid-template-columns: 1fr auto; }
 .qs-notice--error { border-color: var(--error-fg); background: var(--error-bg); }
 .qs-notice--partial { border-style: dashed; border-color: var(--line-strong); }
 .qs-notice--error > .qs-glyph { color: var(--error-fg); }

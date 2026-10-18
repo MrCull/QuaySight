@@ -41,14 +41,10 @@ describe('ResultsPanel', () => {
     }
     store.status = 'complete'
     const wrapper = mount(ResultsPanel)
-    // One plain title, and the exact version in the body so the title stays short on a projector.
-    const notice = wrapper.get('.qs-notice--live')
-    expect(notice.get('.qs-notice__title').text()).toBe(
-      'Live result: Jev latest (TypeSafe) via OpenRouter',
-    )
-    expect(notice.get('.qs-notice__body').text()).toContain(
-      'Answered by typesafe/jev-1.14-20261014 (requested ~typesafe/jev-latest, a moving target).',
-    )
+    // The model and version live in the header chip's tooltip now, not in the results.
+    expect(wrapper.find('.qs-notice--live').exists()).toBe(false)
+    expect(wrapper.text()).not.toContain('Live result')
+    expect(wrapper.text()).not.toContain('Answered by')
   })
 
   it('tags an ID whose check digit passes but whose owner is not a common one', async () => {

@@ -68,15 +68,22 @@ watch(
     <!-- The top bar and, in demo mode, the demo banner stay on screen together. -->
     <div class="rs-chrome">
       <header class="rs-top">
-        <span class="qs-brand"><i class="qs-logo" aria-hidden="true"></i>Quay Sight</span>
-        <span class="rs-crumb">Container inspection</span>
+        <div class="rs-top__brand">
+          <span class="qs-brand"><i class="qs-logo" aria-hidden="true"></i>Quay Sight</span>
+          <span class="rs-crumb">Container inspection</span>
+        </div>
         <template v-if="setup.view === 'inspection'">
-          <!-- Demo mode has no provider settings: the banner's Connect a provider is the way to one. -->
-          <SettingsChip v-if="!store.demo" />
-          <RunChip v-if="recordedRun" :provider="recordedRun.provider" :model="recordedRun.model" />
-          <span class="rs-spacer"></span>
-          <CostIndicator />
           <NewInspectionAction />
+          <!-- Muted technical details on the right. Demo mode has no provider settings: the banner's Connect a provider is the way to one. -->
+          <div class="rs-top__meta">
+            <SettingsChip v-if="!store.demo" />
+            <RunChip
+              v-if="recordedRun"
+              :provider="recordedRun.provider"
+              :model="recordedRun.model"
+            />
+            <CostIndicator />
+          </div>
         </template>
       </header>
       <DemoBanner v-if="setup.view === 'inspection' && store.demo" />

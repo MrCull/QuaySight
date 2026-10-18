@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import { useInspectionStore } from '../stores/inspection'
-import { isMovingTarget, labelsFor, recordedDemonstrationLabel } from '../domain/providers'
+import { recordedDemonstrationLabel } from '../domain/providers'
 import { idResultState, UNREAD, visibleAlternatives } from '../domain/certainty'
 import type { StageId } from '../domain/runStages'
 import CertaintyChip from './CertaintyChip.vue'
@@ -33,21 +33,6 @@ const recordedLabel = computed(() => {
   const r = record.value
   if (!r || r.source !== 'recorded') return null
   return recordedDemonstrationLabel(r)
-})
-
-// "Live result: [provider/model]" for a result from a live call (spec 8.5). Never shown with the
-// recorded label. The title names who answered; the body gives the exact version.
-const liveLabel = computed(() => {
-  const r = record.value
-  if (!r || r.source !== 'live') return null
-  const moving = isMovingTarget(r.provider, r.model)
-  // A moving alias shows what was asked for and what answered, so the presenter can see the target moved.
-  return {
-    title: `Live result: ${labelsFor(r.provider, r.model).provider}`,
-    version: moving
-      ? `Answered by ${r.resolvedVersion} (requested ${r.model}, a moving target).`
-      : `Answered by ${r.resolvedVersion}.`,
-  }
 })
 
 // Several photos (ticket #70): photos that show no container are named, and so are photos of different containers.
@@ -157,17 +142,6 @@ const showInsufficient = computed(() => idState.value === 'insufficient')
         </div>
       </div>
       <span class="qs-notice__kicker">Sample</span>
-    </div>
-
-    <div v-if="liveLabel" class="qs-notice qs-notice--live" role="note">
-      <div>
-        <div class="qs-notice__title">{{ liveLabel.title }}</div>
-        <div class="qs-notice__body">
-          {{ liveLabel.version }} A live call to the provider. Its cost is as the provider reported
-          it, or an estimate where it reported none; not an invoice.
-        </div>
-      </div>
-      <span class="qs-notice__kicker">Live</span>
     </div>
 
     <div v-if="differentContainers" class="qs-notice qs-notice--partial" role="status">

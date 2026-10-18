@@ -413,7 +413,7 @@ const CAPTURES: Capture[] = [
     screen: 'demo',
     steps: [
       'Demo-picker steps',
-      'Choose Rear doors with markings (photo on the stage, Start inspection)',
+      'Choose Rear doors with markings (the inspection starts itself)',
     ],
     motion: 'frozen',
     run: async (page) => {
@@ -438,7 +438,7 @@ const CAPTURES: Capture[] = [
     screen: 'analysing',
     steps: [
       'Demo-sample-ready steps',
-      'Click Start inspection',
+      'The inspection starts itself',
       'Capture 500ms in, during the staged progress (animations live)',
     ],
     motion: 'animated',
@@ -456,7 +456,7 @@ const CAPTURES: Capture[] = [
     steps: [
       'Reduced-motion emulation',
       'Demo-sample-ready steps',
-      'Click Start inspection',
+      'The inspection starts itself',
       'Capture 500ms in',
     ],
     motion: 'animated',
@@ -476,7 +476,7 @@ const CAPTURES: Capture[] = [
     steps: [
       'Demo mode',
       'Rear doors with markings (recorded Luna, earlier ID-only run)',
-      'Start inspection, settle',
+      'Settle',
     ],
     motion: 'frozen',
     run: (page) => demoResult(page, 'Rear doors with markings'),
@@ -484,7 +484,7 @@ const CAPTURES: Capture[] = [
   {
     state: 'demo-coyu-seal-result',
     screen: 'results',
-    steps: ['Demo mode', 'Blue doors with a bolt seal (two photos)', 'Start inspection, settle'],
+    steps: ['Demo mode', 'Blue doors with a bolt seal (two photos)', 'Settle'],
     motion: 'frozen',
     viewports: [{ width: 1440, height: 900 }],
     run: async (page) => {
@@ -495,7 +495,7 @@ const CAPTURES: Capture[] = [
   {
     state: 'demo-jdlu-four-result',
     screen: 'results',
-    steps: ['Demo mode', 'Dusty blue container, four photos', 'Start inspection, settle'],
+    steps: ['Demo mode', 'Dusty blue container, four photos', 'Settle'],
     motion: 'frozen',
     viewports: [{ width: 1440, height: 900 }],
     run: async (page) => {
@@ -529,7 +529,7 @@ const CAPTURES: Capture[] = [
     steps: [
       'Demo mode',
       'Clean grey rear doors (recorded Jev latest through OpenRouter, uncertain digits)',
-      'Start inspection, settle',
+      'Settle',
     ],
     motion: 'frozen',
     run: (page) => demoResult(page, 'Clean grey rear doors'),
