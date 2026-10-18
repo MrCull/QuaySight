@@ -46,36 +46,58 @@ async function answerWith(page: Page, ids: string[]) {
   })
 }
 
-async function openWithTwoPhotos(page: Page) {
+async function openWithTwoPhotos(page: Page, files: string[] = photos) {
   await page.goto('/')
   await page.locator('#provider-button').click()
   await page.getByTestId('provider-option-luna').click()
   const key = page.getByLabel('OpenAI API key', { exact: true })
   await key.fill(PLACEHOLDER_KEY)
   await key.press('Enter')
-  await page.locator('input[type="file"]').setInputFiles(photos)
+  await page.locator('input[type="file"]').setInputFiles(files)
 }
 
 test.describe('Several photos of one container', () => {
   test.use({ viewport: { width: 1440, height: 900 } })
 
   test('takes several photos at once and refuses more than five', async ({ page }) => {
+    await answerWith(page, ['COYU2668130'])
     await openWithTwoPhotos(page)
     await expect(page.locator('.rs-photos__item')).toHaveCount(2)
     await expect(page.getByText('Photo 2')).toBeVisible()
     if (SHOTS) await page.screenshot({ path: path.join(SHOTS, 'intake.png') })
-
-    await page.locator('input[type="file"]').setInputFiles([...photos, ...photos, ...photos, photos[0]!])
+    // A run is in flight, so a further choice is ignored; the refusal shows once the run has finished.
+    await page.locator('#stage.qs-arrived').waitFor()
+    await page.locator('input[type="file"]').setInputFiles([...photos, ...photos, ...photos])
     await expect(page.getByRole('alert')).toHaveText('Choose up to 5 photos of one container.')
     await expect(page.locator('.rs-photos__item')).toHaveCount(2)
   })
 
   test('inspects five photos together as one container', async ({ page }) => {
     await answerWith(page, ['COYU2668130'])
-    await openWithTwoPhotos(page)
-    await page.locator('input[type="file"]').setInputFiles([...photos, ...photos, photos[0]!])
+    await openWithTwoPhotos(page, [...photos, ...photos, photos[0]!])
     await expect(page.locator('.rs-photos__item')).toHaveCount(5)
     await expect(page.getByRole('alert')).toHaveCount(0)
+  })
+
+  test('fits five photos in one centred row at 1920px', async ({ page }) => {
+    await page.setViewportSize({ width: 1920, height: 1080 })
+    await answerWith(page, ['COYU2668130'])
+    await openWithTwoPhotos(page, [...photos, ...photos, photos[0]!])
+    await expect(page.locator('.rs-photos__item')).toHaveCount(5)
+    const boxes = await page.locator('.rs-photos__frame').evaluateAll((els) =>
+      els.map((el) => {
+        const r = el.getBoundingClientRect()
+        return { x: r.x, y: r.y, right: r.right, height: r.height }
+      }),
+    )
+    expect(new Set(boxes.map((b) => Math.round(b.y))).size).toBe(1)
+    expect(boxes[0]!.x).toBeGreaterThanOrEqual(0)
+    expect(boxes[4]!.right).toBeLessThanOrEqual(1920)
+    expect(boxes.every((b) => b.height > 150)).toBe(true)
+    const overflow = await page.evaluate(
+      () => document.documentElement.scrollWidth - document.documentElement.clientWidth,
+    )
+    expect(overflow).toBeLessThanOrEqual(0)
   })
 
   test('shows each photo’s face as a chip under it, never over it', async ({ page }) => {

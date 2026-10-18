@@ -29,11 +29,11 @@ test.describe('phone width (390px)', () => {
     const analysing = await width()
     expect(analysing.scroll).toBeLessThanOrEqual(analysing.client)
     // The stage list sits under the photo, not over it, and the photo stays on screen.
-    const photo = (await page.locator('.rs-photo').boundingBox())!
+    const photo = (await page.locator('.rs-photos__frame').first().boundingBox())!
     const list = (await page.locator('.rs-stagecard').boundingBox())!
     expect(list.y).toBeGreaterThanOrEqual(photo.y + photo.height)
     expect(photo.y + photo.height).toBeLessThanOrEqual(844)
-    expect(await page.locator('.rs-photo .rs-stagecard').count()).toBe(0)
+    expect(await page.locator('.rs-photos__frame .rs-stagecard').count()).toBe(0)
     await expect(page.getByText('Recorded demonstration: GPT-6 Luna / gpt-6-luna')).toBeVisible()
     const landed = await width()
     expect(landed.scroll).toBeLessThanOrEqual(landed.client)
@@ -52,10 +52,55 @@ test.describe('laptop width (1440x900)', () => {
       expect(box!.y).toBeGreaterThanOrEqual(0)
       expect(box!.y).toBeLessThan(900)
     }
-    const photo = page.locator('.rs-photo')
+    const photo = page.locator('.rs-photos__frame').first()
     await startsInViewport(photo)
     const photoBox = await photo.boundingBox()
     expect(photoBox!.y + photoBox!.height).toBeLessThanOrEqual(900)
+  })
+})
+
+test.describe('desktop width (1920x1080)', () => {
+  test.use({ viewport: { width: 1920, height: 1080 } })
+
+  test('shows the photo strip and the top of the damage schematic without scrolling', async ({
+    page,
+  }) => {
+    await runSample(page)
+    await expect(page.locator('.rs-damage')).toBeVisible()
+    const strip = (await page.locator('.rs-photos__frame').first().boundingBox())!
+    expect(strip.y + strip.height).toBeLessThanOrEqual(1080)
+    // About 260px tall, centred, and not stretched to the full width.
+    expect(strip.height).toBeGreaterThan(200)
+    expect(strip.height).toBeLessThan(300)
+    expect(strip.width).toBeLessThan(1920 * 0.5)
+    const schematic = (await page.locator('.rs-damage').boundingBox())!
+    expect(schematic.y).toBeLessThan(1080 - 100)
+    expect(
+      await page.evaluate(
+        () => document.documentElement.scrollWidth - document.documentElement.clientWidth,
+      ),
+    ).toBeLessThanOrEqual(0)
+  })
+
+  test('puts the damage to the left of the readings column', async ({ page }) => {
+    await runSample(page)
+    await expect(page.locator('.rs-damage')).toBeVisible()
+    const damage = (await page.locator('.rs-damage').boundingBox())!
+    const readings = (await page.locator('.rs-right').boundingBox())!
+    expect(damage.x + damage.width).toBeLessThanOrEqual(readings.x)
+    expect(damage.width).toBeGreaterThan(readings.width)
+  })
+})
+
+test.describe('tablet width (1000x800)', () => {
+  test.use({ viewport: { width: 1000, height: 800 } })
+
+  test('stacks the damage above the readings', async ({ page }) => {
+    await runSample(page)
+    await expect(page.locator('.rs-damage')).toBeVisible()
+    const damage = (await page.locator('.rs-damage').boundingBox())!
+    const readings = (await page.locator('.rs-right').boundingBox())!
+    expect(readings.y).toBeGreaterThanOrEqual(damage.y + damage.height)
   })
 })
 

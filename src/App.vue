@@ -94,7 +94,7 @@ watch(
     </main>
 
     <main v-else id="stage" :class="['rs-main', stageClass, { 'rs-main--start': startScreen }]">
-      <section class="rs-left">
+      <section class="rs-band">
         <SamplePicker v-if="store.demo && !store.photo" />
         <PhotoPanel v-else />
         <div
@@ -114,13 +114,14 @@ watch(
           >
         </div>
       </section>
-      <ResultsPanel />
-      <DamageView
-        v-if="showDamageView && store.record"
-        :assessment="store.record.damage"
-        :selected="store.selectedFinding"
-        @update:selected="store.selectFinding"
-      />
+      <ResultsPanel>
+        <DamageView
+          v-if="showDamageView && store.record"
+          :assessment="store.record.damage"
+          :selected="store.selectedFinding"
+          @update:selected="store.selectFinding"
+        />
+      </ResultsPanel>
     </main>
     <SettingsDrawer v-if="setup.view === 'inspection' && setup.drawerOpen" />
     <footer><BuildStamp /></footer>
