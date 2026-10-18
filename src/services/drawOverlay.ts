@@ -57,4 +57,3 @@ export function drawOverlay(
     context.fillText(label.text, x, y + size * 0.04)
   }
 }
-

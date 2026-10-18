@@ -36,7 +36,9 @@ export function recheckedReadings(plan: PlanView): ChoiceReading[] | null {
   const first = plan.answer(survey)
   if (!first) return null
   const again = plan.answer(idRecheck)
-  return again ? mergeRecheck(first.readings, again.readings, askedOf(plan)).readings : first.readings
+  return again
+    ? mergeRecheck(first.readings, again.readings, askedOf(plan)).readings
+    : first.readings
 }
 
 /** The Luna ID set for just these positions, on whichever route the run is on. */

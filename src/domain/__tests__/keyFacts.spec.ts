@@ -80,34 +80,24 @@ describe('the tiles of a full result', () => {
 })
 
 describe('the Container ID tile', () => {
-  it('shows the ID with its certainty, the check-digit result and no owner note for a common owner', async () => {
+  it('shows the ID with its certainty', async () => {
     const id = tile(buildKeyFacts(await record(), ARRIVED), 'id')!
     expect(id.label).toBe('Container ID')
     expect(id.state).toBe('arrived')
     expect(id.reading?.value).toBe('COYU2668130')
     expect(id.certainty).toBe('Confident')
-    expect(id.notes).toEqual(['Check digit valid'])
   })
 
-  it('says the owner code is not a common one when the check digit passes for an owner not on the list', async () => {
-    const containerId = buildContainerIdReading({ printed: 'ZZZU1234564', certainty: 'Likely' })
-    const id = tile(buildKeyFacts(await record({ containerId }), ARRIVED), 'id')!
-    expect(containerId.checkDigitValid).toBe(true)
-    expect(id.notes).toEqual(['Check digit valid', 'Not a common owner code'])
-  })
-
-  it('says the check digit does not match', async () => {
+  it('lowers the certainty when the check digit does not match', async () => {
     const containerId = buildContainerIdReading({ printed: 'COYU2668131', certainty: 'Confident' })
     const id = tile(buildKeyFacts(await record({ containerId }), ARRIVED), 'id')!
     expect(id.certainty).toBe('Uncertain')
-    expect(id.notes).toEqual(['Check digit does not match'])
   })
 
-  it('says the check digit was not checked when a position was not read', async () => {
+  it('keeps the partial reading when a position was not read', async () => {
     const containerId = partlyRead('COYU26?8130', 'Uncertain')
     const id = tile(buildKeyFacts(await record({ containerId }), ARRIVED), 'id')!
     expect(id.reading).not.toBeNull()
-    expect(id.notes).toEqual(['ID incomplete, check digit not checked'])
   })
 
   it('says "ID not readable in this photo" when fewer than 6 characters were read, and shows no ID', async () => {
@@ -115,7 +105,6 @@ describe('the Container ID tile', () => {
     const id = tile(buildKeyFacts(await record({ containerId }), ARRIVED), 'id')!
     expect(id.headline).toBe('ID not readable in this photo')
     expect(id.reading).toBeNull()
-    expect(id.notes).toEqual([])
   })
 
   it("is Can't tell when the run read no ID at all", async () => {

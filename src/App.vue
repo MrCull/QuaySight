@@ -4,6 +4,7 @@ import { useInspectionStore } from './stores/inspection'
 import { useSetupStore } from './stores/setup'
 import { findSample } from './domain/demoSamples'
 import { needsManifest } from './domain/manifest'
+import { DETAIL_IDS } from './composables/detailJump'
 import SetupCard from './components/SetupCard.vue'
 import SettingsChip from './components/SettingsChip.vue'
 import BuildStamp from './components/BuildStamp.vue'
@@ -117,7 +118,7 @@ watch(
       <ResultsPanel>
         <DamageView
           v-if="showDamageView && store.record"
-          id="detail-damage"
+          :id="DETAIL_IDS.damage"
           tabindex="-1"
           data-detail
           :assessment="store.record.damage"

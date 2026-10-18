@@ -75,7 +75,8 @@ export function areaOfMarks(marks: readonly number[]): { marks: number[]; box: R
   const one = first === undefined ? null : markBox(first)
   if (first === undefined || !one) return null
   const second = marks[1]
-  const other = second !== undefined && second !== first && adjacent(first, second) ? markBox(second) : null
+  const other =
+    second !== undefined && second !== first && adjacent(first, second) ? markBox(second) : null
   if (second === undefined || !other) return { marks: [first], box: one }
   return {
     marks: [first, second],
@@ -128,8 +129,7 @@ const ITEM_TEXT: Record<'id' | 'seal' | 'weights' | 'iso' | 'hazard', string> = 
   weights:
     'the weights panel: the printed maximum gross, tare, payload and net weights in kilograms and pounds',
   iso: 'the ISO size-and-type code, a four-character code such as 22G1 or 45G1, usually printed under the container number or beside the weights',
-  hazard:
-    'a hazard sticker: a diamond-shaped dangerous-goods placard or label',
+  hazard: 'a hazard sticker: a diamond-shaped dangerous-goods placard or label',
 }
 
 export const REGIONS_INSTRUCTIONS =
@@ -139,7 +139,9 @@ const markName = (item: Item, second: boolean) => `${item}_mark${second ? '_2' :
 
 function markQuestion(item: Item, second: boolean): ChoiceQuestion {
   const subject = ITEM_TEXT[item.startsWith('hazard_') ? 'hazard' : (item as 'id')]
-  const which = item.startsWith('hazard_') ? `hazard sticker number ${item.slice(7)}, counting from the top left` : ''
+  const which = item.startsWith('hazard_')
+    ? `hazard sticker number ${item.slice(7)}, counting from the top left`
+    : ''
   return {
     type: 'choice',
     name: markName(item, second),

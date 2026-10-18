@@ -14,7 +14,13 @@ import {
   type SizeCodeReading,
 } from './containerDetailTypes'
 import { withCodeConflict } from './containerDetails'
-import { agree, combineContainerIds, weakerOf, type Candidate, type IdRead } from './combineReadings'
+import {
+  agree,
+  combineContainerIds,
+  weakerOf,
+  type Candidate,
+  type IdRead,
+} from './combineReadings'
 import { combineDamage } from './combineDamage'
 import { withCategoryLetter } from './idCandidates'
 import { weakestOf } from './idConfidence'

@@ -13,6 +13,7 @@ import ContainerDetails from './ContainerDetails.vue'
 import ContainerMarkings from './ContainerMarkings.vue'
 import ExportActions from './ExportActions.vue'
 import KeyFacts from './KeyFacts.vue'
+import { DETAIL_IDS } from '../composables/detailJump'
 import { DIFFERENT_CONTAINERS_MESSAGE, droppedPhotoMessage } from '../domain/combinePhotos'
 import { causeSentence } from '../domain/requestFailure'
 import { idCloseUp, sealCloseUp } from '../domain/closeUpSources'
@@ -223,7 +224,7 @@ const showInsufficient = computed(() => idState.value === 'insufficient')
 
         <div
           v-if="idLanded && record?.containerId"
-          id="detail-id"
+          :id="DETAIL_IDS.id"
           tabindex="-1"
           data-detail
           :class="['rs-card', 'qs-rise', { 'qs-arrived': arrivedEarly }]"
@@ -278,7 +279,7 @@ const showInsufficient = computed(() => idState.value === 'insufficient')
 
         <div
           v-else-if="idLanded && record && !differentContainers"
-          id="detail-id"
+          :id="DETAIL_IDS.id"
           tabindex="-1"
           data-detail
           :class="['rs-card', 'qs-rise', { 'qs-arrived': arrivedEarly }]"
@@ -294,7 +295,7 @@ const showInsufficient = computed(() => idState.value === 'insufficient')
         <!-- The seal, under the ID. Absent when the survey did not assess it. -->
         <SealCard
           v-if="idLanded && record?.seal"
-          id="detail-seal"
+          :id="DETAIL_IDS.seal"
           tabindex="-1"
           data-detail
           :reading="record.seal"
@@ -310,7 +311,7 @@ const showInsufficient = computed(() => idState.value === 'insufficient')
         <template v-if="record && detailsLanded">
           <ContainerDetails :record="record" :class="{ 'qs-arrived': detailsEarly }" />
           <ContainerMarkings
-            id="detail-markings"
+            :id="DETAIL_IDS.markings"
             tabindex="-1"
             data-detail
             :record="record"

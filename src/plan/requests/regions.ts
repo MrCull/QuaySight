@@ -1,8 +1,4 @@
-import {
-  readRegions,
-  regionsQuestionSet,
-  type RegionsReading,
-} from '../../domain/regionMarks'
+import { readRegions, regionsQuestionSet, type RegionsReading } from '../../domain/regionMarks'
 import { questionSetAsk } from '../../domain/questionSetAsk'
 import { askDecisions } from '../../services/askDecisions'
 import { markPhoto } from '../../services/scalePhoto'
@@ -39,7 +35,10 @@ export const regions: PlanRequest<RegionsReading> = {
           },
         }
       case 'blocked':
-        return { ...record, regions: { outcome: 'skipped-cap', found: null, resolvedVersion: null } }
+        return {
+          ...record,
+          regions: { outcome: 'skipped-cap', found: null, resolvedVersion: null },
+        }
       case 'cancelled':
         return { ...record, regions: { outcome: 'cancelled', found: null, resolvedVersion: null } }
       default:

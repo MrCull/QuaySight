@@ -131,7 +131,10 @@ export const idCropRead: PlanRequest<CropAnswer> = {
             jevIdReading(combined.readings, caveats, first.ownerPick, combined.corroborated)
         return {
           ...record,
-          containerId: { ...reading, ...(record.containerId?.box ? { box: record.containerId.box } : {}) },
+          containerId: {
+            ...reading,
+            ...(record.containerId?.box ? { box: record.containerId.box } : {}),
+          },
           idCropRead: {
             outcome: 'combined',
             box,

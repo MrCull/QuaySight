@@ -3,8 +3,8 @@
 The New inspection action gives the presenter a blank screen for the next container without reloading the page. It sits in the top bar on every inspection screen.
 
 ## Use
-- `<button type="button" class="qs-btn qs-btn--secondary qs-btn--sm qs-newinsp">New inspection</button>`, the centre item of the three-zone top bar: brand on the left, this button centred, and the muted `SettingsChip` (or `RunChip`) and `CostIndicator` on the right. It is the most-used action, so nothing else sits between it and the middle of the bar.
-- Secondary weight, not primary: it is the main button of the top bar, but not a `qs-btn--primary`: the inspection starts itself when photos or a sample are chosen, so there is no other action to rank it against.
+- `<button type="button" class="qs-btn qs-btn--primary qs-btn--sm qs-newinsp">New inspection</button>`, the centre item of the three-zone top bar: brand on the left, this button centred, and the muted `SettingsChip` (or `RunChip`) and `CostIndicator` on the right. It is the most-used action, so nothing else sits between it and the middle of the bar.
+- Primary weight (`qs-btn--primary`): it is the main button of the top bar. The inspection starts itself when photos or a sample are chosen, so no other button competes with it on the inspection screens.
 - The label is **New inspection**, and **Cancel** while an inspection runs. No icon. Cancel behaves exactly like New inspection: it stops what is in flight and clears to the empty picker, with no confirmation.
 
 ## Behaviour

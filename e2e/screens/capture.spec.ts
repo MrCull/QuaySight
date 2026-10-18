@@ -129,7 +129,7 @@ async function liveKey(page: Page, label = 'OpenAI API key') {
 const settingsChip = (page: Page) => page.getByRole('button', { name: /^Settings:/ })
 
 /** Waits for the arriving stage, then for the arrived stage, then lets the choreography finish. */
-async function startAndSettle(page: Page, _button?: string) {
+async function startAndSettle(page: Page) {
   // The inspection started itself when the photos were chosen.
   await page.locator('#stage.qs-arrived').waitFor()
   await page.waitForTimeout(SETTLE_MS)
@@ -159,7 +159,7 @@ async function liveRun(page: Page) {
   await open(page)
   await liveKey(page)
   await choosePhoto(page)
-  await startAndSettle(page, 'Run live inspection')
+  await startAndSettle(page)
 }
 
 /**
@@ -238,7 +238,7 @@ async function jevResult(page: Page) {
   await open(page)
   await liveKey(page, 'OpenRouter API key')
   await choosePhoto(page)
-  await startAndSettle(page, 'Run live inspection')
+  await startAndSettle(page)
 }
 
 /** GPT-6 Luna Decisions through OpenRouter: the recorded smoke response answers the survey; no damage question is answered. */
@@ -574,7 +574,7 @@ const CAPTURES: Capture[] = [
       await open(page)
       await liveKey(page, 'OpenRouter API key')
       await choosePhoto(page)
-      await startAndSettle(page, 'Run live inspection')
+      await startAndSettle(page)
     },
   },
   ...(
@@ -616,7 +616,7 @@ const CAPTURES: Capture[] = [
       await page.getByLabel('Model version').selectOption('openai/gpt-6-luna-decisions')
       await liveKey(page, 'OpenRouter API key')
       await choosePhoto(page)
-      await startAndSettle(page, 'Run live inspection')
+      await startAndSettle(page)
     },
   },
   {
@@ -629,7 +629,7 @@ const CAPTURES: Capture[] = [
       await open(page)
       await liveKey(page, 'OpenRouter API key')
       await choosePhoto(page)
-      await startAndSettle(page, 'Run live inspection')
+      await startAndSettle(page)
       await page.getByRole('button', { name: 'New inspection' }).click()
       await page.getByText('Drop a container photo here').waitFor()
     },
