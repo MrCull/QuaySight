@@ -4,11 +4,12 @@
 <style>
 body{margin:0;background:var(--bg)}
 .rs{min-width:1280px}
-.rs-top{position:sticky;top:0;z-index:5;display:flex;white-space:nowrap;align-items:center;gap:var(--space-5);height:64px;padding:0 var(--space-6);background:var(--surface);border-bottom:1px solid var(--line)}
+.rs-top{position:sticky;top:0;z-index:5;display:grid;grid-template-columns:minmax(0,1fr) auto minmax(0,1fr);white-space:nowrap;align-items:center;gap:var(--space-5);height:64px;padding:0 var(--space-6);background:var(--surface);border-bottom:1px solid var(--line)}
 .rs-brand{font:600 28px/1 var(--font-display);letter-spacing:.01em;color:var(--ink)}
 .rs-brand b{color:var(--brand);font-weight:600}
 .rs-crumb{font:600 15px/20px var(--font-sans);color:var(--ink)} .rs-crumb span{color:var(--ink-muted);font-weight:400}
-.rs-spacer{flex:1}
+.rs-top__brand{display:flex;align-items:center;gap:var(--space-5);justify-self:start;min-width:0}
+.rs-top__meta{display:flex;align-items:center;justify-content:flex-end;gap:var(--space-5);justify-self:end;min-width:0}
 .rs-main{display:grid;grid-template-columns:minmax(0,1fr) 540px;gap:var(--space-6);padding:var(--space-6)}
 .rs-left{display:grid;gap:var(--space-4);align-content:start}
 .rs-photo{position:relative;aspect-ratio:1000/640;border-radius:var(--radius-lg);overflow:hidden;background:var(--surface-sunken);border:1px solid var(--line)}
@@ -58,13 +59,16 @@ body{margin:0;background:var(--bg)}
 </style></head>
 <body class="qs-root rs rs--results">
 <header class="rs-top">
-  <span class="qs-brand"><i class="qs-logo" aria-hidden="true"></i>Quay Sight</span>
-  <span class="rs-crumb">Container inspection</span>
-  <button type="button" class="qs-settingschip" aria-haspopup="dialog" aria-expanded="false" aria-controls="settings-drawer" aria-label="Settings: OpenAI · GPT-6 Luna · key set · Live"><span class="qs-mono" aria-hidden="true">OA</span><span class="qs-settingschip__text">OpenAI · <span class="qs-settingschip__model">GPT-6 Luna</span> · <span class="qs-settingschip__key">key set</span> · Live</span><i class="qs-glyph qs-glyph--chevron" aria-hidden="true"></i></button>
-  <span class="rs-spacer"></span>
-  <div class="qs-cost qs-cost--quiet"><button class="qs-cost__toggle" id="cost" aria-expanded="false">This container <b id="c-now">$0.0042</b> · Session <b id="c-ses">$0.0187</b><i class="qs-glyph qs-glyph--chevron"></i></button></div>
-  <button class="qs-btn qs-btn--secondary"><i class="qs-glyph qs-glyph--upload"></i>Export</button>
+  <div class="rs-top__brand">
+    <span class="qs-brand"><i class="qs-logo" aria-hidden="true"></i>Quay Sight</span>
+    <span class="rs-crumb">Container inspection</span>
+  </div>
   <button type="button" class="qs-btn qs-btn--secondary qs-btn--sm qs-newinsp">New inspection</button>
+  <div class="rs-top__meta">
+    <button type="button" class="qs-settingschip" aria-haspopup="dialog" aria-expanded="false" aria-controls="settings-drawer" title="OpenAI GPT-6 Luna · key set" aria-label="Settings: OpenAI · GPT-6 Luna · Live"><span class="qs-mono" aria-hidden="true">OA</span><span class="qs-settingschip__text">OpenAI · <span class="qs-settingschip__model">GPT-6 Luna</span> · Live</span><i class="qs-glyph qs-glyph--chevron" aria-hidden="true"></i></button>
+    <div class="qs-cost qs-cost--quiet"><button class="qs-cost__toggle" id="cost" aria-expanded="false">This container <b id="c-now">$0.0042</b> · Session <b id="c-ses">$0.0187</b><i class="qs-glyph qs-glyph--chevron"></i></button></div>
+    <button class="qs-btn qs-btn--secondary"><i class="qs-glyph qs-glyph--upload"></i>Export</button>
+  </div>
 </header>
 
 <main class="rs-main qs-arriving" id="stage">

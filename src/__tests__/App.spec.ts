@@ -30,7 +30,7 @@ describe('App: setup gate', () => {
       .trigger('click')
     expect(wrapper.find('.qs-setupcard').exists()).toBe(false)
     expect(wrapper.find('#stage').exists()).toBe(true)
-    expect(wrapper.find('.qs-settingschip').text()).toContain('key set')
+    expect(wrapper.find('.qs-settingschip').attributes('title')).toContain('key set')
   })
 })
 

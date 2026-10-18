@@ -93,7 +93,8 @@ test.describe('header chip and settings drawer', () => {
     await expect(chip(page)).toBeVisible()
     await expect(chip(page)).toContainText('OpenRouter')
     await expect(chip(page)).toContainText('Jev latest')
-    await expect(chip(page)).toContainText('key set')
+    await expect(chip(page)).not.toContainText('key set')
+    await expect(chip(page)).toHaveAttribute('title', /Jev latest \(TypeSafe\).* · key set$/)
     const shown =
       (await page.locator('.rs-top').innerText()) + (await chip(page).getAttribute('aria-label'))
     expect(shown).not.toContain(PLACEHOLDER_KEY)
@@ -196,7 +197,7 @@ test.describe('header chip and settings drawer', () => {
     await drawer(page).getByLabel('Model version').selectOption('typesafe/jev-1.13')
     await expect(page.locator('.rs-photo__img')).toHaveCount(0)
     await expect(chip(page)).toContainText('Jev 1.13')
-    await expect(chip(page)).toContainText('key set')
+    await expect(chip(page)).toHaveAttribute('title', /key set$/)
   })
 })
 

@@ -8,7 +8,7 @@ Buttons start, export or reset an inspection. They never ask anyone to confirm, 
 - `qs-btn--ghost` for low-weight resets: *Clear key*. The top-bar *New inspection* action has its own component, `NewInspection`.
 - `qs-btn--sm` inside dense panels (cost ledger, marker popover).
 - `qs-link` for an action inside a sentence, drawn as a `brand` underlined link but kept a native `<button>`: "Enter this provider's key in *settings* to start." opens the `SettingsDrawer`.
-- In the app the one primary action is *Start inspection* (demo) or *Run live inspection* (live), at `qs-btn--lg` under the photo. It shows *Analysing…* while busy and is gone once the result has landed: the next step is `NewInspection`, never a second charge on the same photo. After a failed run it stays, so the presenter can try again.
+- In the app the inspection starts itself when photos (live) or a sample (demo) are chosen, so there is no *Start inspection* or *Run live inspection* button. The top bar's `NewInspection` (*Cancel* during a run) is the main button; a failed run's notice carries *Try again*.
 - While a run is in flight, **Cancel** (`qs-btn--secondary`) sits beside *Analysing…*. It stops the requests still running, keeps what already arrived (marked partial) and never asks for confirmation. It is gone once the run ends.
 
 ## Consumer provides
