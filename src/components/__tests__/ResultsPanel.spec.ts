@@ -51,7 +51,7 @@ describe('ResultsPanel', () => {
     )
   })
 
-  it('tags an ID whose check digit passes but whose owner is not on our list', async () => {
+  it('tags an ID whose check digit passes but whose owner is not a common one', async () => {
     const store = useInspectionStore()
     const recorded = await recordedInspection('luna', { delayMs: 0 })
     // ZZZU 000000 5 passes the check digit; ZZZU is not on the owner list.
@@ -69,7 +69,7 @@ describe('ResultsPanel', () => {
     }
     store.status = 'complete'
     const wrapper = mount(ResultsPanel)
-    expect(wrapper.text()).toContain('Owner not on our list')
+    expect(wrapper.text()).toContain('Not a common owner code')
   })
 
   it('does not tag an ID whose owner is on the list', async () => {
@@ -77,7 +77,7 @@ describe('ResultsPanel', () => {
     store.record = await recordedInspection('luna', { delayMs: 0 })
     store.status = 'complete'
     const wrapper = mount(ResultsPanel)
-    expect(wrapper.text()).not.toContain('Owner not on our list')
+    expect(wrapper.text()).not.toContain('Not a common owner code')
   })
 
   it('shows no result or sample label before a run completes', () => {

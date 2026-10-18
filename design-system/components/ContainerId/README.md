@@ -16,6 +16,6 @@ The characters, a certainty per position, the observed check digit, and whether 
 - A valid check digit is supporting evidence, not proof: it never upgrades a weak reading to Confident on its own.
 - A partial reading shows the missing positions as `·` with `data-c="unknown"`. Never fill them in. (The seal card shows `?` instead; see `SealCard`.)
 - The enlarged crop under the ID is captioned "Where we read the ID", with " · Photo N" added when there are several photos. It is a button: tapping shows the full photo with the region outlined (`qs-photo-region`), tapping again returns to the close-up.
-- When the owner code is not in the list the app knows, the meta row adds the tag "Owner not on our list" (`qs-prov`, see `ProvenanceTag`). It says only that the code is unlisted, not that the ID is wrong.
+- When the owner code is not in the list the app knows, the meta row adds the tag "Not a common owner code" (`qs-prov`, see `ProvenanceTag`). It says only that the code is unlisted, not that the ID is wrong.
 - A plausible alternative sits below as "Also possible QSIU 307478 1 · the fifth digit could be a 7; the printed check digit favours 2". It is a suggestion, never a picker option, and never shows how it was produced (no passes, candidates or check counts).
 - `qs-id--md` (28px) for lists, the cost ledger header and comparisons.

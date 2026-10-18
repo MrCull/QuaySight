@@ -12,7 +12,7 @@ The provenance tag says where a displayed value came from. The spec requires thi
 | Model-selected | `qs-prov--model` | dotted | A choice the model picked from a constrained list: the yes/no equipment checks (REEFER, TANK…). |
 | Read from image | `qs-prov` | solid | The container ID after a manifest check, when the reading came from the photo rather than the list. |
 | Matched against manifest | `qs-prov--manifest` | double | The container ID matched an entry in the manifest the presenter pasted (`ManifestRetry`). |
-| Owner not on our list | `qs-prov` | solid | Beside the container ID when its three-letter owner code is not in the known list. It says the code is unlisted, never that the ID is wrong. |
+| Not a common owner code | `qs-prov` | solid | Beside the container ID when its three-letter owner code is not in the known list. It says the code is unlisted, never that the ID is wrong. |
 
 ## Consumer provides
 `<span class="qs-prov [modifier]">Label</span>`, placed after the value in a `FieldRow`. Tags are neutral (`ink-muted`, `line-strong`) on purpose: provenance is information, not a judgement.
