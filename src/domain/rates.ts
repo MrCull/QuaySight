@@ -70,11 +70,11 @@ export const rateSchedules: RateSchedule[] = [
 ]
 
 /**
- * Per-inspection cap (spec 8.3, 11.5, ticket #70): one container, whatever the number of photos (up to four). A
- * photo's plan makes up to six requests; the cap leaves room for four photos, a manifest check and a Try again.
+ * Per-inspection cap (spec 8.3, 11.5, ticket #70): one container, whatever the number of photos (up to five). A
+ * photo's plan makes up to eight requests (survey, regions, ID re-check, ID crop, seal zoom, side damage, door damage, weight check), so five photos make at most 40; the cap of 50 leaves room for a manifest check.
  */
 export const spendCaps: SpendCaps = {
-  maxRequestsPerInspection: 30,
+  maxRequestsPerInspection: 50,
   maxSpendUsdPerInspection: 0.5,
 }
 

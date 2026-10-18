@@ -5,7 +5,7 @@
 **Product type:** AI-powered container recognition and damage inspection POC  
 
 **Product requirements specification**  
-**Version:** 1.7  
+**Version:** 1.8  
 **Status:** Multi-provider, multi-photo requirements for a live innovation-event demonstration  
 **Initial AI providers:** OpenAI GPT-6 Luna (Decisions API) and TypeSafe Jev (System One API)  
 **Additional providers:** Designed to be added later without redesigning inspection features  
@@ -13,6 +13,7 @@
 
 **Change log**
 
+- **1.8** (18 Oct 2026, spec #96): up to 5 photos per inspection (was 4), and the per-inspection request cap raised from 30 to 50 (the $0.50 spend cap is unchanged); worst case for 5 photos is 40 plan requests plus one manifest retry, so the cap holds, and hitting it still gives a partial result.
 - **1.7** (17 Oct 2026, spec #51): several photos per inspection (up to 4) with the face of each named by the model; door-end to side mapping flipped; spend cap of 30 requests and $0.50 per container inspection; one model at a time, following the last key entered or the menu pick, with keys in memory only; length from shape; the size code in plain words; Seal card; placards in Markings; enlarged crops; ID display rules; damage card wording; payload display rule; failure causes kept and shown. Replaces the one-photo, left-side, earlier-cap and default-model wording of 1.6.
 - **1.6**: multi-provider requirements (Luna and Jev), owner-code pick, flat damage schematic with two fixed views.
 
@@ -30,7 +31,7 @@ The app must be credible about what is *visually observed/classified*, *inferred
 
 An attendee should be able to see, in one short demonstration:
 
-1. One to four photographs of a container are uploaded and analysed using one model (initially Luna or Jev), the one whose key the presenter entered last or picked from the menu.
+1. One to five photographs of a container are uploaded and analysed using one model (initially Luna or Jev), the one whose key the presenter entered last or picked from the menu.
 2. The app identifies the container and key equipment characteristics where supported by evidence.
 3. A photograph with damage produces approximate schematic location markers and clear descriptions of the CEDEX damage types that fit.
 4. Uncertain identification can lead to a focused second attempt with constrained, check-digit-valid candidates, using the same selected provider/model unless an explicitly separate run is started. This happens behind the scenes: the audience sees only the outcome, never passes or candidate mechanics.
@@ -52,7 +53,7 @@ Priority labels: **MUST** = core innovation-event POC; **SHOULD** = strongly des
 - Select an AI provider and supported image-capable model/version, enter that provider's API key and run a live inspection with that one model. **OpenAI/Luna and TypeSafe/Jev must both work** for the initial POC.
 - Provider/model switch must not change the core equipment/damage presentation, validations or uncertainty semantics.
 - One model at a time: an inspection is never run by two models, and there is no ensemble or second opinion.
-- One to four photographs of the same container per inspection (§3.1, §7), combined into one result: one ID, one set of details, one seal, one set of placards and one damage drawing.
+- One to five photographs of the same container per inspection (§3.1, §7), combined into one result: one ID, one set of details, one seal, one set of placards and one damage drawing.
 - Seal reading, placard reading (class and UN number) and an enlarged crop beside each ID, seal and placard reading (§4.5, §4.6, §8.2).
 - Provider-independent inspection questions/findings and a shared, evidence-rich inspection record. Two initial provider integrations; later providers must be addable without rewriting the results experience.
 - Provider-specific image request encoding, question-type translation, response parsing and errors, without pretending every provider has identical capabilities.
@@ -99,7 +100,7 @@ Priority labels: **MUST** = core innovation-event POC; **SHOULD** = strongly des
 - No requirement to support arbitrary models that cannot accept photographs or produce interpretable structured classifications. Such models must be labelled unsupported, not forced through an incompatible interface.
 - No mandatory live two-model comparison as a prerequisite to presenting one inspection.
 - No full design system, screen mock-ups or fixed brand direction in this document.
-- Running several models on the same photo (ensemble or second opinion), correcting a photo's face by hand, keeping keys across page reloads, comparing the seal number or missing placards against a manifest or booking, more than 4 photos, and roof or underside faces.
+- Running several models on the same photo (ensemble or second opinion), correcting a photo's face by hand, keeping keys across page reloads, comparing the seal number or missing placards against a manifest or booking, more than 5 photos, and roof or underside faces.
 - Asking an attendee or presenter to decipher characters, select a candidate, enter a missing number or manually confirm the model's results. (The optional manifest retry in §3.2 is the only exception, and it never blocks a result.)
 - Generating an apparently photorealistic reconstruction of damage or claiming pixel-precise localisation from region decisions or experimental box estimates.
 
@@ -115,7 +116,7 @@ Priority labels: **MUST** = core innovation-event POC; **SHOULD** = strongly des
 - The active model is the one whose key was entered most recently, or the one the presenter picks from the menu once several keys are in. There is no fixed default model.
 - Selecting a provider changes only the relevant setup capabilities and advanced technical detail, not the main inspection workflow.
 - Preserve the selected provider and model with every inspection and with every request in that inspection; switching provider starts a distinct run, not a silent mid-inspection fallback.
-- Add up to **4 photographs** of one container from the device, at once. Drag/drop and file selection accept several files; a 5th photo is refused with a plain message that the limit is 4. Straightforward replacement must work.
+- Add up to **5 photographs** of one container from the device, at once. Drag/drop and file selection accept several files; a 6th photo is refused with a plain message that the limit is 5. Straightforward replacement must work.
 - Display each selected photo, its orientation, whether it is suitable for inspection, and a chip naming the face the model found in it (doors, front end, left side, right side, can't tell).
 - Do not require the user to know or supply the container ID, length, face, orientation, equipment type or any other classification.
 - The model works out which face each photo shows (doors, front end, left side, right side, not a container, or can't tell) from the survey of that photo. The presenter cannot correct it. Where the face cannot be told, use image-relative positions. No mandatory classification questions to the user.
@@ -311,7 +312,7 @@ Thresholds must be explicit, adjustable during evaluation and treated as POC heu
 - Preserve first-pass and second-pass outputs in the consolidated JSON and raw provider responses for technical evaluation. They are **not** shown in the user interface (see §8.2 and §9).
 - Avoid presenting second-pass probability as directly comparable to first-pass probability when the choice sets differ.
 - Compare second-pass results with observed groups and calculated check digits before promoting a candidate.
-- Default to **no more than one automatic refinement per unresolved field/region**, with an overall cap of **30 requests and $0.50 per container inspection** (POC values; the cap covers all of the container's photos). Stop automatically when the limit is reached; do **not** ask for permission to keep guessing.
+- Default to **no more than one automatic refinement per unresolved field/region**, with an overall cap of **50 requests and $0.50 per container inspection** (POC values; the cap covers all of the container's photos). Stop automatically when the limit is reached; do **not** ask for permission to keep guessing.
 - Allow cancellation and show that a partial inspection is usable even if a refinement call fails.
 
 ### 5.4 Autonomous finalisation when still uncertain
@@ -403,7 +404,7 @@ Definitions must explicitly distinguish **local dents in corrugated panels**, **
 
 **MUST**
 
-- An inspection holds 1 to 4 photos of one container. The single-photo path remains effortless. More than 4 are refused with a message.
+- An inspection holds 1 to 5 photos of one container. The single-photo path remains effortless. More than 5 are refused with a message.
 - Each photo gets a survey that also names its face (§3.1). A photo that shows no container gets no further requests. A photo whose face can't be told still adds its ID, weights and seal.
 - Plan requests across the whole container: a survey per photo; the ID re-check, crop reads and weight check only for photos that show those markings; one damage request per photo of each face. The stage list shows progress for the whole container, and the cost is one container total with per-request lines in the cost list.
 - Merge the per-photo readings into one result:
@@ -499,7 +500,7 @@ The consolidated record must retain distinctions between printed/visually classi
 - Display tiny sub-cent costs with enough precision to be meaningful (e.g. `$0.0016`, not `$0.00`); handle zero, unknown and incomplete usage separately.
 - Include automatic refinements and any chargeable retries in totals. Where usage is missing or a provider's billing basis is unknown, mark the estimate as incomplete rather than silently assuming the request was free.
 - Show one total for the container across all its photos, with the per-request lines in the expanded list.
-- A manifest retry (§3.2) is a live call on the same provider and model. It counts toward the per-inspection request/spend cap of 30 requests and $0.50 and appears as its own line in the ledger.
+- A manifest retry (§3.2) is a live call on the same provider and model. It counts toward the per-inspection request/spend cap of 50 requests and $0.50 and appears as its own line in the ledger.
 - Source usage from **each provider's actual response fields** and use configurable, timestamped, provider/model/endpoint-specific price schedules. Support distinct input/output/image/request billing where applicable; never apply Luna token pricing to Jev.
 - Show usage in-session only by default; no billing account integration or persistent server-side tracking is required. Totals across providers are estimates in a common display currency, not a consolidated invoice.
 
@@ -703,7 +704,7 @@ This is a *demonstration and learning POC*. The goal is to demonstrate the poten
 
 ### 12.2 POC acceptance criteria
 
-- [ ] A presenter can open the app, choose Luna or Jev and an appropriate model/version, supply the matching key, choose up to four photos and start inspection with minimal explanation.
+- [ ] A presenter can open the app, choose Luna or Jev and an appropriate model/version, supply the matching key, choose up to five photos and start inspection with minimal explanation.
 - [ ] Luna and Jev perform **real** image-based classification through their own supported APIs; the same user-facing result model and neutral damage schematic work for both.
 - [ ] Changing provider/model starts a separate clearly attributed run without reusing incompatible responses, prompts or credentials.
 - [ ] Model catalogue flags prevent unsupported model/capability choices and allow additional provider integrations without changes to the main results presentation.
