@@ -30,13 +30,18 @@ const PLACEHOLDER_KEY = 'playwright-placeholder-not-a-key'
 /** The Decisions endpoint answers from the recorded smoke response; nothing else leaves the app origin. */
 async function mockDecisions(page: Page) {
   await page.route(/api\.openai\.com\/v1\/decisions/, (route) =>
-    route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify(lunaSmoke) }),
+    route.fulfill({
+      status: 200,
+      contentType: 'application/json',
+      body: JSON.stringify(lunaSmoke),
+    }),
   )
 }
 
 const choosePhoto = (page: Page) => page.locator('input[type="file"]').setInputFiles(samplePhoto)
 const costLine = (page: Page) => page.locator('.rs-top .qs-cost__toggle')
-const newInspection = (page: Page) => page.getByRole('button', { name: 'New inspection' })
+const newInspection = (page: Page) =>
+  page.getByRole('button', { name: /^(New inspection|Cancel)$/ })
 
 /** Types the placeholder on the setup card and continues to the inspection screen. */
 async function continueWithKey(page: Page) {
@@ -53,7 +58,6 @@ async function liveRun(page: Page) {
   await mockDecisions(page)
   await continueWithKey(page)
   await choosePhoto(page)
-  await page.getByRole('button', { name: 'Run live inspection' }).click()
   await page.locator('#stage.qs-arrived').waitFor()
 }
 
@@ -65,16 +69,34 @@ test.describe('New inspection', () => {
     const button = page.locator('.rs-top').getByRole('button', { name: 'New inspection' })
     await expect(button).toBeVisible()
 
-    // Tab order in the top bar: the settings chip, the cost indicator, then New inspection.
-    await page.locator('.rs-top').getByRole('button', { name: /^Settings:/ }).focus()
+    // Tab order in the top bar: New inspection comes first, then the settings chip.
+    await button.focus()
     await page.keyboard.press('Tab')
-    await page.keyboard.press('Tab')
+    await expect(page.locator('.rs-top').getByRole('button', { name: /^Settings:/ })).toBeFocused()
+    await page.keyboard.press('Shift+Tab')
     await expect(button).toBeFocused()
     const outline = await button.evaluate((el) => {
       const style = getComputedStyle(el)
       return { style: style.outlineStyle, width: style.outlineWidth }
     })
     expect(outline).toEqual({ style: 'solid', width: '2px' })
+  })
+
+  test('header reads brand, then New inspection centred, then model label and costs', async ({
+    page,
+  }) => {
+    await continueWithKey(page)
+    const box = async (loc: ReturnType<Page['locator']>) => (await loc.boundingBox())!
+    const brand = await box(page.locator('.rs-top .qs-brand'))
+    const action = await box(page.locator('.rs-top').getByRole('button', { name: 'New inspection' }))
+    const chipBox = await box(page.locator('.rs-top .qs-settingschip'))
+    const cost = await box(page.locator('.rs-top .qs-cost'))
+    expect(brand.x + brand.width).toBeLessThan(action.x)
+    expect(action.x + action.width).toBeLessThan(chipBox.x)
+    expect(chipBox.x + chipBox.width).toBeLessThanOrEqual(cost.x + 1)
+    // Centred on the 1440 px page, give or take the bar's padding.
+    expect(Math.abs(action.x + action.width / 2 - 720)).toBeLessThan(8)
+    await expect(page.locator('.rs-top .qs-settingschip')).not.toContainText('key set')
   })
 
   test('after a live run, leaves a blank screen and keeps the key and the session total', async ({
@@ -98,7 +120,7 @@ test.describe('New inspection', () => {
 
     // The key survived: a new photo can run live straight away.
     await choosePhoto(page)
-    await expect(page.getByRole('button', { name: 'Run live inspection' })).toBeEnabled()
+    await expect(page.locator('.rs-photo__img')).toBeVisible()
   })
 
   test('clears the manifest retry panel', async ({ page }) => {
@@ -106,7 +128,6 @@ test.describe('New inspection', () => {
     await page.goto('/')
     await page.getByRole('button', { name: 'Enter as demo user' }).click()
     await page.getByRole('button', { name: /Rear doors with markings/ }).click()
-    await page.getByRole('button', { name: 'Start inspection' }).click()
     await page.locator('#stage.qs-arrived').waitFor()
     const offer = page.getByRole('heading', { name: 'Container ID not identified' })
     await expect(offer).toBeVisible()
@@ -135,7 +156,6 @@ test.describe('New inspection', () => {
     })
     await continueWithKey(page)
     await choosePhoto(page)
-    await page.getByRole('button', { name: 'Run live inspection' }).click()
     const release = await held
     await expect(page.locator('#stage.qs-arriving')).toBeVisible()
 
@@ -147,5 +167,23 @@ test.describe('New inspection', () => {
     await expect(costLine(page)).not.toContainText('Session None yet')
     await expect(page.locator('#stage')).not.toHaveClass(/qs-arrived|qs-arriving/)
     await expect(page.locator('.rs-photo__img')).toHaveCount(0)
+  })
+})
+
+test.describe('header at phone width', () => {
+  test.use({ viewport: { width: 390, height: 844 } })
+
+  test('has no horizontal scroll and keeps New inspection visible and focusable', async ({
+    page,
+  }) => {
+    await continueWithKey(page)
+    const button = page.locator('.rs-top').getByRole('button', { name: 'New inspection' })
+    await expect(button).toBeInViewport()
+    await button.focus()
+    await expect(button).toBeFocused()
+    const over = await page.evaluate(
+      () => document.documentElement.scrollWidth - document.documentElement.clientWidth,
+    )
+    expect(over).toBeLessThanOrEqual(0)
   })
 })

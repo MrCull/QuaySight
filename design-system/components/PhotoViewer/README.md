@@ -1,6 +1,6 @@
 # PhotoViewer
 
-The photo viewer shows the original container photo filling the screen. The presenter opens it by clicking, tapping, or focusing and pressing Enter/Space on the main photo or on any photo in the 2–4 photo grid. It answers the spec's §8.2 MUST, "give the image a central role".
+The photo viewer shows the original container photo filling the screen. The presenter opens it by clicking, tapping, or focusing and pressing Enter/Space on the main photo or on any photo in the 2–5 photo grid. It answers the spec's §8.2 MUST, "give the image a central role".
 
 ## The one sanctioned full-screen layer
 Elsewhere this system says "never a modal" (`Notice`, `NewInspection`, `SettingsDrawer`). The viewer is the single exception, because **the photo is the hero**: the presenter is showing the container itself, and nothing else on screen matters while they do. No other component may become a full-screen or modal layer by pointing at this one.

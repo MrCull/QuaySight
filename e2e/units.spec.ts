@@ -35,7 +35,6 @@ async function inspectRearDoors(page: Page) {
   await key.fill(PLACEHOLDER_KEY)
   await key.press('Enter')
   await page.locator('input[type="file"]').setInputFiles(photo)
-  await page.getByRole('button', { name: 'Run live inspection' }).click()
   await page.locator('#stage.qs-arrived').waitFor()
 }
 

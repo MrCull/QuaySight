@@ -6,11 +6,11 @@ Quay Sight is a Vue 3 + Vite + TypeScript app that inspects photos of freight co
 
 ## Scope and tech
 
-A static, browser-only app (no backend, no relay). The presenter enters a provider key, which is kept in memory only. They then pick 1–4 photos of one container, and the inspection starts as soon as the photos are chosen. A recorded demo mode with bundled samples needs no key.
+A static, browser-only app (no backend, no relay). The presenter enters a provider key, which is kept in memory only. They then pick 1–5 photos of one container, and the inspection starts as soon as the photos are chosen. A recorded demo mode with bundled samples needs no key.
 
 - **Output:** container ID (ISO 6346 check digit, owner-code list), size/type code, length, weights, seal, placards, and damage on a flat schematic. Each value has a certainty. It is not a certified survey.
 - **Providers:** OpenAI GPT-6 Luna (Decisions API) and Jev, reached through OpenRouter (`docs/adr/0001-*`). One model at a time. Catalogue in `src/domain/providers.ts`.
-- **Spend cap:** 30 requests and $0.50 per container inspection. The cost indicator shows the container and session totals.
+- **Spend cap:** 50 requests and $0.50 per container inspection. The cost indicator shows the container and session totals.
 - **Layout:** `src/domain/` is pure logic, with no Vue and no I/O. `src/services/` does provider calls and image work. `src/stores/inspection.ts` is the Pinia store that runs the stages (`store.start()`). `src/plan/` is the request plan. `src/components/` is the UI, and `src/composables/` holds its shared Vue logic. `src/regression/` scores recorded runs.
 - **Stack:** Vue 3, Pinia, vue-router, Vite, Vitest with jsdom, Playwright, oxlint, ESLint and oxfmt. The package manager is pnpm.
 - **Tests:** `*.live.spec.ts` hit real APIs and are skipped unless `OPENAI_API_KEY` or `OPENROUTER_API_KEY` is set. Some unit tests currently fail on `main` (`PhotoCrop`, `ManifestRetry`, one `App` test), so compare against a stash before blaming a change.

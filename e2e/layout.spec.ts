@@ -11,7 +11,6 @@ async function prepareRecordedRun(page: Page) {
 
 async function runSample(page: Page) {
   await prepareRecordedRun(page)
-  await page.getByRole('button', { name: 'Start inspection' }).click()
   await expect(page.getByText('Recorded demonstration: GPT-6 Luna / gpt-6-luna')).toBeVisible()
 }
 
@@ -22,7 +21,6 @@ test.describe('phone width (390px)', () => {
     page,
   }) => {
     await prepareRecordedRun(page)
-    await page.getByRole('button', { name: 'Start inspection' }).click()
     const width = () =>
       page.evaluate(() => ({
         scroll: document.documentElement.scrollWidth,
@@ -30,12 +28,12 @@ test.describe('phone width (390px)', () => {
       }))
     const analysing = await width()
     expect(analysing.scroll).toBeLessThanOrEqual(analysing.client)
-    // The stage list sits under the photo, not over it, and the photo stays on screen.
-    const photo = (await page.locator('.rs-photo').boundingBox())!
-    const list = (await page.locator('.rs-stagecard').boundingBox())!
-    expect(list.y).toBeGreaterThanOrEqual(photo.y + photo.height)
+    // The Reading… tiles sit under the photo, not over it, and the photo stays on screen.
+    const photo = (await page.locator('.rs-photos__frame').first().boundingBox())!
+    const tiles = (await page.locator('.qs-keyfacts').boundingBox())!
+    expect(tiles.y).toBeGreaterThanOrEqual(photo.y + photo.height)
     expect(photo.y + photo.height).toBeLessThanOrEqual(844)
-    expect(await page.locator('.rs-photo .rs-stagecard').count()).toBe(0)
+    expect(await page.locator('.rs-photos__frame .qs-keyfacts').count()).toBe(0)
     await expect(page.getByText('Recorded demonstration: GPT-6 Luna / gpt-6-luna')).toBeVisible()
     const landed = await width()
     expect(landed.scroll).toBeLessThanOrEqual(landed.client)
@@ -54,24 +52,66 @@ test.describe('laptop width (1440x900)', () => {
       expect(box!.y).toBeGreaterThanOrEqual(0)
       expect(box!.y).toBeLessThan(900)
     }
-    const photo = page.locator('.rs-photo')
+    const photo = page.locator('.rs-photos__frame').first()
     await startsInViewport(photo)
     const photoBox = await photo.boundingBox()
     expect(photoBox!.y + photoBox!.height).toBeLessThanOrEqual(900)
   })
 })
 
+test.describe('desktop width (1920x1080)', () => {
+  test.use({ viewport: { width: 1920, height: 1080 } })
+
+  test('shows the photo strip and the top of the damage schematic without scrolling', async ({
+    page,
+  }) => {
+    await runSample(page)
+    await expect(page.locator('.rs-damage')).toBeVisible()
+    const strip = (await page.locator('.rs-photos__frame').first().boundingBox())!
+    expect(strip.y + strip.height).toBeLessThanOrEqual(1080)
+    // About 260px tall, centred, and not stretched to the full width.
+    expect(strip.height).toBeGreaterThan(200)
+    expect(strip.height).toBeLessThan(300)
+    expect(strip.width).toBeLessThan(1920 * 0.5)
+    const schematic = (await page.locator('.rs-damage').boundingBox())!
+    expect(schematic.y).toBeLessThan(1080 - 100)
+    expect(
+      await page.evaluate(
+        () => document.documentElement.scrollWidth - document.documentElement.clientWidth,
+      ),
+    ).toBeLessThanOrEqual(0)
+  })
+
+  test('puts the damage to the left of the readings column', async ({ page }) => {
+    await runSample(page)
+    await expect(page.locator('.rs-damage')).toBeVisible()
+    const damage = (await page.locator('.rs-damage').boundingBox())!
+    const readings = (await page.locator('.rs-right').boundingBox())!
+    expect(damage.x + damage.width).toBeLessThanOrEqual(readings.x)
+    expect(damage.width).toBeGreaterThan(readings.width)
+  })
+})
+
+test.describe('tablet width (1000x800)', () => {
+  test.use({ viewport: { width: 1000, height: 800 } })
+
+  test('stacks the damage above the readings', async ({ page }) => {
+    await runSample(page)
+    await expect(page.locator('.rs-damage')).toBeVisible()
+    const damage = (await page.locator('.rs-damage').boundingBox())!
+    const readings = (await page.locator('.rs-right').boundingBox())!
+    expect(readings.y).toBeGreaterThanOrEqual(damage.y + damage.height)
+  })
+})
+
 test.describe('reduced motion', () => {
   test.use({ viewport: { width: 1440, height: 900 }, reducedMotion: 'reduce' })
 
-  test('the analysing sweep is removed; the stage card is still shown', async ({ page }) => {
+  test('the analysing sweep is removed; the Reading… tiles are still shown', async ({ page }) => {
     await prepareRecordedRun(page)
-    await page.getByRole('button', { name: 'Start inspection' }).click()
     const sweep = page.locator('.rs-sweep')
     await expect(sweep).toBeHidden()
-    await expect(page.locator('.rs-stagecard .qs-stage__title').first()).toHaveText(
-      'Reading the ID',
-    )
+    await expect(page.locator('[data-tile="id"]')).toContainText('Reading…')
   })
 })
 
@@ -84,7 +124,11 @@ async function liveRun(page: Page, hold: Array<'side' | 'door'>, cancel: boolean
   await page.route(/api\.openai\.com\/v1\/decisions/, (route) => {
     const reply = script(kindOfRequest(route.request().postData() ?? ''), 1)
     if (reply === HOLD) return
-    return route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify(reply) })
+    return route.fulfill({
+      status: 200,
+      contentType: 'application/json',
+      body: JSON.stringify(reply),
+    })
   })
   await page.goto('/')
   await page.locator('#provider-button').click()
@@ -93,22 +137,17 @@ async function liveRun(page: Page, hold: Array<'side' | 'door'>, cancel: boolean
   await key.fill('playwright-placeholder-not-a-key')
   await key.press('Enter')
   await page.locator('input[type="file"]').setInputFiles(coyuPhoto)
-  await page.getByRole('button', { name: 'Run live inspection' }).click()
   if (cancel) {
-    await expect(page.locator('.rs-stagecard li.qs-stage', { hasText: 'Reading the ID' })).toHaveClass(
-      /qs-stage--done/,
-    )
+    await expect(page.locator('[data-tile="id"]')).toHaveAttribute('data-state', 'arrived')
     await page.getByRole('button', { name: 'Cancel' }).click()
-    await page.locator('.qs-notice--partial').waitFor()
+    await page.getByText('Drop a container photo here').waitFor()
   } else {
     await page.locator('#stage.qs-arrived').waitFor()
   }
 }
 
 const overflow = (page: Page) =>
-  page.evaluate(
-    () => document.documentElement.scrollWidth - document.documentElement.clientWidth,
-  )
+  page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth)
 
 for (const viewport of [
   { width: 390, height: 844 },
@@ -118,7 +157,7 @@ for (const viewport of [
   test.describe(`live result at ${viewport.width}px`, () => {
     test.use({ viewport })
 
-    test('a landed result and a cancelled partial result have no horizontal page scroll', async ({
+    test('a landed result and a cancelled run (back at the empty picker) have no horizontal page scroll', async ({
       page,
     }) => {
       await liveRun(page, [], false)

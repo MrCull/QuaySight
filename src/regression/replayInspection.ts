@@ -5,7 +5,7 @@ import { replayRecording } from '../plan/replay'
 import type { Expected } from './score'
 
 /**
- * Replays a whole expected inspection (1 to 4 photos) as the record the app would show: each photo's
+ * Replays a whole expected inspection (1 to 5 photos) as the record the app would show: each photo's
  * recording on the route is replayed on its own, then the photos are combined as a live run combines them.
  * A single photo is that photo's own record. Nothing is sent.
  */

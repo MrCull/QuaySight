@@ -27,7 +27,9 @@ test.describe('first visit', () => {
 
     await expect(page.locator('input[type="file"]')).toHaveCount(0)
     await expect(page.getByText('Drop a container photo here')).toHaveCount(0)
-    await expect(page.getByRole('button', { name: /Run live inspection|Start inspection/ })).toHaveCount(0)
+    await expect(
+      page.getByRole('button', { name: /Run live inspection|Start inspection|Replace photo/ }),
+    ).toHaveCount(0)
     await expect(page.locator('#stage')).toHaveCount(0)
     await expect(page.getByRole('button', { name: 'New inspection' })).toHaveCount(0)
     await expect(page.getByRole('button', { name: 'Enter as demo user' })).toBeVisible()
@@ -62,7 +64,9 @@ test.describe('continue', () => {
     await expect(page.getByText('Drop a container photo here')).toBeVisible()
   })
 
-  test('starts focus on the provider and moves in a logical order to Continue', async ({ page }) => {
+  test('starts focus on the provider and moves in a logical order to Continue', async ({
+    page,
+  }) => {
     await page.goto('/')
     const card = setupCard(page)
     await expect(card.locator('#provider-button')).toBeFocused()
@@ -89,7 +93,8 @@ test.describe('header chip and settings drawer', () => {
     await expect(chip(page)).toBeVisible()
     await expect(chip(page)).toContainText('OpenRouter')
     await expect(chip(page)).toContainText('Jev latest')
-    await expect(chip(page)).toContainText('key set')
+    await expect(chip(page)).not.toContainText('key set')
+    await expect(chip(page)).toHaveAttribute('title', /Jev latest \(TypeSafe\).* · key set$/)
     const shown =
       (await page.locator('.rs-top').innerText()) + (await chip(page).getAttribute('aria-label'))
     expect(shown).not.toContain(PLACEHOLDER_KEY)
@@ -127,7 +132,7 @@ test.describe('header chip and settings drawer', () => {
   }) => {
     await continueWithKey(page)
     await page.locator('input[type="file"]').setInputFiles(samplePhoto)
-    await expect(page.getByRole('button', { name: 'Run live inspection' })).toBeEnabled()
+    await expect(page.locator('.rs-photo__img')).toBeVisible()
 
     await chip(page).click()
     const key = drawer(page).getByLabel('OpenRouter API key', { exact: true })
@@ -141,14 +146,15 @@ test.describe('header chip and settings drawer', () => {
     await expect(key).toHaveValue('')
     await drawer(page).getByRole('button', { name: 'Done' }).click()
     await expect(chip(page)).toContainText('no key')
-    await expect(page.getByRole('button', { name: 'Run live inspection' })).toBeDisabled()
-    await expect(page.getByText("Enter this provider's key in settings to start")).toBeVisible()
 
-    await chip(page).click()
+    // Choosing photos with no key opens the drawer; saving the key starts the inspection.
+    await page.getByRole('button', { name: 'New inspection' }).click()
+    await page.locator('input[type="file"]').setInputFiles(samplePhoto)
+    await expect(drawer(page)).toBeVisible()
     await key.fill(PLACEHOLDER_KEY)
     await key.press('Enter')
     await expect(drawer(page)).toHaveCount(0)
-    await expect(page.getByRole('button', { name: 'Run live inspection' })).toBeEnabled()
+    await expect(page.locator('#stage.qs-arriving, #stage.qs-arrived')).toBeVisible()
   })
 
   test('changing the provider blanks the screen; changing only the key does not', async ({
@@ -160,7 +166,9 @@ test.describe('header chip and settings drawer', () => {
 
     // Only the key: the photo stays.
     await chip(page).click()
-    await drawer(page).getByLabel('OpenRouter API key', { exact: true }).fill(`${PLACEHOLDER_KEY}-2`)
+    await drawer(page)
+      .getByLabel('OpenRouter API key', { exact: true })
+      .fill(`${PLACEHOLDER_KEY}-2`)
     await page.keyboard.press('Escape')
     await expect(page.locator('.rs-photo__img')).toBeVisible()
 
@@ -189,7 +197,7 @@ test.describe('header chip and settings drawer', () => {
     await drawer(page).getByLabel('Model version').selectOption('typesafe/jev-1.13')
     await expect(page.locator('.rs-photo__img')).toHaveCount(0)
     await expect(chip(page)).toContainText('Jev 1.13')
-    await expect(chip(page)).toContainText('key set')
+    await expect(chip(page)).toHaveAttribute('title', /key set$/)
   })
 })
 

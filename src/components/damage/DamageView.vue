@@ -82,7 +82,11 @@ const significant = computed(() => !!assessed.value && potentiallySignificant(as
       <div class="rs-damage__grid">
         <DamageSchematic :assessment="assessed" :selected-id="selectedId" @select="select" />
         <div class="rs-damage__cards">
-          <DamageFindings :findings="assessed.findings" :selected-id="selectedId" @select="select" />
+          <DamageFindings
+            :findings="assessed.findings"
+            :selected-id="selectedId"
+            @select="select"
+          />
           <template v-if="assessed.unplaced?.length">
             <h3 class="qs-type-body-sm rs-damage__unplaced">{{ UNIDENTIFIED_FACE_HEADING }}</h3>
             <DamageFindings

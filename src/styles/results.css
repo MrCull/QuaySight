@@ -7,7 +7,9 @@ body {
   top: 0;
   /* Above the demo banner, so the cost ledger can open over it. */
   z-index: 21;
-  display: flex;
+  /* Three zones: brand left, New inspection centred, model chip and costs right (muted). */
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
   white-space: nowrap;
   align-items: center;
   gap: var(--space-5);
@@ -15,6 +17,21 @@ body {
   padding: 0 var(--space-6);
   background: var(--surface);
   border-bottom: 1px solid var(--line);
+}
+.rs-top__brand {
+  display: flex;
+  align-items: center;
+  gap: var(--space-5);
+  min-width: 0;
+  justify-self: start;
+}
+.rs-top__meta {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: var(--space-5);
+  min-width: 0;
+  justify-self: end;
 }
 .rs-crumb {
   font: 600 15px/20px var(--font-sans);
@@ -24,74 +41,54 @@ body {
   color: var(--ink-muted);
   font-weight: 400;
 }
-.rs-spacer {
-  flex: 1;
-}
+/* Two bands: the photo strip across the top, then notices and the detail area (damage left, readings right). */
 .rs-main {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) 540px;
-  gap: var(--space-6);
+  grid-template-columns: minmax(0, 1fr);
+  gap: var(--space-5);
   padding: var(--space-6);
 }
 /* Before any photo: the drop zone, or the demo sample picker, has the full width (design-system PhotoDrop). */
-.rs-main--start {
-  grid-template-columns: minmax(0, 1fr);
-}
-.rs-main--start > .rs-right:empty {
+.rs-main--start > .rs-results {
   display: none;
 }
-.rs-left {
+.rs-band {
   display: grid;
   gap: var(--space-4);
   align-content: start;
+  min-width: 0;
 }
-.rs-photo {
-  position: relative;
-  /* Fills the column; at the height cap the photo letterboxes inside rather than the stage narrowing. */
-  width: 100%;
-  aspect-ratio: 1000/640;
-  /* Keeps the photo and its controls inside a laptop viewport; the photo stays contained, not cropped. */
-  max-height: 48vh;
-  border-radius: var(--radius-lg);
-  overflow: hidden;
-  background: var(--surface-sunken);
-  border: 1px solid var(--line);
+.rs-strip {
+  display: grid;
+  gap: var(--space-4);
+  justify-items: center;
+  min-width: 0;
 }
-.rs-photo__bar {
-  position: absolute;
-  left: var(--space-3);
-  right: var(--space-3);
-  top: var(--space-3);
-  display: flex;
-  align-items: center;
-  gap: var(--space-2);
-  flex-wrap: wrap;
+.rs-results {
+  display: grid;
+  gap: var(--space-4);
+  min-width: 0;
 }
-.rs-pill {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  height: 28px;
-  padding: 0 var(--space-3);
-  border-radius: var(--radius-sm);
-  background: var(--scrim);
-  color: var(--ink);
-  font: 500 13px/1 var(--font-sans);
-  backdrop-filter: blur(6px);
+.rs-notices {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, calc(var(--space-8) * 6)), 1fr));
+  gap: var(--space-3);
 }
-.rs-pill .qs-glyph {
-  width: 14px;
-  height: 14px;
+.rs-notices:empty {
+  display: none;
 }
-.qs-arriving .rs-photo__bar {
-  opacity: 0;
+/* The readings column is narrower (8 x 64px) than the damage beside it. */
+.rs-detail {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, calc(var(--space-8) * 8));
+  gap: var(--space-6);
+  align-items: start;
 }
-.rs-photo__bar {
-  transition: opacity var(--duration-base);
+.rs-detail__main {
+  min-width: 0;
 }
-/* Cancel sits beside the busy primary button while a run is in flight. */
-.rs-startrow .qs-btn + .qs-btn {
-  margin-left: var(--space-3);
+.rs-detail__main:empty {
+  display: none;
 }
 /* Scan sweep over the photo (design-system AnalysingScreen); no text. Shown only while .qs-arriving. */
 .rs-analysing {
@@ -120,27 +117,12 @@ body {
   /* No duration token for the sweep: four arrival beats, so it loops at a token-derived pace. */
   animation: qs-sweep calc(var(--duration-arrive) * 4) cubic-bezier(0.4, 0, 0.2, 1) infinite;
 }
-/* The stage list sits directly under the photo, only while the run is in flight. */
-.rs-stages {
-  display: none;
+/* A detail section a key-facts tile leads to: clear of the sticky header when scrolled to, no ring from the programmatic focus. */
+[data-detail] {
+  scroll-margin-top: calc(var(--space-8) * 2);
 }
-.qs-arriving .rs-stages {
-  display: block;
-}
-.rs-stagecard {
-  width: min(330px, 100%);
-  padding: var(--space-3) var(--space-4) var(--space-1);
-  background: var(--surface-raised);
-  border: 1px solid var(--line);
-  border-radius: var(--radius-md);
-  box-shadow: var(--shadow-raised);
-}
-.rs-stagecard__k {
-  margin-bottom: var(--space-1);
-  font: 600 12px/16px var(--font-sans);
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  color: var(--ink-muted);
+[data-detail]:focus {
+  outline: none;
 }
 @media (prefers-reduced-motion: reduce) {
   .rs-sweep {
@@ -237,14 +219,6 @@ body {
   gap: var(--space-3);
   align-items: start;
 }
-@media (min-width: 1800px) {
-  .rs-damage__grid {
-    grid-template-columns: minmax(0, 1fr);
-  }
-  .rs-findings {
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-  }
-}
 
 /* Result states under the container ID (ticket #9). Colours come from the design-system tokens only. */
 .rs-also {
@@ -280,8 +254,9 @@ body {
 
 /* Laptop and phone widths: no fixed minimum width, one column, 16px gutter on phones (no horizontal scroll). */
 @media (max-width: 1100px) {
-  .rs-main {
+  .rs-detail {
     grid-template-columns: minmax(0, 1fr);
+    gap: var(--space-4);
   }
   .rs-damage__grid {
     grid-template-columns: minmax(0, 1fr);
@@ -302,7 +277,7 @@ body {
 /* Desktop: a long cost line ("Cost unavailable Partial estimate" after a cancel) wraps to two lines, so the chip
    keeps naming the model instead of truncating (the chip only shrinks on phones). */
 @media (min-width: 961px) {
-  .rs-top .qs-settingschip {
+  .rs-top .rs-top__meta .qs-settingschip {
     flex: none;
   }
   .rs-top .qs-cost {
@@ -311,6 +286,7 @@ body {
 }
 @media (max-width: 960px) {
   .rs-top {
+    display: flex;
     flex-wrap: wrap;
     height: auto;
     min-height: 64px;
@@ -348,8 +324,10 @@ body {
   .rs-top .qs-cost {
     flex: 1 1 10rem;
   }
-  .rs-top .rs-spacer {
-    display: none;
+  /* The zone wrappers dissolve, so brand, New inspection and the details wrap as separate items. */
+  .rs-top__brand,
+  .rs-top__meta {
+    display: contents;
   }
   /* design-system RunChip: on phones only the monogram and the name show. */
   .rs-top .qs-runchip__detail {
@@ -371,7 +349,6 @@ body {
   .rs-findings {
     grid-template-columns: minmax(0, 1fr);
   }
-  .rs-left,
   .rs-right {
     grid-template-columns: minmax(0, 1fr);
     min-width: 0;

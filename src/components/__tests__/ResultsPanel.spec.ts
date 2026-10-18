@@ -19,6 +19,18 @@ describe('ResultsPanel', () => {
     expect(wrapper.text()).toContain('Check digit valid')
   })
 
+  it('shows the key-facts tiles between the notices and the detail, and no What we found summary', async () => {
+    const store = useInspectionStore()
+    store.record = await recordedInspection('luna', { delayMs: 0 })
+    store.status = 'complete'
+    const wrapper = mount(ResultsPanel)
+    expect(wrapper.text()).not.toContain('What we found')
+    const tiles = wrapper.get('[aria-label="Key facts"]').element
+    const detail = wrapper.get('.rs-detail').element
+    expect(tiles.compareDocumentPosition(detail) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy()
+    expect(wrapper.get('[data-tile="id"]').text()).toContain('Confident')
+  })
+
   it('labels a Jev recorded result with the model, maker and route', async () => {
     const store = useInspectionStore()
     store.record = await recordedInspection('openrouter', { delayMs: 0 })
@@ -41,17 +53,13 @@ describe('ResultsPanel', () => {
     }
     store.status = 'complete'
     const wrapper = mount(ResultsPanel)
-    // One plain title, and the exact version in the body so the title stays short on a projector.
-    const notice = wrapper.get('.qs-notice--live')
-    expect(notice.get('.qs-notice__title').text()).toBe(
-      'Live result: Jev latest (TypeSafe) via OpenRouter',
-    )
-    expect(notice.get('.qs-notice__body').text()).toContain(
-      'Answered by typesafe/jev-1.14-20261014 (requested ~typesafe/jev-latest, a moving target).',
-    )
+    // The model and version live in the header chip's tooltip now, not in the results.
+    expect(wrapper.find('.qs-notice--live').exists()).toBe(false)
+    expect(wrapper.text()).not.toContain('Live result')
+    expect(wrapper.text()).not.toContain('Answered by')
   })
 
-  it('tags an ID whose check digit passes but whose owner is not on our list', async () => {
+  it('tags an ID whose check digit passes but whose owner is not a common one', async () => {
     const store = useInspectionStore()
     const recorded = await recordedInspection('luna', { delayMs: 0 })
     // ZZZU 000000 5 passes the check digit; ZZZU is not on the owner list.
@@ -69,7 +77,7 @@ describe('ResultsPanel', () => {
     }
     store.status = 'complete'
     const wrapper = mount(ResultsPanel)
-    expect(wrapper.text()).toContain('Owner not on our list')
+    expect(wrapper.text()).toContain('Not a common owner code')
   })
 
   it('does not tag an ID whose owner is on the list', async () => {
@@ -77,7 +85,7 @@ describe('ResultsPanel', () => {
     store.record = await recordedInspection('luna', { delayMs: 0 })
     store.status = 'complete'
     const wrapper = mount(ResultsPanel)
-    expect(wrapper.text()).not.toContain('Owner not on our list')
+    expect(wrapper.text()).not.toContain('Not a common owner code')
   })
 
   it('shows no result or sample label before a run completes', () => {

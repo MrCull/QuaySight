@@ -4,18 +4,14 @@ import { mount } from '@vue/test-utils'
 import { setActivePinia, createPinia } from 'pinia'
 import { useInspectionStore } from '../stores/inspection'
 import { useSetupStore } from '../stores/setup'
+import { useLedgerStore } from '../stores/ledger'
 import App from '../App.vue'
 
-function startButton(wrapper: ReturnType<typeof mount>) {
-  return wrapper
-    .findAll('button')
-    .find(
-      (b) =>
-        b.text().includes('Start inspection') ||
-        b.text().includes('Run live inspection') ||
-        b.text().includes('Analysing'),
-    )
+function buttonNamed(wrapper: ReturnType<typeof mount>, pattern: RegExp) {
+  return wrapper.findAll('button').find((b) => pattern.test(b.text()))
 }
+const startButton = (wrapper: ReturnType<typeof mount>) =>
+  buttonNamed(wrapper, /Start inspection|Run live inspection|Analysing|Replace photo/)
 
 describe('App: setup gate', () => {
   beforeEach(() => setActivePinia(createPinia()))
@@ -34,62 +30,95 @@ describe('App: setup gate', () => {
       .trigger('click')
     expect(wrapper.find('.qs-setupcard').exists()).toBe(false)
     expect(wrapper.find('#stage').exists()).toBe(true)
-    expect(wrapper.find('.qs-settingschip').text()).toContain('key set')
+    expect(wrapper.find('.qs-settingschip').attributes('title')).toContain('key set')
   })
 })
 
-describe('App', () => {
+describe('App: the inspection starts itself', () => {
+  const photo = { name: 'a.jpg', url: 'blob:a', orientation: 'landscape' as const }
   beforeEach(() => {
     setActivePinia(createPinia())
     useSetupStore().view = 'inspection'
   })
 
-  it('keeps Start disabled until a photo is chosen', () => {
-    const wrapper = mount(App)
-    expect(startButton(wrapper)?.attributes('disabled')).toBeDefined()
-  })
-
-  it('keeps Start disabled with a photo but no key, even for a recorded sample', () => {
+  it('has no Start, Run live inspection or Replace photo button, with or without a photo', async () => {
     const store = useInspectionStore()
-    store.setPhoto({ name: 'a.jpg', url: 'blob:a', orientation: 'landscape' })
-    const wrapper = mount(App)
-    expect(startButton(wrapper)?.attributes('disabled')).toBeDefined()
-    expect(wrapper.text()).toContain("Enter this provider's key in settings to start")
-  })
-
-  it('enables Start once a photo and a key are set, and shows it as busy while running', async () => {
-    const store = useInspectionStore()
-    store.setPhoto({ name: 'a.jpg', url: 'blob:a', orientation: 'landscape' })
     store.setApiKey('test-only-key-0000')
     const wrapper = mount(App)
-    expect(startButton(wrapper)?.attributes('disabled')).toBeUndefined()
+    expect(startButton(wrapper)).toBeUndefined()
+    store.setPhoto(photo)
+    await nextTick()
+    expect(startButton(wrapper)).toBeUndefined()
     store.status = 'running'
     await nextTick()
-    expect(wrapper.text()).toContain('Analysing')
-    expect(startButton(wrapper)?.attributes('disabled')).toBeDefined()
-  })
-
-  it('opens the settings drawer from the word "settings" in the key hint', async () => {
-    const store = useInspectionStore()
-    store.setPhoto({ name: 'a.jpg', url: 'blob:a', orientation: 'landscape' })
-    const wrapper = mount(App)
-    const link = wrapper.get('.rs-gate-hint button')
-    expect(link.text()).toBe('settings')
-    await link.trigger('click')
-    expect(useSetupStore().drawerOpen).toBe(true)
-  })
-
-  it('offers no second run once the result has landed: New inspection is the next step', async () => {
-    const store = useInspectionStore()
-    store.setPhoto({ name: 'a.jpg', url: 'blob:a', orientation: 'landscape' })
-    store.setApiKey('test-only-key-0000')
-    const wrapper = mount(App)
+    expect(startButton(wrapper)).toBeUndefined()
     store.status = 'complete'
     await nextTick()
     expect(startButton(wrapper)).toBeUndefined()
-    store.status = 'failed'
+  })
+
+  it('reads New inspection at rest and Cancel during a run', async () => {
+    const store = useInspectionStore()
+    store.setPhoto(photo)
+    const wrapper = mount(App)
+    expect(buttonNamed(wrapper, /^New inspection$/)).toBeDefined()
+    store.status = 'running'
     await nextTick()
-    expect(startButton(wrapper)?.attributes('disabled')).toBeUndefined()
+    expect(buttonNamed(wrapper, /^Cancel$/)).toBeDefined()
+    expect(buttonNamed(wrapper, /New inspection/)).toBeUndefined()
+  })
+
+  it('Cancel clears straight back to the empty picker and keeps the session total', async () => {
+    const store = useInspectionStore()
+    store.setPhoto(photo)
+    const wrapper = mount(App)
+    store.status = 'running'
+    await nextTick()
+    const ledgerBefore = JSON.stringify(useLedgerStore().session)
+    await buttonNamed(wrapper, /^Cancel$/)!.trigger('click')
+    expect(store.photo).toBeNull()
+    expect(store.status).toBe('idle')
+    expect(store.record).toBeNull()
+    expect(JSON.stringify(useLedgerStore().session)).toBe(ledgerBefore)
+    expect(buttonNamed(wrapper, /^New inspection$/)).toBeDefined()
+  })
+
+  it('offers Try again in a failed inspection notice, and it re-runs the same photos', async () => {
+    const store = useInspectionStore()
+    store.setPhoto(photo)
+    const start = vi.spyOn(store, 'start').mockResolvedValue()
+    const wrapper = mount(App)
+    expect(buttonNamed(wrapper, /Try again/)).toBeUndefined()
+    store.status = 'failed'
+    store.errorMessage = 'The provider did not answer.'
+    await nextTick()
+    await buttonNamed(wrapper, /Try again/)!.trigger('click')
+    expect(start).toHaveBeenCalledTimes(1)
+    expect(store.photo).toEqual(photo)
+  })
+
+  it('opens the settings drawer when photos are chosen without a key, and starts once the key is saved', async () => {
+    const store = useInspectionStore()
+    const start = vi.spyOn(store, 'start').mockResolvedValue()
+    mount(App)
+    store.setPhoto(photo)
+    void store.startWhenReady()
+    await nextTick()
+    expect(useSetupStore().drawerOpen).toBe(true)
+    expect(start).not.toHaveBeenCalled()
+    store.setApiKey('test-only-key-0000')
+    await nextTick()
+    expect(start).toHaveBeenCalledTimes(1)
+  })
+
+  it('starts a recorded sample as soon as it is picked', async () => {
+    const store = useInspectionStore()
+    store.enterDemo()
+    const start = vi.spyOn(store, 'start').mockResolvedValue()
+    const wrapper = mount(App)
+    await wrapper.find('.qs-sample').trigger('click')
+    expect(store.photo).not.toBeNull()
+    expect(start).toHaveBeenCalledTimes(1)
   })
 })
 

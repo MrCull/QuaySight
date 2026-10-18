@@ -70,7 +70,6 @@ test.describe('Seal and placards across photos', () => {
     await key.fill('playwright-placeholder-not-a-key')
     await key.press('Enter')
     await page.locator('input[type="file"]').setInputFiles(photos)
-    await page.getByRole('button', { name: 'Run live inspection' }).click()
     await page.locator('#stage.qs-arrived').waitFor()
 
     const seal = page.locator('.rs-seal')

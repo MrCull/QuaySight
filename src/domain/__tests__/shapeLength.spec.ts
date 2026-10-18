@@ -4,7 +4,12 @@ import { questionFamilies } from '../questionRegistry'
 import { surveyQuestionSet } from '../survey'
 import { chosenLength, type ContainerLengthFt, type LengthReading } from '../chosenLength'
 import { decodeSizeCode } from '../isoSizeCode'
-import { SHAPE_LENGTH_QUESTION, lengthDisagreement, shapeLengthFamily, shapeLengthOf } from '../shapeLength'
+import {
+  SHAPE_LENGTH_QUESTION,
+  lengthDisagreement,
+  shapeLengthFamily,
+  shapeLengthOf,
+} from '../shapeLength'
 import { buildInspectionExport } from '../exports'
 import { draftRecord } from '../../plan/draftRecord'
 import type { CertaintyLabel, InspectionRecord } from '../inspection'

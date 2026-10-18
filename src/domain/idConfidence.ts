@@ -24,6 +24,9 @@ export function passesCheckDigit(id: string): boolean {
   return id.length === ID_LENGTH && !id.includes(UNREAD) && checkDigitMatches(id)
 }
 
+/** Shown beside an ID whose check digit passes but whose owner code is not on the list. */
+export const NOT_COMMON_OWNER_TEXT = 'Not a common owner code'
+
 /** Whether the ID's four-character owner code is on the full owner-code list. */
 export function ownerIsListed(id: string): boolean {
   return isOnOwnerList(id.slice(0, OWNER_CODE_LENGTH))

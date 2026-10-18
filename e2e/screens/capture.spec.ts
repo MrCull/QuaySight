@@ -129,9 +129,8 @@ async function liveKey(page: Page, label = 'OpenAI API key') {
 const settingsChip = (page: Page) => page.getByRole('button', { name: /^Settings:/ })
 
 /** Waits for the arriving stage, then for the arrived stage, then lets the choreography finish. */
-async function startAndSettle(page: Page, button = 'Start inspection') {
-  await page.getByRole('button', { name: button }).click()
-  await page.locator('#stage.qs-arriving').waitFor()
+async function startAndSettle(page: Page) {
+  // The inspection started itself when the photos were chosen.
   await page.locator('#stage.qs-arrived').waitFor()
   await page.waitForTimeout(SETTLE_MS)
 }
@@ -160,7 +159,7 @@ async function liveRun(page: Page) {
   await open(page)
   await liveKey(page)
   await choosePhoto(page)
-  await startAndSettle(page, 'Run live inspection')
+  await startAndSettle(page)
 }
 
 /**
@@ -239,7 +238,7 @@ async function jevResult(page: Page) {
   await open(page)
   await liveKey(page, 'OpenRouter API key')
   await choosePhoto(page)
-  await startAndSettle(page, 'Run live inspection')
+  await startAndSettle(page)
 }
 
 /** GPT-6 Luna Decisions through OpenRouter: the recorded smoke response answers the survey; no damage question is answered. */
@@ -292,7 +291,6 @@ async function liveStart(page: Page, photo = coyuPhoto) {
   await open(page)
   await liveKey(page)
   await page.locator('input[type="file"]').setInputFiles(photo)
-  await page.getByRole('button', { name: 'Run live inspection' }).click()
 }
 
 /** A live run on the COYU door photo, landed. */
@@ -305,8 +303,10 @@ async function liveLanded(page: Page, photo = coyuPhoto) {
 const units = (page: Page, name: 'Metric' | 'Imperial') =>
   page.getByRole('group', { name: 'Units' }).getByRole('button', { name })
 
-const stageRow = (page: Page, title: string) =>
-  page.locator('.rs-stagecard li.qs-stage', { hasText: title })
+// The progress stages are the key-facts tiles now: the ID part lands in the Container ID tile, damage in its own.
+const TILE_OF = { 'Reading the ID': 'id', 'Checking for damage': 'damage' } as const
+const stageRow = (page: Page, title: keyof typeof TILE_OF) =>
+  page.locator(`[data-tile="${TILE_OF[title]}"]`)
 
 // ---- Captures -----------------------------------------------------------------------------------
 
@@ -415,7 +415,7 @@ const CAPTURES: Capture[] = [
     screen: 'demo',
     steps: [
       'Demo-picker steps',
-      'Choose Rear doors with markings (photo on the stage, Start inspection)',
+      'Choose Rear doors with markings (the inspection starts itself)',
     ],
     motion: 'frozen',
     run: async (page) => {
@@ -440,7 +440,7 @@ const CAPTURES: Capture[] = [
     screen: 'analysing',
     steps: [
       'Demo-sample-ready steps',
-      'Click Start inspection',
+      'The inspection starts itself',
       'Capture 500ms in, during the staged progress (animations live)',
     ],
     motion: 'animated',
@@ -448,7 +448,6 @@ const CAPTURES: Capture[] = [
       await open(page)
       await enterDemo(page)
       await openSample(page, 'Rear doors with markings')
-      await page.getByRole('button', { name: 'Start inspection' }).click()
       await page.locator('.rs-analysing').waitFor()
       await page.waitForTimeout(500)
     },
@@ -459,7 +458,7 @@ const CAPTURES: Capture[] = [
     steps: [
       'Reduced-motion emulation',
       'Demo-sample-ready steps',
-      'Click Start inspection',
+      'The inspection starts itself',
       'Capture 500ms in',
     ],
     motion: 'animated',
@@ -469,7 +468,6 @@ const CAPTURES: Capture[] = [
       await open(page)
       await enterDemo(page)
       await openSample(page, 'Rear doors with markings')
-      await page.getByRole('button', { name: 'Start inspection' }).click()
       await page.locator('.rs-analysing').waitFor()
       await page.waitForTimeout(500)
     },
@@ -480,7 +478,7 @@ const CAPTURES: Capture[] = [
     steps: [
       'Demo mode',
       'Rear doors with markings (recorded Luna, earlier ID-only run)',
-      'Start inspection, settle',
+      'Settle',
     ],
     motion: 'frozen',
     run: (page) => demoResult(page, 'Rear doors with markings'),
@@ -488,7 +486,7 @@ const CAPTURES: Capture[] = [
   {
     state: 'demo-coyu-seal-result',
     screen: 'results',
-    steps: ['Demo mode', 'Blue doors with a bolt seal (two photos)', 'Start inspection, settle'],
+    steps: ['Demo mode', 'Blue doors with a bolt seal (two photos)', 'Settle'],
     motion: 'frozen',
     viewports: [{ width: 1440, height: 900 }],
     run: async (page) => {
@@ -499,7 +497,7 @@ const CAPTURES: Capture[] = [
   {
     state: 'demo-jdlu-four-result',
     screen: 'results',
-    steps: ['Demo mode', 'Dusty blue container, four photos', 'Start inspection, settle'],
+    steps: ['Demo mode', 'Dusty blue container, four photos', 'Settle'],
     motion: 'frozen',
     viewports: [{ width: 1440, height: 900 }],
     run: async (page) => {
@@ -533,7 +531,7 @@ const CAPTURES: Capture[] = [
     steps: [
       'Demo mode',
       'Clean grey rear doors (recorded Jev latest through OpenRouter, uncertain digits)',
-      'Start inspection, settle',
+      'Settle',
     ],
     motion: 'frozen',
     run: (page) => demoResult(page, 'Clean grey rear doors'),
@@ -547,7 +545,7 @@ const CAPTURES: Capture[] = [
     steps: [
       'Reduced-motion emulation',
       'Demo rear-doors result, captured as soon as it lands (no pause)',
-      'What we found is simply there, with no animation',
+      'The key-facts tiles are simply there, with no animation',
     ],
     motion: 'animated',
     viewports: [{ width: 1440, height: 900 }],
@@ -556,9 +554,8 @@ const CAPTURES: Capture[] = [
       await open(page)
       await enterDemo(page)
       await openSample(page, 'Rear doors with markings')
-      await page.getByRole('button', { name: 'Start inspection' }).click()
       await page.locator('#stage.qs-arrived').waitFor()
-      await expect(page.locator('.qs-found')).toBeVisible()
+      await expect(page.locator('.qs-keyfacts')).toBeVisible()
     },
   },
   {
@@ -577,7 +574,7 @@ const CAPTURES: Capture[] = [
       await open(page)
       await liveKey(page, 'OpenRouter API key')
       await choosePhoto(page)
-      await startAndSettle(page, 'Run live inspection')
+      await startAndSettle(page)
     },
   },
   ...(
@@ -619,7 +616,7 @@ const CAPTURES: Capture[] = [
       await page.getByLabel('Model version').selectOption('openai/gpt-6-luna-decisions')
       await liveKey(page, 'OpenRouter API key')
       await choosePhoto(page)
-      await startAndSettle(page, 'Run live inspection')
+      await startAndSettle(page)
     },
   },
   {
@@ -632,7 +629,7 @@ const CAPTURES: Capture[] = [
       await open(page)
       await liveKey(page, 'OpenRouter API key')
       await choosePhoto(page)
-      await startAndSettle(page, 'Run live inspection')
+      await startAndSettle(page)
       await page.getByRole('button', { name: 'New inspection' }).click()
       await page.getByText('Drop a container photo here').waitFor()
     },
@@ -783,7 +780,7 @@ const CAPTURES: Capture[] = [
     script: () => rearDoorsScript({}, { survey: HOLD }),
     run: async (page) => {
       await liveStart(page)
-      await expect(stageRow(page, 'Checking for damage')).toHaveClass(/qs-stage--done/)
+      await expect(stageRow(page, 'Checking for damage')).toHaveAttribute('data-state', 'arrived')
       // The damage part has landed on its own; let its arrival finish. The ID and details are still in flight.
       await page.waitForTimeout(SETTLE_MS)
     },
@@ -800,7 +797,7 @@ const CAPTURES: Capture[] = [
     script: () => rearDoorsScript({}, { side: HOLD, door: HOLD }),
     run: async (page) => {
       await liveStart(page)
-      await expect(stageRow(page, 'Reading the ID')).toHaveClass(/qs-stage--done/)
+      await expect(stageRow(page, 'Reading the ID')).toHaveAttribute('data-state', 'arrived')
       // The ID and details have landed on their own; let their arrival finish. Damage is still in flight.
       await page.waitForTimeout(SETTLE_MS)
     },
@@ -813,7 +810,7 @@ const CAPTURES: Capture[] = [
     script: () => rearDoorsScript({}, { survey: HOLD }),
     run: async (page) => {
       await liveStart(page)
-      await expect(stageRow(page, 'Checking for damage')).toHaveClass(/qs-stage--done/)
+      await expect(stageRow(page, 'Checking for damage')).toHaveAttribute('data-state', 'arrived')
       await page.getByRole('button', { name: 'Cancel' }).focus()
       await page.keyboard.press('Shift+Tab')
       await page.keyboard.press('Tab')
@@ -845,7 +842,7 @@ const CAPTURES: Capture[] = [
     script: () => rearDoorsScript({}, { side: HOLD, door: HOLD }),
     run: async (page) => {
       await liveStart(page)
-      await expect(stageRow(page, 'Reading the ID')).toHaveClass(/qs-stage--done/)
+      await expect(stageRow(page, 'Reading the ID')).toHaveAttribute('data-state', 'arrived')
       await page.getByRole('button', { name: 'Cancel' }).click()
       await page.locator('.qs-notice--partial').waitFor()
       await page.waitForTimeout(SETTLE_MS)
@@ -892,7 +889,7 @@ const CAPTURES: Capture[] = [
     steps: [
       'Rear-door steps',
       'Mocked: max gross read as 30,480 kg but 67,900 lb, and the second look reads the same',
-      'settle: Uncertain with both readings, said first in What we found',
+      'settle: Uncertain with both readings, said in the Container details',
     ],
     motion: 'frozen',
     script: () => rearDoorsScript({ weights: CONFLICTING_WEIGHTS }),

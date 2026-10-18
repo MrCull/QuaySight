@@ -35,7 +35,9 @@ export interface FaceReading {
 }
 
 /** The faces a photo shows, the main face first. A close-up, a non-container and an unknown face show only themselves. */
-export function facesShown(reading: Pick<FaceReading, 'face' | 'shown'> | null | undefined): PhotoFace[] {
+export function facesShown(
+  reading: Pick<FaceReading, 'face' | 'shown'> | null | undefined,
+): PhotoFace[] {
   if (!reading) return []
   return reading.shown && reading.shown.length > 0 ? reading.shown : [reading.face]
 }
@@ -160,14 +162,18 @@ export function faceOf(answers: Record<string, SharedAnswer>): FaceReading | nul
  * The other faces the photo shows, the main face first. Only a photo of a container face has any; a close-up,
  * a non-container or an unknown face shows only itself. Nothing is returned when no "shows" question was answered.
  */
-function shownBeside(face: PhotoFace, answers: Record<string, SharedAnswer>): { shown?: PhotoFace[] } {
+function shownBeside(
+  face: PhotoFace,
+  answers: Record<string, SharedAnswer>,
+): { shown?: PhotoFace[] } {
   const faceKinds: PhotoFace[] = ['rear-doors', 'long-side', 'front-end']
   if (!faceKinds.includes(face)) return {}
   const asked = SHOWS_QUESTIONS.filter((q) => answers[q.name]?.type === 'predicate')
   if (asked.length === 0) return {}
   const others = asked.filter(
     (q) =>
-      q.face !== face && ((answers[q.name] as { probability: number }).probability ?? 0) >= SHOWN_MIN,
+      q.face !== face &&
+      ((answers[q.name] as { probability: number }).probability ?? 0) >= SHOWN_MIN,
   )
   return { shown: [face, ...others.map((q) => q.face)] }
 }
@@ -184,13 +190,11 @@ export const facePart: SurveyPart = {
   key: 'face',
   questions: () => [
     FACE_QUESTION,
-    ...SHOWS_QUESTIONS.map(
-      (q): PredicateQuestion => ({
-        type: 'predicate',
-        name: q.name,
-        instructions: q.instructions,
-      }),
-    ),
+    ...SHOWS_QUESTIONS.map((q): PredicateQuestion => ({
+      type: 'predicate',
+      name: q.name,
+      instructions: q.instructions,
+    })),
   ],
   read: (answers) => faceOf(answers),
   apply: (record, face) => withPhotoFace(record, face),

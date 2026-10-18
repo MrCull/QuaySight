@@ -107,7 +107,12 @@ describe('the owner-code question through live runs', () => {
             ? {
                 model: 'typesafe/jev-1.14-20261014',
                 answers: {
-                  id_mark: { type: 'choice', choice: '3', probabilities: { '3': 0.8 }, confidence: 0.8 },
+                  id_mark: {
+                    type: 'choice',
+                    choice: '3',
+                    probabilities: { '3': 0.8 },
+                    confidence: 0.8,
+                  },
                 },
               }
             : String(init?.body).includes('container_box')

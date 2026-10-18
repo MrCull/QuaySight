@@ -1,9 +1,9 @@
 # Loupe
 
-The loupe is a magnifier. When the presenter rests the mouse on the main container photo, or on any photo in the 2–4 photo grid, it shows a close-up of the spot under the pointer beside the cursor. Small printed markings can then be read without opening the full-screen `PhotoViewer`. Together they answer the spec's §8.2 MUST: zoom/pan and switching between photos.
+The loupe is a magnifier. When the presenter rests the mouse on the main container photo, or on any photo in the 2–5 photo grid, it shows a close-up of the spot under the pointer beside the cursor. Small printed markings can then be read without opening the full-screen `PhotoViewer`. Together they answer the spec's §8.2 MUST: zoom/pan and switching between photos.
 
 ## Anatomy
-- `.qs-loupe`: one square floating panel, `--space-8` × 3.5 (224px) a side, on `surface-raised` with `shadow-raised`, a `line-strong` border and `radius-md`. It is `position: fixed` and ignores the pointer (`pointer-events: none`).
+- `.qs-loupe`: one square floating panel, `--space-8` × 6 (384px), shown at 3× zoom, a side, on `surface-raised` with `shadow-raised`, a `line-strong` border and `radius-md`. It is `position: fixed` and ignores the pointer (`pointer-events: none`).
 - Its background is the **original** photo, the full-resolution source held for the inspection. The app sets `left`, `top`, `background-image`, `background-size` and `background-position` inline as the pointer moves.
 - Nothing else. No children, no overlays (no damage or ID regions, now or later), and no outline on the source photo marking the magnified area.
 

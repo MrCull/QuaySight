@@ -20,7 +20,16 @@ const modelName = computed(() => labelsFor(store.provider, store.model).model)
 const keySet = computed(() => hasKey(store.apiKey))
 const keyLabel = computed(() => (keySet.value ? 'key set' : 'no key'))
 // Demo mode has no chip (the demo banner stands in for it), so what the chip names always runs live.
-const summary = computed(() => `${vendor.value} · ${modelName.value} · ${keyLabel.value} · Live`)
+// "key set" is not shown (the tooltip says it); a missing key is, because the presenter must act on it.
+const summary = computed(
+  () => `${vendor.value} · ${modelName.value} · ${keySet.value ? '' : 'no key · '}Live`,
+)
+// The tooltip names the exact model version (the provider's own answer once a live run reported one) and the key status.
+const tooltip = computed(() => {
+  const labels = labelsFor(store.provider, store.model).provider
+  const reported = store.record?.source === 'live' ? store.record.resolvedVersion : null
+  return [labels, reported, keyLabel.value].filter(Boolean).join(' · ')
+})
 
 // Focus comes back here when the drawer closes, unless a click outside already put it on another control.
 watch(
@@ -48,13 +57,15 @@ function toggle() {
     aria-haspopup="dialog"
     :aria-expanded="setup.drawerOpen ? 'true' : 'false'"
     aria-controls="settings-drawer"
+    :title="tooltip"
     :aria-label="`Settings: ${summary}`"
     @click="toggle"
   >
     <span class="qs-mono" aria-hidden="true">{{ provider.monogram }}</span>
     <span class="qs-settingschip__text"
       >{{ vendor }} · <span class="qs-settingschip__model">{{ modelName }}</span> ·
-      <span class="qs-settingschip__key">{{ keyLabel }}</span> · Live</span
+      <template v-if="!keySet"><span class="qs-settingschip__key">no key</span> · </template
+      >Live</span
     >
     <i class="qs-glyph qs-glyph--chevron" aria-hidden="true"></i>
   </button>

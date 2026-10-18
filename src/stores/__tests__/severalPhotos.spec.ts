@@ -130,7 +130,7 @@ describe('several photos of one container', () => {
   const DOORS: Photo = { name: 'doors.jpg', width: 1000, id: COYU, face: 'rear_doors' }
   const SIDE: Photo = { name: 'side.jpg', width: 1100, id: COYU, face: 'long_side' }
 
-  it('takes up to four photos at once and refuses more with a plain message', () => {
+  it('takes up to five photos at once and refuses more with a plain message', () => {
     const { store, refused } = run(
       Array.from({ length: MAX_PHOTOS }, (_, i) => ({
         ...DOORS,
@@ -139,15 +139,27 @@ describe('several photos of one container', () => {
       })),
     )
     expect(refused).toBeNull()
-    expect(store.photos.map((p) => p.name)).toEqual(['p0.jpg', 'p1.jpg', 'p2.jpg', 'p3.jpg'])
+    expect(store.photos.map((p) => p.name)).toEqual([
+      'p0.jpg',
+      'p1.jpg',
+      'p2.jpg',
+      'p3.jpg',
+      'p4.jpg',
+    ])
 
     const tooMany = Array.from({ length: MAX_PHOTOS + 1 }, (_, i) =>
       photoNamed(`q${i}.jpg`, 900 + i),
     )
     expect(store.setPhotos(tooMany)).toBe(TOO_MANY_PHOTOS)
-    expect(TOO_MANY_PHOTOS).toBe('Choose up to 4 photos of one container.')
+    expect(TOO_MANY_PHOTOS).toBe('Choose up to 5 photos of one container.')
     // Nothing changed: the earlier photos are still the ones on screen.
-    expect(store.photos.map((p) => p.name)).toEqual(['p0.jpg', 'p1.jpg', 'p2.jpg', 'p3.jpg'])
+    expect(store.photos.map((p) => p.name)).toEqual([
+      'p0.jpg',
+      'p1.jpg',
+      'p2.jpg',
+      'p3.jpg',
+      'p4.jpg',
+    ])
   })
 
   it('gives each photo a survey and only the damage set of its own face', async () => {
@@ -312,8 +324,8 @@ describe('several photos of one container', () => {
     expect(store.stages.every((s) => s.state === 'done')).toBe(true)
   })
 
-  it('stops at 30 requests and $0.50 for the container', () => {
-    expect(spendCaps).toEqual({ maxRequestsPerInspection: 30, maxSpendUsdPerInspection: 0.5 })
+  it('stops at 50 requests and $0.50 for the container', () => {
+    expect(spendCaps).toEqual({ maxRequestsPerInspection: 50, maxSpendUsdPerInspection: 0.5 })
   })
 
   it('re-checks the ID only for a photo in which some of it was read', async () => {

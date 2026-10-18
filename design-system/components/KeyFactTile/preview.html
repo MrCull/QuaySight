@@ -1,0 +1,95 @@
+<!-- @dsCard group="Results" height=760 subtitle="The headline of a result at a glance: Reading…, then filled in" -->
+<!doctype html>
+<html><head><link rel="stylesheet" href="../../tokens.css"><link rel="stylesheet" href="../bundle.css"><meta charset="utf-8"><title>Key-facts tiles</title>
+<style>
+body{margin:0;padding:var(--space-6);background:var(--bg)}
+.stack{display:grid;gap:var(--space-6)}
+.cap{margin:0 0 var(--space-2);color:var(--ink-muted);font:600 13px/16px var(--font-sans);letter-spacing:.06em;text-transform:uppercase}
+</style></head>
+<body class="qs-root">
+<div class="stack">
+
+  <!-- While the run is in flight: Reading… placeholders and the thin progress indicator -->
+  <div class="qs-arriving">
+    <p class="cap">Reading</p>
+    <section class="qs-keyfacts" aria-label="Key facts">
+      <div class="qs-keyfacts__progress" role="progressbar" aria-label="Inspection progress" aria-valuemin="0" aria-valuemax="3" aria-valuenow="1"><i style="width:33%"></i></div>
+      <ul class="qs-keytiles">
+        <li class="qs-keytile qs-keytile--id"><div class="qs-keytile__body" role="button" tabindex="0" data-tile="id" data-state="reading" aria-busy="true"><span class="qs-keytile__head"><span class="qs-keytile__label qs-type-label">Container ID</span></span><span class="qs-skeleton qs-keytile__skeleton" aria-hidden="true"></span><span class="qs-keytile__value qs-type-display-md qs-keytile__value--quiet">Reading…</span></div></li>
+        <li class="qs-keytile qs-keytile--seal"><div class="qs-keytile__body" role="button" tabindex="0" data-tile="seal" data-state="reading" aria-busy="true"><span class="qs-keytile__head"><span class="qs-keytile__label qs-type-label">Seal</span></span><span class="qs-skeleton qs-keytile__skeleton" aria-hidden="true"></span><span class="qs-keytile__value qs-type-display-md qs-keytile__value--quiet">Reading…</span></div></li>
+        <li class="qs-keytile qs-keytile--damage"><div class="qs-keytile__body" role="button" tabindex="0" data-tile="damage" data-state="reading" aria-busy="true"><span class="qs-keytile__head"><span class="qs-keytile__label qs-type-label">Damage</span></span><span class="qs-skeleton qs-keytile__skeleton" aria-hidden="true"></span><span class="qs-keytile__value qs-type-display-md qs-keytile__value--quiet">Reading…</span></div></li>
+      </ul>
+    </section>
+  </div>
+
+  <!-- Arrived: all four tiles, Placards present because a placard was seen -->
+  <div class="qs-arrived">
+    <p class="cap">Arrived, with a placard</p>
+    <section class="qs-keyfacts" aria-label="Key facts">
+      <ul class="qs-keytiles">
+        <li class="qs-keytile qs-keytile--id"><div class="qs-keytile__body qs-rise" style="--i:0" role="button" tabindex="0" data-tile="id" data-state="arrived">
+          <span class="qs-keytile__head"><span class="qs-keytile__label qs-type-label">Container ID</span><span class="qs-cert qs-cert--likely"><i class="qs-glyph qs-glyph--likely"></i>Likely</span></span>
+          <div>
+            <div class="qs-id" aria-label="Q S I U 3 0 7 4 2 8, check digit 8">
+              <span class="qs-id__group"><span class="qs-id__ch">Q</span><span class="qs-id__ch">S</span><span class="qs-id__ch">I</span><span class="qs-id__ch">U</span></span>
+              <span class="qs-id__group"><span class="qs-id__ch">3</span><span class="qs-id__ch">0</span><span class="qs-id__ch">7</span></span>
+              <span class="qs-id__group"><span class="qs-id__ch" data-c="likely">4</span><span class="qs-id__ch">2</span><span class="qs-id__ch">8</span></span>
+              <span class="qs-id__check">8</span>
+            </div>
+            <div class="qs-id__meta"><span class="qs-prov">Printed</span><span class="qs-prov qs-prov--calculated">Check digit valid</span><span class="qs-prov">Not a common owner code</span></div>
+          </div>
+        </div></li>
+        <li class="qs-keytile qs-keytile--seal"><div class="qs-keytile__body qs-rise" style="--i:1" role="button" tabindex="0" data-tile="seal" data-state="arrived">
+          <span class="qs-keytile__head"><span class="qs-keytile__label qs-type-label">Seal</span><span class="qs-cert qs-cert--confident"><i class="qs-glyph qs-glyph--confident"></i>Confident</span></span>
+          <span class="qs-keytile__value qs-type-display-md qs-keytile__value--mono">4217095</span>
+        </div></li>
+        <li class="qs-keytile qs-keytile--damage"><div class="qs-keytile__body qs-rise" style="--i:2" role="button" tabindex="0" data-tile="damage" data-state="arrived">
+          <span class="qs-keytile__head"><span class="qs-keytile__label qs-type-label">Damage</span></span>
+          <span class="qs-keytile__value qs-type-display-md">3 findings</span>
+          <span class="qs-keytile__extra"><span class="qs-sev qs-sev--major"><span class="qs-sev__bars"><i></i><i></i><i></i><i></i></span>Major</span></span>
+        </div></li>
+        <li class="qs-keytile qs-keytile--placards"><div class="qs-keytile__body qs-rise" style="--i:3" role="button" tabindex="0" data-tile="placards" data-state="arrived">
+          <span class="qs-keytile__head"><span class="qs-keytile__label qs-type-label">Placards</span><span class="qs-cert qs-cert--likely"><i class="qs-glyph qs-glyph--likely"></i>Likely</span></span>
+          <span class="qs-keytile__value qs-type-display-md">Class 3, flammable liquids</span>
+          <span class="qs-keytile__extra"><span class="qs-marking qs-marking--hazard"><i class="qs-glyph qs-glyph--hazard"></i><span>DG placard</span></span></span>
+        </div></li>
+      </ul>
+    </section>
+  </div>
+
+  <!-- Arrived, nothing to flag: no Placards tile; the other empty answers in their fixed words -->
+  <div class="qs-arrived">
+    <p class="cap">Arrived, nothing seen</p>
+    <section class="qs-keyfacts" aria-label="Key facts">
+      <ul class="qs-keytiles">
+        <li class="qs-keytile qs-keytile--id"><div class="qs-keytile__body qs-rise" style="--i:0" role="button" tabindex="0" data-tile="id" data-state="arrived">
+          <span class="qs-keytile__head"><span class="qs-keytile__label qs-type-label">Container ID</span><span class="qs-cert qs-cert--unknown"><i class="qs-glyph qs-glyph--unknown"></i>Can't tell</span></span>
+          <span class="qs-keytile__value qs-type-display-md">ID not readable in this photo</span>
+        </div></li>
+        <li class="qs-keytile qs-keytile--seal"><div class="qs-keytile__body qs-rise" style="--i:1" role="button" tabindex="0" data-tile="seal" data-state="arrived">
+          <span class="qs-keytile__head"><span class="qs-keytile__label qs-type-label">Seal</span><span class="qs-cert qs-cert--unseen"><i class="qs-glyph qs-glyph--unseen"></i>Not seen</span></span>
+          <span class="qs-keytile__value qs-type-display-md">Not seen</span>
+        </div></li>
+        <li class="qs-keytile qs-keytile--damage"><div class="qs-keytile__body qs-rise" style="--i:2" role="button" tabindex="0" data-tile="damage" data-state="arrived">
+          <span class="qs-keytile__head"><span class="qs-keytile__label qs-type-label">Damage</span></span>
+          <span class="qs-keytile__value qs-type-display-md">None seen</span>
+        </div></li>
+      </ul>
+    </section>
+  </div>
+
+  <!-- A part that failed or was cancelled -->
+  <div>
+    <p class="cap">Unavailable</p>
+    <section class="qs-keyfacts" aria-label="Key facts">
+      <ul class="qs-keytiles">
+        <li class="qs-keytile qs-keytile--damage"><div class="qs-keytile__body" role="button" tabindex="0" data-tile="damage" data-state="unavailable">
+          <span class="qs-keytile__head"><span class="qs-keytile__label qs-type-label">Damage</span></span>
+          <span class="qs-keytile__value qs-type-display-md qs-keytile__value--quiet">No result</span>
+        </div></li>
+      </ul>
+    </section>
+  </div>
+
+</div>
+</body></html>

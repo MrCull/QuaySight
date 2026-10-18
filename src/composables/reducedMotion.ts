@@ -6,3 +6,12 @@
 export function reducedMotionClassSet(): boolean {
   return document.querySelector('.qs-reduced-motion:not(.qs-loupe):not(.qs-viewer)') !== null
 }
+
+/** Reduced motion by either route: the app's class set anywhere on the page, or the system preference. */
+export function prefersReducedMotion(): boolean {
+  return (
+    reducedMotionClassSet() ||
+    (typeof window.matchMedia === 'function' &&
+      window.matchMedia('(prefers-reduced-motion: reduce)').matches)
+  )
+}
