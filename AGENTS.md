@@ -40,6 +40,7 @@ Facts about the live provider APIs are in `docs/research/` (see its README). Eac
 All UI work follows `design-system/`. Read `design-system/README.md` before building or changing any screen.
 
 - Build Vue components from the `qs-*` markup in `design-system/components/<Name>/preview.html`, following that component's `README.md`. `ResultsScreen` shows the main screen assembled.
+- `qs-` is the design system's prefix: a `qs-*` class is a design-system component. `rs-` is the app's own layout prefix (`src/styles/`), never a design-system component.
 - Style with tokens only (`var(--…)` from `design-system/tokens.css`). No hard-coded colours, font sizes or spacing, and don't re-colour `qs-*` components locally.
 - Certainty, damage severity and hazard markings are three separate visual axes; never mix their colours. Nothing is green.
 - Status words are fixed: **Confident**, **Likely**, **Uncertain**, **Can't tell**, **Not seen**. Never use "supported", "verified", "safe" and similar.

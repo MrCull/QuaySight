@@ -81,7 +81,7 @@ test.describe('Live run progress and Cancel', () => {
     await expect(page.getByRole('button', { name: 'Cancel' })).toHaveCount(0)
   })
 
-  test('Cancel before anything arrives ends the run, keeps the photo and records the call as cancelled', async ({
+  test('Cancel before anything arrives clears to the picker and records the call as cancelled', async ({
     page,
   }) => {
     // The survey and both damage requests (long side, door end) are held, so nothing has arrived.
@@ -95,7 +95,9 @@ test.describe('Live run progress and Cancel', () => {
     await expect(page.getByText('Drop a container photo here')).toBeVisible()
     await expect(page.getByRole('alert')).toHaveCount(0)
     await expect(page.locator('.rs-photo__img')).toHaveCount(0)
-    await expect(page.getByRole('button', { name: 'New inspection' })).toBeVisible()
+    // Nothing is left to clear, so New inspection is gone and focus is on the drop zone, not on a removed button.
+    await expect(page.getByRole('button', { name: /^(New inspection|Cancel)$/ })).toHaveCount(0)
+    await expect(page.locator('[data-next-step="photo"]')).toBeFocused()
     await expect(page.locator('#stage')).not.toHaveClass(/qs-arriving/)
 
     const cost = page.locator('.rs-top .qs-cost__toggle')
@@ -163,7 +165,7 @@ test.describe('Live run progress and Cancel', () => {
     await expect(page.getByText('Drop a container photo here')).toBeVisible()
     await expect(page.locator('.qs-notice--partial')).toHaveCount(0)
     await expect(page.locator('.qs-id')).toHaveCount(0)
-    await expect(page.getByRole('button', { name: 'New inspection' })).toBeVisible()
+    await expect(page.getByRole('button', { name: /^(New inspection|Cancel)$/ })).toHaveCount(0)
     await page.locator('.rs-top .qs-cost__toggle').click()
     await expect(page.locator('.qs-cost__table tbody tr', { hasText: 'cancelled' })).toHaveCount(1)
   })

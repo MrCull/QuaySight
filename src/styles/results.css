@@ -25,6 +25,10 @@ body {
   min-width: 0;
   justify-self: start;
 }
+.rs-top__centre {
+  display: flex;
+  justify-self: center;
+}
 .rs-top__meta {
   display: flex;
   align-items: center;
@@ -326,6 +330,7 @@ body {
   }
   /* The zone wrappers dissolve, so brand, New inspection and the details wrap as separate items. */
   .rs-top__brand,
+  .rs-top__centre,
   .rs-top__meta {
     display: contents;
   }

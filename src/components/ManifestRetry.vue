@@ -135,7 +135,12 @@ function keepFirstResult() {
         </div>
       </div>
       <div class="qs-manifest__actions">
-        <button ref="tryAgainButton" type="button" class="qs-btn qs-btn--primary" @click="tryAgain">
+        <button
+          ref="tryAgainButton"
+          type="button"
+          class="qs-btn qs-btn--secondary"
+          @click="tryAgain"
+        >
           Try again
         </button>
         <button type="button" class="qs-btn qs-btn--secondary" @click="keepFirstResult">
@@ -187,7 +192,7 @@ function keepFirstResult() {
       <div class="qs-manifest__actions">
         <button
           type="button"
-          class="qs-btn qs-btn--primary"
+          class="qs-btn qs-btn--secondary"
           :aria-disabled="canCheck ? undefined : 'true'"
           :aria-describedby="`${countId} ${costId}`"
           @click="check"

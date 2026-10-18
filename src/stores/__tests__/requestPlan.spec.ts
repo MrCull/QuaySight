@@ -249,60 +249,6 @@ describe('a live run as a request plan', () => {
     expect(store.record?.testSeal).toEqual({ seal: 0.91, idSeen: 'APHU6586847' })
   })
 
-  it('Cancel aborts what is in flight, keeps what arrived and marks the result partial', async () => {
-    add(sealRequest())
-    edge.answer('id', () => json(jevBody()))
-    const store = liveStore()
-
-    const run = store.start()
-    await vi.waitFor(() => expect(edge.held('seal')).toHaveLength(1))
-    await vi.waitFor(() => expect(store.stages[0]?.state).toBe('done'))
-
-    store.cancel()
-    await run
-
-    expect(edge.held('seal')[0]!.signal?.aborted).toBe(true)
-    expect(store.status).toBe('complete')
-    expect(store.record?.status).toBe('partial')
-    expect(store.record?.containerId?.value).toBe('APHU6586847')
-    expect(store.record?.testSeal).toBeUndefined()
-    expect(store.stages.map((s) => s.state)).toEqual(['done', 'done', 'cancelled'])
-
-    const lines = useLedgerStore().entries()
-    expect(lines.find((l) => l.purpose === 'Test seal check')).toMatchObject({
-      status: 'cancelled',
-      costUsd: null,
-      costState: 'unavailable',
-    })
-    expect(lines.find((l) => l.purpose === 'Reading markings')?.status).toBe('complete')
-    // The aborted call is counted as a request of unknown cost: never free.
-    expect(useLedgerStore().inspectionTotals(store.record!.id)).toMatchObject({
-      requests: 2,
-      incomplete: true,
-    })
-  })
-
-  it('Cancel before anything answered ends the run cancelled, with no result and every line cancelled', async () => {
-    add(sealRequest())
-    const store = liveStore()
-
-    const run = store.start()
-    await vi.waitFor(() => expect(edge.order).toHaveLength(2))
-    store.cancel()
-    await run
-
-    expect(store.status).toBe('cancelled')
-    expect(store.record).toBeNull()
-    expect(store.errorMessage).toBeNull()
-    expect(
-      useLedgerStore()
-        .entries()
-        .map((l) => l.status),
-    ).toEqual(['cancelled', 'cancelled'])
-    // The photo stays, so the presenter can run it again.
-    expect(store.canStart).toBe(true)
-  })
-
   it('New inspection aborts every request in flight, and no late answer lands', async () => {
     add(sealRequest())
     const store = liveStore()

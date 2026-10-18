@@ -205,36 +205,6 @@ describe('automatic re-check of unresolved container ID positions (live Luna)', 
     expect(store.record?.containerId?.value).toBe(FULL_ID)
   })
 
-  it('Cancel during the re-check keeps the first reading, marked partial', async () => {
-    firstReading()
-    fetchMock.mockImplementationOnce(
-      (_url, init) =>
-        new Promise((_resolve, reject) =>
-          init?.signal?.addEventListener('abort', () => reject(init.signal?.reason)),
-        ),
-    )
-    const store = useInspectionStore()
-    store.setProvider('luna')
-    store.setApiKey(KEY)
-    choosePhoto(store)
-
-    const run = store.start()
-    await vi.waitFor(() => expect(fetchMock).toHaveBeenCalledTimes(2))
-    store.cancel()
-    await run
-
-    expect(recheckCall(fetchMock).signal.aborted).toBe(true)
-    expect(store.status).toBe('complete')
-    expect(store.record?.status).toBe('partial')
-    expect(store.record?.containerId?.value).toBe(FIRST_PRINTED)
-    expect(store.record?.rechecks?.[0]).toMatchObject({ outcome: 'cancelled', positions: [7, 9] })
-    expect(
-      useLedgerStore()
-        .entries()
-        .map((e) => e.status),
-    ).toEqual(['complete', 'cancelled'])
-  })
-
   it('makes no re-check when the first pass read every position', async () => {
     firstReading(FULL_ID)
     const store = useInspectionStore()

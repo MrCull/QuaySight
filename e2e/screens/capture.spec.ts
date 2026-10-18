@@ -817,38 +817,6 @@ const CAPTURES: Capture[] = [
     },
   },
   {
-    state: 'cancelled-before-results',
-    screen: 'results',
-    steps: [
-      'Progress steps with every request held',
-      'Click Cancel before anything arrives (photo kept, the calls recorded as cancelled)',
-    ],
-    motion: 'frozen',
-    script: () => () => HOLD,
-    run: async (page) => {
-      await liveStart(page)
-      await page.getByRole('button', { name: 'Cancel' }).click()
-      await expect(page.getByText('Inspection cancelled before any result arrived.')).toBeVisible()
-    },
-  },
-  {
-    state: 'cancelled-partial',
-    screen: 'results',
-    steps: [
-      'Progress steps (the survey answers, both damage checks held)',
-      'Click Cancel: the ID and details stay, marked as a partial result, damage named as not finished',
-    ],
-    motion: 'frozen',
-    script: () => rearDoorsScript({}, { side: HOLD, door: HOLD }),
-    run: async (page) => {
-      await liveStart(page)
-      await expect(stageRow(page, 'Reading the ID')).toHaveAttribute('data-state', 'arrived')
-      await page.getByRole('button', { name: 'Cancel' }).click()
-      await page.locator('.qs-notice--partial').waitFor()
-      await page.waitForTimeout(SETTLE_MS)
-    },
-  },
-  {
     state: 'rear-door-damage-metric',
     screen: 'results',
     steps: [

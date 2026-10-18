@@ -80,7 +80,9 @@ describe('App: the inspection starts itself', () => {
     expect(store.status).toBe('idle')
     expect(store.record).toBeNull()
     expect(JSON.stringify(useLedgerStore().session)).toBe(ledgerBefore)
-    expect(buttonNamed(wrapper, /^New inspection$/)).toBeDefined()
+    // Back at the empty picker there is nothing to clear, so New inspection is gone.
+    expect(buttonNamed(wrapper, /^New inspection$/)).toBeUndefined()
+    expect(wrapper.find('.rs-top__centre').exists()).toBe(true)
   })
 
   it('offers Try again in a failed inspection notice, and it re-runs the same photos', async () => {

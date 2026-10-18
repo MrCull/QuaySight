@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, watch } from 'vue'
+import { computed } from 'vue'
 import { useInspectionStore } from './stores/inspection'
 import { useSetupStore } from './stores/setup'
 import { findSample } from './domain/demoSamples'
@@ -41,26 +41,10 @@ const stageClass = computed(() => {
   return ''
 })
 
-// The damage view shows once damage has run to the end. After Cancel or a failed damage request it is left out:
-// the partial or error notice names damage as not finished, and "not assessed in this inspection" would be untrue.
-const showDamageView = computed(() => {
-  const state = store.stages.find((s) => s.id === 'damage')?.state
-  return store.landed('damage') && state !== 'cancelled' && state !== 'failed'
-})
-
-// Photos were chosen with no key for this provider: open settings, then start once the key is saved.
-watch(
-  () => store.awaitingKey,
-  (waiting) => {
-    if (waiting) setup.openDrawer()
-  },
-  { immediate: true },
-)
-watch(
-  () => store.canStart,
-  (ready) => {
-    if (ready && store.awaitingKey) void store.start()
-  },
+// The damage view shows once damage has run to the end. After a failed damage request it is left out:
+// the error notice names damage as not checked, and "not assessed in this inspection" would be untrue.
+const showDamageView = computed(
+  () => store.landed('damage') && store.stages.find((s) => s.id === 'damage')?.state !== 'failed',
 )
 </script>
 
@@ -74,7 +58,10 @@ watch(
           <span class="rs-crumb">Container inspection</span>
         </div>
         <template v-if="setup.view === 'inspection'">
-          <NewInspectionAction />
+          <!-- The centre slot keeps its place when New inspection is hidden, so the right side never moves. -->
+          <div class="rs-top__centre">
+            <NewInspectionAction v-if="store.showNewInspection" />
+          </div>
           <!-- Muted technical details on the right. Demo mode has no provider settings: the banner's Connect a provider is the way to one. -->
           <div class="rs-top__meta">
             <SettingsChip v-if="!store.demo" />

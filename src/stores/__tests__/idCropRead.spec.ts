@@ -325,25 +325,6 @@ describe('the zoomed read of the container ID, from the numbered regions (Jev)',
     ).toEqual(['complete', 'complete', 'failed'])
   })
 
-  it('aborts the crop read in flight on Cancel and keeps the full-photo reading', async () => {
-    edge.answer('full', () => json(jevBody('COYU2668130', { box: COYU_BOX })))
-    const store = liveStore()
-
-    const run = store.start()
-    await vi.waitFor(() => expect(edge.held('crop')).toHaveLength(1))
-    store.cancel()
-    await run
-
-    expect(edge.held('crop')[0]!.signal?.aborted).toBe(true)
-    expect(store.record?.containerId?.value).toBe('COYU2668130')
-    expect(store.record?.status).toBe('partial')
-    expect(store.record?.idCropRead).toMatchObject({ outcome: 'cancelled' })
-    const crop = useLedgerStore()
-      .entries()
-      .find((l) => l.purpose === 'Reading the ID up close')
-    expect(crop).toMatchObject({ status: 'cancelled', costUsd: null })
-  })
-
   it('makes no crop request when the per-inspection request cap is already reached', async () => {
     edge.answer('full', () => json(jevBody('COYU2668130', { box: COYU_BOX })))
     const store = liveStore()
