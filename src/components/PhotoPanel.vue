@@ -111,7 +111,7 @@ function openPicker() {
 </script>
 
 <template>
-  <div class="rs-left">
+  <div class="rs-strip">
     <!-- Demo mode has no upload: its recorded results belong to the bundled samples only. -->
     <input
       v-if="!store.demo"
@@ -143,40 +143,36 @@ function openPicker() {
     </label>
 
     <template v-else>
-      <ul v-if="store.photos.length > 1" class="rs-photos">
+      <!-- The strip: every photo in one centred row of fixed height, each at its own aspect ratio. -->
+      <ul class="rs-photos" :style="{ '--n': store.photos.length }">
         <li v-for="(photo, i) in store.photos" :key="photo.url" class="rs-photos__item">
           <PhotoFrame
             class="rs-photos__frame"
             :url="photo.url"
-            :alt="`Container photo ${i + 1}: ${photo.name}`"
-            :label="`Enlarge photo ${i + 1} of ${store.photos.length}`"
+            :alt="
+              store.photos.length > 1
+                ? `Container photo ${i + 1}: ${photo.name}`
+                : `Container photo: ${photo.name}`
+            "
+            :label="
+              store.photos.length > 1
+                ? `Enlarge photo ${i + 1} of ${store.photos.length}`
+                : 'Enlarge photo'
+            "
             :loupe="loupe"
             @enlarge="enlarge(i, $event)"
           />
           <!-- Under the photo, never over it. -->
           <div class="rs-photos__cap">
-            <span class="rs-photos__n qs-type-body-sm">Photo {{ i + 1 }}</span>
+            <span class="rs-photos__n qs-type-body-sm">{{
+              store.photos.length > 1 ? `Photo ${i + 1}` : orientationLabel
+            }}</span>
             <span v-if="chipFor(i)" class="rs-facechip qs-type-caption" data-face-chip>{{
               chipFor(i)
             }}</span>
           </div>
         </li>
       </ul>
-      <PhotoFrame
-        v-else
-        class="rs-photo"
-        :url="store.photo.url"
-        :alt="`Container photo: ${store.photo.name}`"
-        label="Enlarge photo"
-        :loupe="loupe"
-        @enlarge="enlarge(0, $event)"
-      >
-        <span class="rs-photo__bar">
-          <span class="rs-pill">
-            <i class="qs-glyph qs-glyph--photo" aria-hidden="true"></i>{{ orientationLabel }}
-          </span>
-        </span>
-      </PhotoFrame>
       <!-- Mouse-only and decorative: the original, magnified beside the cursor. -->
       <PhotoLoupe v-if="loupe.view.value && viewing === null" :view="loupe.view.value" />
       <!-- The one full-screen layer: the original photo, over everything, analysing sweep included. -->
@@ -199,13 +195,35 @@ function openPicker() {
   list-style: none;
   margin: 0;
   padding: 0;
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
   gap: var(--space-3);
+  /* About 260px on a large screen (4 x 64px). With several photos the row height also shrinks so that
+     n landscape photos plus their gaps fit the page width; a narrower photo simply leaves room. */
+  --strip-h: min(
+    calc(var(--space-8) * 4),
+    calc((100vw - 2 * var(--space-6) - (var(--n) - 1) * var(--space-3)) / (var(--n) * 1.5))
+  );
 }
-.rs-photos__frame {
+/* Phones: the photos wrap onto further rows rather than shrink to nothing. */
+@media (max-width: 960px) {
+  .rs-photos {
+    flex-wrap: wrap;
+    --strip-h: calc(var(--space-8) * 2.5);
+  }
+}
+.rs-photos__item {
+  min-width: 0;
+  max-width: 100%;
+  flex: 0 1 auto;
+}
+.rs-photos .rs-photos__frame {
   position: relative;
-  aspect-ratio: 1000/640;
+  display: inline-flex;
+  width: auto;
+  max-width: 100%;
+  height: var(--strip-h);
   border-radius: var(--radius-lg);
   overflow: hidden;
   background: var(--surface-sunken);

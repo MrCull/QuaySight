@@ -39,8 +39,7 @@ function enlarge(event: Event) {
 <style scoped>
 .rs-frame {
   display: block;
-  /* A button shrinks to its content; the frame fills its grid cell or the column. */
-  width: 100%;
+  /* The strip sizes the frame by its height; the photo fills that height at its own aspect ratio. */
   padding: 0;
   font: inherit;
   color: inherit;
@@ -53,7 +52,8 @@ function enlarge(event: Event) {
 }
 .rs-photo__img {
   display: block;
-  width: 100%;
+  width: auto;
+  max-width: 100%;
   height: 100%;
   object-fit: contain;
   image-orientation: from-image;
