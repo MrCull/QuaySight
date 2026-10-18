@@ -7,7 +7,9 @@ import { combineSealReads } from '../sealZoom'
 
 function seal(text: string, certainty: CertaintyLabel = 'Likely'): SealReading {
   const characters = [...text].map((c) =>
-    c === '?' ? { value: null, certainty: "Can't tell" as CertaintyLabel } : { value: c, certainty },
+    c === '?'
+      ? { value: null, certainty: "Can't tell" as CertaintyLabel }
+      : { value: c, certainty },
   )
   const unread = characters.some((c) => c.value === null)
   return {
@@ -67,7 +69,11 @@ describe('the zoomed ID read joining the whole-photo one', () => {
 
   it('fill-only: fills an unread character, corroborates, and never overrules a whole-photo one', () => {
     const full = [read('C', 'Confident', 0.99), unread, read('1', 'Likely', 0.7)]
-    const zoom = [read('C', 'Confident', 0.99), read('O', 'Likely', 0.8), read('7', 'Confident', 0.95)]
+    const zoom = [
+      read('C', 'Confident', 0.99),
+      read('O', 'Likely', 0.8),
+      read('7', 'Confident', 0.95),
+    ]
     const out = combineIdReadings(full, zoom, 'fill-only')
     expect(out.readings.map((r) => r.value)).toEqual(['C', 'O', '1'])
     expect(out.readings[2]?.certainty).toBe('Likely')

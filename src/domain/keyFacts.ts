@@ -10,7 +10,6 @@ import { idResultState, UNREAD } from './certainty'
 import { dgClassName } from './containerDetailTypes'
 import type { DamageFinding, Severity } from './damage'
 import type { CertaintyLabel, ContainerIdReading, InspectionRecord } from './inspection'
-import { ownerIsListed } from './idConfidence'
 import type { StageId } from './runStages'
 
 export type PartState = 'reading' | 'arrived' | 'unavailable'
@@ -37,7 +36,6 @@ export interface KeyFactTile {
 export const READING_TEXT = 'Reading…'
 export const NO_RESULT_TEXT = 'No result'
 export const ID_NOT_READABLE_TEXT = 'ID not readable in this photo'
-export const NOT_COMMON_OWNER_TEXT = 'Not a common owner code'
 const NOT_ASSESSED_TEXT = 'Not assessed'
 
 const LABEL: Record<KeyFactId, string> = {
@@ -69,14 +67,7 @@ function idTile(state: PartState, record: InspectionRecord | null): KeyFactTile 
     return tile('id', state, { headline: ID_NOT_READABLE_TEXT, certainty: "Can't tell" })
   }
   const value = reading.value.replace(/\s+/g, '').toUpperCase()
-  const incomplete = value.length < 11 || value.includes(UNREAD)
-  const notes = incomplete
-    ? ['ID incomplete, check digit not checked']
-    : [reading.checkDigitValid ? 'Check digit valid' : 'Check digit does not match']
-  if (!incomplete && reading.checkDigitValid && !ownerIsListed(value)) {
-    notes.push(NOT_COMMON_OWNER_TEXT)
-  }
-  return tile('id', state, { headline: value, notes, certainty: reading.certainty, reading })
+  return tile('id', state, { headline: value, certainty: reading.certainty, reading })
 }
 
 function sealTile(state: PartState, record: InspectionRecord | null): KeyFactTile {
@@ -116,6 +107,10 @@ const className = (dgClass: number) => {
   return `Class ${dgClass}${name ? `, ${name}` : ''}`
 }
 
+/** One placard's headline: its class, or "Placard seen" when the class is not read. */
+const placardHeadline = (dgClass: number | null | undefined) =>
+  dgClass == null ? 'Placard seen' : className(dgClass)
+
 /** Placards from the placards question family (several allowed), else the survey's single DG answer. */
 function placardsTile(state: PartState, record: InspectionRecord | null): KeyFactTile | null {
   if (state !== 'arrived') return null
@@ -133,14 +128,14 @@ function placardsTile(state: PartState, record: InspectionRecord | null): KeyFac
     }
     const only = reading.placards[0]
     return tile('placards', state, {
-      headline: only?.dgClass == null ? 'Placard seen' : className(only.dgClass),
+      headline: placardHeadline(only?.dgClass),
       certainty: reading.certainty,
     })
   }
   const dg = record?.details?.dgPlacard
   if (dg?.answer !== 'placard') return null
   return tile('placards', state, {
-    headline: dg.dgClass === null ? 'Placard seen' : className(dg.dgClass),
+    headline: placardHeadline(dg.dgClass),
     certainty: dg.certainty,
   })
 }

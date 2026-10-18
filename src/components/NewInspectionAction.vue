@@ -19,7 +19,7 @@ function newInspection() {
 <template>
   <button
     type="button"
-    class="qs-btn qs-btn--secondary qs-btn--sm qs-newinsp"
+    class="qs-btn qs-btn--primary qs-btn--sm qs-newinsp"
     data-next-step="start"
     @click="newInspection"
   >

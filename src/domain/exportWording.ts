@@ -48,7 +48,7 @@ export const SIGNIFICANT_LINE = 'Potentially significant damage, closer inspecti
 export function findingLines(f: ExportFindingLink): string[] {
   const severity = f.severity === "can't tell" ? "severity can't tell" : f.severity
   return [
-    `- ${f.title} - ${f.certainty}, ${severity}${f.unidentifiedFace ? ' (on a face we couldn\'t identify)' : ''}`,
+    `- ${f.title} - ${f.certainty}, ${severity}${f.unidentifiedFace ? " (on a face we couldn't identify)" : ''}`,
     `  ${f.photos.length > 1 ? `Photos: ${f.photos.join(', ')}` : `Photo: ${f.photo ?? 'not linked'}`}, region: ${f.region.location}, source pass: ${f.sourcePass.passId} (${f.sourcePass.kind})`,
   ]
 }

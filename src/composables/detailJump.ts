@@ -1,15 +1,15 @@
-import { reducedMotionClassSet } from './reducedMotion'
+import { prefersReducedMotion } from './reducedMotion'
 
 /** How long the highlight stays on a detail section the presenter jumped to. */
 const HIGHLIGHT_MS = 1800
 
-function prefersReducedMotion(): boolean {
-  return (
-    reducedMotionClassSet() ||
-    (typeof window.matchMedia === 'function' &&
-      window.matchMedia('(prefers-reduced-motion: reduce)').matches)
-  )
-}
+/** The ids of the detail sections a key-facts tile leads to, one place for the tiles and the sections. */
+export const DETAIL_IDS = {
+  id: 'detail-id',
+  seal: 'detail-seal',
+  damage: 'detail-damage',
+  markings: 'detail-markings',
+} as const
 
 /**
  * Brings a detail section into view, moves focus to it and highlights it for a moment

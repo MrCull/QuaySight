@@ -74,7 +74,11 @@ function regionsBody(marks: Record<string, string> = COYU_MARKS, p = 0.8) {
   for (const [name, mark] of Object.entries(marks)) {
     answers[name] = { type: 'choice', choice: mark, probabilities: { [mark]: p }, confidence: p }
   }
-  return { model: 'typesafe/jev-1.14-20261014', answers, usage: { input_tokens: 1800, output_tokens: 60, cost: 0.0001 } }
+  return {
+    model: 'typesafe/jev-1.14-20261014',
+    answers,
+    usage: { input_tokens: 1800, output_tokens: 60, cost: 0.0001 },
+  }
 }
 
 interface Held {
@@ -289,7 +293,9 @@ describe('the zoomed read of the container ID, from the numbered regions (Jev)',
   it('asks the numbered regions on Jev 1.13 too, where no box question is taken', async () => {
     edge.fetchMock.mockImplementation((_input, init) => {
       const body = String(init?.body)
-      return Promise.resolve(json(body.includes('id_mark') ? regionsBody() : jevBody('COYU2668130')))
+      return Promise.resolve(
+        json(body.includes('id_mark') ? regionsBody() : jevBody('COYU2668130')),
+      )
     })
     const store = liveStore('typesafe/jev-1.13')
 

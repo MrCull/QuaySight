@@ -64,8 +64,7 @@ function toggle() {
     <span class="qs-mono" aria-hidden="true">{{ provider.monogram }}</span>
     <span class="qs-settingschip__text"
       >{{ vendor }} · <span class="qs-settingschip__model">{{ modelName }}</span> ·
-      <template v-if="!keySet"
-        ><span class="qs-settingschip__key">no key</span> · </template
+      <template v-if="!keySet"><span class="qs-settingschip__key">no key</span> · </template
       >Live</span
     >
     <i class="qs-glyph qs-glyph--chevron" aria-hidden="true"></i>

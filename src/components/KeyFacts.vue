@@ -3,7 +3,7 @@ import { computed } from 'vue'
 import { useInspectionStore } from '../stores/inspection'
 import { buildKeyFacts, type KeyFactId, type PartState, type PartStates } from '../domain/keyFacts'
 import { RUN_STAGES, stageSettled, type StageId } from '../domain/runStages'
-import { jumpToDetail } from '../composables/detailJump'
+import { DETAIL_IDS, jumpToDetail } from '../composables/detailJump'
 import CertaintyChip from './CertaintyChip.vue'
 import ContainerId from './ContainerId.vue'
 import SeverityBadge from './damage/SeverityBadge.vue'
@@ -36,10 +36,10 @@ const arrivesEarly = (state: PartState) => running.value && state === 'arrived'
 
 // The detail section each tile leads to.
 const DETAIL: Record<KeyFactId, string> = {
-  id: 'detail-id',
-  seal: 'detail-seal',
-  damage: 'detail-damage',
-  placards: 'detail-markings',
+  id: DETAIL_IDS.id,
+  seal: DETAIL_IDS.seal,
+  damage: DETAIL_IDS.damage,
+  placards: DETAIL_IDS.markings,
 }
 
 // A thin progress indicator while the run is going: how many parts have settled.

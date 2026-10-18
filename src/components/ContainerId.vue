@@ -2,7 +2,7 @@
 import { computed } from 'vue'
 import type { CertaintyLabel, ContainerIdReading } from '../domain/inspection'
 import { UNREAD } from '../domain/certainty'
-import { ownerIsListed } from '../domain/idConfidence'
+import { NOT_COMMON_OWNER_TEXT, ownerIsListed } from '../domain/idConfidence'
 
 const props = defineProps<{ reading: ContainerIdReading }>()
 
@@ -120,7 +120,7 @@ const spelled = computed(() => {
       <span v-else :class="['qs-prov', { 'qs-prov--calculated': reading.checkDigitValid }]">
         {{ reading.checkDigitValid ? 'Check digit valid' : 'Check digit does not match' }}
       </span>
-      <span v-if="ownerNotListed" class="qs-prov">Not a common owner code</span>
+      <span v-if="ownerNotListed" class="qs-prov">{{ NOT_COMMON_OWNER_TEXT }}</span>
       <span
         v-if="
           !incomplete &&

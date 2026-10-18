@@ -1,4 +1,4 @@
-// The regression set: replays every expected inspection (1 to 4 photos) from the recordings in
+// The regression set: replays every expected inspection (1 to 5 photos) from the recordings in
 // src/fixtures/live/plan/ and scores each model against src/regression/expected.json, field by field.
 // Free: nothing is sent. Run `npm run score` to see the table.
 import { describe, it, expect } from 'vitest'
@@ -25,7 +25,7 @@ const truths = expected as Expected[]
 const ROUTES: ProviderId[] = ['luna', 'openrouter']
 
 describe('regression set', () => {
-  it('describes whole inspections of 1 to 4 photos, each recorded on both models', () => {
+  it('describes whole inspections of 1 to 5 photos, each recorded on both models', () => {
     expect(truths.map((t) => t.id)).toEqual([
       'coyu-doors',
       'chsu-doors',
@@ -36,7 +36,7 @@ describe('regression set', () => {
     ])
     for (const truth of truths) {
       expect(truth.photos.length).toBeGreaterThanOrEqual(1)
-      expect(truth.photos.length).toBeLessThanOrEqual(4)
+      expect(truth.photos.length).toBeLessThanOrEqual(5)
       for (const photo of truth.photos) {
         const own = recordings.filter((r) => r.photo === photo.photo)
         expect({ photo: photo.photo, routes: own.map((r) => r.provider).sort() }).toEqual({

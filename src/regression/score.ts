@@ -18,7 +18,7 @@ export interface ExpectedPhoto {
 }
 
 /**
- * What one inspection (1 to 4 photos of one container) truly shows. `null`: the photos show none of it,
+ * What one inspection (1 to 5 photos of one container) truly shows. `null`: the photos show none of it,
  * so a model should give none.
  */
 export interface Expected {

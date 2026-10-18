@@ -68,6 +68,7 @@ describe('PhotoLoupe', () => {
     wrapper?.unmount()
     wrapper = null
     vi.useRealTimers()
+    vi.unstubAllGlobals()
   })
 
   it('appears after the pointer rests on the photo for 330ms, not sooner', async () => {
@@ -103,7 +104,20 @@ describe('PhotoLoupe', () => {
 
     await pointer(frame!, 'pointermove', { x: 200, y: 100 })
     expect(loupe()!.style.left).not.toBe(before)
-    expect(loupe()!.style.left).toBe('224px')
+    // The loupe sits one gap (24 px) right of the pointer, with room for its 384 px side in the 1024 px window.
+    expect(loupe()!.style.left).toBe(`${200 + 24}px`)
+  })
+
+  it('flips to the left of the pointer when 384 px does not fit on the right', async () => {
+    vi.stubGlobal('innerWidth', 700)
+    mountWith('door.jpg')
+    const [frame] = frames()
+    await pointer(frame!, 'pointerenter')
+    await wait(330)
+
+    await pointer(frame!, 'pointermove', { x: 590, y: 100 })
+    // 590 + 24 + 384 overflows the 700 px window, so the loupe sits at 590 - 24 - 384.
+    expect(loupe()!.style.left).toBe(`${590 - 24 - 384}px`)
   })
 
   it('hides straight away when the pointer leaves the photo', async () => {

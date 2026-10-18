@@ -16,7 +16,7 @@ regression set. Their true values, read from the photos, are hand-written in `sr
 Each photo has its own recording per model; an inspection's cost is the sum of its photos' recordings.
 Demo mode plays both several-photo inspections (`src/domain/demoSamples.ts`).
 
-- An expected entry is a whole inspection of 1 to 4 photos (`photos`, in order, each with its faces and
+- An expected entry is a whole inspection of 1 to 5 photos (`photos`, in order, each with its faces and
   whether it is a close-up), with the container's expected values, seal, ID certainty, whether alternatives
   may be shown, whether the "different containers" warning is expected, and which photo each close-up
   comes from. Each photo is replayed from its own recording, then the photos are combined as the app does.

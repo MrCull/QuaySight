@@ -1,7 +1,12 @@
 // The length-from-shape question (spec #51, ticket #66): 20, 40 or 45 ft from the cues a side photo shows.
 // A question family of the registry. Pure. Which length the drawing uses is chosen in chosenLength.ts.
 import { applyMargin, certaintyOfProbability } from './certainty'
-import { chosenLength, codeFeetOf, type ContainerLengthFt, type LengthReading } from './chosenLength'
+import {
+  chosenLength,
+  codeFeetOf,
+  type ContainerLengthFt,
+  type LengthReading,
+} from './chosenLength'
 import { withShapeLength } from './damageSets'
 import type { CertaintyLabel, InspectionRecord } from './inspection'
 import type { QuestionFamily } from './questionRegistry'

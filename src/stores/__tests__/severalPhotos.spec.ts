@@ -139,7 +139,13 @@ describe('several photos of one container', () => {
       })),
     )
     expect(refused).toBeNull()
-    expect(store.photos.map((p) => p.name)).toEqual(['p0.jpg', 'p1.jpg', 'p2.jpg', 'p3.jpg', 'p4.jpg'])
+    expect(store.photos.map((p) => p.name)).toEqual([
+      'p0.jpg',
+      'p1.jpg',
+      'p2.jpg',
+      'p3.jpg',
+      'p4.jpg',
+    ])
 
     const tooMany = Array.from({ length: MAX_PHOTOS + 1 }, (_, i) =>
       photoNamed(`q${i}.jpg`, 900 + i),
@@ -147,7 +153,13 @@ describe('several photos of one container', () => {
     expect(store.setPhotos(tooMany)).toBe(TOO_MANY_PHOTOS)
     expect(TOO_MANY_PHOTOS).toBe('Choose up to 5 photos of one container.')
     // Nothing changed: the earlier photos are still the ones on screen.
-    expect(store.photos.map((p) => p.name)).toEqual(['p0.jpg', 'p1.jpg', 'p2.jpg', 'p3.jpg', 'p4.jpg'])
+    expect(store.photos.map((p) => p.name)).toEqual([
+      'p0.jpg',
+      'p1.jpg',
+      'p2.jpg',
+      'p3.jpg',
+      'p4.jpg',
+    ])
   })
 
   it('gives each photo a survey and only the damage set of its own face', async () => {

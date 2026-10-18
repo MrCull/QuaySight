@@ -82,7 +82,14 @@ export interface SealZoomRecord {
   /** The area the crop was cut around, as fractions of the photo, and the marks the model named for it. */
   box: IdBox
   marks: number[]
-  crop: { x: number; y: number; width: number; height: number; sentWidth: number; sentHeight: number } | null
+  crop: {
+    x: number
+    y: number
+    width: number
+    height: number
+    sentWidth: number
+    sentHeight: number
+  } | null
   resolvedVersion: string | null
   reason: 'requests' | 'spend' | null
 }
