@@ -1,4 +1,4 @@
-// The key-facts tiles (spec 8.1, ticket #102): the headline of a result at a glance. Pure: worked out
+// The key-facts tiles (spec 8.1, ticket 102): the headline of a result at a glance. Pure: worked out
 // from the inspection record and which parts of the run have arrived, and nothing else. Order on screen
 // is the order here: Container ID, Seal, Damage, then Placards, which exists only when a placard is seen.
 //

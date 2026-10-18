@@ -7,7 +7,7 @@ import type { SealReading } from '../sealFamily'
 import type { PlacardReading, PlacardsReading } from '../placards'
 import { liveDetailsRecord, coyuDetails } from '../../__tests__/liveDetails'
 
-// The key-facts tiles (spec 8.1, ticket #102): a pure function of the inspection record and which
+// The key-facts tiles (spec 8.1, ticket 102): a pure function of the inspection record and which
 // parts of the run have arrived. Read the way a presenter does: the tile, its words, its certainty.
 
 const ARRIVED: PartStates = { id: 'arrived', details: 'arrived', damage: 'arrived' }
