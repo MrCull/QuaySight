@@ -92,8 +92,13 @@ export const useSetupStore = defineStore('setup', {
     openDrawer() {
       this.drawerOpen = true
     },
+    /**
+     * Closing the drawer (its close button, Esc, a click outside, or Enter in the key field) saves the key:
+     * photos waiting for one start now if the gate is open. With no key they keep waiting.
+     */
     closeDrawer() {
       this.drawerOpen = false
+      useInspectionStore().startIfAwaitingKey()
     },
     /** Writes the provider and model only. The key is never passed here. */
     remember() {

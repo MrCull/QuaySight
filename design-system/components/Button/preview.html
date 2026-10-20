@@ -4,15 +4,16 @@
 <style>body{margin:0;padding:24px;background:var(--bg)} .row{display:flex;flex-wrap:wrap;gap:12px;align-items:center}</style></head>
 <body class="qs-root">
 <div class="row">
-  <button class="qs-btn qs-btn--primary qs-btn--lg">Inspect container</button>
-  <button class="qs-btn qs-btn--primary">Inspect</button>
-  <button class="qs-btn qs-btn--secondary">Try a sample container</button>
+  <button class="qs-btn qs-btn--primary qs-btn--lg">Continue</button>
+  <button class="qs-btn qs-btn--primary qs-btn--sm qs-newinsp">New inspection</button>
+  <button class="qs-btn qs-btn--secondary">Try again</button>
+  <button class="qs-btn qs-btn--secondary">Keep first result</button>
   <button class="qs-btn qs-btn--secondary"><i class="qs-glyph qs-glyph--upload"></i>Export JSON</button>
   <button class="qs-btn qs-btn--ghost">Clear key</button>
-  <button class="qs-btn qs-btn--primary" aria-busy="true" disabled>Inspecting…</button>
 </div>
 <div class="row" style="margin-top:12px">
-  <button class="qs-btn qs-btn--primary qs-btn--lg" aria-busy="true" disabled>Analysing…</button>
-  <button class="qs-btn qs-btn--secondary">Cancel</button>
+  <!-- During a run New inspection reads Cancel; it stays the one primary button and is never disabled. -->
+  <button class="qs-btn qs-btn--primary qs-btn--sm qs-newinsp">Cancel</button>
+  <button class="qs-btn qs-btn--secondary" aria-busy="true" disabled>Check again with this manifest</button>
 </div>
 </body></html>

@@ -1,10 +1,11 @@
 # NewInspection
 
-The New inspection action gives the presenter a blank screen for the next container without reloading the page. It sits in the top bar on every inspection screen.
+The New inspection action gives the presenter a blank screen for the next container without reloading the page. It sits in the top bar of the inspection screen once there is something to clear: photos chosen (live) or a sample picked (demo), whatever the run is doing. On the empty photo picker or sample picker it is not shown.
 
 ## Use
 - `<button type="button" class="qs-btn qs-btn--primary qs-btn--sm qs-newinsp">New inspection</button>`, the centre item of the three-zone top bar: brand on the left, this button centred, and the muted `SettingsChip` (or `RunChip`) and `CostIndicator` on the right. It is the most-used action, so nothing else sits between it and the middle of the bar.
-- Primary weight (`qs-btn--primary`): it is the main button of the top bar. The inspection starts itself when photos or a sample are chosen, so no other button competes with it on the inspection screens.
+- Primary weight (`qs-btn--primary`): it is the one primary button on the inspection screen. The inspection starts itself when photos or a sample are chosen, and recovery or optional actions (a failed run's *Try again*, the `ManifestRetry` actions) are secondary, so nothing competes with it.
+- When it is hidden, the centre zone of the top bar keeps its place, empty, so the chip and costs on the right never move. Nothing focusable or announced is left in it.
 - The label is **New inspection**, and **Cancel** while an inspection runs. No icon. Cancel behaves exactly like New inspection: it stops what is in flight and clears to the empty picker, with no confirmation.
 
 ## Behaviour
@@ -16,7 +17,7 @@ The New inspection action gives the presenter a blank screen for the next contai
 
 ## Accessibility
 - A native `<button>`, reachable with Tab. Focus shows the shared 2px `focus-ring` outline, offset 2px, from `qs-btn`.
-- After the reset, focus moves to the next thing to use: the photo drop zone (`PhotoDrop`), or in demo mode the first sample in the sample picker. Only a press of this button moves focus; a provider or model change in the `SettingsDrawer` runs the same reset but leaves focus in the drawer.
+- After the reset (New inspection or Cancel), the button disappears, so focus moves on to the next thing to use and never stays on the removed button: the photo drop zone (`PhotoDrop`), or in demo mode the first sample in the sample picker. Only a press of this button moves focus; a provider or model change in the `SettingsDrawer` runs the same reset but leaves focus in the drawer.
 
 ## Don't
 - Don't ask "Are you sure?" or show a modal. The action discards only what is on screen.

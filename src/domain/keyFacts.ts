@@ -3,7 +3,7 @@
 // is the order here: Container ID, Seal, Damage, then Placards, which exists only when a placard is seen.
 //
 // A tile whose part has not arrived says "Reading…" and shows no value, even when the record already
-// holds one. A part that failed or was cancelled says "No result", never "Not seen". The words are the
+// holds one. A part that failed or did not finish says "No result", never "Not seen". The words are the
 // fixed ones: Confident, Likely, Uncertain, Can't tell, Not seen. Certainty and severity are separate:
 // a tile carries a certainty word and, for damage, a severity, and never one in place of the other.
 import { idResultState, UNREAD } from './certainty'
@@ -13,7 +13,7 @@ import type { CertaintyLabel, ContainerIdReading, InspectionRecord } from './ins
 import type { StageId } from './runStages'
 
 export type PartState = 'reading' | 'arrived' | 'unavailable'
-/** Where each stage of the run is: still reading, arrived, or failed or cancelled (unavailable). */
+/** Where each stage of the run is: still reading, arrived, or failed or did not finish (unavailable). */
 export type PartStates = Record<StageId, PartState>
 
 export type KeyFactId = 'id' | 'seal' | 'damage' | 'placards'

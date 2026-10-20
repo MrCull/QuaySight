@@ -105,7 +105,7 @@ export interface InspectionRecord {
   rawResponses: RawProviderResponse[]
   /** 'recorded' runs replay saved results: no network, no key, no live charge. */
   source: 'recorded' | 'live'
-  /** partial: the run was cancelled, or a part of it failed, after some of it had answered. What answered is kept. */
+  /** partial: a part of the run failed after some of it had answered. What answered is kept. */
   status: 'running' | 'complete' | 'partial' | 'failed'
   photo: PhotoRef | null
   containerId: ContainerIdReading | null

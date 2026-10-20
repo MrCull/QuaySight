@@ -19,12 +19,11 @@ body{margin:0;padding:var(--space-6);background:var(--bg)}
     <button type="button" class="qs-btn qs-btn--primary qs-btn--sm qs-newinsp">New inspection</button>
   </header>
 
-  <!-- States: rest, keyboard focus (the shared focus ring), and while an inspection runs (still enabled). -->
+  <!-- States: rest, keyboard focus (the shared focus ring), and while an inspection runs (reads Cancel, still enabled). Not shown on the empty picker. -->
   <div class="row">
     <button type="button" class="qs-btn qs-btn--primary qs-btn--sm qs-newinsp">New inspection</button>
     <button type="button" class="qs-btn qs-btn--primary qs-btn--sm qs-newinsp focus">New inspection</button>
-    <button type="button" class="qs-btn qs-btn--primary" aria-busy="true" disabled>Analysing…</button>
-    <button type="button" class="qs-btn qs-btn--primary qs-btn--sm qs-newinsp">New inspection</button>
+    <button type="button" class="qs-btn qs-btn--primary qs-btn--sm qs-newinsp">Cancel</button>
   </div>
 </div>
 </body></html>

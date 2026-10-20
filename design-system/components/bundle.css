@@ -45,7 +45,7 @@
 .qs-btn--primary[aria-disabled="true"]:hover { background: var(--brand); } .qs-btn--secondary[aria-disabled="true"]:hover { border-color: var(--line-strong); background: transparent; }
 
 /* ---------- New inspection (header action) ---------- */
-/* A secondary button that keeps its size in the top bar. Always enabled: during a run it cancels the run. */
+/* The inspection screen's one primary button, kept at its size in the top bar. Always enabled: during a run it reads Cancel and clears to the empty picker. */
 .qs-newinsp { flex: none; }
 .qs-newinsp:active { background: var(--surface-sunken); }
 

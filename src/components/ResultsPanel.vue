@@ -49,24 +49,13 @@ const arrivedEarly = computed(() => running.value && idLanded.value)
 const detailsLanded = computed(() => store.landed('details'))
 const detailsEarly = computed(() => running.value && detailsLanded.value)
 
-// The parts a stage stands for, in plain words, for the partial and failure notices.
-const PART: Record<StageId, string> = {
-  id: 'the container ID',
-  details: 'container details',
-  damage: 'damage',
-}
+// What the failure notice says for each part whose request failed.
 const FAILED_TITLE: Record<StageId, string> = {
   id: 'The container ID could not be read.',
   details: 'Container details could not be read.',
   damage: 'Damage could not be checked.',
 }
 const partial = computed(() => store.status === 'complete' && record.value?.status === 'partial')
-/** After Cancel: the parts that did not finish. */
-const unfinished = computed(() =>
-  partial.value && store.cancelRequested
-    ? store.stages.filter((s) => s.state === 'cancelled').map((s) => PART[s.id])
-    : [],
-)
 /** The parts whose request failed while others answered. */
 const failedParts = computed(() =>
   partial.value ? store.stages.filter((s) => s.state === 'failed').map((s) => s.id) : [],
@@ -179,26 +168,6 @@ const showInsufficient = computed(() => idState.value === 'insufficient')
             </button>
           </div>
         </div>
-      </div>
-
-      <div v-if="store.status === 'cancelled'" class="qs-notice qs-notice--partial" role="status">
-        <i class="qs-glyph qs-glyph--cross" aria-hidden="true"></i>
-        <div>
-          <div class="qs-notice__title">Inspection cancelled before any result arrived.</div>
-          <div class="qs-notice__body">Run the inspection again when you are ready.</div>
-        </div>
-        <span class="qs-notice__kicker">Partial</span>
-      </div>
-
-      <div v-if="unfinished.length" class="qs-notice qs-notice--partial" role="status">
-        <i class="qs-glyph qs-glyph--cross" aria-hidden="true"></i>
-        <div>
-          <div class="qs-notice__title">Partial result: cancelled before every part finished.</div>
-          <div class="qs-notice__body">
-            What had arrived is shown. Not finished: {{ unfinished.join(', ') }}.
-          </div>
-        </div>
-        <span class="qs-notice__kicker">Partial</span>
       </div>
 
       <div v-for="part in failedParts" :key="part" class="qs-notice qs-notice--error" role="alert">

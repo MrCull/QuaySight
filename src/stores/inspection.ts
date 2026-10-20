@@ -17,6 +17,7 @@ import type { ManifestMapping } from '../domain/luna'
 import { preparePhoto, PhotoPreparationError } from '../services/preparePhoto'
 import { OPENROUTER_ENDPOINT_ID } from '../domain/openrouter'
 import { useLedgerStore } from './ledger'
+import { useSetupStore } from './setup'
 import type { InspectionRecord, ProviderId } from '../domain/inspection'
 import {
   RUN_STAGES,
@@ -25,6 +26,7 @@ import {
   type PlannedRequestState,
   type StageId,
   type StageProgress,
+  type StageState,
 } from '../domain/runStages'
 import {
   foldSettled,
@@ -48,8 +50,7 @@ export interface SelectedPhoto {
   file?: Blob
 }
 
-/** cancelled: the presenter cancelled the run before any part of it answered. */
-export type RunStatus = 'idle' | 'running' | 'complete' | 'failed' | 'cancelled'
+export type RunStatus = 'idle' | 'running' | 'complete' | 'failed'
 
 export interface ManifestRetryState {
   status: 'idle' | 'checking' | 'error'
@@ -77,7 +78,7 @@ let manifestCounter = 0
 
 /**
  * The live run's plan in flight, with the run token it belongs to. Outside reactive state: it holds
- * abort controllers. Cancel, New inspection, a new photo and a provider or model change abort it.
+ * abort controllers. New inspection (and its Cancel), a new photo and a provider or model change abort it.
  */
 let activePlan: { token: number; run: PlanRun } | null = null
 
@@ -182,8 +183,6 @@ export const useInspectionStore = defineStore('inspection', {
     runId: null as string | null,
     /** Where each request of the latest live run is, for the progress stages. */
     planned: [] as PlannedRequestState[],
-    /** Cancel was pressed during the current run. */
-    cancelRequested: false,
     /** Photos are chosen but the current provider has no key: the inspection starts once one is saved. */
     awaitingKey: false,
   }),
@@ -191,6 +190,13 @@ export const useInspectionStore = defineStore('inspection', {
     /** Every photo of the inspection, in order: the first, then the others. */
     photos(): SelectedPhoto[] {
       return this.photo ? [this.photo, ...this.extraPhotos] : []
+    },
+    /**
+     * New inspection shows once there is something to clear: photos chosen or a sample picked, whatever
+     * the run is doing (running, waiting for a key, complete, failed). Hidden on the empty picker.
+     */
+    showNewInspection(): boolean {
+      return this.photo !== null || this.sample !== null
     },
     /** The key for the selected provider only. */
     apiKey(): string {
@@ -216,10 +222,13 @@ export const useInspectionStore = defineStore('inspection', {
      * A stage not in this run lands with the run.
      */
     landed(): (stage: StageId) => boolean {
+      const stateOf = this.stageState
+      return (stage) => this.status !== 'running' || stageSettled(stateOf(stage))
+    },
+    /** Where one progress stage of the run on screen is; a stage this run does not have is not-in-run. */
+    stageState(): (stage: StageId) => StageState {
       const stages = this.stages
-      return (stage) =>
-        this.status !== 'running' ||
-        stageSettled(stages.find((s) => s.id === stage)?.state ?? 'not-in-run')
+      return (stage) => stages.find((s) => s.id === stage)?.state ?? 'not-in-run'
     },
     /**
      * Demo: a bundled sample is on screen (no key). Live, the key gate: a photo, a key for the selected
@@ -252,8 +261,16 @@ export const useInspectionStore = defineStore('inspection', {
     },
   },
   actions: {
+    /**
+     * Holds the key for the selected provider. Starts nothing: the key field calls this on every keystroke,
+     * so photos waiting for a key start when the settings drawer closes (startIfAwaitingKey).
+     */
     setApiKey(key: string) {
       this.apiKeys[this.provider] = key
+    },
+    /** Photos waiting for a key start once the gate is open; otherwise nothing happens. */
+    startIfAwaitingKey() {
+      if (this.awaitingKey && this.canStart) void this.start()
     },
     clearApiKey() {
       this.apiKeys[this.provider] = ''
@@ -309,7 +326,6 @@ export const useInspectionStore = defineStore('inspection', {
       this.sentPhoto = null
       this.runId = null
       this.planned = []
-      this.cancelRequested = false
       this.awaitingKey = false
     },
     selectFinding(id: number | null) {
@@ -340,7 +356,6 @@ export const useInspectionStore = defineStore('inspection', {
       this.sentPhoto = null
       this.runId = null
       this.planned = []
-      this.cancelRequested = false
       this.awaitingKey = false
     },
     /** Enters demo mode on a blank screen, ready to choose a sample. */
@@ -355,11 +370,12 @@ export const useInspectionStore = defineStore('inspection', {
     },
     /**
      * Choosing photos is the go-ahead. Starts now, or, when only the key is missing, waits for it:
-     * the app shell opens the settings drawer and calls start() once the key is saved.
+     * the settings drawer opens, and closing it with a key (setup store closeDrawer) starts the run.
      */
     startWhenReady(): Promise<void> {
       if (!this.demo && this.photo && !this.canStart) {
         this.awaitingKey = true
+        useSetupStore().openDrawer()
         return Promise.resolve()
       }
       return this.start()
@@ -369,7 +385,6 @@ export const useInspectionStore = defineStore('inspection', {
       if (this.inFlight) return this.inFlight
       // Live needs the key gate; demo needs a bundled sample on screen.
       if (!this.photo || !this.canStart) return Promise.resolve()
-      this.cancelRequested = false
       this.awaitingKey = false
       if (!this.demo) return this.startLive()
       const sample = this.sample
@@ -405,8 +420,8 @@ export const useInspectionStore = defineStore('inspection', {
      * with its own abort signal, ledger line and stage. Independent requests start together; a dependent
      * one starts when its prerequisites answer. Each provider's key goes only to its own route.
      * Every answer is folded into the record as it lands. When nothing answers the run fails with the
-     * first failure's message; when some parts answer and others fail or are cancelled, what answered is
-     * kept and the record is marked partial.
+     * first failure's message; when some parts answer and others fail, what answered is kept and the
+     * record is marked partial. New inspection aborts the run: its token goes stale and nothing lands.
      */
     startLive(): Promise<void> {
       const photos = this.photos
@@ -481,8 +496,6 @@ export const useInspectionStore = defineStore('inspection', {
           return
         }
         if (token !== this.runToken) return
-        // A cancel while the photos were being prepared: nothing was sent.
-        if (this.cancelRequested) return this.finishCancelled()
         this.sentPhoto = markRaw(sent[0]!)
         if (!route || plans.some((plan) => plan.length === 0)) {
           this.status = 'failed'
@@ -540,9 +553,6 @@ export const useInspectionStore = defineStore('inspection', {
         const live: PlanRun = {
           done: Promise.all(lives.map((l) => l.done)).then(() => undefined),
           cancel: () => lives.forEach((l) => l.cancel()),
-          get cancelled() {
-            return lives.some((l) => l.cancelled)
-          },
         }
         activePlan = { token, run: live }
         await live.done
@@ -551,7 +561,6 @@ export const useInspectionStore = defineStore('inspection', {
 
         const answered = settled.filter((s) => s.outcome.status === 'answered')
         if (answered.length === 0) {
-          if (live.cancelled) return this.finishCancelled()
           // Nothing answered: the first failure explains the run.
           const first = settled.find((s) => s.outcome.status !== 'cancelled')?.outcome
           this.record = null
@@ -574,8 +583,7 @@ export const useInspectionStore = defineStore('inspection', {
           this.errorMessage = result.photos!.map((p) => droppedPhotoMessage(p.index)).join('. ')
           return
         }
-        const incomplete =
-          live.cancelled || stageProgress(this.planned).some((s) => s.state === 'failed')
+        const incomplete = stageProgress(this.planned).some((s) => s.state === 'failed')
         this.record = { ...result, status: incomplete ? 'partial' : 'complete' }
         this.status = 'complete'
       })().finally(() => {
@@ -584,29 +592,6 @@ export const useInspectionStore = defineStore('inspection', {
 
       this.inFlight = run
       return run
-    },
-    /**
-     * Cancel during a run: aborts the requests still in flight and never sends the rest. What already
-     * answered is kept and marked partial; when nothing had answered, the run ends cancelled. Their
-     * ledger lines say cancelled, with unknown cost.
-     */
-    cancel() {
-      if (this.status !== 'running') return
-      this.cancelRequested = true
-      if (this.demo) {
-        // A recorded replay has no request to abort: its answer is simply dropped.
-        this.runToken += 1
-        this.inFlight = null
-        this.finishCancelled()
-        return
-      }
-      if (activePlan?.token === this.runToken) activePlan.run.cancel()
-    },
-    /** A run cancelled before anything answered: no result, the photo stays, and Start can run again. */
-    finishCancelled() {
-      this.status = 'cancelled'
-      this.record = null
-      this.errorMessage = null
     },
     /**
      * Manifest retry (spec 3.2). Demo mode replays the sample's own recorded check. Live, it is one

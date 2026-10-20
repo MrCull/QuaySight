@@ -110,15 +110,17 @@ describe('New inspection', () => {
     expect(ledger.entries()).toHaveLength(session.requests)
   })
 
-  it('cancels a running inspection so no result from it lands afterwards', async () => {
+  it('during a run, aborts it and returns to idle: no result lands and the ledger line says cancelled', async () => {
     let answer!: (response: Response) => void
     fetchMock.mockImplementationOnce(() => new Promise<Response>((resolve) => (answer = resolve)))
     const store = useInspectionStore()
+    const ledger = useLedgerStore()
     store.setProvider('luna')
     store.setApiKey(LUNA_KEY)
     choosePhoto(store)
     const run = store.start()
     expect(store.status).toBe('running')
+    const runId = store.runId
     await vi.waitFor(() => expect(fetchMock).toHaveBeenCalled())
 
     store.newInspection()
@@ -130,6 +132,8 @@ describe('New inspection', () => {
     expect(store.status).toBe('idle')
     expect(store.record).toBeNull()
     expect(store.photo).toBeNull()
+    const lines = ledger.entries().filter((e) => e.inspectionId === runId)
+    expect(lines.map((e) => e.status)).toContain('cancelled')
   })
 
   it('lets the next container run straight after a cancelled one', async () => {
@@ -223,5 +227,73 @@ describe('New inspection: manifest retry', () => {
 
     expect(store.record).toBeNull()
     expect(store.retry.status).toBe('idle')
+  })
+})
+
+describe('New inspection: shown only once there is something to clear', () => {
+  const fetchMock = vi.fn<typeof fetch>()
+
+  beforeEach(() => {
+    setActivePinia(createPinia())
+    fetchMock.mockReset()
+    fetchMock.mockImplementation(async () => okResponse())
+    vi.stubGlobal('fetch', fetchMock)
+  })
+
+  afterEach(() => {
+    vi.unstubAllGlobals()
+    vi.useRealTimers()
+  })
+
+  it('is hidden on the empty photo picker and on the empty sample picker', () => {
+    const store = useInspectionStore()
+    expect(store.showNewInspection).toBe(false)
+    store.enterDemo()
+    expect(store.showNewInspection).toBe(false)
+  })
+
+  it('shows as soon as photos are chosen, while the run goes and once it is complete', async () => {
+    const store = useInspectionStore()
+    store.setProvider('luna')
+    store.setApiKey(LUNA_KEY)
+    choosePhoto(store)
+    expect(store.showNewInspection).toBe(true)
+    const run = store.start()
+    expect(store.status).toBe('running')
+    expect(store.showNewInspection).toBe(true)
+    await run
+    expect(store.status).toBe('complete')
+    expect(store.showNewInspection).toBe(true)
+
+    store.newInspection()
+    expect(store.showNewInspection).toBe(false)
+  })
+
+  it('shows when the inspection failed', async () => {
+    fetchMock.mockImplementation(
+      async () =>
+        new Response(JSON.stringify({ error: { message: 'Upstream error' } }), { status: 502 }),
+    )
+    const store = useInspectionStore()
+    store.setProvider('luna')
+    store.setApiKey(LUNA_KEY)
+    choosePhoto(store)
+    await store.start()
+    expect(store.status).toBe('failed')
+    expect(store.showNewInspection).toBe(true)
+  })
+
+  it('shows once a sample is picked, while it plays and once it lands', async () => {
+    vi.useFakeTimers()
+    const store = useInspectionStore()
+    store.enterDemo()
+    store.chooseSample('rear-aphu')
+    expect(store.showNewInspection).toBe(true)
+    const run = store.start()
+    expect(store.showNewInspection).toBe(true)
+    await vi.advanceTimersByTimeAsync(1600)
+    await run
+    expect(store.status).toBe('complete')
+    expect(store.showNewInspection).toBe(true)
   })
 })

@@ -148,7 +148,6 @@ export interface PlanRun {
   done: Promise<void>
   /** Aborts every request in flight; requests not yet sent never are. */
   cancel(): void
-  readonly cancelled: boolean
 }
 
 const SETTLED: ReadonlySet<RequestState> = new Set([
@@ -293,9 +292,6 @@ export function runPlan(options: PlanRunOptions): PlanRun {
       cancelled = true
       for (const controller of controllers.values()) controller.abort()
       advance()
-    },
-    get cancelled() {
-      return cancelled
     },
   }
 }

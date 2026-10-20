@@ -80,7 +80,9 @@ describe('App: the inspection starts itself', () => {
     expect(store.status).toBe('idle')
     expect(store.record).toBeNull()
     expect(JSON.stringify(useLedgerStore().session)).toBe(ledgerBefore)
-    expect(buttonNamed(wrapper, /^New inspection$/)).toBeDefined()
+    // Back at the empty picker there is nothing to clear, so New inspection is gone.
+    expect(buttonNamed(wrapper, /^New inspection$/)).toBeUndefined()
+    expect(wrapper.find('.rs-top__centre').exists()).toBe(true)
   })
 
   it('offers Try again in a failed inspection notice, and it re-runs the same photos', async () => {
@@ -97,17 +99,22 @@ describe('App: the inspection starts itself', () => {
     expect(store.photo).toEqual(photo)
   })
 
-  it('opens the settings drawer when photos are chosen without a key, and starts once the key is saved', async () => {
+  it('opens the settings drawer when photos are chosen without a key, and starts once the key is saved with Enter', async () => {
     const store = useInspectionStore()
     const start = vi.spyOn(store, 'start').mockResolvedValue()
-    mount(App)
+    const wrapper = mount(App)
     store.setPhoto(photo)
     void store.startWhenReady()
     await nextTick()
     expect(useSetupStore().drawerOpen).toBe(true)
     expect(start).not.toHaveBeenCalled()
-    store.setApiKey('test-only-key-0000')
-    await nextTick()
+
+    const key = wrapper.find<HTMLInputElement>(`#${store.provider}-key`)
+    await key.setValue('test-only-key-0000')
+    expect(start).not.toHaveBeenCalled()
+    await key.trigger('keydown', { key: 'Enter' })
+
+    expect(useSetupStore().drawerOpen).toBe(false)
     expect(start).toHaveBeenCalledTimes(1)
   })
 

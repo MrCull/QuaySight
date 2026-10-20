@@ -305,7 +305,7 @@ describe('arrived or reading', () => {
     expect(t.severity).toBeNull()
   })
 
-  it('says No result, not Not seen, for a part that failed or was cancelled', async () => {
+  it('says No result, not Not seen, for a part that failed or did not finish', async () => {
     const tiles = buildKeyFacts(await record(), { ...ARRIVED, damage: 'unavailable' })
     expect(tile(tiles, 'damage')).toMatchObject({
       state: 'unavailable',

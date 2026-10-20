@@ -24,39 +24,6 @@ async function liveRecord(status: 'complete' | 'partial') {
 describe('ResultsPanel partial and landing states', () => {
   beforeEach(() => setActivePinia(createPinia()))
 
-  it('after Cancel, says the result is partial and names what did not finish', async () => {
-    const store = useInspectionStore()
-    store.planned = [
-      planned({ id: 'read', stages: ['id'], state: 'answered' }),
-      planned({ id: 'survey', stages: ['details'], state: 'cancelled' }),
-      planned({ id: 'side', stages: ['damage'], state: 'cancelled' }),
-    ]
-    store.cancelRequested = true
-    store.record = await liveRecord('partial')
-    store.status = 'complete'
-    const notice = mount(ResultsPanel).get('.qs-notice--partial')
-
-    expect(notice.attributes('role')).toBe('status')
-    expect(notice.get('.qs-notice__title').text()).toBe(
-      'Partial result: cancelled before every part finished.',
-    )
-    expect(notice.get('.qs-notice__body').text()).toBe(
-      'What had arrived is shown. Not finished: container details, damage.',
-    )
-    expect(notice.get('.qs-notice__kicker').text()).toBe('Partial')
-  })
-
-  it('after Cancel with nothing arrived, says so and shows no result', () => {
-    const store = useInspectionStore()
-    store.status = 'cancelled'
-    const wrapper = mount(ResultsPanel)
-    expect(wrapper.get('.qs-notice--partial .qs-notice__title').text()).toBe(
-      'Inspection cancelled before any result arrived.',
-    )
-    expect(wrapper.find('.qs-notice--error').exists()).toBe(false)
-    expect(wrapper.find('.rs-card').exists()).toBe(false)
-  })
-
   it('names a part that failed in an error notice, and keeps every part that answered', async () => {
     const store = useInspectionStore()
     store.planned = [

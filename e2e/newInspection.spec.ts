@@ -61,11 +61,105 @@ async function liveRun(page: Page) {
   await page.locator('#stage.qs-arrived').waitFor()
 }
 
+const primaryButtons = (page: Page) => page.locator('.qs-btn--primary:visible')
+
+/** The settings chip and the cost line in the header: where they sit, to check nothing moves. */
+async function headerMeta(page: Page) {
+  const chip = (await page.locator('.rs-top .qs-settingschip').boundingBox())!
+  const cost = (await page.locator('.rs-top .qs-cost').boundingBox())!
+  return { chip, cost }
+}
+
+test.describe('New inspection on a phone (390 px)', () => {
+  test.use({ viewport: { width: 390, height: 844 } })
+
+  test('appearing in the header leaves the chip and the costs where they were', async ({
+    page,
+  }) => {
+    await mockDecisions(page)
+    await continueWithKey(page)
+    await expect(page.getByText('Drop a container photo here')).toBeVisible()
+    await expect(newInspection(page)).toHaveCount(0)
+    const before = await headerMeta(page)
+
+    await choosePhoto(page)
+    await expect(newInspection(page)).toBeVisible()
+    const after = await headerMeta(page)
+    expect(after.chip.x).toBeCloseTo(before.chip.x, 0)
+    expect(after.chip.y).toBeCloseTo(before.chip.y, 0)
+    expect(after.cost.x).toBeCloseTo(before.cost.x, 0)
+    expect(after.cost.y).toBeCloseTo(before.cost.y, 0)
+  })
+})
+
 test.describe('New inspection', () => {
   test.use({ viewport: { width: 1440, height: 900 } })
 
-  test('is in the header, reachable by keyboard with a visible focus ring', async ({ page }) => {
+  test('is not in the header on the empty photo picker, and the right side keeps its place', async ({
+    page,
+  }) => {
+    await mockDecisions(page)
     await continueWithKey(page)
+    await expect(page.getByText('Drop a container photo here')).toBeVisible()
+    await expect(newInspection(page)).toHaveCount(0)
+    const chipBefore = (await page.locator('.rs-top .qs-settingschip').boundingBox())!
+
+    await choosePhoto(page)
+    await expect(newInspection(page)).toBeVisible()
+    const chipAfter = (await page.locator('.rs-top .qs-settingschip').boundingBox())!
+    expect(chipAfter.x).toBeCloseTo(chipBefore.x, 0)
+    expect(chipAfter.y).toBeCloseTo(chipBefore.y, 0)
+  })
+
+  test('is not in the header on the empty sample picker, and appears once a sample is picked', async ({
+    page,
+  }) => {
+    await page.goto('/')
+    await page.getByRole('button', { name: 'Enter as demo user' }).click()
+    await expect(page.getByRole('button', { name: /Rear doors with markings/ })).toBeVisible()
+    await expect(newInspection(page)).toHaveCount(0)
+
+    await page.getByRole('button', { name: /Rear doors with markings/ }).click()
+    await expect(newInspection(page)).toBeVisible()
+    await page.locator('#stage.qs-arrived').waitFor()
+    await expect(
+      page.locator('.rs-top').getByRole('button', { name: 'New inspection' }),
+    ).toBeVisible()
+
+    // Focus moves on to the sample picker, never onto the button that has just gone.
+    await newInspection(page).click()
+    await expect(newInspection(page)).toHaveCount(0)
+    await expect(page.locator('[data-next-step="photo"]').first()).toBeFocused()
+  })
+
+  test('is the only primary button on the results screen, also when the manifest check shows', async ({
+    page,
+  }) => {
+    // The smoke response leaves an ID position unread, so the manifest check is offered.
+    await liveRun(page)
+    const offer = page.getByRole('heading', { name: 'Container ID not identified' })
+    await expect(offer).toBeVisible()
+    await expect(primaryButtons(page)).toHaveCount(1)
+    await expect(primaryButtons(page)).toHaveText('New inspection')
+
+    // The manifest check fails: its Try again and Keep first result are secondary too.
+    await page.unroute(/api\.openai\.com\/v1\/decisions/)
+    await page.route(/api\.openai\.com\/v1\/decisions/, (route) =>
+      route.fulfill({
+        status: 500,
+        contentType: 'application/json',
+        body: JSON.stringify({ error: { message: 'Server error' } }),
+      }),
+    )
+    await page.getByLabel('Container numbers from the manifest').fill('APHU 658684 7')
+    await page.getByRole('button', { name: 'Check again with this manifest' }).click()
+    await expect(page.getByRole('button', { name: 'Try again' })).toBeVisible()
+    await expect(primaryButtons(page)).toHaveCount(1)
+    await expect(primaryButtons(page)).toHaveText('New inspection')
+  })
+
+  test('is in the header, reachable by keyboard with a visible focus ring', async ({ page }) => {
+    await liveRun(page)
     const button = page.locator('.rs-top').getByRole('button', { name: 'New inspection' })
     await expect(button).toBeVisible()
 
@@ -85,10 +179,12 @@ test.describe('New inspection', () => {
   test('header reads brand, then New inspection centred, then model label and costs', async ({
     page,
   }) => {
-    await continueWithKey(page)
+    await liveRun(page)
     const box = async (loc: ReturnType<Page['locator']>) => (await loc.boundingBox())!
     const brand = await box(page.locator('.rs-top .qs-brand'))
-    const action = await box(page.locator('.rs-top').getByRole('button', { name: 'New inspection' }))
+    const action = await box(
+      page.locator('.rs-top').getByRole('button', { name: 'New inspection' }),
+    )
     const chipBox = await box(page.locator('.rs-top .qs-settingschip'))
     const cost = await box(page.locator('.rs-top .qs-cost'))
     expect(brand.x + brand.width).toBeLessThan(action.x)
@@ -176,7 +272,7 @@ test.describe('header at phone width', () => {
   test('has no horizontal scroll and keeps New inspection visible and focusable', async ({
     page,
   }) => {
-    await continueWithKey(page)
+    await liveRun(page)
     const button = page.locator('.rs-top').getByRole('button', { name: 'New inspection' })
     await expect(button).toBeInViewport()
     await button.focus()

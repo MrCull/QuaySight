@@ -22,7 +22,7 @@ A part the survey did not answer reads *Not assessed*, never *Not seen*.
 ## States and arrival
 - **Reading**: from the moment the inspection starts every tile shows **Reading…** in `ink-muted` over a `qs-skeleton` bar, `aria-busy="true"`. No certainty chip, no value.
 - **Arrived**: the tile's part has landed. A tile that fills in while the run is still going carries `qs-rise` with `--i` set to its position (and `qs-arrived` on the tile itself), so the tiles fill in one after another with the standard `.qs-arriving` → `.qs-arrived` choreography. The Container ID and Seal tiles land together (one stage reads both), Damage and Placards on their own.
-- **Unavailable**: the part failed or was cancelled. The tile says **No result**, never *Not seen*; the notice above the tiles says why.
+- **Unavailable**: the part failed or did not finish. The tile says **No result**, never *Not seen*; the notice above the tiles says why.
 
 Under `prefers-reduced-motion` (or `qs-reduced-motion`) the tiles simply appear, and the progress bar does not animate.
 
