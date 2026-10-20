@@ -58,13 +58,15 @@ export function loupeLens(
   frame: Box,
   natural: PixelSize,
   loupeSize: number,
+  /** A close-up is already enlarged on screen: magnify it at least this much more, upsampling if need be. */
+  minZoom = 1,
 ): Lens | null {
   const photo = containedBox(frame, natural)
   if (!photo) return null
   const x = pointer.x - photo.left
   const y = pointer.y - photo.top
   if (x < 0 || y < 0 || x > photo.width || y > photo.height) return null
-  const zoom = Math.max(1, Math.min(LOUPE_ZOOM, natural.width / photo.width))
+  const zoom = Math.max(minZoom, Math.min(LOUPE_ZOOM, natural.width / photo.width))
   return {
     zoom,
     imageWidth: photo.width * zoom,

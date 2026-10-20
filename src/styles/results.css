@@ -208,6 +208,9 @@ body {
 .qs-ledger__note .rs-also {
   margin: 0;
 }
+.qs-keytile__crop .rs-crop {
+  margin: 0;
+}
 .rs-damage {
   grid-column: 1/-1;
   padding: var(--space-5);

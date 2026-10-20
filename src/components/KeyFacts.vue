@@ -7,6 +7,8 @@ import { DETAIL_IDS, jumpToDetail } from '../composables/detailJump'
 import CertaintyChip from './CertaintyChip.vue'
 import ContainerId from './ContainerId.vue'
 import SeverityBadge from './damage/SeverityBadge.vue'
+import PhotoCrop from './PhotoCrop.vue'
+import { idCloseUp, sealCloseUp, type CloseUpSource } from '../domain/closeUpSources'
 
 // The key-facts tiles (design-system/components/KeyFactTile): the headline of a result at a glance, between
 // the photo strip and the detail area. All words come from the pure builder; this lays them out, plays the
@@ -33,6 +35,33 @@ const tiles = computed(() => buildKeyFacts(record.value, parts.value))
 
 /** A tile that fills in while the run is still going plays its own arrival inside the arriving screen. */
 const arrivesEarly = (state: PartState) => running.value && state === 'arrived'
+
+// The close-up of where the ID and the seal were read, cut from the photo whose reading won (ticket #85),
+// under the reading in its tile, with the hover loupe. Absent without a usable box.
+interface TileCrop {
+  source: CloseUpSource
+  url: string
+  caption: string
+  label: string
+}
+const crops = computed<Partial<Record<KeyFactId, TileCrop>>>(() => {
+  const r = record.value
+  if (!r) return {}
+  const url = (source: CloseUpSource | null) =>
+    source ? (store.photos[source.photo - 1]?.url ?? null) : null
+  const out: Partial<Record<KeyFactId, TileCrop>> = {}
+  const id = idCloseUp(r)
+  const idUrl = url(id)
+  if (id && idUrl && parts.value.id === 'arrived') {
+    out.id = { source: id, url: idUrl, caption: 'Where we read the ID', label: 'The container ID' }
+  }
+  const seal = sealCloseUp(r)
+  const sealUrl = url(seal)
+  if (seal && sealUrl && parts.value.id === 'arrived') {
+    out.seal = { source: seal, url: sealUrl, caption: 'Where we read the seal', label: 'The seal' }
+  }
+  return out
+})
 
 // The detail section each tile leads to.
 const DETAIL: Record<KeyFactId, string> = {
@@ -108,6 +137,25 @@ const progress = computed(() => {
               >{{ tile.headline }}</span
             >
           </template>
+
+          <!-- The crop is its own control (tap for the full photo): its clicks do not jump to the detail. -->
+          <span
+            v-if="crops[tile.id]"
+            class="qs-keytile__crop"
+            @click.stop
+            @keydown.enter.stop
+            @keydown.space.stop
+          >
+            <PhotoCrop
+              magnify
+              :src="crops[tile.id]!.url"
+              :box="crops[tile.id]!.source.box"
+              :margin="crops[tile.id]!.source.margin"
+              :photo-number="crops[tile.id]!.source.photo"
+              :caption="crops[tile.id]!.caption"
+              :label="crops[tile.id]!.label"
+            />
+          </span>
 
           <span v-if="tile.severity" class="qs-keytile__extra">
             <SeverityBadge :severity="tile.severity" />

@@ -17,20 +17,25 @@ async function mounted(containerId: Partial<ContainerIdReading>, photoUrl: strin
   return mount(ResultsPanel)
 }
 
-describe('the ID row’s enlarged crop', () => {
+describe('the ID’s enlarged crop, in its key-facts tile', () => {
   beforeEach(() => setActivePinia(createPinia()))
 
-  it('shows the crop of the photo beside the ID row, captioned with its photo', async () => {
+  it('shows the crop of the photo under the ID in its tile, captioned "Where we read the ID"', async () => {
     const wrapper = await mounted({ box: BOX }, 'blob:door')
-    const img = wrapper.get('.qs-ledger__evidence .rs-crop img')
+    const img = wrapper.get('[data-tile="id"] .qs-keytile__crop .rs-crop img')
     expect(img.attributes('src')).toBe('blob:door')
     expect(img.attributes('alt')).toBe('The container ID, enlarged')
-    expect(wrapper.get('.qs-ledger__evidence .rs-crop figcaption').text()).toBe('Photo 1')
+    expect(wrapper.get('[data-tile="id"] .rs-crop figcaption').text()).toBe(
+      'Where we read the ID · Photo 1',
+    )
   })
 
-  it('arrives with the ledger: it rises in beside its row', async () => {
+  it('is its own control: tapping it shows the full photo and does not jump to the detail', async () => {
     const wrapper = await mounted({ box: BOX }, 'blob:door')
-    expect(wrapper.get('.qs-ledger__evidence').classes()).toContain('qs-rise')
+    const tap = wrapper.get('[data-tile="id"] .rs-crop__tap')
+    await tap.trigger('click')
+    expect(tap.attributes('aria-expanded')).toBe('true')
+    expect(document.activeElement?.id).not.toBe('detail-id')
   })
 
   it('shows no crop when the reading carries no box', async () => {

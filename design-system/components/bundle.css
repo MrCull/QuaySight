@@ -584,6 +584,8 @@
 .qs-keytile__value--quiet { color: var(--ink-muted); }
 .qs-keytile__skeleton { display: block; height: var(--space-4); width: 60%; }
 .qs-keytile__extra { display: flex; flex-wrap: wrap; gap: var(--space-2); }
+/* The close-up of where the ID or seal was read, under the reading; its own control (tap for the full photo, hover loupe). */
+.qs-keytile__crop { display: block; width: 100%; max-width: calc(var(--space-8) * 7); cursor: auto; }
 .qs-keytile__notes { color: var(--ink-muted); }
 /* The section a tile leads to is outlined for a moment after the jump; under reduced motion the outline is still. */
 .qs-flash { animation: qs-flash 1.8s ease-out; }

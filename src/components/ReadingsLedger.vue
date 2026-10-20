@@ -4,21 +4,16 @@
 // The rows come from ledgerRows.ts; this measures them and places each one as near its slot as it can.
 import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import type { InspectionRecord } from '../domain/inspection'
-import type { CloseUpSource } from '../domain/closeUpSources'
 import { DOOR_WIDTH, SLOT_Y, ledgerModel, placeRows, type LedgerRow } from './ledgerRows'
 import { useUnits } from '../composables/units'
 import CertaintyChip from './CertaintyChip.vue'
 import DoorFace from './DoorFace.vue'
-import PhotoCrop from './PhotoCrop.vue'
 import UnitsToggle from './UnitsToggle.vue'
 
 const props = defineProps<{
   record: InspectionRecord | null
   /** Which parts have landed: the ID and seal come with the ID stage, the rest with the details. */
   parts: { id: boolean; details: boolean }
-  /** Every photo's URL in order; a close-up is cut from the photo its reading names. */
-  photos: string[]
-  closeUps: { id: CloseUpSource | null; seal: CloseUpSource | null }
   /** The run is going and the ID has not landed: the door bare, skeletons for the values. */
   busy: boolean
 }>()
@@ -49,8 +44,6 @@ const doorLabel = computed(() => {
     ? `Rear doors drawn flat, with ${painted.join(', ')} painted where they are usually stencilled`
     : 'Rear doors drawn flat, readings pending'
 })
-
-const photoUrl = (n: number | undefined) => (n ? props.photos[n - 1] : undefined)
 
 // ---- Placing the rows: measured after each render, so a row with a note pushes the next one down.
 const door = ref<HTMLElement | null>(null)
@@ -234,38 +227,6 @@ watch([model, reading], () => void nextTick(layout), { deep: true })
             >
             <span v-if="row.note">{{ row.note }}</span>
           </p>
-        </div>
-
-        <!-- Where the ID and the seal were read, cut from the photo; absent without a usable box. -->
-        <div
-          v-if="!reading && closeUps.id && photoUrl(closeUps.id.photo)"
-          class="qs-ledger__evidence qs-rise"
-          :style="{ '--y': `${tops.id ?? 0}px` }"
-        >
-          <PhotoCrop
-            compact
-            :src="photoUrl(closeUps.id.photo)!"
-            :box="closeUps.id.box"
-            :margin="closeUps.id.margin"
-            :photo-number="closeUps.id.photo"
-            caption="Where we read the ID"
-            label="The container ID"
-          />
-        </div>
-        <div
-          v-if="!reading && closeUps.seal && photoUrl(closeUps.seal.photo)"
-          class="qs-ledger__evidence qs-rise"
-          :style="{ '--y': `${tops.seal ?? 0}px` }"
-        >
-          <PhotoCrop
-            compact
-            :src="photoUrl(closeUps.seal.photo)!"
-            :box="closeUps.seal.box"
-            :margin="closeUps.seal.margin"
-            :photo-number="closeUps.seal.photo"
-            caption="Where we read the seal"
-            label="The seal"
-          />
         </div>
       </div>
     </div>

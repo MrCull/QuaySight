@@ -10,7 +10,7 @@ The readings of one container, laid out around a `DoorFace`: each reading sits l
   - `div.qs-ledger__door`: the `DoorFace`, drawn 480px wide (`--ledger-door`).
   - `div.qs-ledger__side.qs-ledger__side--right`: readings painted on the **right** leaf, top to bottom: Container ID, size-type code, max gross, tare, payload, cubic capacity, seal. Each row is one line: icon, label, value, `CertaintyChip`. A fixed value column keeps the chips in a column.
   - In each side, `svg.qs-ledger__links`: one dashed `path` per linked row, from a dot on the door's edge at the slot's height to the middle of its row.
-  - At the right edge, `div.qs-ledger__evidence` crops (`qs-evidence`), level with the rows they back up.
+  - Optionally, at the right edge, `div.qs-ledger__evidence` crops (`qs-evidence`), level with the rows they back up. The main screen shows the ID and seal close-ups in their key-facts tiles instead (`KeyFactTile`), where they have room to be read and carry the loupe; use the ledger's evidence column for a reading whose close-up has no tile.
 - `div.qs-ledger__more`: readings that are not painted on the doors, as plain `FieldRow`s under `p.qs-ledger__more-title` ("Not painted on the doors"): what was decoded from the size-type code (length, height, width, type), the model's answers (reefer, open top, tank, flat rack) and the markings looked for but not seen.
 
 ### A row

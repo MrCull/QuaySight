@@ -5,6 +5,8 @@
 import { computed, ref, watch } from 'vue'
 import { enlargedCrop, type ReadingBox } from '../domain/enlargedCrop'
 import { usableIdBox } from '../domain/cropRead'
+import { useLoupe } from '../composables/loupe'
+import PhotoLoupe from './PhotoLoupe.vue'
 
 const props = defineProps<{
   /** The photo the box was asked on. */
@@ -20,7 +22,16 @@ const props = defineProps<{
   photoNumber?: number | null
   /** Beside a reading in the ledger: no margin above, the caption is just the photo, no tap hint. */
   compact?: boolean
+  /** The hover loupe over the close-up (design-system Loupe), magnifying it further. Mouse only. */
+  magnify?: boolean
 }>()
+
+/** How much more the loupe enlarges a close-up that is already shown enlarged. */
+const CLOSE_UP_ZOOM = 2
+const loupe = useLoupe({ minZoom: CLOSE_UP_ZOOM })
+function track(event: PointerEvent) {
+  if (props.magnify && !full.value) loupe.track(event, props.src)
+}
 
 const size = ref<{ width: number; height: number } | null>(null)
 const failed = ref(false)
@@ -95,7 +106,15 @@ const imgStyle = computed(() => {
       "
       @click="full = !full"
     >
-      <span v-show="!full" class="rs-crop__frame" :style="frameStyle">
+      <span
+        v-show="!full"
+        class="rs-crop__frame"
+        :style="frameStyle"
+        @pointerenter="track"
+        @pointermove="track"
+        @pointerleave="loupe.hide()"
+        @pointerdown="loupe.hide()"
+      >
         <img
           class="rs-crop__img"
           :src="src"
@@ -130,6 +149,7 @@ const imgStyle = computed(() => {
       </span>
     </button>
     <figcaption class="rs-crop__caption qs-type-body-sm">{{ fullCaption }}</figcaption>
+    <PhotoLoupe v-if="magnify && loupe.view.value && !full" :view="loupe.view.value" />
     <p v-if="!compact" class="rs-crop__hint qs-type-caption">
       {{ full ? 'Tap to return to the close-up' : 'Tap for the full photo' }}
     </p>
