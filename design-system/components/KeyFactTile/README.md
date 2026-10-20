@@ -10,7 +10,7 @@ A row of key-facts tiles gives the audience the headline of a result at a glance
   - `span.qs-keytile__head`: `span.qs-keytile__label.qs-type-label` and, once arrived, the `CertaintyChip`.
   - The value: `span.qs-keytile__value.qs-type-display-md` (the seal number adds `qs-keytile__value--mono`). The Container ID tile sets the reading through `ContainerId` instead, which carries the check-digit result and *Not a common owner code*.
   - Optional `span.qs-keytile__extra` (the `SeverityBadge`, or the hazard `qs-marking--hazard` badge on Placards) and `span.qs-keytile__notes.qs-type-body-sm` for short facts.
-  - On the Container ID and Seal tiles, optional `span.qs-keytile__crop`: the close-up of where the reading was read, cut from the photo (the `qs-evidence` crop), up to 448px wide. It appears only when the model gave a usable box, and is its own control: tapping it shows the full photo with the region outlined, the hover `Loupe` magnifies it further, and neither jumps to the detail section.
+  - On the Container ID and Seal tiles, optional `span.qs-keytile__crop`: the close-up of where the reading was read, cut from the photo (the `qs-evidence` crop), up to 256px wide and 128px tall: a glance, with the loupe for reading it. It appears only when the model gave a usable box, and is its own control: tapping it shows the full photo with the region outlined, the hover `Loupe` magnifies it further, and neither jumps to the detail section.
 
 ## The four tiles
 1. **Container ID**, first and wider (twice the width of the others): the ID through `ContainerId`, its certainty word, the check-digit result and the owner-code note. With fewer than 6 characters read it says **ID not readable in this photo** and shows no ID.

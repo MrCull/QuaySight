@@ -79,10 +79,8 @@ test('recorded run shows the container ID and the recorded label', async ({ page
   await page.goto('/')
   await openRearDoorsSample(page)
   await expect(page.getByText('Recorded demonstration: GPT-6 Luna / gpt-6-luna')).toBeVisible()
-  // Scope to the Container ID card: other cards (details, checks) also carry certainty chips.
-  const idCard = page
-    .locator('.rs-card')
-    .filter({ has: page.locator('.rs-k', { hasText: 'Container ID' }) })
+  // Scope to the Container ID row of the readings: other rows also carry certainty chips.
+  const idCard = page.locator('.qs-ledger__row[data-row="id"]')
   // The recording is Luna's earlier read of this photo: the ID is partly read, and says so with a certainty chip.
   await expect(idCard.locator('.qs-cert').first()).toBeVisible()
   await expect(idCard).toContainText('APH')

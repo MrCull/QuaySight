@@ -211,6 +211,10 @@ body {
 .qs-keytile__crop .rs-crop {
   margin: 0;
 }
+/* In a tile the close-up is a glance, the loupe does the reading: no taller than space-8 × 2. */
+.qs-keytile__crop .rs-crop__frame {
+  max-width: min(100%, calc(var(--space-8) * 2 * var(--crop-aspect, 2)));
+}
 .rs-damage {
   grid-column: 1/-1;
   padding: var(--space-5);

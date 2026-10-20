@@ -62,19 +62,17 @@ test.describe('laptop width (1440x900)', () => {
 test.describe('desktop width (1920x1080)', () => {
   test.use({ viewport: { width: 1920, height: 1080 } })
 
-  test('shows the photo strip and the top of the damage schematic without scrolling', async ({
-    page,
-  }) => {
+  test('shows the photo strip and the top of the readings without scrolling', async ({ page }) => {
     await runSample(page)
-    await expect(page.locator('.rs-damage')).toBeVisible()
+    await expect(page.locator('.qs-ledger')).toBeVisible()
     const strip = (await page.locator('.rs-photos__frame').first().boundingBox())!
     expect(strip.y + strip.height).toBeLessThanOrEqual(1080)
     // About 260px tall, centred, and not stretched to the full width.
     expect(strip.height).toBeGreaterThan(200)
     expect(strip.height).toBeLessThan(300)
     expect(strip.width).toBeLessThan(1920 * 0.5)
-    const schematic = (await page.locator('.rs-damage').boundingBox())!
-    expect(schematic.y).toBeLessThan(1080 - 100)
+    const readings = (await page.locator('.qs-ledger').boundingBox())!
+    expect(readings.y).toBeLessThan(1080 - 100)
     expect(
       await page.evaluate(
         () => document.documentElement.scrollWidth - document.documentElement.clientWidth,
@@ -82,25 +80,25 @@ test.describe('desktop width (1920x1080)', () => {
     ).toBeLessThanOrEqual(0)
   })
 
-  test('puts the damage to the left of the readings column', async ({ page }) => {
+  test('puts the damage under the readings, across the full width', async ({ page }) => {
     await runSample(page)
     await expect(page.locator('.rs-damage')).toBeVisible()
     const damage = (await page.locator('.rs-damage').boundingBox())!
-    const readings = (await page.locator('.rs-right').boundingBox())!
-    expect(damage.x + damage.width).toBeLessThanOrEqual(readings.x)
-    expect(damage.width).toBeGreaterThan(readings.width)
+    const readings = (await page.locator('.qs-ledger').boundingBox())!
+    expect(damage.y).toBeGreaterThanOrEqual(readings.y + readings.height)
+    expect(damage.width).toBeGreaterThanOrEqual(readings.width - 1)
   })
 })
 
 test.describe('tablet width (1000x800)', () => {
   test.use({ viewport: { width: 1000, height: 800 } })
 
-  test('stacks the damage above the readings', async ({ page }) => {
+  test('stacks the damage under the readings', async ({ page }) => {
     await runSample(page)
     await expect(page.locator('.rs-damage')).toBeVisible()
     const damage = (await page.locator('.rs-damage').boundingBox())!
-    const readings = (await page.locator('.rs-right').boundingBox())!
-    expect(readings.y).toBeGreaterThanOrEqual(damage.y + damage.height)
+    const readings = (await page.locator('.qs-ledger').boundingBox())!
+    expect(damage.y).toBeGreaterThanOrEqual(readings.y + readings.height)
   })
 })
 

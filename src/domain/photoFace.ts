@@ -79,7 +79,7 @@ const SHOWS_QUESTIONS: { name: string; face: PhotoFace; instructions: string }[]
     name: 'shows_front_end',
     face: 'front-end',
     instructions:
-      'Does this photo show any of the plain end wall opposite the doors, even if it is not the main subject?',
+      'Does this photo show any of the front end: the end wall opposite the doors, a short corrugated or flat panel between two corner posts with no doors, hinges or locking bars? Count it even if it is seen at an angle beside a long side and is not the main subject.',
   },
 ]
 
@@ -101,7 +101,11 @@ export const FACE_QUESTION: ChoiceQuestion = {
       value: 'long_side',
       description: 'A long side wall of corrugated sheet between the corner posts.',
     },
-    { value: 'front_end', description: 'The plain end wall opposite the doors, with no doors.' },
+    {
+      value: 'front_end',
+      description:
+        'The front end: the short end wall opposite the doors, corrugated or flat, with no doors, hinges or locking bars.',
+    },
     { value: 'roof', description: 'The roof, seen from above.' },
     {
       value: 'close_up_seal',

@@ -119,14 +119,8 @@ test.describe('Live run progress and Cancel', () => {
     // Each card plays its own arrival and ends fully drawn, inside the still-arriving screen.
     await expect(tile(page, 'id')).toHaveCSS('opacity', '1')
     await expect(tile(page, 'damage')).toHaveCSS('opacity', '1')
-    await expect(page.locator('.rs-card', { has: page.locator('.qs-id') })).toHaveCSS(
-      'opacity',
-      '1',
-    )
-    await expect(page.locator('.rs-card', { hasText: 'Container details' })).toHaveCSS(
-      'opacity',
-      '1',
-    )
+    await expect(page.locator('.qs-ledger__row[data-row="id"]')).toHaveCSS('opacity', '1')
+    await expect(page.locator('.qs-ledger__row[data-row="type"]')).toHaveCSS('opacity', '1')
     await expect(page.locator('.qs-id__ch').first()).toHaveCSS('opacity', '1')
 
     await page.getByRole('button', { name: 'Cancel' }).click()

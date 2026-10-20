@@ -162,6 +162,47 @@ describe('seal across photos', () => {
     )
     expect(record.seal).toMatchObject({ visible: false, certainty: 'Not seen' })
   })
+
+  it('never splices readings that counted a different number of characters', () => {
+    const record = combinePhotoRuns(
+      [
+        run(1, 'rear-doors', { seal: seal('01546220', 'Likely') }),
+        run(2, 'rear-doors', { seal: seal('0154620', 'Confident') }),
+        run(3, 'close-up', { seal: seal('0154620', 'Likely') }),
+      ],
+      { id: 'x' },
+    )
+    expect(record.seal!.value).toBe('0154620')
+    expect(record.seal!.photo).not.toBe(1)
+  })
+
+  it('doubts the number when strong readings counted it differently', () => {
+    const record = combinePhotoRuns(
+      [
+        run(1, 'rear-doors', { seal: seal('0154620', 'Confident') }),
+        run(2, 'rear-doors', { seal: seal('01546220', 'Confident') }),
+      ],
+      { id: 'x' },
+    )
+    expect(record.seal!.value).toBe('0154620')
+    expect(record.seal!.certainty).toBe('Uncertain')
+  })
+
+  it('takes the crop from a photo where the seal area was found, even without the model box', () => {
+    const area = { top: 0.2, bottom: 0.3, left: 0.4, right: 0.5 }
+    const record = combinePhotoRuns(
+      [
+        run(1, 'rear-doors', { seal: seal('0154620', 'Likely', false) }),
+        run(2, 'rear-doors', {
+          seal: seal('0154620', 'Likely', false),
+          regions: { found: { seal: { box: area } } },
+        } as unknown as Partial<InspectionRecord>),
+      ],
+      { id: 'x' },
+    )
+    expect(record.seal).toMatchObject({ photo: 2, area })
+    expect(record.seal!.box).toBeUndefined()
+  })
 })
 
 describe('placards across photos', () => {

@@ -73,8 +73,14 @@ function onLoad(event: Event) {
   size.value = { width: img.naturalWidth, height: img.naturalHeight }
 }
 
+// --crop-aspect lets a small place (a key-facts tile) cap the close-up's height as well as its width.
 const frameStyle = computed(() =>
-  frame.value ? { aspectRatio: `${frame.value.width} / ${frame.value.height}` } : undefined,
+  frame.value
+    ? {
+        aspectRatio: `${frame.value.width} / ${frame.value.height}`,
+        '--crop-aspect': String(frame.value.width / frame.value.height),
+      }
+    : undefined,
 )
 // The whole photo is laid out so the region fills the frame: percentages of the region's own size.
 const imgStyle = computed(() => {

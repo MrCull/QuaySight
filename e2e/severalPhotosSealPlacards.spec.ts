@@ -72,7 +72,7 @@ test.describe('Seal and placards across photos', () => {
     await page.locator('input[type="file"]').setInputFiles(photos)
     await page.locator('#stage.qs-arrived').waitFor()
 
-    const seal = page.locator('.rs-seal')
+    const seal = page.locator('.qs-ledger__row[data-row="seal"]')
     await expect(seal).toContainText('Seal')
     await expect(seal.locator('.qs-id__ch')).toHaveText(['A', 'B', '1', '2', '3', '4'])
 
