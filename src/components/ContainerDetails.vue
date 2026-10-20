@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import type { InspectionRecord } from '../domain/inspection'
-import { lengthDisagreement } from '../domain/shapeLength'
+import { lengthInDoubt } from '../domain/shapeLength'
 import { detailGroups } from './containerDetailRows'
 import CertaintyChip from './CertaintyChip.vue'
 import UnitsToggle from './UnitsToggle.vue'
@@ -22,7 +22,7 @@ const props = withDefaults(
 // Metric or Imperial: display only, remembered in this browser. The record and the exports never change.
 const { units, set: setUnits } = useUnits()
 
-const lengthWarning = computed(() => lengthDisagreement(props.record))
+const lengthWarning = computed(() => lengthInDoubt(props.record))
 const groups = computed(() => detailGroups(props.record, units.value))
 
 // A run that read none of the details (an ID-only run) has nothing to say about them: one plain

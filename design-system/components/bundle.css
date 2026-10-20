@@ -673,14 +673,13 @@
 .qs-ledger__body { --ledger-door: clamp(calc(var(--space-8) * 6 + var(--space-4)), calc(100cqi - var(--space-8) * 14), calc(var(--space-8) * 7 + var(--space-6))); --ledger-link: var(--space-6); --ledger-crop: calc(var(--space-8) * 2); display: grid; grid-template-columns: minmax(calc(var(--space-8) * 3.5), 0.5fr) var(--ledger-door) minmax(0, 1.7fr); padding: var(--space-5); background: var(--surface-sunken); border: 1px solid var(--line); border-radius: var(--radius-lg); }
 .qs-ledger__door { min-width: 0; }
 .qs-ledger__side { position: relative; min-width: 0; min-height: var(--ledger-h, 0); }
-.qs-ledger__side--right { padding-right: calc(var(--ledger-crop) + var(--space-4)); }
 .qs-ledger__links { position: absolute; top: 0; width: var(--ledger-link); height: 100%; overflow: visible; pointer-events: none; }
 .qs-ledger__side--left .qs-ledger__links { right: 0; }
 .qs-ledger__side--right .qs-ledger__links { left: 0; }
 .qs-ledger__links path { fill: none; stroke: var(--line-strong); stroke-width: 1.2; stroke-dasharray: 3 3; }
 .qs-ledger__links circle { fill: var(--ink); }
 .qs-ledger__row { position: absolute; top: var(--y, 0); display: grid; grid-template-columns: auto calc(var(--space-8) + var(--space-5)) auto auto; align-items: center; column-gap: var(--space-3); row-gap: var(--space-1); min-height: var(--control-sm); }
-.qs-ledger__side--right .qs-ledger__row { left: var(--ledger-link); right: calc(var(--ledger-crop) + var(--space-4)); grid-template-columns: auto calc(var(--space-8) + var(--space-4)) calc(var(--space-8) * 3) auto; justify-content: start; }
+.qs-ledger__side--right .qs-ledger__row { left: var(--ledger-link); right: 0; grid-template-columns: auto calc(var(--space-8) + var(--space-4)) calc(var(--space-8) * 3) auto auto; justify-content: start; }
 /* Left of the door the row takes two lines, right-aligned against the door: icon and label, then value and certainty. */
 .qs-ledger__side--left .qs-ledger__row { left: 0; right: var(--ledger-link); grid-template-columns: minmax(0, 1fr) auto auto; grid-template-areas: ". icon label" "value value chip" "note note note"; justify-items: end; }
 .qs-ledger__side--left .qs-ledger__icon { grid-area: icon; }
@@ -695,15 +694,18 @@
 .qs-ledger__side--left .qs-ledger__value--words { text-align: right; }
 .qs-ledger__unit { padding-bottom: 5px; font: 400 14px/16px var(--font-mono); color: var(--ink-muted); }
 .qs-ledger__row > .qs-cert { justify-self: start; }
-.qs-ledger__note { grid-column: 3 / -1; margin: 0; display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-2); font: 400 12px/16px var(--font-sans); color: var(--ink-muted); }
+.qs-ledger__note { grid-column: 3 / 5; margin: 0; display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-2); font: 400 12px/16px var(--font-sans); color: var(--ink-muted); }
+/* Right of the door a note wraps within the value and certainty columns and never widens them, so a close-up stays beside its chip. */
+.qs-ledger__side--right .qs-ledger__note { contain: inline-size; }
 .qs-ledger__note code { font: 500 12px/16px var(--font-mono); color: var(--ink); }
 .qs-ledger__note u { text-decoration: none; color: var(--cert-uncertain-fg); }
-.qs-ledger__evidence { position: absolute; right: 0; top: var(--y, 0); width: var(--ledger-crop); }
+/* The close-up a reading was read from, right after its certainty, spanning the row's lines. */
+.qs-ledger__crop { grid-column: 5; grid-row: 1 / span 3; align-self: start; width: var(--ledger-crop); margin-left: var(--space-2); }
 /* Readings that are not painted on the doors (decoded from the code, the model's answers, markings not seen) as FieldRows. */
 .qs-ledger__more { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, calc(var(--space-8) * 6)), 1fr)); column-gap: var(--space-6); align-items: start; }
 .qs-ledger__more-title { grid-column: 1 / -1; margin: 0 0 var(--space-1); color: var(--ink-muted); }
 .qs-ledger__more .qs-field { grid-template-columns: minmax(96px, 128px) minmax(0, 1fr) auto; }
-/* Narrow: the door on top, then the readings as a list; no links. Each row takes two lines (icon, label, certainty; then the value), the crops follow the readings. */
+/* Narrow: the door on top, then the readings as a list; no links. Each row takes two lines (icon, label, certainty; then the value), its close-up under it. */
 @container (max-width: 1300px) {
   .qs-ledger__body { grid-template-columns: minmax(0, 1fr); gap: var(--space-3); }
   .qs-ledger__door { order: -1; justify-self: center; width: 100%; max-width: calc(var(--space-8) * 6); margin-bottom: var(--space-2); }
@@ -715,7 +717,7 @@
   .qs-ledger__row > .qs-ledger__value, .qs-ledger__side--left .qs-ledger__value { grid-area: value; justify-self: start; text-align: left; }
   .qs-ledger__row > .qs-cert, .qs-ledger__side--left .qs-ledger__row > .qs-cert { grid-area: chip; justify-self: end; }
   .qs-ledger__row > .qs-ledger__note, .qs-ledger__side--left .qs-ledger__note { grid-area: note; justify-content: flex-start; text-align: left; }
-  .qs-ledger__evidence { position: static; width: var(--ledger-crop); justify-self: start; }
+  .qs-ledger__row > .qs-ledger__crop { grid-column: 1 / -1; grid-row: auto; margin-left: 0; }
 }
 /* Door face markings: the DG placard place (seen: the hazard diamond; not seen: a dashed outline) and the high-container caution stripes. */
 .qs-door__placard { fill: var(--hazard-bg); stroke: var(--hazard-fg); stroke-width: 2; }

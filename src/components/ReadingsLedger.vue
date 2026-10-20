@@ -52,6 +52,18 @@ const doorLabel = computed(() => {
 
 const photoUrl = (n: number | undefined) => (n ? props.photos[n - 1] : undefined)
 
+/** The close-up beside the ID or seal row, cut from the photo its reading names. */
+const CLOSE_UP_WORDS = {
+  id: { caption: 'Where we read the ID', label: 'The container ID' },
+  seal: { caption: 'Where we read the seal', label: 'The seal' },
+} as const
+function closeUp(key: string) {
+  if (key !== 'id' && key !== 'seal') return null
+  const source = props.closeUps[key]
+  const url = photoUrl(source?.photo)
+  return source && url ? { source, url, ...CLOSE_UP_WORDS[key] } : null
+}
+
 // ---- Placing the rows: measured after each render, so a row with a note pushes the next one down.
 const door = ref<HTMLElement | null>(null)
 const leftSide = ref<HTMLElement | null>(null)
@@ -234,40 +246,19 @@ watch([model, reading], () => void nextTick(layout), { deep: true })
             >
             <span v-if="row.note">{{ row.note }}</span>
           </p>
-        </div>
-
-        <!-- Where the ID and the seal were read, cut from the photo, with the loupe; absent without a usable box. -->
-        <div
-          v-if="!reading && closeUps.id && photoUrl(closeUps.id.photo)"
-          class="qs-ledger__evidence qs-rise"
-          :style="{ '--y': `${tops.id ?? 0}px` }"
-        >
-          <PhotoCrop
-            compact
-            magnify
-            :src="photoUrl(closeUps.id.photo)!"
-            :box="closeUps.id.box"
-            :margin="closeUps.id.margin"
-            :photo-number="closeUps.id.photo"
-            caption="Where we read the ID"
-            label="The container ID"
-          />
-        </div>
-        <div
-          v-if="!reading && closeUps.seal && photoUrl(closeUps.seal.photo)"
-          class="qs-ledger__evidence qs-rise"
-          :style="{ '--y': `${tops.seal ?? 0}px` }"
-        >
-          <PhotoCrop
-            compact
-            magnify
-            :src="photoUrl(closeUps.seal.photo)!"
-            :box="closeUps.seal.box"
-            :margin="closeUps.seal.margin"
-            :photo-number="closeUps.seal.photo"
-            caption="Where we read the seal"
-            label="The seal"
-          />
+          <!-- Where the ID or the seal was read, cut from the photo, with the loupe; absent without a usable box. -->
+          <div v-if="closeUp(row.key)" class="qs-ledger__crop">
+            <PhotoCrop
+              compact
+              magnify
+              :src="closeUp(row.key)!.url"
+              :box="closeUp(row.key)!.source.box"
+              :margin="closeUp(row.key)!.source.margin"
+              :photo-number="closeUp(row.key)!.source.photo"
+              :caption="closeUp(row.key)!.caption"
+              :label="closeUp(row.key)!.label"
+            />
+          </div>
         </div>
       </div>
     </div>

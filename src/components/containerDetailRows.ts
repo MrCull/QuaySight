@@ -83,7 +83,7 @@ function absent(label: string, absentText: string, certainty: CertaintyLabel): D
 
 /**
  * The LENGTH row when the shape of a side photo has a say (ticket #66): the shape's estimate when no
- * Confident code decided, or the code's length Uncertain when the shape disagrees. Null: the row stands.
+ * Confident code decided, or the code's length with a note of what the shape suggested. Null: the row stands.
  */
 function lengthRow(record: InspectionRecord): DetailRow | null {
   const chosen = chosenLength(record)
@@ -99,13 +99,14 @@ function lengthRow(record: InspectionRecord): DetailRow | null {
     }
   }
   if (chosen.alternative !== undefined) {
+    // A Confident code decides; the shape is only an estimate, so it is a note, not an alternative.
     return {
       label: 'LENGTH',
       value: text,
       absentText: NOT_VISIBLE,
       ...DECODED,
-      certainty: 'Uncertain',
-      note: `Also possible: ${chosen.alternative} ft.`,
+      certainty: record.sizeCode?.certainty ?? 'Confident',
+      note: `The shape in the photo suggested ${chosen.alternative} ft; the size code decides.`,
     }
   }
   return null

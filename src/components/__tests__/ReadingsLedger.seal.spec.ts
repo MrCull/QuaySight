@@ -54,7 +54,7 @@ describe('the readings ledger’s seal row', () => {
     ).toBe('4217095')
     expect(card.get('.qs-cert').text()).toContain('Confident')
     // The crop sits level with the row at the ledger's edge, captioned with its photo.
-    const crop = wrapper.get('.qs-ledger__evidence .rs-crop img[alt="The seal, enlarged"]')
+    const crop = wrapper.get('.qs-ledger__crop .rs-crop img[alt="The seal, enlarged"]')
     expect(crop.attributes('src')).toBe('blob:door')
     expect(crop.element.closest('figure')!.querySelector('figcaption')!.textContent).toBe('Photo 1')
   })

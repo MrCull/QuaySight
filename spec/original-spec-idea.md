@@ -236,7 +236,8 @@ When the exact text cannot be represented by a finite choice list, the app shoul
 - Ask the model for the container's length (20, 40 or 45 ft) from the cues visible on a side photo: the length-to-height proportion, the number of corrugated panels, a gooseneck tunnel or label (40 ft or more) and forklift pockets (20 ft only).
 - Cap the certainty of the shape estimate at **Confident** for 20 and 40 ft, and at **Likely** for 45 ft, so the hard 40-vs-45 call is never over-claimed.
 - Choose the length in this order: a Confident ISO size code; otherwise the shape estimate; otherwise the model's other length reading; otherwise 40 ft.
-- When the ISO code and the shape both give a reading and disagree, show the length as **Uncertain**, with the other length as the alternative, and show a warning under the ID saying the size code says one length and the photo shows another.
+- When a **Confident** ISO code and the shape disagree, the code decides: the length keeps the code's certainty, and the Length row notes in one line what the shape suggested. The shape of a container in a photo is an estimate; a confidently read code is not.
+- When a **Likely** code and the shape disagree, show the length as **Uncertain**, with the other length as the alternative, and show a warning under the ID saying the size code says one length and the photo shows another.
 - Decode the ISO size code into one plain-English line shown under the ID, e.g. "20 ft standard height, general purpose". The decoding is deterministic and makes no model call.
 
 **MUST** distinguish *printed* values from *decoded/inferred* properties and *calculated* quantities. The ISO code `45G1` means a standard-width 40-foot High Cube general-purpose container, not a 45-foot container.

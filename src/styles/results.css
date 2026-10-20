@@ -209,7 +209,7 @@ body {
   margin: 0;
 }
 /* Beside the readings the close-up is a glance, the loupe does the reading: no taller than space-8 × 2. */
-.qs-ledger__evidence .rs-crop__frame {
+.qs-ledger__crop .rs-crop__frame {
   max-width: min(100%, calc(var(--space-8) * 2 * var(--crop-aspect, 2)));
   margin-left: auto;
 }

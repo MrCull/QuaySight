@@ -22,15 +22,17 @@ describe('the ID row’s enlarged crop', () => {
 
   it('shows the crop of the photo beside the ID row, captioned with its photo', async () => {
     const wrapper = await mounted({ box: BOX }, 'blob:door')
-    const img = wrapper.get('.qs-ledger__evidence .rs-crop img')
+    const img = wrapper.get('.qs-ledger__crop .rs-crop img')
     expect(img.attributes('src')).toBe('blob:door')
     expect(img.attributes('alt')).toBe('The container ID, enlarged')
-    expect(wrapper.get('.qs-ledger__evidence .rs-crop figcaption').text()).toBe('Photo 1')
+    expect(wrapper.get('.qs-ledger__crop .rs-crop figcaption').text()).toBe('Photo 1')
   })
 
-  it('arrives with the ledger: it rises in beside its row', async () => {
+  it('arrives with its row: it sits inside the ID row, which rises in', async () => {
     const wrapper = await mounted({ box: BOX }, 'blob:door')
-    expect(wrapper.get('.qs-ledger__evidence').classes()).toContain('qs-rise')
+    const row = wrapper.get('.qs-ledger__row[data-row="id"]')
+    expect(row.find('.qs-ledger__crop').exists()).toBe(true)
+    expect(row.classes()).toContain('qs-rise')
   })
 
   it('shows no crop when the reading carries no box', async () => {

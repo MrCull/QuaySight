@@ -237,7 +237,7 @@ function mainFaceLabel(
     case 'rear-doors':
       return 'Doors'
     case 'front-end':
-      return 'Front end'
+      return 'Front end (no doors)'
     case 'long-side':
       return side === 'left' ? 'Left side' : side === 'right' ? 'Right side' : 'Long side'
     case 'not-container':

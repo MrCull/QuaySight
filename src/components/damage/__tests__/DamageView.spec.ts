@@ -12,7 +12,7 @@ describe('DamageView schematic', () => {
     expect(views).toHaveLength(1)
     expect(views[0]!.find('figcaption').text()).toContain('Rear and right side')
     expect(wrapper.find('.qs-schem__views-in > .qs-coverage__item--unseen').text()).toBe(
-      'Front and left side: not photographed',
+      'Front end (no doors) and left side: not photographed',
     )
   })
 

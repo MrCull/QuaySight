@@ -3,7 +3,7 @@
 The schematic is a neutral 3D drawing of the container, shown as **two fixed views**. Each view shows one end, one long side and the roof:
 
 - **Rear and right side**: the door end with locking bars and castings, and the right side.
-- **Front and left side**: the plain corrugated front wall, and the left side.
+- **Front end (no doors) and left side**: the plain corrugated front wall, and the left side.
 
 Together they show all six faces. The roof appears in both views but is always **greyed out** (`.qs-c-roof`, lower opacity): it is rarely photographed and must never compete with the faces that were. Tinted zones and drop pins show where the suspected damage is.
 

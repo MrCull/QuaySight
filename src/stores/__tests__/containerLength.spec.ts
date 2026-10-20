@@ -149,17 +149,13 @@ describe('container length from the survey', () => {
     expect(record.shapeLength).toMatchObject({ feet: 40, certainty: 'Confident' })
   })
 
-  it('keeps the code length, Uncertain, and warns when the shape disagrees', async () => {
+  it('lets a Confident code decide when the shape disagrees; the export still records the disagreement', async () => {
     const record = await runWith({
       size_type_code: CODE_22G1_CONFIDENT,
       shape_length: [['40_ft', 0.95]],
     })
     const exported = buildInspectionExport(record)
-    expect(exported.containerLength).toMatchObject({
-      feet: 20,
-      certainty: 'Uncertain',
-      alternative: 40,
-    })
+    expect(exported.containerLength).toEqual({ feet: 20, source: 'iso-code', alternative: 40 })
     expect(exported.conflicts.join(' ')).toMatch(/size code says 20 ft/)
   })
 })
