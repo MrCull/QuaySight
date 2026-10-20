@@ -53,12 +53,10 @@ describe('the readings ledger’s seal row', () => {
         .join(''),
     ).toBe('4217095')
     expect(card.get('.qs-cert').text()).toContain('Confident')
-    // The crop sits under the number in the Seal key-facts tile.
-    const crop = wrapper.get('[data-tile="seal"] .rs-crop img[alt="The seal, enlarged"]')
+    // The crop sits level with the row at the ledger's edge, captioned with its photo.
+    const crop = wrapper.get('.qs-ledger__evidence .rs-crop img[alt="The seal, enlarged"]')
     expect(crop.attributes('src')).toBe('blob:door')
-    expect(wrapper.get('[data-tile="seal"] .rs-crop figcaption').text()).toBe(
-      'Where we read the seal · Photo 1',
-    )
+    expect(crop.element.closest('figure')!.querySelector('figcaption')!.textContent).toBe('Photo 1')
   })
 
   it('has no check digit, and no verdict about the seal', async () => {

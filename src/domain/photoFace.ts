@@ -67,7 +67,7 @@ const SHOWS_QUESTIONS: { name: string; face: PhotoFace; instructions: string }[]
     name: 'shows_rear_doors',
     face: 'rear-doors',
     instructions:
-      'Does this photo show any of the container door end (door leaves, locking bars, cams or hinges), even if it is not the main subject?',
+      'Does this photo show any of the container door end, even if it is not the main subject? The doors are known by their vertical locking bars with handles, cams and hinges. Markings, the container ID or a hazard placard on an end wall do not make it the doors: an end wall with none of that hardware is the front end.',
   },
   {
     name: 'shows_long_side',
@@ -79,7 +79,7 @@ const SHOWS_QUESTIONS: { name: string; face: PhotoFace; instructions: string }[]
     name: 'shows_front_end',
     face: 'front-end',
     instructions:
-      'Does this photo show any of the front end: the end wall opposite the doors, a short corrugated or flat panel between two corner posts with no doors, hinges or locking bars? Count it even if it is seen at an angle beside a long side and is not the main subject.',
+      'Does this photo show any of the front end: the end wall opposite the doors, a short corrugated or flat panel between two corner posts with no locking bars, handles or hinges? It may carry the container ID, the size-type code or a hazard placard. Count it even if it is seen at an angle beside a long side and is not the main subject.',
   },
 ]
 
@@ -95,7 +95,8 @@ export const FACE_QUESTION: ChoiceQuestion = {
   choices: [
     {
       value: 'rear_doors',
-      description: 'The door end: two door leaves with locking bars, cams and hinges.',
+      description:
+        'The door end: two door leaves with vertical locking bars, handles, cams and hinges. Markings alone do not make an end the doors.',
     },
     {
       value: 'long_side',
@@ -104,7 +105,7 @@ export const FACE_QUESTION: ChoiceQuestion = {
     {
       value: 'front_end',
       description:
-        'The front end: the short end wall opposite the doors, corrugated or flat, with no doors, hinges or locking bars.',
+        'The front end: the short end wall opposite the doors, corrugated or flat, with no locking bars, handles or hinges. It may carry the container ID, size-type code or a hazard placard.',
     },
     { value: 'roof', description: 'The roof, seen from above.' },
     {

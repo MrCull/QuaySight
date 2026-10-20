@@ -584,8 +584,6 @@
 .qs-keytile__value--quiet { color: var(--ink-muted); }
 .qs-keytile__skeleton { display: block; height: var(--space-4); width: 60%; }
 .qs-keytile__extra { display: flex; flex-wrap: wrap; gap: var(--space-2); }
-/* The close-up of where the ID or seal was read, under the reading; its own control (tap for the full photo, hover loupe). */
-.qs-keytile__crop { display: block; width: 100%; max-width: calc(var(--space-8) * 4); cursor: auto; }
 .qs-keytile__notes { color: var(--ink-muted); }
 /* The section a tile leads to is outlined for a moment after the jump; under reduced motion the outline is still. */
 .qs-flash { animation: qs-flash 1.8s ease-out; }
@@ -671,7 +669,8 @@
 .qs-ledger { container-type: inline-size; display: grid; gap: var(--space-4); min-width: 0; }
 .qs-ledger__head { display: flex; align-items: center; justify-content: space-between; gap: var(--space-4); flex-wrap: wrap; }
 .qs-ledger__title { font: 600 28px/32px var(--font-display); letter-spacing: 0.01em; color: var(--ink); }
-.qs-ledger__body { --ledger-door: calc(var(--space-8) * 7 + var(--space-6)); --ledger-link: var(--space-6); --ledger-crop: calc(var(--space-8) + var(--space-6)); display: grid; grid-template-columns: minmax(0, 0.75fr) var(--ledger-door) minmax(0, 1.7fr); padding: var(--space-5); background: var(--surface-sunken); border: 1px solid var(--line); border-radius: var(--radius-lg); }
+/* The door gives way first as the ledger narrows (480px down to 400px), so the rows and close-ups keep their room. */
+.qs-ledger__body { --ledger-door: clamp(calc(var(--space-8) * 6 + var(--space-4)), calc(100cqi - var(--space-8) * 14), calc(var(--space-8) * 7 + var(--space-6))); --ledger-link: var(--space-6); --ledger-crop: calc(var(--space-8) * 2); display: grid; grid-template-columns: minmax(calc(var(--space-8) * 3.5), 0.5fr) var(--ledger-door) minmax(0, 1.7fr); padding: var(--space-5); background: var(--surface-sunken); border: 1px solid var(--line); border-radius: var(--radius-lg); }
 .qs-ledger__door { min-width: 0; }
 .qs-ledger__side { position: relative; min-width: 0; min-height: var(--ledger-h, 0); }
 .qs-ledger__side--right { padding-right: calc(var(--ledger-crop) + var(--space-4)); }
@@ -705,7 +704,7 @@
 .qs-ledger__more-title { grid-column: 1 / -1; margin: 0 0 var(--space-1); color: var(--ink-muted); }
 .qs-ledger__more .qs-field { grid-template-columns: minmax(96px, 128px) minmax(0, 1fr) auto; }
 /* Narrow: the door on top, then the readings as a list; no links. Each row takes two lines (icon, label, certainty; then the value), the crops follow the readings. */
-@container (max-width: 960px) {
+@container (max-width: 1300px) {
   .qs-ledger__body { grid-template-columns: minmax(0, 1fr); gap: var(--space-3); }
   .qs-ledger__door { order: -1; justify-self: center; width: 100%; max-width: calc(var(--space-8) * 6); margin-bottom: var(--space-2); }
   .qs-ledger__side, .qs-ledger__side--right { display: grid; gap: var(--space-3); padding: 0; min-height: 0; }

@@ -7,10 +7,10 @@ The readings of one container, laid out around a `DoorFace`: each reading sits l
 - `div.qs-ledger__head`: `h2.qs-ledger__title` ("Readings") and the `UnitsToggle`.
 - `div.qs-ledger__body`, three columns on the `surface-sunken` well:
   - `div.qs-ledger__side.qs-ledger__side--left`: readings painted on the **left** leaf (DG placard, approval and CSC plates) and the high-container caution. Each row takes two lines, right-aligned against the door: icon and label, then the value and its `CertaintyChip`.
-  - `div.qs-ledger__door`: the `DoorFace`, drawn 480px wide (`--ledger-door`).
+  - `div.qs-ledger__door`: the `DoorFace`, drawn 480px wide, giving way to 400px as the ledger narrows (`--ledger-door`), so the rows and close-ups keep their room.
   - `div.qs-ledger__side.qs-ledger__side--right`: readings painted on the **right** leaf, top to bottom: Container ID, size-type code, max gross, tare, payload, cubic capacity, seal. Each row is one line: icon, label, value, `CertaintyChip`. A fixed value column keeps the chips in a column.
   - In each side, `svg.qs-ledger__links`: one dashed `path` per linked row, from a dot on the door's edge at the slot's height to the middle of its row.
-  - Optionally, at the right edge, `div.qs-ledger__evidence` crops (`qs-evidence`), level with the rows they back up. The main screen shows the ID and seal close-ups in their key-facts tiles instead (`KeyFactTile`), where they have room to be read and carry the loupe; use the ledger's evidence column for a reading whose close-up has no tile.
+  - At the right edge, `div.qs-ledger__evidence` crops (`qs-evidence`), 128px wide and no taller than 128px, level with the rows they back up: the close-ups of where the ID and the seal were read. They are a glance; the hover `Loupe` does the reading.
 - `div.qs-ledger__more`: readings that are not painted on the doors, as plain `FieldRow`s under `p.qs-ledger__more-title` ("Not painted on the doors"): what was decoded from the size-type code (length, height, width, type), the model's answers (reefer, open top, tank, flat rack) and the markings looked for but not seen.
 
 ### A row
@@ -29,8 +29,8 @@ Rows that land on the jump targets of the key-facts tiles carry `data-detail` an
 `button.qs-evidence` inside `div.qs-ledger__evidence` (`--y` like a row): `span.qs-evidence__frame` holding the region cut from the photo, then `span.qs-evidence__cap` with the `photo` glyph and the photo's number. One crop can back several rows (the weight block). A crop appears only when the model gave a usable box for that reading; no box, no crop, and no empty frame. Tapping it opens the full photo with the region outlined (`PhotoViewer`, `qs-photo-region`), as `SealCard`'s crop does. The crop is the photo as uploaded: never drawn on.
 
 ## Layout
-- **Level with the paint.** A row's ideal top is its slot's height on the drawn door minus half a row (`slot y × 480 ÷ 600 − 16`). Rows never overlap: going down each side, a row starts at its ideal top or `space-2` below the row above, whichever is lower. Its link bends to reach it. Rows with no slot (a calculated payload) take the next free place in order and have no link.
-- **Narrow** (the ledger's own width under 960px, a container query): the door goes first, at most 384px wide, then the readings as a list. Each row becomes two lines, as `FieldRow` does on a phone: icon, label and certainty, then the value and its note. No links; the crops follow the readings.
+- **Level with the paint.** A row's ideal top is its slot's height on the drawn door minus half a row (`slot y × door width ÷ 600 − 16`). Rows never overlap: going down each side, a row starts at its ideal top or `space-2` below the row above, whichever is lower. Its link bends to reach it. Rows with no slot (a calculated payload) take the next free place in order and have no link.
+- **Narrow** (the ledger's own width under 1300px, where the rows and their close-ups no longer fit beside the door, a container query): the door goes first, at most 384px wide, then the readings as a list. Each row becomes two lines, as `FieldRow` does on a phone: icon, label and certainty, then the value and its note. No links; the crops follow the readings.
 
 ## States
 - **Reading**: while the inspection runs the door is drawn bare and each row shows its icon and label with a `qs-skeleton` bar in place of the value. No chips, no crops.

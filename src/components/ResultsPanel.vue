@@ -15,11 +15,16 @@ import { useUnits } from '../composables/units'
 import { DETAIL_IDS } from '../composables/detailJump'
 import { DIFFERENT_CONTAINERS_MESSAGE, droppedPhotoMessage } from '../domain/combinePhotos'
 import { causeSentence } from '../domain/requestFailure'
+import { idCloseUp, sealCloseUp } from '../domain/closeUpSources'
 
 const store = useInspectionStore()
 const record = computed(() => store.record)
 
 const photoUrls = computed(() => store.photos.map((p) => p.url))
+
+// Close-ups (ticket #85): the area found for the ID and the seal, cut from the photo whose reading won.
+const idClose = computed(() => (record.value ? idCloseUp(record.value) : null))
+const sealClose = computed(() => (record.value ? sealCloseUp(record.value) : null))
 
 // "Recorded demonstration: [provider/model]" (spec 13). Shown only for recorded runs.
 const recordedLabel = computed(() => {
@@ -213,6 +218,8 @@ const showExplanation = computed(() => idState.value === 'uncertain' || idState.
         v-if="showLedger"
         :record="record"
         :parts="ledgerParts"
+        :photos="photoUrls"
+        :close-ups="{ id: idClose, seal: sealClose }"
         :busy="running && !idLanded"
         :class="['qs-rise', { 'qs-arrived': arrivedEarly }]"
       >

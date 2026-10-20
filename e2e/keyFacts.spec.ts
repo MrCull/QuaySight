@@ -59,8 +59,7 @@ test.describe('key-facts tiles in demo mode', () => {
     await startDemo(page)
     await page.locator('#stage.qs-arrived').waitFor()
 
-    // The tile's close-up is its own control: click the tile away from it.
-    await tile(page, 'id').click({ position: { x: 8, y: 8 } })
+    await tile(page, 'id').click()
     await expect(page.locator('#detail-id')).toBeFocused()
     await expect(page.locator('#detail-id')).toBeInViewport()
     await expect(page.locator('#detail-id')).toHaveClass(/qs-flash/)
