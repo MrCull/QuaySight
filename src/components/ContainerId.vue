@@ -1,94 +1,17 @@
 <script setup lang="ts">
 import { computed } from 'vue'
-import type { CertaintyLabel, ContainerIdReading } from '../domain/inspection'
-import { UNREAD } from '../domain/certainty'
-import { NOT_COMMON_OWNER_TEXT, ownerIsListed } from '../domain/idConfidence'
+import type { ContainerIdReading } from '../domain/inspection'
+import { CHECK_DIGIT_INDEX, idCells, idLayout, idSpelled, idTags } from './idDisplay'
 
 const props = defineProps<{ reading: ContainerIdReading }>()
 
-/** Zero-based position of the check digit: the eleventh of the eleven ID characters. */
-const CHECK_DIGIT_INDEX = 10
-
-interface Cell {
-  ch: string
-  index: number
-  notRead: boolean
-  state: string | undefined
-}
-
 // Layout mirrors the printed ID: owner code + category (4), serial in groups of 3 and 3, then the check digit.
 // Positions the photo did not show are marked with a dot and never filled in.
-const chars = computed(() => {
-  const value = props.reading.value.replace(/\s+/g, '').toUpperCase().padEnd(11, UNREAD)
-  return value
-    .slice(0, 11)
-    .split('')
-    .map((ch, index): Cell => {
-      const level = props.reading.positionCertainty?.[index] ?? props.reading.certainty
-      const notRead = ch === UNREAD
-      return {
-        ch: notRead ? '·' : ch,
-        index,
-        notRead,
-        state: notRead ? 'unknown' : charState(level),
-      }
-    })
-})
-
-const layout = computed(() => {
-  const all = chars.value
-  let index = 0
-  const groups = [all.slice(0, 4), all.slice(4, 7), all.slice(7, 10)].map((group) =>
-    group.map((c) => ({ ...c, index: index++ })),
-  )
-  return { groups, check: all[10] ?? UNREAD_CELL }
-})
-
-const UNREAD_CELL: Cell = { ch: '·', index: 10, notRead: true, state: 'unknown' }
-
-const incomplete = computed(() => chars.value.some((c) => c.notRead))
-
-// The check digit passes but the owner code is not on the list: that is why the ID is Likely at best.
-const ownerNotListed = computed(
-  () =>
-    !incomplete.value &&
-    props.reading.checkDigitValid &&
-    !ownerIsListed(chars.value.map((c) => c.ch).join('')),
-)
-
-function charState(level: CertaintyLabel): string | undefined {
-  if (level === 'Confident') return undefined
-  if (level === 'Likely') return 'likely'
-  if (level === 'Uncertain') return 'uncertain'
-  return 'unknown'
-}
-
-// Provenance tag: a manifest match, a reading from the image after a manifest check, or the first printed reading.
-const origin = computed(() => {
-  if (props.reading.provenance === 'manifest') return 'manifest'
-  return props.reading.manifestChecked ? 'image' : 'printed'
-})
-
-const spelled = computed(() => {
-  const r = props.reading
-  const spelledChars = chars.value.map((c) => {
-    if (c.notRead) return `position ${c.index + 1} not read`
-    if (c.state === 'uncertain' || c.state === 'unknown' || c.state === 'likely') {
-      return `${c.ch} (${c.state === 'likely' ? 'likely' : 'uncertain'})`
-    }
-    return c.ch
-  })
-  const body = spelledChars.slice(0, 10).join(' ')
-  const check = chars.value[10] ?? UNREAD_CELL
-  const checkPart = check.notRead ? 'check digit not read' : `check digit ${check.ch}`
-  const note =
-    incomplete.value || r.calculatedCheckDigit === null
-      ? 'check digit not checked, ID incomplete'
-      : r.checkDigitValid
-        ? 'check digit valid'
-        : `check digit does not match, calculated ${r.calculatedCheckDigit}`
-  return `${body}, ${checkPart}, ${note}`
-})
+const cells = computed(() => idCells(props.reading))
+const layout = computed(() => idLayout(cells.value))
+// Provenance tag, check-digit result and owner-code note.
+const tags = computed(() => idTags(props.reading, cells.value))
+const spelled = computed(() => idSpelled(props.reading, cells.value))
 </script>
 
 <template>
@@ -112,25 +35,9 @@ const spelled = computed(() => {
       >
     </div>
     <div class="qs-id__meta">
-      <span v-if="origin === 'manifest'" class="qs-prov qs-prov--manifest"
-        >Matched against manifest</span
-      >
-      <span v-else class="qs-prov">{{ origin === 'image' ? 'Read from image' : 'Printed' }}</span>
-      <span v-if="incomplete" class="qs-prov">ID incomplete, check digit not checked</span>
-      <span v-else :class="['qs-prov', { 'qs-prov--calculated': reading.checkDigitValid }]">
-        {{ reading.checkDigitValid ? 'Check digit valid' : 'Check digit does not match' }}
-      </span>
-      <span v-if="ownerNotListed" class="qs-prov">{{ NOT_COMMON_OWNER_TEXT }}</span>
-      <span
-        v-if="
-          !incomplete &&
-          !reading.checkDigitValid &&
-          reading.observedCheckDigit !== null &&
-          reading.calculatedCheckDigit !== null
-        "
-        class="qs-prov qs-prov--calculated"
-        >Calculated {{ reading.calculatedCheckDigit }}</span
-      >
+      <span v-for="tag in tags" :key="tag.text" :class="['qs-prov', tag.modifier]">{{
+        tag.text
+      }}</span>
     </div>
   </div>
 </template>

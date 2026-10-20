@@ -18,6 +18,8 @@ const props = defineProps<{
   margin?: number
   /** Several photos or one: the 1-based photo the crop is cut from. The caption names it. */
   photoNumber?: number | null
+  /** Beside a reading in the ledger: no margin above, the caption is just the photo, no tap hint. */
+  compact?: boolean
 }>()
 
 const size = ref<{ width: number; height: number } | null>(null)
@@ -39,9 +41,10 @@ const frame = computed(() =>
 
 // Tapping shows the whole photo with the area outlined; tapping again returns to the close-up.
 const full = ref(false)
-const fullCaption = computed(() =>
-  props.photoNumber ? `${props.caption} · Photo ${props.photoNumber}` : props.caption,
-)
+const fullCaption = computed(() => {
+  if (props.compact) return `Photo ${props.photoNumber ?? 1}`
+  return props.photoNumber ? `${props.caption} · Photo ${props.photoNumber}` : props.caption
+})
 const area = computed(() => {
   const b = usableIdBox(props.box)
   if (!b) return null
@@ -76,7 +79,11 @@ const imgStyle = computed(() => {
 </script>
 
 <template>
-  <figure v-if="usable && !failed" v-show="frame" class="rs-crop">
+  <figure
+    v-if="usable && !failed"
+    v-show="frame"
+    :class="['rs-crop', { 'rs-crop--compact': compact }]"
+  >
     <button
       type="button"
       class="rs-crop__tap"
@@ -123,7 +130,7 @@ const imgStyle = computed(() => {
       </span>
     </button>
     <figcaption class="rs-crop__caption qs-type-body-sm">{{ fullCaption }}</figcaption>
-    <p class="rs-crop__hint qs-type-caption">
+    <p v-if="!compact" class="rs-crop__hint qs-type-caption">
       {{ full ? 'Tap to return to the close-up' : 'Tap for the full photo' }}
     </p>
   </figure>
@@ -186,6 +193,13 @@ const imgStyle = computed(() => {
 .rs-crop__caption {
   margin: var(--space-2) 0 0;
   color: var(--ink-muted);
+}
+.rs-crop--compact {
+  margin: 0;
+}
+.rs-crop--compact .rs-crop__caption {
+  margin-top: var(--space-1);
+  text-align: right;
 }
 .rs-crop__hint {
   margin: 0;

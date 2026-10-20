@@ -77,10 +77,10 @@ body {
 .rs-notices:empty {
   display: none;
 }
-/* The readings column is narrower (8 x 64px) than the damage beside it. */
+/* One column: the readings ledger, the cards for what is not painted on the doors, then damage at full width. */
 .rs-detail {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(0, calc(var(--space-8) * 8));
+  grid-template-columns: minmax(0, 1fr);
   gap: var(--space-6);
   align-items: start;
 }
@@ -185,8 +185,28 @@ body {
 .rs-right {
   position: relative;
   display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, calc(var(--space-8) * 8)), 1fr));
   gap: var(--space-4);
-  align-content: start;
+  align-items: start;
+}
+.rs-right > .qs-manifest,
+.rs-right > .rs-exports {
+  grid-column: 1 / -1;
+}
+.rs-right:empty {
+  display: none;
+}
+/* The ledger's skeleton in place of a value while the ID is read: a reading's width, a line's height. */
+.rs-ledger-skeleton {
+  display: block;
+  width: calc(var(--space-8) * 2);
+  height: var(--space-4);
+}
+.qs-ledger .rs-explain {
+  margin-top: 0;
+}
+.qs-ledger__note .rs-also {
+  margin: 0;
 }
 .rs-damage {
   grid-column: 1/-1;

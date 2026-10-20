@@ -17,25 +17,26 @@ async function mounted(containerId: Partial<ContainerIdReading>, photoUrl: strin
   return mount(ResultsPanel)
 }
 
-describe('the ID card’s enlarged crop', () => {
+describe('the ID row’s enlarged crop', () => {
   beforeEach(() => setActivePinia(createPinia()))
 
-  it('shows the crop of the photo beside the ID, captioned "Where we read the ID"', async () => {
+  it('shows the crop of the photo beside the ID row, captioned with its photo', async () => {
     const wrapper = await mounted({ box: BOX }, 'blob:door')
-    const img = wrapper.get('.rs-crop img')
+    const img = wrapper.get('.qs-ledger__evidence .rs-crop img')
     expect(img.attributes('src')).toBe('blob:door')
-    expect(wrapper.get('.rs-crop figcaption').text()).toBe('Where we read the ID · Photo 1')
+    expect(img.attributes('alt')).toBe('The container ID, enlarged')
+    expect(wrapper.get('.qs-ledger__evidence .rs-crop figcaption').text()).toBe('Photo 1')
   })
 
-  it('arrives with the card: it rises in as part of the card, like the alternatives', async () => {
+  it('arrives with the ledger: it rises in beside its row', async () => {
     const wrapper = await mounted({ box: BOX }, 'blob:door')
-    expect(wrapper.get('.rs-crop').classes()).toContain('qs-rise')
+    expect(wrapper.get('.qs-ledger__evidence').classes()).toContain('qs-rise')
   })
 
   it('shows no crop when the reading carries no box', async () => {
     const wrapper = await mounted({ box: undefined }, 'blob:door')
     expect(wrapper.find('.rs-crop').exists()).toBe(false)
-    expect(wrapper.text()).not.toContain('Where we read the ID')
+    expect(wrapper.find('img[alt="The container ID, enlarged"]').exists()).toBe(false)
   })
 
   it('shows no crop when there is no photo to cut it from', async () => {

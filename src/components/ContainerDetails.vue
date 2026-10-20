@@ -8,7 +8,16 @@ import UnitsToggle from './UnitsToggle.vue'
 import { causeSentence } from '../domain/requestFailure'
 import { useUnits } from '../composables/units'
 
-const props = defineProps<{ record: InspectionRecord }>()
+const props = withDefaults(
+  defineProps<{
+    record: InspectionRecord
+    /** Rows shown elsewhere (the readings ledger), by label: left out here so nothing is said twice. */
+    omit?: readonly string[]
+    /** The Metric / Imperial toggle in this card's heading; off where the ledger carries it. */
+    unitsToggle?: boolean
+  }>(),
+  { omit: () => [], unitsToggle: true },
+)
 
 // Metric or Imperial: display only, remembered in this browser. The record and the exports never change.
 const { units, set: setUnits } = useUnits()
@@ -31,7 +40,9 @@ const detailsFailure = computed(() =>
 )
 
 // Each value keeps its source label: Printed, Decoded from ISO, Calculated or Model-selected (spec 4.3, 4.4).
-const rows = computed(() => groups.value.flatMap((g) => g.rows))
+const rows = computed(() =>
+  groups.value.flatMap((g) => g.rows).filter((row) => !props.omit.includes(row.label)),
+)
 const notAssessed = computed(() => groups.value.flatMap((g) => g.notAssessed ?? []))
 </script>
 
@@ -39,7 +50,11 @@ const notAssessed = computed(() => groups.value.flatMap((g) => g.notAssessed ?? 
   <div class="rs-card qs-rise" style="--i: 1">
     <div class="rs-card__head">
       <span class="rs-k">Container details</span>
-      <UnitsToggle v-if="assessed" :model-value="units" @update:model-value="setUnits" />
+      <UnitsToggle
+        v-if="assessed && unitsToggle"
+        :model-value="units"
+        @update:model-value="setUnits"
+      />
     </div>
     <p v-if="detailsFailure" class="rs-note qs-type-body-sm">
       The container details could not be read in this inspection.

@@ -2,17 +2,16 @@
 import { computed } from 'vue'
 import { useInspectionStore } from '../stores/inspection'
 import { recordedDemonstrationLabel } from '../domain/providers'
-import { idResultState, UNREAD, visibleAlternatives } from '../domain/certainty'
+import { idResultState, UNREAD } from '../domain/certainty'
 import type { StageId } from '../domain/runStages'
-import CertaintyChip from './CertaintyChip.vue'
-import ContainerId from './ContainerId.vue'
 import ManifestRetry from './ManifestRetry.vue'
-import PhotoCrop from './PhotoCrop.vue'
-import SealCard from './SealCard.vue'
 import ContainerDetails from './ContainerDetails.vue'
 import ContainerMarkings from './ContainerMarkings.vue'
 import ExportActions from './ExportActions.vue'
 import KeyFacts from './KeyFacts.vue'
+import ReadingsLedger from './ReadingsLedger.vue'
+import { LEDGER_DETAIL_LABELS, ledgerModel } from './ledgerRows'
+import { useUnits } from '../composables/units'
 import { DETAIL_IDS } from '../composables/detailJump'
 import { DIFFERENT_CONTAINERS_MESSAGE, droppedPhotoMessage } from '../domain/combinePhotos'
 import { causeSentence } from '../domain/requestFailure'
@@ -21,11 +20,10 @@ import { idCloseUp, sealCloseUp } from '../domain/closeUpSources'
 const store = useInspectionStore()
 const record = computed(() => store.record)
 
-const photoUrl = (n: number | undefined) => (n ? store.photos[n - 1]?.url : undefined)
+const photoUrls = computed(() => store.photos.map((p) => p.url))
 
 // Close-ups (ticket #85): the area found for the ID and the seal, cut from the photo whose reading won.
 const idClose = computed(() => (record.value ? idCloseUp(record.value) : null))
-const idCloseUrl = computed(() => photoUrl(idClose.value?.photo))
 const sealClose = computed(() => (record.value ? sealCloseUp(record.value) : null))
 
 // "Recorded demonstration: [provider/model]" (spec 13). Shown only for recorded runs.
@@ -78,23 +76,25 @@ function failureBody(part: StageId): string {
   return `${failure ? `${causeSentence(failure)} ` : ''}Everything else found is shown.`
 }
 
-// Stagger position of each card in the arrival choreography (read by .qs-rise as --i).
-const STAGGER = { card: 0, alternative: 1, crop: 1, explanation: 2 } as const
+// The readings ledger: the door drawing with each reading beside its painted place. The rows it shows
+// are left out of the Container details and Markings cards below it.
+const { units } = useUnits()
+const ledgerParts = computed(() => ({ id: idLanded.value, details: detailsLanded.value }))
+const ledger = computed(() =>
+  record.value ? ledgerModel(record.value, units.value, ledgerParts.value) : null,
+)
+const showLedger = computed(
+  () => (running.value && !idLanded.value) || (ledger.value?.rows.length ?? 0) > 0,
+)
+const markingOmit = computed(() => ledger.value?.markingLabels ?? [])
+// The key-facts Placards tile leads to the ledger's DG placard row when there is one, else to the card.
+const markingsInLedger = computed(
+  () => ledger.value?.rows.some((r) => r.key === 'placard') ?? false,
+)
 
 // Plain explanation for the uncertain, partial and insufficient-evidence states (spec 5.4, 8.4).
 const idState = computed(() =>
   record.value?.containerId ? idResultState(record.value.containerId) : null,
-)
-// The size code in plain words, decoded from the ISO code with no model call (ticket #66). Said only when
-// the code itself was read at Confident or Likely.
-const sizeLine = computed(() => {
-  const size = record.value?.sizeCode
-  return size && (size.certainty === 'Confident' || size.certainty === 'Likely')
-    ? size.summary
-    : null
-})
-const alternatives = computed(() =>
-  record.value?.containerId ? visibleAlternatives(record.value.containerId) : [],
 )
 /**
  * A full container number as it is printed: owner code, serial, check digit ("APHU 658684 7").
@@ -119,7 +119,6 @@ const remainsUncertain = computed(() => {
     : 'some characters are hard to read, so the reading could be one of a few things.'
 })
 const showExplanation = computed(() => idState.value === 'uncertain' || idState.value === 'partial')
-const showInsufficient = computed(() => idState.value === 'insufficient')
 </script>
 
 <template>
@@ -213,116 +212,52 @@ const showInsufficient = computed(() => idState.value === 'insufficient')
     <!-- The headline at a glance: Reading… placeholders from the start, filled in as each part arrives. -->
     <KeyFacts />
 
-    <!-- Detail: damage (the slot) wide on the left, the readings narrower on the right. -->
+    <!-- Detail: the readings ledger, the cards for what is not painted on the doors, then damage at full width. -->
     <div class="rs-detail">
-      <div class="rs-detail__main"><slot /></div>
-      <section class="rs-right" aria-live="polite">
-        <div v-if="running && !idLanded" class="rs-card" aria-busy="true">
-          <div class="rs-card__head"><span class="rs-k">Container ID</span></div>
-          <div class="qs-skeleton rs-id-skeleton"></div>
-        </div>
-
-        <div
-          v-if="idLanded && record?.containerId"
-          :id="DETAIL_IDS.id"
-          tabindex="-1"
-          data-detail
-          :class="['rs-card', 'qs-rise', { 'qs-arrived': arrivedEarly }]"
-          :style="{ '--i': STAGGER.card }"
-        >
-          <div class="rs-card__head">
-            <span class="rs-k">Container ID</span>
-            <CertaintyChip :level="record.containerId.certainty" />
-          </div>
-          <p v-if="showInsufficient" class="rs-note qs-type-body-sm" role="status">
-            ID not readable in this photo
+      <ReadingsLedger
+        v-if="showLedger"
+        :record="record"
+        :parts="ledgerParts"
+        :photos="photoUrls"
+        :close-ups="{ id: idClose, seal: sealClose }"
+        :busy="running && !idLanded"
+        :class="['qs-rise', { 'qs-arrived': arrivedEarly }]"
+      >
+        <div v-if="idLanded && showExplanation" class="rs-explain qs-type-body-sm">
+          <p>
+            <b>Best interpretation: </b>
+            <span class="qs-type-data">{{ groupedId(bestInterpretation) }}</span>
           </p>
-          <template v-else>
-            <ContainerId :reading="record.containerId" />
-            <p v-if="sizeLine" class="rs-note qs-type-body-sm">{{ sizeLine }}</p>
-
-            <!-- Where the ID was read, cut from the photo on screen; absent when the reading has no usable box. -->
-            <PhotoCrop
-              v-if="idClose && idCloseUrl"
-              class="qs-rise"
-              :style="{ '--i': STAGGER.crop }"
-              :src="idCloseUrl"
-              :box="idClose.box"
-              :margin="idClose.margin"
-              :photo-number="idClose.photo"
-              caption="Where we read the ID"
-              label="The container ID"
-            />
-
-            <p
-              v-for="alt in alternatives"
-              :key="alt"
-              class="rs-also qs-rise qs-type-body-sm"
-              :style="{ '--i': STAGGER.alternative }"
-            >
-              Also possible: <span class="qs-type-data">{{ groupedId(alt) }}</span>
-            </p>
-
-            <div
-              v-if="showExplanation"
-              class="rs-explain qs-rise qs-type-body-sm"
-              :style="{ '--i': STAGGER.explanation }"
-            >
-              <p>
-                <b>Best interpretation: </b>
-                <span class="qs-type-data">{{ groupedId(bestInterpretation) }}</span>
-              </p>
-              <p><b>What remains uncertain:</b> {{ remainsUncertain }}</p>
-            </div>
-          </template>
+          <p><b>What remains uncertain:</b> {{ remainsUncertain }}</p>
         </div>
+      </ReadingsLedger>
 
-        <div
-          v-else-if="idLanded && record && !differentContainers"
-          :id="DETAIL_IDS.id"
-          tabindex="-1"
-          data-detail
-          :class="['rs-card', 'qs-rise', { 'qs-arrived': arrivedEarly }]"
-          :style="{ '--i': STAGGER.card }"
-        >
-          <div class="rs-card__head">
-            <span class="rs-k">Container ID</span>
-            <CertaintyChip level="Can't tell" />
-          </div>
-          <p class="rs-note qs-type-body-sm">The container ID could not be read from this photo.</p>
-        </div>
-
-        <!-- The seal, under the ID. Absent when the survey did not assess it. -->
-        <SealCard
-          v-if="idLanded && record?.seal"
-          :id="DETAIL_IDS.seal"
-          tabindex="-1"
-          data-detail
-          :reading="record.seal"
-          :photo-url="photoUrl(sealClose?.photo) ?? null"
-          :close-up="sealClose"
-          :class="['qs-rise', { 'qs-arrived': arrivedEarly }]"
-          :style="{ '--i': STAGGER.card }"
-        />
-
+      <section class="rs-right" aria-live="polite">
         <!-- Live: a live call on the same model. Demo: the sample's own recorded check. Never a replay against another photo. -->
         <ManifestRetry v-if="store.canCheckManifest && !differentContainers" />
 
         <template v-if="record && detailsLanded">
-          <ContainerDetails :record="record" :class="{ 'qs-arrived': detailsEarly }" />
-          <ContainerMarkings
-            :id="DETAIL_IDS.markings"
-            tabindex="-1"
-            data-detail
+          <ContainerDetails
             :record="record"
+            :omit="LEDGER_DETAIL_LABELS"
+            :units-toggle="false"
+            :class="{ 'qs-arrived': detailsEarly }"
+          />
+          <ContainerMarkings
+            :id="markingsInLedger ? undefined : DETAIL_IDS.markings"
+            :tabindex="markingsInLedger ? undefined : -1"
+            :data-detail="markingsInLedger ? undefined : ''"
+            :record="record"
+            :omit="markingOmit"
             :photo="store.photo?.url ?? null"
-            :photos="store.photos.map((p) => p.url)"
+            :photos="photoUrls"
             :class="{ 'qs-arrived': detailsEarly }"
           />
         </template>
 
         <ExportActions v-if="!running" />
       </section>
+      <div class="rs-detail__main"><slot /></div>
     </div>
   </div>
 </template>
