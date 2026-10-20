@@ -699,8 +699,9 @@
 .qs-ledger__side--right .qs-ledger__note { contain: inline-size; }
 .qs-ledger__note code { font: 500 12px/16px var(--font-mono); color: var(--ink); }
 .qs-ledger__note u { text-decoration: none; color: var(--cert-uncertain-fg); }
-/* The close-up a reading was read from, right after its certainty, spanning the row's lines. */
-.qs-ledger__crop { grid-column: 5; grid-row: 1 / span 3; align-self: start; width: var(--ledger-crop); margin-left: var(--space-2); }
+/* The close-up a reading was read from, right after its certainty. It takes no height in the row (height 0, overflow visible):
+   it hangs down beside the rows below, which keep their places by the paint; the ledger's height still allows for it. */
+.qs-ledger__crop { grid-column: 5; grid-row: 1; align-self: start; width: var(--ledger-crop); height: 0; overflow: visible; margin-left: var(--space-2); }
 /* Readings that are not painted on the doors (decoded from the code, the model's answers, markings not seen) as FieldRows. */
 .qs-ledger__more { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, calc(var(--space-8) * 6)), 1fr)); column-gap: var(--space-6); align-items: start; }
 .qs-ledger__more-title { grid-column: 1 / -1; margin: 0 0 var(--space-1); color: var(--ink-muted); }
@@ -717,7 +718,7 @@
   .qs-ledger__row > .qs-ledger__value, .qs-ledger__side--left .qs-ledger__value { grid-area: value; justify-self: start; text-align: left; }
   .qs-ledger__row > .qs-cert, .qs-ledger__side--left .qs-ledger__row > .qs-cert { grid-area: chip; justify-self: end; }
   .qs-ledger__row > .qs-ledger__note, .qs-ledger__side--left .qs-ledger__note { grid-area: note; justify-content: flex-start; text-align: left; }
-  .qs-ledger__row > .qs-ledger__crop { grid-column: 1 / -1; grid-row: auto; margin-left: 0; }
+  .qs-ledger__row > .qs-ledger__crop { grid-column: 1 / -1; grid-row: auto; height: auto; margin-left: 0; }
 }
 /* Door face markings: the DG placard place (seen: the hazard diamond; not seen: a dashed outline) and the high-container caution stripes. */
 .qs-door__placard { fill: var(--hazard-bg); stroke: var(--hazard-fg); stroke-width: 2; }

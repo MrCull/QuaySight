@@ -94,13 +94,22 @@ function placeSide(side: HTMLElement | null, rows: { key: string; slot: string |
     if (r.slot) anchors.value[r.key] = SLOT_Y[r.slot as keyof typeof SLOT_Y] * scale
   })
   const last = rows.length - 1
-  return last < 0 ? 0 : placed[last]! + (els[last]?.offsetHeight ?? 0)
+  const bottom = last < 0 ? 0 : placed[last]! + (els[last]?.offsetHeight ?? 0)
+  // A close-up takes no height in its row; it hangs below it, so the side is as tall as the lowest one.
+  const hanging = els.map((el, i) => {
+    const crop = el?.querySelector<HTMLElement>('.qs-ledger__crop > *')
+    return crop ? placed[i]! + crop.offsetHeight : 0
+  })
+  return Math.max(bottom, ...hanging)
 }
 
 function layout() {
-  // A row that wraps (a long note, a font that loads late) moves the rows under it: watch every row.
+  // A row that wraps (a long note, a font that loads late) moves the rows under it: watch every row,
+  // and every close-up (its photo loads late).
   for (const el of [leftSide.value, rightSide.value]) {
-    el?.querySelectorAll<HTMLElement>('[data-row]').forEach((row) => observer?.observe(row))
+    el?.querySelectorAll<HTMLElement>('[data-row], .qs-ledger__crop > *').forEach((row) =>
+      observer?.observe(row),
+    )
   }
   const shownRight = reading.value ? SKELETON : right.value
   heights.value = {

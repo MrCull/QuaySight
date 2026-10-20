@@ -85,6 +85,12 @@ const SHOWS_QUESTIONS: { name: string; face: PhotoFace; instructions: string }[]
 
 /** A face counts as shown beside the main one when the model puts it above even odds. */
 const SHOWN_MIN = 0.5
+/**
+ * A long-side photo whose face answer gave the front end at least this much, with no doors in it, shows the
+ * front end too. At a corner the plain end beside a side is the hard call: a recorded Jev run of such a photo
+ * split the face 0.47 long side, 0.38 front end, with the doors at 0.34 and shows_front_end only at 0.51.
+ */
+const FRONT_BESIDE_SIDE_MIN = 0.25
 
 /** The survey's face question. Answer values are wire-safe names; readPhotoFace maps them back. */
 export const FACE_QUESTION: ChoiceQuestion = {
@@ -159,7 +165,7 @@ export function faceOf(answers: Record<string, SharedAnswer>): FaceReading | nul
     ...(subject ? { closeUpSubject: subject } : {}),
     probability,
     certainty: applyMargin(certaintyOfProbability(probability), probability, runnerUp),
-    ...shownBeside(face, answers),
+    ...shownBeside(face, answers, answer.probabilities),
   }
 }
 
@@ -170,6 +176,7 @@ export function faceOf(answers: Record<string, SharedAnswer>): FaceReading | nul
 function shownBeside(
   face: PhotoFace,
   answers: Record<string, SharedAnswer>,
+  faceOdds: Record<string, number>,
 ): { shown?: PhotoFace[] } {
   const faceKinds: PhotoFace[] = ['rear-doors', 'long-side', 'front-end']
   if (!faceKinds.includes(face)) return {}
@@ -180,7 +187,20 @@ function shownBeside(
       q.face !== face &&
       ((answers[q.name] as { probability: number }).probability ?? 0) >= SHOWN_MIN,
   )
-  return { shown: [face, ...others.map((q) => q.face)] }
+  const shown = [face, ...others.map((q) => q.face)]
+  // A side seen at a corner with an end and no doors: that end is the front end, even below even odds.
+  const doors = answers.shows_rear_doors
+  const noDoors = doors?.type !== 'predicate' || doors.probability < SHOWN_MIN
+  if (
+    face === 'long-side' &&
+    !shown.includes('front-end') &&
+    !shown.includes('rear-doors') &&
+    noDoors &&
+    (faceOdds.front_end ?? 0) >= FRONT_BESIDE_SIDE_MIN
+  ) {
+    shown.push('front-end')
+  }
+  return { shown }
 }
 
 declare module './survey' {
