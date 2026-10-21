@@ -1,7 +1,13 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import { useInspectionStore } from '../stores/inspection'
-import { buildKeyFacts, type KeyFactId, type PartState, type PartStates } from '../domain/keyFacts'
+import {
+  buildKeyFacts,
+  placardInDoubt,
+  type KeyFactId,
+  type PartState,
+  type PartStates,
+} from '../domain/keyFacts'
 import { RUN_STAGES, stageSettled, type StageId } from '../domain/runStages'
 import { DETAIL_IDS, jumpToDetail } from '../composables/detailJump'
 import CertaintyChip from './CertaintyChip.vue'
@@ -112,7 +118,10 @@ const progress = computed(() => {
           <span v-if="tile.severity" class="qs-keytile__extra">
             <SeverityBadge :severity="tile.severity" />
           </span>
-          <span v-if="tile.id === 'placards'" class="qs-keytile__extra">
+          <span
+            v-if="tile.id === 'placards' && !placardInDoubt(tile.certainty)"
+            class="qs-keytile__extra"
+          >
             <span class="qs-marking qs-marking--hazard">
               <i class="qs-glyph qs-glyph--hazard" aria-hidden="true"></i>
               <span>DG placard</span>

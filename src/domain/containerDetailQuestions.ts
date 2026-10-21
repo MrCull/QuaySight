@@ -103,7 +103,7 @@ export function containerDetailQuestions(): SharedQuestion[] {
     type: 'choice',
     name: names.dgPlacard,
     instructions:
-      'Is a dangerous-goods (DG) placard visible on the container: a diamond-shaped label with a symbol and a class number at its bottom corner? If one is visible, which class does it show?',
+      'Is a dangerous-goods (DG) placard visible on the container: a diamond-shaped label with a symbol and a class number at its bottom corner? A faded, scraped or partly removed label, or only the outline or residue left where one was, is not a placard. If one is visible, which class does it show?',
     choices: [
       { value: 'none', description: 'No dangerous-goods placard is visible' },
       ...Object.entries(DG_CLASSES).map(([n, c]) => ({

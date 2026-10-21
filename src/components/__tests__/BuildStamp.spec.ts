@@ -13,7 +13,7 @@ describe('Build stamp', () => {
         builtAt: '2026-10-17T10:49:31Z',
       },
     })
-    expect(wrapper.text()).toBe('Build 0e5cdc7 · 17 Oct 2026 10:49 UTC')
+    expect(wrapper.text()).toBe('Build 0e5cdc7 · 17 Oct 2026 10:49 UTC · Source on GitHub')
     const link = wrapper.get('a')
     expect(link.text()).toBe('0e5cdc7')
     expect(link.attributes('href')).toBe(
@@ -21,22 +21,30 @@ describe('Build stamp', () => {
     )
   })
 
-  it('reads "dev build" with no link when no commit is known', () => {
+  it('reads "dev build" with no commit link when no commit is known', () => {
     const wrapper = mount(BuildStamp, { props: { commit: null, builtAt: '2026-10-17T10:49:31Z' } })
-    expect(wrapper.text()).toBe('dev build')
-    expect(wrapper.find('a').exists()).toBe(false)
+    expect(wrapper.text()).toBe('dev build · Source on GitHub')
+    expect(wrapper.findAll('a').map((a) => a.text())).toEqual(['Source on GitHub'])
+  })
+
+  it('ends with a quiet link to the source on GitHub', () => {
+    const wrapper = mount(BuildStamp, { props: { commit: 'abcdef1234567' } })
+    const links = wrapper.findAll('a')
+    expect(links[links.length - 1]!.text()).toBe('Source on GitHub')
+    expect(links[links.length - 1]!.attributes('href')).toBe('https://github.com/MrCull/QuaySight')
   })
 
   it('shows the time in UTC whatever the local zone', () => {
     const wrapper = mount(BuildStamp, {
       props: { commit: 'abcdef1234567', builtAt: '2026-01-05T23:07:00+02:00' },
     })
-    expect(wrapper.text()).toBe('Build abcdef1 · 5 Jan 2026 21:07 UTC')
+    expect(wrapper.text()).toBe('Build abcdef1 · 5 Jan 2026 21:07 UTC · Source on GitHub')
   })
 
   describe('on every screen', () => {
     beforeEach(() => setActivePinia(createPinia()))
-    const stamp = /^(Build [0-9a-f]{7} · \d{1,2} [A-Z][a-z]{2} \d{4} \d{2}:\d{2} UTC|dev build)$/
+    const stamp =
+      /^(Build [0-9a-f]{7} · \d{1,2} [A-Z][a-z]{2} \d{4} \d{2}:\d{2} UTC|dev build) · Source on GitHub$/
 
     it('is in the footer of the setup screen', () => {
       const wrapper = mount(App)

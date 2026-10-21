@@ -41,8 +41,7 @@ describe('the seal questions', () => {
       'seal_visible',
       'seal_length',
       ...Array.from({ length: 8 }, (_, i) => `seal_char_0${i + 1}`),
-      'seal_second_copy',
-      ...Array.from({ length: 8 }, (_, i) => `seal_second_char_0${i + 1}`),
+      ...Array.from({ length: 8 }, (_, i) => `seal_rchar_0${i + 1}`),
     ])
     const first = seal[2]
     expect(first?.type).toBe('choice')
@@ -193,7 +192,50 @@ describe('the seal read at its full length', () => {
     expect(record(answers).seal!.value).toBe('015')
   })
 
-  it('counts a second printed copy as a separate read: agreeing copies raise certainty', () => {
+  it('checks the read from the left against one from the right: agreeing places raise certainty', () => {
+    const digits = ['0', '1', '5', '4', '6', '2', '0']
+    const answers: Record<string, SharedAnswer> = withLength('7', spelled(digits))
+    ;[...digits].reverse().forEach((d, i) => {
+      answers[`seal_rchar_0${i + 1}`] = choice(d)
+    })
+    answers.seal_rchar_08 = choice('none')
+    const seal = record(answers).seal!
+    expect(seal.value).toBe('0154620')
+    expect(seal.certainty).toBe('Confident')
+    expect(seal).not.toHaveProperty('alternative')
+  })
+
+  it('catches a character read twice from the left (live Jev: 0154620 as 01546220), keeping the other read as the alternative', () => {
+    // Left to right, as recorded: eight characters, the 2 read twice.
+    const answers: Record<string, SharedAnswer> = withLength(
+      '8',
+      spelled(['0', '1', '5', '4', '6', '2', '2', '0']),
+    )
+    // Right to left: seven characters.
+    ;['0', '2', '6', '4', '5', '1', '0', 'none'].forEach((d, i) => {
+      answers[`seal_rchar_0${i + 1}`] = choice(d)
+    })
+    const seal = record(answers).seal!
+    expect(seal.value).toBe('0154620')
+    expect(seal.alternative).toBe('01546220')
+    expect(seal.certainty).toBe('Uncertain')
+  })
+
+  it('keeps the read from the left, in doubt, when the counts differ another way', () => {
+    const answers: Record<string, SharedAnswer> = withLength(
+      '7',
+      spelled(['0', '1', '5', '4', '6', '2', '0']),
+    )
+    ;['0', '2', '6', '4', '5', '1', 'none', 'none'].forEach((d, i) => {
+      answers[`seal_rchar_0${i + 1}`] = choice(d)
+    })
+    const seal = record(answers).seal!
+    expect(seal.value).toBe('0154620')
+    expect(seal.alternative).toBe('154620')
+    expect(seal.certainty).toBe('Uncertain')
+  })
+
+  it('counts a second printed copy (older recordings) as a separate read: agreeing copies raise certainty', () => {
     const digits = ['0', '1', '5', '4', '6', '2', '0']
     const answers: Record<string, SharedAnswer> = withLength('7', {
       ...spelled(digits),

@@ -5,6 +5,7 @@
 // leaf; the DG placard and the high-container caution on the left. The rows reuse the Container details and
 // Markings builders, so the words, certainties and notes are the same; whatever the ledger shows is left
 // out of those cards (LEDGER_DETAIL_LABELS, ledgerMarkingLabels).
+import { placardInDoubt } from '../domain/keyFacts'
 import { idResultState, visibleAlternatives } from '../domain/certainty'
 import type { CertaintyLabel, InspectionRecord } from '../domain/inspection'
 import type { Units } from '../domain/unitPreference'
@@ -342,6 +343,7 @@ function sealRow(record: InspectionRecord, door: DoorPaint): LedgerRow | null {
   }))
   return {
     ...base,
+    alternatives: seal.alternative ? [seal.alternative] : [],
     groups: [chars],
     words: null,
     slot: 'seal',
@@ -379,8 +381,15 @@ function placardRow(record: InspectionRecord, door: DoorPaint): LedgerRow | null
     const head = placardRows(record)[0]
     if (!head) return null
     const count = reading.placards.length
+    // A placard below Likely is drawn as the dashed outline, never in hazard colour.
     door.placard =
-      reading.answer === 'present' ? 'seen' : reading.answer === 'none' ? 'unseen' : undefined
+      reading.answer === 'present'
+        ? placardInDoubt(reading.certainty)
+          ? 'unseen'
+          : 'seen'
+        : reading.answer === 'none'
+          ? 'unseen'
+          : undefined
     return {
       ...base,
       label: 'Placards',
@@ -395,7 +404,8 @@ function placardRow(record: InspectionRecord, door: DoorPaint): LedgerRow | null
   }
   const dg = markingRows(record)?.find((r) => r.label === 'DG PLACARD')
   if (!dg) return null
-  door.placard = dg.badge?.hazard ? 'seen' : dg.badge ? 'unseen' : undefined
+  door.placard =
+    dg.badge?.hazard && !placardInDoubt(dg.certainty) ? 'seen' : dg.badge ? 'unseen' : undefined
   return {
     ...base,
     words: dg.badge?.text ?? dg.absentText,

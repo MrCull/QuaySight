@@ -9,7 +9,7 @@ import { recordedSideDamage } from '../../../__tests__/handWrittenDamage'
 
 const base = {
   id: 'rear-right',
-  caption: 'Rear and right side',
+  caption: 'Door end and right side',
   noPhotos: false,
   side: { text: 'Right side', status: 'photographed' as const },
   end: { text: 'Rear doors', status: 'photographed' as const },

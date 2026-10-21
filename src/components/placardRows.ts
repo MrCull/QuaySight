@@ -1,8 +1,9 @@
 // The placards, the marine pollutant mark and the limited quantity mark as Markings card rows (ticket #69).
-// Pure. A placard is a hazard badge; certainty is only the chip beside it.
+// Pure. A placard is a hazard badge (below Likely a neutral one: only possible); certainty is the chip beside it.
+import { placardInDoubt } from '../domain/keyFacts'
 import { dgClassName } from '../domain/containerDetails'
 import type { ReadingBox } from '../domain/enlargedCrop'
-import type { InspectionRecord } from '../domain/inspection'
+import type { CertaintyLabel, InspectionRecord } from '../domain/inspection'
 import { faceChipLabel } from '../domain/photoFace'
 import type { MarkReading, PlacardReading } from '../domain/placards'
 import type { MarkingRow } from './markingRows'
@@ -26,7 +27,8 @@ function unText(unNumber: string | null): { text: string; partial: boolean } {
   return { text: `UN ${unNumber.replace(/\?/g, '·')}`, partial: unNumber.includes('?') }
 }
 
-function placardRow(p: PlacardReading, index: number): PlacardRow {
+/** `present`: how sure the run is that placards are there at all; its UN digits do not make one less of a placard. */
+function placardRow(p: PlacardReading, index: number, present: CertaintyLabel): PlacardRow {
   const un = unText(p.unNumber)
   const name = p.dgClass === null ? null : dgClassName(p.dgClass)
   const caveat = [
@@ -46,7 +48,7 @@ function placardRow(p: PlacardReading, index: number): PlacardRow {
     badge: {
       text: `${p.dgClass === null ? 'Class not read' : `Class ${p.dgClass}`}, ${un.text}`,
       caveat,
-      hazard: true,
+      hazard: !placardInDoubt(present),
       glyph: 'hazard',
     },
     absentText: NOT_CLEAR,
@@ -101,11 +103,11 @@ export function placardRows(record: InspectionRecord): PlacardRow[] {
               headRow({
                 text: 'Placard visible, class and UN number not read',
                 caveat: CARGO_CAVEAT,
-                hazard: true,
+                hazard: !placardInDoubt(reading.certainty),
                 glyph: 'hazard',
               }),
             ]
-          : reading.placards.map(placardRow)
+          : reading.placards.map((p, i) => placardRow(p, i, reading.certainty))
   return [
     ...head,
     markRow('marine', 'MARINE POLLUTANT', 'Marine pollutant mark visible', reading.marinePollutant),

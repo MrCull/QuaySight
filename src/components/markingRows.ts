@@ -1,5 +1,6 @@
 // What the Markings card shows, row by row, from the record. Pure (ticket #54: split out of
 // containerDetailRows.ts; its words are in containerDetailWording.ts).
+import { placardInDoubt } from '../domain/keyFacts'
 import { dgClassName } from '../domain/containerDetails'
 import type { CertaintyLabel, InspectionRecord } from '../domain/inspection'
 import {
@@ -56,7 +57,8 @@ export function markingRows(record: InspectionRecord): MarkingRow[] | null {
         ? {
             text: dgSeenText(dg.dgClass, className),
             caveat: dgSeenCaveat(dg.symbol),
-            hazard: true,
+            // Below Likely the placard is only possible: no hazard colour.
+            hazard: !placardInDoubt(dg.certainty),
             glyph: 'hazard',
           }
         : dg.answer === 'none'

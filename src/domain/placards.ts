@@ -88,7 +88,7 @@ function questions(ask: { box: boolean }): SharedQuestion[] {
       type: 'predicate',
       name: names.any,
       instructions:
-        'Is at least one dangerous goods placard visible on the container in this photo? A placard is a square label standing on its point, with a hazard symbol in its upper half and a class number in its bottom corner. A yellow rectangular height sign (for example 2,6m / 8\'6"), a plate, a sticker or a label with plain text is not a placard.',
+        'Is at least one dangerous goods placard visible on the container in this photo? A placard is a square label standing on its point, with a hazard symbol in its upper half and a class number in its bottom corner. A yellow rectangular height sign (for example 2,6m / 8\'6"), a plate, a sticker or a label with plain text is not a placard. A faded, scraped or partly removed label, or only the outline or residue left where one was, is not a placard.',
     },
   ]
   for (let n = 1; n <= MAX_PLACARDS; n++) {

@@ -7,7 +7,8 @@ const props = withDefaults(defineProps<{ commit?: string | null; builtAt?: strin
   builtAt: BUILD_TIME,
 })
 
-const COMMIT_URL = 'https://github.com/MrCull/QuaySight/commit/'
+const REPO_URL = 'https://github.com/MrCull/QuaySight'
+const COMMIT_URL = `${REPO_URL}/commit/`
 
 const short = computed(() => props.commit?.slice(0, 7) ?? null)
 
@@ -39,6 +40,7 @@ const when = computed(() => {
       ><template v-if="when"> · {{ when }}</template></template
     >
     <template v-else>dev build</template>
+    · <a :href="REPO_URL" target="_blank" rel="noopener">Source on GitHub</a>
   </p>
 </template>
 

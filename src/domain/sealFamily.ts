@@ -27,6 +27,8 @@ export interface SealReading {
   value: string
   /** "Not seen" when no seal is visible; otherwise the number's: its weakest character, no better than Uncertain if any is unread. */
   certainty: CertaintyLabel
+  /** The other plausible number, when the read from the right counted a different number of characters. */
+  alternative?: string
   /** Where the number was read in the photo, when the model gave a usable box. Shown as an enlarged crop. */
   box?: ReadingBox
   /** Several photos (ticket #72): the 1-based photo the box, and so the crop, belongs to. */
@@ -64,7 +66,9 @@ const LENGTH_QUESTION = 'seal_length'
 const SECOND_QUESTION = 'seal_second_copy'
 const BOX_QUESTION = 'seal_box'
 const charName = (position: number) => `seal_char_${String(position).padStart(2, '0')}`
+/** Recordings made before the read from the right asked for the second printed copy, left to right. */
 const secondName = (position: number) => `seal_second_char_${String(position).padStart(2, '0')}`
+const rightName = (position: number) => `seal_rchar_${String(position).padStart(2, '0')}`
 const LENGTHS = Array.from({ length: SEAL_POSITIONS }, (_, i) => String(i + 1))
 
 const ORDINALS = ['first', 'second', 'third', 'fourth', 'fifth', 'sixth', 'seventh', 'eighth']
@@ -72,30 +76,42 @@ const ORDINALS = ['first', 'second', 'third', 'fourth', 'fifth', 'sixth', 'seven
 const LAYOUT =
   'The seal is the small tamper-evident device fitted to the door locking bar or handle of the container, with its own number printed or embossed on it. This is not the container identification.'
 
-function characterQuestion(position: number, second = false): ChoiceQuestion {
+const characterChoices = () => [
+  ...SEAL_CHARACTERS.map((value) => ({
+    value,
+    description: `Character ${value}`,
+  })),
+  { value: NONE, description: 'The seal number has no character at this place' },
+  {
+    value: UNREADABLE,
+    description: 'The character is not visible or cannot be read clearly',
+  },
+]
+
+/**
+ * A character counted from the number's right end. Read left to right, a model can lose its place and
+ * read a character twice (live Jev read 0154620 as 01546220 on both printed copies); counted from the
+ * other end, the same slip does not land on the same places, so the two reads check each other.
+ */
+function rightCharacterQuestion(position: number): ChoiceQuestion {
   return {
     type: 'choice',
-    name: second ? secondName(position) : charName(position),
-    instructions: `${LAYOUT} ${
-      second
-        ? 'The same number is printed a second time on the seal. Read it again, independently of the first copy, and only'
-        : 'Read only'
-    } the ${ORDINALS[position - 1]} character of the seal number, counting from its left. If the number is shorter than that, answer none.`,
-    choices: [
-      ...SEAL_CHARACTERS.map((value) => ({
-        value,
-        description: `Character ${value}`,
-      })),
-      { value: NONE, description: 'The seal number has no character at this place' },
-      {
-        value: UNREADABLE,
-        description: 'The character is not visible or cannot be read clearly',
-      },
-    ],
+    name: rightName(position),
+    instructions: `${LAYOUT} Read only the ${ORDINALS[position - 1]} character of the seal number counting from its right end: the last character of the number is the first from the right. If the number is printed a second time on the seal, read it from that second copy. If the number is shorter than that, answer none.`,
+    choices: characterChoices(),
   }
 }
 
-/** The seal questions: whether one is visible, how many characters, each character, and a second printed copy. */
+function characterQuestion(position: number): ChoiceQuestion {
+  return {
+    type: 'choice',
+    name: charName(position),
+    instructions: `${LAYOUT} Read only the ${ORDINALS[position - 1]} character of the seal number, counting from its left. If the number is shorter than that, answer none.`,
+    choices: characterChoices(),
+  }
+}
+
+/** The seal questions: whether one is visible, how many characters, each character from the left, then from the right. */
 export function sealQuestions(ask: { box: boolean }): SharedQuestion[] {
   const out: SharedQuestion[] = [
     {
@@ -113,12 +129,7 @@ export function sealQuestions(ask: { box: boolean }): SharedQuestion[] {
       ],
     },
     ...Array.from({ length: SEAL_POSITIONS }, (_, i) => characterQuestion(i + 1)),
-    {
-      type: 'predicate',
-      name: SECOND_QUESTION,
-      instructions: `${LAYOUT} Is the seal number printed a second time on the seal (bolt seals print it on both the bolt and the barrel), and can that second copy be seen?`,
-    },
-    ...Array.from({ length: SEAL_POSITIONS }, (_, i) => characterQuestion(i + 1, true)),
+    ...Array.from({ length: SEAL_POSITIONS }, (_, i) => rightCharacterQuestion(i + 1)),
   ]
   if (ask.box) {
     out.push({
@@ -219,9 +230,10 @@ export function readSeal(
     }
   })
   const anyRead = merged.some((p) => p.kind === 'read')
-  const characters = anyRead
+  const fromLeft = anyRead
     ? merged.map((p): SealCharacter => (p.kind === 'read' ? p.character : UNREAD))
     : []
+  const { characters, alternative } = checkedFromRight(fromLeft, answers, count)
 
   const read = characters.filter((c) => c.value !== null)
   const value = characters.map((c) => c.value ?? '?').join('')
@@ -237,7 +249,79 @@ export function readSeal(
     boxAnswer?.type === 'box' && boxAnswer.confidence !== null
       ? usableIdBox({ ...boxAnswer.box, confidence: boxAnswer.confidence })
       : null
-  return { visible: true, characters, value, certainty, ...(box ? { box } : {}) }
+  return {
+    visible: true,
+    characters,
+    value,
+    certainty,
+    ...(alternative ? { alternative } : {}),
+    ...(box ? { box } : {}),
+  }
+}
+
+const spelled = (cs: SealCharacter[]) => cs.map((c) => c.value ?? '?').join('')
+
+/** `long` is `short` with one character read twice in a row: the slip a reader that loses its place makes. */
+function readTwice(long: string, short: string): boolean {
+  if (long.length !== short.length + 1) return false
+  for (let i = 0; i + 1 < long.length; i++) {
+    if (long[i] === long[i + 1] && long.slice(0, i) + long.slice(i + 1) === short) return true
+  }
+  return false
+}
+
+/**
+ * The read from the left checked against the read from the right. Same count: each place is two reads,
+ * and agreement lifts it as a second copy does. A different count: the number is in doubt (Uncertain at
+ * best) and the other read is its alternative; a read with one character doubled gives way to the other,
+ * else the read whose count the count question gave stands, else the read from the left.
+ */
+function checkedFromRight(
+  fromLeft: SealCharacter[],
+  answers: Record<string, SharedAnswer>,
+  count: number | null,
+): { characters: SealCharacter[]; alternative: string | null } {
+  const places = Array.from({ length: SEAL_POSITIONS }, (_, i) =>
+    placeAt(answers[rightName(i + 1)]),
+  )
+  let end = 0
+  places.forEach((p, i) => {
+    if (p.kind === 'read' || p.kind === 'unreadable') end = i + 1
+  })
+  const fromRight = places
+    .slice(0, end)
+    .reverse()
+    .map((p): SealCharacter => (p.kind === 'read' ? p.character : UNREAD))
+  if (fromLeft.length === 0 || !fromRight.some((c) => c.value !== null)) {
+    return { characters: fromLeft, alternative: null }
+  }
+  if (fromRight.length === fromLeft.length) {
+    const characters = fromLeft.map((a, i): SealCharacter => {
+      const b = fromRight[i]!
+      if (b.value === null) return a
+      if (a.value === null) return b
+      if (a.value === b.value) {
+        return { value: a.value, certainty: oneStepUp(weakerLabel(a.certainty, b.certainty, true)) }
+      }
+      const best = rankOf(a.certainty) <= rankOf(b.certainty) ? a : b
+      return { value: best.value, certainty: weakerLabel(best.certainty, 'Uncertain') }
+    })
+    return { characters, alternative: null }
+  }
+  const [left, right] = [spelled(fromLeft), spelled(fromRight)]
+  const rightStands =
+    readTwice(left, right) ||
+    (!readTwice(right, left) &&
+      count !== null &&
+      fromRight.length === count &&
+      fromLeft.length !== count)
+  const [kept, other] = rightStands ? [fromRight, left] : [fromLeft, right]
+  return {
+    characters: kept.map((c) =>
+      c.value === null ? c : { ...c, certainty: weakerLabel(c.certainty, 'Uncertain') },
+    ),
+    alternative: other,
+  }
 }
 
 const shown = (value: string) => value.split('?').join('·')
