@@ -274,16 +274,28 @@ export function withPhotoFace(
 
 /**
  * A damage set's reading folded in (replacing any earlier one for its face): the damage is chosen again. A
- * reading of a crop of the face alone is never replaced by a whole-photo one, whichever lands first.
+ * reading of a crop of the face alone is never replaced by a whole-photo one, whichever lands first; its
+ * photo quality is the whole photo's.
  */
 export function withDamageReading(
   record: InspectionRecord,
   reading: DamageSetReading,
 ): InspectionRecord {
   const readings = record.damageReadings ?? []
-  if (!reading.fromCrop && readings.some((r) => r.face === reading.face && r.fromCrop)) {
-    return record
-  }
+  const earlier = readings.find((r) => r.face === reading.face)
   const others = readings.filter((r) => r.face !== reading.face)
-  return reassess({ ...record, damageReadings: [...others, reading] })
+  // The crop is enlarged from part of the photo, so its own photo-quality check judges the enlargement:
+  // the whole photo's check stands for the photo.
+  if (!reading.fromCrop && earlier?.fromCrop) {
+    const quality = reading.imageQuality ?? earlier.imageQuality
+    return reassess({
+      ...record,
+      damageReadings: [...others, { ...earlier, imageQuality: quality }],
+    })
+  }
+  const kept =
+    reading.fromCrop && earlier && !earlier.fromCrop
+      ? { ...reading, imageQuality: earlier.imageQuality ?? reading.imageQuality }
+      : reading
+  return reassess({ ...record, damageReadings: [...others, kept] })
 }
