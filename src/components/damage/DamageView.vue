@@ -185,8 +185,10 @@ const significant = computed(() => !!assessed.value && potentiallySignificant(as
         Potentially significant damage, closer inspection advised
       </p>
 
+      <!-- The drawing with every finding under it on the left; the selected finding's details down the right. -->
       <div class="rs-damage__grid">
         <DamageSchematic
+          class="rs-damage__schem"
           :assessment="assessed"
           :selected-id="selectedId"
           :selected-code="selectedLocation?.code ?? null"
@@ -194,34 +196,34 @@ const significant = computed(() => !!assessed.value && potentiallySignificant(as
         />
         <DamageDetail
           ref="detail"
+          class="rs-damage__detail"
           :finding="selected"
           :location="selectedLocation"
           :position="position"
           @previous="step(-1)"
           @next="step(1)"
         />
-      </div>
-
-      <div
-        v-if="assessed.findings.length > 0 || assessed.unplaced?.length"
-        class="rs-damage__cards"
-      >
-        <h3 class="qs-type-body-sm rs-damage__list-title">All findings</h3>
-        <DamageFindings
-          :findings="assessed.findings"
-          :selected-id="selectedId"
-          :locations="locations"
-          @select="selectFromCard"
-        />
-        <template v-if="assessed.unplaced?.length">
-          <h3 class="qs-type-body-sm rs-damage__unplaced">{{ UNIDENTIFIED_FACE_HEADING }}</h3>
+        <div
+          v-if="assessed.findings.length > 0 || assessed.unplaced?.length"
+          class="rs-damage__cards"
+        >
+          <h3 class="qs-type-body-sm rs-damage__list-title">All findings</h3>
           <DamageFindings
-            :findings="assessed.unplaced"
+            :findings="assessed.findings"
             :selected-id="selectedId"
             :locations="locations"
             @select="selectFromCard"
           />
-        </template>
+          <template v-if="assessed.unplaced?.length">
+            <h3 class="qs-type-body-sm rs-damage__unplaced">{{ UNIDENTIFIED_FACE_HEADING }}</h3>
+            <DamageFindings
+              :findings="assessed.unplaced"
+              :selected-id="selectedId"
+              :locations="locations"
+              @select="selectFromCard"
+            />
+          </template>
+        </div>
       </div>
     </template>
 

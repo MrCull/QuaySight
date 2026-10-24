@@ -219,12 +219,7 @@ function select(id: number) {
       {{ caption }}
       <small v-if="noPhotos">No photos</small>
     </figcaption>
-    <svg
-      class="qs-c"
-      :viewBox="viewBox"
-      role="group"
-      :aria-label="`Container drawing, ${caption}`"
-    >
+    <svg class="qs-c" :viewBox="viewBox" role="group" :aria-label="`Container drawing, ${caption}`">
       <defs>
         <pattern
           :id="`${id}-hatch`"

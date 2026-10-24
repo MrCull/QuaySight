@@ -189,10 +189,17 @@ describe('a live long-side assessment in the damage view', () => {
     )
   })
 
-  it('lays every finding out in one grid below the drawing, the details beside it', async () => {
+  it('lays every finding out in one grid under the drawing, the details beside both', async () => {
     const assessment = liveSide()
     const wrapper = mount(DamageView, { props: { assessment } })
-    expect(wrapper.find('.rs-damage__grid .qs-finding').exists()).toBe(false)
+    const grid = wrapper.find('.rs-damage__grid').element.children
+    const area = (el: Element) => [...el.classList].find((c) => c.startsWith('rs-damage__'))
+    expect([...grid].map(area)).toEqual([
+      'rs-damage__schem',
+      'rs-damage__detail',
+      'rs-damage__cards',
+    ])
+    expect(wrapper.find('.qs-finding-detail .qs-finding').exists()).toBe(false)
     expect(wrapper.findAll('.rs-damage__cards .qs-finding')).toHaveLength(
       assessment.findings.length,
     )
