@@ -177,10 +177,11 @@
 
 /* ---------- Schematic: 3D container drawing ---------- */
 .qs-schem { position: relative; background: radial-gradient(120% 90% at 50% 35%, var(--surface) 0%, var(--surface-sunken) 70%); border: 1px solid var(--line); border-radius: var(--radius-lg); padding: var(--space-5) var(--space-5) var(--space-4); overflow: hidden; }
-.qs-schem svg.qs-c { display: block; width: 100%; height: auto; overflow: visible; }
+/* Capped so both views and the coverage strip fit a 1080p screen together; the drawing is centred in its box. */
+.qs-schem svg.qs-c { display: block; width: 100%; height: auto; max-height: min(34vh, 360px); overflow: visible; }
 .qs-schem__views { container-type: inline-size; }
 .qs-schem__views-in { display: grid; grid-template-columns: minmax(0, 1fr); gap: var(--space-5); }
-@container (min-width: 1280px) { .qs-schem__views-in { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@container (min-width: 720px) { .qs-schem__views-in { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
 .qs-schem__view { margin: 0; min-width: 0; }
 .qs-schem__view figcaption { display: flex; align-items: baseline; gap: var(--space-2); margin-bottom: var(--space-2); font: 600 13px/16px var(--font-sans); letter-spacing: 0.06em; text-transform: uppercase; color: var(--ink-muted); }
 .qs-schem__view figcaption small { font: 400 12px/16px var(--font-sans); letter-spacing: 0; text-transform: none; color: var(--cert-unseen-fg); }

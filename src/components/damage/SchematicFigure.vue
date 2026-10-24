@@ -93,6 +93,17 @@ const roofTag = computed(
 const sideLabel = computed(() => sidePt(0.97, props.sectionNumbers ? 1.3 : 1.1836))
 const endLabel = computed(() => endPt(0.03, 1.58))
 
+// The frame is cropped to the container actually drawn (its length, the end, the labels under it), so a
+// 20 ft container is not a small box in the middle of a 45 ft frame. Pins may rise above it (overflow is
+// visible).
+const FRAME_PAD = 24
+const viewBox = computed(() => {
+  const x0 = WIDTH - (left.value + runX.value + END_X) - FRAME_PAD
+  const x1 = WIDTH - left.value + FRAME_PAD
+  const bottom = Math.max(endLabel.value[1], sideLabel.value[1]) + FRAME_PAD / 2
+  return `${x0} 0 ${x1 - x0} ${bottom}`
+})
+
 function quad(pt: Projection, u0: number, u1: number, v0: number, v1: number): string {
   return [pt(u0, v0), pt(u1, v0), pt(u1, v1), pt(u0, v1)].map(([x, y]) => `${x},${y}`).join(' ')
 }
@@ -210,7 +221,7 @@ function select(id: number) {
     </figcaption>
     <svg
       class="qs-c"
-      viewBox="0 0 900 430"
+      :viewBox="viewBox"
       role="group"
       :aria-label="`Container drawing, ${caption}`"
     >
