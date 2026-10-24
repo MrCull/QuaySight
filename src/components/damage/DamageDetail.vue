@@ -8,7 +8,13 @@ import SeverityBadge from './SeverityBadge.vue'
 
 // The selected finding, expanded beside the drawing (design-system FindingCard, detail panel): what it is,
 // its CEDEX location and damage type, severity and certainty kept apart, the interpretation and caveats.
-const props = defineProps<{ finding: DamageFinding | null; location: CedexLocation | null }>()
+const props = defineProps<{
+  finding: DamageFinding | null
+  location: CedexLocation | null
+  /** Where the open finding sits among all of them (0-based), for the previous and next arrows. */
+  position?: { index: number; total: number } | null
+}>()
+const emit = defineEmits<{ previous: []; next: [] }>()
 
 const type = computed(() => (props.finding ? cedexType(props.finding) : null))
 
@@ -28,7 +34,6 @@ function uncertaintyClass(f: DamageFinding): string {
 <template>
   <article
     :class="['qs-finding-detail', { 'qs-finding-detail--selected': finding }]"
-    aria-live="polite"
     :aria-label="finding ? `Finding ${finding.id} details` : 'Finding details'"
     :data-finding-detail="finding?.id"
   >
@@ -36,6 +41,29 @@ function uncertaintyClass(f: DamageFinding): string {
       Select a numbered marker on the drawing, or a finding below, to see its details here.
     </p>
     <template v-else>
+      <nav v-if="position" class="qs-finding-detail__nav" aria-label="Step through findings">
+        <button
+          type="button"
+          class="qs-finding-detail__step qs-finding-detail__step--prev"
+          aria-label="Previous finding"
+          :disabled="position.index === 0"
+          @click="emit('previous')"
+        >
+          <i class="qs-glyph qs-glyph--chevron" aria-hidden="true"></i>
+        </button>
+        <span class="qs-finding-detail__count" aria-live="polite"
+          >Finding {{ finding.id }} of {{ position.total }}</span
+        >
+        <button
+          type="button"
+          class="qs-finding-detail__step qs-finding-detail__step--next"
+          aria-label="Next finding"
+          :disabled="position.index === position.total - 1"
+          @click="emit('next')"
+        >
+          <i class="qs-glyph qs-glyph--chevron" aria-hidden="true"></i>
+        </button>
+      </nav>
       <div class="qs-finding-detail__head">
         <span
           :class="[

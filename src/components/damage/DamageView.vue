@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, nextTick, ref } from 'vue'
+import { computed, nextTick, ref, watch } from 'vue'
 import { potentiallySignificant, type DamageAssessment } from '../../domain/damage'
 import { UNIDENTIFIED_FACE_HEADING } from '../../domain/combineDamage'
 import { cedexLocation, type CedexLocation } from '../../domain/cedexLocation'
@@ -18,8 +18,10 @@ const props = defineProps<{ assessment: DamageAssessment | null }>()
 // The app binds it to the inspection store (v-model:selected) so New inspection clears it.
 const selectedId = defineModel<number | null>('selected', { default: null })
 
+// A finding is always open once there is one: a marker or card selects it (selecting it again keeps it),
+// and the arrows on the details step through the findings in number order.
 function select(id: number) {
-  selectedId.value = selectedId.value === id ? null : id
+  selectedId.value = id
 }
 
 const detail = ref<InstanceType<typeof DamageDetail> | null>(null)
@@ -86,6 +88,35 @@ const locations = computed(() => {
   for (const f of a.unplaced ?? []) out[f.id] = cedexLocation(f, a, true)
   return out
 })
+
+/** Every finding's number, in order: the drawn ones, then any on a face we couldn't identify. */
+const order = computed(() => {
+  const a = assessed.value
+  return a ? [...a.findings, ...(a.unplaced ?? [])].map((f) => f.id).sort((x, y) => x - y) : []
+})
+
+// Finding 1 is open when the findings arrive, and again whenever the open one is no longer listed.
+watch(
+  () => order.value.join(','),
+  () => {
+    const ids = order.value
+    if (selectedId.value === null || !ids.includes(selectedId.value)) {
+      selectedId.value = ids[0] ?? null
+    }
+  },
+  { immediate: true },
+)
+
+const position = computed(() => {
+  const index = selectedId.value === null ? -1 : order.value.indexOf(selectedId.value)
+  return index < 0 ? null : { index, total: order.value.length }
+})
+
+function step(delta: -1 | 1) {
+  const pos = position.value
+  const id = pos ? order.value[pos.index + delta] : undefined
+  if (id !== undefined) selectedId.value = id
+}
 
 const selected = computed(() => {
   const a = assessed.value
@@ -161,7 +192,14 @@ const significant = computed(() => !!assessed.value && potentiallySignificant(as
           :selected-code="selectedLocation?.code ?? null"
           @select="select"
         />
-        <DamageDetail ref="detail" :finding="selected" :location="selectedLocation" />
+        <DamageDetail
+          ref="detail"
+          :finding="selected"
+          :location="selectedLocation"
+          :position="position"
+          @previous="step(-1)"
+          @next="step(1)"
+        />
       </div>
 
       <div

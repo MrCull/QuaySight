@@ -67,7 +67,6 @@ describe('DamageView schematic', () => {
 describe('DamageView selection', () => {
   it('opens a finding with its damage type, plain description, severity, probability and caveats when a marker is selected', async () => {
     const wrapper = mount(DamageView, { props: { assessment: recordedSideDamage } })
-    expect(wrapper.find('.qs-finding-detail').text()).toContain('Select a numbered marker')
     await wrapper.find('.qs-pin').trigger('click')
     expect(wrapper.find('.qs-finding[aria-pressed="true"]').exists()).toBe(true)
     const detail = wrapper.find('.qs-finding-detail')
@@ -97,6 +96,45 @@ describe('DamageView selection', () => {
     await wrapper.find('.qs-finding').trigger('click')
     expect(wrapper.find('.qs-pin').attributes('aria-pressed')).toBe('true')
     expect(wrapper.find('.qs-region.is-selected').exists()).toBe(true)
+  })
+})
+
+describe('DamageView stepping through findings', () => {
+  const [base] = recordedSideDamage.findings
+  const three = {
+    ...recordedSideDamage,
+    findings: [1, 2, 3].map((id) => ({ ...base!, id, title: `Finding ${id}` })),
+  }
+
+  it('opens finding 1 when the findings arrive', () => {
+    const wrapper = mount(DamageView, { props: { assessment: three } })
+    expect(wrapper.find('.qs-finding-detail').attributes('data-finding-detail')).toBe('1')
+    expect(wrapper.find('.qs-finding[data-finding="1"]').attributes('aria-pressed')).toBe('true')
+    expect(wrapper.emitted('update:selected')?.[0]).toEqual([1])
+  })
+
+  it('steps with the previous and next arrows, which stop at the first and last finding', async () => {
+    const wrapper = mount(DamageView, { props: { assessment: three } })
+    const prev = () => wrapper.find('button[aria-label="Previous finding"]')
+    const next = () => wrapper.find('button[aria-label="Next finding"]')
+    const open = () => wrapper.find('.qs-finding-detail').attributes('data-finding-detail')
+    expect(prev().attributes('disabled')).toBeDefined()
+    expect(wrapper.find('.qs-finding-detail__count').text()).toBe('Finding 1 of 3')
+    await next().trigger('click')
+    await next().trigger('click')
+    expect(open()).toBe('3')
+    expect(next().attributes('disabled')).toBeDefined()
+    expect(wrapper.find('.qs-pin[data-finding="3"]').attributes('aria-pressed')).toBe('true')
+    await prev().trigger('click')
+    expect(open()).toBe('2')
+    expect(wrapper.find('.qs-finding[data-finding="2"]').attributes('aria-pressed')).toBe('true')
+  })
+
+  it('keeps a finding open when its card is selected again', async () => {
+    const wrapper = mount(DamageView, { props: { assessment: three } })
+    await wrapper.find('.qs-finding[data-finding="2"]').trigger('click')
+    await wrapper.find('.qs-finding[data-finding="2"]').trigger('click')
+    expect(wrapper.find('.qs-finding-detail').attributes('data-finding-detail')).toBe('2')
   })
 })
 

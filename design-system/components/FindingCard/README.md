@@ -15,6 +15,8 @@ A finding card describes one suspected defect: its number (matching the pin on t
 ## Compact card and detail panel
 With many findings the cards sit in a full-width grid under the drawing (`.rs-findings`, `repeat(auto-fill, minmax(280px, 1fr))`: three or four columns on a wide desktop, one on a phone). Each is a compact `button.qs-finding.qs-finding--compact`: number, title, the described position, `.qs-finding__codes`, then `.qs-finding__tags` (severity, without a code, and certainty). It has no `__more`.
 
+Finding 1 is open when the findings arrive, and a selection stays open (selecting it again keeps it). `nav.qs-finding-detail__nav` tops the panel: previous and next arrows (`.qs-finding-detail__step`, chevron glyphs, disabled at the ends) either side of "Finding 3 of 10"; they step in number order and move the pin, area and card selection with them.
+
 The selected finding opens in `article.qs-finding-detail` beside the drawing (`--selected` once something is selected; an empty prompt otherwise). In order:
 - the head: number disc, title, described position, `SeverityBadge` and `CertaintyChip`; then the description;
 - **CEDEX location** (`[data-detail="cedex-location"]`): the code in `.qs-cedex-code` and its basis (`.qs-finding-detail__basis`): *Placed from the photos*, *Estimated* (part of the face out of the photo) or *Not established* with *No code*. The code read out ("Right side · Bottom half · Sections 3 to 4 of 10"), the reason when estimated or not established, and the **Described position** in words;
