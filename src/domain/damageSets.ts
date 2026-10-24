@@ -39,6 +39,8 @@ export interface DamageSetReading {
   doorEnd: 'image-left' | 'image-right' | null
   /** The raw response the reading came from. */
   passId?: string
+  /** Read from a crop of this face alone (doorEndCrop.ts), not from the whole photo. */
+  fromCrop?: boolean
 }
 
 /** The faces a damage set is written for, and the schematic face their findings are drawn on. */
@@ -270,11 +272,18 @@ export function withPhotoFace(
   return reassess({ ...record, photoFace: face })
 }
 
-/** A damage set's reading folded in (replacing any earlier one for its face): the damage is chosen again. */
+/**
+ * A damage set's reading folded in (replacing any earlier one for its face): the damage is chosen again. A
+ * reading of a crop of the face alone is never replaced by a whole-photo one, whichever lands first.
+ */
 export function withDamageReading(
   record: InspectionRecord,
   reading: DamageSetReading,
 ): InspectionRecord {
-  const others = (record.damageReadings ?? []).filter((r) => r.face !== reading.face)
+  const readings = record.damageReadings ?? []
+  if (!reading.fromCrop && readings.some((r) => r.face === reading.face && r.fromCrop)) {
+    return record
+  }
+  const others = readings.filter((r) => r.face !== reading.face)
   return reassess({ ...record, damageReadings: [...others, reading] })
 }

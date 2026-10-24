@@ -11,6 +11,8 @@ import { survey } from '../../plan/requests/survey'
 import { idRecheck } from '../../plan/requests/idRecheck'
 import { sideDamage } from '../../plan/requests/sideDamage'
 import { doorDamage } from '../../plan/requests/doorDamage'
+import { doorEndCrop } from '../../plan/requests/doorEndCrop'
+import { regions } from '../../plan/requests/regions'
 import { DOOR_DAMAGE_SET } from '../../domain/doorDamage'
 
 // Door-end damage (#35) through the store, with fetch stubbed at the network edge: the door set goes
@@ -93,8 +95,8 @@ function surveyAnswers(face = 'rear_doors'): Record<string, Answer> {
 
 const CLEAN_SEVERITY = [0.94, 0.04, 0.01, 0.005, 0.005]
 
-/** The door set's answers: a dented lower photo-right leaf and a bent photo-left locking bar. */
-function dentedDoors(): Record<string, Answer> {
+/** The door set's answers: a dented lower leaf (photo-right unless given) and a bent photo-left locking bar. */
+function dentedDoors(dentedZone = 'D2B'): Record<string, Answer> {
   const answers: Record<string, Answer> = {
     image_quality: { type: 'choice', value: 'good' },
     door_end_coverage: { type: 'choice', value: 'most' },
@@ -104,7 +106,7 @@ function dentedDoors(): Record<string, Answer> {
   for (const leaf of [1, 2]) {
     for (const band of ['T', 'M', 'B']) {
       const zone = `D${leaf}${band}`
-      const dented = zone === 'D2B'
+      const dented = zone === dentedZone
       answers[`${zone}_visibility`] = { type: 'choice', value: 'clear' }
       answers[`${zone}_DT`] = { type: 'predicate', p: dented ? 0.9 : 0.03 }
       answers[`${zone}_severity`] = {
@@ -298,5 +300,77 @@ describe('door-end damage on a live run', () => {
 
     expect(store.record?.damage?.findings).toEqual([])
     expect(store.record?.damage?.notAssessed?.reason).toMatch(/door end is not inspectable/)
+  })
+})
+
+describe('door-end damage at a corner, checked again on the door end alone', () => {
+  let restore: () => void
+
+  beforeEach(() => {
+    setActivePinia(createPinia())
+    restore = onlyRequests(survey, regions, sideDamage, doorDamage, doorEndCrop)
+  })
+
+  afterEach(() => {
+    restore()
+    vi.unstubAllGlobals()
+  })
+
+  /** The survey: the doors beside a long side. The regions: the door end in the left two columns. */
+  function corner(regionAnswers: Record<string, Answer>) {
+    const route: Route = 'openrouter'
+    const doorReplies = [dentedDoors('D1B'), dentedDoors('D2B')]
+    const fetchMock = vi.fn<typeof fetch>(async (_input, init) => {
+      const body = String(init?.body)
+      if (isDoor(body)) return json(replyBody(route, doorReplies.shift() ?? {}))
+      if (isSide(body)) return json(replyBody(route, notASide()))
+      if (body.includes('door_end_from_column')) return json(replyBody(route, regionAnswers))
+      return json(
+        replyBody(route, { ...surveyAnswers(), shows_long_side: { type: 'predicate', p: 0.9 } }),
+      )
+    })
+    vi.stubGlobal('fetch', fetchMock)
+    const store = useInspectionStore()
+    store.setProvider('openrouter')
+    store.setApiKey(KEYS.openrouter)
+    store.setPhoto({
+      name: 'torn-door-corner.jpg',
+      url: 'blob:corner',
+      orientation: 'landscape',
+      file: new Blob(['1600x1200'], { type: 'image/jpeg' }),
+    })
+    return { store, fetchMock }
+  }
+
+  it('shows the door set’s reading of the cropped door end, not the whole photo’s', async () => {
+    const { store, fetchMock } = corner({
+      door_end_from_column: { type: 'choice', value: '1' },
+      door_end_to_column: { type: 'choice', value: '2' },
+    })
+
+    await store.start()
+
+    const doorCalls = fetchMock.mock.calls.filter(([, init]) => isDoor(String(init?.body)))
+    expect(doorCalls).toHaveLength(2)
+    expect(store.record?.doorEndCrop).toMatchObject({
+      outcome: 'checked',
+      box: { left: 0, right: 0.5, top: 0, bottom: 1 },
+    })
+    expect(store.record?.damage?.findings[0]?.location).toBe('Photo-right door leaf, bottom third')
+    expect(store.record?.status).toBe('complete')
+  })
+
+  it('does not crop when the regions do not locate the door end', async () => {
+    const { store, fetchMock } = corner({
+      door_end_from_column: { type: 'choice', value: 'none' },
+      door_end_to_column: { type: 'choice', value: 'none' },
+    })
+
+    await store.start()
+
+    const doorCalls = fetchMock.mock.calls.filter(([, init]) => isDoor(String(init?.body)))
+    expect(doorCalls).toHaveLength(1)
+    expect(store.record?.doorEndCrop).toBeUndefined()
+    expect(store.record?.damage?.findings[0]?.location).toBe('Photo-left door leaf, bottom third')
   })
 })

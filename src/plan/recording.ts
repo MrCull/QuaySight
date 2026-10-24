@@ -15,7 +15,7 @@ export const PLAN_RECORDING_FORMAT = 1
 
 /** One request's answer, as the provider sent it. */
 export interface RecordedRequest {
-  /** The plan request's id (`read`, `side-damage`, `door-damage`, `crop`, `weights`, `recheck`). */
+  /** The plan request's id (`read`, `side-damage`, `door-damage`, `door-end-crop`, `crop`, `weights`, `recheck`). */
   request: string
   /** The raw response payload, as received. */
   response: unknown
@@ -71,7 +71,9 @@ export function recordRun(
         ? record.idCropRead?.crop
         : request === 'seal-zoom'
           ? record.sealZoomRead?.crop
-          : null
+          : request === 'door-end-crop'
+            ? record.doorEndCrop?.crop
+            : null
     return {
       request,
       response: raw.body,
