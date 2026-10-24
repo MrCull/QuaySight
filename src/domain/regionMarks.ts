@@ -5,7 +5,9 @@
 // lines (marks 17 to 25, each a cell-sized area centred where four cells meet). The model names the mark,
 // or two adjacent marks, that hold the container ID, the seal, the weights panel, the ISO code and each
 // hazard sticker, or "none". No coordinates are ever asked for: a named mark is an area of the upright
-// photo, which is cropped from the full-resolution photo and read again (idCropRead.ts, sealZoom.ts).
+// photo, which is cropped from the full-resolution photo and read again (idCropRead.ts, sealZoom.ts). The
+// door end is located by the grid columns it spans, so a photo that also shows a long side can have its
+// door end cut out and checked for damage on its own (doorEndCrop.ts).
 // One route for every model: it replaces Jev's own location boxes on the reading path.
 import { questionSet } from './questionSet'
 import type { ChoiceQuestion, SharedAnswer, SharedQuestion, SharedQuestionSet } from './questionSet'
@@ -166,8 +168,37 @@ const ITEMS: Item[] = [
   ...Array.from({ length: HAZARD_SLOTS }, (_, i): Item => `hazard_${i + 1}`),
 ]
 
+const DOOR_END_TEXT =
+  "the container's door end: the end with the two door leaves, their vertical locking bars, handles and hinges, from corner post to corner post"
+
+/** The door end's columns: where it starts and where it ends, each a column of the 4 by 4 grid. */
+export const DOOR_END_QUESTIONS = {
+  from: 'door_end_from_column',
+  to: 'door_end_to_column',
+} as const
+
+function doorEndQuestion(edge: 'from' | 'to'): ChoiceQuestion {
+  const where = edge === 'from' ? 'left' : 'right'
+  return {
+    type: 'choice',
+    name: DOOR_END_QUESTIONS[edge],
+    instructions: `Which column of the grid holds the ${where} edge of ${DOOR_END_TEXT}? Columns are counted from the left, 1 to 4; each is one cell wide. Answer none if no door end is visible.`,
+    choices: [
+      ...Array.from({ length: GRID }, (_, i) => ({
+        value: String(i + 1),
+        description: `Column ${i + 1}`,
+      })),
+      { value: 'none', description: 'No door end is visible' },
+    ],
+  }
+}
+
 export function regionsQuestions(): SharedQuestion[] {
-  return ITEMS.flatMap((item) => [markQuestion(item, false), markQuestion(item, true)])
+  return [
+    ...ITEMS.flatMap((item) => [markQuestion(item, false), markQuestion(item, true)]),
+    doorEndQuestion('from'),
+    doorEndQuestion('to'),
+  ]
 }
 
 export function regionsQuestionSet(): SharedQuestionSet {
@@ -193,6 +224,8 @@ export interface RegionsReading {
   iso: RegionArea | null
   /** Each hazard sticker located, in the order asked. */
   hazards: RegionArea[]
+  /** The columns the door end spans, as a full-height area; null when no door end was located. */
+  doorEnd?: RegionBox | null
 }
 
 function markOf(answer: SharedAnswer | undefined): number | null {
@@ -210,6 +243,22 @@ function areaOf(answers: Record<string, SharedAnswer>, item: Item): RegionArea |
   return areaOfMarks(second === null ? [first] : [first, second])
 }
 
+function columnOf(answer: SharedAnswer | undefined): number | null {
+  if (answer?.type !== 'choice' || answer.value === 'none') return null
+  const probability = answer.probabilities[answer.value]
+  if (probability !== undefined && probability < MARK_MIN_PROBABILITY) return null
+  const column = Number(answer.value)
+  return Number.isInteger(column) && column >= 1 && column <= GRID ? column : null
+}
+
+/** The door end's area: from the start of its left column to the end of its right one, the photo's full height. */
+function doorEndOf(answers: Record<string, SharedAnswer>): RegionBox | null {
+  const from = columnOf(answers[DOOR_END_QUESTIONS.from])
+  const to = columnOf(answers[DOOR_END_QUESTIONS.to])
+  if (from === null || to === null || to < from) return null
+  return { top: 0, bottom: 1, left: (from - 1) / GRID, right: to / GRID }
+}
+
 /** The regions answers, by meaning. An item with no usable mark is null: nothing is cropped for it. */
 export function readRegions(answers: Record<string, SharedAnswer>): RegionsReading {
   return {
@@ -220,6 +269,7 @@ export function readRegions(answers: Record<string, SharedAnswer>): RegionsReadi
     hazards: Array.from({ length: HAZARD_SLOTS }, (_, i) =>
       areaOf(answers, `hazard_${i + 1}` as Item),
     ).filter((a): a is RegionArea => a !== null),
+    doorEnd: doorEndOf(answers),
   }
 }
 

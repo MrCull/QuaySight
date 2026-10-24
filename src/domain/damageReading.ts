@@ -145,6 +145,18 @@ function typesOf(answers: Record<string, SharedAnswer>, prefix: string): DamageT
   }).sort((a, b) => (b.probability ?? 0) - (a.probability ?? 0))
 }
 
+/** Types where the metal is ruptured, not only deformed. */
+const RUPTURES = new Set(['BR', 'HO', 'CH', 'CK'])
+
+/**
+ * The types with the one a finding is named after first. A torn panel is also dented and bent, often
+ * scored as high: a rupture that counts as seen names the finding over any deformation or rust.
+ */
+function headlineFirst(types: DamageType[]): DamageType[] {
+  const rupture = types.find((t) => RUPTURES.has(t.code) && (t.probability ?? 0) >= PRESENT_MIN)
+  return rupture ? [rupture, ...types.filter((t) => t !== rupture)] : types
+}
+
 /** One judged region of a face: the set's own id, its area and its plain-words label. */
 export interface PanelRegion {
   id: string
@@ -176,7 +188,7 @@ export function panelFinding(
   const level = severityOfLevel(score.label)
   if (!level) return null
 
-  const allTypes = typesOf(answers, region.id)
+  const allTypes = headlineFirst(typesOf(answers, region.id))
   const listed = allTypes.filter((t, i) => i === 0 || (t.probability ?? 0) >= LISTED_MIN)
   const top = allTypes[0]
   const named = top && (top.probability ?? 0) >= PRESENT_MIN ? top : null
