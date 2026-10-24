@@ -205,7 +205,8 @@ const showExplanation = computed(() => idState.value === 'uncertain' || idState.
         <!-- Live: a live call on the same model. Demo: the sample's own recorded check. Never a replay against another photo. -->
         <ManifestRetry v-if="store.canCheckManifest && !differentContainers" />
 
-        <template v-if="record && detailsLanded">
+        <!-- Side by side across the full width when there is room, each card as tall as the taller. -->
+        <div v-if="record && detailsLanded" class="rs-cards">
           <ContainerDetails
             :record="record"
             :omit="LEDGER_DETAIL_LABELS"
@@ -222,7 +223,7 @@ const showExplanation = computed(() => idState.value === 'uncertain' || idState.
             :photos="photoUrls"
             :class="{ 'qs-arrived': detailsEarly }"
           />
-        </template>
+        </div>
 
         <ExportActions v-if="!running" />
       </section>
