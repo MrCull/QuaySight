@@ -177,4 +177,25 @@ describe('folding into the record, whichever request answers first', () => {
     expect(twice.damageReadings).toHaveLength(1)
     expect(twice.damage?.findings).toEqual([])
   })
+
+  it('keeps a reading of the face cropped alone over a whole-photo one, whichever lands first', () => {
+    const whole = sideReading({ findings: [] })
+    const cropped = sideReading({ fromCrop: true })
+    const cropFirst = withDamageReading(withDamageReading(record, cropped), whole)
+    const cropLast = withDamageReading(withDamageReading(record, whole), cropped)
+    expect(cropFirst.damageReadings).toEqual([cropped])
+    expect(cropLast.damageReadings).toEqual([cropped])
+  })
+
+  it('takes the photo quality from the whole photo, not from the enlarged crop', () => {
+    const whole = sideReading({ findings: [], imageQuality: 'good' })
+    const cropped = sideReading({ fromCrop: true, imageQuality: 'limited' })
+    for (const next of [
+      withDamageReading(withDamageReading(record, cropped), whole),
+      withDamageReading(withDamageReading(record, whole), cropped),
+    ]) {
+      expect(next.damageReadings).toEqual([{ ...cropped, imageQuality: 'good' }])
+      expect(next.damage?.imageQuality).toBe('good')
+    }
+  })
 })
