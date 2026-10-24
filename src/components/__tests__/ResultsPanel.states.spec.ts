@@ -76,7 +76,7 @@ describe('ResultsPanel result states', () => {
       alternatives: ['APHU6586840'],
     })
     expect(wrapper.text()).toContain('ID not readable in this photo')
-    expect(wrapper.find('.qs-id').exists()).toBe(false)
+    expect(wrapper.find('[data-row="id"] .qs-id').exists()).toBe(false)
     expect(wrapper.text()).not.toContain('Also possible')
     expect(wrapper.text()).not.toMatch(/check digit/i)
     expect(wrapper.find('input').exists()).toBe(false)
@@ -91,7 +91,7 @@ describe('ResultsPanel result states', () => {
       checkDigitValid: false,
       observedCheckDigit: null,
     })
-    expect(wrapper.find('.qs-id').exists()).toBe(true)
+    expect(wrapper.find('[data-row="id"] .qs-id').exists()).toBe(true)
     expect(wrapper.text()).not.toContain('ID not readable in this photo')
   })
 

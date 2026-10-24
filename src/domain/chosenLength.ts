@@ -2,7 +2,8 @@
 //
 // In order: the ISO size/type code when it was read and decoded at Confident; the shape estimate from a
 // side photo (ticket #66); the model's answer to the survey's length question; 40 ft. When a Confident
-// code and the shape disagree, the code's length stands, Uncertain, with the shape's as its alternative.
+// code and the shape disagree, the code decides at its own certainty; the shape's length is kept as a note.
+// A Likely code against the shape leaves the length Uncertain.
 import type { CertaintyLabel, InspectionRecord } from './inspection'
 
 export type ContainerLengthFt = 20 | 40 | 45
@@ -13,9 +14,9 @@ export type LengthSource = 'iso-code' | 'shape' | 'model' | 'default'
 export interface ChosenLength {
   feet: ContainerLengthFt
   source: LengthSource
-  /** Only when the ISO code (Confident or Likely) and the shape estimate disagree: Uncertain. */
+  /** Only when a Likely ISO code and the shape estimate disagree: Uncertain. */
   certainty?: CertaintyLabel
-  /** Only then: the other plausible length (the shape's, or a Likely code's). */
+  /** When the code and the shape disagree: the other length (the shape's, or a Likely code's). */
   alternative?: ContainerLengthFt
 }
 
@@ -41,7 +42,7 @@ export function chosenLength(record: InspectionRecord): ChosenLength {
   const codeCertainty = record.sizeCode?.certainty
   if (code !== null && codeCertainty === 'Confident') {
     if (shape && shape.feet !== code) {
-      return { feet: code, source: 'iso-code', certainty: 'Uncertain', alternative: shape.feet }
+      return { feet: code, source: 'iso-code', alternative: shape.feet }
     }
     return { feet: code, source: 'iso-code' }
   }

@@ -17,9 +17,9 @@ type FixedFace = 'rear' | 'front' | 'left' | 'right' | 'roof'
 
 // Coverage strip: every face is photographed, can't tell, or not seen. Never clear.
 const COVERAGE: { face: FixedFace; name: string }[] = [
-  { face: 'rear', name: 'Rear doors' },
+  { face: 'rear', name: 'Door end' },
   { face: 'right', name: 'Right side' },
-  { face: 'front', name: 'Front end' },
+  { face: 'front', name: 'Blank end (no doors)' },
   { face: 'left', name: 'Left side' },
   { face: 'roof', name: 'Roof' },
 ]
@@ -62,7 +62,7 @@ const views = computed(() =>
   Object.values(VIEWS).map((spec) => {
     const sideStatus = faceStatus(props.assessment, spec.side)
     const endStatus = faceStatus(props.assessment, spec.end)
-    const endName = spec.end === 'rear' ? 'Rear doors' : 'Front end'
+    const endName = spec.end === 'rear' ? 'Door end' : 'Blank end (no doors)'
     return {
       spec,
       noPhotos: !viewHasPhotos(props.assessment, spec.id),

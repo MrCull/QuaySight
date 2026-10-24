@@ -57,7 +57,11 @@ const coarsePointer = () =>
   window.matchMedia?.('(pointer: coarse)')?.matches === true ||
   window.matchMedia?.('(hover: none)')?.matches === true
 
-export function useLoupe(): LoupeController {
+/**
+ * `minZoom`: for a close-up already shown enlarged, how much the loupe magnifies it at least (it upsamples
+ * past the photo's own pixels rather than show the crop at the size it already is).
+ */
+export function useLoupe(options: { minZoom?: number } = {}): LoupeController {
   const view = ref<LoupeView | null>(null)
   let timer: ReturnType<typeof setTimeout> | null = null
   /** When a showing loupe last left a photo, and which photo, for the carry-over. */
@@ -92,6 +96,7 @@ export function useLoupe(): LoupeController {
       img.getBoundingClientRect(),
       { width: img.naturalWidth, height: img.naturalHeight },
       size,
+      options.minZoom,
     )
     if (!lens) return null
     const place = placeLoupe({ x: event.clientX, y: event.clientY }, size, gap, {

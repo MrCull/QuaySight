@@ -5,6 +5,8 @@
 import { computed, ref, watch } from 'vue'
 import { enlargedCrop, type ReadingBox } from '../domain/enlargedCrop'
 import { usableIdBox } from '../domain/cropRead'
+import { useLoupe } from '../composables/loupe'
+import PhotoLoupe from './PhotoLoupe.vue'
 
 const props = defineProps<{
   /** The photo the box was asked on. */
@@ -18,7 +20,18 @@ const props = defineProps<{
   margin?: number
   /** Several photos or one: the 1-based photo the crop is cut from. The caption names it. */
   photoNumber?: number | null
+  /** Beside a reading in the ledger: no margin above, the caption is just the photo, no tap hint. */
+  compact?: boolean
+  /** The hover loupe over the close-up (design-system Loupe), magnifying it further. Mouse only. */
+  magnify?: boolean
 }>()
+
+/** How much more the loupe enlarges a close-up that is already shown enlarged. */
+const CLOSE_UP_ZOOM = 2
+const loupe = useLoupe({ minZoom: CLOSE_UP_ZOOM })
+function track(event: PointerEvent) {
+  if (props.magnify && !full.value) loupe.track(event, props.src)
+}
 
 const size = ref<{ width: number; height: number } | null>(null)
 const failed = ref(false)
@@ -39,9 +52,10 @@ const frame = computed(() =>
 
 // Tapping shows the whole photo with the area outlined; tapping again returns to the close-up.
 const full = ref(false)
-const fullCaption = computed(() =>
-  props.photoNumber ? `${props.caption} · Photo ${props.photoNumber}` : props.caption,
-)
+const fullCaption = computed(() => {
+  if (props.compact) return `Photo ${props.photoNumber ?? 1}`
+  return props.photoNumber ? `${props.caption} · Photo ${props.photoNumber}` : props.caption
+})
 const area = computed(() => {
   const b = usableIdBox(props.box)
   if (!b) return null
@@ -59,8 +73,14 @@ function onLoad(event: Event) {
   size.value = { width: img.naturalWidth, height: img.naturalHeight }
 }
 
+// --crop-aspect lets a small place (a key-facts tile) cap the close-up's height as well as its width.
 const frameStyle = computed(() =>
-  frame.value ? { aspectRatio: `${frame.value.width} / ${frame.value.height}` } : undefined,
+  frame.value
+    ? {
+        aspectRatio: `${frame.value.width} / ${frame.value.height}`,
+        '--crop-aspect': String(frame.value.width / frame.value.height),
+      }
+    : undefined,
 )
 // The whole photo is laid out so the region fills the frame: percentages of the region's own size.
 const imgStyle = computed(() => {
@@ -76,7 +96,11 @@ const imgStyle = computed(() => {
 </script>
 
 <template>
-  <figure v-if="usable && !failed" v-show="frame" class="rs-crop">
+  <figure
+    v-if="usable && !failed"
+    v-show="frame"
+    :class="['rs-crop', { 'rs-crop--compact': compact }]"
+  >
     <button
       type="button"
       class="rs-crop__tap"
@@ -88,7 +112,15 @@ const imgStyle = computed(() => {
       "
       @click="full = !full"
     >
-      <span v-show="!full" class="rs-crop__frame" :style="frameStyle">
+      <span
+        v-show="!full"
+        class="rs-crop__frame"
+        :style="frameStyle"
+        @pointerenter="track"
+        @pointermove="track"
+        @pointerleave="loupe.hide()"
+        @pointerdown="loupe.hide()"
+      >
         <img
           class="rs-crop__img"
           :src="src"
@@ -123,7 +155,8 @@ const imgStyle = computed(() => {
       </span>
     </button>
     <figcaption class="rs-crop__caption qs-type-body-sm">{{ fullCaption }}</figcaption>
-    <p class="rs-crop__hint qs-type-caption">
+    <PhotoLoupe v-if="magnify && loupe.view.value && !full" :view="loupe.view.value" />
+    <p v-if="!compact" class="rs-crop__hint qs-type-caption">
       {{ full ? 'Tap to return to the close-up' : 'Tap for the full photo' }}
     </p>
   </figure>
@@ -186,6 +219,13 @@ const imgStyle = computed(() => {
 .rs-crop__caption {
   margin: var(--space-2) 0 0;
   color: var(--ink-muted);
+}
+.rs-crop--compact {
+  margin: 0;
+}
+.rs-crop--compact .rs-crop__caption {
+  margin-top: var(--space-1);
+  text-align: right;
 }
 .rs-crop__hint {
   margin: 0;

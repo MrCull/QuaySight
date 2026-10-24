@@ -195,13 +195,15 @@ describe('ContainerDetails', () => {
       expect(wrapper.text()).not.toContain('The size code says')
     })
 
-    it('warns, and marks the length Uncertain with the shape as the alternative, on disagreement', async () => {
+    it('lets a Confident code decide against the shape, noting what the shape suggested, with no warning', async () => {
       const record = { ...(await liveDetailsRecord()), shapeLength: shape(40) }
       const wrapper = mount(ContainerDetails, { props: { record } })
       const row = wrapper.findAll('.qs-field').find((r) => r.text().startsWith('LENGTH'))!
-      expect(row.text()).toContain('Uncertain')
-      expect(row.text()).toContain('Also possible: 40 ft')
-      expect(wrapper.text()).toContain('The size code says 20 ft but the shape')
+      expect(row.text()).toContain('20 ft')
+      expect(row.text()).toContain('Confident')
+      expect(row.text()).not.toContain('Uncertain')
+      expect(row.text()).toContain('The shape in the photo suggested 40 ft; the size code decides.')
+      expect(wrapper.text()).not.toContain('The size code says 20 ft but the shape')
     })
   })
 })

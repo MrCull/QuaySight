@@ -19,6 +19,7 @@ import {
   type ZoneCoverage,
 } from './damage'
 import type { InspectionRecord } from './inspection'
+import { facesShown, type PhotoFace } from './photoFace'
 import { sectionScheme, sectionsOfZone } from './sideSections'
 
 export interface DamageRun {
@@ -41,9 +42,9 @@ const assessedDamage = (run: DamageRun): DamageAssessment | null =>
 
 const isDropped = (run: DamageRun) => run.record.photoFace?.face === 'not-container'
 
-/** The face a photo shows for the drawing, from the survey's reading; null when it did not place one. */
-function faceOfRun(run: DamageRun): DamageFace | null {
-  switch (run.record.photoFace?.face) {
+/** A face a photo shows, as the drawing names it; null for a close-up or a face it could not place. */
+function drawingFace(run: DamageRun, face: PhotoFace | undefined): DamageFace | null {
+  switch (face) {
     case 'rear-doors':
       return 'rear'
     case 'front-end':
@@ -56,6 +57,10 @@ function faceOfRun(run: DamageRun): DamageFace | null {
       return null
   }
 }
+
+/** The face a photo shows for the drawing, from the survey's reading; null when it did not place one. */
+const faceOfRun = (run: DamageRun): DamageFace | null =>
+  drawingFace(run, run.record.photoFace?.face)
 
 interface Placed {
   finding: DamageFinding
@@ -151,6 +156,11 @@ export function combineDamage(runs: readonly DamageRun[]): {
     const own = assessedDamage(run)?.photos ?? []
     const face = faceOfRun(run)
     const faces = own.length > 0 ? own.map((p) => p.face) : face ? [face] : []
+    // A corner photo shows a second face (doors and a side, a side and the front end): it is in a photo too.
+    for (const shown of facesShown(run.record.photoFace)) {
+      const extra = drawingFace(run, shown)
+      if (extra && !faces.includes(extra)) faces.push(extra)
+    }
     for (const f of faces) photos.push({ photo: run.name, face: f, index: run.index })
   }
 

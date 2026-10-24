@@ -13,6 +13,8 @@ const props = defineProps<{
   photo?: string | null
   /** Several photos: every photo's URL in order; a placard's crop comes from the photo it was read on. */
   photos?: string[]
+  /** Rows shown elsewhere (the readings ledger), by label: left out here so nothing is said twice. */
+  omit?: readonly string[]
 }>()
 
 // The photo a close-up is cut from: the one its reading names (photo 1 where it names none).
@@ -26,7 +28,8 @@ const cropSource = (photoNumber: number | null) =>
 // Placards (ticket #69) follow, one row each with a crop of where it was read, then the two DG marks.
 const details = computed(() => markingRows(props.record))
 const placards = computed(() => placardRows(props.record))
-const rows = computed(() => [
+const rows = computed(() => allRows.value.filter((row) => !(props.omit ?? []).includes(row.label)))
+const allRows = computed(() => [
   ...(details.value ?? []).map((row) => ({ ...row, key: row.label, closeUp: null })),
   ...placards.value.map((row) => {
     const closeUp: CloseUpSource | null =
@@ -37,9 +40,10 @@ const rows = computed(() => [
 </script>
 
 <template>
-  <div class="rs-card qs-rise" style="--i: 2">
+  <!-- Nothing left once the ledger has taken its rows: no empty card. -->
+  <div v-if="allRows.length === 0 || rows.length > 0" class="rs-card qs-rise" style="--i: 2">
     <div class="rs-card__head"><span class="rs-k">Markings</span></div>
-    <p v-if="rows.length === 0" class="rs-note qs-type-body-sm">
+    <p v-if="allRows.length === 0" class="rs-note qs-type-body-sm">
       Not assessed in this inspection: this run did not check the markings or DG placards.
     </p>
     <template v-for="row in rows" v-else :key="row.key">

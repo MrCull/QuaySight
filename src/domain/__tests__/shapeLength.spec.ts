@@ -127,14 +127,9 @@ describe('the length chosen', () => {
     expect(chosenLength(recordWith({}))).toEqual({ feet: 40, source: 'default' })
   })
 
-  it('is Uncertain when a Confident code and the shape disagree, the shape as its alternative', () => {
+  it('lets a Confident code decide when the shape disagrees, keeping the shape only as a note', () => {
     const r = recordWith({ code: ['22G1', 'Confident'], shape: [40, 'Confident'] })
-    expect(chosenLength(r)).toEqual({
-      feet: 20,
-      source: 'iso-code',
-      certainty: 'Uncertain',
-      alternative: 40,
-    })
+    expect(chosenLength(r)).toEqual({ feet: 20, source: 'iso-code', alternative: 40 })
   })
 
   it('does not call a code and a shape that agree a disagreement', () => {

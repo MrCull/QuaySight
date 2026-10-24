@@ -3,7 +3,7 @@
 //
 // - Length from shape: from side photos (or a photo whose face could not be told); a Confident ISO code still
 //   wins in chosenLength.ts, which weighs it against the combined shape.
-// - Seal: character by character across the photos that show it. A photo that shows no seal only says there
+// - Seal: character by character across the photos that show it and agree on how many characters it has. A photo that shows no seal only says there
 //   is none on that face. The crop comes from the photo that gave most of the characters used.
 // - Placards: the same class and UN number are one placard, with every face it was seen on.
 import { oneStepUp, weakerOf, agree, type Candidate } from './combineReadings'
@@ -89,11 +89,22 @@ function combineSeal(runs: PhotoRecord[]): { reading: SealReading | null; from: 
   const visible = withSeal.filter((r) => r.record.seal!.visible)
   if (visible.length === 0) return { reading: withSeal[0]!.record.seal!, from: [] }
 
-  const length = Math.max(...visible.map((r) => r.record.seal!.characters.length))
+  // Photos that counted the number differently read different strings: lining them up place by place
+  // would splice them (an extra character in one shifts every one after it). The count is agreed first,
+  // a zoomed read being a vote of its own, and only the photos with that count are combined.
+  const counts = visible.flatMap((r) => {
+    const seal = r.record.seal!
+    if (!seal.characters.some((c) => c.value !== null)) return []
+    const vote = { photo: r.photo, value: seal.characters.length, certainty: seal.certainty }
+    return r.record.sealZoomRead?.outcome === 'combined' ? [vote, vote] : [vote]
+  })
+  const counted = agree(counts)
+  const same = counted ? visible.filter((r) => counted.from.includes(r.photo)) : visible
+  const length = Math.max(...same.map((r) => r.record.seal!.characters.length))
   const characters: SealCharacter[] = []
   const taken = new Map<number, number>()
   for (let i = 0; i < length; i++) {
-    const candidates: Candidate<string>[] = visible.flatMap((r) => {
+    const candidates: Candidate<string>[] = same.flatMap((r) => {
       const c = r.record.seal!.characters[i]
       return c?.value ? [{ photo: r.photo, value: c.value, certainty: c.certainty }] : []
     })
@@ -114,19 +125,24 @@ function combineSeal(runs: PhotoRecord[]): { reading: SealReading | null; from: 
           (w, c) => weakerOf(w, c.certainty),
           read.length < characters.length ? 'Uncertain' : 'Confident',
         )
+  // Another photo counted a different number of characters: the number is in doubt as a whole.
+  const doubted = counted?.alternative != null ? weakerOf(certainty, counted.certainty) : certainty
   const reading: SealReading = {
     visible: true,
     characters: read.length === 0 ? [] : characters,
     value: read.length === 0 ? '' : characters.map((c) => c.value ?? '?').join(''),
-    certainty,
+    certainty: doubted,
   }
 
-  // The crop: the photo that gave most of the characters used, among those with a box.
-  const boxed = visible
-    .filter((r) => r.record.seal!.box)
+  // The crop: the photo that gave most of the characters used, among those where the seal was located
+  // (the model's own box, or the area the regions or the zoomed read found; combinePhotos adds the area).
+  const located = (r: PhotoRecord) =>
+    Boolean(r.record.seal!.box ?? r.record.sealZoomRead?.box ?? r.record.regions?.found?.seal?.box)
+  const boxed = same
+    .filter(located)
     .sort((a, b) => (taken.get(b.photo) ?? 0) - (taken.get(a.photo) ?? 0) || a.photo - b.photo)[0]
   if (boxed) {
-    reading.box = boxed.record.seal!.box
+    if (boxed.record.seal!.box) reading.box = boxed.record.seal!.box
     reading.photo = boxed.photo
   }
   return { reading, from: [...taken.keys()].sort((a, b) => a - b) }

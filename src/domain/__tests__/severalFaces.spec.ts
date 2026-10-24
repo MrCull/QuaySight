@@ -28,6 +28,46 @@ describe('several faces in one photo', () => {
     expect(face?.shown).toEqual(['rear-doors', 'long-side'])
   })
 
+  it('counts the front end beside a long side when the face answer leans to it and no doors are seen', () => {
+    // The recorded Jev answers for the JDLU front-end corner photo (samples/jdlu-200690-4-long-side.jpg).
+    const odds = { rear_doors: 0.15, long_side: 0.47, front_end: 0.38 }
+    const answers = (front: number): Record<string, SharedAnswer> => ({
+      photo_face: { type: 'choice', value: 'long_side', probabilities: odds, confidence: 0.1 },
+      shows_rear_doors: yes(0.34),
+      shows_long_side: yes(0.96),
+      shows_front_end: yes(front),
+    })
+    expect(faceOf(answers(0.49))?.shown).toEqual(['long-side', 'front-end'])
+    expect(faceOf(answers(0.51))?.shown).toEqual(['long-side', 'front-end'])
+  })
+
+  it('does not add the front end beside a side when the doors are seen, or the face answer barely names it', () => {
+    const doorsCorner = faceOf({
+      photo_face: {
+        type: 'choice',
+        value: 'long_side',
+        probabilities: { rear_doors: 0.13, long_side: 0.85, front_end: 0.02 },
+        confidence: 0.7,
+      },
+      shows_rear_doors: yes(0.97),
+      shows_long_side: yes(0.98),
+      shows_front_end: yes(0.17),
+    })
+    expect(doorsCorner?.shown).toEqual(['long-side', 'rear-doors'])
+    const plainSide = faceOf({
+      photo_face: {
+        type: 'choice',
+        value: 'long_side',
+        probabilities: { long_side: 0.9, front_end: 0.1 },
+        confidence: 0.8,
+      },
+      shows_rear_doors: yes(0.1),
+      shows_long_side: yes(0.98),
+      shows_front_end: yes(0.2),
+    })
+    expect(plainSide?.shown).toEqual(['long-side'])
+  })
+
   it('keeps the main face even when the model says no to its own question', () => {
     const face = faceOf({ photo_face: choice('long_side'), shows_long_side: yes(0.3) })
     expect(face?.shown).toEqual(['long-side'])

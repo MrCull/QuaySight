@@ -58,13 +58,21 @@ export function shapeLengthOf(answers: Record<string, SharedAnswer>): LengthRead
   return { feet, probability, certainty }
 }
 
-/** The warning when a size code (Confident or Likely) and the shape disagree on the length, or null. */
+/**
+ * The disagreement when a size code (Confident or Likely) and the shape disagree on the length, or null.
+ * The export always records it; the screen warns only when it left the length Uncertain (lengthInDoubt).
+ */
 export function lengthDisagreement(record: InspectionRecord): string | null {
   const chosen = chosenLength(record)
   const code = codeFeetOf(record)
   if (chosen.alternative === undefined || code === null) return null
   const shape = chosen.source === 'shape' ? chosen.feet : chosen.alternative
   return `The size code says ${code} ft but the shape of the container in the photo says ${shape} ft.`
+}
+
+/** The on-screen warning: only a disagreement that left the length Uncertain. A Confident code decides. */
+export function lengthInDoubt(record: InspectionRecord): string | null {
+  return chosenLength(record).certainty === undefined ? null : lengthDisagreement(record)
 }
 
 declare module './survey' {

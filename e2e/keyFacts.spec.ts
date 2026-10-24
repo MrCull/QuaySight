@@ -83,15 +83,15 @@ test.describe('key-facts tiles in demo mode', () => {
 test.describe('key-facts tiles at 1920x1080', () => {
   test.use({ viewport: { width: 1920, height: 1080 } })
 
-  test('the photo strip, the tiles and the top of the damage view are visible without scrolling', async ({
+  test('the photo strip, the tiles and the top of the readings are visible without scrolling', async ({
     page,
   }) => {
     await startDemo(page)
     await page.locator('#stage.qs-arrived').waitFor()
     await expect(page.locator('.rs-photos').first()).toBeInViewport()
     await expect(page.locator('.qs-keytiles')).toBeInViewport({ ratio: 1 })
-    const damage = (await page.locator('.rs-damage').boundingBox())!
-    expect(damage.y).toBeLessThan(1080)
+    const readings = (await page.locator('.qs-ledger').boundingBox())!
+    expect(readings.y).toBeLessThan(1080)
     expect(await page.evaluate(() => window.scrollY)).toBe(0)
   })
 })
@@ -127,7 +127,8 @@ test.describe('the Placards tile on a live run', () => {
     answers.push({ type: 'predicate', name: 'placards_present', probability: 0.95 })
     answers.push({ type: 'predicate', name: 'placard_1_present', probability: 0.95 })
     answers.push(choice('placard_1_class', 'class_3', 0.93))
-    for (const [i, d] of [...'1203'].entries()) answers.push(choice(`placard_1_un_${i + 1}`, d, 0.93))
+    for (const [i, d] of [...'1203'].entries())
+      answers.push(choice(`placard_1_un_${i + 1}`, d, 0.93))
     await page.route(/api\.openai\.com\/v1\/decisions/, (route) => {
       const damage = (route.request().postData() ?? '').match(/Z1T_DT|D1T_DT/)
       return route.fulfill({

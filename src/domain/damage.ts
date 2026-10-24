@@ -171,8 +171,13 @@ export interface ViewSpec {
 
 /** Two fixed views (spec 6.5): rear and right side, front and left side. Roof is greyed in both. */
 export const VIEWS: Record<ViewId, ViewSpec> = {
-  'rear-right': { id: 'rear-right', label: 'Rear and right side', end: 'rear', side: 'right' },
-  'front-left': { id: 'front-left', label: 'Front and left side', end: 'front', side: 'left' },
+  'rear-right': { id: 'rear-right', label: 'Door end and right side', end: 'rear', side: 'right' },
+  'front-left': {
+    id: 'front-left',
+    label: 'Blank end (no doors) and left side',
+    end: 'front',
+    side: 'left',
+  },
 }
 
 type FixedFace = Exclude<DamageFace, 'long-side'>

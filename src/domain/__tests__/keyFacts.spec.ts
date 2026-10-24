@@ -197,7 +197,10 @@ describe('the Damage tile', () => {
 })
 
 describe('the Placards tile', () => {
-  async function withPlacard(certainty: 'Confident' | 'Uncertain', dgClass: number | null) {
+  async function withPlacard(
+    certainty: 'Confident' | 'Likely' | 'Uncertain',
+    dgClass: number | null,
+  ) {
     const details = {
       ...coyuDetails(),
       dgPlacard: { answer: 'placard' as const, dgClass, symbol: 'Flame', certainty },
@@ -215,9 +218,17 @@ describe('the Placards tile', () => {
   })
 
   it('says a placard is seen when its class was not read', async () => {
-    const t = tile(buildKeyFacts(await withPlacard('Uncertain', null), ARRIVED), 'placards')!
+    const t = tile(buildKeyFacts(await withPlacard('Likely', null), ARRIVED), 'placards')!
     expect(t.headline).toBe('Placard seen')
-    expect(t.certainty).toBe('Uncertain')
+    expect(t.certainty).toBe('Likely')
+  })
+
+  it('says a placard below Likely is only possible, whatever class was read', async () => {
+    for (const dgClass of [null, 3]) {
+      const t = tile(buildKeyFacts(await withPlacard('Uncertain', dgClass), ARRIVED), 'placards')!
+      expect(t.headline).toBe('Possible placard')
+      expect(t.certainty).toBe('Uncertain')
+    }
   })
 
   it('is absent when no placard is seen, or the details were not read', async () => {

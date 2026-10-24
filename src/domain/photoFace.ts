@@ -67,7 +67,7 @@ const SHOWS_QUESTIONS: { name: string; face: PhotoFace; instructions: string }[]
     name: 'shows_rear_doors',
     face: 'rear-doors',
     instructions:
-      'Does this photo show any of the container door end (door leaves, locking bars, cams or hinges), even if it is not the main subject?',
+      'Does this photo show any of the container door end, even if it is not the main subject? The doors are known by their vertical locking bars with handles, cams and hinges. Markings, the container ID or a hazard placard on an end wall do not make it the doors: an end wall with none of that hardware is the front end.',
   },
   {
     name: 'shows_long_side',
@@ -79,12 +79,18 @@ const SHOWS_QUESTIONS: { name: string; face: PhotoFace; instructions: string }[]
     name: 'shows_front_end',
     face: 'front-end',
     instructions:
-      'Does this photo show any of the plain end wall opposite the doors, even if it is not the main subject?',
+      'Does this photo show any of the front end: the end wall opposite the doors, a short corrugated or flat panel between two corner posts with no locking bars, handles or hinges? It may carry the container ID, the size-type code or a hazard placard. Count it even if it is seen at an angle beside a long side and is not the main subject.',
   },
 ]
 
 /** A face counts as shown beside the main one when the model puts it above even odds. */
 const SHOWN_MIN = 0.5
+/**
+ * A long-side photo whose face answer gave the front end at least this much, with no doors in it, shows the
+ * front end too. At a corner the plain end beside a side is the hard call: a recorded Jev run of such a photo
+ * split the face 0.47 long side, 0.38 front end, with the doors at 0.34 and shows_front_end only at 0.51.
+ */
+const FRONT_BESIDE_SIDE_MIN = 0.25
 
 /** The survey's face question. Answer values are wire-safe names; readPhotoFace maps them back. */
 export const FACE_QUESTION: ChoiceQuestion = {
@@ -95,13 +101,18 @@ export const FACE_QUESTION: ChoiceQuestion = {
   choices: [
     {
       value: 'rear_doors',
-      description: 'The door end: two door leaves with locking bars, cams and hinges.',
+      description:
+        'The door end: two door leaves with vertical locking bars, handles, cams and hinges. Markings alone do not make an end the doors.',
     },
     {
       value: 'long_side',
       description: 'A long side wall of corrugated sheet between the corner posts.',
     },
-    { value: 'front_end', description: 'The plain end wall opposite the doors, with no doors.' },
+    {
+      value: 'front_end',
+      description:
+        'The front end: the short end wall opposite the doors, corrugated or flat, with no locking bars, handles or hinges. It may carry the container ID, size-type code or a hazard placard.',
+    },
     { value: 'roof', description: 'The roof, seen from above.' },
     {
       value: 'close_up_seal',
@@ -154,7 +165,7 @@ export function faceOf(answers: Record<string, SharedAnswer>): FaceReading | nul
     ...(subject ? { closeUpSubject: subject } : {}),
     probability,
     certainty: applyMargin(certaintyOfProbability(probability), probability, runnerUp),
-    ...shownBeside(face, answers),
+    ...shownBeside(face, answers, answer.probabilities),
   }
 }
 
@@ -165,6 +176,7 @@ export function faceOf(answers: Record<string, SharedAnswer>): FaceReading | nul
 function shownBeside(
   face: PhotoFace,
   answers: Record<string, SharedAnswer>,
+  faceOdds: Record<string, number>,
 ): { shown?: PhotoFace[] } {
   const faceKinds: PhotoFace[] = ['rear-doors', 'long-side', 'front-end']
   if (!faceKinds.includes(face)) return {}
@@ -175,7 +187,20 @@ function shownBeside(
       q.face !== face &&
       ((answers[q.name] as { probability: number }).probability ?? 0) >= SHOWN_MIN,
   )
-  return { shown: [face, ...others.map((q) => q.face)] }
+  const shown = [face, ...others.map((q) => q.face)]
+  // A side seen at a corner with an end and no doors: that end is the front end, even below even odds.
+  const doors = answers.shows_rear_doors
+  const noDoors = doors?.type !== 'predicate' || doors.probability < SHOWN_MIN
+  if (
+    face === 'long-side' &&
+    !shown.includes('front-end') &&
+    !shown.includes('rear-doors') &&
+    noDoors &&
+    (faceOdds.front_end ?? 0) >= FRONT_BESIDE_SIDE_MIN
+  ) {
+    shown.push('front-end')
+  }
+  return { shown }
 }
 
 declare module './survey' {
@@ -232,7 +257,7 @@ function mainFaceLabel(
     case 'rear-doors':
       return 'Doors'
     case 'front-end':
-      return 'Front end'
+      return 'Blank end (no doors)'
     case 'long-side':
       return side === 'left' ? 'Left side' : side === 'right' ? 'Right side' : 'Long side'
     case 'not-container':

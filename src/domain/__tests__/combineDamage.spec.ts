@@ -155,6 +155,23 @@ describe('damage across several photos', () => {
     expect([status('left'), status('roof')]).toEqual(['not-seen', 'not-seen'])
   })
 
+  it('counts the second face a corner photo shows: a side photo that also shows the front end', () => {
+    const corner = sidePhoto(2, [])
+    corner.record = {
+      ...corner.record,
+      photoFace: {
+        face: 'long-side',
+        probability: 0.95,
+        certainty: 'Confident',
+        shown: ['long-side', 'front-end'],
+      },
+    }
+    const damage = combine([doorPhoto(1), corner]).damage!
+    expect(faceStatus(damage, 'front')).toBe('photographed')
+    expect(damage.photos.filter((p) => p.face === 'front').map((p) => p.index)).toEqual([2])
+    expect(faceStatus(damage, 'roof')).toBe('not-seen')
+  })
+
   it('exports, for each damage, the photos it came from', () => {
     const combined = combine([sidePhoto(1, [finding({})]), sidePhoto(2, [finding({})])])
     const exported = buildInspectionExport(combined)

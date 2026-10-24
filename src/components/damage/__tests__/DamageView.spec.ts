@@ -10,9 +10,9 @@ describe('DamageView schematic', () => {
     const wrapper = mount(DamageView, { props: { assessment: recordedSideDamage } })
     const views = wrapper.findAll('.qs-schem__views-in > figure.qs-schem__view')
     expect(views).toHaveLength(1)
-    expect(views[0]!.find('figcaption').text()).toContain('Rear and right side')
+    expect(views[0]!.find('figcaption').text()).toContain('Door end and right side')
     expect(wrapper.find('.qs-schem__views-in > .qs-coverage__item--unseen').text()).toBe(
-      'Front and left side: not photographed',
+      'Blank end (no doors) and left side: not photographed',
     )
   })
 

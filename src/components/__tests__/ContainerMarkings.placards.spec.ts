@@ -97,6 +97,17 @@ describe('ContainerMarkings placards', () => {
     expect(row.text()).toContain("Can't tell")
   })
 
+  it('gives a placard below Likely no hazard colour: it is only possible', async () => {
+    const record = await withPlacards({
+      certainty: 'Uncertain',
+      placards: [{ dgClass: 3, unNumber: '1203', certainty: 'Uncertain' }],
+    })
+    const row = rowOf(mount(ContainerMarkings, { props: { record } }), 'PLACARD 1')
+    expect(row.find('.qs-marking--hazard').exists()).toBe(false)
+    expect(row.text()).toContain('Class 3')
+    expect(row.text()).toContain('Uncertain')
+  })
+
   it('shows the placards even when the run read no other details', async () => {
     const record = await withPlacards({ answer: 'none', certainty: 'Not seen' })
     delete record.details

@@ -39,8 +39,7 @@ async function inspectRearDoors(page: Page) {
 }
 
 const units = (page: Page) => page.getByRole('group', { name: 'Units' })
-const maxGross = (page: Page) =>
-  page.locator('.qs-field', { has: page.locator('.qs-field__label', { hasText: 'MAX GROSS' }) })
+const maxGross = (page: Page) => page.locator('.qs-ledger__row[data-row="gross"]')
 
 test.describe('units toggle', () => {
   test.use({ viewport: { width: 1440, height: 900 } })
@@ -115,11 +114,9 @@ test.describe('units toggle', () => {
     expect(hits).toBeGreaterThan(40)
   })
 
-  test('is in the Container details heading, and the exports still carry both units', async ({
-    page,
-  }) => {
+  test('is in the Readings heading, and the exports still carry both units', async ({ page }) => {
     await inspectRearDoors(page)
-    const heading = page.locator('.rs-card__head', { hasText: 'Container details' })
+    const heading = page.locator('.qs-ledger__head', { hasText: 'Readings' })
     await expect(heading.getByRole('group', { name: 'Units' })).toBeVisible()
 
     await units(page).getByRole('button', { name: 'Imperial' }).click()

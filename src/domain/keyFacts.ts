@@ -107,9 +107,17 @@ const className = (dgClass: number) => {
   return `Class ${dgClass}${name ? `, ${name}` : ''}`
 }
 
-/** One placard's headline: its class, or "Placard seen" when the class is not read. */
-const placardHeadline = (dgClass: number | null | undefined) =>
-  dgClass == null ? 'Placard seen' : className(dgClass)
+/** Below Likely a placard is only possible: the tile says so and carries no hazard badge. */
+export const placardInDoubt = (certainty: CertaintyLabel | null) =>
+  certainty !== 'Confident' && certainty !== 'Likely'
+
+/** One placard's headline: its class, "Placard seen" when the class is not read, "Possible placard" below Likely. */
+const placardHeadline = (dgClass: number | null | undefined, certainty: CertaintyLabel) =>
+  placardInDoubt(certainty)
+    ? 'Possible placard'
+    : dgClass == null
+      ? 'Placard seen'
+      : className(dgClass)
 
 /** Placards from the placards question family (several allowed), else the survey's single DG answer. */
 function placardsTile(state: PartState, record: InspectionRecord | null): KeyFactTile | null {
@@ -128,14 +136,14 @@ function placardsTile(state: PartState, record: InspectionRecord | null): KeyFac
     }
     const only = reading.placards[0]
     return tile('placards', state, {
-      headline: placardHeadline(only?.dgClass),
+      headline: placardHeadline(only?.dgClass, reading.certainty),
       certainty: reading.certainty,
     })
   }
   const dg = record?.details?.dgPlacard
   if (dg?.answer !== 'placard') return null
   return tile('placards', state, {
-    headline: placardHeadline(dg.dgClass),
+    headline: placardHeadline(dg.dgClass, dg.certainty),
     certainty: dg.certainty,
   })
 }

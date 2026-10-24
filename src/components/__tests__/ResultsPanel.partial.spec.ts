@@ -52,7 +52,7 @@ describe('ResultsPanel partial and landing states', () => {
     ]
     const wrapper = mount(ResultsPanel)
     expect(wrapper.find('.qs-id').exists()).toBe(false)
-    expect(wrapper.find('.rs-id-skeleton').exists()).toBe(true)
+    expect(wrapper.find('[data-row="id"] .rs-ledger-skeleton').exists()).toBe(true)
 
     store.planned = [
       planned({ id: 'read', state: 'answered' }),
@@ -60,9 +60,9 @@ describe('ResultsPanel partial and landing states', () => {
       planned({ id: 'side', stages: ['damage'], state: 'sent' }),
     ]
     await wrapper.vm.$nextTick()
-    const card = wrapper.get('#detail-id').element
-    expect(card.classList.contains('qs-arrived')).toBe(true)
-    expect(wrapper.find('.rs-id-skeleton').exists()).toBe(false)
+    expect(wrapper.get('#detail-id').text()).toContain('APHU')
+    expect(wrapper.get('.qs-ledger').classes()).toContain('qs-arrived')
+    expect(wrapper.find('.rs-ledger-skeleton').exists()).toBe(false)
     // Exports and the manifest offer wait for the whole run.
     expect(wrapper.find('.rs-exports').exists()).toBe(false)
   })
