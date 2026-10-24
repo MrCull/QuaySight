@@ -144,6 +144,36 @@ describe('reading the door-end answers', () => {
     expect(reading.significantProbability).toBe(0.7)
   })
 
+  it('names a torn panel after the rupture, not the dent or bend scored as high', () => {
+    // GPT-6 Luna's live reading of the torn CAI door's photo-right leaf, bottom third.
+    const answers = cleanDoors()
+    Object.assign(answers, {
+      D2B_DT: predicate(0.98),
+      D2B_BT: predicate(0.97),
+      D2B_BR: predicate(0.97),
+      D2B_CO: predicate(0.62),
+      D2B_HO: predicate(0.59),
+      D2B_severity: severity([0.01, 0.01, 0.03, 0.15, 0.8]),
+    })
+    const [torn] = readDoorDamage(answers).findings
+    expect(torn).toMatchObject({ title: 'Break in the door panel', severity: 'major' })
+    expect(torn?.types.map((t) => t.code)).toEqual(['BR', 'DT', 'BT', 'CO', 'HO'])
+  })
+
+  it('keeps the deformation as the name while no rupture reaches even odds', () => {
+    const answers = cleanDoors()
+    Object.assign(answers, {
+      D2B_BT: predicate(0.78),
+      D2B_DT: predicate(0.72),
+      D2B_BR: predicate(0.4),
+      D2B_HO: predicate(0.39),
+      D2B_severity: severity([0.01, 0.01, 0.03, 0.15, 0.8]),
+    })
+    const [bent] = readDoorDamage(answers).findings
+    expect(bent?.title).toBe('Bend in the door panel')
+    expect(bent?.types[0]?.code).toBe('BT')
+  })
+
   it('makes no finding where severity is none, and none where a region was not seen', () => {
     const answers = cleanDoors()
     answers.D1M_CO = predicate(0.8)
