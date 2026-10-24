@@ -1,13 +1,25 @@
 <script setup lang="ts">
 import { computed } from 'vue'
+import type { CedexLocation } from '../../domain/cedexLocation'
+import { cedexType } from '../../domain/cedexType'
 import type { DamageFinding } from '../../domain/damage'
 import CertaintyChip from '../CertaintyChip.vue'
 import SeverityBadge from './SeverityBadge.vue'
 
-const props = defineProps<{ findings: DamageFinding[]; selectedId: number | null }>()
+// The findings grid (design-system FindingCard, compact): number, title, the CEDEX damage type and location
+// codes, severity and certainty. Selecting a card opens its details beside the drawing (DamageDetail).
+const props = defineProps<{
+  findings: DamageFinding[]
+  selectedId: number | null
+  locations: Record<number, CedexLocation>
+}>()
 const emit = defineEmits<{ select: [id: number] }>()
 
-const ordered = computed(() => [...props.findings].sort((a, b) => a.id - b.id))
+const ordered = computed(() =>
+  [...props.findings]
+    .sort((a, b) => a.id - b.id)
+    .map((f) => ({ f, type: cedexType(f).best, location: props.locations[f.id] ?? null })),
+)
 
 function uncertaintyClass(f: DamageFinding): string {
   return f.certainty === 'Likely'
@@ -21,10 +33,10 @@ function uncertaintyClass(f: DamageFinding): string {
 <template>
   <div class="rs-findings">
     <button
-      v-for="(f, i) in ordered"
+      v-for="({ f, type, location }, i) in ordered"
       :key="f.id"
       type="button"
-      class="qs-finding qs-rise"
+      class="qs-finding qs-finding--compact qs-rise"
       :style="{ '--i': i }"
       :data-finding="f.id"
       :aria-pressed="f.id === selectedId ? 'true' : 'false'"
@@ -39,35 +51,31 @@ function uncertaintyClass(f: DamageFinding): string {
         <br />
         <span class="qs-finding__loc">{{ f.location }}</span>
       </span>
-      <span class="qs-finding__tags">
-        <SeverityBadge :severity="f.severity" :code="f.types[0]?.code" />
-        <CertaintyChip :level="f.certainty" />
-      </span>
-      <span class="qs-finding__more">
-        <span>{{ f.description }}</span>
-        <span v-if="f.photos && f.photos.length > 0"
-          ><strong>Seen in:</strong> {{ f.photos.length === 1 ? 'photo' : 'photos' }}
-          {{ f.photos.join(', ') }}</span
+      <span class="qs-finding__codes">
+        <span
+          v-if="type"
+          class="qs-type-code"
+          :title="`CEDEX damage type: ${type.code} ${type.name}`"
+          :aria-label="`CEDEX damage type ${type.code}, ${type.name}`"
+          >{{ type.code }}</span
         >
-        <span><strong>Best interpretation:</strong> {{ f.bestInterpretation }}</span>
-        <span><strong>What remains uncertain:</strong> {{ f.uncertainty }}</span>
-        <span class="qs-finding__probs" aria-label="Damage types">
-          <span v-for="t in f.types" :key="t.code" class="damage-type">
-            <span class="damage-type__name">{{ t.code }} {{ t.name }}</span>
-            <span v-if="t.probability === null" class="damage-unavailable"
-              >Probability unavailable</span
-            >
-            <span v-else class="qs-prob damage-type__prob">
-              <span class="qs-prob__bar"
-                ><i :style="{ '--p': `${Math.round(t.probability * 100)}%` }"></i
-              ></span>
-              <span>{{ t.probability.toFixed(2) }}</span>
-            </span>
-          </span>
-        </span>
-        <span class="damage-caveats">
-          <span v-for="c in f.caveats" :key="c">{{ c }}</span>
-        </span>
+        <span
+          v-else-if="f.types.length > 0"
+          class="qs-type-code qs-type-code--none"
+          aria-label="CEDEX damage type Uncertain"
+          >Type Uncertain</span
+        >
+        <span
+          v-if="location?.code"
+          class="qs-cedex-code"
+          :title="`CEDEX location: ${location.parts.join(' · ')}`"
+          :aria-label="`CEDEX location ${location.code}${location.basis === 'estimated' ? ', estimated' : ''}`"
+          >{{ location.basis === 'estimated' ? '≈ ' : '' }}{{ location.code }}</span
+        >
+      </span>
+      <span class="qs-finding__tags">
+        <SeverityBadge :severity="f.severity" />
+        <CertaintyChip :level="f.certainty" />
       </span>
     </button>
   </div>

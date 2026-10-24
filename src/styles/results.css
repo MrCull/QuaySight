@@ -236,17 +236,18 @@ body {
   letter-spacing: 0.01em;
   color: var(--ink);
 }
+/* The drawing with the selected finding's details beside it; every finding in a grid across the full width below. */
 .rs-damage__grid {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) 420px;
+  grid-template-columns: minmax(0, 1fr) minmax(360px, 440px);
   gap: var(--space-5);
   align-items: start;
 }
 .rs-findings {
   display: grid;
-  grid-template-columns: minmax(0, 1fr);
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 280px), 1fr));
   gap: var(--space-3);
-  align-items: start;
+  align-items: stretch;
 }
 
 /* Result states under the container ID (ticket #9). Colours come from the design-system tokens only. */

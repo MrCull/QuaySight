@@ -21,16 +21,62 @@ import {
 import type { SharedAnswer } from './questionSet'
 
 /** ISO 9897 CEDEX damage types the sets ask about, in their order. Damage types, not locations. */
-export const CEDEX_TYPES: readonly { code: string; name: string; noun: string }[] = [
-  { code: 'DT', name: 'Dent', noun: 'Dent' },
-  { code: 'BT', name: 'Bent', noun: 'Bend' },
-  { code: 'BW', name: 'Bowed', noun: 'Bow' },
-  { code: 'HO', name: 'Holed', noun: 'Hole' },
-  { code: 'CK', name: 'Cracked', noun: 'Crack' },
-  { code: 'CW', name: 'Cracked weld', noun: 'Cracked weld' },
-  { code: 'CO', name: 'Corroded', noun: 'Corrosion' },
-  { code: 'CH', name: 'Corroded and holed', noun: 'Corrosion hole' },
-  { code: 'BR', name: 'Broken', noun: 'Break' },
+export const CEDEX_TYPES: readonly {
+  code: string
+  name: string
+  noun: string
+  /** What the type means, in plain words, for the expanded card. */
+  description: string
+}[] = [
+  {
+    code: 'DT',
+    name: 'Dent',
+    noun: 'Dent',
+    description: 'A local push-in or push-out of the surface, with no sharp crease.',
+  },
+  {
+    code: 'BT',
+    name: 'Bent',
+    noun: 'Bend',
+    description: 'A part or panel deformed with a sharp bend or crease.',
+  },
+  {
+    code: 'BW',
+    name: 'Bowed',
+    noun: 'Bow',
+    description: 'A broad, gradual curve over a large area.',
+  },
+  {
+    code: 'HO',
+    name: 'Holed',
+    noun: 'Hole',
+    description: 'An opening right through the material.',
+  },
+  { code: 'CK', name: 'Cracked', noun: 'Crack', description: 'A fracture in the material itself.' },
+  {
+    code: 'CW',
+    name: 'Cracked weld',
+    noun: 'Cracked weld',
+    description: 'A fracture along a weld seam.',
+  },
+  {
+    code: 'CO',
+    name: 'Corroded',
+    noun: 'Corrosion',
+    description: 'Rust or corrosion of the surface.',
+  },
+  {
+    code: 'CH',
+    name: 'Corroded and holed',
+    noun: 'Corrosion hole',
+    description: 'Corrosion that has gone right through the material.',
+  },
+  {
+    code: 'BR',
+    name: 'Broken',
+    noun: 'Break',
+    description: 'A part broken, separated or missing.',
+  },
 ]
 
 /** At or above this probability a predicate counts as seen: a component finding, a named damage type. */

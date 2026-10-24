@@ -236,14 +236,19 @@ export function assessDamage(
 }
 
 function reassess(record: InspectionRecord): InspectionRecord {
-  const lengthFt = chosenLength(record).feet
+  const length = chosenLength(record)
+  const lengthFt = length.feet
   const damage = assessDamage(
     record.photoFace,
     record.damageReadings ?? [],
     record.photo?.name ?? null,
     lengthFt,
   )
-  return { ...record, damage: damage && { ...damage, lengthFt } }
+  const lengthAssumed = length.source === 'default'
+  return {
+    ...record,
+    damage: damage && { ...damage, lengthFt, ...(lengthAssumed ? { lengthAssumed } : {}) },
+  }
 }
 
 /** The model's length answer folded in: the drawing's length is chosen again. */

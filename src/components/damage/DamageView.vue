@@ -1,13 +1,17 @@
 <script setup lang="ts">
-import { computed } from 'vue'
+import { computed, nextTick, ref } from 'vue'
 import { potentiallySignificant, type DamageAssessment } from '../../domain/damage'
 import { UNIDENTIFIED_FACE_HEADING } from '../../domain/combineDamage'
+import { cedexLocation, type CedexLocation } from '../../domain/cedexLocation'
 import DamageSchematic from './DamageSchematic.vue'
 import DamageFindings from './DamageFindings.vue'
+import DamageDetail from './DamageDetail.vue'
+import { prefersReducedMotion } from '../../composables/reducedMotion'
 import '../../styles/damage.css'
 
 // Follows design-system/components/DamageAssessment: the set's own photo checks, the significance
-// flag, the schematic and the finding cards; or "Damage not assessed for this view" with the reason.
+// flag, then the schematic with the selected finding's details beside it, and every finding in a grid
+// across the full width below; or "Damage not assessed for this view" with the reason.
 const props = defineProps<{ assessment: DamageAssessment | null }>()
 
 // Selection is shared: a marker, its area and its finding card select together.
@@ -16,6 +20,21 @@ const selectedId = defineModel<number | null>('selected', { default: null })
 
 function select(id: number) {
   selectedId.value = selectedId.value === id ? null : id
+}
+
+const detail = ref<InstanceType<typeof DamageDetail> | null>(null)
+
+// A card in the grid below the drawing selects its finding; when the details panel and the drawing are
+// scrolled out of view, they are brought back so the selection can be seen.
+async function selectFromCard(id: number) {
+  select(id)
+  if (selectedId.value === null) return
+  await nextTick()
+  const el = detail.value?.$el as HTMLElement | undefined
+  if (!el || typeof el.getBoundingClientRect !== 'function') return
+  const box = el.getBoundingClientRect()
+  if (box.top >= 0 && box.top < window.innerHeight) return
+  el.scrollIntoView?.({ block: 'nearest', behavior: prefersReducedMotion() ? 'auto' : 'smooth' })
 }
 
 /** The assessment when it assessed a face; null when there is none or the view was not assessed. */
@@ -58,6 +77,27 @@ const facts = computed(() => {
   return rows
 })
 
+// Every finding's CEDEX location, by finding number. Findings on a face we couldn't identify have none.
+const locations = computed(() => {
+  const a = assessed.value
+  const out: Record<number, CedexLocation> = {}
+  if (!a) return out
+  for (const f of a.findings) out[f.id] = cedexLocation(f, a)
+  for (const f of a.unplaced ?? []) out[f.id] = cedexLocation(f, a, true)
+  return out
+})
+
+const selected = computed(() => {
+  const a = assessed.value
+  if (!a || selectedId.value === null) return null
+  return [...a.findings, ...(a.unplaced ?? [])].find((f) => f.id === selectedId.value) ?? null
+})
+const selectedLocation = computed(() =>
+  selected.value ? (locations.value[selected.value.id] ?? null) : null,
+)
+
+const aboutOpen = ref(false)
+
 const significant = computed(() => !!assessed.value && potentiallySignificant(assessed.value))
 </script>
 
@@ -66,6 +106,41 @@ const significant = computed(() => !!assessed.value && potentiallySignificant(as
     <div class="rs-damage__head">
       <span class="rs-damage__title">Damage view</span>
       <span v-if="assessed" class="damage-summary qs-type-body-sm">{{ summary }}</span>
+      <span v-if="assessed" class="qs-cedex-note">
+        Damage types and locations classified using CEDEX (ISO 9897).
+        <button
+          type="button"
+          class="qs-cedex-note__toggle"
+          aria-controls="cedex-about"
+          :aria-expanded="aboutOpen ? 'true' : 'false'"
+          aria-label="About CEDEX"
+          title="About CEDEX"
+          @click="aboutOpen = !aboutOpen"
+        >
+          <i class="qs-glyph qs-glyph--info" aria-hidden="true"></i>
+        </button>
+      </span>
+    </div>
+    <div
+      v-if="assessed"
+      v-show="aboutOpen"
+      id="cedex-about"
+      class="qs-cedex-note__body"
+      role="note"
+    >
+      <p>
+        CEDEX is the container industry's standard shorthand for damage, set out in ISO 9897. A
+        two-letter damage type says what kind of damage it is (DT Dent, HO Holed, CO Corroded). A
+        four-character location says where: the face (D door end, F front end, L left side, R right
+        side), the part of it (T top half, B bottom half, X both, H top rail or header, G bottom
+        rail or sill), then the section. Long sides have 5 sections on a 20 ft container and 10 on a
+        40 ft one, numbered from the door end; each end has 4 positions.
+      </p>
+      <p>
+        Using the same codes as depot and survey reports makes these findings easy to compare. They
+        are estimated from photos: a code is only given where the photos show which face and which
+        end it is, and it is never a measured or surveyed location. Severity is judged separately.
+      </p>
     </div>
 
     <template v-if="assessed">
@@ -80,22 +155,35 @@ const significant = computed(() => !!assessed.value && potentiallySignificant(as
       </p>
 
       <div class="rs-damage__grid">
-        <DamageSchematic :assessment="assessed" :selected-id="selectedId" @select="select" />
-        <div class="rs-damage__cards">
+        <DamageSchematic
+          :assessment="assessed"
+          :selected-id="selectedId"
+          :selected-code="selectedLocation?.code ?? null"
+          @select="select"
+        />
+        <DamageDetail ref="detail" :finding="selected" :location="selectedLocation" />
+      </div>
+
+      <div
+        v-if="assessed.findings.length > 0 || assessed.unplaced?.length"
+        class="rs-damage__cards"
+      >
+        <h3 class="qs-type-body-sm rs-damage__list-title">All findings</h3>
+        <DamageFindings
+          :findings="assessed.findings"
+          :selected-id="selectedId"
+          :locations="locations"
+          @select="selectFromCard"
+        />
+        <template v-if="assessed.unplaced?.length">
+          <h3 class="qs-type-body-sm rs-damage__unplaced">{{ UNIDENTIFIED_FACE_HEADING }}</h3>
           <DamageFindings
-            :findings="assessed.findings"
+            :findings="assessed.unplaced"
             :selected-id="selectedId"
-            @select="select"
+            :locations="locations"
+            @select="selectFromCard"
           />
-          <template v-if="assessed.unplaced?.length">
-            <h3 class="qs-type-body-sm rs-damage__unplaced">{{ UNIDENTIFIED_FACE_HEADING }}</h3>
-            <DamageFindings
-              :findings="assessed.unplaced"
-              :selected-id="selectedId"
-              @select="select"
-            />
-          </template>
-        </div>
+        </template>
       </div>
     </template>
 
