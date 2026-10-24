@@ -1,6 +1,7 @@
 // Damage assessment for the neutral schematic (spec 6.2, 6.3, 6.5). Provider-independent: every
 // adapter normalises face, zone, severity and certainty into these shapes. Positions are approximate
-// fractions of a face, never measurements, and never CEDEX location codes.
+// fractions of a face, never measurements. CEDEX location codes are derived from them for display
+// (cedexLocation.ts), only where the photos settle the face and its orientation.
 
 import type { ContainerLengthFt } from './chosenLength'
 import type { CertaintyLabel } from './inspection'
@@ -147,6 +148,8 @@ export interface DamageAssessment {
   sideInference?: SideInference
   /** The container length the schematic is drawn to (20, 40 or 45 ft); 40 when absent. */
   lengthFt?: ContainerLengthFt
+  /** True when no length was read and lengthFt is the 40 ft default: no CEDEX side section is then given. */
+  lengthAssumed?: boolean
   /** Set when no face in the photo could be assessed: "Damage not assessed for this view", and why. */
   notAssessed?: { reason: string }
   /** The raw response the assessment came from (live), for the export. */

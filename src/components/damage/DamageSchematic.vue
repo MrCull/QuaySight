@@ -8,9 +8,15 @@ import {
   type DamageAssessment,
   type FaceStatus,
 } from '../../domain/damage'
+import { cedexSpan } from '../../domain/cedexLocation'
 import SchematicFigure from './SchematicFigure.vue'
 
-const props = defineProps<{ assessment: DamageAssessment; selectedId: number | null }>()
+const props = defineProps<{
+  assessment: DamageAssessment
+  selectedId: number | null
+  /** The selected finding's CEDEX location code, lit on the drawing when it has one. */
+  selectedCode?: string | null
+}>()
 const emit = defineEmits<{ select: [id: number] }>()
 
 type FixedFace = 'rear' | 'front' | 'left' | 'right' | 'roof'
@@ -57,6 +63,21 @@ function faceText(name: string, status: FaceStatus, uncertain = false): string {
   if (status === 'side-unknown') return "Long side · Can't tell"
   return `${name} · Not seen`
 }
+
+// The CEDEX face letter each drawn face is coded with.
+const FACE_LETTER = { rear: 'D', front: 'F', left: 'L', right: 'R' } as const
+
+/** The selected code's sections or positions on one view, or null when the code is on neither of its faces. */
+function cedexOn(spec: (typeof VIEWS)[keyof typeof VIEWS]) {
+  if (!props.selectedCode) return null
+  const { face, first, last } = cedexSpan(props.selectedCode)
+  if (face === FACE_LETTER[spec.side]) return { on: 'side' as const, first, last }
+  if (face === FACE_LETTER[spec.end]) return { on: 'end' as const, first, last }
+  return null
+}
+
+// Sections are numbered only where the doors settled which end is which.
+const sidesNumbered = computed(() => props.assessment.sideInference?.basis === 'inferred')
 
 const views = computed(() =>
   Object.values(VIEWS).map((spec) => {
@@ -118,6 +139,8 @@ const hasZones = computed(() => (props.assessment.zones ?? []).length > 0)
             :markers="v.markers"
             :zones="v.zones"
             :length-ft="assessment.lengthFt"
+            :section-numbers="sidesNumbered && v.side.status === 'photographed'"
+            :cedex="cedexOn(v.spec)"
             :selected-id="selectedId"
             @select="emit('select', $event)"
           />

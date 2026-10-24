@@ -26,3 +26,46 @@
   font: 400 13px/18px var(--font-sans);
   color: var(--ink-muted);
 }
+
+.damage-note {
+  color: var(--ink-muted);
+}
+/* The drawing with every finding under it fills the left column; the selected finding's details run down
+   the right beside both, so neither leaves an empty band under the other. */
+.rs-damage__grid {
+  grid-template-areas:
+    'schem detail'
+    'list detail';
+  grid-template-rows: auto 1fr;
+}
+.rs-damage__schem {
+  grid-area: schem;
+}
+.rs-damage__detail {
+  grid-area: detail;
+  position: sticky;
+  top: var(--space-4);
+}
+.rs-damage__cards {
+  grid-area: list;
+  display: grid;
+  gap: var(--space-3);
+  align-content: start;
+}
+.rs-damage__list-title,
+.rs-damage__unplaced {
+  margin: 0;
+  color: var(--ink-muted);
+}
+@media (max-width: 1100px) {
+  .rs-damage__grid {
+    grid-template-areas:
+      'schem'
+      'detail'
+      'list';
+    grid-template-rows: auto;
+  }
+  .rs-damage__detail {
+    position: static;
+  }
+}
