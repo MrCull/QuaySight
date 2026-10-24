@@ -2,7 +2,14 @@
 import { computed } from 'vue'
 import { sectionCount } from '../../domain/sideSections'
 import type { ContainerLengthFt } from '../../domain/chosenLength'
-import type { DamageFinding, FaceStatus, FindingZone, ZoneCoverage } from '../../domain/damage'
+import {
+  VIEWS,
+  type DamageFinding,
+  type FaceStatus,
+  type FindingZone,
+  type ViewId,
+  type ZoneCoverage,
+} from '../../domain/damage'
 
 // One fixed view of the neutral container drawing, following
 // design-system/components/ContainerSchematic. Markers are approximate areas on a flat face, drawn
@@ -20,6 +27,13 @@ const props = defineProps<{
   zones?: ZoneCoverage[]
   /** The container length the long side is drawn to: 20, 40 or 45 ft. 40 when not given. */
   lengthFt?: ContainerLengthFt
+  /**
+   * Number the long side's CEDEX sections from the door end. Only when the photos show which end is the
+   * door end, so the numbering is never a guess.
+   */
+  sectionNumbers?: boolean
+  /** The selected finding's CEDEX sections (on the side) or positions (on the end), to light up. */
+  cedex?: { on: 'side' | 'end'; first: number; last: number } | null
 }>()
 
 const emit = defineEmits<{ select: [id: number] }>()
@@ -44,42 +58,83 @@ const runX = computed(() => RUN_X * feet.value)
 const runY = computed(() => RUN_Y * feet.value)
 const left = computed(() => LEFT + (RUN_X * (MAX_FT - feet.value)) / 2)
 
-const sidePt: Projection = (u, v) => [
-  left.value + runX.value * u,
-  TOP + runY.value * u + HEIGHT * v,
-]
-const endPt: Projection = (u, v) => [
-  left.value + runX.value + END_X * u,
-  TOP + runY.value + END_Y * u + HEIGHT * v,
-]
+// The drawing is the corner a viewer sees: the end face on the left of the long side. Standing outside the
+// right side the door end is on your left, and outside the left side the front end is, so each face's own u
+// (photo left to photo right) runs left to right here and the end meets the side where they meet on the
+// container. The projection is drawn mirrored from the design-system figure's construction (x → 900 − x).
+const WIDTH = 900
+const mirror = ([x, y]: Pt): Pt => [WIDTH - x, y]
+
+const sidePt: Projection = (u, v) =>
+  mirror([left.value + runX.value * (1 - u), TOP + runY.value * (1 - u) + HEIGHT * v])
+const endPt: Projection = (u, v) =>
+  mirror([
+    left.value + runX.value + END_X * (1 - u),
+    TOP + runY.value + END_Y * (1 - u) + HEIGHT * v,
+  ])
 const ROOF_POINTS = computed(() =>
-  [
-    [left.value, TOP],
-    [left.value + runX.value, TOP + runY.value],
-    [left.value + runX.value + END_X, TOP + runY.value + END_Y],
-    [left.value + END_X, TOP + END_Y],
-  ]
+  (
+    [
+      [left.value, TOP],
+      [left.value + runX.value, TOP + runY.value],
+      [left.value + runX.value + END_X, TOP + runY.value + END_Y],
+      [left.value + END_X, TOP + END_Y],
+    ] as Pt[]
+  )
+    .map(mirror)
     .map(([x, y]) => `${x},${y}`)
     .join(' '),
 )
 const roofTag = computed(
-  () => `translate(${left.value + (runX.value + END_X) / 2} ${TOP + (runY.value + END_Y) / 2})`,
+  () =>
+    `translate(${WIDTH - (left.value + (runX.value + END_X) / 2)} ${TOP + (runY.value + END_Y) / 2})`,
 )
-const sideLabel = computed(() => sidePt(0.03, 1.1836))
-const endLabel = computed(() => endPt(0.1115, 1.2126))
+// Labels sit under each face. Numbered sections sit just under the side, so its label drops below them.
+const sideLabel = computed(() => sidePt(0.97, props.sectionNumbers ? 1.3 : 1.1836))
+const endLabel = computed(() => endPt(0.03, 1.58))
+
+// The frame is cropped to the container actually drawn (its length, the end, the labels under it), so a
+// 20 ft container is not a small box in the middle of a 45 ft frame. Pins may rise above it (overflow is
+// visible).
+const FRAME_PAD = 24
+const viewBox = computed(() => {
+  const x0 = WIDTH - (left.value + runX.value + END_X) - FRAME_PAD
+  const x1 = WIDTH - left.value + FRAME_PAD
+  const bottom = Math.max(endLabel.value[1], sideLabel.value[1]) + FRAME_PAD / 2
+  return `${x0} 0 ${x1 - x0} ${bottom}`
+})
 
 function quad(pt: Projection, u0: number, u1: number, v0: number, v1: number): string {
   return [pt(u0, v0), pt(u1, v0), pt(u1, v1), pt(u0, v1)].map(([x, y]) => `${x},${y}`).join(' ')
 }
 
-// The long side's CEDEX/IICL sections (5 for 20 ft, 10 for 40 and 45 ft), as columns along the face.
+const inSpan = (on: 'side' | 'end', n: number) =>
+  !!props.cedex && props.cedex.on === on && n >= props.cedex.first && n <= props.cedex.last
+
+// The long side's CEDEX/IICL sections (5 for 20 ft, 10 for 40 and 45 ft), as columns along the face,
+// numbered from the door end: from the left of the right side (beside the door end), from the right of the
+// left side (the front end is on its left).
 const sectionShapes = computed(() => {
   const n = sectionCount(feet.value)
-  return Array.from({ length: n }, (_, i) => ({
-    id: i,
-    points: quad(sidePt, i / n, (i + 1) / n, 0, 1),
-  }))
+  return Array.from({ length: n }, (_, i) => {
+    const num = VIEWS[props.id as ViewId]?.side === 'left' ? n - i : i + 1
+    const [x, y] = sidePt((i + 0.5) / n, 1.07)
+    return {
+      id: i,
+      num,
+      points: quad(sidePt, i / n, (i + 1) / n, 0, 1),
+      lit: inSpan('side', num),
+      label: { x, y },
+    }
+  })
 })
+
+// The end's four CEDEX positions, drawn only for the selected finding's code: photo-left is position 1.
+const positionShapes = computed(() =>
+  [1, 2, 3, 4]
+    .filter((p) => inSpan('end', p))
+    .map((p) => ({ id: p, points: quad(endPt, (p - 1) / 4, p / 4, 0, 1) })),
+)
 
 const SIDE_POINTS = computed(() => quad(sidePt, 0, 1, 0, 1))
 const END_POINTS = computed(() => quad(endPt, 0, 1, 0, 1))
@@ -164,12 +219,7 @@ function select(id: number) {
       {{ caption }}
       <small v-if="noPhotos">No photos</small>
     </figcaption>
-    <svg
-      class="qs-c"
-      viewBox="0 0 900 430"
-      role="group"
-      :aria-label="`Container drawing, ${caption}`"
-    >
+    <svg class="qs-c" :viewBox="viewBox" role="group" :aria-label="`Container drawing, ${caption}`">
       <defs>
         <pattern
           :id="`${id}-hatch`"
@@ -204,11 +254,21 @@ function select(id: number) {
         :fill="`url(#${id}-hatch)`"
       />
       <g v-if="side.status !== 'not-seen'" class="qs-c-sections">
-        <g v-for="s in sectionShapes" :key="s.id" class="qs-c-section">
+        <g
+          v-for="s in sectionShapes"
+          :key="s.id"
+          :class="['qs-c-section', { 'is-cedex': s.lit }]"
+          :data-section="sectionNumbers ? s.num : undefined"
+        >
           <polygon :points="s.points" />
+          <text v-if="sectionNumbers" class="qs-c-section__num" :x="s.label.x" :y="s.label.y">
+            {{ s.num }}
+          </text>
         </g>
       </g>
-      <text class="qs-c-label" :x="sideLabel[0]" :y="sideLabel[1]">{{ side.text }}</text>
+      <text class="qs-c-label" text-anchor="end" :x="sideLabel[0]" :y="sideLabel[1]">
+        {{ side.text }}
+      </text>
 
       <template v-if="end">
         <polygon class="qs-c-end" :points="END_POINTS" />
@@ -218,7 +278,17 @@ function select(id: number) {
           :points="END_POINTS"
           :fill="`url(#${id}-hatch)`"
         />
-        <text class="qs-c-label" :x="endLabel[0]" :y="endLabel[1]">{{ end.text }}</text>
+        <text class="qs-c-label" :x="endLabel[0]" :y="endLabel[1]">
+          {{ end.text }}
+        </text>
+        <g
+          v-for="p in positionShapes"
+          :key="`position-${p.id}`"
+          class="qs-c-section is-cedex"
+          :data-position="p.id"
+        >
+          <polygon :points="p.points" />
+        </g>
       </template>
 
       <g v-if="zoneShapes.length > 0" class="qs-c-zones">

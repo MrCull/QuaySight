@@ -151,18 +151,66 @@ describe('a live long-side assessment in the damage view', () => {
     expect(wrapper.find(`.qs-pin[data-finding="${casting.id}"]`).exists()).toBe(false)
   })
 
-  it('names the zone in photo-relative words, never a CEDEX location code', async () => {
+  it('names the zone in words and its CEDEX location code, estimated while part of the side is out of the photo', async () => {
     const assessment = liveSide()
     const dent = assessment.findings.find((f) => f.types[0]?.code === 'DT')!
     const wrapper = mount(DamageView, { props: { assessment } })
+    // Doors at photo right: the left side, sections numbered from the door end at the right.
+    expect(cardFor(wrapper, dent).find('.qs-cedex-code').text()).toBe('≈ LB78')
+    expect(cardFor(wrapper, dent).find('.qs-type-code').text()).toBe('DT')
     await cardFor(wrapper, dent).trigger('click')
-    const card = cardFor(wrapper, dent)
-    expect(card.text()).toContain(
+    const detail = wrapper.find('.qs-finding-detail')
+    expect(detail.text()).toContain(
       'Sections 7 and 8 of 10 from the door end, lower half of the side sheet',
     )
-    expect(card.text()).toContain('Moderate')
-    expect(card.text()).toContain('0.92')
-    expect(wrapper.text()).not.toMatch(/location code|CEDEX location/i)
+    const location = detail.find('[data-detail="cedex-location"]')
+    expect(location.find('.qs-cedex-code').text()).toBe('LB78')
+    expect(location.text()).toContain('Left side · Bottom half · Sections 7 to 8 of 10')
+    expect(location.text()).toContain('Estimated')
+    expect(detail.find('.qs-sev').text()).toContain('Moderate')
+    expect(detail.find('[data-detail="cedex-type"]').text()).toContain('0.92')
+    // The same sections light up on the drawing, numbered from the door end.
+    const lit = wrapper.findAll('.qs-c-section.is-cedex').map((g) => g.attributes('data-section'))
+    expect(lit.sort()).toEqual(['7', '8'])
+    expect(wrapper.text()).not.toMatch(FORBIDDEN)
+  })
+
+  it('places the code when the whole side is in the photo and the length was read', async () => {
+    const assessment = {
+      ...liveSide((a) => (a.side_panel_coverage = choice('full'))),
+      lengthFt: 40 as const,
+    }
+    const dent = assessment.findings.find((f) => f.types[0]?.code === 'DT')!
+    const wrapper = mount(DamageView, { props: { assessment } })
+    expect(cardFor(wrapper, dent).find('.qs-cedex-code').text()).toBe('LB78')
+    await cardFor(wrapper, dent).trigger('click')
+    expect(wrapper.find('[data-detail="cedex-location"]').text()).toContain(
+      'Placed from the photos',
+    )
+  })
+
+  it('lays every finding out in one grid under the drawing, the details beside both', async () => {
+    const assessment = liveSide()
+    const wrapper = mount(DamageView, { props: { assessment } })
+    const grid = wrapper.find('.rs-damage__grid').element.children
+    const area = (el: Element) => [...el.classList].find((c) => c.startsWith('rs-damage__'))
+    expect([...grid].map(area)).toEqual([
+      'rs-damage__schem',
+      'rs-damage__detail',
+      'rs-damage__cards',
+    ])
+    expect(wrapper.find('.qs-finding-detail .qs-finding').exists()).toBe(false)
+    expect(wrapper.findAll('.rs-damage__cards .qs-finding')).toHaveLength(
+      assessment.findings.length,
+    )
+    expect(wrapper.find('.rs-damage__grid .qs-finding-detail').exists()).toBe(true)
+    // Marker and card select the same finding.
+    const first = assessment.findings.find((f) => f.zone)!
+    await wrapper.find(`.qs-pin[data-finding="${first.id}"]`).trigger('click')
+    expect(cardFor(wrapper, first).attributes('aria-pressed')).toBe('true')
+    expect(wrapper.find('.qs-finding-detail').attributes('data-finding-detail')).toBe(
+      String(first.id),
+    )
   })
 })
 
@@ -322,6 +370,33 @@ describe('a live door-end assessment in the damage view', () => {
     expect(cardFor(wrapper, sill).find('.qs-sev').classes()).toContain('qs-sev--cosmetic')
     expect(cardFor(wrapper, gasket).exists()).toBe(true)
     expect(wrapper.find(`.qs-pin[data-finding="${gasket.id}"]`).exists()).toBe(false)
+  })
+
+  it('codes door findings by CEDEX position across the door end, and gives none where the part is not said', async () => {
+    const assessment = liveDoors()
+    const dent = assessment.findings.find((f) => f.component === 'panel')!
+    const bar = assessment.findings.find((f) => f.component === 'locking-bar')!
+    const sill = assessment.findings.find((f) => f.component === 'sill')!
+    const gasket = assessment.findings.find((f) => f.component === 'gasket')!
+    const wrapper = mount(DamageView, { props: { assessment } })
+    const code = (f: DamageFinding) => cardFor(wrapper, f).find('.qs-cedex-code')
+    // Only most of the door end is in the photo, so the codes are estimated.
+    expect(code(dent).text()).toBe('≈ DB34')
+    expect(code(bar).text()).toBe('≈ DX1N')
+    expect(code(sill).text()).toBe('≈ DG14')
+    expect(code(gasket).exists()).toBe(false)
+    await cardFor(wrapper, dent).trigger('click')
+    expect(wrapper.find('[data-detail="cedex-location"]').text()).toContain(
+      'Door end · Bottom half · Positions 3 to 4 of 4',
+    )
+    expect(wrapper.findAll('[data-position]').map((p) => p.attributes('data-position'))).toEqual([
+      '3',
+      '4',
+    ])
+    await cardFor(wrapper, gasket).trigger('click')
+    const location = wrapper.find('[data-detail="cedex-location"]')
+    expect(location.text()).toContain('No code')
+    expect(location.text()).toContain('A door gasket; which section is not established')
   })
 
   it('does not draw the long-side figure for a door photo', () => {
