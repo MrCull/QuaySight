@@ -41,3 +41,36 @@
     padding: var(--space-5) var(--space-4);
   }
 }
+
+/* Before any photo is in: a real container photo, dimmed well back, behind the setup card and the empty drop
+   zone. Decorative only, it gives the first screens the colour that results bring later. */
+.rs-setupview,
+.rs-main--start:has(.qs-drop) {
+  position: relative;
+  isolation: isolate;
+  min-height: calc(100vh - var(--space-8));
+  min-height: calc(100dvh - var(--space-8));
+  box-sizing: border-box;
+}
+.rs-setupview::before,
+.rs-main--start:has(.qs-drop)::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background:
+    linear-gradient(
+      180deg,
+      color-mix(in srgb, var(--bg) 55%, transparent),
+      color-mix(in srgb, var(--bg) 80%, transparent) 60%,
+      var(--bg)
+    ),
+    url('../../samples/corner-torn-door-cai-20ft.jpg') center 30% / cover no-repeat;
+}
+.rs-setupview .qs-setupcard {
+  box-shadow: var(--shadow-raised);
+}
+.rs-main--start .qs-drop {
+  background: color-mix(in srgb, var(--surface-sunken) 82%, transparent);
+  backdrop-filter: blur(var(--space-1));
+}
