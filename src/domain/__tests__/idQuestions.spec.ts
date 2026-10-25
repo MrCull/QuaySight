@@ -1,7 +1,7 @@
 import { describe, it, expect } from 'vitest'
 import { jevIdQuestionSet, lunaIdQuestionSet } from '../idQuestions'
 import { buildLunaRequest, mapLunaResponse } from '../luna'
-import { buildOpenRouterJevRequest, buildOpenRouterLunaRequest } from '../openrouter'
+import { buildOpenRouterJevRequest } from '../openrouter'
 import { buildJevRequest } from '../jev'
 import type { ChoiceQuestion } from '../questionSet'
 
@@ -12,8 +12,6 @@ function everyIdRequest(): unknown[] {
   return [
     buildLunaRequest(PHOTO),
     buildLunaRequest(PHOTO, [3, 7, 11]),
-    buildOpenRouterLunaRequest('openai/gpt-6-luna-decisions', PHOTO),
-    buildOpenRouterLunaRequest('openai/gpt-6-luna-decisions', PHOTO, [9]),
     buildOpenRouterJevRequest('~typesafe/jev-latest', PHOTO, { box: true }),
     buildJevRequest('jev-latest', 'jpeg', { box: true }),
   ]

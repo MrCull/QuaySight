@@ -30,7 +30,6 @@ import { useLedgerStore } from '../ledger'
 // Real replies to the group-position ID questions on samples/rear-door-coyu-22g1.jpg, recorded live on
 // 16 Oct 2026 by src/services/__tests__/coyu.live.spec.ts, with no key or headers.
 import lunaCoyu from '../../fixtures/live/coyu-luna.json'
-import openRouterLunaCoyu from '../../fixtures/live/coyu-openrouter-luna.json'
 import jevCoyu from '../../fixtures/live/coyu-openrouter-jev.json'
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), '../../..')
@@ -165,16 +164,7 @@ describe('COYU 266813 0 through the store, from recorded replies', () => {
     ])
   })
 
-  it.each([
-    ['GPT-6 Luna on OpenAI', 'luna', 'gpt-6-luna', OPENAI_KEY, lunaCoyu],
-    [
-      'GPT-6 Luna Decisions through OpenRouter',
-      'openrouter',
-      'openai/gpt-6-luna-decisions',
-      OPENROUTER_KEY,
-      openRouterLunaCoyu,
-    ],
-  ] as const)(
+  it.each([['GPT-6 Luna on OpenAI', 'luna', 'gpt-6-luna', OPENAI_KEY, lunaCoyu]] as const)(
     '%s never misreads it: the digit it cannot settle stays unread after the re-check, and the manifest check is offered',
     async (_route, provider, model, key, fixture) => {
       fetchMock

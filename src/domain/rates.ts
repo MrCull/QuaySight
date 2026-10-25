@@ -55,18 +55,6 @@ export const rateSchedules: RateSchedule[] = [
       inputUsdPerMillionTokens: 0.042,
       outputUsdPerMillionTokens: 0,
     })),
-  // GPT-6 Luna Decisions through OpenRouter (ticket #23). Used only when a response carries no usage.cost.
-  {
-    provider: 'openrouter',
-    model: 'openai/gpt-6-luna-decisions',
-    endpoint: OPENROUTER_ENDPOINT_ID,
-    effectiveFrom: '2026-10-16',
-    source:
-      'OpenRouter usage.cost on a live Luna Decisions call, 16 Oct 2026: 3,355 input + 0 output tokens cost $0.0003355, i.e. $0.10 per Mtok input and output free. Matches the direct OpenAI baseline. Re-check before a demo.',
-    placeholder: false,
-    inputUsdPerMillionTokens: 0.1,
-    outputUsdPerMillionTokens: 0,
-  },
 ]
 
 /**

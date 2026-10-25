@@ -34,13 +34,11 @@ function flat<A extends object>(reply: RequestReply<A>): Flat<A> {
   return { ...answer, ...rest }
 }
 
-/** The Luna ID set (all positions, or just these) on OpenAI direct, or on OpenRouter when `model` is given. */
+/** The Luna ID set (all positions, or just these) on OpenAI direct. */
 export async function liveLuna(
-  options: LiveOptions & { model?: string; positions?: number[] },
+  options: LiveOptions & { positions?: number[] },
 ): Promise<Flat<LunaMapping>> {
-  const route = options.model
-    ? liveRoute('openrouter', options.model)
-    : liveRoute('luna', LUNA_MODEL)
+  const route = liveRoute('luna', LUNA_MODEL)
   const reply = await askDecisions(
     { route, apiKey: options.apiKey, photo: options.photo, fetchImpl: options.fetchImpl },
     questionSetAsk(lunaIdQuestionSet(options.positions), (r) =>

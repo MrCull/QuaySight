@@ -27,6 +27,7 @@ const rows = computed(() => ledgerStore.entries())
 const CAUSE_LABEL: Record<FailureCause, string> = {
   busy: 'busy or rate-limited',
   refused: 'refused',
+  declined: 'model would not answer',
   unreadable: 'unreadable reply',
   offline: 'offline',
   unknown: 'did not finish',

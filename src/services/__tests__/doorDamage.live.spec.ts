@@ -7,7 +7,6 @@
 // for the route's limits first, as the app does (a real browser canvas: Playwright's Chromium; set
 // PW_CHROMIUM_PATH to use a pre-installed one), so APHU is shrunk for Jev.
 //   - GPT-6 Luna, OpenAI direct            (needs OPENAI_API_KEY)
-//   - GPT-6 Luna Decisions, via OpenRouter (needs OPENROUTER_API_KEY)
 //   - Jev latest, via OpenRouter           (needs OPENROUTER_API_KEY)
 // The bar: the survey says rear doors, the door set finds the end inspectable, and these clean doors produce
 // no major finding of any kind. Moderate or lower findings are printed, to tune the set's wording against.
@@ -67,14 +66,6 @@ const ROUTES = [
     model: 'gpt-6-luna',
     endpoint: LUNA_ENDPOINT,
     key: openAiKey,
-  },
-  {
-    label: 'GPT-6 Luna Decisions through OpenRouter',
-    file: 'openrouter-luna',
-    provider: 'openrouter',
-    model: 'openai/gpt-6-luna-decisions',
-    endpoint: OPENROUTER_ENDPOINT,
-    key: openRouterKey,
   },
   {
     label: 'Jev latest through OpenRouter',

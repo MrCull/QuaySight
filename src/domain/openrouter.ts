@@ -9,8 +9,8 @@ import type { DecisionsWire } from './decisionsWire'
 import { classifyFailedCall, type ProviderErrorTraits } from './failedCall'
 import { ProviderError, providerMessage, redact } from './providerErrors'
 import { JevError, mapJevResponse, type JevMapping } from './jev'
-import { JEV_STATE_INSTRUCTIONS, jevIdQuestionSet, lunaIdQuestionSet } from './idQuestions'
-import { lunaMappingOf, manifestMappingOf, type LunaMapping, type ManifestMapping } from './luna'
+import { JEV_STATE_INSTRUCTIONS, jevIdQuestionSet } from './idQuestions'
+import { manifestMappingOf, type ManifestMapping } from './luna'
 import { manifestQuestionSet, type ManifestQuestion } from './manifest'
 import {
   UnreadableReplyError,
@@ -59,22 +59,6 @@ export function buildOpenRouterJevRequest(
 }
 
 /**
- * The request for one photo on a Luna Decisions model (ticket #23): the same Luna ID set the direct
- * route asks, translated for OpenRouter. Luna takes no box question. With positions, only those
- * (1-based) are asked, as for the direct re-check.
- */
-export function buildOpenRouterLunaRequest(
-  model: string,
-  imageDataUrl: string,
-  positions?: number[],
-): OpenRouterRequestBody {
-  return toWireRequest('openrouter-decisions', lunaIdQuestionSet(positions), {
-    model,
-    imageDataUrl,
-  })
-}
-
-/**
  * The manifest check for one photo on any OpenRouter Decisions model (spec 3.2): the pasted entries
  * as choice questions, each with "not listed", translated for OpenRouter. No box question.
  */
@@ -96,6 +80,7 @@ export type OpenRouterErrorKind =
   | 'not-found'
   | 'rate-limited'
   | 'photo-rejected'
+  | 'question-refused'
   | 'unavailable'
   | 'rejected'
   | 'bad-response'
@@ -112,6 +97,16 @@ export class OpenRouterError extends ProviderError<OpenRouterErrorKind> {
 /** A 400 whose text says the image itself was refused (e.g. Jev's "Invalid image dimensions"). */
 function isPhotoComplaint(message: string | null): boolean {
   return message !== null && /\bimage\b/i.test(message)
+}
+
+/**
+ * A 502 whose text says the model refused one of the questions, e.g. `OpenAI refused to answer question
+ * "id_char_01"`. OpenRouter's Decisions answers have no refusal type, so where OpenAI direct marks that one
+ * question refused and answers the rest, OpenRouter fails the whole call (checked live 25 Oct 2026). It
+ * names only the first refused question: a photo that is refused often is refused on many.
+ */
+function isQuestionRefusal(status: number, message: string | null): boolean {
+  return status === 502 && message !== null && /\brefused to answer question\b/i.test(message)
 }
 
 /**
@@ -148,6 +143,13 @@ export function openRouterFailure(
     return new OpenRouterError(
       'photo-rejected',
       `${modelName} rejected the photo for its size or dimensions. It takes photos up to ${model.maxSide.toLocaleString('en-US')} px per side. Try another photo.`,
+      status,
+    )
+  }
+  if (isQuestionRefusal(status, detail)) {
+    return new OpenRouterError(
+      'question-refused',
+      `${modelName} would not answer some questions about this photo, and OpenRouter then returns none of that request's answers. Try another photo, or another model.`,
       status,
     )
   }
@@ -207,11 +209,6 @@ export function mapOpenRouterJevResponse(response: unknown, requestedModel: stri
   }
 }
 
-export interface OpenRouterLunaMapping extends LunaMapping {
-  /** Cost from the response's own usage.cost, or null. Never zero when absent. */
-  reportedCostUsd: number | null
-}
-
 /** Reads an OpenRouter Decisions reply by meaning, with OpenRouter's wording for a reply it cannot read. */
 export function readOpenRouterReply(
   response: unknown,
@@ -231,20 +228,6 @@ export function readOpenRouterReply(
     }
     throw error
   }
-}
-
-/**
- * Maps a Decisions response for the Luna ID set onto the shared container-ID reading, by meaning, with
- * the same reading rules as the direct route: the same answers give the same record on either route.
- * The resolved model and usage.cost come from the response.
- */
-export function mapOpenRouterLunaResponse(
-  response: unknown,
-  requestedModel: string,
-  positions?: number[],
-): OpenRouterLunaMapping {
-  const reply = readOpenRouterReply(response, lunaIdQuestionSet(positions), requestedModel)
-  return { ...lunaMappingOf(reply, positions), reportedCostUsd: reply.reportedCostUsd }
 }
 
 export interface OpenRouterManifestMapping extends ManifestMapping {
