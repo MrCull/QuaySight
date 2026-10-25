@@ -344,6 +344,14 @@ body {
     order: 1;
     margin-left: auto;
   }
+  /* The theme toggle stays in the top-right corner, beside New inspection when that shows. */
+  .rs-top .qs-themetoggle {
+    order: 1;
+    margin-left: auto;
+  }
+  .rs-top:has(.qs-newinsp) .qs-themetoggle {
+    margin-left: 0;
+  }
   /* The first row is never shorter than New inspection (a small button), so the chip and costs beneath stay
      put when it appears or goes (the centre slot dissolves on phones and cannot hold the space itself). */
   .rs-top .qs-brand {

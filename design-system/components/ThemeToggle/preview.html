@@ -1,0 +1,21 @@
+<!-- @dsCard group="Controls" height=160 subtitle="Dark / light switch, top-right of the top bar" -->
+<!doctype html>
+<html><head><link rel="stylesheet" href="../../tokens.css"><link rel="stylesheet" href="../bundle.css"><meta charset="utf-8"><title>Theme toggle</title>
+<style>
+body{margin:0;padding:24px;background:var(--bg)}
+.bar{display:flex;align-items:center;justify-content:space-between;height:64px;padding:0 var(--space-5);background:var(--surface);border:1px solid var(--line);border-radius:var(--radius-md)}
+</style></head>
+<body class="qs-root">
+<div class="bar">
+  <span class="qs-brand"><i class="qs-logo" aria-hidden="true"></i>Quay Sight</span>
+  <button type="button" class="qs-btn qs-btn--secondary qs-btn--sm qs-btn--icon qs-themetoggle" id="t" aria-label="Switch to light theme" title="Switch to light theme"><i class="qs-glyph qs-glyph--sun" aria-hidden="true"></i></button>
+</div>
+<script>
+var t=document.getElementById('t'), h=document.documentElement;
+t.addEventListener('click',function(){
+  var light=h.getAttribute('data-theme')!=='light'; h.setAttribute('data-theme',light?'light':'dark');
+  var l=light?'Switch to dark theme':'Switch to light theme'; t.setAttribute('aria-label',l); t.title=l;
+  t.firstChild.className='qs-glyph '+(light?'qs-glyph--moon':'qs-glyph--sun');
+});
+</script>
+</body></html>
