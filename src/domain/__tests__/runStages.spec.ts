@@ -1,5 +1,10 @@
 import { describe, it, expect } from 'vitest'
-import { RUN_STAGES, stageProgress, type PlannedRequestState } from '../runStages'
+import {
+  RUN_STAGES,
+  failedStagesByPhoto,
+  stageProgress,
+  type PlannedRequestState,
+} from '../runStages'
 
 const planned = (overrides: Partial<PlannedRequestState>): PlannedRequestState => ({
   id: 'read',
@@ -88,5 +93,48 @@ describe('run stages', () => {
     const [id, , damage] = stageProgress(requests)
     expect(id?.elapsedMs).toBe(2100)
     expect(damage?.elapsedMs).toBeNull()
+  })
+
+  describe('with several photos', () => {
+    // The 25 Oct 2026 run: the seal close-up's survey failed, the door photo read the ID and the damage.
+    const sealFailed = [
+      planned({ id: 'p1-read', photo: 1, stages: ['id', 'details'], state: 'failed' }),
+      planned({ id: 'p1-side', photo: 1, stages: ['damage'], state: 'skipped' }),
+      planned({ id: 'p2-read', photo: 2, stages: ['id', 'details'], state: 'answered' }),
+      planned({ id: 'p2-side', photo: 2, stages: ['damage'], state: 'answered' }),
+    ]
+
+    it('count a part done when any photo gave it, though another photo lost its request', () => {
+      expect(stageProgress(sealFailed).map((s) => s.state)).toEqual(['done', 'done', 'done'])
+    })
+
+    it('fail a part only when no photo gave it', () => {
+      const both = sealFailed.map((r) =>
+        r.id === 'p2-side' ? { ...r, state: 'failed' as const } : r,
+      )
+      expect(stageProgress(both).map((s) => s.state)).toEqual(['done', 'done', 'failed'])
+    })
+
+    it('stay active while any photo is still working on the part', () => {
+      const working = sealFailed.map((r) =>
+        r.id === 'p2-read' ? { ...r, state: 'sent' as const } : r,
+      )
+      expect(stateOf(working, 'id')).toBe('active')
+    })
+
+    it('name each photo that lost a part, with the parts it lost', () => {
+      expect(failedStagesByPhoto(sealFailed)).toEqual([
+        { photo: 1, stages: ['id', 'details', 'damage'] },
+      ])
+    })
+  })
+
+  it('name the parts a single-photo run lost under no photo', () => {
+    const requests = [
+      planned({ id: 'read', stages: ['id', 'details'], state: 'failed' }),
+      planned({ id: 'side', stages: ['damage'], state: 'answered' }),
+    ]
+    expect(failedStagesByPhoto(requests)).toEqual([{ photo: null, stages: ['id', 'details'] }])
+    expect(failedStagesByPhoto([planned({ state: 'answered' })])).toEqual([])
   })
 })

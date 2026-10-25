@@ -460,7 +460,7 @@ export function combinePhotoRuns(
     resolvedVersion: records.map((r) => r.resolvedVersion).find(Boolean) ?? '',
     rawResponses: records.flatMap((r) => r.rawResponses),
     rechecks: records.flatMap((r) => r.rechecks ?? []),
-    failures: records.flatMap((r) => r.failures ?? []),
+    failures: runs.flatMap((r) => (r.record.failures ?? []).map((f) => ({ ...f, photo: r.index }))),
     containerId,
     details,
     sizeCode: different ? null : (details?.sizeCode.decoded ?? base.sizeCode),

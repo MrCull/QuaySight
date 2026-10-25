@@ -24,6 +24,8 @@ export interface RequestFailure {
 export interface RequestFailureNote extends RequestFailure {
   requestId: string
   stages: readonly ('id' | 'details' | 'damage')[]
+  /** The photo whose request it was (1-based), in an inspection of several photos. */
+  photo?: number
 }
 
 const OFFLINE_KINDS = new Set(['network', 'unreachable'])
