@@ -775,6 +775,9 @@
 /* The close-up a reading was read from, right after its certainty. It takes no height in the row (height 0, overflow visible):
    it hangs down beside the rows below, which keep their places by the paint; the ledger's height still allows for it. */
 .qs-ledger__crop { grid-column: 5; grid-row: 1; align-self: start; width: var(--ledger-crop); height: 0; overflow: visible; margin-left: var(--space-2); }
+/* A row's empty box would sit over the close-up hanging down from the row above and take its hover (the Loupe): only a row's content takes the pointer. */
+.qs-ledger__row { pointer-events: none; }
+.qs-ledger__row > * { pointer-events: auto; }
 /* Readings that are not painted on the doors (decoded from the code, the model's answers, markings not seen) as FieldRows. */
 .qs-ledger__more { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, calc(var(--space-8) * 6)), 1fr)); column-gap: var(--space-6); align-items: start; }
 .qs-ledger__more-title { grid-column: 1 / -1; margin: 0 0 var(--space-1); color: var(--ink-muted); }
