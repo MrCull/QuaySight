@@ -14,9 +14,9 @@ def block(theme, with_static):
             out.append(f"  --font-{k}: {v};")
     return '\n'.join(out)
 print("/* Quay Sight tokens. Generated from tokens.json - edit that file, then run: python3 design-system/scripts/build-tokens.py design-system/tokens.json > design-system/tokens.css")
-print("   Night quay (dark) is the default; set data-theme=\"light\" on <html> for Daylight. */")
-print(":root,\n:root[data-theme=\"dark\"] {\n  color-scheme: dark;\n" + block('dark', True) + "\n}\n")
-print(":root[data-theme=\"light\"] {\n  color-scheme: light;\n" + block('light', False) + "\n}\n")
+print("   Daylight (light) is the default; set data-theme=\"dark\" on <html> for Night quay. */")
+print(":root,\n:root[data-theme=\"light\"] {\n  color-scheme: light;\n" + block('light', True) + "\n}\n")
+print(":root[data-theme=\"dark\"] {\n  color-scheme: dark;\n" + block('dark', False) + "\n}\n")
 print("/* Type styles */")
 for g in t['type']['groups']:
     for s in g['styles']:

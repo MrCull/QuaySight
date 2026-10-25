@@ -16,7 +16,7 @@ What the app looks like after photos are uploaded. Live, animated versions are i
 
 1. **The photo leads.** The uploaded photograph and the neutral schematic take the most space. Chrome stays quiet: `bg`, `surface`, hairline `line`.
 2. **Three axes, never mixed.** *Certainty* (blue → amber → slate discs), *damage severity* (magenta, 1–4 bars on a five-level scale) and *hazard markings* (orange diamond) each have their own colour, glyph and component. A reader can always tell "we're unsure" from "this looks bad" from "a DG placard is visible".
-3. **No green.** Green reads as *safe*, *clear* or *passed*, and Quay Sight never claims any of those. Nothing in the palette is green, and nothing uses `brand` teal to mean a status.
+3. **No green.** Green reads as *safe*, *clear* or *passed*, and Quay Sight never claims any of those. Nothing in the palette is green, and nothing uses the `brand` colour to mean a status.
 4. **Absence is not a result.** Unphotographed faces are hatched and labelled *Not seen*. Missing probabilities are *unavailable*, never 0 or 100%.
 5. **Read-only.** Results are observations and estimates. No edit icons, pickers, confirm buttons or "review required" banners.
 
@@ -36,10 +36,10 @@ What the app looks like after photos are uploaded. Live, animated versions are i
 ## Visual foundations
 
 ### Colour
-- **Themes.** `Night quay` (dark) is the presentation default for event rooms and photo-heavy screens. `Daylight` is for bright venues and phone capture. Every token is defined in both.
+- **Themes.** `Daylight` (light) is the default. `Night quay` (dark) suits darkened event rooms and photo-heavy screens; the top bar's `ThemeToggle` switches between them. Every token is defined in both.
 - **Grounds.** `bg` for the page, `surface` for panels, `surface-raised` for floating layers, `surface-sunken` for the photo stage and schematic well. Separate panels with `line` hairlines, and draw control edges with `line-strong` (3:1 or better everywhere).
 - **Text.** `ink` for primary text and `ink-muted` for labels and captions. Both pass 4.5:1 on every ground in both themes.
-- **Action.** `brand` (signal teal) is the only action colour: primary button, selected provider, active stage, links. Text on it is `on-brand`. Focus is a solid 2px `focus-ring` outline offset 2px, 3:1 or better on every surface.
+- **Action.** `brand` (shipping navy in Daylight, signal teal in Night quay) is the only action colour: primary button, selected provider, active stage, links. Text on it is `on-brand`. Focus is a solid 2px `focus-ring` outline offset 2px, 3:1 or better on every surface.
 - **Certainty.** Use `cert-{confident|likely|uncertain|unknown|unseen}-{fg|bg|line}` only through `CertaintyChip`, `ContainerId` underlines and schematic marker outlines. Confident and Likely share a blue hue and differ by glyph and fill. Uncertain is the only warm certainty colour. Not seen adds the `hatch` pattern.
 - **Severity.** Five levels: none, cosmetic, minor, moderate, major. *None* is no finding. `sev-cosmetic` (the lightest, least saturated step), `sev-minor`, `sev-moderate` and `sev-major` fill pins, region tints and severity bars. A component the photo gives no severity for is *Not rated*, in neutral ink. `damage-fg` on `damage-bg` for codes and labels.
 - **Container drawing.** The `schem-*` family lights the 3D drawing: `schem-top` lightest, `schem-side` (with `schem-side-rib`) in the middle, `schem-end` darkest, with `schem-rail` framing, `schem-detail` hardware and `schem-shadow` beneath. It stays neutral steel so the severity tints carry the colour.
@@ -97,7 +97,7 @@ At `MrCull/QuaySight@cc7ec10` the repository is an unstyled create-vue scaffold:
 ## In this repository
 
 - `tokens.json` is the source for every token. `tokens.css` is generated from it: `python3 design-system/scripts/build-tokens.py design-system/tokens.json > design-system/tokens.css`. Never edit `tokens.css` by hand.
-- In the app, import `design-system/tokens.css` then `design-system/components/bundle.css` once (in `src/main.ts`), and wrap the app in `.qs-root`. Night quay is the default theme; set `data-theme="light"` on `<html>` for Daylight.
+- In the app, import `design-system/tokens.css` then `design-system/components/bundle.css` once (in `src/main.ts`), and wrap the app in `.qs-root`. Daylight is the default theme; set `data-theme="dark"` on `<html>` for Night quay.
 - Type styles are available as `.qs-type-{name}` classes (`display-lg`, `body`, `label` and so on) in `tokens.css`.
 - Open any `components/<Name>/preview.html` directly in a browser to see the reference rendering.
 - The **Logo** asset group lives in `design-system/assets/logo/` (SVG files and their rules). The app uses `public/favicon.svg`.
