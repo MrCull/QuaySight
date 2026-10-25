@@ -80,6 +80,11 @@ export interface PlanRequest<A = unknown> {
   stages: readonly StageId[]
   /** Requests whose answers this one needs: it starts when they have all answered, never before. */
   after?: readonly PlanRequest[]
+  /**
+   * Requests this one also waits for, whatever their outcome: it starts once they have settled, and reads
+   * their answers when they gave one. One not in the run is not waited for.
+   */
+  settledAfter?: readonly PlanRequest[]
   /** Whether a run on this route includes the request at all (catalogue-driven). Default: yes. */
   appliesTo?(route: RunRoute): boolean
   /** Once its prerequisites have answered: whether this run still needs it. Default: yes. */
@@ -265,7 +270,9 @@ export function runPlan(options: PlanRunOptions): PlanRun {
         if (stateOf(r) !== 'waiting') continue
         const prerequisites = r.after ?? []
         let next: RequestState | null = null
+        const waitsOn = (r.settledAfter ?? []).filter((p) => plan.includes(p))
         if (cancelled) next = 'cancelled'
+        else if (!waitsOn.every((p) => SETTLED.has(stateOf(p)))) continue
         else if (prerequisites.some((p) => SETTLED.has(stateOf(p)) && stateOf(p) !== 'answered'))
           next = 'skipped'
         else if (prerequisites.every((p) => stateOf(p) === 'answered'))

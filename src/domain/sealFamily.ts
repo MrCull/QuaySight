@@ -8,6 +8,7 @@ import { usableIdBox } from './cropRead'
 import type { ReadingBox } from './enlargedCrop'
 import { oneStepUp } from './combineReadings'
 import { readCharacter } from './idQuestions'
+import { sealCandidates } from './sealPick'
 import type { CertaintyLabel } from './inspection'
 import type { FamilyExport, QuestionFamily } from './questionRegistry'
 import type { ChoiceQuestion, SharedAnswer, SharedQuestion } from './questionSetTypes'
@@ -35,6 +36,8 @@ export interface SealReading {
   photo?: number
   /** The area found for the seal on that photo (fractions); a close-up is cut from it when present. */
   area?: { top: number; bottom: number; left: number; right: number }
+  /** The numbers this read makes plausible, for the seal pick (sealPick.ts). Never shown. */
+  candidates?: string[]
 }
 
 declare module './survey' {
@@ -249,7 +252,7 @@ export function readSeal(
     boxAnswer?.type === 'box' && boxAnswer.confidence !== null
       ? usableIdBox({ ...boxAnswer.box, confidence: boxAnswer.confidence })
       : null
-  return {
+  const reading: SealReading = {
     visible: true,
     characters,
     value,
@@ -257,6 +260,8 @@ export function readSeal(
     ...(alternative ? { alternative } : {}),
     ...(box ? { box } : {}),
   }
+  const candidates = sealCandidates(answers, reading, SEAL_POSITIONS)
+  return candidates.length > 0 ? { ...reading, candidates } : reading
 }
 
 const spelled = (cs: SealCharacter[]) => cs.map((c) => c.value ?? '?').join('')
