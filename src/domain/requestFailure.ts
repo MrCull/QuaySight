@@ -3,8 +3,11 @@
 // own advice, which is already ours and key-free.
 import { ProviderError } from './providerErrors'
 
-/** The cause in plain words: what the presenter is told. */
-export type FailureCause = 'busy' | 'refused' | 'unreadable' | 'offline' | 'unknown'
+/**
+ * The cause in plain words: what the presenter is told. declined: the model would not answer about the
+ * photo, which no retry changes.
+ */
+export type FailureCause = 'busy' | 'refused' | 'declined' | 'unreadable' | 'offline' | 'unknown'
 
 /** The failure of one request, as kept on a cost-list line. */
 export interface RequestFailure {
@@ -26,10 +29,13 @@ export interface RequestFailureNote extends RequestFailure {
 const OFFLINE_KINDS = new Set(['network', 'unreachable'])
 const UNREADABLE_KINDS = new Set(['bad-response'])
 const BUSY_KINDS = new Set(['rate-limited', 'unavailable'])
+const DECLINED_KINDS = new Set(['question-refused'])
 
 function causeOf(kind: string, status: number | null): FailureCause {
   if (OFFLINE_KINDS.has(kind)) return 'offline'
   if (UNREADABLE_KINDS.has(kind)) return 'unreadable'
+  // Before busy: OpenRouter sends a declined question as a 502.
+  if (DECLINED_KINDS.has(kind)) return 'declined'
   if (BUSY_KINDS.has(kind) || status === 429 || (status !== null && status >= 500)) return 'busy'
   if (kind === 'unknown') return 'unknown'
   return 'refused'
@@ -81,6 +87,8 @@ export function causeSentence(failure: RequestFailure): string {
   switch (failure.cause) {
     case 'busy':
       return `${providerName(failure.message)} is busy or rate-limited.`
+    case 'declined':
+      return 'The model would not answer about this photo.'
     case 'unreadable':
       return 'The reply could not be read.'
     case 'offline':

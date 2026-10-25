@@ -96,6 +96,7 @@ export type OpenRouterErrorKind =
   | 'not-found'
   | 'rate-limited'
   | 'photo-rejected'
+  | 'question-refused'
   | 'unavailable'
   | 'rejected'
   | 'bad-response'
@@ -112,6 +113,16 @@ export class OpenRouterError extends ProviderError<OpenRouterErrorKind> {
 /** A 400 whose text says the image itself was refused (e.g. Jev's "Invalid image dimensions"). */
 function isPhotoComplaint(message: string | null): boolean {
   return message !== null && /\bimage\b/i.test(message)
+}
+
+/**
+ * A 502 whose text says the model refused one of the questions, e.g. `OpenAI refused to answer question
+ * "id_char_01"`. OpenRouter's Decisions answers have no refusal type, so where OpenAI direct marks that one
+ * question refused and answers the rest, OpenRouter fails the whole call (checked live 25 Oct 2026). It
+ * names only the first refused question: a photo that is refused often is refused on many.
+ */
+function isQuestionRefusal(status: number, message: string | null): boolean {
+  return status === 502 && message !== null && /\brefused to answer question\b/i.test(message)
 }
 
 /**
@@ -148,6 +159,13 @@ export function openRouterFailure(
     return new OpenRouterError(
       'photo-rejected',
       `${modelName} rejected the photo for its size or dimensions. It takes photos up to ${model.maxSide.toLocaleString('en-US')} px per side. Try another photo.`,
+      status,
+    )
+  }
+  if (isQuestionRefusal(status, detail)) {
+    return new OpenRouterError(
+      'question-refused',
+      `${modelName} would not answer some questions about this photo, and OpenRouter then returns none of that request's answers. Try another photo, or another model.`,
       status,
     )
   }
