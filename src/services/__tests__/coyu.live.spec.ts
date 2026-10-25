@@ -1,7 +1,6 @@
 // Opt-in live smoke test for the ID wording (ticket #29) and Jev's crop read (ticket #31): COYU 266813 0
 // read by group position. Makes real, chargeable calls on samples/rear-door-coyu-22g1.jpg (1079 × 1080):
 //   - GPT-6 Luna, OpenAI direct            (needs OPENAI_API_KEY): the file's own bytes, then the re-check
-//   - GPT-6 Luna Decisions, via OpenRouter (needs OPENROUTER_API_KEY): the same
 //   - Jev latest, via OpenRouter           (needs OPENROUTER_API_KEY): a live run through the store, as the
 //     app makes it: the photo prepared, the full-photo read with the box, then the crop read around it.
 //     A real browser canvas (Playwright's Chromium; set PW_CHROMIUM_PATH to use a pre-installed one)
@@ -136,24 +135,6 @@ describe('COYU 266813 0 live smoke test (opt-in, chargeable)', () => {
         'coyu-luna.json',
         { endpoint: LUNA_ENDPOINT, requestedModel: LUNA_MODEL, ...read.fixture },
         openAiKey,
-      )
-      expect(read.containerId.calculatedCheckDigit ?? 0).toBe(0)
-      expectNeverMisread(read.containerId.value)
-    },
-  )
-
-  it.skipIf(!openRouterKey)(
-    'GPT-6 Luna Decisions through OpenRouter never misreads COYU 266813 0 from the original file bytes (not the app preparation path)',
-    async () => {
-      const model = 'openai/gpt-6-luna-decisions'
-      const sent = await photo()
-      const read = await readLikeTheApp((positions, fetchImpl) =>
-        liveLuna({ apiKey: openRouterKey, photo: sent, model, positions, fetchImpl }),
-      )
-      await record(
-        'coyu-openrouter-luna.json',
-        { endpoint: OPENROUTER_ENDPOINT, requestedModel: model, ...read.fixture },
-        openRouterKey,
       )
       expect(read.containerId.calculatedCheckDigit ?? 0).toBe(0)
       expectNeverMisread(read.containerId.value)

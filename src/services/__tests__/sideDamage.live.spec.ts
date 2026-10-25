@@ -3,7 +3,6 @@
 // exactly as a live run does: the survey (which reads the ID and says which face the photo shows) and the
 // long-side damage set.
 //   - GPT-6 Luna, OpenAI direct            (needs OPENAI_API_KEY)
-//   - GPT-6 Luna Decisions, via OpenRouter (needs OPENROUTER_API_KEY)
 //   - Jev latest, via OpenRouter           (needs OPENROUTER_API_KEY)
 // Keys are supplied at run time and never stored in the repo:
 //   Bash: OPENAI_API_KEY='<key>' OPENROUTER_API_KEY='<key>' npx vitest run src/services/__tests__/sideDamage.live.spec.ts
@@ -105,20 +104,6 @@ describe('long-side damage live smoke test (opt-in, chargeable)', () => {
     async () => {
       const route = routeFor('luna', 'gpt-6-luna', LUNA_ENDPOINT)
       const { face, damage } = await runBoth(route, openAiKey, 'side-damage-luna.json')
-      expect(face?.face).toBe('long-side')
-      dentIsBottomMiddle(damage)
-    },
-  )
-
-  it.skipIf(!openRouterKey)(
-    'GPT-6 Luna Decisions through OpenRouter places the dent in the bottom-middle zones',
-    async () => {
-      const route = routeFor('openrouter', 'openai/gpt-6-luna-decisions', OPENROUTER_ENDPOINT)
-      const { face, damage } = await runBoth(
-        route,
-        openRouterKey,
-        'side-damage-openrouter-luna.json',
-      )
       expect(face?.face).toBe('long-side')
       dentIsBottomMiddle(damage)
     },

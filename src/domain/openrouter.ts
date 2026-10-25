@@ -9,8 +9,8 @@ import type { DecisionsWire } from './decisionsWire'
 import { classifyFailedCall, type ProviderErrorTraits } from './failedCall'
 import { ProviderError, providerMessage, redact } from './providerErrors'
 import { JevError, mapJevResponse, type JevMapping } from './jev'
-import { JEV_STATE_INSTRUCTIONS, jevIdQuestionSet, lunaIdQuestionSet } from './idQuestions'
-import { lunaMappingOf, manifestMappingOf, type LunaMapping, type ManifestMapping } from './luna'
+import { JEV_STATE_INSTRUCTIONS, jevIdQuestionSet } from './idQuestions'
+import { manifestMappingOf, type ManifestMapping } from './luna'
 import { manifestQuestionSet, type ManifestQuestion } from './manifest'
 import {
   UnreadableReplyError,
@@ -56,22 +56,6 @@ export function buildOpenRouterJevRequest(
       imageDataUrl,
     },
   )
-}
-
-/**
- * The request for one photo on a Luna Decisions model (ticket #23): the same Luna ID set the direct
- * route asks, translated for OpenRouter. Luna takes no box question. With positions, only those
- * (1-based) are asked, as for the direct re-check.
- */
-export function buildOpenRouterLunaRequest(
-  model: string,
-  imageDataUrl: string,
-  positions?: number[],
-): OpenRouterRequestBody {
-  return toWireRequest('openrouter-decisions', lunaIdQuestionSet(positions), {
-    model,
-    imageDataUrl,
-  })
 }
 
 /**
@@ -225,11 +209,6 @@ export function mapOpenRouterJevResponse(response: unknown, requestedModel: stri
   }
 }
 
-export interface OpenRouterLunaMapping extends LunaMapping {
-  /** Cost from the response's own usage.cost, or null. Never zero when absent. */
-  reportedCostUsd: number | null
-}
-
 /** Reads an OpenRouter Decisions reply by meaning, with OpenRouter's wording for a reply it cannot read. */
 export function readOpenRouterReply(
   response: unknown,
@@ -249,20 +228,6 @@ export function readOpenRouterReply(
     }
     throw error
   }
-}
-
-/**
- * Maps a Decisions response for the Luna ID set onto the shared container-ID reading, by meaning, with
- * the same reading rules as the direct route: the same answers give the same record on either route.
- * The resolved model and usage.cost come from the response.
- */
-export function mapOpenRouterLunaResponse(
-  response: unknown,
-  requestedModel: string,
-  positions?: number[],
-): OpenRouterLunaMapping {
-  const reply = readOpenRouterReply(response, lunaIdQuestionSet(positions), requestedModel)
-  return { ...lunaMappingOf(reply, positions), reportedCostUsd: reply.reportedCostUsd }
 }
 
 export interface OpenRouterManifestMapping extends ManifestMapping {

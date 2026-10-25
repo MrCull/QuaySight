@@ -31,7 +31,12 @@ about what the successful calls cost).
 
 ## What the app does
 
+GPT-6 Luna Decisions is no longer offered through OpenRouter (`src/domain/providers.ts`): Luna is offered
+through OpenAI direct only, where a refused question costs only that question. OpenRouter offers the Jev
+models.
+
 `openRouterFailure` (`src/domain/openrouter.ts`) reads this 502 as `question-refused`, and
 `describeFailure` gives it the cause `declined`: "The model would not answer about this photo." Before
 this it was classed as any other 5xx and shown as "OpenRouter is busy or rate-limited", which a retry
-never fixes. Jev through OpenRouter was not seen to refuse questions.
+never fixes. Jev through OpenRouter was not seen to refuse questions; the reading is kept in case any
+OpenRouter model does.

@@ -12,7 +12,11 @@ import { survey } from '../../plan/requests/survey'
 import { idRecheck } from '../../plan/requests/idRecheck'
 import { idCropRead } from '../../plan/requests/idCropRead'
 import { regions } from '../../plan/requests/regions'
-import { jsonResponse, openRouterSurveyReply } from '../../__tests__/surveyReplies'
+import {
+  jsonResponse,
+  openAiSurveyReply,
+  openRouterSurveyReply,
+} from '../../__tests__/surveyReplies'
 
 // Ticket #43 test gaps: the owner-code question on the Jev request, the survey's owner pick carried into
 // the re-check and the crop read, and the request plan around it. Replies are hand-written fakes of the
@@ -20,7 +24,6 @@ import { jsonResponse, openRouterSurveyReply } from '../../__tests__/surveyRepli
 const KEY = 'test-only-openrouter-key-0000'
 const COYU_BOX = { top: 0.1, bottom: 0.14, left: 0.61, right: 0.79 }
 const PICK = { owner_code: [['CAXU', 0.95]] as [string, number][] }
-const LUNA = 'openai/gpt-6-luna-decisions-20261006'
 
 let restoreRequests = () => {}
 beforeEach(() => {
@@ -45,9 +48,9 @@ describe('the owner-code question through live runs', () => {
     vi.unstubAllGlobals()
   })
 
-  function liveStore(model: string) {
+  function liveStore(model: string, provider: 'openrouter' | 'luna' = 'openrouter') {
     const store = useInspectionStore()
-    store.setProvider('openrouter')
+    store.setProvider(provider)
     store.setModel(model)
     store.setApiKey(KEY)
     store.setPhoto({
@@ -81,12 +84,12 @@ describe('the owner-code question through live runs', () => {
       Promise.resolve(
         jsonResponse(
           String(init?.body).includes('owner_code')
-            ? openRouterSurveyReply('CXXU692110?', { model: LUNA, details: PICK })
-            : openRouterSurveyReply('CXXU6921109', { model: LUNA }),
+            ? openAiSurveyReply('CXXU692110?', { details: PICK })
+            : openAiSurveyReply('CXXU6921109'),
         ),
       ),
     )
-    const store = liveStore('openai/gpt-6-luna-decisions')
+    const store = liveStore('gpt-6-luna', 'luna')
 
     await store.start()
 

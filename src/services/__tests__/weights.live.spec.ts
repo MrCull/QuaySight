@@ -1,7 +1,6 @@
 // Opt-in live smoke test for the weights (ticket #34): the COYU 22G1 door photo.
 // Makes up to three real, chargeable survey requests on samples/rear-door-coyu-22g1.jpg (1079 x 1080):
 //   - GPT-6 Luna, OpenAI direct            (needs OPENAI_API_KEY)
-//   - GPT-6 Luna Decisions, via OpenRouter (needs OPENROUTER_API_KEY)
 //   - Jev latest, via OpenRouter           (needs OPENROUTER_API_KEY)
 // Keys are supplied at run time and never stored in the repo:
 //   Bash: OPENAI_API_KEY='<key>' OPENROUTER_API_KEY='<key>' npx vitest run src/services/__tests__/weights.live.spec.ts
@@ -104,16 +103,6 @@ describe('COYU 22G1 weights live smoke test (opt-in, chargeable)', () => {
     'GPT-6 Luna on OpenAI reads the door weights or flags where it does not',
     async () => {
       expect(wrongButSure(await weightsOn('luna', LUNA_MODEL, openAiKey))).toEqual([])
-    },
-    120_000,
-  )
-
-  it.skipIf(!openRouterKey)(
-    'GPT-6 Luna Decisions through OpenRouter reads the door weights or flags where it does not',
-    async () => {
-      expect(
-        wrongButSure(await weightsOn('openrouter', 'openai/gpt-6-luna-decisions', openRouterKey)),
-      ).toEqual([])
     },
     120_000,
   )
