@@ -18,11 +18,11 @@ function memoryStorage(initial: Record<string, string> = {}): Storage {
 }
 
 describe('the theme setting', () => {
-  it('starts on dark when nothing was remembered, and marks the page with it', () => {
+  it('starts on light when nothing was remembered, and marks the page with it', () => {
     const root = document.createElement('html')
     const setting = createThemeSetting(() => memoryStorage(), root)
-    expect(setting.theme.value).toBe('dark')
-    expect(root.getAttribute('data-theme')).toBe('dark')
+    expect(setting.theme.value).toBe('light')
+    expect(root.getAttribute('data-theme')).toBe('light')
   })
 
   it('toggles, applies and remembers the choice for the next load', () => {
@@ -30,24 +30,24 @@ describe('the theme setting', () => {
     const root = document.createElement('html')
     const first = createThemeSetting(() => storage, root)
     first.toggle()
-    expect(first.theme.value).toBe('light')
-    expect(root.getAttribute('data-theme')).toBe('light')
-    expect(storage.getItem(THEME_KEY)).toBe('light')
-    expect(createThemeSetting(() => storage, root).theme.value).toBe('light')
+    expect(first.theme.value).toBe('dark')
+    expect(root.getAttribute('data-theme')).toBe('dark')
+    expect(storage.getItem(THEME_KEY)).toBe('dark')
+    expect(createThemeSetting(() => storage, root).theme.value).toBe('dark')
   })
 
   it('ignores a stored value that is not a theme', () => {
     const setting = createThemeSetting(() => memoryStorage({ [THEME_KEY]: 'sepia' }), null)
-    expect(setting.theme.value).toBe('dark')
+    expect(setting.theme.value).toBe('light')
   })
 
-  it('works where storage is blocked: dark to start, and the choice holds until reload', () => {
+  it('works where storage is blocked: light to start, and the choice holds until reload', () => {
     const throwing = () => {
       throw new Error('blocked')
     }
     const setting = createThemeSetting(throwing, null)
-    expect(setting.theme.value).toBe('dark')
-    setting.toggle()
     expect(setting.theme.value).toBe('light')
+    setting.toggle()
+    expect(setting.theme.value).toBe('dark')
   })
 })

@@ -17,7 +17,7 @@ export interface ThemeSetting {
 }
 
 /**
- * The dark / light theme: starts on what this browser remembered (Night quay when nothing, or when storage is
+ * The dark / light theme: starts on what this browser remembered (Daylight when nothing, or when storage is
  * blocked), applies it as data-theme on the root element and remembers each choice.
  */
 export function createThemeSetting(
@@ -35,7 +35,7 @@ export function createThemeSetting(
   try {
     initial = remembered()?.getItem(THEME_KEY) ?? null
   } catch {
-    // Storage that cannot be read: start on Night quay.
+    // Storage that cannot be read: start on Daylight.
   }
   const theme = ref<Theme>(readRememberedTheme(initial))
   const apply = () => root?.setAttribute('data-theme', theme.value)

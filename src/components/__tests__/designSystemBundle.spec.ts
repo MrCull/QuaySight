@@ -12,8 +12,9 @@ describe('design-system bundle', () => {
     expect(loupe).toContain('height: calc(var(--space-8) * 6)')
   })
 
-  it('styles the native select and its options with tokens on a dark colour scheme', () => {
-    expect(rule('.qs-input select {')).toContain('color-scheme: dark')
+  it('styles the native select and its options with tokens, in the colour scheme of the theme in force', () => {
+    // The scheme comes from :root (tokens.css sets color-scheme per theme), so the native list matches the theme.
+    expect(rule('.qs-input select {')).not.toContain('color-scheme')
     const options = rule('.qs-input select option')
     expect(options).toContain('var(--surface)')
     expect(options).toContain('var(--ink)')
