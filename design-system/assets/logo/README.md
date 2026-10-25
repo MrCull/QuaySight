@@ -5,7 +5,7 @@ The Quay Sight mark is the **corner casting**: the cast steel corner every conta
 | File | Use |
 | --- | --- |
 | `quay-sight-mark.svg` | The mark in `brand` navy for light grounds (Daylight), `#14315e`. |
-| `quay-sight-mark-on-dark.svg` | The mark in `brand` chalk for dark grounds (Night quay), `#f2f3f5`. |
+| `quay-sight-mark-on-dark.svg` | The mark in `brand` teal for dark grounds (Night quay), `#2ed3c6`. |
 | `quay-sight-mark-black.svg` | One-colour `ink` (`#0f1722`) for print and single-colour use on light grounds. |
 | `quay-sight-mark-white.svg` | One-colour white for photos and dark single-colour use. |
 | `quay-sight-app-icon.svg` | The mark in white on a rounded `brand` tile: home-screen and app icons. |
