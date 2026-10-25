@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { onMounted, useTemplateRef } from 'vue'
+import { onMounted, ref, useTemplateRef, watch } from 'vue'
 import { useSetupStore } from '../stores/setup'
 import ProviderSelect from './ProviderSelect.vue'
 import { focusNextStep } from './nextStepFocus'
@@ -9,9 +9,24 @@ import { focusNextStep } from './nextStepFocus'
 const setup = useSetupStore()
 const card = useTemplateRef<HTMLElement>('card')
 
-// After Continue, the photo drop zone is the next step.
+// Shown after Continue is pressed without a key; goes once a key makes Continue ready.
+const needsKey = ref(false)
+watch(
+  () => setup.canContinue,
+  (ready) => {
+    if (ready) needsKey.value = false
+  },
+)
+
+// After Continue, the photo drop zone is the next step. Without a key, Continue points to the key field instead:
+// it is never drawn as switched off, so pressing it has to say what is missing.
 function continueToInspection() {
-  if (setup.continueToInspection()) void focusNextStep('photo')
+  if (setup.continueToInspection()) {
+    void focusNextStep('photo')
+    return
+  }
+  needsKey.value = true
+  card.value?.querySelector<HTMLInputElement>('input[id$="-key"]')?.focus()
 }
 
 // Focus starts on the first setup control.
@@ -31,11 +46,15 @@ onMounted(() => card.value?.querySelector<HTMLElement>('#provider-button')?.focu
       <button
         type="button"
         class="qs-btn qs-btn--primary qs-btn--lg"
-        :disabled="!setup.canContinue"
+        :aria-disabled="!setup.canContinue"
+        :aria-describedby="needsKey ? 'setup-needs-key' : undefined"
         @click="continueToInspection"
       >
         Continue
       </button>
+      <p v-if="needsKey" id="setup-needs-key" class="qs-setupcard__hint" role="status">
+        Paste your API key above to continue.
+      </p>
     </div>
   </section>
   <!-- Visitors without a key: demo mode, the bundled samples only (design-system DemoBanner). -->

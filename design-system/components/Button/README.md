@@ -13,7 +13,7 @@ Buttons start, export or reset an inspection. They never ask anyone to confirm, 
 ## Consumer provides
 A `<button>` element with a verb-first label in sentence case. Add a leading `qs-glyph` icon only when it adds meaning (export, upload). Set `aria-busy="true"` and `disabled` while a request is in flight, so a repeat click can't start a second chargeable call.
 
-A primary button that cannot run yet (Continue before a key is entered) draws as a dashed outline with `ink-muted` text, not a faded fill. A dimmed brand slab makes the whole screen read as switched off. Other variants dim to 55% opacity when disabled.
+Disabled buttons dim to 55% opacity. The exception is the `SetupCard`'s **Continue**: before a key is entered it is `aria-disabled="true"` but keeps its full brand fill and stays focusable, so the first screen never looks switched off. Pressing it moves focus to the key field and shows a one-line hint instead of continuing.
 
 `qs-btn--icon` (with `qs-btn--sm`) makes a square, glyph-only button. Give it an `aria-label`; the `ThemeToggle` is the one use.
 

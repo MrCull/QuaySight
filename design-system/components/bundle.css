@@ -67,9 +67,11 @@
 .qs-link:focus-visible { outline: 2px solid var(--focus-ring); outline-offset: 2px; border-radius: var(--radius-xs); }
 .qs-btn[disabled], .qs-btn[aria-busy="true"], .qs-btn[aria-disabled="true"] { cursor: not-allowed; opacity: 0.55; }
 .qs-btn--primary[aria-disabled="true"]:hover { background: var(--brand); }
-/* A primary action that cannot run yet is an outline, not a faded slab: a dimmed fill reads as the whole screen
-   being switched off. It fills in brand the moment it can run. */
-.qs-btn--primary[disabled], .qs-btn--primary[aria-disabled="true"], .qs-btn--primary[aria-disabled="true"]:hover { opacity: 1; background: transparent; color: var(--ink-muted); border: 1px dashed var(--line-strong); } .qs-btn--secondary[aria-disabled="true"]:hover { border-color: var(--line-strong); background: transparent; }
+/* The setup card's Continue never looks switched off: before a key it stays a full brand button (aria-disabled,
+   still focusable), and pressing it points to the key field instead of continuing. */
+.qs-setupcard__actions .qs-btn--primary[aria-disabled="true"] { opacity: 1; cursor: pointer; }
+.qs-setupcard__actions .qs-btn--primary[aria-disabled="true"]:hover { background: var(--brand-hover); }
+.qs-btn--secondary[aria-disabled="true"]:hover { border-color: var(--line-strong); background: transparent; }
 
 /* ---------- New inspection (header action) ---------- */
 /* The inspection screen's one primary button, kept at its size in the top bar. Always enabled: during a run it reads Cancel and clears to the empty picker. */
@@ -517,6 +519,9 @@
 .qs-drawer__body { flex: 1; min-height: 0; overflow-y: auto; padding: var(--space-5); }
 .qs-drawer__foot { display: flex; justify-content: flex-end; gap: var(--space-3); padding: var(--space-4) var(--space-5); border-top: 1px solid var(--line); }
 .qs-drawer .qs-combo__button, .qs-drawer .qs-input { background: var(--surface); }
+/* On the setup card the fields sit in sunken wells, so they read as places to type, not flat panels. */
+.qs-setupcard .qs-combo__button, .qs-setupcard .qs-input, .qs-setupcard .qs-input select { background: var(--surface-sunken); }
+.qs-setupcard__hint { margin: 0; color: var(--ink); font: 400 14px/20px var(--font-sans); }
 @keyframes qs-drawer-in { from { opacity: 0; transform: translateX(var(--space-6)); } to { opacity: 1; transform: none; } }
 @media (max-width: 480px) { .qs-drawer__head, .qs-drawer__body, .qs-drawer__foot { padding-left: var(--space-4); padding-right: var(--space-4); } }
 

@@ -4,7 +4,6 @@ The photo drop is the start screen: drop or browse for photos of one container, 
 
 ## Parts
 - `.qs-drop`: a `<label>` wrapping a hidden `<input type="file" accept="image/jpeg,image/png,image/webp" multiple>`, the photo glyph, a `display` title ("Drop container photos here") a meta line with the count and formats, and a `.qs-drop__cta` drawn as a large primary button (*Choose photos*, upload glyph). The whole zone is the control, so the CTA is a `span` with `aria-hidden="true"`, not a second button; it brightens with the zone on hover and drag-over. Add `qs-drop--over` during drag-over.
-- Before any photo is in, the app sets a real container photo, dimmed well back with a `bg` gradient, behind the start screen and the `SetupCard`. It is decorative and gives the first screens colour before results arrive. The drop zone sits on a translucent `surface-sunken` over it.
 - `.qs-samples`: the fallback for when there's no photo or no network. A heading, *No photo to hand? Try a sample container*, one sentence explaining what a sample is (a result saved from an earlier real inspection; works offline; no key; no charge), and a grid of `.qs-sample` tiles. Each tile has a thumbnail, a *Saved result* badge, a title naming what it shows ("Side with damage") and a one-line hint of what the audience will see.
 
 ## Demo mode
