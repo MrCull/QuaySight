@@ -73,6 +73,24 @@ describe('a request that waits for another to settle (settledAfter)', () => {
     expect(await run([first, waiting])).toEqual(['first:failed', 'waiting:answered'])
   })
 
+  it("waits for, and reads, a copy of it, as several photos' plans run copies (photoPlan.ts)", async () => {
+    const first = request('first', 'a')
+    let seen: unknown
+    const waiting = request('waiting', 'b', {
+      settledAfter: [first],
+      send: async (ctx) => {
+        seen = ctx.answer(first)
+        return reply('b')
+      },
+    })
+    const slowCopy = {
+      ...first,
+      send: () => new Promise<RequestReply<unknown>>((r) => setTimeout(() => r(reply('a')), 5)),
+    }
+    expect(await run([slowCopy, waiting])).toEqual(['first:answered', 'waiting:answered'])
+    expect(seen).toBe('a')
+  })
+
   it('does not wait for a request that is not in the run', async () => {
     const absent = request('absent', 'a')
     expect(await run([request('waiting', 'b', { settledAfter: [absent] })])).toEqual([

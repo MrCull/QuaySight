@@ -4,6 +4,7 @@ import { readSeal, SEAL_POSITIONS, type SealReading } from '../sealFamily'
 import {
   applySealPick,
   joinCandidates,
+  MAX_PICK_CANDIDATES,
   MAX_SEAL_CANDIDATES,
   readSealPick,
   runVariants,
@@ -83,6 +84,14 @@ describe('seal candidates', () => {
 
   it('takes the reads in turn when joining them, without repeats', () => {
     expect(joinCandidates(['a', 'b', 'c'], ['b', 'd'])).toEqual(['a', 'b', 'd', 'c'])
+  })
+
+  it("keeps every one of two full reads' candidates (live Jev: a misplaced zoom crowded out 6400003)", () => {
+    const survey = Array.from({ length: MAX_SEAL_CANDIDATES }, (_, i) => `S${i}`)
+    const zoom = Array.from({ length: MAX_SEAL_CANDIDATES }, (_, i) => `Z${i}`)
+    const joined = joinCandidates(survey, zoom)
+    expect(joined).toHaveLength(MAX_PICK_CANDIDATES)
+    expect(joined).toContain(`S${MAX_SEAL_CANDIDATES - 1}`)
   })
 })
 

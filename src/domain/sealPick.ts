@@ -15,8 +15,14 @@ import type { CertaintyLabel } from './inspection'
 import type { SealReading } from './sealFamily'
 import type { ChoiceQuestion, SharedAnswer } from './questionSetTypes'
 
-/** The most candidates offered in one pick. Far under a choice question's limit; enough for the read and its near misses. */
+/** The most candidates one read gives: the read and its near misses. */
 export const MAX_SEAL_CANDIDATES = 24
+/**
+ * The most a pick offers, from every read joined: room for two reads' whole lists, far under a choice
+ * question's limit. A zoom cut from the wrong part of the photo reads a different, wrong number, and its
+ * candidates must not crowd out the survey's (live Jev, 6400003: the zoom read the half-hidden shaft).
+ */
+export const MAX_PICK_CANDIDATES = MAX_SEAL_CANDIDATES * 2
 /** The longest seal number offered. A run lengthened past the places read can reach one past them. */
 const MAX_LENGTH = 10
 /** A character at a place is a candidate when its probability is at least this. */
@@ -134,7 +140,7 @@ export function joinCandidates(...lists: string[][]): string[] {
       if (v !== undefined && !out.includes(v)) out.push(v)
     }
   }
-  return out.slice(0, MAX_SEAL_CANDIDATES)
+  return out.slice(0, MAX_PICK_CANDIDATES)
 }
 
 /** The pick's one question. The candidates are offered in sorted order, so none is placed first as the read. */
