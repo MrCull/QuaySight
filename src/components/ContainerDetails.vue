@@ -35,8 +35,9 @@ const assessed = computed(
 )
 
 // The survey was asked and failed: say the details could not be read, which is not the same as not asked.
+// Not when another photo read them: that photo's notice names the one that failed.
 const detailsFailure = computed(() =>
-  props.record.failures?.find((f) => f.stages.includes('details')),
+  assessed.value ? undefined : props.record.failures?.find((f) => f.stages.includes('details')),
 )
 
 // Each value keeps its source label: Printed, Decoded from ISO, Calculated or Model-selected (spec 4.3, 4.4).

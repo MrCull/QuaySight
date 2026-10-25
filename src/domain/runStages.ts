@@ -34,6 +34,8 @@ export interface PlannedRequestState {
   state: RequestState
   /** An optional request refines a usable answer: its failure leaves its stage done. */
   optional: boolean
+  /** The photo it is for (1-based) in a run of several photos; absent in a one-photo run. */
+  photo?: number
   /** Clock times in ms, or null before it was sent / settled. */
   startedAt: number | null
   settledAt: number | null
@@ -69,12 +71,50 @@ function elapsedOf(requests: PlannedRequestState[], state: StageState): number |
   return Math.max(...settled) - Math.min(...started)
 }
 
+/** The requests grouped by photo, in photo order; one group for a one-photo run. */
+function byPhoto(requests: readonly PlannedRequestState[]): PlannedRequestState[][] {
+  const groups = new Map<number | undefined, PlannedRequestState[]>()
+  for (const r of requests) groups.set(r.photo, [...(groups.get(r.photo) ?? []), r])
+  return [...groups.entries()].sort(([a], [b]) => (a ?? 0) - (b ?? 0)).map(([, group]) => group)
+}
+
+/**
+ * A part's state across the photos: it is done once any photo gave it, and failed only when no photo
+ * did. A photo that lost its request is named on its own (failedStagesByPhoto).
+ */
+function combinedState(perPhoto: StageState[]): StageState {
+  const states = perPhoto.filter((s) => s !== 'not-in-run')
+  if (states.length === 0) return 'not-in-run'
+  if (states.includes('active')) return 'active'
+  if (states.includes('done')) return 'done'
+  if (states.includes('failed')) return 'failed'
+  return 'cancelled'
+}
+
 /** Every stage, in order, with its state from the requests that count towards it. */
 export function stageProgress(requests: readonly PlannedRequestState[]): StageProgress[] {
+  const photos = byPhoto(requests)
   return RUN_STAGES.map(({ id, title }) => {
     const mine = requests.filter((r) => r.stages.includes(id))
-    const state = stateOf(mine)
+    const state = combinedState(photos.map((p) => stateOf(p.filter((r) => r.stages.includes(id)))))
     return { id, title, state, elapsedMs: elapsedOf(mine, state) }
+  })
+}
+
+/** The parts each photo lost: its own stages that failed, whether or not another photo gave them. */
+export interface PhotoStageFailure {
+  /** 1-based, or null in a one-photo run. */
+  photo: number | null
+  stages: StageId[]
+}
+
+/** Each photo with a failed stage of its own, in photo order. Empty when nothing was lost. */
+export function failedStagesByPhoto(requests: readonly PlannedRequestState[]): PhotoStageFailure[] {
+  return byPhoto(requests).flatMap((group) => {
+    const stages = RUN_STAGES.map((s) => s.id).filter(
+      (id) => stateOf(group.filter((r) => r.stages.includes(id))) === 'failed',
+    )
+    return stages.length > 0 ? [{ photo: group[0]!.photo ?? null, stages }] : []
   })
 }
 

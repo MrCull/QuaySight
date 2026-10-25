@@ -13,6 +13,9 @@ import { sideDamage } from '../../plan/requests/sideDamage'
 import { doorDamage } from '../../plan/requests/doorDamage'
 import { spendCaps } from '../../domain/rates'
 import { buildInspectionExport } from '../../domain/exports'
+import { mount } from '@vue/test-utils'
+import ResultsPanel from '../../components/ResultsPanel.vue'
+import ContainerDetails from '../../components/ContainerDetails.vue'
 
 // Several photos of one container (#70) through the store, with fetch stubbed at the network edge. Each fake
 // photo has its own size, so the stub can tell which photo a request carries.
@@ -83,6 +86,8 @@ interface Photo {
   p?: number
   /** Further faces the survey says the photo shows (`rear_doors`, `long_side`). */
   shows?: string[]
+  /** Its survey fails with an HTTP 500. */
+  fails?: boolean
 }
 
 describe('several photos of one container', () => {
@@ -103,6 +108,8 @@ describe('several photos of one container', () => {
       const body = String(init?.body)
       if (isDoor(body) || isSide(body)) return json(damageReply())
       const photo = photos.find((p) => photoOf(body).includes(`${p.width}x`))!
+      if (photo.fails)
+        return new Response(JSON.stringify({ error: { message: 'boom' } }), { status: 500 })
       return json(surveyReply(photo.id, photo.face, photo.p, photo.shows))
     })
     vi.stubGlobal('fetch', fetchMock)
@@ -322,6 +329,72 @@ describe('several photos of one container', () => {
     expect(store.planned.map((r) => r.id)).toEqual(expect.arrayContaining(['p1-read', 'p2-read']))
     await done
     expect(store.stages.every((s) => s.state === 'done')).toBe(true)
+  })
+
+  it('names the photo that lost its survey, and does not say a part failed when another photo gave it', async () => {
+    // The 25 Oct 2026 report: photo 1's survey failed, photo 2 read the ID and the damage, yet the
+    // screen said the ID could not be read and damage could not be checked.
+    const { store } = run([{ ...DOORS, fails: true }, SIDE])
+
+    await store.start()
+
+    expect(store.record).toMatchObject({ status: 'partial', containerId: { value: COYU } })
+    expect(store.stages.map((s) => s.state)).toEqual(['done', 'done', 'done'])
+    expect(store.record!.failures).toEqual([
+      expect.objectContaining({ photo: 1, requestId: 'read', cause: 'busy' }),
+    ])
+    const notices = mount(ResultsPanel)
+      .findAll('.qs-notice--error')
+      .map((n) => n.text())
+    expect(notices).toEqual([
+      'Photo 1 could not be read in full.OpenAI is busy or rate-limited. Everything else found is shown.',
+    ])
+    const details = mount(ContainerDetails, { props: { record: store.record! } }).text()
+    expect(details).not.toContain('could not be read')
+  })
+
+  it('names only the failed photo when the other photo has no face to check for damage', async () => {
+    // Photo 1's survey fails, so its damage check is never sent; photo 2's face cannot be told, so its
+    // damage check is not needed. Damage reads as not assessed, not as a failure of its own.
+    const { store } = run([
+      { ...DOORS, fails: true },
+      { name: 'blurred.jpg', width: 1300, id: COYU, face: 'unknown' },
+    ])
+
+    await store.start()
+
+    expect(store.stages.map((s) => s.state)).toEqual(['done', 'done', 'done'])
+    const notices = mount(ResultsPanel)
+      .findAll('.qs-notice--error')
+      .map((n) => n.text())
+    expect(notices).toEqual([
+      'Photo 1 could not be read in full.OpenAI is busy or rate-limited. Everything else found is shown.',
+    ])
+  })
+
+  it('still says a part failed when no photo gave it, and names the photo for the parts another gave', async () => {
+    // Photo 1's survey fails; photo 2 reads the ID but its door damage check fails too.
+    const { store, fetchMock } = run([
+      { ...DOORS, fails: true },
+      { ...DOORS, width: 1100 },
+    ])
+    const answer = fetchMock.getMockImplementation()!
+    fetchMock.mockImplementation(async (input, init) =>
+      isDoor(String(init?.body))
+        ? new Response(JSON.stringify({ error: { message: 'boom' } }), { status: 503 })
+        : answer(input, init),
+    )
+
+    await store.start()
+
+    expect(store.stages.map((s) => s.state)).toEqual(['done', 'done', 'failed'])
+    const notices = mount(ResultsPanel)
+      .findAll('.qs-notice--error')
+      .map((n) => n.text())
+    expect(notices).toEqual([
+      'Photo 1 could not be read in full.OpenAI is busy or rate-limited. Everything else found is shown.',
+      'Damage could not be checked.OpenAI is busy or rate-limited. Everything else found is shown.',
+    ])
   })
 
   it('stops at 50 requests and $0.50 for the container', () => {
