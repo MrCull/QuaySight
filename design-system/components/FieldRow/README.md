@@ -8,6 +8,9 @@ A field row shows one reading in the summary: a label, a value with its provenan
 - A `CertaintyChip` in the third column.
 - `.qs-field__note` (optional) for unresolved items, always as **Best interpretation:** … **What remains uncertain:** …
 
+## Reading glyph
+A row may lead its label with the reading glyph for its kind of reading: add `qs-field__label--glyph` and put `<i class="qs-glyph qs-glyph--{name}" aria-hidden="true">` before the text. The Container details rows use `container` (ISO CODE), `length`, `height`, `width`, `boxtype` (TYPE), `weight` (MAX GROSS), `scale` (TARE), `package` (PAYLOAD), `cube` (CUBIC CAPACITY), `reefer`, `opentop`, `tank` and `flatrack`. The glyph names the kind of reading only; it takes the label's ink and never a certainty, severity or hazard colour.
+
 ## Phone
 At 480px and below the row regrids: the label and the certainty chip share the first line, and the value with its provenance tag gets the full width beneath, so a long tag (*Decoded from ISO*) never runs under the chip.
 

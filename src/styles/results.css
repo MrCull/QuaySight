@@ -143,9 +143,14 @@ body {
   border: 1px solid var(--line);
   border-radius: var(--radius-md);
 }
+/* Every row the same height whether its value is a sentence or a badge, and one label column wide enough for
+   the longest field name (MARINE POLLUTANT, FLAT RACK with its glyph) on one line. */
+.rs-card .qs-field {
+  min-height: calc(var(--control-sm) + 2 * var(--space-3));
+}
 @media (min-width: 481px) {
   .rs-card .qs-field {
-    grid-template-columns: 112px 1fr auto;
+    grid-template-columns: calc(var(--space-8) * 2.5) 1fr auto;
   }
 }
 .rs-note {
@@ -170,6 +175,7 @@ body {
   gap: 6px;
 }
 .rs-card .qs-field:last-child {
+  min-height: calc(var(--control-sm) + var(--space-3));
   border-bottom: 0;
   padding-bottom: 0;
 }
@@ -189,13 +195,20 @@ body {
 .rs-right {
   position: relative;
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(min(100%, calc(var(--space-8) * 8)), 1fr));
+  grid-template-columns: minmax(0, 1fr);
   gap: var(--space-4);
   align-items: start;
 }
-.rs-right > .qs-manifest,
-.rs-right > .rs-exports {
-  grid-column: 1 / -1;
+/* The Container details and Markings cards share the row and its height, wrapping to one column when narrow.
+   (A grid with auto-fit would keep an empty third track: the full-width export row holds every track open.) */
+.rs-cards {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-4);
+}
+.rs-cards > .rs-card {
+  flex: 1 1 calc(var(--space-8) * 8);
+  min-width: 0;
 }
 .rs-right:empty {
   display: none;
