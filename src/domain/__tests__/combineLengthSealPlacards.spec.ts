@@ -154,6 +154,23 @@ describe('seal across photos', () => {
     expect(record.photos![1]!.contributed.details).toContain('seal')
   })
 
+  it("keeps the one photo's other plausible number, as the seal pick gave it", () => {
+    const record = combinePhotoRuns(
+      [
+        run(1, 'rear-doors', {
+          seal: { visible: false, characters: [], value: '', certainty: 'Not seen' },
+        }),
+        run(2, null, { seal: { ...seal('6400003', 'Likely'), alternative: '64000003' } }),
+      ],
+      { id: 'x' },
+    )
+    expect(record.seal).toMatchObject({
+      value: '6400003',
+      certainty: 'Likely',
+      alternative: '64000003',
+    })
+  })
+
   it('is not seen only when no photo shows one', () => {
     const none: SealReading = { visible: false, characters: [], value: '', certainty: 'Not seen' }
     const record = combinePhotoRuns(
