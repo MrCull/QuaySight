@@ -133,6 +133,9 @@ function combineSeal(runs: PhotoRecord[]): { reading: SealReading | null; from: 
     value: read.length === 0 ? '' : characters.map((c) => c.value ?? '?').join(''),
     certainty: doubted,
   }
+  // One photo gave the number: its own other plausible number (the seal pick's runner-up) still stands.
+  const only = same.length === 1 ? same[0]!.record.seal! : null
+  if (only?.alternative && only.value === reading.value) reading.alternative = only.alternative
 
   // The crop: the photo that gave most of the characters used, among those where the seal was located
   // (the model's own box, or the area the regions or the zoomed read found; combinePhotos adds the area).

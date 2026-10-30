@@ -17,10 +17,20 @@ How the damage view shows one damage set's assessment of one photo: the long sid
 ## In the app
 The previews show only the figure that carries the findings. In the app, a long-side photo is drawn on the fixed view for its side, found from where the doors are in the photo (doors at photo-left: left side; doors at photo-right: right side). When the doors don't settle it, the damage is drawn on the *Door end and right side* view with a visible note that the side is not certain. A fixed view with no photographed face is hidden and replaced by one line in the `qs-coverage__item--unseen` (Not seen) styling, "Blank end (no doors) and left side: not photographed", with no gap left where the drawing was. When no face at all was photographed, both drawings stay (the empty state). The `.qs-coverage` strip stays under the views.
 
+## CEDEX location codes
+Four characters (ISO 9897): face (D door end, F front end, L left, R right, T roof, B floor, U understructure), part (T top half, B bottom half, X both, H top rail / door header, G bottom rail / door sill), then the section, or the first and last of a range (a single section is followed by N; section 10 is 0). `RB2N`: right side, bottom half, section 2.
+- Long sides: 5 sections at 20 ft, 10 at 40 and 45 ft, numbered from the door end. Ends: 4 positions across, 1 to 4 from left to right standing outside facing that end, so photo-left on an end photo is position 1. A corner post on a side photo is coded on its end (the door corner post on the right side is `DX4N`).
+- A code is given only where the photos settle the face, its orientation, the nominal length (for side sections) and the part. *Placed from the photos* when the whole face is in the photo; *Estimated* when part of it is not (the sections are read off the visible part); otherwise *Not established* and no code, with the reason (side defaulted, length not read, "which corner casting is not established", face not identified). Never *Confirmed*.
+- Selecting a finding lights its sections (`.qs-c-section.is-cedex`) or end positions on the drawing. Side sections are numbered under the side (`.qs-c-section__num`) only once the doors settle which end is which.
+
+## Layout
+The drawing and the selected finding's details (`.qs-finding-detail`) share the top row (`minmax(0,1fr) minmax(360px,440px)`, the details sticky beside the drawing); every finding follows in a full-width grid of compact cards. Below 1100px they stack: drawing, details, grid. Selecting a card below scrolls the details back into view when they are off screen.
+
 ## Copy
 - Locations are photo-relative words: "Photo column 2 of 5 from the left, lower half of the side sheet"; "Photo-right door leaf, bottom third". Once the doors place a long side, the long side's "from the left" and "photo left/right" become the container's own ends: "from the door end", "from the front end". When the side is defaulted they stay photo-relative.
-- A defaulted side says so with a fixed status word: the side label reads "Right side · side Uncertain", the coverage strip "Photo 1 · side Uncertain", and a `qs-notice` with the *unknown* glyph repeats it. The other side is *Not seen*. Never a CEDEX location code: orientation is unknown.
-- Damage types are CEDEX damage types with their names (DT Dent, BT Bent, BW Bowed, HO Holed, CK Cracked, CW Cracked weld, CO Corroded, CH Corroded and holed, BR Broken).
+- A defaulted side says so with a fixed status word: the side label reads "Right side · side Uncertain", the coverage strip "Photo 1 · side Uncertain", and a `qs-notice` with the *unknown* glyph repeats it. The other side is *Not seen*. No CEDEX location code: orientation is unknown, so the side letter and the section numbering are not established.
+- Damage types are CEDEX damage types with their names (DT Dent, BT Bent, BW Bowed, HO Holed, CK Cracked, CW Cracked weld, CO Corroded, CH Corroded and holed, BR Broken). A best type below 0.5 is not named: it reads *Uncertain* and every candidate is listed.
+- Beside the findings count, one quiet line (`.qs-cedex-note`): "Damage types and locations classified using CEDEX (ISO 9897)." with an *info* glyph button (`.qs-cedex-note__toggle`, `aria-expanded`) that opens `.qs-cedex-note__body`: what CEDEX is, how a location code is built and why it is used. Cards don't repeat it.
 - Severity is *apparent*: "apparent moderate dent". Door panel findings read "Dent in the door panel", component findings "Damage to the door sill".
 
 ## Don't

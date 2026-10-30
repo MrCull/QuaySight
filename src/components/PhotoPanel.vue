@@ -138,7 +138,11 @@ function openPicker() {
     >
       <span class="qs-drop__icon"><i class="qs-glyph qs-glyph--photo" aria-hidden="true"></i></span>
       <span class="qs-drop__title">Drop a container photo here</span>
-      <span class="qs-drop__meta">or <u>browse files</u> · JPEG, PNG or WebP</span>
+      <span class="qs-drop__meta">1–5 photos of one container · JPEG, PNG or WebP</span>
+      <!-- Drawn as the screen's primary action; the whole zone is the control, so this is not a second button. -->
+      <span class="qs-btn qs-btn--primary qs-btn--lg qs-drop__cta" aria-hidden="true">
+        <i class="qs-glyph qs-glyph--upload" aria-hidden="true"></i>Choose photos
+      </span>
     </label>
 
     <template v-else>

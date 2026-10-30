@@ -47,10 +47,6 @@ const sidePhoto = path.join(ROOT, 'samples', 'side-dented-grey.jpg')
 const lunaSmoke = JSON.parse(
   fs.readFileSync(path.join(ROOT, 'src', 'fixtures', 'live', 'luna-smoke.json'), 'utf8'),
 ).response as { answers: Array<Record<string, unknown>> }
-/** GPT-6 Luna Decisions through OpenRouter, as recorded live on 16 Oct 2026 (no key, no headers). */
-const openRouterLunaSmoke = JSON.parse(
-  fs.readFileSync(path.join(ROOT, 'src', 'fixtures', 'live', 'openrouter-luna-smoke.json'), 'utf8'),
-).response as unknown
 
 // Placeholders typed through the real field. Neither is a credential and no provider receives one.
 // The first starts the way both providers' keys do, so it shows no key-format warning; the second doesn't.
@@ -241,15 +237,6 @@ async function jevResult(page: Page) {
   await startAndSettle(page)
 }
 
-/** GPT-6 Luna Decisions through OpenRouter: the recorded smoke response answers the survey; no damage question is answered. */
-function openRouterLunaScript(): Script {
-  return (kind) => {
-    if (kind === 'side') return notASideReply()
-    if (kind === 'door') return { model: 'openai/gpt-6-luna-decisions', answers: {} }
-    return openRouterLunaSmoke
-  }
-}
-
 /**
  * Variants of the recorded Luna smoke response, for states the recorded fixtures never reach.
  * uncertain: every position read at 45%, with a 30% runner-up (Uncertain, alternatives shown).
@@ -413,10 +400,7 @@ const CAPTURES: Capture[] = [
   {
     state: 'demo-sample-ready',
     screen: 'demo',
-    steps: [
-      'Demo-picker steps',
-      'Choose Rear doors with markings (the inspection starts itself)',
-    ],
+    steps: ['Demo-picker steps', 'Choose Rear doors with markings (the inspection starts itself)'],
     motion: 'frozen',
     run: async (page) => {
       await open(page)
@@ -475,11 +459,7 @@ const CAPTURES: Capture[] = [
   {
     state: 'demo-rear-result',
     screen: 'results',
-    steps: [
-      'Demo mode',
-      'Rear doors with markings (recorded Luna, earlier ID-only run)',
-      'Settle',
-    ],
+    steps: ['Demo mode', 'Rear doors with markings (recorded Luna, earlier ID-only run)', 'Settle'],
     motion: 'frozen',
     run: (page) => demoResult(page, 'Rear doors with markings'),
   },
@@ -598,27 +578,6 @@ const CAPTURES: Capture[] = [
     script: () => openRouterJevScript(answers),
     run: jevResult,
   })),
-  {
-    state: 'openrouter-luna-result',
-    screen: 'results',
-    steps: [
-      'Open /',
-      "Choose model 'GPT-6 Luna Decisions' on the setup card (OpenRouter)",
-      "Type placeholder into 'OpenRouter API key', Enter",
-      'Choose photo',
-      'Run live inspection (mocked OpenRouter Decisions: the recorded Luna Decisions smoke response)',
-      'settle',
-    ],
-    motion: 'frozen',
-    script: openRouterLunaScript,
-    run: async (page) => {
-      await open(page)
-      await page.getByLabel('Model version').selectOption('openai/gpt-6-luna-decisions')
-      await liveKey(page, 'OpenRouter API key')
-      await choosePhoto(page)
-      await startAndSettle(page)
-    },
-  },
   {
     state: 'live-after-new-inspection',
     screen: 'start',
@@ -952,6 +911,7 @@ for (const viewport of VIEWPORTS) {
     if (!allowed.some((v) => v.width === viewport.width && v.height === viewport.height)) continue
 
     const label = `${capture.state} @ ${viewport.width}x${viewport.height}`
+
     test(label, async ({ browser }, testInfo) => {
       test.setTimeout(60_000)
       const origin = new URL(testInfo.project.use.baseURL ?? 'http://localhost:4173').origin

@@ -62,6 +62,24 @@ export interface DetailRow {
   note: string | null
 }
 
+/** The reading glyph beside each row's label (qs-glyph--{glyph}): the kind of reading, never its certainty. */
+export const DETAIL_GLYPH: Readonly<Record<string, string>> = {
+  'ISO CODE': 'container',
+  LENGTH: 'length',
+  HEIGHT: 'height',
+  WIDTH: 'width',
+  TYPE: 'boxtype',
+  'MAX GROSS': 'weight',
+  TARE: 'scale',
+  PAYLOAD: 'package',
+  'PAYLOAD (CALCULATED)': 'package',
+  'CUBIC CAPACITY': 'cube',
+  REEFER: 'reefer',
+  'OPEN TOP': 'opentop',
+  TANK: 'tank',
+  'FLAT RACK': 'flatrack',
+}
+
 export interface DetailGroup {
   id: 'size' | 'weights' | 'equipment'
   rows: DetailRow[]

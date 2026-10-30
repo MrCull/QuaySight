@@ -14,7 +14,7 @@ import { LEDGER_DETAIL_LABELS, ledgerModel } from './ledgerRows'
 import { useUnits } from '../composables/units'
 import { DETAIL_IDS } from '../composables/detailJump'
 import { DIFFERENT_CONTAINERS_MESSAGE, droppedPhotoMessage } from '../domain/combinePhotos'
-import { causeSentence } from '../domain/requestFailure'
+import { causeSentence, type RequestFailure } from '../domain/requestFailure'
 import { idCloseUp, sealCloseUp } from '../domain/closeUpSources'
 
 const store = useInspectionStore()
@@ -59,11 +59,32 @@ const failedParts = computed(() =>
   partial.value ? store.stages.filter((s) => s.state === 'failed').map((s) => s.id) : [],
 )
 
-/** The cause of a failed part in plain words, then what is kept. */
-function failureBody(part: StageId): string {
-  const failure = record.value?.failures?.find((f) => f.stages.includes(part))
+/** A cause in plain words, then what is kept. */
+function keptBody(failure: RequestFailure | undefined): string {
   return `${failure ? `${causeSentence(failure)} ` : ''}Everything else found is shown.`
 }
+
+/** The cause of a failed part. */
+function failureBody(part: StageId): string {
+  return keptBody(record.value?.failures?.find((f) => f.stages.includes(part)))
+}
+
+/**
+ * Photos that lost a request while another photo still gave the part: the result stands, but that
+ * photo's readings are missing from it. A dropped photo adds nothing anyway, and a part no photo gave
+ * has its own notice above.
+ */
+const photoFailures = computed(() => {
+  const photos = record.value?.photos
+  if (!partial.value || !photos) return []
+  return store.photoFailures.flatMap(({ photo, stages }) => {
+    const shown = photos.find((p) => p.index === photo)
+    if (photo === null || !shown || shown.dropped) return []
+    if (stages.every((s) => failedParts.value.includes(s))) return []
+    const failures = record.value?.failures?.filter((f) => f.photo === photo) ?? []
+    return [{ photo, body: keptBody(failures[0]) }]
+  })
+})
 
 // The readings ledger: the door drawing with each reading beside its painted place. The rows it shows
 // are left out of the Container details and Markings cards below it.
@@ -169,6 +190,19 @@ const showExplanation = computed(() => idState.value === 'uncertain' || idState.
         </div>
       </div>
 
+      <div
+        v-for="failed in photoFailures"
+        :key="`photo-${failed.photo}`"
+        class="qs-notice qs-notice--error"
+        role="alert"
+      >
+        <i class="qs-glyph qs-glyph--error" aria-hidden="true"></i>
+        <div>
+          <div class="qs-notice__title">Photo {{ failed.photo }} could not be read in full.</div>
+          <div class="qs-notice__body">{{ failed.body }}</div>
+        </div>
+      </div>
+
       <div v-for="part in failedParts" :key="part" class="qs-notice qs-notice--error" role="alert">
         <i class="qs-glyph qs-glyph--error" aria-hidden="true"></i>
         <div>
@@ -205,7 +239,8 @@ const showExplanation = computed(() => idState.value === 'uncertain' || idState.
         <!-- Live: a live call on the same model. Demo: the sample's own recorded check. Never a replay against another photo. -->
         <ManifestRetry v-if="store.canCheckManifest && !differentContainers" />
 
-        <template v-if="record && detailsLanded">
+        <!-- Side by side across the full width when there is room, each card as tall as the taller. -->
+        <div v-if="record && detailsLanded" class="rs-cards">
           <ContainerDetails
             :record="record"
             :omit="LEDGER_DETAIL_LABELS"
@@ -222,7 +257,7 @@ const showExplanation = computed(() => idState.value === 'uncertain' || idState.
             :photos="photoUrls"
             :class="{ 'qs-arrived': detailsEarly }"
           />
-        </template>
+        </div>
 
         <ExportActions v-if="!running" />
       </section>

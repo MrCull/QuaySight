@@ -63,9 +63,9 @@ describe('the numbered regions', () => {
         'hazard_3_mark_2',
       ]),
     )
-    const offered = regionsQuestions().map((q) =>
-      q.type === 'choice' ? q.choices.map((c) => c.value).join(',') : q.type,
-    )
+    const offered = regionsQuestions()
+      .filter((q) => q.name.includes('_mark'))
+      .map((q) => (q.type === 'choice' ? q.choices.map((c) => c.value).join(',') : q.type))
     const marks = [...Array.from({ length: 25 }, (_, i) => String(i + 1)), 'none'].join(',')
     expect(new Set(offered)).toEqual(new Set([marks]))
   })
@@ -89,5 +89,24 @@ describe('the numbered regions', () => {
 
   it('give no area for a second mark when the first is none', () => {
     expect(readRegions({ id_mark: choice('none', 0.9), id_mark_2: choice('4', 0.9) }).id).toBeNull()
+  })
+
+  it('ask which grid columns the door end spans, and read them as a full-height area', () => {
+    const names = regionsQuestions().map((q) => q.name)
+    expect(names).toEqual(expect.arrayContaining(['door_end_from_column', 'door_end_to_column']))
+    const found = readRegions({
+      door_end_from_column: choice('1', 0.7),
+      door_end_to_column: choice('2', 0.6),
+    })
+    expect(found.doorEnd).toEqual({ top: 0, bottom: 1, left: 0, right: 0.5 })
+  })
+
+  it('give no door end when either edge is none, unsure or the edges are the wrong way round', () => {
+    const read = (from: SharedAnswer, to: SharedAnswer) =>
+      readRegions({ door_end_from_column: from, door_end_to_column: to }).doorEnd
+    expect(read(choice('none', 0.9), choice('2', 0.9))).toBeNull()
+    expect(read(choice('1', 0.05), choice('2', 0.9))).toBeNull()
+    expect(read(choice('3', 0.9), choice('2', 0.9))).toBeNull()
+    expect(readRegions({}).doorEnd).toBeNull()
   })
 })

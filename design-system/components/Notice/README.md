@@ -11,6 +11,8 @@ A notice is an inline, non-blocking message: an optional suggestion, the recorde
 
   Cancel has no notice: it clears straight back to the empty picker.
 - `qs-notice--error`: `error-fg` border and octagon glyph on `error-bg`, `role="alert"`. Only for system failures (request failed, key rejected, unsupported model). Say what was kept and offer at most one deliberate retry.
+  - A part no photo gave: the title names the part (*The container ID could not be read.*), the body gives the cause and *Everything else found is shown.*
+  - A photo whose request failed while another photo still gave the part: the title names the photo (*Photo 1 could not be read in full.*), the body gives the cause and *Everything else found is shown.* The part itself is not called failed.
 
 ## Consumer provides
 A glyph, a one-sentence `.qs-notice__title`, an optional `.qs-notice__body`, and in the third column either a kicker or one small button.

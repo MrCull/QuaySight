@@ -134,6 +134,41 @@ describe('a failed request keeps and shows its cause', () => {
     expect(store.record!.failures![0]).toMatchObject({ cause: 'busy', status: 429 })
   })
 
+  it('a 502 from OpenRouter saying the model refused a question is a declined photo, not a busy provider', async () => {
+    // Seen live with GPT-6 Luna on 25 Oct 2026: OpenRouter has no refusal answer, so one refused question
+    // fails the whole call. The wording is OpenRouter's, whichever model refuses.
+    fetchMock.mockResolvedValueOnce(
+      json(
+        { error: { message: 'OpenAI refused to answer question "id_char_01"', code: 502 } },
+        502,
+      ),
+    )
+    const store = useInspectionStore()
+    store.setProvider('openrouter')
+    store.setModel('~typesafe/jev-latest')
+    store.setApiKey('sk-or-test-only-0000')
+    store.setPhoto({
+      name: 'seal.jpg',
+      url: 'blob:seal',
+      orientation: 'portrait',
+      file: new Blob(['1079x1080'], { type: 'image/jpeg' }),
+    })
+    await store.start()
+
+    expect(store.record!.failures![0]).toMatchObject({
+      kind: 'question-refused',
+      cause: 'declined',
+      status: 502,
+      message: expect.stringContaining('Jev latest would not answer'),
+    })
+    const text = mount(ResultsPanel).text()
+    expect(text).toContain('The model would not answer about this photo.')
+    expect(text).not.toContain('busy')
+    const cost = mount(CostIndicator)
+    await cost.get('.qs-cost__toggle').trigger('click')
+    expect(cost.get('.qs-cost__table').text()).toContain('model would not answer (502)')
+  })
+
   it('a 200 without answers keeps its raw body, and the raw-response download includes it', async () => {
     const body = { model: 'gpt-6-luna', usage: { input_tokens: 5 }, note: 'empty' }
     fetchMock.mockResolvedValueOnce(json(body))

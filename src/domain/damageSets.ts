@@ -39,6 +39,8 @@ export interface DamageSetReading {
   doorEnd: 'image-left' | 'image-right' | null
   /** The raw response the reading came from. */
   passId?: string
+  /** Read from a crop of this face alone (doorEndCrop.ts), not from the whole photo. */
+  fromCrop?: boolean
 }
 
 /** The faces a damage set is written for, and the schematic face their findings are drawn on. */
@@ -236,14 +238,19 @@ export function assessDamage(
 }
 
 function reassess(record: InspectionRecord): InspectionRecord {
-  const lengthFt = chosenLength(record).feet
+  const length = chosenLength(record)
+  const lengthFt = length.feet
   const damage = assessDamage(
     record.photoFace,
     record.damageReadings ?? [],
     record.photo?.name ?? null,
     lengthFt,
   )
-  return { ...record, damage: damage && { ...damage, lengthFt } }
+  const lengthAssumed = length.source === 'default'
+  return {
+    ...record,
+    damage: damage && { ...damage, lengthFt, ...(lengthAssumed ? { lengthAssumed } : {}) },
+  }
 }
 
 /** The model's length answer folded in: the drawing's length is chosen again. */
@@ -270,11 +277,30 @@ export function withPhotoFace(
   return reassess({ ...record, photoFace: face })
 }
 
-/** A damage set's reading folded in (replacing any earlier one for its face): the damage is chosen again. */
+/**
+ * A damage set's reading folded in (replacing any earlier one for its face): the damage is chosen again. A
+ * reading of a crop of the face alone is never replaced by a whole-photo one, whichever lands first; its
+ * photo quality is the whole photo's.
+ */
 export function withDamageReading(
   record: InspectionRecord,
   reading: DamageSetReading,
 ): InspectionRecord {
-  const others = (record.damageReadings ?? []).filter((r) => r.face !== reading.face)
-  return reassess({ ...record, damageReadings: [...others, reading] })
+  const readings = record.damageReadings ?? []
+  const earlier = readings.find((r) => r.face === reading.face)
+  const others = readings.filter((r) => r.face !== reading.face)
+  // The crop is enlarged from part of the photo, so its own photo-quality check judges the enlargement:
+  // the whole photo's check stands for the photo.
+  if (!reading.fromCrop && earlier?.fromCrop) {
+    const quality = reading.imageQuality ?? earlier.imageQuality
+    return reassess({
+      ...record,
+      damageReadings: [...others, { ...earlier, imageQuality: quality }],
+    })
+  }
+  const kept =
+    reading.fromCrop && earlier && !earlier.fromCrop
+      ? { ...reading, imageQuality: earlier.imageQuality ?? reading.imageQuality }
+      : reading
+  return reassess({ ...record, damageReadings: [...others, kept] })
 }

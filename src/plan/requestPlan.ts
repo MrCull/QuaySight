@@ -80,6 +80,11 @@ export interface PlanRequest<A = unknown> {
   stages: readonly StageId[]
   /** Requests whose answers this one needs: it starts when they have all answered, never before. */
   after?: readonly PlanRequest[]
+  /**
+   * Requests this one also waits for, whatever their outcome: it starts once they have settled, and reads
+   * their answers when they gave one. One not in the run is not waited for.
+   */
+  settledAfter?: readonly PlanRequest[]
   /** Whether a run on this route includes the request at all (catalogue-driven). Default: yes. */
   appliesTo?(route: RunRoute): boolean
   /** Once its prerequisites have answered: whether this run still needs it. Default: yes. */
@@ -176,7 +181,9 @@ export function runPlan(options: PlanRunOptions): PlanRun {
       },
     ]),
   )
-  const answers = new Map<PlanRequest, unknown>()
+  // By id: several photos' plans run copies of the registry's requests (photoPlan.ts), and a request
+  // names the registry's own in `settledAfter` and reads its answer through `answer`.
+  const answers = new Map<string, unknown>()
   const controllers = new Map<PlanRequest, AbortController>()
   let cancelled = false
   let finish: () => void = () => {}
@@ -184,7 +191,7 @@ export function runPlan(options: PlanRunOptions): PlanRun {
 
   const view: PlanView = {
     route: options.route,
-    answer: <B>(request: PlanRequest<B>) => answers.get(request as PlanRequest) as B | undefined,
+    answer: <B>(request: PlanRequest<B>) => answers.get(request.id) as B | undefined,
   }
   const stateOf = (r: PlanRequest) => states.get(r)!.state
 
@@ -238,7 +245,7 @@ export function runPlan(options: PlanRunOptions): PlanRun {
     let outcome: RequestOutcome<unknown>
     const answered = result.status === 'ran' ? (reply as RequestReply<unknown> | null) : null
     if (answered) {
-      answers.set(r, answered.answer)
+      answers.set(r.id, answered.answer)
       outcome = {
         status: 'answered',
         answer: answered.answer,
@@ -265,7 +272,9 @@ export function runPlan(options: PlanRunOptions): PlanRun {
         if (stateOf(r) !== 'waiting') continue
         const prerequisites = r.after ?? []
         let next: RequestState | null = null
+        const waitsOn = plan.filter((p) => (r.settledAfter ?? []).some((w) => w.id === p.id))
         if (cancelled) next = 'cancelled'
+        else if (!waitsOn.every((p) => SETTLED.has(stateOf(p)))) continue
         else if (prerequisites.some((p) => SETTLED.has(stateOf(p)) && stateOf(p) !== 'answered'))
           next = 'skipped'
         else if (prerequisites.every((p) => stateOf(p) === 'answered'))

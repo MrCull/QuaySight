@@ -21,16 +21,62 @@ import {
 import type { SharedAnswer } from './questionSet'
 
 /** ISO 9897 CEDEX damage types the sets ask about, in their order. Damage types, not locations. */
-export const CEDEX_TYPES: readonly { code: string; name: string; noun: string }[] = [
-  { code: 'DT', name: 'Dent', noun: 'Dent' },
-  { code: 'BT', name: 'Bent', noun: 'Bend' },
-  { code: 'BW', name: 'Bowed', noun: 'Bow' },
-  { code: 'HO', name: 'Holed', noun: 'Hole' },
-  { code: 'CK', name: 'Cracked', noun: 'Crack' },
-  { code: 'CW', name: 'Cracked weld', noun: 'Cracked weld' },
-  { code: 'CO', name: 'Corroded', noun: 'Corrosion' },
-  { code: 'CH', name: 'Corroded and holed', noun: 'Corrosion hole' },
-  { code: 'BR', name: 'Broken', noun: 'Break' },
+export const CEDEX_TYPES: readonly {
+  code: string
+  name: string
+  noun: string
+  /** What the type means, in plain words, for the expanded card. */
+  description: string
+}[] = [
+  {
+    code: 'DT',
+    name: 'Dent',
+    noun: 'Dent',
+    description: 'A local push-in or push-out of the surface, with no sharp crease.',
+  },
+  {
+    code: 'BT',
+    name: 'Bent',
+    noun: 'Bend',
+    description: 'A part or panel deformed with a sharp bend or crease.',
+  },
+  {
+    code: 'BW',
+    name: 'Bowed',
+    noun: 'Bow',
+    description: 'A broad, gradual curve over a large area.',
+  },
+  {
+    code: 'HO',
+    name: 'Holed',
+    noun: 'Hole',
+    description: 'An opening right through the material.',
+  },
+  { code: 'CK', name: 'Cracked', noun: 'Crack', description: 'A fracture in the material itself.' },
+  {
+    code: 'CW',
+    name: 'Cracked weld',
+    noun: 'Cracked weld',
+    description: 'A fracture along a weld seam.',
+  },
+  {
+    code: 'CO',
+    name: 'Corroded',
+    noun: 'Corrosion',
+    description: 'Rust or corrosion of the surface.',
+  },
+  {
+    code: 'CH',
+    name: 'Corroded and holed',
+    noun: 'Corrosion hole',
+    description: 'Corrosion that has gone right through the material.',
+  },
+  {
+    code: 'BR',
+    name: 'Broken',
+    noun: 'Break',
+    description: 'A part broken, separated or missing.',
+  },
 ]
 
 /** At or above this probability a predicate counts as seen: a component finding, a named damage type. */
@@ -99,6 +145,18 @@ function typesOf(answers: Record<string, SharedAnswer>, prefix: string): DamageT
   }).sort((a, b) => (b.probability ?? 0) - (a.probability ?? 0))
 }
 
+/** Types where the metal is ruptured, not only deformed. */
+const RUPTURES = new Set(['BR', 'HO', 'CH', 'CK'])
+
+/**
+ * The types with the one a finding is named after first. A torn panel is also dented and bent, often
+ * scored as high: a rupture that counts as seen names the finding over any deformation or rust.
+ */
+function headlineFirst(types: DamageType[]): DamageType[] {
+  const rupture = types.find((t) => RUPTURES.has(t.code) && (t.probability ?? 0) >= PRESENT_MIN)
+  return rupture ? [rupture, ...types.filter((t) => t !== rupture)] : types
+}
+
 /** One judged region of a face: the set's own id, its area and its plain-words label. */
 export interface PanelRegion {
   id: string
@@ -130,7 +188,7 @@ export function panelFinding(
   const level = severityOfLevel(score.label)
   if (!level) return null
 
-  const allTypes = typesOf(answers, region.id)
+  const allTypes = headlineFirst(typesOf(answers, region.id))
   const listed = allTypes.filter((t, i) => i === 0 || (t.probability ?? 0) >= LISTED_MIN)
   const top = allTypes[0]
   const named = top && (top.probability ?? 0) >= PRESENT_MIN ? top : null

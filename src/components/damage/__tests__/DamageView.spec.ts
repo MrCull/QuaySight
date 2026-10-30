@@ -37,9 +37,30 @@ describe('DamageView schematic', () => {
     expect(wrapper.text()).not.toMatch(FORBIDDEN)
   })
 
-  it('shows no CEDEX location code', () => {
+  it('names CEDEX near the findings count, with an explanation behind the info button', async () => {
     const wrapper = mount(DamageView, { props: { assessment: recordedSideDamage } })
-    expect(wrapper.text()).not.toMatch(/location code|CEDEX location/i)
+    expect(wrapper.find('.rs-damage__head').text()).toContain(
+      'Damage types and locations classified using CEDEX (ISO 9897).',
+    )
+    const toggle = wrapper.find('.qs-cedex-note__toggle')
+    expect(toggle.attributes('aria-expanded')).toBe('false')
+    expect(wrapper.find('#cedex-about').isVisible()).toBe(false)
+    await toggle.trigger('click')
+    expect(toggle.attributes('aria-expanded')).toBe('true')
+    expect(wrapper.find('#cedex-about').text()).toContain('ISO 9897')
+  })
+
+  it('gives no CEDEX location code when the photo does not show which side it is', async () => {
+    const wrapper = mount(DamageView, { props: { assessment: recordedSideDamage } })
+    expect(wrapper.find('.qs-finding .qs-cedex-code').exists()).toBe(false)
+    await wrapper.find('.qs-finding').trigger('click')
+    const location = wrapper.find('.qs-finding-detail [data-detail="cedex-location"]')
+    expect(location.text()).toContain('CEDEX location')
+    expect(location.text()).toContain('No code')
+    expect(location.text()).toContain('Not established')
+    expect(location.text()).toContain('Approximate area on the lower middle of the long side')
+    expect(location.text()).not.toMatch(/\b[RL][TBXHG]\d[\dN]\b/)
+    expect(wrapper.find('[data-section]').exists()).toBe(false)
   })
 })
 
@@ -47,15 +68,18 @@ describe('DamageView selection', () => {
   it('opens a finding with its damage type, plain description, severity, probability and caveats when a marker is selected', async () => {
     const wrapper = mount(DamageView, { props: { assessment: recordedSideDamage } })
     await wrapper.find('.qs-pin').trigger('click')
-    const card = wrapper.find('.qs-finding[aria-pressed="true"]')
-    expect(card.exists()).toBe(true)
-    expect(card.text()).toContain('DT')
-    expect(card.text()).toContain('Dent')
-    expect(card.text()).toContain('Probability unavailable')
-    expect(card.text()).toContain('Approximate area')
-    expect(card.text()).toContain('Best interpretation')
-    expect(card.find('.qs-sev').text()).toContain('Minor')
-    expect(card.find('.qs-cert').text()).toContain('Likely')
+    expect(wrapper.find('.qs-finding[aria-pressed="true"]').exists()).toBe(true)
+    const detail = wrapper.find('.qs-finding-detail')
+    expect(detail.attributes('data-finding-detail')).toBe('1')
+    const type = detail.find('[data-detail="cedex-type"]')
+    expect(type.text()).toContain('CEDEX damage type')
+    expect(type.text()).toContain('DT')
+    expect(type.text()).toContain('Dent')
+    expect(type.text()).toContain('Probability unavailable')
+    expect(detail.text()).toContain('Approximate area')
+    expect(detail.text()).toContain('Best interpretation')
+    expect(detail.find('.qs-sev').text()).toContain('Minor')
+    expect(detail.find('.qs-cert').text()).toContain('Likely')
   })
 
   it('keeps severity and certainty as separate visual elements', () => {
@@ -72,6 +96,45 @@ describe('DamageView selection', () => {
     await wrapper.find('.qs-finding').trigger('click')
     expect(wrapper.find('.qs-pin').attributes('aria-pressed')).toBe('true')
     expect(wrapper.find('.qs-region.is-selected').exists()).toBe(true)
+  })
+})
+
+describe('DamageView stepping through findings', () => {
+  const [base] = recordedSideDamage.findings
+  const three = {
+    ...recordedSideDamage,
+    findings: [1, 2, 3].map((id) => ({ ...base!, id, title: `Finding ${id}` })),
+  }
+
+  it('opens finding 1 when the findings arrive', () => {
+    const wrapper = mount(DamageView, { props: { assessment: three } })
+    expect(wrapper.find('.qs-finding-detail').attributes('data-finding-detail')).toBe('1')
+    expect(wrapper.find('.qs-finding[data-finding="1"]').attributes('aria-pressed')).toBe('true')
+    expect(wrapper.emitted('update:selected')?.[0]).toEqual([1])
+  })
+
+  it('steps with the previous and next arrows, which stop at the first and last finding', async () => {
+    const wrapper = mount(DamageView, { props: { assessment: three } })
+    const prev = () => wrapper.find('button[aria-label="Previous finding"]')
+    const next = () => wrapper.find('button[aria-label="Next finding"]')
+    const open = () => wrapper.find('.qs-finding-detail').attributes('data-finding-detail')
+    expect(prev().attributes('disabled')).toBeDefined()
+    expect(wrapper.find('.qs-finding-detail__count').text()).toBe('Finding 1 of 3')
+    await next().trigger('click')
+    await next().trigger('click')
+    expect(open()).toBe('3')
+    expect(next().attributes('disabled')).toBeDefined()
+    expect(wrapper.find('.qs-pin[data-finding="3"]').attributes('aria-pressed')).toBe('true')
+    await prev().trigger('click')
+    expect(open()).toBe('2')
+    expect(wrapper.find('.qs-finding[data-finding="2"]').attributes('aria-pressed')).toBe('true')
+  })
+
+  it('keeps a finding open when its card is selected again', async () => {
+    const wrapper = mount(DamageView, { props: { assessment: three } })
+    await wrapper.find('.qs-finding[data-finding="2"]').trigger('click')
+    await wrapper.find('.qs-finding[data-finding="2"]').trigger('click')
+    expect(wrapper.find('.qs-finding-detail').attributes('data-finding-detail')).toBe('2')
   })
 })
 

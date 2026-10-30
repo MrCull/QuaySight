@@ -21,8 +21,10 @@ import { useSetupStore } from './setup'
 import type { InspectionRecord, ProviderId } from '../domain/inspection'
 import {
   RUN_STAGES,
+  failedStagesByPhoto,
   stageProgress,
   stageSettled,
+  type PhotoStageFailure,
   type PlannedRequestState,
   type StageId,
   type StageProgress,
@@ -224,6 +226,10 @@ export const useInspectionStore = defineStore('inspection', {
     landed(): (stage: StageId) => boolean {
       const stateOf = this.stageState
       return (stage) => this.status !== 'running' || stageSettled(stateOf(stage))
+    },
+    /** The parts each photo of the live run lost, whether or not another photo gave them. */
+    photoFailures(): PhotoStageFailure[] {
+      return this.demo ? [] : failedStagesByPhoto(this.planned)
     },
     /** Where one progress stage of the run on screen is; a stage this run does not have is not-in-run. */
     stageState(): (stage: StageId) => StageState {
@@ -453,6 +459,7 @@ export const useInspectionStore = defineStore('inspection', {
       this.sentPhoto = null
       this.runId = inspectionId
       const idPrefix = (n: number) => (several ? `p${n + 1}-` : '')
+      const photoOf = (n: number) => (several ? { photo: n + 1 } : {})
       /** Where each photo's requests are; the progress stages count them all as the one container's. */
       const plannedBy: PlannedRequestState[][] = plans.map((plan, n) =>
         plan.map((r) => ({
@@ -462,6 +469,7 @@ export const useInspectionStore = defineStore('inspection', {
           optional: r.optional ?? false,
           startedAt: null,
           settledAt: null,
+          ...photoOf(n),
         })),
       )
       this.planned = plannedBy.flat()
@@ -538,7 +546,11 @@ export const useInspectionStore = defineStore('inspection', {
             charge: (request) => ledger.run(request),
             onState: (states) => {
               if (token !== this.runToken) return
-              plannedBy[n] = states.map((s) => ({ ...s, id: `${idPrefix(n)}${s.id}` }))
+              plannedBy[n] = states.map((s) => ({
+                ...s,
+                id: `${idPrefix(n)}${s.id}`,
+                ...photoOf(n),
+              }))
               this.planned = plannedBy.flat()
             },
             onSettled: (done) => {
@@ -583,7 +595,8 @@ export const useInspectionStore = defineStore('inspection', {
           this.errorMessage = result.photos!.map((p) => droppedPhotoMessage(p.index)).join('. ')
           return
         }
-        const incomplete = stageProgress(this.planned).some((s) => s.state === 'failed')
+        // Partial when any photo lost a part, even one another photo gave.
+        const incomplete = failedStagesByPhoto(this.planned).length > 0
         this.record = { ...result, status: incomplete ? 'partial' : 'complete' }
         this.status = 'complete'
       })().finally(() => {

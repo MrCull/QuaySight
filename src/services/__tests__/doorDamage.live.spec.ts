@@ -7,10 +7,16 @@
 // for the route's limits first, as the app does (a real browser canvas: Playwright's Chromium; set
 // PW_CHROMIUM_PATH to use a pre-installed one), so APHU is shrunk for Jev.
 //   - GPT-6 Luna, OpenAI direct            (needs OPENAI_API_KEY)
-//   - GPT-6 Luna Decisions, via OpenRouter (needs OPENROUTER_API_KEY)
 //   - Jev latest, via OpenRouter           (needs OPENROUTER_API_KEY)
 // The bar: the survey says rear doors, the door set finds the end inspectable, and these clean doors produce
 // no major finding of any kind. Moderate or lower findings are printed, to tune the set's wording against.
+//
+// A fourth photo is a corner with a torn door: samples/corner-torn-door-cai-20ft.jpg (800 × 600), the door
+// end at photo left beside the right side. The bottom of the photo-right leaf is ripped open below the
+// weights panel and its locking bars are bent; the photo-left leaf (CA logo, CSC plate) is intact. Asked
+// of the whole photo, a live run put the damage on the photo-left leaf. Here the survey and the numbered
+// regions run first, then the door set is asked of the door end cut out on its own (doorEndCrop.ts), as
+// the app does: the bar is a major finding on the photo-right leaf and none on the photo-left leaf.
 // Keys are supplied at run time and never stored in the repo:
 //   Bash: OPENAI_API_KEY='<key>' OPENROUTER_API_KEY='<key>' npx vitest run src/services/__tests__/doorDamage.live.spec.ts
 // Each raw response (no headers, no key) is written to src/fixtures/live/door-damage-<photo>-<route>.json.
@@ -35,7 +41,9 @@ import { LUNA_ENDPOINT } from '../../domain/luna'
 import { OPENROUTER_ENDPOINT } from '../../domain/openrouter'
 import { survey } from '../../plan/requests/survey'
 import { doorDamage } from '../../plan/requests/doorDamage'
-import type { RequestContext, RunRoute } from '../../plan/requestPlan'
+import { doorEndCrop } from '../../plan/requests/doorEndCrop'
+import { regions } from '../../plan/requests/regions'
+import type { PlanRequest, RequestContext, RunRoute } from '../../plan/requestPlan'
 
 const openAiKey = process.env.OPENAI_API_KEY ?? ''
 const openRouterKey = process.env.OPENROUTER_API_KEY ?? ''
@@ -58,14 +66,6 @@ const ROUTES = [
     model: 'gpt-6-luna',
     endpoint: LUNA_ENDPOINT,
     key: openAiKey,
-  },
-  {
-    label: 'GPT-6 Luna Decisions through OpenRouter',
-    file: 'openrouter-luna',
-    provider: 'openrouter',
-    model: 'openai/gpt-6-luna-decisions',
-    endpoint: OPENROUTER_ENDPOINT,
-    key: openRouterKey,
   },
   {
     label: 'Jev latest through OpenRouter',
@@ -141,6 +141,61 @@ async function runBoth(route: RunRoute, apiKey: string, photoPath: string, fixtu
   return { face, door: door.answer, damage }
 }
 
+const TORN = 'samples/corner-torn-door-cai-20ft.jpg'
+
+/** Runs the survey, the regions and the whole-photo door set, then the door set on the door end cut out. */
+async function runCorner(route: RunRoute, apiKey: string, fixtureFile: string) {
+  const original = new Blob([await readFile(resolve(root, TORN))], { type: 'image/jpeg' })
+  const photo = await preparePhoto(original, route.entry.photoLimits, route.describe.name)
+  const answers = new Map<PlanRequest, unknown>()
+  const ctx: RequestContext = {
+    route,
+    apiKey,
+    photo,
+    original,
+    signal: new AbortController().signal,
+    answer: <B>(request: PlanRequest<B>) => answers.get(request as PlanRequest) as B | undefined,
+  }
+  const [read, located, whole] = await Promise.all([
+    survey.send(ctx),
+    regions.send(ctx),
+    doorDamage.send(ctx),
+  ])
+  answers.set(survey, read.answer)
+  answers.set(regions, located.answer)
+  expect(doorEndCrop.needed?.(ctx), 'the door end is located and narrower than the photo').toBe(
+    true,
+  )
+  const cropped = await doorEndCrop.send(ctx)
+  const fixture = JSON.stringify(
+    {
+      recordedAt: new Date().toISOString(),
+      photo: TORN,
+      endpoint: route.endpoint,
+      requestedModel: route.model,
+      survey: read.raw,
+      regions: located.raw,
+      door: whole.raw,
+      doorEndCrop: { region: cropped.answer.region, response: cropped.raw },
+    },
+    null,
+    2,
+  )
+  expect(fixture).not.toContain(apiKey)
+  const path = resolve(root, 'src/fixtures/live', fixtureFile)
+  await mkdir(dirname(path), { recursive: true })
+  await writeFile(path, fixture + '\n', 'utf8')
+
+  const face = read.answer.findings.face
+  const show = (reading: typeof whole.answer) =>
+    reading.findings.map((f) => `${f.location} (${f.severity ?? 'component'})`).join(', ') || 'none'
+  console.info(
+    `${route.describe.name} on ${TORN}: door end ${JSON.stringify(located.answer.doorEnd)}\n` +
+      `  whole photo: ${show(whole.answer)}\n  door end alone: ${show(cropped.answer.reading)}`,
+  )
+  return { face, reading: cropped.answer.reading }
+}
+
 describe('door-end damage live smoke test (opt-in, chargeable)', () => {
   afterAll(async () => {
     await closeBrowserCodec()
@@ -167,6 +222,24 @@ describe('door-end damage live smoke test (opt-in, chargeable)', () => {
         },
       )
     }
+
+    it.skipIf(!route.key)(
+      `${route.label} puts the torn door on the photo-right leaf once the door end is cut out`,
+      async () => {
+        const { face, reading } = await runCorner(
+          routeFor(route.provider, route.model, route.endpoint),
+          route.key,
+          `door-damage-torn-cai-${route.file}.json`,
+        )
+        expect(face?.shown ?? [face?.face]).toContain('rear-doors')
+        expect(reading.inspectable).toBe(true)
+        const panels = reading.findings.filter((f) => f.component === 'panel')
+        const onLeaf = (leaf: string) =>
+          panels.filter((f) => f.location.startsWith(leaf)).map((f) => f.severity)
+        expect(onLeaf('Photo-right door leaf'), 'the torn leaf').toContain('major')
+        expect(onLeaf('Photo-left door leaf'), 'the intact leaf').not.toContain('major')
+      },
+    )
   }
 })
 
