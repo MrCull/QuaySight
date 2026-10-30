@@ -2,6 +2,13 @@
 
 Work is **incomplete**. Resume the approved spec; do not restart research or claim unfinished tickets are complete. The update below supersedes the historical checkpoint details that follow it.
 
+## Cloud continuation — 30 October 2026
+
+- `try-box` at `240e173` matched the remote tip. The production gate (`npm run check`) passed. The full unit run reported 1,288 passed, 21 failed and 37 skipped; the 21 failures match the pre-existing baseline described below. The 19 Chromium photo preparation, viewer and multi-photo tests passed against the completed production build.
+- The full Chromium suite reported 92 passed and three failed. Two tests expect the old unread-ID manifest prompt, which the current recorded result no longer produces. The setup focus-order test omitted the added localisation control; it was updated to assert that control receives focus, and the focused Chromium test passed. The full suite has not been rerun since that test change.
+- An offline marking resume verification was attempted on a copy of the evidence using the cloud machine's Chromium. It stopped before replaying requests because the regenerated `rear-door-coyu-22g1-marked.jpg` differed from the saved image. The region overlay uses a system sans-serif font, which may vary by platform; the exact cause has not been established. Do not remove the image integrity guard or overwrite the evidence. Resume needs the original rendering environment or a reviewed method that preserves and verifies the exact saved inputs and provenance.
+- The cloud runtime had no OpenRouter credential and denied access to the GitHub API, so the live experiments and current issue states remain unverified. A draft environment change requests a personal `OPENROUTER_API_KEY` binding and allows `openrouter.ai` and `api.github.com`; it must be applied before retrying. No live requests were made during this continuation.
+
 ## Latest update — consolidated `try-box`
 
 - At this update the integration branch is `try-box`, at `59ee447` before this handover commit, pushed to `origin/try-box`. The user requested a single working branch: all five extra worktrees were removed, and the #118, #120 and #121 checkpoint branches were merged into `try-box` in `88a64ca`. Do not remerge or reset them. Check Git status and remote state before resuming.
