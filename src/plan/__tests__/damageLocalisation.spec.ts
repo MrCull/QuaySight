@@ -73,10 +73,10 @@ async function run(
   await store.start()
   return { store, fetcher }
 }
-function reply(presence = 0.95, confidence = 0.67, geometry: unknown = box) {
+function reply(presence = 0.95, confidence = 0.67, geometry: unknown = box, versioned = false) {
   return keyedReply({
-    target_present: { type: 'noul', noul: presence },
-    target_box: { type: 'box', box: geometry, confidence },
+    [versioned ? 'target_present_v2' : 'target_present']: { type: 'noul', noul: presence },
+    [versioned ? 'target_box_v2' : 'target_box']: { type: 'box', box: geometry, confidence },
   })
 }
 it('locates a long-side finding even when a corner photo has a separate cropped door assessment', () => {
@@ -224,14 +224,181 @@ it('keeps a valid batch location when another target is absent', async () => {
   expect(observations[0]!.localisation?.box).toEqual(box)
   expect(observations[1]!.localisation).toBeUndefined()
 })
-it('retains a finding with several plausible damage types without requesting a misleading highlight', async () => {
+it('localises a strongly supported finding even when it has secondary damage types', async () => {
   const damage = doorReply()
   damage.answers.D2B_BT = { type: 'noul', noul: 0.72 }
-  const { store, fetcher } = await run(reply(), true, 'typesafe/jev-1.14', undefined, false, damage)
+  const baseline = (await run(reply(), false, 'typesafe/jev-1.14', undefined, false, damage)).store
+    .record!.damage!.findings[0]!
+  const { store, fetcher } = await run(
+    reply(0.95, 0.67, box, true),
+    true,
+    'typesafe/jev-1.14',
+    undefined,
+    false,
+    damage,
+  )
+  const finding = store.record!.damage!.findings[0]!
+  expect(finding.types.map((type) => type.name)).toEqual(expect.arrayContaining(['Dent', 'Bent']))
+  expect(finding).toMatchObject({
+    types: baseline.types,
+    severity: baseline.severity,
+    certainty: baseline.certainty,
+  })
+  expect(finding.observations![0]!.localisation?.box).toEqual(box)
+  const calls = fetcher.mock.calls.filter(([, init]) => String(init?.body).includes('target_box'))
+  expect(calls).toHaveLength(1)
+  expect(String(calls[0]![1]?.body)).toContain('Dent on the panel')
+  const recording = recordRun(store.record!, useLedgerStore().entries(), {
+    photo: 'samples/door.jpg',
+    recordedAt: '2026-10-30T00:00:00Z',
+  })
+  expect(
+    replayRecording(recording, { id: store.record!.id, photo: store.record!.photo }).damage,
+  ).toEqual(store.record!.damage)
+})
+it('leaves multi-type findings unlocated when the target is absent or ambiguous', async () => {
+  const damage = doorReply()
+  damage.answers.D2B_BT = { type: 'noul', noul: 0.72 }
+  const { store, fetcher } = await run(
+    reply(0.2, 0.67, box, true),
+    true,
+    'typesafe/jev-1.14',
+    undefined,
+    false,
+    damage,
+  )
   const finding = store.record!.damage!.findings[0]!
   expect(finding.types.map((type) => type.name)).toEqual(expect.arrayContaining(['Dent', 'Bent']))
   expect(finding.observations![0]!.localisation).toBeUndefined()
-  expect(fetcher.mock.calls.some(([, init]) => String(init?.body).includes('target_box'))).toBe(false)
+  expect(
+    fetcher.mock.calls.filter(([, init]) => String(init?.body).includes('target_box')),
+  ).toHaveLength(1)
+})
+it('uses the strongest supported type when a weaker rupture is first in the finding', async () => {
+  const damage = doorReply()
+  damage.answers.D2B_CK = { type: 'noul', noul: 0.6 }
+  const { store, fetcher } = await run(
+    reply(0.95, 0.67, box, true),
+    true,
+    'typesafe/jev-1.14',
+    undefined,
+    false,
+    damage,
+  )
+  expect(store.record!.damage!.findings[0]!.observations![0]!.localisation?.box).toEqual(box)
+  const call = fetcher.mock.calls.find(([, init]) => String(init?.body).includes('target_box'))
+  expect(String(call?.[1]?.body)).toContain('Dent on the panel')
+})
+it('replays an older single-target answer without attaching it to a newly eligible finding', () => {
+  const route = liveRoute('openrouter', 'typesafe/jev-1.14')
+  const raw = doorReply()
+  raw.answers.D1T_DT = { type: 'noul', noul: 0.91 }
+  raw.answers.D1T_BT = { type: 'noul', noul: 0.72 }
+  raw.answers.D1T_severity = raw.answers.D2B_severity!
+  const door = doorDamage.replay!(raw, { route } as PlanView, {})
+  const values = new Map<string, unknown>([
+    [
+      survey.id,
+      {
+        findings: {
+          face: {
+            face: 'rear-doors',
+            shown: ['rear-doors'],
+            probability: 0.95,
+            certainty: 'Confident',
+          },
+        },
+      },
+    ],
+    [doorDamage.id, door],
+  ])
+  const plan: PlanView = { route, answer: (request) => values.get(request.id) as never }
+  const located = damageLocalisation.replay!(reply(), plan, {})
+  expect(located).toHaveLength(1)
+  expect(located[0]!.target).toContain('right')
+  expect(located[0]!.location?.box).toEqual(box)
+})
+it('replays older batched answers in their original order when a new finding is eligible', () => {
+  const route = liveRoute('openrouter', 'typesafe/jev-1.14')
+  const raw = doorReply()
+  raw.answers.D1T_DT = { type: 'noul', noul: 0.91 }
+  raw.answers.D1T_BT = { type: 'noul', noul: 0.72 }
+  raw.answers.D1T_severity = raw.answers.D2B_severity!
+  raw.answers.D1M_DT = { type: 'noul', noul: 0.92 }
+  raw.answers.D1M_severity = raw.answers.D2B_severity!
+  const door = doorDamage.replay!(raw, { route } as PlanView, {})
+  const values = new Map<string, unknown>([
+    [
+      survey.id,
+      {
+        findings: {
+          face: {
+            face: 'rear-doors',
+            shown: ['rear-doors'],
+            probability: 0.95,
+            certainty: 'Confident',
+          },
+        },
+      },
+    ],
+    [doorDamage.id, door],
+  ])
+  const plan: PlanView = { route, answer: (request) => values.get(request.id) as never }
+  const otherBox = { top: 0.1, bottom: 0.3, left: 0.1, right: 0.4 }
+  const legacy = keyedReply({
+    target_present_0: { type: 'noul', noul: 0.95 },
+    target_box_0: { type: 'box', box, confidence: 0.67 },
+    target_present_1: { type: 'noul', noul: 0.96 },
+    target_box_1: { type: 'box', box: otherBox, confidence: 0.7 },
+  })
+  const located = damageLocalisation.replay!(legacy, plan, {})
+  expect(located).toHaveLength(2)
+  expect(located.map((target) => target.location?.box)).toEqual([box, otherBox])
+  expect(located[0]!.target).toContain('left')
+  expect(located[1]!.target).toContain('right')
+})
+it('keeps versioned batch answers on their own multi-type and single-type observations', async () => {
+  const damage = doorReply()
+  damage.answers.D1T_DT = { type: 'noul', noul: 0.91 }
+  damage.answers.D1T_BT = { type: 'noul', noul: 0.72 }
+  damage.answers.D1T_severity = damage.answers.D2B_severity!
+  const otherBox = { top: 0.1, bottom: 0.3, left: 0.1, right: 0.4 }
+  const response = keyedReply({
+    target_present_v2_0: { type: 'noul', noul: 0.95 },
+    target_box_v2_0: { type: 'box', box, confidence: 0.67 },
+    target_present_v2_1: { type: 'noul', noul: 0.96 },
+    target_box_v2_1: { type: 'box', box: otherBox, confidence: 0.7 },
+  })
+  const { store, fetcher } = await run(
+    response,
+    true,
+    'typesafe/jev-1.14',
+    undefined,
+    false,
+    damage,
+  )
+  const observations = store.record!.damage!.findings.flatMap((f) => f.observations ?? [])
+  expect(observations.map((observation) => observation.localisation?.box)).toEqual([box, otherBox])
+  expect(
+    fetcher.mock.calls.filter(([, init]) => String(init?.body).includes('target_box')),
+  ).toHaveLength(1)
+  const recording = recordRun(store.record!, useLedgerStore().entries(), {
+    photo: 'samples/door.jpg',
+    recordedAt: '2026-10-30T00:00:00Z',
+  })
+  expect(
+    replayRecording(recording, { id: store.record!.id, photo: store.record!.photo }).damage,
+  ).toEqual(store.record!.damage)
+})
+it('does not request a highlight when no damage type meets the strong-evidence threshold', async () => {
+  const damage = doorReply()
+  damage.answers.D2B_DT = { type: 'noul', noul: 0.79 }
+  damage.answers.D2B_BT = { type: 'noul', noul: 0.72 }
+  const { store, fetcher } = await run(reply(), true, 'typesafe/jev-1.14', undefined, false, damage)
+  expect(store.record!.damage!.findings).toHaveLength(1)
+  expect(fetcher.mock.calls.some(([, init]) => String(init?.body).includes('target_box'))).toBe(
+    false,
+  )
 })
 it('discards a stale optional answer after New inspection and retains the session charge', async () => {
   const { store } = await run(reply(), true, 'typesafe/jev-1.14', async (body) => {
