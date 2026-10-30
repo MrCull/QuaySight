@@ -1,6 +1,7 @@
 import { test, expect, type Page } from '@playwright/test'
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
+import { doorReply, openAiShape } from '../src/__tests__/planReplies'
 
 /**
  * Several photos of one container (ticket #70): the intake takes more than one photo, each photo shows the
@@ -58,6 +59,38 @@ async function openWithTwoPhotos(page: Page, files: string[] = photos) {
 
 test.describe('Several photos of one container', () => {
   test.use({ viewport: { width: 1440, height: 900 } })
+
+  test('opens each damage observation on its own source photo and returns focus', async ({
+    page,
+  }) => {
+    await page.route(/api\.openai\.com\/v1\/decisions/, async (route) => {
+      const body = route.request().postData() ?? ''
+      const reply = body.includes('D1T_DT')
+        ? openAiShape(doorReply())
+        : surveyReply('COYU2668130', 'rear_doors')
+      await route.fulfill({
+        status: 200,
+        contentType: 'application/json',
+        body: JSON.stringify(reply),
+      })
+    })
+    await openWithTwoPhotos(page)
+    const sources = page.getByRole('button', { name: /^View photo [12]:/ })
+    await expect(sources).toHaveCount(2)
+    for (const index of [1, 0]) {
+      const source = sources.nth(index)
+      await source.click()
+      const dialog = page.getByRole('dialog')
+      await expect(dialog).toBeVisible()
+      await expect(dialog.locator('img')).toHaveAttribute(
+        'alt',
+        `Container photo ${index + 1}: ${path.basename(photos[index]!)}`,
+      )
+      await page.keyboard.press('Escape')
+      await expect(dialog).toHaveCount(0)
+      await expect(source).toBeFocused()
+    }
+  })
 
   test('takes several photos at once and refuses more than five', async ({ page }) => {
     await answerWith(page, ['COYU2668130'])
