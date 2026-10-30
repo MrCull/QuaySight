@@ -1,0 +1,3800 @@
+{
+  "schemaVersion": 1,
+  "mode": "live",
+  "recordedAt": "2026-10-30T02:52:26.190Z",
+  "model": "typesafe/jev-1.14",
+  "repeats": 3,
+  "endpoint": "https://openrouter.ai/api/alpha/decisions",
+  "photos": [
+    {
+      "photo": "rear-door-coyu-22g1.jpg",
+      "sourceSha256": "811d63187a171fd05c793c5aa684f05c5c6e8a1c96dce6fa2a3b5dccb379957d",
+      "preparedSha256": "db344c8eda1f7ae2f9e5e24989e2315fa331953ee32fba88bcbdc2d5923a2a45",
+      "preparedFile": "rear-door-coyu-22g1-prepared.jpg",
+      "markedFile": "rear-door-coyu-22g1-marked.jpg",
+      "uprightOriginalSize": {
+        "width": 1079,
+        "height": 1080
+      },
+      "sentSize": {
+        "width": 1079,
+        "height": 1080
+      },
+      "transform": {
+        "crop": null,
+        "scaleX": 1,
+        "scaleY": 1
+      }
+    },
+    {
+      "photo": "rear-door-chsu-22g1.jpg",
+      "sourceSha256": "244cff48cc8089e27dfa71972542580ca44607efab9bb6f83d762f23b9e101f3",
+      "preparedSha256": "f9d535c861ffe8222ecadb739192e6da5ef3587a290647ff022f98e14e6802e6",
+      "preparedFile": "rear-door-chsu-22g1-prepared.jpg",
+      "markedFile": "rear-door-chsu-22g1-marked.jpg",
+      "uprightOriginalSize": {
+        "width": 1312,
+        "height": 984
+      },
+      "sentSize": {
+        "width": 1312,
+        "height": 984
+      },
+      "transform": {
+        "crop": null,
+        "scaleX": 1,
+        "scaleY": 1
+      }
+    }
+  ],
+  "runs": [
+    {
+      "id": "rear-door-coyu-22g1-1-regions",
+      "file": "rear-door-coyu-22g1-1-regions.json",
+      "status": 200,
+      "latencyMs": 607,
+      "reportedCostUsd": 0.000430542
+    },
+    {
+      "id": "rear-door-coyu-22g1-1-native",
+      "file": "rear-door-coyu-22g1-1-native.json",
+      "status": 200,
+      "latencyMs": 473,
+      "reportedCostUsd": 0.00015498
+    },
+    {
+      "id": "rear-door-coyu-22g1-1-id-regions",
+      "file": "rear-door-coyu-22g1-1-id-regions.json",
+      "status": 200,
+      "latencyMs": 448,
+      "reportedCostUsd": 0.000316512
+    },
+    {
+      "id": "rear-door-coyu-22g1-1-id-native",
+      "file": "rear-door-coyu-22g1-1-id-native.json",
+      "status": 200,
+      "latencyMs": 391,
+      "reportedCostUsd": 0.000208236
+    },
+    {
+      "id": "rear-door-coyu-22g1-1-id-padded",
+      "file": "rear-door-coyu-22g1-1-id-padded.json",
+      "status": 200,
+      "latencyMs": 424,
+      "reportedCostUsd": 0.000297738
+    },
+    {
+      "id": "rear-door-coyu-22g1-1-id-hybrid",
+      "file": "rear-door-coyu-22g1-1-id-hybrid.json",
+      "status": 200,
+      "latencyMs": 344,
+      "reportedCostUsd": 0.000316554
+    },
+    {
+      "id": "rear-door-coyu-22g1-1-iso-regions",
+      "file": "rear-door-coyu-22g1-1-iso-regions.json",
+      "status": 200,
+      "latencyMs": 464,
+      "reportedCostUsd": 0.00020664
+    },
+    {
+      "id": "rear-door-coyu-22g1-1-iso-native",
+      "file": "rear-door-coyu-22g1-1-iso-native.json",
+      "status": 200,
+      "latencyMs": 286,
+      "reportedCostUsd": 0.000211302
+    },
+    {
+      "id": "rear-door-coyu-22g1-1-iso-padded",
+      "file": "rear-door-coyu-22g1-1-iso-padded.json",
+      "status": 200,
+      "latencyMs": 339,
+      "reportedCostUsd": 0.00025368
+    },
+    {
+      "id": "rear-door-coyu-22g1-1-iso-hybrid",
+      "file": "rear-door-coyu-22g1-1-iso-hybrid.json",
+      "status": 200,
+      "latencyMs": 402,
+      "reportedCostUsd": 0.000206556
+    },
+    {
+      "id": "rear-door-coyu-22g1-1-weights-regions",
+      "file": "rear-door-coyu-22g1-1-weights-regions.json",
+      "status": 200,
+      "latencyMs": 553,
+      "reportedCostUsd": 0.00070749
+    },
+    {
+      "id": "rear-door-coyu-22g1-1-weights-native",
+      "file": "rear-door-coyu-22g1-1-weights-native.json",
+      "status": 200,
+      "latencyMs": 384,
+      "reportedCostUsd": 0.000613536
+    },
+    {
+      "id": "rear-door-coyu-22g1-1-weights-padded",
+      "file": "rear-door-coyu-22g1-1-weights-padded.json",
+      "status": 200,
+      "latencyMs": 522,
+      "reportedCostUsd": 0.000674772
+    },
+    {
+      "id": "rear-door-coyu-22g1-1-weights-hybrid",
+      "file": "rear-door-coyu-22g1-1-weights-hybrid.json",
+      "status": 200,
+      "latencyMs": 487,
+      "reportedCostUsd": 0.000707616
+    },
+    {
+      "id": "rear-door-coyu-22g1-2-regions",
+      "file": "rear-door-coyu-22g1-2-regions.json",
+      "status": 200,
+      "latencyMs": 405,
+      "reportedCostUsd": 0.000430626
+    },
+    {
+      "id": "rear-door-coyu-22g1-2-native",
+      "file": "rear-door-coyu-22g1-2-native.json",
+      "status": 200,
+      "latencyMs": 506,
+      "reportedCostUsd": 0.000154686
+    },
+    {
+      "id": "rear-door-coyu-22g1-2-id-regions",
+      "file": "rear-door-coyu-22g1-2-id-regions.json",
+      "status": 200,
+      "latencyMs": 471,
+      "reportedCostUsd": 0.000316386
+    },
+    {
+      "id": "rear-door-coyu-22g1-2-id-hybrid",
+      "file": "rear-door-coyu-22g1-2-id-hybrid.json",
+      "status": 200,
+      "latencyMs": 591,
+      "reportedCostUsd": 0.00031647
+    },
+    {
+      "id": "rear-door-coyu-22g1-2-iso-regions",
+      "file": "rear-door-coyu-22g1-2-iso-regions.json",
+      "status": 200,
+      "latencyMs": 329,
+      "reportedCostUsd": 0.000206682
+    },
+    {
+      "id": "rear-door-coyu-22g1-2-iso-native",
+      "file": "rear-door-coyu-22g1-2-iso-native.json",
+      "status": 200,
+      "latencyMs": 270,
+      "reportedCostUsd": 0.000197232
+    },
+    {
+      "id": "rear-door-coyu-22g1-2-iso-padded",
+      "file": "rear-door-coyu-22g1-2-iso-padded.json",
+      "status": 200,
+      "latencyMs": 285,
+      "reportedCostUsd": 0.000244356
+    },
+    {
+      "id": "rear-door-coyu-22g1-2-iso-hybrid",
+      "file": "rear-door-coyu-22g1-2-iso-hybrid.json",
+      "status": 200,
+      "latencyMs": 314,
+      "reportedCostUsd": 0.00020664
+    },
+    {
+      "id": "rear-door-coyu-22g1-2-weights-regions",
+      "file": "rear-door-coyu-22g1-2-weights-regions.json",
+      "status": 200,
+      "latencyMs": 824,
+      "reportedCostUsd": 0.0007077
+    },
+    {
+      "id": "rear-door-coyu-22g1-2-weights-native",
+      "file": "rear-door-coyu-22g1-2-weights-native.json",
+      "status": 200,
+      "latencyMs": 469,
+      "reportedCostUsd": 0.000632394
+    },
+    {
+      "id": "rear-door-coyu-22g1-2-weights-padded",
+      "file": "rear-door-coyu-22g1-2-weights-padded.json",
+      "status": 200,
+      "latencyMs": 493,
+      "reportedCostUsd": 0.00068418
+    },
+    {
+      "id": "rear-door-coyu-22g1-2-weights-hybrid",
+      "file": "rear-door-coyu-22g1-2-weights-hybrid.json",
+      "status": 200,
+      "latencyMs": 555,
+      "reportedCostUsd": 0.000707658
+    },
+    {
+      "id": "rear-door-coyu-22g1-3-regions",
+      "file": "rear-door-coyu-22g1-3-regions.json",
+      "status": 200,
+      "latencyMs": 575,
+      "reportedCostUsd": 0.000430584
+    },
+    {
+      "id": "rear-door-coyu-22g1-3-native",
+      "file": "rear-door-coyu-22g1-3-native.json",
+      "status": 200,
+      "latencyMs": 333,
+      "reportedCostUsd": 0.000154938
+    },
+    {
+      "id": "rear-door-coyu-22g1-3-id-regions",
+      "file": "rear-door-coyu-22g1-3-id-regions.json",
+      "status": 200,
+      "latencyMs": 475,
+      "reportedCostUsd": 0.000316512
+    },
+    {
+      "id": "rear-door-coyu-22g1-3-id-native",
+      "file": "rear-door-coyu-22g1-3-id-native.json",
+      "status": 200,
+      "latencyMs": 261,
+      "reportedCostUsd": 0.000208152
+    },
+    {
+      "id": "rear-door-coyu-22g1-3-id-padded",
+      "file": "rear-door-coyu-22g1-3-id-padded.json",
+      "status": 200,
+      "latencyMs": 443,
+      "reportedCostUsd": 0.000297612
+    },
+    {
+      "id": "rear-door-coyu-22g1-3-id-hybrid",
+      "file": "rear-door-coyu-22g1-3-id-hybrid.json",
+      "status": 200,
+      "latencyMs": 443,
+      "reportedCostUsd": 0.000316512
+    },
+    {
+      "id": "rear-door-coyu-22g1-3-iso-regions",
+      "file": "rear-door-coyu-22g1-3-iso-regions.json",
+      "status": 200,
+      "latencyMs": 413,
+      "reportedCostUsd": 0.000206766
+    },
+    {
+      "id": "rear-door-coyu-22g1-3-iso-native",
+      "file": "rear-door-coyu-22g1-3-iso-native.json",
+      "status": 200,
+      "latencyMs": 310,
+      "reportedCostUsd": 0.000178584
+    },
+    {
+      "id": "rear-door-coyu-22g1-3-iso-padded",
+      "file": "rear-door-coyu-22g1-3-iso-padded.json",
+      "status": 200,
+      "latencyMs": 296,
+      "reportedCostUsd": 0.000234906
+    },
+    {
+      "id": "rear-door-coyu-22g1-3-iso-hybrid",
+      "file": "rear-door-coyu-22g1-3-iso-hybrid.json",
+      "status": 200,
+      "latencyMs": 409,
+      "reportedCostUsd": 0.000206556
+    },
+    {
+      "id": "rear-door-coyu-22g1-3-weights-regions",
+      "file": "rear-door-coyu-22g1-3-weights-regions.json",
+      "status": 200,
+      "latencyMs": 540,
+      "reportedCostUsd": 0.0007077
+    },
+    {
+      "id": "rear-door-coyu-22g1-3-weights-native",
+      "file": "rear-door-coyu-22g1-3-weights-native.json",
+      "status": 200,
+      "latencyMs": 597,
+      "reportedCostUsd": 0.000613536
+    },
+    {
+      "id": "rear-door-coyu-22g1-3-weights-padded",
+      "file": "rear-door-coyu-22g1-3-weights-padded.json",
+      "status": 200,
+      "latencyMs": 551,
+      "reportedCostUsd": 0.000674772
+    },
+    {
+      "id": "rear-door-coyu-22g1-3-weights-hybrid",
+      "file": "rear-door-coyu-22g1-3-weights-hybrid.json",
+      "status": 200,
+      "latencyMs": 598,
+      "reportedCostUsd": 0.000707742
+    },
+    {
+      "id": "rear-door-chsu-22g1-1-regions",
+      "file": "rear-door-chsu-22g1-1-regions.json",
+      "status": 200,
+      "latencyMs": 837,
+      "reportedCostUsd": 0.000444906
+    },
+    {
+      "id": "rear-door-chsu-22g1-1-native",
+      "file": "rear-door-chsu-22g1-1-native.json",
+      "status": 200,
+      "latencyMs": 804,
+      "reportedCostUsd": 0.00016926
+    },
+    {
+      "id": "rear-door-chsu-22g1-1-id-regions",
+      "file": "rear-door-chsu-22g1-1-id-regions.json",
+      "status": 200,
+      "latencyMs": 389,
+      "reportedCostUsd": 0.000335328
+    },
+    {
+      "id": "rear-door-chsu-22g1-1-id-native",
+      "file": "rear-door-chsu-22g1-1-id-native.json",
+      "status": 200,
+      "latencyMs": 286,
+      "reportedCostUsd": 0.00023646
+    },
+    {
+      "id": "rear-door-chsu-22g1-1-id-padded",
+      "file": "rear-door-chsu-22g1-1-id-padded.json",
+      "status": 200,
+      "latencyMs": 314,
+      "reportedCostUsd": 0.000311724
+    },
+    {
+      "id": "rear-door-chsu-22g1-1-id-hybrid",
+      "file": "rear-door-chsu-22g1-1-id-hybrid.json",
+      "status": 200,
+      "latencyMs": 511,
+      "reportedCostUsd": 0.000330582
+    },
+    {
+      "id": "rear-door-chsu-22g1-1-iso-regions",
+      "file": "rear-door-chsu-22g1-1-iso-regions.json",
+      "status": 200,
+      "latencyMs": 356,
+      "reportedCostUsd": 0.000225456
+    },
+    {
+      "id": "rear-door-chsu-22g1-1-iso-native",
+      "file": "rear-door-chsu-22g1-1-iso-native.json",
+      "status": 200,
+      "latencyMs": 285,
+      "reportedCostUsd": 0.000192444
+    },
+    {
+      "id": "rear-door-chsu-22g1-1-iso-padded",
+      "file": "rear-door-chsu-22g1-1-iso-padded.json",
+      "status": 200,
+      "latencyMs": 326,
+      "reportedCostUsd": 0.000239694
+    },
+    {
+      "id": "rear-door-chsu-22g1-1-iso-hybrid",
+      "file": "rear-door-chsu-22g1-1-iso-hybrid.json",
+      "status": 200,
+      "latencyMs": 355,
+      "reportedCostUsd": 0.000225498
+    },
+    {
+      "id": "rear-door-chsu-22g1-1-weights-regions",
+      "file": "rear-door-chsu-22g1-1-weights-regions.json",
+      "status": 200,
+      "latencyMs": 666,
+      "reportedCostUsd": 0.000717192
+    },
+    {
+      "id": "rear-door-chsu-22g1-1-weights-native",
+      "file": "rear-door-chsu-22g1-1-weights-native.json",
+      "status": 200,
+      "latencyMs": 441,
+      "reportedCostUsd": 0.00060417
+    },
+    {
+      "id": "rear-door-chsu-22g1-1-weights-padded",
+      "file": "rear-door-chsu-22g1-1-weights-padded.json",
+      "status": 200,
+      "latencyMs": 570,
+      "reportedCostUsd": 0.000670026
+    },
+    {
+      "id": "rear-door-chsu-22g1-1-weights-hybrid",
+      "file": "rear-door-chsu-22g1-1-weights-hybrid.json",
+      "status": 200,
+      "latencyMs": 479,
+      "reportedCostUsd": 0.00071694
+    },
+    {
+      "id": "rear-door-chsu-22g1-2-regions",
+      "file": "rear-door-chsu-22g1-2-regions.json",
+      "status": 200,
+      "latencyMs": 682,
+      "reportedCostUsd": 0.000444906
+    },
+    {
+      "id": "rear-door-chsu-22g1-2-native",
+      "file": "rear-door-chsu-22g1-2-native.json",
+      "status": 200,
+      "latencyMs": 598,
+      "reportedCostUsd": 0.000169302
+    },
+    {
+      "id": "rear-door-chsu-22g1-2-id-regions",
+      "file": "rear-door-chsu-22g1-2-id-regions.json",
+      "status": 200,
+      "latencyMs": 512,
+      "reportedCostUsd": 0.000377622
+    }
+  ],
+  "crops": [
+    {
+      "id": "rear-door-coyu-22g1-1-id-regions",
+      "photo": "rear-door-coyu-22g1.jpg",
+      "repeat": 1,
+      "kind": "id",
+      "strategy": "regions",
+      "box": {
+        "top": 0,
+        "bottom": 0.25,
+        "left": 0.5,
+        "right": 1
+      },
+      "margin": 0.25,
+      "region": {
+        "x": 404,
+        "y": 0,
+        "width": 675,
+        "height": 405,
+        "outWidth": 1568,
+        "outHeight": 940
+      },
+      "imageFile": "rear-door-coyu-22g1-1-id-regions.jpg",
+      "imageSha256": "bc44b2d8919f284d0bc16d69461658f4d4e59e0144c7e68f6f0d00a3d543cd0f",
+      "areaFraction": 0.23459221501390176,
+      "reading": {
+        "value": "COYU2668130",
+        "checkDigit": true
+      }
+    },
+    {
+      "id": "rear-door-coyu-22g1-1-id-native",
+      "photo": "rear-door-coyu-22g1.jpg",
+      "repeat": 1,
+      "kind": "id",
+      "strategy": "native",
+      "box": {
+        "top": 0.11,
+        "bottom": 0.16,
+        "left": 0.58,
+        "right": 0.84
+      },
+      "margin": 0,
+      "region": {
+        "x": 625,
+        "y": 118,
+        "width": 282,
+        "height": 55,
+        "outWidth": 1568,
+        "outHeight": 305
+      },
+      "imageFile": "rear-door-coyu-22g1-1-id-native.jpg",
+      "imageSha256": "497400a61fecd04d13c3237bb441e5c50f990f869343d755e7883c85e61467f9",
+      "areaFraction": 0.013309648851817527,
+      "reading": {
+        "value": "COYU2668130",
+        "checkDigit": true
+      }
+    },
+    {
+      "id": "rear-door-coyu-22g1-1-id-padded",
+      "photo": "rear-door-coyu-22g1.jpg",
+      "repeat": 1,
+      "kind": "id",
+      "strategy": "padded",
+      "box": {
+        "top": 0.11,
+        "bottom": 0.16,
+        "left": 0.58,
+        "right": 0.84
+      },
+      "margin": 0.35,
+      "region": {
+        "x": 527,
+        "y": 20,
+        "width": 478,
+        "height": 251,
+        "outWidth": 1568,
+        "outHeight": 823
+      },
+      "imageFile": "rear-door-coyu-22g1-1-id-padded.jpg",
+      "imageSha256": "b063e54c51875e22704b1034e35faf4f1231657d7493a6d5ee8619e8bc33e088",
+      "areaFraction": 0.10295712765592284,
+      "reading": {
+        "value": "COYU2668130",
+        "checkDigit": true
+      }
+    },
+    {
+      "id": "rear-door-coyu-22g1-1-id-hybrid",
+      "photo": "rear-door-coyu-22g1.jpg",
+      "repeat": 1,
+      "kind": "id",
+      "strategy": "hybrid",
+      "box": {
+        "top": 0,
+        "bottom": 0.25,
+        "left": 0.5,
+        "right": 1
+      },
+      "margin": 0.25,
+      "region": {
+        "x": 404,
+        "y": 0,
+        "width": 675,
+        "height": 405,
+        "outWidth": 1568,
+        "outHeight": 940
+      },
+      "imageFile": "rear-door-coyu-22g1-1-id-hybrid.jpg",
+      "imageSha256": "bc44b2d8919f284d0bc16d69461658f4d4e59e0144c7e68f6f0d00a3d543cd0f",
+      "areaFraction": 0.23459221501390176,
+      "reading": {
+        "value": "COYU2668130",
+        "checkDigit": true
+      }
+    },
+    {
+      "id": "rear-door-coyu-22g1-1-iso-regions",
+      "photo": "rear-door-coyu-22g1.jpg",
+      "repeat": 1,
+      "kind": "iso",
+      "strategy": "regions",
+      "box": {
+        "top": 0,
+        "bottom": 0.25,
+        "left": 0.5,
+        "right": 1
+      },
+      "margin": 0.25,
+      "region": {
+        "x": 404,
+        "y": 0,
+        "width": 675,
+        "height": 405,
+        "outWidth": 1568,
+        "outHeight": 940
+      },
+      "imageFile": "rear-door-coyu-22g1-1-iso-regions.jpg",
+      "imageSha256": "bc44b2d8919f284d0bc16d69461658f4d4e59e0144c7e68f6f0d00a3d543cd0f",
+      "areaFraction": 0.23459221501390176,
+      "reading": {
+        "size_type_code": {
+          "type": "choice",
+          "value": "22G1",
+          "probabilities": {
+            "22G1": 1,
+            "22G0": 0,
+            "20G1": 0,
+            "20G0": 0,
+            "25G1": 0,
+            "22R1": 0,
+            "22R0": 0,
+            "22U1": 0,
+            "22U6": 0,
+            "22T6": 0,
+            "22T0": 0,
+            "22P1": 0,
+            "22P3": 0,
+            "22V1": 0,
+            "22B0": 0,
+            "22H0": 0,
+            "42G1": 0,
+            "42G0": 0,
+            "40G1": 0,
+            "45G1": 0,
+            "45G0": 0,
+            "42R1": 0,
+            "45R1": 0,
+            "45R0": 0,
+            "42U1": 0,
+            "45U1": 0,
+            "42P1": 0,
+            "42P3": 0,
+            "45P3": 0,
+            "42T6": 0,
+            "L5G1": 0,
+            "L2G1": 0,
+            "LEG1": 0,
+            "other": 0,
+            "unreadable": 0,
+            "not_visible": 0
+          },
+          "confidence": 1
+        }
+      }
+    },
+    {
+      "id": "rear-door-coyu-22g1-1-iso-native",
+      "photo": "rear-door-coyu-22g1.jpg",
+      "repeat": 1,
+      "kind": "iso",
+      "strategy": "native",
+      "box": {
+        "top": 0.14,
+        "bottom": 0.19,
+        "left": 0.68,
+        "right": 0.76
+      },
+      "margin": 0,
+      "region": {
+        "x": 733,
+        "y": 151,
+        "width": 88,
+        "height": 55,
+        "outWidth": 1568,
+        "outHeight": 980
+      },
+      "imageFile": "rear-door-coyu-22g1-1-iso-native.jpg",
+      "imageSha256": "5cb97c8d5895f9db9970692b96f097a495cc51898964bfd897d9a683880f08e2",
+      "areaFraction": 0.0041533655991487315,
+      "reading": {
+        "size_type_code": {
+          "type": "choice",
+          "value": "22G1",
+          "probabilities": {
+            "22G1": 1,
+            "22G0": 0,
+            "20G1": 0,
+            "20G0": 0,
+            "25G1": 0,
+            "22R1": 0,
+            "22R0": 0,
+            "22U1": 0,
+            "22U6": 0,
+            "22T6": 0,
+            "22T0": 0,
+            "22P1": 0,
+            "22P3": 0,
+            "22V1": 0,
+            "22B0": 0,
+            "22H0": 0,
+            "42G1": 0,
+            "42G0": 0,
+            "40G1": 0,
+            "45G1": 0,
+            "45G0": 0,
+            "42R1": 0,
+            "45R1": 0,
+            "45R0": 0,
+            "42U1": 0,
+            "45U1": 0,
+            "42P1": 0,
+            "42P3": 0,
+            "45P3": 0,
+            "42T6": 0,
+            "L5G1": 0,
+            "L2G1": 0,
+            "LEG1": 0,
+            "other": 0,
+            "unreadable": 0,
+            "not_visible": 0
+          },
+          "confidence": 1
+        }
+      }
+    },
+    {
+      "id": "rear-door-coyu-22g1-1-iso-padded",
+      "photo": "rear-door-coyu-22g1.jpg",
+      "repeat": 1,
+      "kind": "iso",
+      "strategy": "padded",
+      "box": {
+        "top": 0.14,
+        "bottom": 0.19,
+        "left": 0.68,
+        "right": 0.76
+      },
+      "margin": 0.35,
+      "region": {
+        "x": 703,
+        "y": 120,
+        "width": 148,
+        "height": 116,
+        "outWidth": 1568,
+        "outHeight": 1228
+      },
+      "imageFile": "rear-door-coyu-22g1-1-iso-padded.jpg",
+      "imageSha256": "5edf8521c1d6cbe813e04c95577ec41f227f4f53464487e9bd8a23e82da031c7",
+      "areaFraction": 0.014732434009542444,
+      "reading": {
+        "size_type_code": {
+          "type": "choice",
+          "value": "22G1",
+          "probabilities": {
+            "22G1": 1,
+            "22G0": 0,
+            "20G1": 0,
+            "20G0": 0,
+            "25G1": 0,
+            "22R1": 0,
+            "22R0": 0,
+            "22U1": 0,
+            "22U6": 0,
+            "22T6": 0,
+            "22T0": 0,
+            "22P1": 0,
+            "22P3": 0,
+            "22V1": 0,
+            "22B0": 0,
+            "22H0": 0,
+            "42G1": 0,
+            "42G0": 0,
+            "40G1": 0,
+            "45G1": 0,
+            "45G0": 0,
+            "42R1": 0,
+            "45R1": 0,
+            "45R0": 0,
+            "42U1": 0,
+            "45U1": 0,
+            "42P1": 0,
+            "42P3": 0,
+            "45P3": 0,
+            "42T6": 0,
+            "L5G1": 0,
+            "L2G1": 0,
+            "LEG1": 0,
+            "other": 0,
+            "unreadable": 0,
+            "not_visible": 0
+          },
+          "confidence": 1
+        }
+      }
+    },
+    {
+      "id": "rear-door-coyu-22g1-1-iso-hybrid",
+      "photo": "rear-door-coyu-22g1.jpg",
+      "repeat": 1,
+      "kind": "iso",
+      "strategy": "hybrid",
+      "box": {
+        "top": 0,
+        "bottom": 0.25,
+        "left": 0.5,
+        "right": 1
+      },
+      "margin": 0.25,
+      "region": {
+        "x": 404,
+        "y": 0,
+        "width": 675,
+        "height": 405,
+        "outWidth": 1568,
+        "outHeight": 940
+      },
+      "imageFile": "rear-door-coyu-22g1-1-iso-hybrid.jpg",
+      "imageSha256": "bc44b2d8919f284d0bc16d69461658f4d4e59e0144c7e68f6f0d00a3d543cd0f",
+      "areaFraction": 0.23459221501390176,
+      "reading": {
+        "size_type_code": {
+          "type": "choice",
+          "value": "22G1",
+          "probabilities": {
+            "22G1": 1,
+            "22G0": 0,
+            "20G1": 0,
+            "20G0": 0,
+            "25G1": 0,
+            "22R1": 0,
+            "22R0": 0,
+            "22U1": 0,
+            "22U6": 0,
+            "22T6": 0,
+            "22T0": 0,
+            "22P1": 0,
+            "22P3": 0,
+            "22V1": 0,
+            "22B0": 0,
+            "22H0": 0,
+            "42G1": 0,
+            "42G0": 0,
+            "40G1": 0,
+            "45G1": 0,
+            "45G0": 0,
+            "42R1": 0,
+            "45R1": 0,
+            "45R0": 0,
+            "42U1": 0,
+            "45U1": 0,
+            "42P1": 0,
+            "42P3": 0,
+            "45P3": 0,
+            "42T6": 0,
+            "L5G1": 0,
+            "L2G1": 0,
+            "LEG1": 0,
+            "other": 0,
+            "unreadable": 0,
+            "not_visible": 0
+          },
+          "confidence": 1
+        }
+      }
+    },
+    {
+      "id": "rear-door-coyu-22g1-1-weights-regions",
+      "photo": "rear-door-coyu-22g1.jpg",
+      "repeat": 1,
+      "kind": "weights",
+      "strategy": "regions",
+      "box": {
+        "top": 0.25,
+        "bottom": 0.5,
+        "left": 0.5,
+        "right": 1
+      },
+      "margin": 0.25,
+      "region": {
+        "x": 404,
+        "y": 135,
+        "width": 675,
+        "height": 540,
+        "outWidth": 1568,
+        "outHeight": 1254
+      },
+      "imageFile": "rear-door-coyu-22g1-1-weights-regions.jpg",
+      "imageSha256": "287f62307d1e20e7957723831f62f43c5eb6b47e9bc62ed92cb46981cc72c658",
+      "areaFraction": 0.31278962001853566,
+      "reading": {
+        "maxGross": {
+          "metric": {
+            "state": "read",
+            "value": 30480,
+            "certainty": "Likely"
+          },
+          "imperial": {
+            "state": "read",
+            "value": 67200,
+            "certainty": "Likely"
+          }
+        },
+        "tare": {
+          "metric": {
+            "state": "read",
+            "value": 2180,
+            "certainty": "Confident"
+          },
+          "imperial": {
+            "state": "read",
+            "value": 4810,
+            "certainty": "Likely"
+          }
+        },
+        "payload": {
+          "metric": {
+            "state": "read",
+            "value": 22300,
+            "certainty": "Likely"
+          },
+          "imperial": {
+            "state": "read",
+            "value": 62390,
+            "certainty": "Likely"
+          }
+        }
+      }
+    },
+    {
+      "id": "rear-door-coyu-22g1-1-weights-native",
+      "photo": "rear-door-coyu-22g1.jpg",
+      "repeat": 1,
+      "kind": "weights",
+      "strategy": "native",
+      "box": {
+        "top": 0.33,
+        "bottom": 0.44,
+        "left": 0.57,
+        "right": 0.82
+      },
+      "margin": 0,
+      "region": {
+        "x": 615,
+        "y": 356,
+        "width": 270,
+        "height": 120,
+        "outWidth": 1568,
+        "outHeight": 696
+      },
+      "imageFile": "rear-door-coyu-22g1-1-weights-native.jpg",
+      "imageSha256": "0d04947e5bf8526298ad54c49e0438bea1d0b9026c5da11687a5c2e31201ea49",
+      "areaFraction": 0.027803521779425393,
+      "reading": {
+        "maxGross": {
+          "metric": {
+            "state": "read",
+            "value": 30480,
+            "certainty": "Uncertain"
+          },
+          "imperial": {
+            "state": "read",
+            "value": 67200,
+            "certainty": "Likely"
+          }
+        },
+        "tare": {
+          "metric": {
+            "state": "read",
+            "value": 2180,
+            "certainty": "Likely"
+          },
+          "imperial": {
+            "state": "read",
+            "value": 4810,
+            "certainty": "Likely"
+          }
+        },
+        "payload": {
+          "metric": {
+            "state": "unclear",
+            "value": null,
+            "certainty": "Can't tell",
+            "dist": [
+              {
+                "0": 1
+              },
+              {
+                "0": 0.98,
+                "3": 0.02
+              },
+              {
+                "0": 0.06,
+                "2": 0.01,
+                "3": 0.93
+              },
+              {
+                "0": 0.05102040816326531,
+                "1": 0.010204081632653062,
+                "2": 0.34693877551020413,
+                "3": 0.3163265306122449,
+                "4": 0.010204081632653062,
+                "8": 0.24489795918367346,
+                "none": 0.020408163265306124
+              },
+              {
+                "0": 0.010101010101010102,
+                "2": 0.9595959595959596,
+                "3": 0.010101010101010102,
+                "none": 0.020202020202020204
+              }
+            ]
+          },
+          "imperial": {
+            "state": "not-visible",
+            "value": null,
+            "certainty": "Not seen"
+          }
+        }
+      }
+    },
+    {
+      "id": "rear-door-coyu-22g1-1-weights-padded",
+      "photo": "rear-door-coyu-22g1.jpg",
+      "repeat": 1,
+      "kind": "weights",
+      "strategy": "padded",
+      "box": {
+        "top": 0.33,
+        "bottom": 0.44,
+        "left": 0.57,
+        "right": 0.82
+      },
+      "margin": 0.35,
+      "region": {
+        "x": 520,
+        "y": 261,
+        "width": 460,
+        "height": 309,
+        "outWidth": 1568,
+        "outHeight": 1053
+      },
+      "imageFile": "rear-door-coyu-22g1-1-weights-padded.jpg",
+      "imageSha256": "34e6b591cfa2a6a973d822918709d4ce694da397ee6dee68ad69b8c8862b0c9d",
+      "areaFraction": 0.12197507980640511,
+      "reading": {
+        "maxGross": {
+          "metric": {
+            "state": "read",
+            "value": 30480,
+            "certainty": "Uncertain"
+          },
+          "imperial": {
+            "state": "read",
+            "value": 67200,
+            "certainty": "Likely"
+          }
+        },
+        "tare": {
+          "metric": {
+            "state": "read",
+            "value": 2180,
+            "certainty": "Likely"
+          },
+          "imperial": {
+            "state": "read",
+            "value": 4810,
+            "certainty": "Likely"
+          }
+        },
+        "payload": {
+          "metric": {
+            "state": "read",
+            "value": 22300,
+            "certainty": "Likely"
+          },
+          "imperial": {
+            "state": "read",
+            "value": 62390,
+            "certainty": "Uncertain"
+          }
+        }
+      }
+    },
+    {
+      "id": "rear-door-coyu-22g1-1-weights-hybrid",
+      "photo": "rear-door-coyu-22g1.jpg",
+      "repeat": 1,
+      "kind": "weights",
+      "strategy": "hybrid",
+      "box": {
+        "top": 0.25,
+        "bottom": 0.5,
+        "left": 0.5,
+        "right": 1
+      },
+      "margin": 0.25,
+      "region": {
+        "x": 404,
+        "y": 135,
+        "width": 675,
+        "height": 540,
+        "outWidth": 1568,
+        "outHeight": 1254
+      },
+      "imageFile": "rear-door-coyu-22g1-1-weights-hybrid.jpg",
+      "imageSha256": "287f62307d1e20e7957723831f62f43c5eb6b47e9bc62ed92cb46981cc72c658",
+      "areaFraction": 0.31278962001853566,
+      "reading": {
+        "maxGross": {
+          "metric": {
+            "state": "read",
+            "value": 30480,
+            "certainty": "Likely"
+          },
+          "imperial": {
+            "state": "read",
+            "value": 67200,
+            "certainty": "Likely"
+          }
+        },
+        "tare": {
+          "metric": {
+            "state": "read",
+            "value": 2180,
+            "certainty": "Confident"
+          },
+          "imperial": {
+            "state": "read",
+            "value": 4810,
+            "certainty": "Likely"
+          }
+        },
+        "payload": {
+          "metric": {
+            "state": "read",
+            "value": 22300,
+            "certainty": "Likely"
+          },
+          "imperial": {
+            "state": "read",
+            "value": 62390,
+            "certainty": "Likely"
+          }
+        }
+      }
+    },
+    {
+      "id": "rear-door-coyu-22g1-1-seal-regions",
+      "photo": "rear-door-coyu-22g1.jpg",
+      "repeat": 1,
+      "kind": "seal",
+      "strategy": "regions",
+      "unavailable": true
+    },
+    {
+      "id": "rear-door-coyu-22g1-1-seal-native",
+      "photo": "rear-door-coyu-22g1.jpg",
+      "repeat": 1,
+      "kind": "seal",
+      "strategy": "native",
+      "unavailable": true
+    },
+    {
+      "id": "rear-door-coyu-22g1-1-seal-padded",
+      "photo": "rear-door-coyu-22g1.jpg",
+      "repeat": 1,
+      "kind": "seal",
+      "strategy": "padded",
+      "unavailable": true
+    },
+    {
+      "id": "rear-door-coyu-22g1-1-seal-hybrid",
+      "photo": "rear-door-coyu-22g1.jpg",
+      "repeat": 1,
+      "kind": "seal",
+      "strategy": "hybrid",
+      "unavailable": true
+    },
+    {
+      "id": "rear-door-coyu-22g1-1-hazard-regions",
+      "photo": "rear-door-coyu-22g1.jpg",
+      "repeat": 1,
+      "kind": "hazard",
+      "strategy": "regions",
+      "unavailable": true
+    },
+    {
+      "id": "rear-door-coyu-22g1-1-hazard-native",
+      "photo": "rear-door-coyu-22g1.jpg",
+      "repeat": 1,
+      "kind": "hazard",
+      "strategy": "native",
+      "unavailable": true
+    },
+    {
+      "id": "rear-door-coyu-22g1-1-hazard-padded",
+      "photo": "rear-door-coyu-22g1.jpg",
+      "repeat": 1,
+      "kind": "hazard",
+      "strategy": "padded",
+      "unavailable": true
+    },
+    {
+      "id": "rear-door-coyu-22g1-1-hazard-hybrid",
+      "photo": "rear-door-coyu-22g1.jpg",
+      "repeat": 1,
+      "kind": "hazard",
+      "strategy": "hybrid",
+      "unavailable": true
+    },
+    {
+      "id": "rear-door-coyu-22g1-1-doorEnd-regions",
+      "photo": "rear-door-coyu-22g1.jpg",
+      "repeat": 1,
+      "kind": "doorEnd",
+      "strategy": "regions",
+      "box": {
+        "top": 0,
+        "bottom": 1,
+        "left": 0,
+        "right": 0.5
+      },
+      "margin": 0.25,
+      "region": {
+        "x": 0,
+        "y": 0,
+        "width": 810,
+        "height": 1080,
+        "outWidth": 1176,
+        "outHeight": 1568
+      },
+      "imageFile": "rear-door-coyu-22g1-1-doorEnd-regions.jpg",
+      "imageSha256": "2560dabac3ffbeb4a739ceb228f6d1bdb7f6490ca765c4950f7a9bb86ac575db",
+      "areaFraction": 0.7506950880444856
+    },
+    {
+      "id": "rear-door-coyu-22g1-1-doorEnd-native",
+      "photo": "rear-door-coyu-22g1.jpg",
+      "repeat": 1,
+      "kind": "doorEnd",
+      "strategy": "native",
+      "box": {
+        "top": 0.05,
+        "bottom": 0.95,
+        "left": 0.05,
+        "right": 0.92
+      },
+      "margin": 0,
+      "region": {
+        "x": 53,
+        "y": 54,
+        "width": 940,
+        "height": 972,
+        "outWidth": 1516,
+        "outHeight": 1568
+      },
+      "imageFile": "rear-door-coyu-22g1-1-doorEnd-native.jpg",
+      "imageSha256": "083cf57ff8f267afff8150c50a82ab567aa24ed5c0e8a46584782d579f5e6a32",
+      "areaFraction": 0.7840593141797961
+    },
+    {
+      "id": "rear-door-coyu-22g1-1-doorEnd-padded",
+      "photo": "rear-door-coyu-22g1.jpg",
+      "repeat": 1,
+      "kind": "doorEnd",
+      "strategy": "padded",
+      "box": {
+        "top": 0.05,
+        "bottom": 0.95,
+        "left": 0.05,
+        "right": 0.92
+      },
+      "margin": 0.35,
+      "region": {
+        "x": 0,
+        "y": 0,
+        "width": 1079,
+        "height": 1080,
+        "outWidth": 1566,
+        "outHeight": 1568
+      },
+      "imageFile": "rear-door-coyu-22g1-1-doorEnd-padded.jpg",
+      "imageSha256": "ca4393f70cf65410e20acad0f73ef897dec495afc1926fa681b0059d2ba4d9c5",
+      "areaFraction": 1
+    },
+    {
+      "id": "rear-door-coyu-22g1-1-doorEnd-hybrid",
+      "photo": "rear-door-coyu-22g1.jpg",
+      "repeat": 1,
+      "kind": "doorEnd",
+      "strategy": "hybrid",
+      "box": {
+        "top": 0,
+        "bottom": 1,
+        "left": 0,
+        "right": 0.92
+      },
+      "margin": 0.25,
+      "region": {
+        "x": 0,
+        "y": 0,
+        "width": 1079,
+        "height": 1080,
+        "outWidth": 1566,
+        "outHeight": 1568
+      },
+      "imageFile": "rear-door-coyu-22g1-1-doorEnd-hybrid.jpg",
+      "imageSha256": "ca4393f70cf65410e20acad0f73ef897dec495afc1926fa681b0059d2ba4d9c5",
+      "areaFraction": 1
+    },
+    {
+      "id": "rear-door-coyu-22g1-2-id-regions",
+      "photo": "rear-door-coyu-22g1.jpg",
+      "repeat": 2,
+      "kind": "id",
+      "strategy": "regions",
+      "box": {
+        "top": 0,
+        "bottom": 0.25,
+        "left": 0.5,
+        "right": 1
+      },
+      "margin": 0.25,
+      "region": {
+        "x": 404,
+        "y": 0,
+        "width": 675,
+        "height": 405,
+        "outWidth": 1568,
+        "outHeight": 940
+      },
+      "imageFile": "rear-door-coyu-22g1-2-id-regions.jpg",
+      "imageSha256": "bc44b2d8919f284d0bc16d69461658f4d4e59e0144c7e68f6f0d00a3d543cd0f",
+      "areaFraction": 0.23459221501390176,
+      "reading": {
+        "value": "COYU2668130",
+        "checkDigit": true
+      }
+    },
+    {
+      "id": "rear-door-coyu-22g1-2-id-native",
+      "photo": "rear-door-coyu-22g1.jpg",
+      "repeat": 2,
+      "kind": "id",
+      "strategy": "native",
+      "unavailable": true
+    },
+    {
+      "id": "rear-door-coyu-22g1-2-id-padded",
+      "photo": "rear-door-coyu-22g1.jpg",
+      "repeat": 2,
+      "kind": "id",
+      "strategy": "padded",
+      "unavailable": true
+    },
+    {
+      "id": "rear-door-coyu-22g1-2-id-hybrid",
+      "photo": "rear-door-coyu-22g1.jpg",
+      "repeat": 2,
+      "kind": "id",
+      "strategy": "hybrid",
+      "box": {
+        "top": 0,
+        "bottom": 0.25,
+        "left": 0.5,
+        "right": 1
+      },
+      "margin": 0.25,
+      "region": {
+        "x": 404,
+        "y": 0,
+        "width": 675,
+        "height": 405,
+        "outWidth": 1568,
+        "outHeight": 940
+      },
+      "imageFile": "rear-door-coyu-22g1-2-id-hybrid.jpg",
+      "imageSha256": "bc44b2d8919f284d0bc16d69461658f4d4e59e0144c7e68f6f0d00a3d543cd0f",
+      "areaFraction": 0.23459221501390176,
+      "reading": {
+        "value": "COYU2668130",
+        "checkDigit": true
+      }
+    },
+    {
+      "id": "rear-door-coyu-22g1-2-iso-regions",
+      "photo": "rear-door-coyu-22g1.jpg",
+      "repeat": 2,
+      "kind": "iso",
+      "strategy": "regions",
+      "box": {
+        "top": 0,
+        "bottom": 0.25,
+        "left": 0.5,
+        "right": 1
+      },
+      "margin": 0.25,
+      "region": {
+        "x": 404,
+        "y": 0,
+        "width": 675,
+        "height": 405,
+        "outWidth": 1568,
+        "outHeight": 940
+      },
+      "imageFile": "rear-door-coyu-22g1-2-iso-regions.jpg",
+      "imageSha256": "bc44b2d8919f284d0bc16d69461658f4d4e59e0144c7e68f6f0d00a3d543cd0f",
+      "areaFraction": 0.23459221501390176,
+      "reading": {
+        "size_type_code": {
+          "type": "choice",
+          "value": "22G1",
+          "probabilities": {
+            "22G1": 1,
+            "22G0": 0,
+            "20G1": 0,
+            "20G0": 0,
+            "25G1": 0,
+            "22R1": 0,
+            "22R0": 0,
+            "22U1": 0,
+            "22U6": 0,
+            "22T6": 0,
+            "22T0": 0,
+            "22P1": 0,
+            "22P3": 0,
+            "22V1": 0,
+            "22B0": 0,
+            "22H0": 0,
+            "42G1": 0,
+            "42G0": 0,
+            "40G1": 0,
+            "45G1": 0,
+            "45G0": 0,
+            "42R1": 0,
+            "45R1": 0,
+            "45R0": 0,
+            "42U1": 0,
+            "45U1": 0,
+            "42P1": 0,
+            "42P3": 0,
+            "45P3": 0,
+            "42T6": 0,
+            "L5G1": 0,
+            "L2G1": 0,
+            "LEG1": 0,
+            "other": 0,
+            "unreadable": 0,
+            "not_visible": 0
+          },
+          "confidence": 1
+        }
+      }
+    },
+    {
+      "id": "rear-door-coyu-22g1-2-iso-native",
+      "photo": "rear-door-coyu-22g1.jpg",
+      "repeat": 2,
+      "kind": "iso",
+      "strategy": "native",
+      "box": {
+        "top": 0.14,
+        "bottom": 0.19,
+        "left": 0.67,
+        "right": 0.76
+      },
+      "margin": 0,
+      "region": {
+        "x": 722,
+        "y": 151,
+        "width": 99,
+        "height": 55,
+        "outWidth": 1568,
+        "outHeight": 871
+      },
+      "imageFile": "rear-door-coyu-22g1-2-iso-native.jpg",
+      "imageSha256": "165e172e7e79fae46943e5ab678e427922cfd5a3d549612c1b1d88b6bbb7a219",
+      "areaFraction": 0.004672536299042323,
+      "reading": {
+        "size_type_code": {
+          "type": "choice",
+          "value": "22G1",
+          "probabilities": {
+            "22G1": 1,
+            "22G0": 0,
+            "20G1": 0,
+            "20G0": 0,
+            "25G1": 0,
+            "22R1": 0,
+            "22R0": 0,
+            "22U1": 0,
+            "22U6": 0,
+            "22T6": 0,
+            "22T0": 0,
+            "22P1": 0,
+            "22P3": 0,
+            "22V1": 0,
+            "22B0": 0,
+            "22H0": 0,
+            "42G1": 0,
+            "42G0": 0,
+            "40G1": 0,
+            "45G1": 0,
+            "45G0": 0,
+            "42R1": 0,
+            "45R1": 0,
+            "45R0": 0,
+            "42U1": 0,
+            "45U1": 0,
+            "42P1": 0,
+            "42P3": 0,
+            "45P3": 0,
+            "42T6": 0,
+            "L5G1": 0,
+            "L2G1": 0,
+            "LEG1": 0,
+            "other": 0,
+            "unreadable": 0,
+            "not_visible": 0
+          },
+          "confidence": 1
+        }
+      }
+    },
+    {
+      "id": "rear-door-coyu-22g1-2-iso-padded",
+      "photo": "rear-door-coyu-22g1.jpg",
+      "repeat": 2,
+      "kind": "iso",
+      "strategy": "padded",
+      "box": {
+        "top": 0.14,
+        "bottom": 0.19,
+        "left": 0.67,
+        "right": 0.76
+      },
+      "margin": 0.35,
+      "region": {
+        "x": 688,
+        "y": 117,
+        "width": 167,
+        "height": 123,
+        "outWidth": 1568,
+        "outHeight": 1154
+      },
+      "imageFile": "rear-door-coyu-22g1-2-iso-padded.jpg",
+      "imageSha256": "5243fca14abc2a2297f68e35b58f05609fee810f49db2c62779bb4e03808c229",
+      "areaFraction": 0.017626917928122748,
+      "reading": {
+        "size_type_code": {
+          "type": "choice",
+          "value": "22G1",
+          "probabilities": {
+            "22G1": 1,
+            "22G0": 0,
+            "20G1": 0,
+            "20G0": 0,
+            "25G1": 0,
+            "22R1": 0,
+            "22R0": 0,
+            "22U1": 0,
+            "22U6": 0,
+            "22T6": 0,
+            "22T0": 0,
+            "22P1": 0,
+            "22P3": 0,
+            "22V1": 0,
+            "22B0": 0,
+            "22H0": 0,
+            "42G1": 0,
+            "42G0": 0,
+            "40G1": 0,
+            "45G1": 0,
+            "45G0": 0,
+            "42R1": 0,
+            "45R1": 0,
+            "45R0": 0,
+            "42U1": 0,
+            "45U1": 0,
+            "42P1": 0,
+            "42P3": 0,
+            "45P3": 0,
+            "42T6": 0,
+            "L5G1": 0,
+            "L2G1": 0,
+            "LEG1": 0,
+            "other": 0,
+            "unreadable": 0,
+            "not_visible": 0
+          },
+          "confidence": 1
+        }
+      }
+    },
+    {
+      "id": "rear-door-coyu-22g1-2-iso-hybrid",
+      "photo": "rear-door-coyu-22g1.jpg",
+      "repeat": 2,
+      "kind": "iso",
+      "strategy": "hybrid",
+      "box": {
+        "top": 0,
+        "bottom": 0.25,
+        "left": 0.5,
+        "right": 1
+      },
+      "margin": 0.25,
+      "region": {
+        "x": 404,
+        "y": 0,
+        "width": 675,
+        "height": 405,
+        "outWidth": 1568,
+        "outHeight": 940
+      },
+      "imageFile": "rear-door-coyu-22g1-2-iso-hybrid.jpg",
+      "imageSha256": "bc44b2d8919f284d0bc16d69461658f4d4e59e0144c7e68f6f0d00a3d543cd0f",
+      "areaFraction": 0.23459221501390176,
+      "reading": {
+        "size_type_code": {
+          "type": "choice",
+          "value": "22G1",
+          "probabilities": {
+            "22G1": 1,
+            "22G0": 0,
+            "20G1": 0,
+            "20G0": 0,
+            "25G1": 0,
+            "22R1": 0,
+            "22R0": 0,
+            "22U1": 0,
+            "22U6": 0,
+            "22T6": 0,
+            "22T0": 0,
+            "22P1": 0,
+            "22P3": 0,
+            "22V1": 0,
+            "22B0": 0,
+            "22H0": 0,
+            "42G1": 0,
+            "42G0": 0,
+            "40G1": 0,
+            "45G1": 0,
+            "45G0": 0,
+            "42R1": 0,
+            "45R1": 0,
+            "45R0": 0,
+            "42U1": 0,
+            "45U1": 0,
+            "42P1": 0,
+            "42P3": 0,
+            "45P3": 0,
+            "42T6": 0,
+            "L5G1": 0,
+            "L2G1": 0,
+            "LEG1": 0,
+            "other": 0,
+            "unreadable": 0,
+            "not_visible": 0
+          },
+          "confidence": 1
+        }
+      }
+    },
+    {
+      "id": "rear-door-coyu-22g1-2-weights-regions",
+      "photo": "rear-door-coyu-22g1.jpg",
+      "repeat": 2,
+      "kind": "weights",
+      "strategy": "regions",
+      "box": {
+        "top": 0.25,
+        "bottom": 0.5,
+        "left": 0.5,
+        "right": 1
+      },
+      "margin": 0.25,
+      "region": {
+        "x": 404,
+        "y": 135,
+        "width": 675,
+        "height": 540,
+        "outWidth": 1568,
+        "outHeight": 1254
+      },
+      "imageFile": "rear-door-coyu-22g1-2-weights-regions.jpg",
+      "imageSha256": "287f62307d1e20e7957723831f62f43c5eb6b47e9bc62ed92cb46981cc72c658",
+      "areaFraction": 0.31278962001853566,
+      "reading": {
+        "maxGross": {
+          "metric": {
+            "state": "read",
+            "value": 30480,
+            "certainty": "Uncertain"
+          },
+          "imperial": {
+            "state": "read",
+            "value": 67200,
+            "certainty": "Likely"
+          }
+        },
+        "tare": {
+          "metric": {
+            "state": "read",
+            "value": 2180,
+            "certainty": "Confident"
+          },
+          "imperial": {
+            "state": "read",
+            "value": 4810,
+            "certainty": "Likely"
+          }
+        },
+        "payload": {
+          "metric": {
+            "state": "read",
+            "value": 22300,
+            "certainty": "Likely"
+          },
+          "imperial": {
+            "state": "read",
+            "value": 62390,
+            "certainty": "Likely"
+          }
+        }
+      }
+    },
+    {
+      "id": "rear-door-coyu-22g1-2-weights-native",
+      "photo": "rear-door-coyu-22g1.jpg",
+      "repeat": 2,
+      "kind": "weights",
+      "strategy": "native",
+      "box": {
+        "top": 0.33,
+        "bottom": 0.46,
+        "left": 0.57,
+        "right": 0.83
+      },
+      "margin": 0,
+      "region": {
+        "x": 615,
+        "y": 356,
+        "width": 281,
+        "height": 141,
+        "outWidth": 1568,
+        "outHeight": 786
+      },
+      "imageFile": "rear-door-coyu-22g1-2-weights-native.jpg",
+      "imageSha256": "fd3a8ff8b1696945eb0dd3379c069fd5dc6ccb290d18ad16136210fe01f73e20",
+      "areaFraction": 0.03400010297600659,
+      "reading": {
+        "maxGross": {
+          "metric": {
+            "state": "unclear",
+            "value": null,
+            "certainty": "Can't tell",
+            "dist": [
+              {
+                "0": 1
+              },
+              {
+                "0": 0.02,
+                "4": 0.02,
+                "8": 0.96
+              },
+              {
+                "0": 0.02,
+                "3": 0.01,
+                "4": 0.95,
+                "8": 0.01,
+                "none": 0.01
+              },
+              {
+                "0": 0.48,
+                "1": 0.01,
+                "3": 0.03,
+                "4": 0.46,
+                "none": 0.02
+              },
+              {
+                "0": 0.01,
+                "2": 0.01,
+                "3": 0.97,
+                "none": 0.01
+              }
+            ]
+          },
+          "imperial": {
+            "state": "read",
+            "value": 67200,
+            "certainty": "Likely"
+          }
+        },
+        "tare": {
+          "metric": {
+            "state": "read",
+            "value": 2180,
+            "certainty": "Likely"
+          },
+          "imperial": {
+            "state": "read",
+            "value": 4810,
+            "certainty": "Likely"
+          }
+        },
+        "payload": {
+          "metric": {
+            "state": "unclear",
+            "value": null,
+            "certainty": "Can't tell",
+            "dist": [
+              {
+                "0": 1
+              },
+              {
+                "0": 0.98,
+                "3": 0.02
+              },
+              {
+                "0": 0.04,
+                "2": 0.01,
+                "3": 0.95
+              },
+              {
+                "0": 0.09,
+                "1": 0.01,
+                "2": 0.11,
+                "3": 0.34,
+                "8": 0.44,
+                "none": 0.01
+              },
+              {
+                "0": 0.05,
+                "2": 0.92,
+                "3": 0.01,
+                "none": 0.02
+              }
+            ]
+          },
+          "imperial": {
+            "state": "read",
+            "value": 63390,
+            "certainty": "Likely"
+          }
+        }
+      }
+    },
+    {
+      "id": "rear-door-coyu-22g1-2-weights-padded",
+      "photo": "rear-door-coyu-22g1.jpg",
+      "repeat": 2,
+      "kind": "weights",
+      "strategy": "padded",
+      "box": {
+        "top": 0.33,
+        "bottom": 0.46,
+        "left": 0.57,
+        "right": 0.83
+      },
+      "margin": 0.35,
+      "region": {
+        "x": 516,
+        "y": 258,
+        "width": 478,
+        "height": 337,
+        "outWidth": 1568,
+        "outHeight": 1105
+      },
+      "imageFile": "rear-door-coyu-22g1-2-weights-padded.jpg",
+      "imageSha256": "5255d8768f6cbdc794f857771983ec3e3000615170083923657b51d06e116f6d",
+      "areaFraction": 0.13823327498026294,
+      "reading": {
+        "maxGross": {
+          "metric": {
+            "state": "read",
+            "value": 30480,
+            "certainty": "Uncertain"
+          },
+          "imperial": {
+            "state": "read",
+            "value": 67200,
+            "certainty": "Likely"
+          }
+        },
+        "tare": {
+          "metric": {
+            "state": "read",
+            "value": 2180,
+            "certainty": "Likely"
+          },
+          "imperial": {
+            "state": "read",
+            "value": 4810,
+            "certainty": "Likely"
+          }
+        },
+        "payload": {
+          "metric": {
+            "state": "read",
+            "value": 22300,
+            "certainty": "Likely"
+          },
+          "imperial": {
+            "state": "read",
+            "value": 62390,
+            "certainty": "Likely"
+          }
+        }
+      }
+    },
+    {
+      "id": "rear-door-coyu-22g1-2-weights-hybrid",
+      "photo": "rear-door-coyu-22g1.jpg",
+      "repeat": 2,
+      "kind": "weights",
+      "strategy": "hybrid",
+      "box": {
+        "top": 0.25,
+        "bottom": 0.5,
+        "left": 0.5,
+        "right": 1
+      },
+      "margin": 0.25,
+      "region": {
+        "x": 404,
+        "y": 135,
+        "width": 675,
+        "height": 540,
+        "outWidth": 1568,
+        "outHeight": 1254
+      },
+      "imageFile": "rear-door-coyu-22g1-2-weights-hybrid.jpg",
+      "imageSha256": "287f62307d1e20e7957723831f62f43c5eb6b47e9bc62ed92cb46981cc72c658",
+      "areaFraction": 0.31278962001853566,
+      "reading": {
+        "maxGross": {
+          "metric": {
+            "state": "read",
+            "value": 30480,
+            "certainty": "Likely"
+          },
+          "imperial": {
+            "state": "read",
+            "value": 67200,
+            "certainty": "Likely"
+          }
+        },
+        "tare": {
+          "metric": {
+            "state": "read",
+            "value": 2180,
+            "certainty": "Confident"
+          },
+          "imperial": {
+            "state": "read",
+            "value": 4810,
+            "certainty": "Likely"
+          }
+        },
+        "payload": {
+          "metric": {
+            "state": "read",
+            "value": 22300,
+            "certainty": "Likely"
+          },
+          "imperial": {
+            "state": "read",
+            "value": 62390,
+            "certainty": "Likely"
+          }
+        }
+      }
+    },
+    {
+      "id": "rear-door-coyu-22g1-2-seal-regions",
+      "photo": "rear-door-coyu-22g1.jpg",
+      "repeat": 2,
+      "kind": "seal",
+      "strategy": "regions",
+      "unavailable": true
+    },
+    {
+      "id": "rear-door-coyu-22g1-2-seal-native",
+      "photo": "rear-door-coyu-22g1.jpg",
+      "repeat": 2,
+      "kind": "seal",
+      "strategy": "native",
+      "unavailable": true
+    },
+    {
+      "id": "rear-door-coyu-22g1-2-seal-padded",
+      "photo": "rear-door-coyu-22g1.jpg",
+      "repeat": 2,
+      "kind": "seal",
+      "strategy": "padded",
+      "unavailable": true
+    },
+    {
+      "id": "rear-door-coyu-22g1-2-seal-hybrid",
+      "photo": "rear-door-coyu-22g1.jpg",
+      "repeat": 2,
+      "kind": "seal",
+      "strategy": "hybrid",
+      "unavailable": true
+    },
+    {
+      "id": "rear-door-coyu-22g1-2-hazard-regions",
+      "photo": "rear-door-coyu-22g1.jpg",
+      "repeat": 2,
+      "kind": "hazard",
+      "strategy": "regions",
+      "unavailable": true
+    },
+    {
+      "id": "rear-door-coyu-22g1-2-hazard-native",
+      "photo": "rear-door-coyu-22g1.jpg",
+      "repeat": 2,
+      "kind": "hazard",
+      "strategy": "native",
+      "unavailable": true
+    },
+    {
+      "id": "rear-door-coyu-22g1-2-hazard-padded",
+      "photo": "rear-door-coyu-22g1.jpg",
+      "repeat": 2,
+      "kind": "hazard",
+      "strategy": "padded",
+      "unavailable": true
+    },
+    {
+      "id": "rear-door-coyu-22g1-2-hazard-hybrid",
+      "photo": "rear-door-coyu-22g1.jpg",
+      "repeat": 2,
+      "kind": "hazard",
+      "strategy": "hybrid",
+      "unavailable": true
+    },
+    {
+      "id": "rear-door-coyu-22g1-2-doorEnd-regions",
+      "photo": "rear-door-coyu-22g1.jpg",
+      "repeat": 2,
+      "kind": "doorEnd",
+      "strategy": "regions",
+      "box": {
+        "top": 0,
+        "bottom": 1,
+        "left": 0,
+        "right": 0.5
+      },
+      "margin": 0.25,
+      "region": {
+        "x": 0,
+        "y": 0,
+        "width": 810,
+        "height": 1080,
+        "outWidth": 1176,
+        "outHeight": 1568
+      },
+      "imageFile": "rear-door-coyu-22g1-2-doorEnd-regions.jpg",
+      "imageSha256": "2560dabac3ffbeb4a739ceb228f6d1bdb7f6490ca765c4950f7a9bb86ac575db",
+      "areaFraction": 0.7506950880444856
+    },
+    {
+      "id": "rear-door-coyu-22g1-2-doorEnd-native",
+      "photo": "rear-door-coyu-22g1.jpg",
+      "repeat": 2,
+      "kind": "doorEnd",
+      "strategy": "native",
+      "unavailable": true
+    },
+    {
+      "id": "rear-door-coyu-22g1-2-doorEnd-padded",
+      "photo": "rear-door-coyu-22g1.jpg",
+      "repeat": 2,
+      "kind": "doorEnd",
+      "strategy": "padded",
+      "unavailable": true
+    },
+    {
+      "id": "rear-door-coyu-22g1-2-doorEnd-hybrid",
+      "photo": "rear-door-coyu-22g1.jpg",
+      "repeat": 2,
+      "kind": "doorEnd",
+      "strategy": "hybrid",
+      "box": {
+        "top": 0,
+        "bottom": 1,
+        "left": 0,
+        "right": 0.5
+      },
+      "margin": 0.25,
+      "region": {
+        "x": 0,
+        "y": 0,
+        "width": 810,
+        "height": 1080,
+        "outWidth": 1176,
+        "outHeight": 1568
+      },
+      "imageFile": "rear-door-coyu-22g1-2-doorEnd-hybrid.jpg",
+      "imageSha256": "2560dabac3ffbeb4a739ceb228f6d1bdb7f6490ca765c4950f7a9bb86ac575db",
+      "areaFraction": 0.7506950880444856
+    },
+    {
+      "id": "rear-door-coyu-22g1-3-id-regions",
+      "photo": "rear-door-coyu-22g1.jpg",
+      "repeat": 3,
+      "kind": "id",
+      "strategy": "regions",
+      "box": {
+        "top": 0,
+        "bottom": 0.25,
+        "left": 0.5,
+        "right": 1
+      },
+      "margin": 0.25,
+      "region": {
+        "x": 404,
+        "y": 0,
+        "width": 675,
+        "height": 405,
+        "outWidth": 1568,
+        "outHeight": 940
+      },
+      "imageFile": "rear-door-coyu-22g1-3-id-regions.jpg",
+      "imageSha256": "bc44b2d8919f284d0bc16d69461658f4d4e59e0144c7e68f6f0d00a3d543cd0f",
+      "areaFraction": 0.23459221501390176,
+      "reading": {
+        "value": "COYU2668130",
+        "checkDigit": true
+      }
+    },
+    {
+      "id": "rear-door-coyu-22g1-3-id-native",
+      "photo": "rear-door-coyu-22g1.jpg",
+      "repeat": 3,
+      "kind": "id",
+      "strategy": "native",
+      "box": {
+        "top": 0.11,
+        "bottom": 0.16,
+        "left": 0.58,
+        "right": 0.84
+      },
+      "margin": 0,
+      "region": {
+        "x": 625,
+        "y": 118,
+        "width": 282,
+        "height": 55,
+        "outWidth": 1568,
+        "outHeight": 305
+      },
+      "imageFile": "rear-door-coyu-22g1-3-id-native.jpg",
+      "imageSha256": "497400a61fecd04d13c3237bb441e5c50f990f869343d755e7883c85e61467f9",
+      "areaFraction": 0.013309648851817527,
+      "reading": {
+        "value": "COYU2668130",
+        "checkDigit": true
+      }
+    },
+    {
+      "id": "rear-door-coyu-22g1-3-id-padded",
+      "photo": "rear-door-coyu-22g1.jpg",
+      "repeat": 3,
+      "kind": "id",
+      "strategy": "padded",
+      "box": {
+        "top": 0.11,
+        "bottom": 0.16,
+        "left": 0.58,
+        "right": 0.84
+      },
+      "margin": 0.35,
+      "region": {
+        "x": 527,
+        "y": 20,
+        "width": 478,
+        "height": 251,
+        "outWidth": 1568,
+        "outHeight": 823
+      },
+      "imageFile": "rear-door-coyu-22g1-3-id-padded.jpg",
+      "imageSha256": "b063e54c51875e22704b1034e35faf4f1231657d7493a6d5ee8619e8bc33e088",
+      "areaFraction": 0.10295712765592284,
+      "reading": {
+        "value": "COYU2668130",
+        "checkDigit": true
+      }
+    },
+    {
+      "id": "rear-door-coyu-22g1-3-id-hybrid",
+      "photo": "rear-door-coyu-22g1.jpg",
+      "repeat": 3,
+      "kind": "id",
+      "strategy": "hybrid",
+      "box": {
+        "top": 0,
+        "bottom": 0.25,
+        "left": 0.5,
+        "right": 1
+      },
+      "margin": 0.25,
+      "region": {
+        "x": 404,
+        "y": 0,
+        "width": 675,
+        "height": 405,
+        "outWidth": 1568,
+        "outHeight": 940
+      },
+      "imageFile": "rear-door-coyu-22g1-3-id-hybrid.jpg",
+      "imageSha256": "bc44b2d8919f284d0bc16d69461658f4d4e59e0144c7e68f6f0d00a3d543cd0f",
+      "areaFraction": 0.23459221501390176,
+      "reading": {
+        "value": "COYU2668130",
+        "checkDigit": true
+      }
+    },
+    {
+      "id": "rear-door-coyu-22g1-3-iso-regions",
+      "photo": "rear-door-coyu-22g1.jpg",
+      "repeat": 3,
+      "kind": "iso",
+      "strategy": "regions",
+      "box": {
+        "top": 0,
+        "bottom": 0.25,
+        "left": 0.5,
+        "right": 1
+      },
+      "margin": 0.25,
+      "region": {
+        "x": 404,
+        "y": 0,
+        "width": 675,
+        "height": 405,
+        "outWidth": 1568,
+        "outHeight": 940
+      },
+      "imageFile": "rear-door-coyu-22g1-3-iso-regions.jpg",
+      "imageSha256": "bc44b2d8919f284d0bc16d69461658f4d4e59e0144c7e68f6f0d00a3d543cd0f",
+      "areaFraction": 0.23459221501390176,
+      "reading": {
+        "size_type_code": {
+          "type": "choice",
+          "value": "22G1",
+          "probabilities": {
+            "22G1": 1,
+            "22G0": 0,
+            "20G1": 0,
+            "20G0": 0,
+            "25G1": 0,
+            "22R1": 0,
+            "22R0": 0,
+            "22U1": 0,
+            "22U6": 0,
+            "22T6": 0,
+            "22T0": 0,
+            "22P1": 0,
+            "22P3": 0,
+            "22V1": 0,
+            "22B0": 0,
+            "22H0": 0,
+            "42G1": 0,
+            "42G0": 0,
+            "40G1": 0,
+            "45G1": 0,
+            "45G0": 0,
+            "42R1": 0,
+            "45R1": 0,
+            "45R0": 0,
+            "42U1": 0,
+            "45U1": 0,
+            "42P1": 0,
+            "42P3": 0,
+            "45P3": 0,
+            "42T6": 0,
+            "L5G1": 0,
+            "L2G1": 0,
+            "LEG1": 0,
+            "other": 0,
+            "unreadable": 0,
+            "not_visible": 0
+          },
+          "confidence": 1
+        }
+      }
+    },
+    {
+      "id": "rear-door-coyu-22g1-3-iso-native",
+      "photo": "rear-door-coyu-22g1.jpg",
+      "repeat": 3,
+      "kind": "iso",
+      "strategy": "native",
+      "box": {
+        "top": 0.15,
+        "bottom": 0.19,
+        "left": 0.68,
+        "right": 0.76
+      },
+      "margin": 0,
+      "region": {
+        "x": 733,
+        "y": 162,
+        "width": 88,
+        "height": 44,
+        "outWidth": 1568,
+        "outHeight": 784
+      },
+      "imageFile": "rear-door-coyu-22g1-3-iso-native.jpg",
+      "imageSha256": "716ac2444d060b39c60f4f44e174f44e3e65247687e5d12c5a5bcb91d3ce8002",
+      "areaFraction": 0.0033226924793189855,
+      "reading": {
+        "size_type_code": {
+          "type": "choice",
+          "value": "22G1",
+          "probabilities": {
+            "22G1": 1,
+            "22G0": 0,
+            "20G1": 0,
+            "20G0": 0,
+            "25G1": 0,
+            "22R1": 0,
+            "22R0": 0,
+            "22U1": 0,
+            "22U6": 0,
+            "22T6": 0,
+            "22T0": 0,
+            "22P1": 0,
+            "22P3": 0,
+            "22V1": 0,
+            "22B0": 0,
+            "22H0": 0,
+            "42G1": 0,
+            "42G0": 0,
+            "40G1": 0,
+            "45G1": 0,
+            "45G0": 0,
+            "42R1": 0,
+            "45R1": 0,
+            "45R0": 0,
+            "42U1": 0,
+            "45U1": 0,
+            "42P1": 0,
+            "42P3": 0,
+            "45P3": 0,
+            "42T6": 0,
+            "L5G1": 0,
+            "L2G1": 0,
+            "LEG1": 0,
+            "other": 0,
+            "unreadable": 0,
+            "not_visible": 0
+          },
+          "confidence": 1
+        }
+      }
+    },
+    {
+      "id": "rear-door-coyu-22g1-3-iso-padded",
+      "photo": "rear-door-coyu-22g1.jpg",
+      "repeat": 3,
+      "kind": "iso",
+      "strategy": "padded",
+      "box": {
+        "top": 0.15,
+        "bottom": 0.19,
+        "left": 0.68,
+        "right": 0.76
+      },
+      "margin": 0.35,
+      "region": {
+        "x": 703,
+        "y": 131,
+        "width": 148,
+        "height": 105,
+        "outWidth": 1568,
+        "outHeight": 1112
+      },
+      "imageFile": "rear-door-coyu-22g1-3-iso-padded.jpg",
+      "imageSha256": "6d78f02826b80788f80aab96f00836c30798c8c5aa1c7c09873b5a68ca52ca13",
+      "areaFraction": 0.013335392853465142,
+      "reading": {
+        "size_type_code": {
+          "type": "choice",
+          "value": "22G1",
+          "probabilities": {
+            "22G1": 1,
+            "22G0": 0,
+            "20G1": 0,
+            "20G0": 0,
+            "25G1": 0,
+            "22R1": 0,
+            "22R0": 0,
+            "22U1": 0,
+            "22U6": 0,
+            "22T6": 0,
+            "22T0": 0,
+            "22P1": 0,
+            "22P3": 0,
+            "22V1": 0,
+            "22B0": 0,
+            "22H0": 0,
+            "42G1": 0,
+            "42G0": 0,
+            "40G1": 0,
+            "45G1": 0,
+            "45G0": 0,
+            "42R1": 0,
+            "45R1": 0,
+            "45R0": 0,
+            "42U1": 0,
+            "45U1": 0,
+            "42P1": 0,
+            "42P3": 0,
+            "45P3": 0,
+            "42T6": 0,
+            "L5G1": 0,
+            "L2G1": 0,
+            "LEG1": 0,
+            "other": 0,
+            "unreadable": 0,
+            "not_visible": 0
+          },
+          "confidence": 1
+        }
+      }
+    },
+    {
+      "id": "rear-door-coyu-22g1-3-iso-hybrid",
+      "photo": "rear-door-coyu-22g1.jpg",
+      "repeat": 3,
+      "kind": "iso",
+      "strategy": "hybrid",
+      "box": {
+        "top": 0,
+        "bottom": 0.25,
+        "left": 0.5,
+        "right": 1
+      },
+      "margin": 0.25,
+      "region": {
+        "x": 404,
+        "y": 0,
+        "width": 675,
+        "height": 405,
+        "outWidth": 1568,
+        "outHeight": 940
+      },
+      "imageFile": "rear-door-coyu-22g1-3-iso-hybrid.jpg",
+      "imageSha256": "bc44b2d8919f284d0bc16d69461658f4d4e59e0144c7e68f6f0d00a3d543cd0f",
+      "areaFraction": 0.23459221501390176,
+      "reading": {
+        "size_type_code": {
+          "type": "choice",
+          "value": "22G1",
+          "probabilities": {
+            "22G1": 1,
+            "22G0": 0,
+            "20G1": 0,
+            "20G0": 0,
+            "25G1": 0,
+            "22R1": 0,
+            "22R0": 0,
+            "22U1": 0,
+            "22U6": 0,
+            "22T6": 0,
+            "22T0": 0,
+            "22P1": 0,
+            "22P3": 0,
+            "22V1": 0,
+            "22B0": 0,
+            "22H0": 0,
+            "42G1": 0,
+            "42G0": 0,
+            "40G1": 0,
+            "45G1": 0,
+            "45G0": 0,
+            "42R1": 0,
+            "45R1": 0,
+            "45R0": 0,
+            "42U1": 0,
+            "45U1": 0,
+            "42P1": 0,
+            "42P3": 0,
+            "45P3": 0,
+            "42T6": 0,
+            "L5G1": 0,
+            "L2G1": 0,
+            "LEG1": 0,
+            "other": 0,
+            "unreadable": 0,
+            "not_visible": 0
+          },
+          "confidence": 1
+        }
+      }
+    },
+    {
+      "id": "rear-door-coyu-22g1-3-weights-regions",
+      "photo": "rear-door-coyu-22g1.jpg",
+      "repeat": 3,
+      "kind": "weights",
+      "strategy": "regions",
+      "box": {
+        "top": 0.25,
+        "bottom": 0.5,
+        "left": 0.5,
+        "right": 1
+      },
+      "margin": 0.25,
+      "region": {
+        "x": 404,
+        "y": 135,
+        "width": 675,
+        "height": 540,
+        "outWidth": 1568,
+        "outHeight": 1254
+      },
+      "imageFile": "rear-door-coyu-22g1-3-weights-regions.jpg",
+      "imageSha256": "287f62307d1e20e7957723831f62f43c5eb6b47e9bc62ed92cb46981cc72c658",
+      "areaFraction": 0.31278962001853566,
+      "reading": {
+        "maxGross": {
+          "metric": {
+            "state": "read",
+            "value": 30480,
+            "certainty": "Likely"
+          },
+          "imperial": {
+            "state": "read",
+            "value": 67200,
+            "certainty": "Likely"
+          }
+        },
+        "tare": {
+          "metric": {
+            "state": "read",
+            "value": 2180,
+            "certainty": "Confident"
+          },
+          "imperial": {
+            "state": "read",
+            "value": 4810,
+            "certainty": "Likely"
+          }
+        },
+        "payload": {
+          "metric": {
+            "state": "read",
+            "value": 22300,
+            "certainty": "Likely"
+          },
+          "imperial": {
+            "state": "read",
+            "value": 62390,
+            "certainty": "Likely"
+          }
+        }
+      }
+    },
+    {
+      "id": "rear-door-coyu-22g1-3-weights-native",
+      "photo": "rear-door-coyu-22g1.jpg",
+      "repeat": 3,
+      "kind": "weights",
+      "strategy": "native",
+      "box": {
+        "top": 0.33,
+        "bottom": 0.45,
+        "left": 0.57,
+        "right": 0.84
+      },
+      "margin": 0,
+      "region": {
+        "x": 615,
+        "y": 356,
+        "width": 292,
+        "height": 130,
+        "outWidth": 1568,
+        "outHeight": 698
+      },
+      "imageFile": "rear-door-coyu-22g1-3-weights-native.jpg",
+      "imageSha256": "62e42771a1993d5d043e6228abf93ca8a37bf932d3cd6a2efbb69cca8e767768",
+      "areaFraction": 0.03257474341811691,
+      "reading": {
+        "maxGross": {
+          "metric": {
+            "state": "read",
+            "value": 30480,
+            "certainty": "Uncertain"
+          },
+          "imperial": {
+            "state": "read",
+            "value": 67200,
+            "certainty": "Likely"
+          }
+        },
+        "tare": {
+          "metric": {
+            "state": "read",
+            "value": 2180,
+            "certainty": "Likely"
+          },
+          "imperial": {
+            "state": "read",
+            "value": 4810,
+            "certainty": "Likely"
+          }
+        },
+        "payload": {
+          "metric": {
+            "state": "unclear",
+            "value": null,
+            "certainty": "Can't tell",
+            "dist": [
+              {
+                "0": 1
+              },
+              {
+                "0": 0.98,
+                "3": 0.02
+              },
+              {
+                "0": 0.06,
+                "2": 0.01,
+                "3": 0.93
+              },
+              {
+                "0": 0.07142857142857144,
+                "1": 0.010204081632653062,
+                "2": 0.12244897959183673,
+                "3": 0.4183673469387755,
+                "4": 0.010204081632653062,
+                "8": 0.35714285714285715,
+                "none": 0.010204081632653062
+              },
+              {
+                "0": 0.010101010101010102,
+                "2": 0.9595959595959596,
+                "3": 0.020202020202020204,
+                "none": 0.010101010101010102
+              }
+            ]
+          },
+          "imperial": {
+            "state": "read",
+            "value": 63390,
+            "certainty": "Uncertain"
+          }
+        }
+      }
+    },
+    {
+      "id": "rear-door-coyu-22g1-3-weights-padded",
+      "photo": "rear-door-coyu-22g1.jpg",
+      "repeat": 3,
+      "kind": "weights",
+      "strategy": "padded",
+      "box": {
+        "top": 0.33,
+        "bottom": 0.45,
+        "left": 0.57,
+        "right": 0.84
+      },
+      "margin": 0.35,
+      "region": {
+        "x": 513,
+        "y": 254,
+        "width": 496,
+        "height": 334,
+        "outWidth": 1568,
+        "outHeight": 1055
+      },
+      "imageFile": "rear-door-coyu-22g1-3-weights-padded.jpg",
+      "imageSha256": "c58d7aa4b0ba8a1a89cd1f5aefea1ed68b9ca96b02a600204bfd7d7be03c0bdf",
+      "areaFraction": 0.14216180963168915,
+      "reading": {
+        "maxGross": {
+          "metric": {
+            "state": "read",
+            "value": 30480,
+            "certainty": "Uncertain"
+          },
+          "imperial": {
+            "state": "read",
+            "value": 67200,
+            "certainty": "Likely"
+          }
+        },
+        "tare": {
+          "metric": {
+            "state": "read",
+            "value": 2180,
+            "certainty": "Likely"
+          },
+          "imperial": {
+            "state": "read",
+            "value": 4810,
+            "certainty": "Likely"
+          }
+        },
+        "payload": {
+          "metric": {
+            "state": "read",
+            "value": 22300,
+            "certainty": "Likely"
+          },
+          "imperial": {
+            "state": "read",
+            "value": 62390,
+            "certainty": "Likely"
+          }
+        }
+      }
+    },
+    {
+      "id": "rear-door-coyu-22g1-3-weights-hybrid",
+      "photo": "rear-door-coyu-22g1.jpg",
+      "repeat": 3,
+      "kind": "weights",
+      "strategy": "hybrid",
+      "box": {
+        "top": 0.25,
+        "bottom": 0.5,
+        "left": 0.5,
+        "right": 1
+      },
+      "margin": 0.25,
+      "region": {
+        "x": 404,
+        "y": 135,
+        "width": 675,
+        "height": 540,
+        "outWidth": 1568,
+        "outHeight": 1254
+      },
+      "imageFile": "rear-door-coyu-22g1-3-weights-hybrid.jpg",
+      "imageSha256": "287f62307d1e20e7957723831f62f43c5eb6b47e9bc62ed92cb46981cc72c658",
+      "areaFraction": 0.31278962001853566,
+      "reading": {
+        "maxGross": {
+          "metric": {
+            "state": "read",
+            "value": 30480,
+            "certainty": "Likely"
+          },
+          "imperial": {
+            "state": "read",
+            "value": 67200,
+            "certainty": "Likely"
+          }
+        },
+        "tare": {
+          "metric": {
+            "state": "read",
+            "value": 2180,
+            "certainty": "Confident"
+          },
+          "imperial": {
+            "state": "read",
+            "value": 4810,
+            "certainty": "Likely"
+          }
+        },
+        "payload": {
+          "metric": {
+            "state": "read",
+            "value": 22300,
+            "certainty": "Likely"
+          },
+          "imperial": {
+            "state": "read",
+            "value": 62390,
+            "certainty": "Likely"
+          }
+        }
+      }
+    },
+    {
+      "id": "rear-door-coyu-22g1-3-seal-regions",
+      "photo": "rear-door-coyu-22g1.jpg",
+      "repeat": 3,
+      "kind": "seal",
+      "strategy": "regions",
+      "unavailable": true
+    },
+    {
+      "id": "rear-door-coyu-22g1-3-seal-native",
+      "photo": "rear-door-coyu-22g1.jpg",
+      "repeat": 3,
+      "kind": "seal",
+      "strategy": "native",
+      "unavailable": true
+    },
+    {
+      "id": "rear-door-coyu-22g1-3-seal-padded",
+      "photo": "rear-door-coyu-22g1.jpg",
+      "repeat": 3,
+      "kind": "seal",
+      "strategy": "padded",
+      "unavailable": true
+    },
+    {
+      "id": "rear-door-coyu-22g1-3-seal-hybrid",
+      "photo": "rear-door-coyu-22g1.jpg",
+      "repeat": 3,
+      "kind": "seal",
+      "strategy": "hybrid",
+      "unavailable": true
+    },
+    {
+      "id": "rear-door-coyu-22g1-3-hazard-regions",
+      "photo": "rear-door-coyu-22g1.jpg",
+      "repeat": 3,
+      "kind": "hazard",
+      "strategy": "regions",
+      "unavailable": true
+    },
+    {
+      "id": "rear-door-coyu-22g1-3-hazard-native",
+      "photo": "rear-door-coyu-22g1.jpg",
+      "repeat": 3,
+      "kind": "hazard",
+      "strategy": "native",
+      "unavailable": true
+    },
+    {
+      "id": "rear-door-coyu-22g1-3-hazard-padded",
+      "photo": "rear-door-coyu-22g1.jpg",
+      "repeat": 3,
+      "kind": "hazard",
+      "strategy": "padded",
+      "unavailable": true
+    },
+    {
+      "id": "rear-door-coyu-22g1-3-hazard-hybrid",
+      "photo": "rear-door-coyu-22g1.jpg",
+      "repeat": 3,
+      "kind": "hazard",
+      "strategy": "hybrid",
+      "unavailable": true
+    },
+    {
+      "id": "rear-door-coyu-22g1-3-doorEnd-regions",
+      "photo": "rear-door-coyu-22g1.jpg",
+      "repeat": 3,
+      "kind": "doorEnd",
+      "strategy": "regions",
+      "box": {
+        "top": 0,
+        "bottom": 1,
+        "left": 0,
+        "right": 0.5
+      },
+      "margin": 0.25,
+      "region": {
+        "x": 0,
+        "y": 0,
+        "width": 810,
+        "height": 1080,
+        "outWidth": 1176,
+        "outHeight": 1568
+      },
+      "imageFile": "rear-door-coyu-22g1-3-doorEnd-regions.jpg",
+      "imageSha256": "2560dabac3ffbeb4a739ceb228f6d1bdb7f6490ca765c4950f7a9bb86ac575db",
+      "areaFraction": 0.7506950880444856
+    },
+    {
+      "id": "rear-door-coyu-22g1-3-doorEnd-native",
+      "photo": "rear-door-coyu-22g1.jpg",
+      "repeat": 3,
+      "kind": "doorEnd",
+      "strategy": "native",
+      "unavailable": true
+    },
+    {
+      "id": "rear-door-coyu-22g1-3-doorEnd-padded",
+      "photo": "rear-door-coyu-22g1.jpg",
+      "repeat": 3,
+      "kind": "doorEnd",
+      "strategy": "padded",
+      "unavailable": true
+    },
+    {
+      "id": "rear-door-coyu-22g1-3-doorEnd-hybrid",
+      "photo": "rear-door-coyu-22g1.jpg",
+      "repeat": 3,
+      "kind": "doorEnd",
+      "strategy": "hybrid",
+      "box": {
+        "top": 0,
+        "bottom": 1,
+        "left": 0,
+        "right": 0.5
+      },
+      "margin": 0.25,
+      "region": {
+        "x": 0,
+        "y": 0,
+        "width": 810,
+        "height": 1080,
+        "outWidth": 1176,
+        "outHeight": 1568
+      },
+      "imageFile": "rear-door-coyu-22g1-3-doorEnd-hybrid.jpg",
+      "imageSha256": "2560dabac3ffbeb4a739ceb228f6d1bdb7f6490ca765c4950f7a9bb86ac575db",
+      "areaFraction": 0.7506950880444856
+    },
+    {
+      "id": "rear-door-chsu-22g1-1-id-regions",
+      "photo": "rear-door-chsu-22g1.jpg",
+      "repeat": 1,
+      "kind": "id",
+      "strategy": "regions",
+      "box": {
+        "top": 0,
+        "bottom": 0.375,
+        "left": 0.375,
+        "right": 0.75
+      },
+      "margin": 0.25,
+      "region": {
+        "x": 369,
+        "y": 0,
+        "width": 738,
+        "height": 492,
+        "outWidth": 1568,
+        "outHeight": 1045
+      },
+      "imageFile": "rear-door-chsu-22g1-1-id-regions.jpg",
+      "imageSha256": "f099b5022ad054a9456adfb053f7142572a9c98e342ccef0d507e6afe1bfccbd",
+      "areaFraction": 0.28125,
+      "reading": {
+        "value": "CHSU2051831",
+        "checkDigit": true
+      }
+    },
+    {
+      "id": "rear-door-chsu-22g1-1-id-native",
+      "photo": "rear-door-chsu-22g1.jpg",
+      "repeat": 1,
+      "kind": "id",
+      "strategy": "native",
+      "box": {
+        "top": 0.21,
+        "bottom": 0.28,
+        "left": 0.58,
+        "right": 0.76
+      },
+      "margin": 0,
+      "region": {
+        "x": 760,
+        "y": 206,
+        "width": 238,
+        "height": 70,
+        "outWidth": 1568,
+        "outHeight": 461
+      },
+      "imageFile": "rear-door-chsu-22g1-1-id-native.jpg",
+      "imageSha256": "933e57aaaaeb20498451d1f780604b593ab8fe4cfab27211c3e0ed174ff4eb8e",
+      "areaFraction": 0.012904645052548087,
+      "reading": {
+        "value": "CHSU2051831",
+        "checkDigit": true
+      }
+    },
+    {
+      "id": "rear-door-chsu-22g1-1-id-padded",
+      "photo": "rear-door-chsu-22g1.jpg",
+      "repeat": 1,
+      "kind": "id",
+      "strategy": "padded",
+      "box": {
+        "top": 0.21,
+        "bottom": 0.28,
+        "left": 0.58,
+        "right": 0.76
+      },
+      "margin": 0.35,
+      "region": {
+        "x": 678,
+        "y": 123,
+        "width": 402,
+        "height": 236,
+        "outWidth": 1568,
+        "outHeight": 920
+      },
+      "imageFile": "rear-door-chsu-22g1-1-id-padded.jpg",
+      "imageSha256": "1ff6b465020cb6a628bb921d280882a26a1561d5b248f6fbe2a07849db9c0e63",
+      "areaFraction": 0.07348676383105295,
+      "reading": {
+        "value": "CHSU2051831",
+        "checkDigit": true
+      }
+    },
+    {
+      "id": "rear-door-chsu-22g1-1-id-hybrid",
+      "photo": "rear-door-chsu-22g1.jpg",
+      "repeat": 1,
+      "kind": "id",
+      "strategy": "hybrid",
+      "box": {
+        "top": 0,
+        "bottom": 0.375,
+        "left": 0.375,
+        "right": 0.76
+      },
+      "margin": 0.25,
+      "region": {
+        "x": 365,
+        "y": 0,
+        "width": 759,
+        "height": 496,
+        "outWidth": 1568,
+        "outHeight": 1024
+      },
+      "imageFile": "rear-door-chsu-22g1-1-id-hybrid.jpg",
+      "imageSha256": "a0c69f80bb96e6ac02b6101a04fad539c65aa15d1412fff5ef1d6c54be24e203",
+      "areaFraction": 0.2916046995835812,
+      "reading": {
+        "value": "CHSU2051831",
+        "checkDigit": true
+      }
+    },
+    {
+      "id": "rear-door-chsu-22g1-1-iso-regions",
+      "photo": "rear-door-chsu-22g1.jpg",
+      "repeat": 1,
+      "kind": "iso",
+      "strategy": "regions",
+      "box": {
+        "top": 0,
+        "bottom": 0.375,
+        "left": 0.5,
+        "right": 0.875
+      },
+      "margin": 0.25,
+      "region": {
+        "x": 533,
+        "y": 0,
+        "width": 738,
+        "height": 492,
+        "outWidth": 1568,
+        "outHeight": 1045
+      },
+      "imageFile": "rear-door-chsu-22g1-1-iso-regions.jpg",
+      "imageSha256": "a06a44a0192685acfb5886dfeb165db68e0d4b062ef1378e750cab6704426438",
+      "areaFraction": 0.28125,
+      "reading": {
+        "size_type_code": {
+          "type": "choice",
+          "value": "22G1",
+          "probabilities": {
+            "22G1": 1,
+            "22G0": 0,
+            "20G1": 0,
+            "20G0": 0,
+            "25G1": 0,
+            "22R1": 0,
+            "22R0": 0,
+            "22U1": 0,
+            "22U6": 0,
+            "22T6": 0,
+            "22T0": 0,
+            "22P1": 0,
+            "22P3": 0,
+            "22V1": 0,
+            "22B0": 0,
+            "22H0": 0,
+            "42G1": 0,
+            "42G0": 0,
+            "40G1": 0,
+            "45G1": 0,
+            "45G0": 0,
+            "42R1": 0,
+            "45R1": 0,
+            "45R0": 0,
+            "42U1": 0,
+            "45U1": 0,
+            "42P1": 0,
+            "42P3": 0,
+            "45P3": 0,
+            "42T6": 0,
+            "L5G1": 0,
+            "L2G1": 0,
+            "LEG1": 0,
+            "other": 0,
+            "unreadable": 0,
+            "not_visible": 0
+          },
+          "confidence": 1
+        }
+      }
+    },
+    {
+      "id": "rear-door-chsu-22g1-1-iso-native",
+      "photo": "rear-door-chsu-22g1.jpg",
+      "repeat": 1,
+      "kind": "iso",
+      "strategy": "native",
+      "box": {
+        "top": 0.25,
+        "bottom": 0.3,
+        "left": 0.63,
+        "right": 0.7
+      },
+      "margin": 0,
+      "region": {
+        "x": 826,
+        "y": 246,
+        "width": 93,
+        "height": 50,
+        "outWidth": 1568,
+        "outHeight": 843
+      },
+      "imageFile": "rear-door-chsu-22g1-1-iso-native.jpg",
+      "imageSha256": "929ed570a626233fc44f67e0f81b204ed37389ad6ff5b96238f23ed5d2c88826",
+      "areaFraction": 0.0036018367043426534,
+      "reading": {
+        "size_type_code": {
+          "type": "choice",
+          "value": "22G1",
+          "probabilities": {
+            "22G1": 1,
+            "22G0": 0,
+            "20G1": 0,
+            "20G0": 0,
+            "25G1": 0,
+            "22R1": 0,
+            "22R0": 0,
+            "22U1": 0,
+            "22U6": 0,
+            "22T6": 0,
+            "22T0": 0,
+            "22P1": 0,
+            "22P3": 0,
+            "22V1": 0,
+            "22B0": 0,
+            "22H0": 0,
+            "42G1": 0,
+            "42G0": 0,
+            "40G1": 0,
+            "45G1": 0,
+            "45G0": 0,
+            "42R1": 0,
+            "45R1": 0,
+            "45R0": 0,
+            "42U1": 0,
+            "45U1": 0,
+            "42P1": 0,
+            "42P3": 0,
+            "45P3": 0,
+            "42T6": 0,
+            "L5G1": 0,
+            "L2G1": 0,
+            "LEG1": 0,
+            "other": 0,
+            "unreadable": 0,
+            "not_visible": 0
+          },
+          "confidence": 1
+        }
+      }
+    },
+    {
+      "id": "rear-door-chsu-22g1-1-iso-padded",
+      "photo": "rear-door-chsu-22g1.jpg",
+      "repeat": 1,
+      "kind": "iso",
+      "strategy": "padded",
+      "box": {
+        "top": 0.25,
+        "bottom": 0.3,
+        "left": 0.63,
+        "right": 0.7
+      },
+      "margin": 0.35,
+      "region": {
+        "x": 794,
+        "y": 213,
+        "width": 157,
+        "height": 115,
+        "outWidth": 1568,
+        "outHeight": 1148
+      },
+      "imageFile": "rear-door-chsu-22g1-1-iso-padded.jpg",
+      "imageSha256": "5121be9f23b2366eebc391cee7ac0d1d982673551f216a4047ec04a6d0f92fd8",
+      "areaFraction": 0.013985196063850883,
+      "reading": {
+        "size_type_code": {
+          "type": "choice",
+          "value": "22G1",
+          "probabilities": {
+            "22G1": 1,
+            "22G0": 0,
+            "20G1": 0,
+            "20G0": 0,
+            "25G1": 0,
+            "22R1": 0,
+            "22R0": 0,
+            "22U1": 0,
+            "22U6": 0,
+            "22T6": 0,
+            "22T0": 0,
+            "22P1": 0,
+            "22P3": 0,
+            "22V1": 0,
+            "22B0": 0,
+            "22H0": 0,
+            "42G1": 0,
+            "42G0": 0,
+            "40G1": 0,
+            "45G1": 0,
+            "45G0": 0,
+            "42R1": 0,
+            "45R1": 0,
+            "45R0": 0,
+            "42U1": 0,
+            "45U1": 0,
+            "42P1": 0,
+            "42P3": 0,
+            "45P3": 0,
+            "42T6": 0,
+            "L5G1": 0,
+            "L2G1": 0,
+            "LEG1": 0,
+            "other": 0,
+            "unreadable": 0,
+            "not_visible": 0
+          },
+          "confidence": 1
+        }
+      }
+    },
+    {
+      "id": "rear-door-chsu-22g1-1-iso-hybrid",
+      "photo": "rear-door-chsu-22g1.jpg",
+      "repeat": 1,
+      "kind": "iso",
+      "strategy": "hybrid",
+      "box": {
+        "top": 0,
+        "bottom": 0.375,
+        "left": 0.5,
+        "right": 0.875
+      },
+      "margin": 0.25,
+      "region": {
+        "x": 533,
+        "y": 0,
+        "width": 738,
+        "height": 492,
+        "outWidth": 1568,
+        "outHeight": 1045
+      },
+      "imageFile": "rear-door-chsu-22g1-1-iso-hybrid.jpg",
+      "imageSha256": "a06a44a0192685acfb5886dfeb165db68e0d4b062ef1378e750cab6704426438",
+      "areaFraction": 0.28125,
+      "reading": {
+        "size_type_code": {
+          "type": "choice",
+          "value": "22G1",
+          "probabilities": {
+            "22G1": 1,
+            "22G0": 0,
+            "20G1": 0,
+            "20G0": 0,
+            "25G1": 0,
+            "22R1": 0,
+            "22R0": 0,
+            "22U1": 0,
+            "22U6": 0,
+            "22T6": 0,
+            "22T0": 0,
+            "22P1": 0,
+            "22P3": 0,
+            "22V1": 0,
+            "22B0": 0,
+            "22H0": 0,
+            "42G1": 0,
+            "42G0": 0,
+            "40G1": 0,
+            "45G1": 0,
+            "45G0": 0,
+            "42R1": 0,
+            "45R1": 0,
+            "45R0": 0,
+            "42U1": 0,
+            "45U1": 0,
+            "42P1": 0,
+            "42P3": 0,
+            "45P3": 0,
+            "42T6": 0,
+            "L5G1": 0,
+            "L2G1": 0,
+            "LEG1": 0,
+            "other": 0,
+            "unreadable": 0,
+            "not_visible": 0
+          },
+          "confidence": 1
+        }
+      }
+    },
+    {
+      "id": "rear-door-chsu-22g1-1-weights-regions",
+      "photo": "rear-door-chsu-22g1.jpg",
+      "repeat": 1,
+      "kind": "weights",
+      "strategy": "regions",
+      "box": {
+        "top": 0.25,
+        "bottom": 0.625,
+        "left": 0.375,
+        "right": 0.75
+      },
+      "margin": 0.25,
+      "region": {
+        "x": 369,
+        "y": 123,
+        "width": 738,
+        "height": 615,
+        "outWidth": 1568,
+        "outHeight": 1306
+      },
+      "imageFile": "rear-door-chsu-22g1-1-weights-regions.jpg",
+      "imageSha256": "7e05fe7c70440f103f0f4c060eda2e8fe13a334cb930dd694cca0f1a5e84be3f",
+      "areaFraction": 0.3515625,
+      "reading": {
+        "maxGross": {
+          "metric": {
+            "state": "read",
+            "value": 30440,
+            "certainty": "Likely"
+          },
+          "imperial": {
+            "state": "read",
+            "value": 67200,
+            "certainty": "Uncertain"
+          }
+        },
+        "tare": {
+          "metric": {
+            "state": "unclear",
+            "value": null,
+            "certainty": "Can't tell",
+            "dist": [
+              {
+                "0": 1
+              },
+              {
+                "0": 0.54,
+                "1": 0.46
+              },
+              {
+                "0": 0.07,
+                "1": 0.89,
+                "2": 0.01,
+                "none": 0.03
+              },
+              {
+                "0": 0.02,
+                "1": 0.05,
+                "2": 0.81,
+                "none": 0.12
+              },
+              {
+                "0": 0.03,
+                "2": 0.01,
+                "none": 0.96
+              }
+            ]
+          },
+          "imperial": {
+            "state": "read",
+            "value": 4630,
+            "certainty": "Likely"
+          }
+        },
+        "payload": {
+          "metric": {
+            "state": "read",
+            "value": 22380,
+            "certainty": "Likely"
+          },
+          "imperial": {
+            "state": "read",
+            "value": 66570,
+            "certainty": "Likely"
+          }
+        }
+      }
+    },
+    {
+      "id": "rear-door-chsu-22g1-1-weights-native",
+      "photo": "rear-door-chsu-22g1.jpg",
+      "repeat": 1,
+      "kind": "weights",
+      "strategy": "native",
+      "box": {
+        "top": 0.35,
+        "bottom": 0.45,
+        "left": 0.55,
+        "right": 0.74
+      },
+      "margin": 0,
+      "region": {
+        "x": 721,
+        "y": 344,
+        "width": 250,
+        "height": 99,
+        "outWidth": 1568,
+        "outHeight": 620
+      },
+      "imageFile": "rear-door-chsu-22g1-1-weights-native.jpg",
+      "imageSha256": "8d23b0d1db057ce4ffe5c4d6ea5b40b81319577b9fa56be6b63372c64d47216b",
+      "areaFraction": 0.019171066329565736,
+      "reading": {
+        "maxGross": {
+          "metric": {
+            "state": "read",
+            "value": 30480,
+            "certainty": "Likely"
+          },
+          "imperial": {
+            "state": "read",
+            "value": 67200,
+            "certainty": "Likely"
+          }
+        },
+        "tare": {
+          "metric": {
+            "state": "read",
+            "value": 2100,
+            "certainty": "Confident"
+          },
+          "imperial": {
+            "state": "read",
+            "value": 4630,
+            "certainty": "Likely"
+          }
+        },
+        "payload": {
+          "metric": {
+            "state": "read",
+            "value": 28380,
+            "certainty": "Uncertain"
+          },
+          "imperial": {
+            "state": "unclear",
+            "value": null,
+            "certainty": "Can't tell",
+            "dist": [
+              {
+                "0": 0.9857142857142857,
+                "7": 0.014285714285714287
+              },
+              {
+                "0": 0.011627906976744184,
+                "3": 0.011627906976744184,
+                "5": 0.02325581395348837,
+                "6": 0.011627906976744184,
+                "7": 0.9418604651162791
+              },
+              {
+                "3": 0.0273972602739726,
+                "4": 0.0136986301369863,
+                "5": 0.9178082191780821,
+                "6": 0.0136986301369863,
+                "7": 0.0136986301369863,
+                "none": 0.0136986301369863
+              },
+              {
+                "1": 0.02040816326530612,
+                "2": 0.5918367346938774,
+                "3": 0.04081632653061224,
+                "4": 0.02040816326530612,
+                "5": 0.14285714285714285,
+                "6": 0.10204081632653061,
+                "7": 0.02040816326530612,
+                "8": 0.02040816326530612,
+                "none": 0.04081632653061224
+              },
+              {
+                "1": 0.02040816326530612,
+                "2": 0.08163265306122448,
+                "3": 0.02040816326530612,
+                "4": 0.02040816326530612,
+                "5": 0.02040816326530612,
+                "6": 0.7959183673469388,
+                "none": 0.04081632653061224
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "id": "rear-door-chsu-22g1-1-weights-padded",
+      "photo": "rear-door-chsu-22g1.jpg",
+      "repeat": 1,
+      "kind": "weights",
+      "strategy": "padded",
+      "box": {
+        "top": 0.35,
+        "bottom": 0.45,
+        "left": 0.55,
+        "right": 0.74
+      },
+      "margin": 0.35,
+      "region": {
+        "x": 634,
+        "y": 257,
+        "width": 425,
+        "height": 274,
+        "outWidth": 1568,
+        "outHeight": 1010
+      },
+      "imageFile": "rear-door-chsu-22g1-1-weights-padded.jpg",
+      "imageSha256": "9b9037a96e3775e126f68472028c58eb115f9756af2b3fde28cc009a2d1dffaa",
+      "areaFraction": 0.09020083531628,
+      "reading": {
+        "maxGross": {
+          "metric": {
+            "state": "read",
+            "value": 30480,
+            "certainty": "Likely"
+          },
+          "imperial": {
+            "state": "read",
+            "value": 67200,
+            "certainty": "Likely"
+          }
+        },
+        "tare": {
+          "metric": {
+            "state": "read",
+            "value": 2100,
+            "certainty": "Likely"
+          },
+          "imperial": {
+            "state": "read",
+            "value": 4630,
+            "certainty": "Likely"
+          }
+        },
+        "payload": {
+          "metric": {
+            "state": "read",
+            "value": 22380,
+            "certainty": "Uncertain"
+          },
+          "imperial": {
+            "state": "read",
+            "value": 62570,
+            "certainty": "Uncertain"
+          }
+        }
+      }
+    },
+    {
+      "id": "rear-door-chsu-22g1-1-weights-hybrid",
+      "photo": "rear-door-chsu-22g1.jpg",
+      "repeat": 1,
+      "kind": "weights",
+      "strategy": "hybrid",
+      "box": {
+        "top": 0.25,
+        "bottom": 0.625,
+        "left": 0.375,
+        "right": 0.75
+      },
+      "margin": 0.25,
+      "region": {
+        "x": 369,
+        "y": 123,
+        "width": 738,
+        "height": 615,
+        "outWidth": 1568,
+        "outHeight": 1306
+      },
+      "imageFile": "rear-door-chsu-22g1-1-weights-hybrid.jpg",
+      "imageSha256": "7e05fe7c70440f103f0f4c060eda2e8fe13a334cb930dd694cca0f1a5e84be3f",
+      "areaFraction": 0.3515625,
+      "reading": {
+        "maxGross": {
+          "metric": {
+            "state": "read",
+            "value": 30440,
+            "certainty": "Likely"
+          },
+          "imperial": {
+            "state": "read",
+            "value": 67200,
+            "certainty": "Uncertain"
+          }
+        },
+        "tare": {
+          "metric": {
+            "state": "read",
+            "value": 2100,
+            "certainty": "Uncertain"
+          },
+          "imperial": {
+            "state": "read",
+            "value": 4630,
+            "certainty": "Likely"
+          }
+        },
+        "payload": {
+          "metric": {
+            "state": "read",
+            "value": 22380,
+            "certainty": "Likely"
+          },
+          "imperial": {
+            "state": "read",
+            "value": 66570,
+            "certainty": "Uncertain"
+          }
+        }
+      }
+    },
+    {
+      "id": "rear-door-chsu-22g1-1-seal-regions",
+      "photo": "rear-door-chsu-22g1.jpg",
+      "repeat": 1,
+      "kind": "seal",
+      "strategy": "regions",
+      "unavailable": true
+    },
+    {
+      "id": "rear-door-chsu-22g1-1-seal-native",
+      "photo": "rear-door-chsu-22g1.jpg",
+      "repeat": 1,
+      "kind": "seal",
+      "strategy": "native",
+      "unavailable": true
+    },
+    {
+      "id": "rear-door-chsu-22g1-1-seal-padded",
+      "photo": "rear-door-chsu-22g1.jpg",
+      "repeat": 1,
+      "kind": "seal",
+      "strategy": "padded",
+      "unavailable": true
+    },
+    {
+      "id": "rear-door-chsu-22g1-1-seal-hybrid",
+      "photo": "rear-door-chsu-22g1.jpg",
+      "repeat": 1,
+      "kind": "seal",
+      "strategy": "hybrid",
+      "unavailable": true
+    },
+    {
+      "id": "rear-door-chsu-22g1-1-hazard-regions",
+      "photo": "rear-door-chsu-22g1.jpg",
+      "repeat": 1,
+      "kind": "hazard",
+      "strategy": "regions",
+      "unavailable": true
+    },
+    {
+      "id": "rear-door-chsu-22g1-1-hazard-native",
+      "photo": "rear-door-chsu-22g1.jpg",
+      "repeat": 1,
+      "kind": "hazard",
+      "strategy": "native",
+      "unavailable": true
+    },
+    {
+      "id": "rear-door-chsu-22g1-1-hazard-padded",
+      "photo": "rear-door-chsu-22g1.jpg",
+      "repeat": 1,
+      "kind": "hazard",
+      "strategy": "padded",
+      "unavailable": true
+    },
+    {
+      "id": "rear-door-chsu-22g1-1-hazard-hybrid",
+      "photo": "rear-door-chsu-22g1.jpg",
+      "repeat": 1,
+      "kind": "hazard",
+      "strategy": "hybrid",
+      "unavailable": true
+    },
+    {
+      "id": "rear-door-chsu-22g1-1-doorEnd-regions",
+      "photo": "rear-door-chsu-22g1.jpg",
+      "repeat": 1,
+      "kind": "doorEnd",
+      "strategy": "regions",
+      "box": {
+        "top": 0,
+        "bottom": 1,
+        "left": 0,
+        "right": 0.75
+      },
+      "margin": 0.25,
+      "region": {
+        "x": 0,
+        "y": 0,
+        "width": 1230,
+        "height": 984,
+        "outWidth": 1568,
+        "outHeight": 1254
+      },
+      "imageFile": "rear-door-chsu-22g1-1-doorEnd-regions.jpg",
+      "imageSha256": "6c861519d8179c398b291c4e29bfc0315271856cd933c10cee719fa677e901bf",
+      "areaFraction": 0.9375
+    },
+    {
+      "id": "rear-door-chsu-22g1-1-doorEnd-native",
+      "photo": "rear-door-chsu-22g1.jpg",
+      "repeat": 1,
+      "kind": "doorEnd",
+      "strategy": "native",
+      "box": {
+        "top": 0.12,
+        "bottom": 0.89,
+        "left": 0.22,
+        "right": 0.78
+      },
+      "margin": 0,
+      "region": {
+        "x": 288,
+        "y": 118,
+        "width": 736,
+        "height": 758,
+        "outWidth": 1522,
+        "outHeight": 1568
+      },
+      "imageFile": "rear-door-chsu-22g1-1-doorEnd-native.jpg",
+      "imageSha256": "ee395415164c34a5da3610cfd079bba55942297d9325fa5cd431fc72ac57bc0a",
+      "areaFraction": 0.43213365060479875
+    },
+    {
+      "id": "rear-door-chsu-22g1-1-doorEnd-padded",
+      "photo": "rear-door-chsu-22g1.jpg",
+      "repeat": 1,
+      "kind": "doorEnd",
+      "strategy": "padded",
+      "box": {
+        "top": 0.12,
+        "bottom": 0.89,
+        "left": 0.22,
+        "right": 0.78
+      },
+      "margin": 0.35,
+      "region": {
+        "x": 23,
+        "y": 0,
+        "width": 1266,
+        "height": 984,
+        "outWidth": 1568,
+        "outHeight": 1218
+      },
+      "imageFile": "rear-door-chsu-22g1-1-doorEnd-padded.jpg",
+      "imageSha256": "b6d3828c7b47e96334d2bb08a4e019715797a9bd4816d97653f271383c4e6da3",
+      "areaFraction": 0.9649390243902439
+    },
+    {
+      "id": "rear-door-chsu-22g1-1-doorEnd-hybrid",
+      "photo": "rear-door-chsu-22g1.jpg",
+      "repeat": 1,
+      "kind": "doorEnd",
+      "strategy": "hybrid",
+      "box": {
+        "top": 0,
+        "bottom": 1,
+        "left": 0,
+        "right": 0.78
+      },
+      "margin": 0.25,
+      "region": {
+        "x": 0,
+        "y": 0,
+        "width": 1280,
+        "height": 984,
+        "outWidth": 1568,
+        "outHeight": 1205
+      },
+      "imageFile": "rear-door-chsu-22g1-1-doorEnd-hybrid.jpg",
+      "imageSha256": "c1952f7ccad9e4cc316d20cb214872ef959973c2a4edb0012a4f8338201c1479",
+      "areaFraction": 0.975609756097561
+    },
+    {
+      "id": "rear-door-chsu-22g1-2-id-regions",
+      "photo": "rear-door-chsu-22g1.jpg",
+      "repeat": 2,
+      "kind": "id",
+      "strategy": "regions",
+      "box": {
+        "top": 0.125,
+        "bottom": 0.375,
+        "left": 0.375,
+        "right": 0.625
+      },
+      "margin": 0.25,
+      "region": {
+        "x": 410,
+        "y": 41,
+        "width": 492,
+        "height": 410,
+        "outWidth": 1568,
+        "outHeight": 1306
+      },
+      "imageFile": "rear-door-chsu-22g1-2-id-regions.jpg",
+      "imageSha256": "4eaa35493a0e9721692c0bb214c762c5d43948a950512e4c8997fcbfca3130d3",
+      "areaFraction": 0.15625
+    }
+  ],
+  "policy": "regions: app margin .25; native: margin 0; padded: .35; hybrid: union of region and native then .25. Hybrid is research-only. All crops use app min-side fitting and original upright pixels."
+}
