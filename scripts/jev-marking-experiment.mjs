@@ -1,6 +1,6 @@
 // Research only: matched region/native/padded/hybrid crops. Keys never enter Chromium.
 import { readFileSync } from 'node:fs'
-import { mkdir, readFile, writeFile } from 'node:fs/promises'
+import { mkdir, readFile, unlink, writeFile } from 'node:fs/promises'
 import { resolve, dirname } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { createHash } from 'node:crypto'
@@ -11,12 +11,16 @@ const root = resolve(dirname(fileURLToPath(import.meta.url)), '..')
 const args = process.argv.slice(2)
 const option = (name, fallback) => (args.includes(name) ? args[args.indexOf(name) + 1] : fallback)
 const live = args.includes('--live')
+const resume = args.includes('--resume')
+const verifyResume = args.includes('--verify-resume')
+if (verifyResume && (!resume || !live)) throw new Error('--verify-resume needs --resume --live')
 const key = live
   ? args.includes('--key-stdin')
     ? readFileSync(0, 'utf8').trim()
     : process.env.OPENROUTER_API_KEY?.trim()
   : ''
-if (live && !key) throw new Error('Live mode needs transient OPENROUTER_API_KEY or --key-stdin')
+if (live && !key && !verifyResume)
+  throw new Error('Live mode needs transient OPENROUTER_API_KEY or --key-stdin')
 const repeats = Number(option('--repeats', '3'))
 if (!Number.isInteger(repeats) || repeats < 1 || repeats > 10) throw new Error('Use 1..10 repeats')
 const output = resolve(root, option('--output', `.scratch/markings-${Date.now()}`))
@@ -46,7 +50,7 @@ const descriptions = {
   doorEnd:
     'the complete container door end from corner post to corner post, including both door leaves',
 }
-const manifest = {
+let manifest = {
   schemaVersion: 1,
   mode: live ? 'live' : 'dry-run',
   recordedAt: new Date().toISOString(),
@@ -67,7 +71,17 @@ const server = await createServer({
 let browser
 try {
   await mkdir(output, { recursive: true })
-  await save('manifest.json', manifest)
+  if (resume) {
+    manifest = JSON.parse(await readFile(resolve(output, 'manifest.json'), 'utf8'))
+    if (
+      manifest.model !== model ||
+      manifest.repeats !== repeats ||
+      manifest.mode !== (live ? 'live' : 'dry-run')
+    )
+      throw new Error('Resume requires the original mode, model and repeat count')
+  } else {
+    await save('manifest.json', manifest)
+  }
   await server.listen()
   browser = await chromium.launch({
     headless: true,
@@ -173,6 +187,50 @@ try {
   const checkpoint = () =>
     writeFile(resolve(output, 'manifest.json'), JSON.stringify(scrub(manifest), null, 2) + '\n')
   const call = async (id, request, metadata) => {
+    const recordedRequest = {
+      ...request,
+      state: request.state.map((part) =>
+        typeof part === 'string' ? part : { imageFile: metadata.imageFile },
+      ),
+    }
+    if (resume) {
+      let prior
+      try {
+        prior = JSON.parse(await readFile(resolve(output, `${id}.json`), 'utf8'))
+      } catch (error) {
+        if (error.code !== 'ENOENT') throw error
+      }
+      if (!prior && manifest.runs.some((run) => run.id === id))
+        throw new Error(`Manifest references missing response ${id}; refusing a paid repeat`)
+      if (prior) {
+        if (
+          JSON.stringify(prior.request) !== JSON.stringify(recordedRequest) ||
+          prior.status !== (live ? 200 : null)
+        )
+          throw new Error(`Saved request ${id} differs or failed; inspect it before resuming`)
+        if (!manifest.runs.some((run) => run.id === id)) {
+          manifest.runs.push({
+            id,
+            file: `${id}.json`,
+            status: prior.status,
+            latencyMs: prior.latencyMs,
+            reportedCostUsd: prior.reportedCostUsd,
+          })
+          await checkpoint()
+        }
+        try {
+          await unlink(resolve(output, `${id}.pending.json`))
+        } catch (error) {
+          if (error.code !== 'ENOENT') throw error
+        }
+        return prior.response
+      }
+    }
+    if (verifyResume) throw new Error(`Resume verification reached first missing request: ${id}`)
+    // A process may stop after the provider receives a request but before its reply is saved.
+    // Keep a durable marker so a later run never silently pays for that request again.
+    if (live)
+      await save(`${id}.pending.json`, { id, state: 'billing-unknown-until-response-saved' })
     let response = null,
       status = null,
       failure = null
@@ -196,12 +254,6 @@ try {
         failure = 'Transport failed or timed out; no retry, billing unknown'
       }
     }
-    const recordedRequest = {
-      ...request,
-      state: request.state.map((part) =>
-        typeof part === 'string' ? part : { imageFile: metadata.imageFile },
-      ),
-    }
     const run = {
       id,
       ...metadata,
@@ -224,6 +276,7 @@ try {
       reportedCostUsd: run.reportedCostUsd,
     })
     await checkpoint()
+    if (live) await unlink(resolve(output, `${id}.pending.json`))
     console.log(JSON.stringify({ id, status, reportedCostUsd: run.reportedCostUsd }))
     if (failure || (status !== null && status !== 200))
       throw new Error('Stopped after failed live request; inspect saved credential-free evidence')
@@ -236,6 +289,15 @@ try {
     const stem = photo.replace('.jpg', '')
     const writeImage = async (file, dataUrl) => {
       const data = Buffer.from(dataUrl.split(',')[1], 'base64')
+      if (resume) {
+        try {
+          const existing = await readFile(resolve(output, file))
+          if (sha(existing) !== sha(data)) throw new Error(`Saved image ${file} differs`)
+          return sha(existing)
+        } catch (error) {
+          if (error.code !== 'ENOENT') throw error
+        }
+      }
       await writeFile(resolve(output, file), data, { flag: 'wx' })
       return sha(data)
     }
@@ -243,7 +305,7 @@ try {
       markedFile = `${stem}-marked.jpg`
     const preparedSha256 = await writeImage(preparedFile, prepared.dataUrl)
     await writeImage(markedFile, prepared.markedUrl)
-    manifest.photos.push({
+    const photoEntry = {
       photo,
       sourceSha256: sha(bytes),
       preparedSha256,
@@ -256,7 +318,11 @@ try {
         scaleX: prepared.sentSize.width / prepared.size.width,
         scaleY: prepared.sentSize.height / prepared.size.height,
       },
-    })
+    }
+    const previousPhoto = manifest.photos.find((entry) => entry.photo === photo)
+    if (previousPhoto && JSON.stringify(previousPhoto) !== JSON.stringify(photoEntry))
+      throw new Error(`Saved photo ${photo} differs`)
+    if (!previousPhoto) manifest.photos.push(photoEntry)
     for (let repeat = 1; repeat <= repeats; repeat++) {
       const prefix = `${stem}-${repeat}`
       const regionRequest = await bridge({
@@ -341,7 +407,7 @@ try {
             throw new Error('Synthetic crop bridge failed')
           dryChecks.push({ margin, region: crop.region })
         }
-        await save(`${prefix}-synthetic-dry-checks.json`, dryChecks)
+        if (!resume) await save(`${prefix}-synthetic-dry-checks.json`, dryChecks)
         continue
       }
       for (const kind of Object.keys(descriptions)) {
@@ -381,7 +447,8 @@ try {
         ]) {
           const id = `${prefix}-${kind}-${strategy}`
           if (!box) {
-            manifest.crops.push({ id, photo, repeat, kind, strategy, unavailable: true })
+            if (!manifest.crops.some((entry) => entry.id === id))
+              manifest.crops.push({ id, photo, repeat, kind, strategy, unavailable: true })
             await checkpoint()
             continue
           }
@@ -389,17 +456,18 @@ try {
           try {
             crop = await bridge({ op: 'crop', original, prepared: prepared.dataUrl, box, margin })
           } catch {
-            manifest.crops.push({
-              id,
-              photo,
-              repeat,
-              kind,
-              strategy,
-              box,
-              margin,
-              unavailable: true,
-              failure: 'Image crop/preparation rejected geometry; no read request sent',
-            })
+            if (!manifest.crops.some((entry) => entry.id === id))
+              manifest.crops.push({
+                id,
+                photo,
+                repeat,
+                kind,
+                strategy,
+                box,
+                margin,
+                unavailable: true,
+                failure: 'Image crop/preparation rejected geometry; no read request sent',
+              })
             await checkpoint()
             continue
           }
@@ -420,12 +488,17 @@ try {
               (crop.region.width * crop.region.height) /
               (prepared.size.width * prepared.size.height),
           }
-          manifest.crops.push(row)
+          const oldRow = manifest.crops.find((entry) => entry.id === id)
+          if (oldRow) {
+            const { reading: _reading, ...oldGeometry } = oldRow
+            if (JSON.stringify(oldGeometry) !== JSON.stringify(row))
+              throw new Error(`Saved crop ${id} differs`)
+          } else manifest.crops.push(row)
           await checkpoint()
           if (['hazard', 'doorEnd'].includes(kind)) continue
           const request = await bridge({ op: 'request', kind, dataUrl: crop.dataUrl })
           const response = await call(id, request, { photo, repeat, kind, strategy, imageFile })
-          row.reading = await bridge({ op: 'read', kind, raw: response })
+          ;(oldRow ?? row).reading = await bridge({ op: 'read', kind, raw: response })
           await checkpoint()
         }
       }
