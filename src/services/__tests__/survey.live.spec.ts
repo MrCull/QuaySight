@@ -1,7 +1,6 @@
 // Opt-in live smoke test for the survey's container details (ticket #32): the COYU 22G1 photo.
 // Makes up to three real, chargeable survey requests on samples/rear-door-coyu-22g1.jpg (1079 x 1080):
 //   - GPT-6 Luna, OpenAI direct            (needs OPENAI_API_KEY)
-//   - GPT-6 Luna Decisions, via OpenRouter (needs OPENROUTER_API_KEY)
 //   - Jev latest, via OpenRouter           (needs OPENROUTER_API_KEY)
 // Keys are supplied at run time and never stored in the repo:
 //   Bash: OPENAI_API_KEY='<key>' OPENROUTER_API_KEY='<key>' npx vitest run src/services/__tests__/survey.live.spec.ts
@@ -81,16 +80,6 @@ describe('COYU 22G1 survey details live smoke test (opt-in, chargeable)', () => 
     'GPT-6 Luna on OpenAI reads 22G1 and decodes it',
     async () => {
       const details = await surveyOn('luna', LUNA_MODEL, openAiKey)
-      expect(details.sizeCode.state).toBe('read')
-      expectCoyuDetails(details)
-    },
-    120_000,
-  )
-
-  it.skipIf(!openRouterKey)(
-    'GPT-6 Luna Decisions through OpenRouter reads 22G1 and decodes it',
-    async () => {
-      const details = await surveyOn('openrouter', 'openai/gpt-6-luna-decisions', openRouterKey)
       expect(details.sizeCode.state).toBe('read')
       expectCoyuDetails(details)
     },

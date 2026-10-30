@@ -38,6 +38,10 @@ describe('remembered provider and model', () => {
         model: '~typesafe/jev-latest',
       },
     )
+    // GPT-6 Luna Decisions, as remembered before it left OpenRouter's models (25 Oct 2026).
+    expect(
+      readRememberedSelection('{"provider":"openrouter","model":"openai/gpt-6-luna-decisions"}'),
+    ).toEqual({ provider: 'openrouter', model: '~typesafe/jev-latest' })
     expect(readRememberedSelection('{"provider":"luna","model":"~typesafe/jev-latest"}')).toEqual({
       provider: 'luna',
       model: 'gpt-6-luna',

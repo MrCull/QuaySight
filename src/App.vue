@@ -17,6 +17,7 @@ import NewInspectionAction from './components/NewInspectionAction.vue'
 import DemoBanner from './components/DemoBanner.vue'
 import SamplePicker from './components/SamplePicker.vue'
 import RunChip from './components/RunChip.vue'
+import ThemeToggle from './components/ThemeToggle.vue'
 
 const store = useInspectionStore()
 const setup = useSetupStore()
@@ -57,13 +58,14 @@ const showDamageView = computed(
           <span class="qs-brand"><i class="qs-logo" aria-hidden="true"></i>Quay Sight</span>
           <span class="rs-crumb">Container inspection</span>
         </div>
-        <template v-if="setup.view === 'inspection'">
-          <!-- The centre slot keeps its place when New inspection is hidden, so the right side never moves. -->
-          <div class="rs-top__centre">
-            <NewInspectionAction v-if="store.showNewInspection" />
-          </div>
-          <!-- Muted technical details on the right. Demo mode has no provider settings: the banner's Connect a provider is the way to one. -->
-          <div class="rs-top__meta">
+        <!-- The centre slot keeps its place when New inspection is hidden, so the right side never moves. -->
+        <div class="rs-top__centre">
+          <NewInspectionAction v-if="setup.view === 'inspection' && store.showNewInspection" />
+        </div>
+        <!-- Muted technical details on the right, then the theme toggle in the corner on every view. Demo mode
+             has no provider settings: the banner's Connect a provider is the way to one. -->
+        <div class="rs-top__meta">
+          <template v-if="setup.view === 'inspection'">
             <SettingsChip v-if="!store.demo" />
             <RunChip
               v-if="recordedRun"
@@ -71,8 +73,9 @@ const showDamageView = computed(
               :model="recordedRun.model"
             />
             <CostIndicator />
-          </div>
-        </template>
+          </template>
+          <ThemeToggle />
+        </div>
       </header>
       <DemoBanner v-if="setup.view === 'inspection' && store.demo" />
     </div>

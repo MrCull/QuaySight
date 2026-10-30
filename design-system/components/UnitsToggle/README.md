@@ -17,6 +17,6 @@ The units toggle switches the Container details readings between **Metric** and 
 Tab to the group, then Tab between the two buttons; Space or Enter presses. Focus uses the shared 2px `focus-ring`, drawn inside the option (`outline-offset: -2px`) because the group clips anything outside its own edge.
 
 ## Rules
-- Brand teal marks the pressed option, as for any chosen control. It never means a status.
+- The brand colour marks the pressed option, as for any chosen control. It never means a status.
 - No colour from the certainty, severity or hazard axes.
 - Sentence case words, no icons for the units themselves.

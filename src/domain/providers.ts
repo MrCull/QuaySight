@@ -139,23 +139,10 @@ export const providers: ProviderInfo[] = [
         movingTarget: false,
         recommended: false,
       },
-      {
-        // GPT-6 Luna on OpenRouter's Decisions endpoint (ticket #23). Asked the Luna question set, not
-        // Jev's (see questionSetOf). A moving alias: it resolved to the dated snapshot
-        // openai/gpt-6-luna-decisions-20261006 on 16 Oct 2026 (spec #27).
-        id: 'openai/gpt-6-luna-decisions',
-        note: null,
-        displayName: 'GPT-6 Luna Decisions',
-        maker: 'OpenAI',
-        route: 'openrouter',
-        wireFormat: 'openrouter-decisions',
-        // Luna takes no box question.
-        probabilities: true,
-        box: false,
-        photoLimits: LUNA_LIMITS,
-        movingTarget: true,
-        recommended: false,
-      },
+      // GPT-6 Luna Decisions through OpenRouter (openai/gpt-6-luna-decisions, ticket #23) is not offered:
+      // OpenRouter fails a whole request when Luna refuses one question, which it often does on a close-up,
+      // where OpenAI direct marks just that question refused. Luna is offered direct only. See
+      // docs/research/openrouter-luna-refusals-2026-10-25.md.
     ],
   },
   {

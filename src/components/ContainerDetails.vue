@@ -2,7 +2,7 @@
 import { computed } from 'vue'
 import type { InspectionRecord } from '../domain/inspection'
 import { lengthInDoubt } from '../domain/shapeLength'
-import { detailGroups } from './containerDetailRows'
+import { DETAIL_GLYPH, detailGroups } from './containerDetailRows'
 import CertaintyChip from './CertaintyChip.vue'
 import UnitsToggle from './UnitsToggle.vue'
 import { causeSentence } from '../domain/requestFailure'
@@ -35,8 +35,9 @@ const assessed = computed(
 )
 
 // The survey was asked and failed: say the details could not be read, which is not the same as not asked.
+// Not when another photo read them: that photo's notice names the one that failed.
 const detailsFailure = computed(() =>
-  props.record.failures?.find((f) => f.stages.includes('details')),
+  assessed.value ? undefined : props.record.failures?.find((f) => f.stages.includes('details')),
 )
 
 // Each value keeps its source label: Printed, Decoded from ISO, Calculated or Model-selected (spec 4.3, 4.4).
@@ -66,7 +67,14 @@ const notAssessed = computed(() => groups.value.flatMap((g) => g.notAssessed ?? 
     </p>
     <template v-else-if="assessed">
       <div v-for="row in rows" :key="row.label" class="qs-field">
-        <span class="qs-field__label">{{ row.label }}</span>
+        <span :class="['qs-field__label', { 'qs-field__label--glyph': DETAIL_GLYPH[row.label] }]">
+          <i
+            v-if="DETAIL_GLYPH[row.label]"
+            :class="['qs-glyph', `qs-glyph--${DETAIL_GLYPH[row.label]}`]"
+            aria-hidden="true"
+          ></i
+          >{{ row.label }}
+        </span>
         <span :class="['qs-field__value', { 'qs-field__value--absent': row.value === null }]">
           <template v-if="row.value !== null">
             {{ row.value }}

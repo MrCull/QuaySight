@@ -11,8 +11,7 @@ import { survey } from '../../plan/requests/survey'
 import { idRecheck } from '../../plan/requests/idRecheck'
 
 // Ticket #42: the 4th letter is U, and a reading that passes the check digit ranks first.
-const KEY = 'test-only-openrouter-key-0000'
-const MODEL = 'openai/gpt-6-luna-decisions'
+const KEY = 'test-only-openai-key-0000'
 const CHECK_DIGIT_ALGORITHM = /modulo|remainder|A=10|multiply/i
 
 type Probabilities = Record<string, number>
@@ -26,15 +25,19 @@ function json(body: unknown): Response {
   })
 }
 
-/** An OpenRouter Luna Decisions reply that reads `id`, with the given positions (1-based) overridden. */
+/** An OpenAI Luna Decisions reply that reads `id`, with the given positions (1-based) overridden. */
 function lunaReply(id: string, at: Record<number, Probabilities> = {}) {
-  const answers: Record<string, unknown> = {}
-  id.split('').forEach((ch, i) => {
+  const answers = id.split('').map((ch, i) => {
     const p = at[i + 1] ?? { [ch]: 0.97, [i < 4 ? 'Z' : ch === '9' ? '8' : '9']: 0.03 }
-    const choice = Object.entries(p).sort((a, b) => b[1] - a[1])[0]![0]
-    answers[questionName(i + 1)] = { type: 'choice', choice, probabilities: p, confidence: 0.9 }
+    const sorted = Object.entries(p).sort((a, b) => b[1] - a[1])
+    return {
+      type: 'choice',
+      name: questionName(i + 1),
+      choice: sorted[0]![0],
+      probabilities: sorted.map(([value, probability]) => ({ value, probability })),
+    }
   })
-  return { model: 'openai/gpt-6-luna-decisions-20261006', answers, usage: { cost: 0.0003 } }
+  return { model: 'gpt-6-luna', answers, usage: { input_tokens: 6200, output_tokens: 0 } }
 }
 
 let restoreRequests = () => {}
@@ -59,8 +62,7 @@ describe('container ID candidates through a live Luna run', () => {
   async function run(reply: unknown) {
     fetchMock.mockResolvedValue(json(reply))
     const store = useInspectionStore()
-    store.setProvider('openrouter')
-    store.setModel(MODEL)
+    store.setProvider('luna')
     store.setApiKey(KEY)
     store.setPhoto({
       name: 'coyu.jpg',
@@ -79,8 +81,9 @@ describe('container ID candidates through a live Luna run', () => {
     await run(lunaReply('COYU2668130'))
 
     const raw = String(fetchMock.mock.calls[0]![1]?.body)
-    const body = JSON.parse(raw) as { state: [string] }
-    expect(body.state[0]).toContain('fourth letter of the four-letter group is always U')
+    const body = JSON.parse(raw) as { input: { content: { type: string; text?: string }[] }[] }
+    const text = body.input.flatMap((m) => m.content.map((part) => part.text ?? '')).join('\n')
+    expect(text).toContain('fourth letter of the four-letter group is always U')
     expect(raw).not.toMatch(CHECK_DIGIT_ALGORITHM)
   })
 

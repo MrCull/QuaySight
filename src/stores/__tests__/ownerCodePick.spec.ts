@@ -12,8 +12,7 @@ import { idRecheck } from '../../plan/requests/idRecheck'
 
 // Ticket #43: one whole-prefix question over the common owner codes, combined with the letter readings.
 // The 16 Oct 2026 CAXU sample: Luna read CXXX 6.2211 9 and Jev read CAXU 692110 9.
-const KEY = 'test-only-openrouter-key-0000'
-const MODEL = 'openai/gpt-6-luna-decisions'
+const KEY = 'test-only-openai-key-0000'
 
 const questionName = (position: number) => `id_char_${String(position).padStart(2, '0')}`
 
@@ -24,22 +23,29 @@ function json(body: unknown): Response {
   })
 }
 
-/** An OpenRouter Luna reply that reads `id` letter by letter and answers the owner-code question. */
+/** An OpenAI Luna reply that reads `id` letter by letter and answers the owner-code question. */
 function lunaReply(id: string, owner?: { choice: string; probability: number }) {
-  const answers: Record<string, unknown> = {}
-  id.split('').forEach((ch, i) => {
-    const p = { [ch]: 0.97, [i < 4 ? 'Z' : ch === '9' ? '8' : '9']: 0.03 }
-    answers[questionName(i + 1)] = { type: 'choice', choice: ch, probabilities: p, confidence: 0.9 }
-  })
+  const answers: unknown[] = id.split('').map((ch, i) => ({
+    type: 'choice',
+    name: questionName(i + 1),
+    choice: ch,
+    probabilities: [
+      { value: ch, probability: 0.97 },
+      { value: i < 4 ? 'Z' : ch === '9' ? '8' : '9', probability: 0.03 },
+    ],
+  }))
   if (owner) {
-    answers.owner_code = {
+    answers.push({
       type: 'choice',
+      name: 'owner_code',
       choice: owner.choice,
-      probabilities: { [owner.choice]: owner.probability, other: 1 - owner.probability },
-      confidence: owner.probability,
-    }
+      probabilities: [
+        { value: owner.choice, probability: owner.probability },
+        { value: 'other', probability: 1 - owner.probability },
+      ],
+    })
   }
-  return { model: 'openai/gpt-6-luna-decisions-20261006', answers, usage: { cost: 0.0003 } }
+  return { model: 'gpt-6-luna', answers, usage: { input_tokens: 6200, output_tokens: 0 } }
 }
 
 let restoreRequests = () => {}
@@ -64,8 +70,7 @@ describe('owner code picked from the list, through a live Luna run', () => {
   async function run(reply: unknown) {
     fetchMock.mockResolvedValue(json(reply))
     const store = useInspectionStore()
-    store.setProvider('openrouter')
-    store.setModel(MODEL)
+    store.setProvider('luna')
     store.setApiKey(KEY)
     store.setPhoto({
       name: 'caxu.jpg',
@@ -81,11 +86,11 @@ describe('owner code picked from the list, through a live Luna run', () => {
     await run(lunaReply('CAXU6921109'))
 
     const body = JSON.parse(String(fetchMock.mock.calls[0]![1]?.body)) as {
-      questions: Record<string, { instructions: string; criteria: Record<string, unknown> }>
+      questions: { name: string; instructions: string; choices: { value: string }[] }[]
     }
-    const ask = body.questions.owner_code!
+    const ask = body.questions.find((q) => q.name === 'owner_code')!
     expect(ask.instructions).toContain('owner code')
-    expect(Object.keys(ask.criteria)).toEqual(['none', ...OFFERED_OWNER_CODES])
+    expect(ask.choices.map((c) => c.value)).toEqual(['none', ...OFFERED_OWNER_CODES])
   })
 
   it('uses a Likely-or-better list pick as the owner code over the letters', async () => {

@@ -4,12 +4,12 @@ The Quay Sight mark is the **corner casting**: the cast steel corner every conta
 
 | File | Use |
 | --- | --- |
-| `quay-sight-mark.svg` | The mark in `brand` teal for light grounds (Daylight), `#007f7a`. |
+| `quay-sight-mark.svg` | The mark in `brand` navy for light grounds (Daylight), `#14315e`. |
 | `quay-sight-mark-on-dark.svg` | The mark in `brand` teal for dark grounds (Night quay), `#2ed3c6`. |
 | `quay-sight-mark-black.svg` | One-colour `ink` (`#0f1722`) for print and single-colour use on light grounds. |
 | `quay-sight-mark-white.svg` | One-colour white for photos and dark single-colour use. |
 | `quay-sight-app-icon.svg` | The mark in white on a rounded `brand` tile: home-screen and app icons. |
-| `favicon.svg` | Browser-tab icon; switches between the two teals with the browser's colour scheme. |
+| `favicon.svg` | Browser-tab icon; switches between the two brand colours with the browser's colour scheme. |
 
 In the interface, use the `.qs-logo` class from `components/bundle.css` instead of these files: it is the same mark as a mask in `currentColor`, `brand` by default (`.qs-logo--ink` for ink, `--sm` 20px, `--lg` 64px). `.qs-brand` sets the mark beside the name.
 

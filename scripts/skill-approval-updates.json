@@ -1,0 +1,17 @@
+[
+  {
+    "path": "productivity/grilling/SKILL.md",
+    "before": "The session is done when the frontier is empty: every branch of the design tree visited, nothing left silently assumed. Do not act on it until the user confirms you have reached a shared understanding.",
+    "after": "The session is done when the frontier is empty: every branch of the design tree visited, nothing left silently assumed. A user's acceptance of the recommendations, approval of the summary, or explicit instruction to take the next step confirms shared understanding. Carry that approval forward within its scope. Ask a final confirmation only when a material decision remains unsettled; otherwise state the agreed outcome and follow the user's authorised next step."
+  },
+  {
+    "path": "engineering/to-spec/SKILL.md",
+    "before": "Check with the user that these seams match their expectations.",
+    "after": "Carry forward testing seams already approved in this conversation. State them in the spec and proceed without another checkpoint. If a seam is new or materially changes an approved approach, prepare the concrete proposal and check only that change with the user before publication."
+  },
+  {
+    "path": "engineering/to-tickets/SKILL.md",
+    "before": "Iterate until the user approves the breakdown.",
+    "after": "Iterate until the user approves the breakdown. Approval of a spec does not by itself approve a newly proposed ticket breakdown. If the exact breakdown and blocking edges were already approved in this conversation, carry that approval forward and publish without asking again. Recheck only material changes to ticket scope or blocking edges."
+  }
+]
