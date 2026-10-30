@@ -1,8 +1,20 @@
 # Jev localisation implementation handover — 30 October 2026
 
-User requested an immediate handover because the agent credit limit was near. Work is **incomplete**. Resume the approved spec; do not restart research or claim unfinished tickets are complete.
+Work is **incomplete**. Resume the approved spec; do not restart research or claim unfinished tickets are complete. The update below supersedes the historical checkpoint details that follow it.
 
-## Starting points and branch state
+## Latest update — consolidated `try-box`
+
+- At this update the integration branch is `try-box`, at `59ee447` before this handover commit, pushed to `origin/try-box`. The user requested a single working branch: all five extra worktrees were removed, and the #118, #120 and #121 checkpoint branches were merged into `try-box` in `88a64ca`. Do not remerge or reset them. Check Git status and remote state before resuming.
+- #116 and #117 were completed and closed. #118–#123 remain unfinished; confirm current GitHub issue state before closing anything. Work on #118, #119, #120 and #121 is already present on `try-box`; #122 and #123 still need investigation/final validation. The earlier references below to unmerged worktrees, a single-target implementation and an unfixed marking runner are historical.
+- Damage localisation is optional, default-on, and gated by the provider catalogue to Jev 1.14 and the supported latest alias. Jev 1.13 and Luna do not receive Box questions. One optional request per eligible photo batches separate presence and Box questions for distinct assessed findings; a rejected or missing location leaves the finding intact. Present locations as approximate focal highlights, never as proof of damage or complete defect boundaries. Numbered-region marking crops remain in use.
+- `d279c2a` added batching. `a885fcb` fixed a cancellation hang when an optional request waited for other photos: cancellation now settles it without a charge. Tests cover independent rejected batch answers, no Box questions for unsupported models, caps, replay, export and cancellation. `18578ad` adds a browser test opening each of two observations and checking its highlight disappears when viewing the other photo.
+- `7be844d` adds results to the #120 crop report. The 81-call experiment found no evidence for adding a second crop localisation request on these samples; originals were already small enough to fit the provider. This does not settle whether cropping helps larger photos.
+- `85aec69` fixes the #121 runner crash for incomplete IDs. `29f4181` adds resume with saved-request and image checks, plus pending markers for new live calls to prevent silent repeats after interruption. Credential-free verification on a copy replayed the 57 saved responses and stopped at the first missing request, `rear-door-chsu-22g1-2-id-native`; the prior ID was `CHSU???????` with unknown check digit. Existing evidence predates pending markers. The remaining live comparison is incomplete. See the marking report for resume instructions; do not overwrite original evidence or repeat paid responses.
+- Validation after consolidation: `npm run check` passed after `a885fcb` (existing lint and bundle warnings); 63 focused unit tests passed. Photo viewer: 8 browser tests passed. Multi-photo: 6 existing browser tests and the new two-direction highlight test passed. A clean full unit run at `a885fcb` had 22 failures: 21 matching the original baseline plus a stale Jev question-order assertion. `59ee447` corrected that assertion and its 25-test suite passed; the whole suite has not been rerun since. Logs are local scratch only (`.scratch/current-unit.log`, `.scratch-baseline.log`) and may not survive. The project gate does not run tests.
+- Next: review the implementation and remaining ticket acceptance criteria, validate full unit/e2e and screenshots as appropriate, finish or clearly report the marking and reference-image experiments, verify unsupported-provider compatibility and multi-photo/replay/cost/cancellation behaviour, then complete the final review and close issues only when justified. Live research was authorised earlier, but no key is stored in the repository or persistent environment. Keep credentials out of source, logs, recordings and exports.
+- The user asked to keep pushing completed work to `try-box` and to avoid permission prompts. Follow the current session's actual sandbox policy; do not rely on historical environment claims below.
+
+## Historical checkpoint — superseded branch state
 
 - Repository: MrCull/QuaySight. Integration branch: `try-box`, completed implementation tip `46ab4f6` before this handover commit.
 - Spec: [GitHub #115](https://github.com/MrCull/QuaySight/issues/115), local [approved specification](jev-box-localisation-spec.md). Read AGENTS.md, the original product spec, design-system guidance and docs/agents/fast-and-cheap.md.
@@ -17,7 +29,7 @@ User requested an immediate handover because the agent credit limit was near. Wo
 
 All three branches start at integration `46ab4f6`. Worktrees are retained for continuation, with dependency junctions where agents created them. Earlier completed-ticket worktrees also remain. Do not delete worktrees until work has been reviewed/integrated. Check actual Git status before further changes.
 
-## Approved task graph and constraints
+## Historical task graph and constraints
 
 Native GitHub subissues/dependencies of #115 are authoritative:
 
