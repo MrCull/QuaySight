@@ -95,11 +95,11 @@ describe('provider catalogue: model declarations', () => {
     }
   })
 
-  it('gives every Jev model 256–1,568 px per side and 78,400–2,458,624 px in total', () => {
+  it('gives every Jev model 280–1,568 px per side and 78,400–2,458,624 px in total', () => {
     for (const id of ['~typesafe/jev-latest', 'typesafe/jev-1.14', 'typesafe/jev-1.13']) {
       expect(findModel('openrouter', id)?.photoLimits).toEqual({
         maxSide: 1568,
-        minSide: 256,
+        minSide: 280,
         maxPixels: 2_458_624,
         minPixels: 78_400,
       })

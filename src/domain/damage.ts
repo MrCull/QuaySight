@@ -98,6 +98,21 @@ export interface DamageFinding {
   surfaceWear?: boolean
   /** The photos (1-based) the damage was seen in, when the inspection has several photos. */
   photos?: number[]
+  /** Independent photo observations grouped for presentation; not a physical-defect identity claim. */
+  observations?: DamageObservation[]
+}
+
+/** Classification evidence in its original photo-relative region, before cross-photo agreement. */
+export interface DamageObservation {
+  /** Stable within a photo's region/component, independent of card ordering and run id. */
+  id: string
+  findingId: number
+  /** Null when the source photograph was not supplied; never guessed from another finding. */
+  photo: { name: string; index?: number } | null
+  passId: string | null
+  /** Optional focal highlight, never a complete defect boundary or classification. */
+  localisation?: DamageLocalisation
+  evidence: Omit<DamageFinding, 'observations' | 'photos'>
 }
 
 /** One photo-relative zone a damage set judged, with how well it could be seen. */
@@ -221,4 +236,14 @@ export function sortFindings(findings: DamageFinding[]): DamageFinding[] {
         (b.severity ? SEVERITY_RANK[b.severity] : UNRATED_RANK) ||
       a.id - b.id,
   )
+}
+
+export interface DamageLocalisation {
+  box: { top: number; bottom: number; left: number; right: number }
+  presence: number
+  confidence: number
+  coordinateSpace: 'upright-original'
+  passId: string
+  target: string
+  resolvedModel: string
 }

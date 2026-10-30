@@ -80,6 +80,8 @@ test.describe('continue', () => {
     await page.keyboard.press('Tab')
     await expect(card.getByRole('button', { name: 'Clear' })).toBeFocused()
     await page.keyboard.press('Tab')
+    await expect(card.getByRole('checkbox', { name: 'Experimental damage highlights' })).toBeFocused()
+    await page.keyboard.press('Tab')
     await expect(card.getByRole('button', { name: 'Continue' })).toBeFocused()
     // Then the demo entry under the card.
     await page.keyboard.press('Tab')

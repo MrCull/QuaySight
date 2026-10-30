@@ -165,7 +165,7 @@ describe('photo preparation before a live call', () => {
     expect(ledger.entries()).toHaveLength(0)
     expect(store.status).toBe('failed')
     expect(store.errorMessage).toBe(
-      'This photo is 200 × 150 px. Jev latest needs at least 256 px on each side. Choose a larger photo.',
+      'This photo is 200 × 150 px. Jev latest needs at least 280 px on each side. Choose a larger photo.',
     )
     expect(store.photo?.url).toBe('blob:original')
   })
@@ -200,7 +200,7 @@ describe('photo preparation before a live call', () => {
 
     expect(fetchMock).not.toHaveBeenCalled()
     expect(store.errorMessage).toBe(
-      'This photo is 6000 × 400 px, too long and narrow for Jev latest: shrunk to 1568 px on its long side, its short side would be under 256 px. Crop it closer to the container, then try again.',
+      'This photo is 6000 × 400 px, too long and narrow for Jev latest: shrunk to 1568 px on its long side, its short side would be under 280 px. Crop it closer to the container, then try again.',
     )
   })
 })

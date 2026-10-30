@@ -24,3 +24,5 @@ The catalogue: id, display name, vendor, API name, a two-letter monogram, whethe
 - Each provider keeps its own key. Switching provider never moves a key.
 - Never pre-fill a key in screenshots or samples.
 - The key-format warning names the provider and the expected prefix only. It never repeats the key or any part of it, and it is never coloured with certainty, severity, hazard or error tokens.
+
+The shared form also offers **Experimental damage highlights**, checked by default. This in-memory preference affects subsequent inspections and does not bypass presence or geometry checks. The hint explains approximate focal areas and possible small added charge.

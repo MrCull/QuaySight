@@ -1,6 +1,8 @@
 import { test, expect, type Page } from '@playwright/test'
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
+import { doorReply, keyedReply, openAiShape } from '../src/__tests__/planReplies'
+import { openRouterSurveyReply } from '../src/__tests__/surveyReplies'
 
 /**
  * Several photos of one container (ticket #70): the intake takes more than one photo, each photo shows the
@@ -58,6 +60,93 @@ async function openWithTwoPhotos(page: Page, files: string[] = photos) {
 
 test.describe('Several photos of one container', () => {
   test.use({ viewport: { width: 1440, height: 900 } })
+
+  test('shows each located observation only on its own photograph', async ({ page }) => {
+    await page.route(/openrouter.ai\/api\/alpha\/decisions/, async (route) => {
+      const body = route.request().postData() ?? ''
+      const response = body.includes('target_box')
+        ? keyedReply({
+            target_present: { type: 'noul', noul: 0.95 },
+            target_box: {
+              type: 'box',
+              confidence: 0.7,
+              box: { top: 0.55, bottom: 0.8, left: 0.6, right: 0.9 },
+            },
+          })
+        : body.includes('D1T_DT')
+          ? doorReply()
+          : openRouterSurveyReply('COYU2668130', {
+              details: { photo_face: [['rear_doors', 0.96]] },
+            })
+      await route.fulfill({
+        status: 200,
+        contentType: 'application/json',
+        body: JSON.stringify(response),
+      })
+    })
+    await page.goto('/')
+    const key = page.getByLabel('OpenRouter API key', { exact: true })
+    await key.fill(PLACEHOLDER_KEY)
+    await key.press('Enter')
+    await page.locator('input[type="file"]').setInputFiles(photos)
+    await expect(page.locator('#stage.qs-arrived')).toBeVisible()
+    const sources = page.getByRole('button', { name: /^View photo [12]:/ })
+    await expect(sources).toHaveCount(2)
+    await sources.nth(1).click()
+    const dialog = page.getByRole('dialog')
+    await expect(dialog.locator('img')).toHaveAttribute(
+      'alt',
+      `Container photo 2: ${path.basename(photos[1]!)}`,
+    )
+    await expect(dialog.getByLabel('Approximate damage highlight')).toBeVisible()
+    await dialog.getByRole('button', { name: 'Previous photo' }).click()
+    await expect(dialog.locator('img')).toHaveAttribute(
+      'alt',
+      `Container photo 1: ${path.basename(photos[0]!)}`,
+    )
+    await expect(dialog.getByLabel('Approximate damage highlight')).toHaveCount(0)
+    await page.keyboard.press('Escape')
+    await sources.nth(0).click()
+    await expect(dialog.locator('img')).toHaveAttribute(
+      'alt',
+      `Container photo 1: ${path.basename(photos[0]!)}`,
+    )
+    await expect(dialog.getByLabel('Approximate damage highlight')).toBeVisible()
+    await dialog.getByRole('button', { name: 'Next photo' }).click()
+    await expect(dialog.getByLabel('Approximate damage highlight')).toHaveCount(0)
+  })
+
+  test('opens each damage observation on its own source photo and returns focus', async ({
+    page,
+  }) => {
+    await page.route(/api\.openai\.com\/v1\/decisions/, async (route) => {
+      const body = route.request().postData() ?? ''
+      const reply = body.includes('D1T_DT')
+        ? openAiShape(doorReply())
+        : surveyReply('COYU2668130', 'rear_doors')
+      await route.fulfill({
+        status: 200,
+        contentType: 'application/json',
+        body: JSON.stringify(reply),
+      })
+    })
+    await openWithTwoPhotos(page)
+    const sources = page.getByRole('button', { name: /^View photo [12]:/ })
+    await expect(sources).toHaveCount(2)
+    for (const index of [1, 0]) {
+      const source = sources.nth(index)
+      await source.click()
+      const dialog = page.getByRole('dialog')
+      await expect(dialog).toBeVisible()
+      await expect(dialog.locator('img')).toHaveAttribute(
+        'alt',
+        `Container photo ${index + 1}: ${path.basename(photos[index]!)}`,
+      )
+      await page.keyboard.press('Escape')
+      await expect(dialog).toHaveCount(0)
+      await expect(source).toBeFocused()
+    }
+  })
 
   test('takes several photos at once and refuses more than five', async ({ page }) => {
     await answerWith(page, ['COYU2668130'])

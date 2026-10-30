@@ -152,6 +152,7 @@ const freshRetry = (): ManifestRetryState => ({
 
 export const useInspectionStore = defineStore('inspection', {
   state: () => ({
+    experimentalDamageLocalisation: true,
     // OpenRouter with Jev latest is pre-selected on a first visit (spec #16).
     provider: 'openrouter' as ProviderId,
     model: defaultModelFor('openrouter'),
@@ -451,7 +452,17 @@ export const useInspectionStore = defineStore('inspection', {
       const route = routeOf(provider, requestedModel)
       // Several photos of one container: each is surveyed, and what else is sent follows from its face (plan/photoPlan.ts).
       const several = photos.length > 1
-      const plans = photos.map(() => (route ? planForPhoto(planRequests(), route, several) : []))
+      const plans = photos.map(() =>
+        route
+          ? planForPhoto(
+              planRequests().filter(
+                (r) => this.experimentalDamageLocalisation || r.id !== 'damage-localisation',
+              ),
+              route,
+              several,
+            )
+          : [],
+      )
       this.status = 'running'
       this.record = null
       this.retry = freshRetry()
@@ -532,9 +543,22 @@ export const useInspectionStore = defineStore('inspection', {
                 { id: inspectionId },
               )
             : drafts[0]!
+        let releaseReads: () => void = () => {}
+        const readsDone = new Promise<void>((resolve) => {
+          releaseReads = resolve
+        })
+        const readStates = new Set([
+          'answered',
+          'failed',
+          'blocked',
+          'cancelled',
+          'not-needed',
+          'skipped',
+        ])
         const lives = plans.map((plan, n) =>
           runPlan({
             requests: plan,
+            beforeDeferred: readsDone,
             route,
             apiKey,
             photo: sent[n]!,
@@ -552,6 +576,14 @@ export const useInspectionStore = defineStore('inspection', {
                 ...photoOf(n),
               }))
               this.planned = plannedBy.flat()
+              if (
+                plannedBy.every((states, photo) =>
+                  states.every(
+                    (state, i) => plans[photo]![i]!.deferred || readStates.has(state.state),
+                  ),
+                )
+              )
+                releaseReads()
             },
             onSettled: (done) => {
               if (token !== this.runToken) return

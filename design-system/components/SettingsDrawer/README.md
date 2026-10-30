@@ -21,3 +21,5 @@ The settings drawer reopens the setup form from the `SettingsChip` without leavi
 - Don't make it a modal or block the screen behind it (the `Notice` "never a modal" rule still applies).
 - Don't show the key in the chip, the title or any summary, and don't remember it after a refresh.
 - Don't colour it with certainty, severity or hazard tokens. Nothing is green.
+
+The shared provider form includes **Experimental damage highlights**, checked initially. The in-memory preference applies to subsequent inspections; switching provider keeps it. Explain the approximate focal area and possible small extra charge in the hint.
