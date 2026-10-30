@@ -31,6 +31,7 @@ async function run(
   model = 'typesafe/jev-1.14',
   beforeReply?: (body: string) => Promise<void>,
   several = false,
+  damageReply = doorReply(),
 ) {
   const fetcher = vi.fn<typeof fetch>(async (_url, init) => {
     const body = String(init?.body)
@@ -39,7 +40,7 @@ async function run(
     const reply = body.includes('target_box')
       ? answer
       : body.includes('D1T_DT')
-        ? doorReply()
+        ? damageReply
         : openRouterSurveyReply('COYU2668130', { details: { photo_face: [['rear_doors', 0.96]] } })
     return new Response(
       JSON.stringify(
@@ -131,6 +132,37 @@ it('keeps valid findings complete when the optional provider call fails without 
       .entries()
       .find((e) => e.id.endsWith('damage-localisation'))?.status,
   ).toBe('failed')
+})
+it('locates two distinct assessed regions in one request and associates each answer with its finding', async () => {
+  const damage = doorReply()
+  damage.answers.D1T_DT = { type: 'noul', noul: 0.91 }
+  damage.answers.D1T_severity = damage.answers.D2B_severity!
+  const response = keyedReply({
+    target_present_0: { type: 'noul', noul: 0.95 },
+    target_box_0: { type: 'box', box, confidence: 0.67 },
+    target_present_1: { type: 'noul', noul: 0.96 },
+    target_box_1: {
+      type: 'box',
+      box: { top: 0.1, bottom: 0.3, left: 0.1, right: 0.4 },
+      confidence: 0.7,
+    },
+  })
+  const { store, fetcher } = await run(
+    response,
+    true,
+    'typesafe/jev-1.14',
+    undefined,
+    false,
+    damage,
+  )
+  const calls = fetcher.mock.calls.filter(([, init]) => String(init?.body).includes('target_box'))
+  expect(calls).toHaveLength(1)
+  const observations = store.record!.damage!.findings.flatMap((f) => f.observations ?? [])
+  expect(observations).toHaveLength(2)
+  expect(observations.map((o) => o.localisation?.box)).toEqual([
+    box,
+    { top: 0.1, bottom: 0.3, left: 0.1, right: 0.4 },
+  ])
 })
 it('discards a stale optional answer after New inspection and retains the session charge', async () => {
   const { store } = await run(reply(), true, 'typesafe/jev-1.14', async (body) => {
