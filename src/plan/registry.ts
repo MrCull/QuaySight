@@ -1,3 +1,4 @@
+import { damageLocalisation } from './requests/damageLocalisation'
 import type { PlanRequest } from './requestPlan'
 import { doorDamage } from './requests/doorDamage'
 import { doorEndCrop } from './requests/doorEndCrop'
@@ -26,6 +27,7 @@ const registered: PlanRequest[] = [
   doorDamage,
   doorEndCrop,
   weightCheck,
+  damageLocalisation,
 ]
 
 export function planRequests(): readonly PlanRequest[] {

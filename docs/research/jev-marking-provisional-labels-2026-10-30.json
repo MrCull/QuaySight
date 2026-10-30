@@ -1,0 +1,71 @@
+{
+  "provenance": "Author visual review of seven original sample photographs before reading live answers, 2026-10-30. Approximate axis-aligned ink/device extents, not independent expert ground truth. Fractions [left, top, right, bottom]. Small rounding differences near an edge are uncertain. Door-end labels cover visible outer posts, not hidden structure.",
+  "photos": {
+    "rear-door-coyu-22g1.jpg": {
+      "id": [0.572, 0.098, 0.846, 0.146],
+      "iso": [0.685, 0.154, 0.769, 0.197],
+      "weights": [0.575, 0.326, 0.829, 0.503],
+      "doorEnd": [0.044, 0.025, 0.935, 0.967],
+      "expectedId": "COYU2668130",
+      "expectedIso": "22G1",
+      "expectedKg": [30480, 2180, 28300],
+      "hazard": null
+    },
+    "rear-door-chsu-22g1.jpg": {
+      "id": [0.574, 0.217, 0.761, 0.26],
+      "iso": [0.644, 0.266, 0.7, 0.306],
+      "weights": [0.55, 0.35, 0.716, 0.496],
+      "doorEnd": [0.218, 0.106, 0.785, 0.904],
+      "expectedId": "CHSU2051831",
+      "expectedIso": "22G1",
+      "expectedKg": [30480, 2100, 28380],
+      "hazard": null
+    },
+    "rear-door-aphu-45g1.jpg": {
+      "id": [0.535, 0.148, 0.74, 0.193],
+      "iso": [0.62, 0.199, 0.679, 0.241],
+      "weights": [0.52, 0.367, 0.695, 0.591],
+      "doorEnd": [0.192, 0.014, 0.767, 0.946],
+      "expectedId": "APHU6586847",
+      "expectedIso": "45G1",
+      "expectedKg": [32500, 3870, 28630],
+      "hazard": null
+    },
+    "jdlu-200690-1-rear-doors.jpg": {
+      "id": [0.595, 0.257, 0.835, 0.312],
+      "iso": [0.7, 0.301, 0.762, 0.338],
+      "weights": [0.563, 0.357, 0.814, 0.508],
+      "doorEnd": [0.0, 0.01, 0.92, 0.831],
+      "expectedId": "JDLU2006902",
+      "expectedIso": "22G1",
+      "expectedKg": [32500, 2180, 30320],
+      "hazard": null
+    },
+    "jdlu-200690-2-corner-doors-left.jpg": {
+      "id": [0.13, 0.201, 0.355, 0.311],
+      "iso": [0.211, 0.278, 0.263, 0.319],
+      "weights": [0.055, 0.348, 0.311, 0.525],
+      "doorEnd": [0.0, 0.033, 0.418, 0.915],
+      "expectedId": "JDLU2006902",
+      "expectedIso": "22G1",
+      "expectedKg": [32500, 2180, 30320],
+      "hazard": null,
+      "note": "Door end partly clipped at photo-left; label is visible extent only. Defocused perspective."
+    },
+    "jdlu-200690-3-corner-doors-right.jpg": {
+      "id": [0.497, 0.2, 0.536, 0.549],
+      "iso": [0.565, 0.159, 0.589, 0.283],
+      "expectedId": "JDLU2006902",
+      "expectedIso": "22G1",
+      "hazard": null,
+      "note": "Visible vertical side ID; rear-door markings/weights mostly out of frame. Door-end containment not scored."
+    },
+    "seal-closeup-coyu-0154620.jpg": {
+      "seal": [0.166, 0.102, 0.744, 0.903],
+      "sealNumber": [0.235, 0.194, 0.635, 0.245],
+      "expectedSeal": "0154620",
+      "hazard": null,
+      "note": "Whole yellow device with duplicated printed number. Secondary number near bottom; first-copy number label measures character clipping separately."
+    }
+  }
+}

@@ -8,6 +8,7 @@ const props = defineProps<{
   photos: { name: string; url: string }[]
 }>()
 const viewing = ref<number | null>(null)
+const selectedObservation = ref<string | null>(null)
 let opener: HTMLElement | null = null
 const sources = computed(() =>
   (props.finding.observations ?? []).map((observation) => {
@@ -17,7 +18,9 @@ const sources = computed(() =>
       source?.index !== undefined
         ? source.index - 1
         : source
-          ? props.photos.findIndex((p) => p.name === source.name)
+          ? props.photos.filter((p) => p.name === source.name).length === 1
+            ? props.photos.findIndex((p) => p.name === source.name)
+            : -1
           : -1
     const photo = props.photos[index]
     return { observation, index: photo?.name === source?.name ? index : -1 }
@@ -28,10 +31,15 @@ const viewerPhotos = computed(() =>
     url: photo.url,
     alt: `Container photo ${i + 1}: ${photo.name}`,
     face: null,
+    highlight:
+      sources.value.find(
+        (source) => source.index === i && source.observation.id === selectedObservation.value,
+      )?.observation.localisation?.box ?? null,
   })),
 )
-function open(index: number, event: MouseEvent) {
+function open(index: number, observation: string, event: MouseEvent) {
   opener = event.currentTarget as HTMLElement
+  selectedObservation.value = observation
   viewing.value = index
 }
 async function close() {
@@ -55,7 +63,12 @@ watch(
       Observations grouped by approximate region and type. They may show different defects.
     </p>
     <p v-for="{ observation, index } in sources" :key="observation.id">
-      <button v-if="index >= 0" type="button" class="qs-link" @click="open(index, $event)">
+      <button
+        v-if="index >= 0"
+        type="button"
+        class="qs-link"
+        @click="open(index, observation.id, $event)"
+      >
         View photo {{ index + 1 }}: {{ observation.evidence.location }}
       </button>
       <template v-else>Source photo unavailable: {{ observation.evidence.location }}</template>

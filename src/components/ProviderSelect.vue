@@ -212,5 +212,15 @@ function onListKey(event: KeyboardEvent) {
       </p>
       <span class="qs-hint">{{ copy.hint }}</span>
     </div>
+    <div class="qs-fieldset">
+      <label class="qs-fieldset__label"
+        ><input v-model="store.experimentalDamageLocalisation" type="checkbox" /> Experimental
+        damage highlights</label
+      >
+      <span class="qs-hint"
+        >Approximate focal areas on eligible photos. May add a small charge. Applies to the next
+        inspection.</span
+      >
+    </div>
   </div>
 </template>
