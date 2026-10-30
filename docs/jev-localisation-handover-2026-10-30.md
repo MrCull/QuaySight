@@ -2,6 +2,13 @@
 
 Work is **incomplete**. Resume the approved spec; do not restart research or claim unfinished tickets are complete. The update below supersedes the historical checkpoint details that follow it.
 
+## Completed marking study — cloud continuation
+
+- `06a9fd9` completes the #121 marking comparison and adds a cross-platform resume option that only reuses historical annotated images matching committed evidence. The 57 prior responses were preserved and 217 additional live responses completed successfully. All 274 resolved to `typesafe/jev-1.14-20261014`; reported total cost was $0.11491137. No response was repeated. See [the report](research/jev-markings-2026-10-30.md) and its evidence for the complete results and limitations.
+- Keep numbered regions in production. Hybrid crops improved provisional ID containment in this small correlated sample, but added a dependency on both localisation methods and did not improve weight readings. This is not independent validation or a general accuracy claim.
+- The focused offline localisation/replay/regression suites passed (35 tests); the repository gate, staged secret scan and type check passed. The image reuse guard was verified on a copy and rejected a tampered saved image. The earlier full-suite baseline failures below remain unresolved.
+- GitHub API access and the OpenRouter binding worked in this cloud environment. #118–#123 were still open when checked; no issues were closed. The #122 reference-image study and #123 final integration review remain outstanding. The user authorised OpenRouter spend for this work; preserve pending markers, original evidence and no-automatic-retry behaviour. For new live operations follow the current environment's approval requirements.
+
 ## Cloud continuation — 30 October 2026
 
 - `try-box` at `240e173` matched the remote tip. The production gate (`npm run check`) passed. The full unit run reported 1,288 passed, 21 failed and 37 skipped; the 21 failures match the pre-existing baseline described below. The 19 Chromium photo preparation, viewer and multi-photo tests passed against the completed production build.
