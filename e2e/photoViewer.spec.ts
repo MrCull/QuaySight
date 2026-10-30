@@ -121,6 +121,7 @@ async function openDamage(
   enabled = true,
   unsupported = false,
   fail = false,
+  upload?: { name: string; mimeType: string; buffer: Buffer },
 ) {
   let locations = 0
   await page.route(/openrouter.ai\/api\/alpha\/decisions/, async (route) => {
@@ -149,10 +150,46 @@ async function openDamage(
   await page
     .locator('input[type=file]')
     .setInputFiles(
-      path.join(path.dirname(fileURLToPath(import.meta.url)), '../samples/rear-door-coyu-22g1.jpg'),
+      upload ??
+        path.join(
+          path.dirname(fileURLToPath(import.meta.url)),
+          '../samples/rear-door-coyu-22g1.jpg',
+        ),
     )
   return () => locations
 }
+
+test('aligns the highlight on a photo rotated by EXIF orientation', async ({ page }) => {
+  const raw = await page.evaluate(() => {
+    const canvas = document.createElement('canvas')
+    canvas.width = 400
+    canvas.height = 300
+    return canvas.toDataURL('image/jpeg').split(',')[1]!
+  })
+  const jpeg = Buffer.from(raw, 'base64')
+  const exif = Buffer.from([
+    0xff, 0xe1, 0x00, 0x22, 0x45, 0x78, 0x69, 0x66, 0, 0, 0x4d, 0x4d, 0, 0x2a, 0, 0, 0, 8, 0, 1, 1,
+    0x12, 0, 3, 0, 0, 0, 1, 0, 6, 0, 0, 0, 0, 0, 0,
+  ])
+  await openDamage(page, GOOD_LOCATION, true, false, false, {
+    name: 'rotated.jpg',
+    mimeType: 'image/jpeg',
+    buffer: Buffer.concat([jpeg.subarray(0, 2), exif, jpeg.subarray(2)]),
+  })
+  await page
+    .getByRole('button', { name: /^View photo 1:/ })
+    .first()
+    .click()
+  const dialog = page.getByRole('dialog')
+  const image = dialog.locator('img')
+  const overlay = dialog.getByLabel('Approximate damage highlight')
+  await expect(overlay).toBeVisible()
+  const img = (await image.boundingBox())!
+  const rect = (await overlay.boundingBox())!
+  expect(img.height / img.width).toBeCloseTo(4 / 3, 1)
+  expect(Math.abs(rect.x - (img.x + img.width * 0.6))).toBeLessThan(2)
+  expect(Math.abs(rect.y - (img.y + img.height * 0.55))).toBeLessThan(2)
+})
 
 for (const scenario of ['absent', 'invalid', 'disabled', 'unsupported', 'failed'] as const) {
   test(`synthetic ${scenario} localisation keeps the finding and opens the original`, async ({
