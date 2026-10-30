@@ -218,7 +218,25 @@ export function runPlan(options: PlanRunOptions): PlanRun {
     controllers.set(r, controller)
     const label = options.photoLabel
     const passId = `${options.inspectionId}-${label?.idPrefix ?? ''}${r.id}`
-    if (r.deferred) await options.beforeDeferred
+    if (r.deferred && options.beforeDeferred) {
+      const released = await new Promise<boolean>((resolve) => {
+        const onAbort = () => resolve(false)
+        controller.signal.addEventListener('abort', onAbort, { once: true })
+        void options.beforeDeferred!.then(() => {
+          controller.signal.removeEventListener('abort', onAbort)
+          resolve(!controller.signal.aborted)
+        })
+        if (controller.signal.aborted) onAbort()
+      })
+      if (!released) {
+        controllers.delete(r)
+        const outcome: RequestOutcome<unknown> = { status: 'cancelled' }
+        set(r, 'cancelled')
+        options.onSettled({ request: r, outcome, reply: null, passId, plan: view })
+        advance()
+        return
+      }
+    }
     let reply: RequestReply<unknown> | null = null
     const result = await options.charge({
       id: passId,
