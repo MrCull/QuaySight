@@ -118,6 +118,15 @@ it.each([
   expect(fetcher.mock.calls.some(([, init]) => String(init?.body).includes('target_box'))).toBe(
     false,
   )
+  if (model !== 'typesafe/jev-1.14') {
+    for (const [, init] of fetcher.mock.calls) {
+      const body = JSON.parse(String(init?.body))
+      const questions = Array.isArray(body.questions)
+        ? body.questions
+        : Object.values(body.questions ?? {})
+      expect(questions.some((q: { type?: string }) => q.type === 'box')).toBe(false)
+    }
+  }
   expect(store.record!.damage!.findings).toHaveLength(1)
 })
 it('keeps valid findings complete when the optional provider call fails without paid retry', async () => {
