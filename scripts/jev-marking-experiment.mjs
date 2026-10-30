@@ -148,7 +148,10 @@ try {
               .join('')
             return {
               value,
-              checkDigit: (await import('/src/domain/iso6346.ts')).checkDigitMatches(value),
+              // Incomplete readings are expected experimental outcomes, not runner failures.
+              checkDigit: /^[A-Z]{4}\d{7}$/.test(value)
+                ? (await import('/src/domain/iso6346.ts')).checkDigitMatches(value)
+                : null,
             }
           }
           if (payload.kind === 'weights')
@@ -313,6 +316,17 @@ try {
           })
           if (kind === 'id' && (reading.value !== 'COYU2668130' || !reading.checkDigit))
             throw new Error('Synthetic ID bridge failed')
+          if (kind === 'id') {
+            const incomplete = { ...answers }
+            delete incomplete.id_char_01
+            const unread = await bridge({
+              op: 'read',
+              kind,
+              raw: { model: 'synthetic-dry-only', answers: incomplete },
+            })
+            if (!unread.value.includes('?') || unread.checkDigit !== null)
+              throw new Error('Incomplete synthetic ID must remain unread')
+          }
           dryChecks.push({ kind, reading })
         }
         for (const margin of [0, 0.25, 0.35]) {
