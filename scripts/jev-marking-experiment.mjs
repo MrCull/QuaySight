@@ -4,6 +4,7 @@ import { mkdir, readFile, unlink, writeFile } from 'node:fs/promises'
 import { resolve, dirname } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { createHash } from 'node:crypto'
+import { execFileSync } from 'node:child_process'
 import { createServer } from 'vite'
 import { chromium } from '@playwright/test'
 
@@ -13,7 +14,9 @@ const option = (name, fallback) => (args.includes(name) ? args[args.indexOf(name
 const live = args.includes('--live')
 const resume = args.includes('--resume')
 const verifyResume = args.includes('--verify-resume')
+const reuseSavedMarked = args.includes('--reuse-saved-marked')
 if (verifyResume && (!resume || !live)) throw new Error('--verify-resume needs --resume --live')
+if (reuseSavedMarked && !resume) throw new Error('--reuse-saved-marked needs --resume')
 const key = live
   ? args.includes('--key-stdin')
     ? readFileSync(0, 'utf8').trim()
@@ -287,6 +290,23 @@ try {
     const original = `data:image/jpeg;base64,${bytes.toString('base64')}`
     const prepared = await bridge({ op: 'prepare', dataUrl: original })
     const stem = photo.replace('.jpg', '')
+    // The historical annotated JPEGs were rendered on another platform. Reuse only a byte-for-byte
+    // match to the committed evidence; regenerated marked images can differ because of system fonts.
+    if (reuseSavedMarked && manifest.photos.some((entry) => entry.photo === photo)) {
+      const file = `${stem}-marked.jpg`
+      const baseline = `docs/research/evidence/jev-markings-2026-10-30/${file}`
+      const tracked = execFileSync('git', ['ls-tree', '--name-only', 'HEAD', '--', baseline], {
+        cwd: root,
+        encoding: 'utf8',
+      }).trim()
+      if (tracked === baseline) {
+        const committed = execFileSync('git', ['show', `HEAD:${baseline}`], { cwd: root })
+        const saved = await readFile(resolve(output, file))
+        if (sha(saved) !== sha(committed))
+          throw new Error(`Saved image ${file} differs from committed evidence`)
+        prepared.markedUrl = `data:image/jpeg;base64,${saved.toString('base64')}`
+      }
+    }
     const writeImage = async (file, dataUrl) => {
       const data = Buffer.from(dataUrl.split(',')[1], 'base64')
       if (resume) {

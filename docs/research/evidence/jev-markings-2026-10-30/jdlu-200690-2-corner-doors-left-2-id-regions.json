@@ -1,0 +1,593 @@
+{
+  "id": "jdlu-200690-2-corner-doors-left-2-id-regions",
+  "photo": "jdlu-200690-2-corner-doors-left.jpg",
+  "repeat": 2,
+  "kind": "id",
+  "strategy": "regions",
+  "imageFile": "jdlu-200690-2-corner-doors-left-2-id-regions.jpg",
+  "request": {
+    "model": "typesafe/jev-1.14",
+    "state": [
+      "Freight container photo. Judge only what is visible in the photo. The fourth letter of the four-letter group is always U. Answer every question about this one photo.",
+      {
+        "imageFile": "jdlu-200690-2-corner-doors-left-2-id-regions.jpg"
+      }
+    ],
+    "questions": {
+      "id_char_01": {
+        "type": "choice",
+        "instructions": "The container number on the photo is printed as four capital letters, a gap, a six-digit group, then a single digit in a drawn box. Read only the first letter of the four-letter group.",
+        "criteria": {
+          "A": "Letter A",
+          "B": "Letter B",
+          "C": "Letter C",
+          "D": "Letter D",
+          "E": "Letter E",
+          "F": "Letter F",
+          "G": "Letter G",
+          "H": "Letter H",
+          "I": "Letter I",
+          "J": "Letter J",
+          "K": "Letter K",
+          "L": "Letter L",
+          "M": "Letter M",
+          "N": "Letter N",
+          "O": "Letter O",
+          "P": "Letter P",
+          "Q": "Letter Q",
+          "R": "Letter R",
+          "S": "Letter S",
+          "T": "Letter T",
+          "U": "Letter U",
+          "V": "Letter V",
+          "W": "Letter W",
+          "X": "Letter X",
+          "Y": "Letter Y",
+          "Z": "Letter Z",
+          "unreadable": "The character is not visible or cannot be read clearly"
+        }
+      },
+      "id_char_02": {
+        "type": "choice",
+        "instructions": "The container number on the photo is printed as four capital letters, a gap, a six-digit group, then a single digit in a drawn box. Read only the second letter of the four-letter group.",
+        "criteria": {
+          "A": "Letter A",
+          "B": "Letter B",
+          "C": "Letter C",
+          "D": "Letter D",
+          "E": "Letter E",
+          "F": "Letter F",
+          "G": "Letter G",
+          "H": "Letter H",
+          "I": "Letter I",
+          "J": "Letter J",
+          "K": "Letter K",
+          "L": "Letter L",
+          "M": "Letter M",
+          "N": "Letter N",
+          "O": "Letter O",
+          "P": "Letter P",
+          "Q": "Letter Q",
+          "R": "Letter R",
+          "S": "Letter S",
+          "T": "Letter T",
+          "U": "Letter U",
+          "V": "Letter V",
+          "W": "Letter W",
+          "X": "Letter X",
+          "Y": "Letter Y",
+          "Z": "Letter Z",
+          "unreadable": "The character is not visible or cannot be read clearly"
+        }
+      },
+      "id_char_03": {
+        "type": "choice",
+        "instructions": "The container number on the photo is printed as four capital letters, a gap, a six-digit group, then a single digit in a drawn box. Read only the third letter of the four-letter group.",
+        "criteria": {
+          "A": "Letter A",
+          "B": "Letter B",
+          "C": "Letter C",
+          "D": "Letter D",
+          "E": "Letter E",
+          "F": "Letter F",
+          "G": "Letter G",
+          "H": "Letter H",
+          "I": "Letter I",
+          "J": "Letter J",
+          "K": "Letter K",
+          "L": "Letter L",
+          "M": "Letter M",
+          "N": "Letter N",
+          "O": "Letter O",
+          "P": "Letter P",
+          "Q": "Letter Q",
+          "R": "Letter R",
+          "S": "Letter S",
+          "T": "Letter T",
+          "U": "Letter U",
+          "V": "Letter V",
+          "W": "Letter W",
+          "X": "Letter X",
+          "Y": "Letter Y",
+          "Z": "Letter Z",
+          "unreadable": "The character is not visible or cannot be read clearly"
+        }
+      },
+      "id_char_04": {
+        "type": "choice",
+        "instructions": "The container number on the photo is printed as four capital letters, a gap, a six-digit group, then a single digit in a drawn box. Read only the fourth letter of the four-letter group.",
+        "criteria": {
+          "A": "Letter A",
+          "B": "Letter B",
+          "C": "Letter C",
+          "D": "Letter D",
+          "E": "Letter E",
+          "F": "Letter F",
+          "G": "Letter G",
+          "H": "Letter H",
+          "I": "Letter I",
+          "J": "Letter J",
+          "K": "Letter K",
+          "L": "Letter L",
+          "M": "Letter M",
+          "N": "Letter N",
+          "O": "Letter O",
+          "P": "Letter P",
+          "Q": "Letter Q",
+          "R": "Letter R",
+          "S": "Letter S",
+          "T": "Letter T",
+          "U": "Letter U",
+          "V": "Letter V",
+          "W": "Letter W",
+          "X": "Letter X",
+          "Y": "Letter Y",
+          "Z": "Letter Z",
+          "unreadable": "The character is not visible or cannot be read clearly"
+        }
+      },
+      "id_char_05": {
+        "type": "choice",
+        "instructions": "The container number on the photo is printed as four capital letters, a gap, a six-digit group, then a single digit in a drawn box. Read only the first digit of the six-digit group, which is the sixth from its right-hand end.",
+        "criteria": {
+          "0": "Digit 0",
+          "1": "Digit 1",
+          "2": "Digit 2",
+          "3": "Digit 3",
+          "4": "Digit 4",
+          "5": "Digit 5",
+          "6": "Digit 6",
+          "7": "Digit 7",
+          "8": "Digit 8",
+          "9": "Digit 9",
+          "unreadable": "The character is not visible or cannot be read clearly"
+        }
+      },
+      "id_char_06": {
+        "type": "choice",
+        "instructions": "The container number on the photo is printed as four capital letters, a gap, a six-digit group, then a single digit in a drawn box. Read only the second digit of the six-digit group, which is the fifth from its right-hand end.",
+        "criteria": {
+          "0": "Digit 0",
+          "1": "Digit 1",
+          "2": "Digit 2",
+          "3": "Digit 3",
+          "4": "Digit 4",
+          "5": "Digit 5",
+          "6": "Digit 6",
+          "7": "Digit 7",
+          "8": "Digit 8",
+          "9": "Digit 9",
+          "unreadable": "The character is not visible or cannot be read clearly"
+        }
+      },
+      "id_char_07": {
+        "type": "choice",
+        "instructions": "The container number on the photo is printed as four capital letters, a gap, a six-digit group, then a single digit in a drawn box. Read only the third digit of the six-digit group, which is the fourth from its right-hand end.",
+        "criteria": {
+          "0": "Digit 0",
+          "1": "Digit 1",
+          "2": "Digit 2",
+          "3": "Digit 3",
+          "4": "Digit 4",
+          "5": "Digit 5",
+          "6": "Digit 6",
+          "7": "Digit 7",
+          "8": "Digit 8",
+          "9": "Digit 9",
+          "unreadable": "The character is not visible or cannot be read clearly"
+        }
+      },
+      "id_char_08": {
+        "type": "choice",
+        "instructions": "The container number on the photo is printed as four capital letters, a gap, a six-digit group, then a single digit in a drawn box. Read only the fourth digit of the six-digit group, which is the third from its right-hand end.",
+        "criteria": {
+          "0": "Digit 0",
+          "1": "Digit 1",
+          "2": "Digit 2",
+          "3": "Digit 3",
+          "4": "Digit 4",
+          "5": "Digit 5",
+          "6": "Digit 6",
+          "7": "Digit 7",
+          "8": "Digit 8",
+          "9": "Digit 9",
+          "unreadable": "The character is not visible or cannot be read clearly"
+        }
+      },
+      "id_char_09": {
+        "type": "choice",
+        "instructions": "The container number on the photo is printed as four capital letters, a gap, a six-digit group, then a single digit in a drawn box. Read only the fifth digit of the six-digit group, which is the second from its right-hand end.",
+        "criteria": {
+          "0": "Digit 0",
+          "1": "Digit 1",
+          "2": "Digit 2",
+          "3": "Digit 3",
+          "4": "Digit 4",
+          "5": "Digit 5",
+          "6": "Digit 6",
+          "7": "Digit 7",
+          "8": "Digit 8",
+          "9": "Digit 9",
+          "unreadable": "The character is not visible or cannot be read clearly"
+        }
+      },
+      "id_char_10": {
+        "type": "choice",
+        "instructions": "The container number on the photo is printed as four capital letters, a gap, a six-digit group, then a single digit in a drawn box. Read only the sixth digit of the six-digit group, which is the first from its right-hand end.",
+        "criteria": {
+          "0": "Digit 0",
+          "1": "Digit 1",
+          "2": "Digit 2",
+          "3": "Digit 3",
+          "4": "Digit 4",
+          "5": "Digit 5",
+          "6": "Digit 6",
+          "7": "Digit 7",
+          "8": "Digit 8",
+          "9": "Digit 9",
+          "unreadable": "The character is not visible or cannot be read clearly"
+        }
+      },
+      "id_char_11": {
+        "type": "choice",
+        "instructions": "The container number on the photo is printed as four capital letters, a gap, a six-digit group, then a single digit in a drawn box. Read only the single digit in the drawn box, exactly as printed.",
+        "criteria": {
+          "0": "Digit 0",
+          "1": "Digit 1",
+          "2": "Digit 2",
+          "3": "Digit 3",
+          "4": "Digit 4",
+          "5": "Digit 5",
+          "6": "Digit 6",
+          "7": "Digit 7",
+          "8": "Digit 8",
+          "9": "Digit 9",
+          "unreadable": "The character is not visible or cannot be read clearly"
+        }
+      },
+      "legibility": {
+        "type": "score",
+        "instructions": "How legible is the full container identification printed on the photo?",
+        "criteria": [
+          "Not visible at all",
+          "Mostly unreadable",
+          "Partly readable, with several positions unclear",
+          "Mostly readable, with one or two positions unclear",
+          "Fully readable and sharp"
+        ]
+      },
+      "full_number_visible": {
+        "type": "noul",
+        "instructions": "Is the complete 11-character container identification visible within the photo, with no part cut off?"
+      }
+    }
+  },
+  "status": 200,
+  "failure": null,
+  "latencyMs": 316,
+  "requestedModel": "typesafe/jev-1.14",
+  "resolvedModel": "typesafe/jev-1.14-20261014",
+  "usage": {
+    "input_tokens": 7985,
+    "output_tokens": 1552,
+    "cost": 0.00033537
+  },
+  "reportedCostUsd": 0.00033537,
+  "response": {
+    "model": "typesafe/jev-1.14-20261014",
+    "answers": {
+      "id_char_01": {
+        "type": "choice",
+        "choice": "J",
+        "probabilities": {
+          "A": 0,
+          "B": 0,
+          "C": 0,
+          "D": 0,
+          "E": 0,
+          "F": 0,
+          "G": 0,
+          "H": 0,
+          "I": 0,
+          "J": 0.93,
+          "K": 0,
+          "L": 0,
+          "M": 0,
+          "N": 0,
+          "O": 0,
+          "P": 0,
+          "Q": 0,
+          "R": 0,
+          "S": 0,
+          "T": 0,
+          "U": 0,
+          "V": 0,
+          "W": 0,
+          "X": 0,
+          "Y": 0,
+          "Z": 0,
+          "unreadable": 0.07
+        },
+        "confidence": 0.93
+      },
+      "id_char_02": {
+        "type": "choice",
+        "choice": "O",
+        "probabilities": {
+          "A": 0,
+          "B": 0,
+          "C": 0,
+          "D": 0.01,
+          "E": 0,
+          "F": 0,
+          "G": 0,
+          "H": 0,
+          "I": 0,
+          "J": 0.03,
+          "K": 0,
+          "L": 0.07,
+          "M": 0,
+          "N": 0,
+          "O": 0.7,
+          "P": 0.01,
+          "Q": 0,
+          "R": 0,
+          "S": 0,
+          "T": 0,
+          "U": 0.11,
+          "V": 0,
+          "W": 0,
+          "X": 0,
+          "Y": 0,
+          "Z": 0,
+          "unreadable": 0.07
+        },
+        "confidence": 0.69
+      },
+      "id_char_03": {
+        "type": "choice",
+        "choice": "L",
+        "probabilities": {
+          "A": 0,
+          "B": 0,
+          "C": 0,
+          "D": 0,
+          "E": 0,
+          "F": 0,
+          "G": 0,
+          "H": 0,
+          "I": 0,
+          "J": 0.01,
+          "K": 0,
+          "L": 0.77,
+          "M": 0,
+          "N": 0,
+          "O": 0.03,
+          "P": 0.01,
+          "Q": 0,
+          "R": 0,
+          "S": 0,
+          "T": 0,
+          "U": 0.04,
+          "V": 0,
+          "W": 0,
+          "X": 0,
+          "Y": 0,
+          "Z": 0,
+          "unreadable": 0.14
+        },
+        "confidence": 0.76
+      },
+      "id_char_04": {
+        "type": "choice",
+        "choice": "U",
+        "probabilities": {
+          "A": 0,
+          "B": 0,
+          "C": 0,
+          "D": 0,
+          "E": 0,
+          "F": 0,
+          "G": 0,
+          "H": 0,
+          "I": 0,
+          "J": 0,
+          "K": 0,
+          "L": 0.11,
+          "M": 0,
+          "N": 0,
+          "O": 0,
+          "P": 0,
+          "Q": 0,
+          "R": 0,
+          "S": 0,
+          "T": 0,
+          "U": 0.87,
+          "V": 0,
+          "W": 0,
+          "X": 0,
+          "Y": 0,
+          "Z": 0,
+          "unreadable": 0.02
+        },
+        "confidence": 0.86
+      },
+      "id_char_05": {
+        "type": "choice",
+        "choice": "2",
+        "probabilities": {
+          "0": 0.01,
+          "1": 0.01,
+          "2": 0.98,
+          "3": 0,
+          "4": 0,
+          "5": 0,
+          "6": 0,
+          "7": 0,
+          "8": 0,
+          "9": 0,
+          "unreadable": 0
+        },
+        "confidence": 0.98
+      },
+      "id_char_06": {
+        "type": "choice",
+        "choice": "0",
+        "probabilities": {
+          "0": 0.99,
+          "1": 0,
+          "2": 0.01,
+          "3": 0,
+          "4": 0,
+          "5": 0,
+          "6": 0,
+          "7": 0,
+          "8": 0,
+          "9": 0,
+          "unreadable": 0
+        },
+        "confidence": 0.99
+      },
+      "id_char_07": {
+        "type": "choice",
+        "choice": "0",
+        "probabilities": {
+          "0": 0.8,
+          "1": 0.01,
+          "2": 0.01,
+          "3": 0,
+          "4": 0,
+          "5": 0,
+          "6": 0.18,
+          "7": 0,
+          "8": 0,
+          "9": 0,
+          "unreadable": 0
+        },
+        "confidence": 0.78
+      },
+      "id_char_08": {
+        "type": "choice",
+        "choice": "6",
+        "probabilities": {
+          "0": 0.16,
+          "1": 0,
+          "2": 0.01,
+          "3": 0,
+          "4": 0,
+          "5": 0,
+          "6": 0.79,
+          "7": 0.01,
+          "8": 0,
+          "9": 0.02,
+          "unreadable": 0.01
+        },
+        "confidence": 0.77
+      },
+      "id_char_09": {
+        "type": "choice",
+        "choice": "9",
+        "probabilities": {
+          "0": 0.01,
+          "1": 0,
+          "2": 0,
+          "3": 0,
+          "4": 0,
+          "5": 0,
+          "6": 0.01,
+          "7": 0,
+          "8": 0,
+          "9": 0.98,
+          "unreadable": 0
+        },
+        "confidence": 0.98
+      },
+      "id_char_10": {
+        "type": "choice",
+        "choice": "0",
+        "probabilities": {
+          "0": 0.99,
+          "1": 0,
+          "2": 0,
+          "3": 0,
+          "4": 0,
+          "5": 0,
+          "6": 0,
+          "7": 0,
+          "8": 0,
+          "9": 0.01,
+          "unreadable": 0
+        },
+        "confidence": 0.99
+      },
+      "id_char_11": {
+        "type": "choice",
+        "choice": "2",
+        "probabilities": {
+          "0": 0,
+          "1": 0.01,
+          "2": 0.98,
+          "3": 0,
+          "4": 0,
+          "5": 0,
+          "6": 0,
+          "7": 0,
+          "8": 0,
+          "9": 0,
+          "unreadable": 0.01
+        },
+        "confidence": 0.98
+      },
+      "legibility": {
+        "type": "score",
+        "score": 2.76,
+        "legend": {
+          "0": "Not visible at all",
+          "1": "Mostly unreadable",
+          "2": "Partly readable, with several positions unclear",
+          "3": "Mostly readable, with one or two positions unclear",
+          "4": "Fully readable and sharp"
+        },
+        "probabilities": {
+          "0": 0,
+          "1": 0.03,
+          "2": 0.26,
+          "3": 0.62,
+          "4": 0.09
+        },
+        "confidence": 0.66
+      },
+      "full_number_visible": {
+        "type": "noul",
+        "noul": 0.17
+      }
+    },
+    "usage": {
+      "input_tokens": 7985,
+      "output_tokens": 1552,
+      "cost": 0.00033537
+    },
+    "id": "gen-dec-1793371091-z1bjnVcK7MMoq37jA7cn",
+    "provider": "TypeSafe"
+  }
+}
