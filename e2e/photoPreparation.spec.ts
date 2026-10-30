@@ -122,6 +122,28 @@ async function runLuna(page: Page, photo: Buffer): Promise<string> {
 test.describe('Photo preparation', () => {
   test.use({ viewport: { width: 1440, height: 900 } })
 
+  test('rejects a Jev photo below 280 pixels on one side before any paid call', async ({
+    page,
+  }) => {
+    let requests = 0
+    await page.route(/openrouter\.ai\/api\/alpha\/decisions/, (route) => {
+      requests += 1
+      return route.abort()
+    })
+    await page.goto('/')
+    const photo = await twoToneJpeg(page, 270, 600)
+    const key = page.getByLabel('OpenRouter API key', { exact: true })
+    await key.fill(PLACEHOLDER_KEY)
+    await key.press('Enter')
+    await page.locator('input[type="file"]').setInputFiles({
+      name: 'narrow.jpg',
+      mimeType: 'image/jpeg',
+      buffer: photo,
+    })
+    await expect(page.getByText(/needs at least 280 px on each side/)).toBeVisible()
+    expect(requests).toBe(0)
+  })
+
   test('sends a sideways phone photo upright, and shows the photo as chosen', async ({ page }) => {
     await page.goto('/')
     // Stored 400 × 300 with red on the left; shown upright it is 300 × 400 with red on top.

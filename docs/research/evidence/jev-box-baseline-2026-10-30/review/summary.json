@@ -1,0 +1,1134 @@
+{
+  "mode": "live",
+  "completedRequests": 45,
+  "successfulRequests": 45,
+  "knownReportedCostUsd": 0.005861687999999997,
+  "missingReportedCostCount": 0,
+  "rows": [
+    {
+      "id": "side-dented-grey-brief-1",
+      "photo": "samples/side-dented-grey.jpg",
+      "variant": "brief",
+      "repeat": 1,
+      "status": 200,
+      "presence": 0.99,
+      "confidence": 0.56,
+      "geometryValid": true,
+      "edges": {
+        "top": 0.52,
+        "bottom": 0.58,
+        "left": 0.3,
+        "right": 0.47
+      },
+      "latencyMs": 648,
+      "reportedCostUsd": 0.00007854,
+      "requestedModel": "typesafe/jev-1.14",
+      "resolvedModel": "typesafe/jev-1.14-20261014",
+      "usage": {
+        "input_tokens": 1870,
+        "output_tokens": 38,
+        "cost": 0.00007854
+      }
+    },
+    {
+      "id": "side-dented-grey-brief-2",
+      "photo": "samples/side-dented-grey.jpg",
+      "variant": "brief",
+      "repeat": 2,
+      "status": 200,
+      "presence": 0.98,
+      "confidence": 0.57,
+      "geometryValid": true,
+      "edges": {
+        "top": 0.52,
+        "bottom": 0.58,
+        "left": 0.31,
+        "right": 0.47
+      },
+      "latencyMs": 303,
+      "reportedCostUsd": 0.000078624,
+      "requestedModel": "typesafe/jev-1.14",
+      "resolvedModel": "typesafe/jev-1.14-20261014",
+      "usage": {
+        "input_tokens": 1872,
+        "output_tokens": 38,
+        "cost": 0.000078624
+      }
+    },
+    {
+      "id": "side-dented-grey-brief-3",
+      "photo": "samples/side-dented-grey.jpg",
+      "variant": "brief",
+      "repeat": 3,
+      "status": 200,
+      "presence": 0.98,
+      "confidence": 0.55,
+      "geometryValid": true,
+      "edges": {
+        "top": 0.52,
+        "bottom": 0.58,
+        "left": 0.3,
+        "right": 0.46
+      },
+      "latencyMs": 454,
+      "reportedCostUsd": 0.00007854,
+      "requestedModel": "typesafe/jev-1.14",
+      "resolvedModel": "typesafe/jev-1.14-20261014",
+      "usage": {
+        "input_tokens": 1870,
+        "output_tokens": 38,
+        "cost": 0.00007854
+      }
+    },
+    {
+      "id": "side-dented-grey-shape-1",
+      "photo": "samples/side-dented-grey.jpg",
+      "variant": "shape",
+      "repeat": 1,
+      "status": 200,
+      "presence": 0.96,
+      "confidence": 0.47,
+      "geometryValid": true,
+      "edges": {
+        "top": 0.52,
+        "bottom": 0.58,
+        "left": 0.3,
+        "right": 0.48
+      },
+      "latencyMs": 340,
+      "reportedCostUsd": 0.000080808,
+      "requestedModel": "typesafe/jev-1.14",
+      "resolvedModel": "typesafe/jev-1.14-20261014",
+      "usage": {
+        "input_tokens": 1924,
+        "output_tokens": 38,
+        "cost": 0.000080808
+      }
+    },
+    {
+      "id": "side-dented-grey-shape-2",
+      "photo": "samples/side-dented-grey.jpg",
+      "variant": "shape",
+      "repeat": 2,
+      "status": 200,
+      "presence": 0.97,
+      "confidence": 0.53,
+      "geometryValid": true,
+      "edges": {
+        "top": 0.52,
+        "bottom": 0.59,
+        "left": 0.3,
+        "right": 0.47
+      },
+      "latencyMs": 255,
+      "reportedCostUsd": 0.000080724,
+      "requestedModel": "typesafe/jev-1.14",
+      "resolvedModel": "typesafe/jev-1.14-20261014",
+      "usage": {
+        "input_tokens": 1922,
+        "output_tokens": 38,
+        "cost": 0.000080724
+      }
+    },
+    {
+      "id": "side-dented-grey-shape-3",
+      "photo": "samples/side-dented-grey.jpg",
+      "variant": "shape",
+      "repeat": 3,
+      "status": 200,
+      "presence": 0.96,
+      "confidence": 0.5,
+      "geometryValid": true,
+      "edges": {
+        "top": 0.52,
+        "bottom": 0.58,
+        "left": 0.31,
+        "right": 0.47
+      },
+      "latencyMs": 292,
+      "reportedCostUsd": 0.000080682,
+      "requestedModel": "typesafe/jev-1.14",
+      "resolvedModel": "typesafe/jev-1.14-20261014",
+      "usage": {
+        "input_tokens": 1921,
+        "output_tokens": 38,
+        "cost": 0.000080682
+      }
+    },
+    {
+      "id": "side-dented-grey-specific-1",
+      "photo": "samples/side-dented-grey.jpg",
+      "variant": "specific",
+      "repeat": 1,
+      "status": 200,
+      "presence": 0.92,
+      "confidence": 0.67,
+      "geometryValid": true,
+      "edges": {
+        "top": 0.52,
+        "bottom": 0.58,
+        "left": 0.31,
+        "right": 0.46
+      },
+      "latencyMs": 260,
+      "reportedCostUsd": 0.000081648,
+      "requestedModel": "typesafe/jev-1.14",
+      "resolvedModel": "typesafe/jev-1.14-20261014",
+      "usage": {
+        "input_tokens": 1944,
+        "output_tokens": 38,
+        "cost": 0.000081648
+      }
+    },
+    {
+      "id": "side-dented-grey-specific-2",
+      "photo": "samples/side-dented-grey.jpg",
+      "variant": "specific",
+      "repeat": 2,
+      "status": 200,
+      "presence": 0.92,
+      "confidence": 0.68,
+      "geometryValid": true,
+      "edges": {
+        "top": 0.52,
+        "bottom": 0.57,
+        "left": 0.31,
+        "right": 0.45
+      },
+      "latencyMs": 262,
+      "reportedCostUsd": 0.000081816,
+      "requestedModel": "typesafe/jev-1.14",
+      "resolvedModel": "typesafe/jev-1.14-20261014",
+      "usage": {
+        "input_tokens": 1948,
+        "output_tokens": 38,
+        "cost": 0.000081816
+      }
+    },
+    {
+      "id": "side-dented-grey-specific-3",
+      "photo": "samples/side-dented-grey.jpg",
+      "variant": "specific",
+      "repeat": 3,
+      "status": 200,
+      "presence": 0.92,
+      "confidence": 0.65,
+      "geometryValid": true,
+      "edges": {
+        "top": 0.51,
+        "bottom": 0.58,
+        "left": 0.31,
+        "right": 0.46
+      },
+      "latencyMs": 272,
+      "reportedCostUsd": 0.000081606,
+      "requestedModel": "typesafe/jev-1.14",
+      "resolvedModel": "typesafe/jev-1.14-20261014",
+      "usage": {
+        "input_tokens": 1943,
+        "output_tokens": 38,
+        "cost": 0.000081606
+      }
+    },
+    {
+      "id": "rear-door-chsu-22g1-brief-1",
+      "photo": "samples/rear-door-chsu-22g1.jpg",
+      "variant": "brief",
+      "repeat": 1,
+      "status": 200,
+      "presence": 0.36,
+      "confidence": 0.16,
+      "geometryValid": false,
+      "edges": {
+        "top": 0.55,
+        "bottom": 0.55,
+        "left": 0.45,
+        "right": 0.45
+      },
+      "latencyMs": 543,
+      "reportedCostUsd": 0.000159936,
+      "requestedModel": "typesafe/jev-1.14",
+      "resolvedModel": "typesafe/jev-1.14-20261014",
+      "usage": {
+        "input_tokens": 3808,
+        "output_tokens": 38,
+        "cost": 0.000159936
+      }
+    },
+    {
+      "id": "rear-door-chsu-22g1-brief-2",
+      "photo": "samples/rear-door-chsu-22g1.jpg",
+      "variant": "brief",
+      "repeat": 2,
+      "status": 200,
+      "presence": 0.32,
+      "confidence": 0.09,
+      "geometryValid": true,
+      "edges": {
+        "top": 0.47,
+        "bottom": 0.55,
+        "left": 0.26,
+        "right": 0.44
+      },
+      "latencyMs": 577,
+      "reportedCostUsd": 0.000159684,
+      "requestedModel": "typesafe/jev-1.14",
+      "resolvedModel": "typesafe/jev-1.14-20261014",
+      "usage": {
+        "input_tokens": 3802,
+        "output_tokens": 38,
+        "cost": 0.000159684
+      }
+    },
+    {
+      "id": "rear-door-chsu-22g1-brief-3",
+      "photo": "samples/rear-door-chsu-22g1.jpg",
+      "variant": "brief",
+      "repeat": 3,
+      "status": 200,
+      "presence": 0.36,
+      "confidence": 0.13,
+      "geometryValid": true,
+      "edges": {
+        "top": 0.47,
+        "bottom": 0.54,
+        "left": 0.45,
+        "right": 0.6
+      },
+      "latencyMs": 616,
+      "reportedCostUsd": 0.00015981,
+      "requestedModel": "typesafe/jev-1.14",
+      "resolvedModel": "typesafe/jev-1.14-20261014",
+      "usage": {
+        "input_tokens": 3805,
+        "output_tokens": 38,
+        "cost": 0.00015981
+      }
+    },
+    {
+      "id": "rear-door-chsu-22g1-shape-1",
+      "photo": "samples/rear-door-chsu-22g1.jpg",
+      "variant": "shape",
+      "repeat": 1,
+      "status": 200,
+      "presence": 0.31,
+      "confidence": 0.13,
+      "geometryValid": false,
+      "edges": {
+        "top": 0.55,
+        "bottom": 0.77,
+        "left": 0.45,
+        "right": 0.45
+      },
+      "latencyMs": 514,
+      "reportedCostUsd": 0.000162078,
+      "requestedModel": "typesafe/jev-1.14",
+      "resolvedModel": "typesafe/jev-1.14-20261014",
+      "usage": {
+        "input_tokens": 3859,
+        "output_tokens": 38,
+        "cost": 0.000162078
+      }
+    },
+    {
+      "id": "rear-door-chsu-22g1-shape-2",
+      "photo": "samples/rear-door-chsu-22g1.jpg",
+      "variant": "shape",
+      "repeat": 2,
+      "status": 200,
+      "presence": 0.32,
+      "confidence": 0.08,
+      "geometryValid": true,
+      "edges": {
+        "top": 0.48,
+        "bottom": 0.56,
+        "left": 0.26,
+        "right": 0.43
+      },
+      "latencyMs": 596,
+      "reportedCostUsd": 0.000161994,
+      "requestedModel": "typesafe/jev-1.14",
+      "resolvedModel": "typesafe/jev-1.14-20261014",
+      "usage": {
+        "input_tokens": 3857,
+        "output_tokens": 38,
+        "cost": 0.000161994
+      }
+    },
+    {
+      "id": "rear-door-chsu-22g1-shape-3",
+      "photo": "samples/rear-door-chsu-22g1.jpg",
+      "variant": "shape",
+      "repeat": 3,
+      "status": 200,
+      "presence": 0.32,
+      "confidence": 0.08,
+      "geometryValid": true,
+      "edges": {
+        "top": 0.53,
+        "bottom": 0.56,
+        "left": 0.25,
+        "right": 0.74
+      },
+      "latencyMs": 619,
+      "reportedCostUsd": 0.000162036,
+      "requestedModel": "typesafe/jev-1.14",
+      "resolvedModel": "typesafe/jev-1.14-20261014",
+      "usage": {
+        "input_tokens": 3858,
+        "output_tokens": 38,
+        "cost": 0.000162036
+      }
+    },
+    {
+      "id": "rear-door-chsu-22g1-specific-1",
+      "photo": "samples/rear-door-chsu-22g1.jpg",
+      "variant": "specific",
+      "repeat": 1,
+      "status": 200,
+      "presence": 0.29,
+      "confidence": 0.07,
+      "geometryValid": true,
+      "edges": {
+        "top": 0.46,
+        "bottom": 0.54,
+        "left": 0.27,
+        "right": 0.43
+      },
+      "latencyMs": 601,
+      "reportedCostUsd": 0.000163128,
+      "requestedModel": "typesafe/jev-1.14",
+      "resolvedModel": "typesafe/jev-1.14-20261014",
+      "usage": {
+        "input_tokens": 3884,
+        "output_tokens": 38,
+        "cost": 0.000163128
+      }
+    },
+    {
+      "id": "rear-door-chsu-22g1-specific-2",
+      "photo": "samples/rear-door-chsu-22g1.jpg",
+      "variant": "specific",
+      "repeat": 2,
+      "status": 200,
+      "presence": 0.27,
+      "confidence": 0.06,
+      "geometryValid": true,
+      "edges": {
+        "top": 0.48,
+        "bottom": 0.55,
+        "left": 0.26,
+        "right": 0.37
+      },
+      "latencyMs": 719,
+      "reportedCostUsd": 0.000163044,
+      "requestedModel": "typesafe/jev-1.14",
+      "resolvedModel": "typesafe/jev-1.14-20261014",
+      "usage": {
+        "input_tokens": 3882,
+        "output_tokens": 38,
+        "cost": 0.000163044
+      }
+    },
+    {
+      "id": "rear-door-chsu-22g1-specific-3",
+      "photo": "samples/rear-door-chsu-22g1.jpg",
+      "variant": "specific",
+      "repeat": 3,
+      "status": 200,
+      "presence": 0.27,
+      "confidence": 0.08,
+      "geometryValid": true,
+      "edges": {
+        "top": 0.47,
+        "bottom": 0.55,
+        "left": 0.27,
+        "right": 0.43
+      },
+      "latencyMs": 433,
+      "reportedCostUsd": 0.000163002,
+      "requestedModel": "typesafe/jev-1.14",
+      "resolvedModel": "typesafe/jev-1.14-20261014",
+      "usage": {
+        "input_tokens": 3881,
+        "output_tokens": 38,
+        "cost": 0.000163002
+      }
+    },
+    {
+      "id": "corner-torn-door-cai-20ft-brief-1",
+      "photo": "samples/corner-torn-door-cai-20ft.jpg",
+      "variant": "brief",
+      "repeat": 1,
+      "status": 200,
+      "presence": 0.98,
+      "confidence": 0.66,
+      "geometryValid": true,
+      "edges": {
+        "top": 0.52,
+        "bottom": 0.86,
+        "left": 0.28,
+        "right": 0.46
+      },
+      "latencyMs": 262,
+      "reportedCostUsd": 0.000070518,
+      "requestedModel": "typesafe/jev-1.14",
+      "resolvedModel": "typesafe/jev-1.14-20261014",
+      "usage": {
+        "input_tokens": 1679,
+        "output_tokens": 38,
+        "cost": 0.000070518
+      }
+    },
+    {
+      "id": "corner-torn-door-cai-20ft-brief-2",
+      "photo": "samples/corner-torn-door-cai-20ft.jpg",
+      "variant": "brief",
+      "repeat": 2,
+      "status": 200,
+      "presence": 0.98,
+      "confidence": 0.7,
+      "geometryValid": true,
+      "edges": {
+        "top": 0.53,
+        "bottom": 0.86,
+        "left": 0.26,
+        "right": 0.46
+      },
+      "latencyMs": 266,
+      "reportedCostUsd": 0.000070644,
+      "requestedModel": "typesafe/jev-1.14",
+      "resolvedModel": "typesafe/jev-1.14-20261014",
+      "usage": {
+        "input_tokens": 1682,
+        "output_tokens": 38,
+        "cost": 0.000070644
+      }
+    },
+    {
+      "id": "corner-torn-door-cai-20ft-brief-3",
+      "photo": "samples/corner-torn-door-cai-20ft.jpg",
+      "variant": "brief",
+      "repeat": 3,
+      "status": 200,
+      "presence": 0.98,
+      "confidence": 0.63,
+      "geometryValid": true,
+      "edges": {
+        "top": 0.52,
+        "bottom": 0.87,
+        "left": 0.26,
+        "right": 0.47
+      },
+      "latencyMs": 247,
+      "reportedCostUsd": 0.000070392,
+      "requestedModel": "typesafe/jev-1.14",
+      "resolvedModel": "typesafe/jev-1.14-20261014",
+      "usage": {
+        "input_tokens": 1676,
+        "output_tokens": 38,
+        "cost": 0.000070392
+      }
+    },
+    {
+      "id": "corner-torn-door-cai-20ft-shape-1",
+      "photo": "samples/corner-torn-door-cai-20ft.jpg",
+      "variant": "shape",
+      "repeat": 1,
+      "status": 200,
+      "presence": 0.96,
+      "confidence": 0.68,
+      "geometryValid": true,
+      "edges": {
+        "top": 0.53,
+        "bottom": 0.87,
+        "left": 0.26,
+        "right": 0.46
+      },
+      "latencyMs": 314,
+      "reportedCostUsd": 0.00007266,
+      "requestedModel": "typesafe/jev-1.14",
+      "resolvedModel": "typesafe/jev-1.14-20261014",
+      "usage": {
+        "input_tokens": 1730,
+        "output_tokens": 38,
+        "cost": 0.00007266
+      }
+    },
+    {
+      "id": "corner-torn-door-cai-20ft-shape-2",
+      "photo": "samples/corner-torn-door-cai-20ft.jpg",
+      "variant": "shape",
+      "repeat": 2,
+      "status": 200,
+      "presence": 0.97,
+      "confidence": 0.65,
+      "geometryValid": true,
+      "edges": {
+        "top": 0.52,
+        "bottom": 0.87,
+        "left": 0.26,
+        "right": 0.48
+      },
+      "latencyMs": 299,
+      "reportedCostUsd": 0.000072744,
+      "requestedModel": "typesafe/jev-1.14",
+      "resolvedModel": "typesafe/jev-1.14-20261014",
+      "usage": {
+        "input_tokens": 1732,
+        "output_tokens": 38,
+        "cost": 0.000072744
+      }
+    },
+    {
+      "id": "corner-torn-door-cai-20ft-shape-3",
+      "photo": "samples/corner-torn-door-cai-20ft.jpg",
+      "variant": "shape",
+      "repeat": 3,
+      "status": 200,
+      "presence": 0.97,
+      "confidence": 0.69,
+      "geometryValid": true,
+      "edges": {
+        "top": 0.53,
+        "bottom": 0.86,
+        "left": 0.26,
+        "right": 0.46
+      },
+      "latencyMs": 286,
+      "reportedCostUsd": 0.000072786,
+      "requestedModel": "typesafe/jev-1.14",
+      "resolvedModel": "typesafe/jev-1.14-20261014",
+      "usage": {
+        "input_tokens": 1733,
+        "output_tokens": 38,
+        "cost": 0.000072786
+      }
+    },
+    {
+      "id": "corner-torn-door-cai-20ft-specific-1",
+      "photo": "samples/corner-torn-door-cai-20ft.jpg",
+      "variant": "specific",
+      "repeat": 1,
+      "status": 200,
+      "presence": 0.9,
+      "confidence": 0.61,
+      "geometryValid": true,
+      "edges": {
+        "top": 0.52,
+        "bottom": 0.87,
+        "left": 0.28,
+        "right": 0.47
+      },
+      "latencyMs": 297,
+      "reportedCostUsd": 0.000073836,
+      "requestedModel": "typesafe/jev-1.14",
+      "resolvedModel": "typesafe/jev-1.14-20261014",
+      "usage": {
+        "input_tokens": 1758,
+        "output_tokens": 38,
+        "cost": 0.000073836
+      }
+    },
+    {
+      "id": "corner-torn-door-cai-20ft-specific-2",
+      "photo": "samples/corner-torn-door-cai-20ft.jpg",
+      "variant": "specific",
+      "repeat": 2,
+      "status": 200,
+      "presence": 0.91,
+      "confidence": 0.68,
+      "geometryValid": true,
+      "edges": {
+        "top": 0.53,
+        "bottom": 0.87,
+        "left": 0.29,
+        "right": 0.46
+      },
+      "latencyMs": 265,
+      "reportedCostUsd": 0.00007371,
+      "requestedModel": "typesafe/jev-1.14",
+      "resolvedModel": "typesafe/jev-1.14-20261014",
+      "usage": {
+        "input_tokens": 1755,
+        "output_tokens": 38,
+        "cost": 0.00007371
+      }
+    },
+    {
+      "id": "corner-torn-door-cai-20ft-specific-3",
+      "photo": "samples/corner-torn-door-cai-20ft.jpg",
+      "variant": "specific",
+      "repeat": 3,
+      "status": 200,
+      "presence": 0.9,
+      "confidence": 0.63,
+      "geometryValid": true,
+      "edges": {
+        "top": 0.52,
+        "bottom": 0.86,
+        "left": 0.28,
+        "right": 0.47
+      },
+      "latencyMs": 243,
+      "reportedCostUsd": 0.000073668,
+      "requestedModel": "typesafe/jev-1.14",
+      "resolvedModel": "typesafe/jev-1.14-20261014",
+      "usage": {
+        "input_tokens": 1754,
+        "output_tokens": 38,
+        "cost": 0.000073668
+      }
+    },
+    {
+      "id": "jdlu-200690-4-long-side-brief-1",
+      "photo": "samples/jdlu-200690-4-long-side.jpg",
+      "variant": "brief",
+      "repeat": 1,
+      "status": 200,
+      "presence": 0.44,
+      "confidence": 0.2,
+      "geometryValid": true,
+      "edges": {
+        "top": 0.45,
+        "bottom": 0.76,
+        "left": 0.67,
+        "right": 0.8
+      },
+      "latencyMs": 423,
+      "reportedCostUsd": 0.000187908,
+      "requestedModel": "typesafe/jev-1.14",
+      "resolvedModel": "typesafe/jev-1.14-20261014",
+      "usage": {
+        "input_tokens": 4474,
+        "output_tokens": 38,
+        "cost": 0.000187908
+      }
+    },
+    {
+      "id": "jdlu-200690-4-long-side-brief-2",
+      "photo": "samples/jdlu-200690-4-long-side.jpg",
+      "variant": "brief",
+      "repeat": 2,
+      "status": 200,
+      "presence": 0.45,
+      "confidence": 0.18,
+      "geometryValid": true,
+      "edges": {
+        "top": 0.45,
+        "bottom": 0.75,
+        "left": 0.67,
+        "right": 0.8
+      },
+      "latencyMs": 430,
+      "reportedCostUsd": 0.000187824,
+      "requestedModel": "typesafe/jev-1.14",
+      "resolvedModel": "typesafe/jev-1.14-20261014",
+      "usage": {
+        "input_tokens": 4472,
+        "output_tokens": 38,
+        "cost": 0.000187824
+      }
+    },
+    {
+      "id": "jdlu-200690-4-long-side-brief-3",
+      "photo": "samples/jdlu-200690-4-long-side.jpg",
+      "variant": "brief",
+      "repeat": 3,
+      "status": 200,
+      "presence": 0.45,
+      "confidence": 0.19,
+      "geometryValid": true,
+      "edges": {
+        "top": 0.45,
+        "bottom": 0.56,
+        "left": 0.67,
+        "right": 0.8
+      },
+      "latencyMs": 365,
+      "reportedCostUsd": 0.000187866,
+      "requestedModel": "typesafe/jev-1.14",
+      "resolvedModel": "typesafe/jev-1.14-20261014",
+      "usage": {
+        "input_tokens": 4473,
+        "output_tokens": 38,
+        "cost": 0.000187866
+      }
+    },
+    {
+      "id": "jdlu-200690-4-long-side-shape-1",
+      "photo": "samples/jdlu-200690-4-long-side.jpg",
+      "variant": "shape",
+      "repeat": 1,
+      "status": 200,
+      "presence": 0.37,
+      "confidence": 0.16,
+      "geometryValid": true,
+      "edges": {
+        "top": 0.45,
+        "bottom": 0.75,
+        "left": 0.66,
+        "right": 0.8
+      },
+      "latencyMs": 324,
+      "reportedCostUsd": 0.000189924,
+      "requestedModel": "typesafe/jev-1.14",
+      "resolvedModel": "typesafe/jev-1.14-20261014",
+      "usage": {
+        "input_tokens": 4522,
+        "output_tokens": 38,
+        "cost": 0.000189924
+      }
+    },
+    {
+      "id": "jdlu-200690-4-long-side-shape-2",
+      "photo": "samples/jdlu-200690-4-long-side.jpg",
+      "variant": "shape",
+      "repeat": 2,
+      "status": 200,
+      "presence": 0.36,
+      "confidence": 0.15,
+      "geometryValid": true,
+      "edges": {
+        "top": 0.46,
+        "bottom": 0.75,
+        "left": 0.66,
+        "right": 0.8
+      },
+      "latencyMs": 408,
+      "reportedCostUsd": 0.000190218,
+      "requestedModel": "typesafe/jev-1.14",
+      "resolvedModel": "typesafe/jev-1.14-20261014",
+      "usage": {
+        "input_tokens": 4529,
+        "output_tokens": 38,
+        "cost": 0.000190218
+      }
+    },
+    {
+      "id": "jdlu-200690-4-long-side-shape-3",
+      "photo": "samples/jdlu-200690-4-long-side.jpg",
+      "variant": "shape",
+      "repeat": 3,
+      "status": 200,
+      "presence": 0.37,
+      "confidence": 0.16,
+      "geometryValid": true,
+      "edges": {
+        "top": 0.45,
+        "bottom": 0.75,
+        "left": 0.66,
+        "right": 0.8
+      },
+      "latencyMs": 312,
+      "reportedCostUsd": 0.000190008,
+      "requestedModel": "typesafe/jev-1.14",
+      "resolvedModel": "typesafe/jev-1.14-20261014",
+      "usage": {
+        "input_tokens": 4524,
+        "output_tokens": 38,
+        "cost": 0.000190008
+      }
+    },
+    {
+      "id": "jdlu-200690-4-long-side-specific-1",
+      "photo": "samples/jdlu-200690-4-long-side.jpg",
+      "variant": "specific",
+      "repeat": 1,
+      "status": 200,
+      "presence": 0.41,
+      "confidence": 0.16,
+      "geometryValid": true,
+      "edges": {
+        "top": 0.45,
+        "bottom": 0.75,
+        "left": 0.65,
+        "right": 0.8
+      },
+      "latencyMs": 308,
+      "reportedCostUsd": 0.000191184,
+      "requestedModel": "typesafe/jev-1.14",
+      "resolvedModel": "typesafe/jev-1.14-20261014",
+      "usage": {
+        "input_tokens": 4552,
+        "output_tokens": 38,
+        "cost": 0.000191184
+      }
+    },
+    {
+      "id": "jdlu-200690-4-long-side-specific-2",
+      "photo": "samples/jdlu-200690-4-long-side.jpg",
+      "variant": "specific",
+      "repeat": 2,
+      "status": 200,
+      "presence": 0.41,
+      "confidence": 0.26,
+      "geometryValid": true,
+      "edges": {
+        "top": 0.45,
+        "bottom": 0.67,
+        "left": 0.66,
+        "right": 0.8
+      },
+      "latencyMs": 308,
+      "reportedCostUsd": 0.000191184,
+      "requestedModel": "typesafe/jev-1.14",
+      "resolvedModel": "typesafe/jev-1.14-20261014",
+      "usage": {
+        "input_tokens": 4552,
+        "output_tokens": 38,
+        "cost": 0.000191184
+      }
+    },
+    {
+      "id": "jdlu-200690-4-long-side-specific-3",
+      "photo": "samples/jdlu-200690-4-long-side.jpg",
+      "variant": "specific",
+      "repeat": 3,
+      "status": 200,
+      "presence": 0.4,
+      "confidence": 0.18,
+      "geometryValid": true,
+      "edges": {
+        "top": 0.45,
+        "bottom": 0.75,
+        "left": 0.65,
+        "right": 0.8
+      },
+      "latencyMs": 296,
+      "reportedCostUsd": 0.0001911,
+      "requestedModel": "typesafe/jev-1.14",
+      "resolvedModel": "typesafe/jev-1.14-20261014",
+      "usage": {
+        "input_tokens": 4550,
+        "output_tokens": 38,
+        "cost": 0.0001911
+      }
+    },
+    {
+      "id": "rear-door-coyu-22g1-brief-1",
+      "photo": "samples/rear-door-coyu-22g1.jpg",
+      "variant": "brief",
+      "repeat": 1,
+      "status": 200,
+      "presence": 0.35,
+      "confidence": 0.05,
+      "geometryValid": true,
+      "edges": {
+        "top": 0.75,
+        "bottom": 0.87,
+        "left": 0.47,
+        "right": 0.53
+      },
+      "latencyMs": 323,
+      "reportedCostUsd": 0.000145488,
+      "requestedModel": "typesafe/jev-1.14",
+      "resolvedModel": "typesafe/jev-1.14-20261014",
+      "usage": {
+        "input_tokens": 3464,
+        "output_tokens": 38,
+        "cost": 0.000145488
+      }
+    },
+    {
+      "id": "rear-door-coyu-22g1-brief-2",
+      "photo": "samples/rear-door-coyu-22g1.jpg",
+      "variant": "brief",
+      "repeat": 2,
+      "status": 200,
+      "presence": 0.35,
+      "confidence": 0.05,
+      "geometryValid": true,
+      "edges": {
+        "top": 0.46,
+        "bottom": 0.54,
+        "left": 0.47,
+        "right": 0.52
+      },
+      "latencyMs": 436,
+      "reportedCostUsd": 0.000145572,
+      "requestedModel": "typesafe/jev-1.14",
+      "resolvedModel": "typesafe/jev-1.14-20261014",
+      "usage": {
+        "input_tokens": 3466,
+        "output_tokens": 38,
+        "cost": 0.000145572
+      }
+    },
+    {
+      "id": "rear-door-coyu-22g1-brief-3",
+      "photo": "samples/rear-door-coyu-22g1.jpg",
+      "variant": "brief",
+      "repeat": 3,
+      "status": 200,
+      "presence": 0.37,
+      "confidence": 0.05,
+      "geometryValid": true,
+      "edges": {
+        "top": 0.42,
+        "bottom": 0.54,
+        "left": 0.47,
+        "right": 0.53
+      },
+      "latencyMs": 375,
+      "reportedCostUsd": 0.000145362,
+      "requestedModel": "typesafe/jev-1.14",
+      "resolvedModel": "typesafe/jev-1.14-20261014",
+      "usage": {
+        "input_tokens": 3461,
+        "output_tokens": 38,
+        "cost": 0.000145362
+      }
+    },
+    {
+      "id": "rear-door-coyu-22g1-shape-1",
+      "photo": "samples/rear-door-coyu-22g1.jpg",
+      "variant": "shape",
+      "repeat": 1,
+      "status": 200,
+      "presence": 0.34,
+      "confidence": 0.04,
+      "geometryValid": true,
+      "edges": {
+        "top": 0.12,
+        "bottom": 0.87,
+        "left": 0.46,
+        "right": 0.48
+      },
+      "latencyMs": 321,
+      "reportedCostUsd": 0.000147714,
+      "requestedModel": "typesafe/jev-1.14",
+      "resolvedModel": "typesafe/jev-1.14-20261014",
+      "usage": {
+        "input_tokens": 3517,
+        "output_tokens": 38,
+        "cost": 0.000147714
+      }
+    },
+    {
+      "id": "rear-door-coyu-22g1-shape-2",
+      "photo": "samples/rear-door-coyu-22g1.jpg",
+      "variant": "shape",
+      "repeat": 2,
+      "status": 200,
+      "presence": 0.36,
+      "confidence": 0.05,
+      "geometryValid": true,
+      "edges": {
+        "top": 0.75,
+        "bottom": 0.87,
+        "left": 0.47,
+        "right": 0.53
+      },
+      "latencyMs": 398,
+      "reportedCostUsd": 0.000147672,
+      "requestedModel": "typesafe/jev-1.14",
+      "resolvedModel": "typesafe/jev-1.14-20261014",
+      "usage": {
+        "input_tokens": 3516,
+        "output_tokens": 38,
+        "cost": 0.000147672
+      }
+    },
+    {
+      "id": "rear-door-coyu-22g1-shape-3",
+      "photo": "samples/rear-door-coyu-22g1.jpg",
+      "variant": "shape",
+      "repeat": 3,
+      "status": 200,
+      "presence": 0.34,
+      "confidence": 0.04,
+      "geometryValid": true,
+      "edges": {
+        "top": 0.12,
+        "bottom": 0.87,
+        "left": 0.46,
+        "right": 0.52
+      },
+      "latencyMs": 383,
+      "reportedCostUsd": 0.000147756,
+      "requestedModel": "typesafe/jev-1.14",
+      "resolvedModel": "typesafe/jev-1.14-20261014",
+      "usage": {
+        "input_tokens": 3518,
+        "output_tokens": 38,
+        "cost": 0.000147756
+      }
+    },
+    {
+      "id": "rear-door-coyu-22g1-specific-1",
+      "photo": "samples/rear-door-coyu-22g1.jpg",
+      "variant": "specific",
+      "repeat": 1,
+      "status": 200,
+      "presence": 0.32,
+      "confidence": 0.06,
+      "geometryValid": true,
+      "edges": {
+        "top": 0.75,
+        "bottom": 0.87,
+        "left": 0.45,
+        "right": 0.46
+      },
+      "latencyMs": 309,
+      "reportedCostUsd": 0.000148638,
+      "requestedModel": "typesafe/jev-1.14",
+      "resolvedModel": "typesafe/jev-1.14-20261014",
+      "usage": {
+        "input_tokens": 3539,
+        "output_tokens": 38,
+        "cost": 0.000148638
+      }
+    },
+    {
+      "id": "rear-door-coyu-22g1-specific-2",
+      "photo": "samples/rear-door-coyu-22g1.jpg",
+      "variant": "specific",
+      "repeat": 2,
+      "status": 200,
+      "presence": 0.32,
+      "confidence": 0.06,
+      "geometryValid": true,
+      "edges": {
+        "top": 0.75,
+        "bottom": 0.87,
+        "left": 0.43,
+        "right": 0.45
+      },
+      "latencyMs": 302,
+      "reportedCostUsd": 0.00014889,
+      "requestedModel": "typesafe/jev-1.14",
+      "resolvedModel": "typesafe/jev-1.14-20261014",
+      "usage": {
+        "input_tokens": 3545,
+        "output_tokens": 38,
+        "cost": 0.00014889
+      }
+    },
+    {
+      "id": "rear-door-coyu-22g1-specific-3",
+      "photo": "samples/rear-door-coyu-22g1.jpg",
+      "variant": "specific",
+      "repeat": 3,
+      "status": 200,
+      "presence": 0.32,
+      "confidence": 0.04,
+      "geometryValid": true,
+      "edges": {
+        "top": 0.11,
+        "bottom": 0.87,
+        "left": 0.45,
+        "right": 0.46
+      },
+      "latencyMs": 317,
+      "reportedCostUsd": 0.000148722,
+      "requestedModel": "typesafe/jev-1.14",
+      "resolvedModel": "typesafe/jev-1.14-20261014",
+      "usage": {
+        "input_tokens": 3541,
+        "output_tokens": 38,
+        "cost": 0.000148722
+      }
+    }
+  ]
+}

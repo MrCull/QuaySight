@@ -69,10 +69,10 @@ export interface ProviderInfo {
 
 const KEPT_IN_MEMORY = "The key stays in this tab's memory and is never saved."
 
-/** Jev (TypeSafe docs, checked 16 Oct 2026): 256–1,568 px per side, 78,400–2,458,624 px in total. */
+/** Jev (TypeSafe docs, rechecked 30 Oct 2026): 280–1,568 px per side, 78,400–2,458,624 px in total. */
 const JEV_LIMITS: PhotoLimits = {
   maxSide: 1568,
-  minSide: 256,
+  minSide: 280,
   maxPixels: 2_458_624,
   minPixels: 78_400,
 }
