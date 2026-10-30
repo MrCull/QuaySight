@@ -798,3 +798,10 @@
 .qs-door__placard--unseen { fill: none; stroke: var(--line-strong); stroke-width: 1.5; stroke-dasharray: 5 4; }
 .qs-door__caution-a { fill: var(--hazard-bg); }
 .qs-door__caution-b { fill: var(--hazard-fg); }
+
+/* Optional damage evidence: upright original pixels, with a separate focal overlay. */
+.qs-viewer { overflow: hidden; }
+.qs-viewer__stage { min-height: 0; min-width: 0; display: grid; place-items: center; }
+.qs-viewer__frame { position: relative; flex: none; }
+.qs-viewer__highlight { position: absolute; box-sizing: border-box; border: 2px dashed var(--ink); outline: 2px solid var(--surface); pointer-events: none; }
+.qs-viewer__tools { position: absolute; left: var(--space-5); right: var(--space-5); bottom: var(--space-7); display: flex; flex-wrap: wrap; justify-content: center; align-items: center; gap: var(--space-3); padding: var(--space-2); background: var(--surface-raised); color: var(--ink); border-radius: var(--radius-sm); cursor: default; }

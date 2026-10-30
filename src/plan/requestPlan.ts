@@ -91,6 +91,8 @@ export interface PlanRequest<A = unknown> {
   needed?(plan: PlanView): boolean
   /** A refinement of an answer that is already usable: its failure leaves the stage done and the result complete. */
   optional?: boolean
+  /** Wait for the inspection-wide essential/read barrier before charging this request. */
+  deferred?: boolean
   /** Builds the questions, sends them on the route with ctx.signal and maps the answer. Throws a ProviderError on failure. */
   send(ctx: RequestContext): Promise<RequestReply<A>>
   /**
@@ -135,6 +137,7 @@ export interface PlanRunOptions {
   onSettled(settled: SettledRequest): void
   /** Several photos share one inspection: `idPrefix` goes ahead of each request's pass id (`p2-`), `purposeSuffix` after its purpose. */
   photoLabel?: { idPrefix: string; purposeSuffix: string }
+  beforeDeferred?: Promise<void>
   now?: () => number
 }
 
@@ -215,6 +218,7 @@ export function runPlan(options: PlanRunOptions): PlanRun {
     controllers.set(r, controller)
     const label = options.photoLabel
     const passId = `${options.inspectionId}-${label?.idPrefix ?? ''}${r.id}`
+    if (r.deferred) await options.beforeDeferred
     let reply: RequestReply<unknown> | null = null
     const result = await options.charge({
       id: passId,

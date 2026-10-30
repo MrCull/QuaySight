@@ -110,6 +110,8 @@ export interface DamageObservation {
   /** Null when the source photograph was not supplied; never guessed from another finding. */
   photo: { name: string; index?: number } | null
   passId: string | null
+  /** Optional focal highlight, never a complete defect boundary or classification. */
+  localisation?: DamageLocalisation
   evidence: Omit<DamageFinding, 'observations' | 'photos'>
 }
 
@@ -234,4 +236,14 @@ export function sortFindings(findings: DamageFinding[]): DamageFinding[] {
         (b.severity ? SEVERITY_RANK[b.severity] : UNRATED_RANK) ||
       a.id - b.id,
   )
+}
+
+export interface DamageLocalisation {
+  box: { top: number; bottom: number; left: number; right: number }
+  presence: number
+  confidence: number
+  coordinateSpace: 'upright-original'
+  passId: string
+  target: string
+  resolvedModel: string
 }
