@@ -1,0 +1,2682 @@
+{
+  "mode": "live",
+  "completedRequests": 81,
+  "successfulRequests": 81,
+  "knownReportedCostUsd": 0.012244385999999998,
+  "missingReportedCostCount": 0,
+  "rows": [
+    {
+      "id": "full-side-dented-grey-brief-1",
+      "photo": "samples/side-dented-grey.jpg",
+      "condition": "full",
+      "preparedFile": "full-side-dented-grey.jpg",
+      "mappedBox": {
+        "left": 0.3,
+        "right": 0.47,
+        "top": 0.52,
+        "bottom": 0.58
+      },
+      "variant": "brief",
+      "repeat": 1,
+      "status": 200,
+      "presence": 0.98,
+      "confidence": 0.53,
+      "geometryValid": true,
+      "edges": {
+        "top": 0.52,
+        "bottom": 0.58,
+        "left": 0.3,
+        "right": 0.47
+      },
+      "latencyMs": 598,
+      "reportedCostUsd": 0.00007854,
+      "requestedModel": "typesafe/jev-1.14",
+      "resolvedModel": "typesafe/jev-1.14-20261014",
+      "usage": {
+        "input_tokens": 1870,
+        "output_tokens": 38,
+        "cost": 0.00007854
+      }
+    },
+    {
+      "id": "full-side-dented-grey-brief-2",
+      "photo": "samples/side-dented-grey.jpg",
+      "condition": "full",
+      "preparedFile": "full-side-dented-grey.jpg",
+      "mappedBox": {
+        "left": 0.3,
+        "right": 0.54,
+        "top": 0.51,
+        "bottom": 0.58
+      },
+      "variant": "brief",
+      "repeat": 2,
+      "status": 200,
+      "presence": 0.99,
+      "confidence": 0.61,
+      "geometryValid": true,
+      "edges": {
+        "top": 0.51,
+        "bottom": 0.58,
+        "left": 0.3,
+        "right": 0.54
+      },
+      "latencyMs": 317,
+      "reportedCostUsd": 0.00007854,
+      "requestedModel": "typesafe/jev-1.14",
+      "resolvedModel": "typesafe/jev-1.14-20261014",
+      "usage": {
+        "input_tokens": 1870,
+        "output_tokens": 38,
+        "cost": 0.00007854
+      }
+    },
+    {
+      "id": "full-side-dented-grey-brief-3",
+      "photo": "samples/side-dented-grey.jpg",
+      "condition": "full",
+      "preparedFile": "full-side-dented-grey.jpg",
+      "mappedBox": {
+        "left": 0.31,
+        "right": 0.47,
+        "top": 0.52,
+        "bottom": 0.57
+      },
+      "variant": "brief",
+      "repeat": 3,
+      "status": 200,
+      "presence": 0.98,
+      "confidence": 0.59,
+      "geometryValid": true,
+      "edges": {
+        "top": 0.52,
+        "bottom": 0.57,
+        "left": 0.31,
+        "right": 0.47
+      },
+      "latencyMs": 399,
+      "reportedCostUsd": 0.00007854,
+      "requestedModel": "typesafe/jev-1.14",
+      "resolvedModel": "typesafe/jev-1.14-20261014",
+      "usage": {
+        "input_tokens": 1870,
+        "output_tokens": 38,
+        "cost": 0.00007854
+      }
+    },
+    {
+      "id": "full-side-dented-grey-shape-1",
+      "photo": "samples/side-dented-grey.jpg",
+      "condition": "full",
+      "preparedFile": "full-side-dented-grey.jpg",
+      "mappedBox": {
+        "left": 0.3,
+        "right": 0.47,
+        "top": 0.52,
+        "bottom": 0.58
+      },
+      "variant": "shape",
+      "repeat": 1,
+      "status": 200,
+      "presence": 0.96,
+      "confidence": 0.54,
+      "geometryValid": true,
+      "edges": {
+        "top": 0.52,
+        "bottom": 0.58,
+        "left": 0.3,
+        "right": 0.47
+      },
+      "latencyMs": 303,
+      "reportedCostUsd": 0.00008085,
+      "requestedModel": "typesafe/jev-1.14",
+      "resolvedModel": "typesafe/jev-1.14-20261014",
+      "usage": {
+        "input_tokens": 1925,
+        "output_tokens": 38,
+        "cost": 0.00008085
+      }
+    },
+    {
+      "id": "full-side-dented-grey-shape-2",
+      "photo": "samples/side-dented-grey.jpg",
+      "condition": "full",
+      "preparedFile": "full-side-dented-grey.jpg",
+      "mappedBox": {
+        "left": 0.3,
+        "right": 0.56,
+        "top": 0.51,
+        "bottom": 0.58
+      },
+      "variant": "shape",
+      "repeat": 2,
+      "status": 200,
+      "presence": 0.97,
+      "confidence": 0.61,
+      "geometryValid": true,
+      "edges": {
+        "top": 0.51,
+        "bottom": 0.58,
+        "left": 0.3,
+        "right": 0.56
+      },
+      "latencyMs": 320,
+      "reportedCostUsd": 0.000080598,
+      "requestedModel": "typesafe/jev-1.14",
+      "resolvedModel": "typesafe/jev-1.14-20261014",
+      "usage": {
+        "input_tokens": 1919,
+        "output_tokens": 38,
+        "cost": 0.000080598
+      }
+    },
+    {
+      "id": "full-side-dented-grey-shape-3",
+      "photo": "samples/side-dented-grey.jpg",
+      "condition": "full",
+      "preparedFile": "full-side-dented-grey.jpg",
+      "mappedBox": {
+        "left": 0.3,
+        "right": 0.54,
+        "top": 0.51,
+        "bottom": 0.58
+      },
+      "variant": "shape",
+      "repeat": 3,
+      "status": 200,
+      "presence": 0.97,
+      "confidence": 0.61,
+      "geometryValid": true,
+      "edges": {
+        "top": 0.51,
+        "bottom": 0.58,
+        "left": 0.3,
+        "right": 0.54
+      },
+      "latencyMs": 303,
+      "reportedCostUsd": 0.00008085,
+      "requestedModel": "typesafe/jev-1.14",
+      "resolvedModel": "typesafe/jev-1.14-20261014",
+      "usage": {
+        "input_tokens": 1925,
+        "output_tokens": 38,
+        "cost": 0.00008085
+      }
+    },
+    {
+      "id": "full-side-dented-grey-specific-1",
+      "photo": "samples/side-dented-grey.jpg",
+      "condition": "full",
+      "preparedFile": "full-side-dented-grey.jpg",
+      "mappedBox": {
+        "left": 0.31,
+        "right": 0.45,
+        "top": 0.52,
+        "bottom": 0.57
+      },
+      "variant": "specific",
+      "repeat": 1,
+      "status": 200,
+      "presence": 0.93,
+      "confidence": 0.67,
+      "geometryValid": true,
+      "edges": {
+        "top": 0.52,
+        "bottom": 0.57,
+        "left": 0.31,
+        "right": 0.45
+      },
+      "latencyMs": 319,
+      "reportedCostUsd": 0.00008169,
+      "requestedModel": "typesafe/jev-1.14",
+      "resolvedModel": "typesafe/jev-1.14-20261014",
+      "usage": {
+        "input_tokens": 1945,
+        "output_tokens": 38,
+        "cost": 0.00008169
+      }
+    },
+    {
+      "id": "full-side-dented-grey-specific-2",
+      "photo": "samples/side-dented-grey.jpg",
+      "condition": "full",
+      "preparedFile": "full-side-dented-grey.jpg",
+      "mappedBox": {
+        "left": 0.31,
+        "right": 0.46,
+        "top": 0.52,
+        "bottom": 0.57
+      },
+      "variant": "specific",
+      "repeat": 2,
+      "status": 200,
+      "presence": 0.92,
+      "confidence": 0.67,
+      "geometryValid": true,
+      "edges": {
+        "top": 0.52,
+        "bottom": 0.57,
+        "left": 0.31,
+        "right": 0.46
+      },
+      "latencyMs": 436,
+      "reportedCostUsd": 0.000081858,
+      "requestedModel": "typesafe/jev-1.14",
+      "resolvedModel": "typesafe/jev-1.14-20261014",
+      "usage": {
+        "input_tokens": 1949,
+        "output_tokens": 38,
+        "cost": 0.000081858
+      }
+    },
+    {
+      "id": "full-side-dented-grey-specific-3",
+      "photo": "samples/side-dented-grey.jpg",
+      "condition": "full",
+      "preparedFile": "full-side-dented-grey.jpg",
+      "mappedBox": {
+        "left": 0.32,
+        "right": 0.45,
+        "top": 0.52,
+        "bottom": 0.57
+      },
+      "variant": "specific",
+      "repeat": 3,
+      "status": 200,
+      "presence": 0.91,
+      "confidence": 0.67,
+      "geometryValid": true,
+      "edges": {
+        "top": 0.52,
+        "bottom": 0.57,
+        "left": 0.32,
+        "right": 0.45
+      },
+      "latencyMs": 294,
+      "reportedCostUsd": 0.000081858,
+      "requestedModel": "typesafe/jev-1.14",
+      "resolvedModel": "typesafe/jev-1.14-20261014",
+      "usage": {
+        "input_tokens": 1949,
+        "output_tokens": 38,
+        "cost": 0.000081858
+      }
+    },
+    {
+      "id": "raw-side-dented-grey-brief-1",
+      "photo": "samples/side-dented-grey.jpg",
+      "condition": "raw",
+      "preparedFile": "raw-side-dented-grey.jpg",
+      "mappedBox": {
+        "left": 0.376,
+        "right": 0.3925,
+        "top": 0.5332,
+        "bottom": 0.5469999999999999
+      },
+      "variant": "brief",
+      "repeat": 1,
+      "status": 200,
+      "presence": 0.5,
+      "confidence": 0.09,
+      "geometryValid": true,
+      "edges": {
+        "top": 0.22,
+        "bottom": 0.45,
+        "left": 0.44,
+        "right": 0.55
+      },
+      "latencyMs": 264,
+      "reportedCostUsd": 0.000088032,
+      "requestedModel": "typesafe/jev-1.14",
+      "resolvedModel": "typesafe/jev-1.14-20261014",
+      "usage": {
+        "input_tokens": 2096,
+        "output_tokens": 38,
+        "cost": 0.000088032
+      }
+    },
+    {
+      "id": "raw-side-dented-grey-brief-2",
+      "photo": "samples/side-dented-grey.jpg",
+      "condition": "raw",
+      "preparedFile": "raw-side-dented-grey.jpg",
+      "mappedBox": {
+        "left": 0.3775,
+        "right": 0.3925,
+        "top": 0.5332,
+        "bottom": 0.5464
+      },
+      "variant": "brief",
+      "repeat": 2,
+      "status": 200,
+      "presence": 0.49,
+      "confidence": 0.11,
+      "geometryValid": true,
+      "edges": {
+        "top": 0.22,
+        "bottom": 0.44,
+        "left": 0.45,
+        "right": 0.55
+      },
+      "latencyMs": 248,
+      "reportedCostUsd": 0.000088074,
+      "requestedModel": "typesafe/jev-1.14",
+      "resolvedModel": "typesafe/jev-1.14-20261014",
+      "usage": {
+        "input_tokens": 2097,
+        "output_tokens": 38,
+        "cost": 0.000088074
+      }
+    },
+    {
+      "id": "raw-side-dented-grey-brief-3",
+      "photo": "samples/side-dented-grey.jpg",
+      "condition": "raw",
+      "preparedFile": "raw-side-dented-grey.jpg",
+      "mappedBox": {
+        "left": 0.376,
+        "right": 0.3925,
+        "top": 0.5332,
+        "bottom": 0.5464
+      },
+      "variant": "brief",
+      "repeat": 3,
+      "status": 200,
+      "presence": 0.47,
+      "confidence": 0.09,
+      "geometryValid": true,
+      "edges": {
+        "top": 0.22,
+        "bottom": 0.44,
+        "left": 0.44,
+        "right": 0.55
+      },
+      "latencyMs": 338,
+      "reportedCostUsd": 0.00008799,
+      "requestedModel": "typesafe/jev-1.14",
+      "resolvedModel": "typesafe/jev-1.14-20261014",
+      "usage": {
+        "input_tokens": 2095,
+        "output_tokens": 38,
+        "cost": 0.00008799
+      }
+    },
+    {
+      "id": "raw-side-dented-grey-shape-1",
+      "photo": "samples/side-dented-grey.jpg",
+      "condition": "raw",
+      "preparedFile": "raw-side-dented-grey.jpg",
+      "mappedBox": {
+        "left": 0.379,
+        "right": 0.3925,
+        "top": 0.5332,
+        "bottom": 0.5469999999999999
+      },
+      "variant": "shape",
+      "repeat": 1,
+      "status": 200,
+      "presence": 0.35,
+      "confidence": 0.08,
+      "geometryValid": true,
+      "edges": {
+        "top": 0.22,
+        "bottom": 0.45,
+        "left": 0.46,
+        "right": 0.55
+      },
+      "latencyMs": 381,
+      "reportedCostUsd": 0.000090342,
+      "requestedModel": "typesafe/jev-1.14",
+      "resolvedModel": "typesafe/jev-1.14-20261014",
+      "usage": {
+        "input_tokens": 2151,
+        "output_tokens": 38,
+        "cost": 0.000090342
+      }
+    },
+    {
+      "id": "raw-side-dented-grey-shape-2",
+      "photo": "samples/side-dented-grey.jpg",
+      "condition": "raw",
+      "preparedFile": "raw-side-dented-grey.jpg",
+      "mappedBox": {
+        "left": 0.376,
+        "right": 0.3925,
+        "top": 0.5332,
+        "bottom": 0.5469999999999999
+      },
+      "variant": "shape",
+      "repeat": 2,
+      "status": 200,
+      "presence": 0.37,
+      "confidence": 0.08,
+      "geometryValid": true,
+      "edges": {
+        "top": 0.22,
+        "bottom": 0.45,
+        "left": 0.44,
+        "right": 0.55
+      },
+      "latencyMs": 372,
+      "reportedCostUsd": 0.000090342,
+      "requestedModel": "typesafe/jev-1.14",
+      "resolvedModel": "typesafe/jev-1.14-20261014",
+      "usage": {
+        "input_tokens": 2151,
+        "output_tokens": 38,
+        "cost": 0.000090342
+      }
+    },
+    {
+      "id": "raw-side-dented-grey-shape-3",
+      "photo": "samples/side-dented-grey.jpg",
+      "condition": "raw",
+      "preparedFile": "raw-side-dented-grey.jpg",
+      "mappedBox": {
+        "left": 0.3775,
+        "right": 0.3925,
+        "top": 0.5326,
+        "bottom": 0.5469999999999999
+      },
+      "variant": "shape",
+      "repeat": 3,
+      "status": 200,
+      "presence": 0.36,
+      "confidence": 0.09,
+      "geometryValid": true,
+      "edges": {
+        "top": 0.21,
+        "bottom": 0.45,
+        "left": 0.45,
+        "right": 0.55
+      },
+      "latencyMs": 235,
+      "reportedCostUsd": 0.0000903,
+      "requestedModel": "typesafe/jev-1.14",
+      "resolvedModel": "typesafe/jev-1.14-20261014",
+      "usage": {
+        "input_tokens": 2150,
+        "output_tokens": 38,
+        "cost": 0.0000903
+      }
+    },
+    {
+      "id": "raw-side-dented-grey-specific-1",
+      "photo": "samples/side-dented-grey.jpg",
+      "condition": "raw",
+      "preparedFile": "raw-side-dented-grey.jpg",
+      "mappedBox": {
+        "left": 0.376,
+        "right": 0.39099999999999996,
+        "top": 0.5326,
+        "bottom": 0.5464
+      },
+      "variant": "specific",
+      "repeat": 1,
+      "status": 200,
+      "presence": 0.39,
+      "confidence": 0.13,
+      "geometryValid": true,
+      "edges": {
+        "top": 0.21,
+        "bottom": 0.44,
+        "left": 0.44,
+        "right": 0.54
+      },
+      "latencyMs": 227,
+      "reportedCostUsd": 0.000091392,
+      "requestedModel": "typesafe/jev-1.14",
+      "resolvedModel": "typesafe/jev-1.14-20261014",
+      "usage": {
+        "input_tokens": 2176,
+        "output_tokens": 38,
+        "cost": 0.000091392
+      }
+    },
+    {
+      "id": "raw-side-dented-grey-specific-2",
+      "photo": "samples/side-dented-grey.jpg",
+      "condition": "raw",
+      "preparedFile": "raw-side-dented-grey.jpg",
+      "mappedBox": {
+        "left": 0.376,
+        "right": 0.39099999999999996,
+        "top": 0.5332,
+        "bottom": 0.5464
+      },
+      "variant": "specific",
+      "repeat": 2,
+      "status": 200,
+      "presence": 0.42,
+      "confidence": 0.15,
+      "geometryValid": true,
+      "edges": {
+        "top": 0.22,
+        "bottom": 0.44,
+        "left": 0.44,
+        "right": 0.54
+      },
+      "latencyMs": 238,
+      "reportedCostUsd": 0.000091182,
+      "requestedModel": "typesafe/jev-1.14",
+      "resolvedModel": "typesafe/jev-1.14-20261014",
+      "usage": {
+        "input_tokens": 2171,
+        "output_tokens": 38,
+        "cost": 0.000091182
+      }
+    },
+    {
+      "id": "raw-side-dented-grey-specific-3",
+      "photo": "samples/side-dented-grey.jpg",
+      "condition": "raw",
+      "preparedFile": "raw-side-dented-grey.jpg",
+      "mappedBox": {
+        "left": 0.376,
+        "right": 0.3925,
+        "top": 0.5332,
+        "bottom": 0.5464
+      },
+      "variant": "specific",
+      "repeat": 3,
+      "status": 200,
+      "presence": 0.41,
+      "confidence": 0.14,
+      "geometryValid": true,
+      "edges": {
+        "top": 0.22,
+        "bottom": 0.44,
+        "left": 0.44,
+        "right": 0.55
+      },
+      "latencyMs": 245,
+      "reportedCostUsd": 0.000091392,
+      "requestedModel": "typesafe/jev-1.14",
+      "resolvedModel": "typesafe/jev-1.14-20261014",
+      "usage": {
+        "input_tokens": 2176,
+        "output_tokens": 38,
+        "cost": 0.000091392
+      }
+    },
+    {
+      "id": "padded-side-dented-grey-brief-1",
+      "photo": "samples/side-dented-grey.jpg",
+      "condition": "padded",
+      "preparedFile": "padded-side-dented-grey.jpg",
+      "mappedBox": {
+        "left": 0.36446666666666666,
+        "right": 0.40040000000000003,
+        "top": 0.5214,
+        "bottom": 0.5478000000000001
+      },
+      "variant": "brief",
+      "repeat": 1,
+      "status": 200,
+      "presence": 0.93,
+      "confidence": 0.23,
+      "geometryValid": true,
+      "edges": {
+        "top": 0.37,
+        "bottom": 0.49,
+        "left": 0.42,
+        "right": 0.56
+      },
+      "latencyMs": 251,
+      "reportedCostUsd": 0.000168,
+      "requestedModel": "typesafe/jev-1.14",
+      "resolvedModel": "typesafe/jev-1.14-20261014",
+      "usage": {
+        "input_tokens": 4000,
+        "output_tokens": 38,
+        "cost": 0.000168
+      }
+    },
+    {
+      "id": "padded-side-dented-grey-brief-2",
+      "photo": "samples/side-dented-grey.jpg",
+      "condition": "padded",
+      "preparedFile": "padded-side-dented-grey.jpg",
+      "mappedBox": {
+        "left": 0.36446666666666666,
+        "right": 0.5082,
+        "top": 0.5214,
+        "bottom": 0.5478000000000001
+      },
+      "variant": "brief",
+      "repeat": 2,
+      "status": 200,
+      "presence": 0.94,
+      "confidence": 0.14,
+      "geometryValid": true,
+      "edges": {
+        "top": 0.37,
+        "bottom": 0.49,
+        "left": 0.42,
+        "right": 0.98
+      },
+      "latencyMs": 290,
+      "reportedCostUsd": 0.000168084,
+      "requestedModel": "typesafe/jev-1.14",
+      "resolvedModel": "typesafe/jev-1.14-20261014",
+      "usage": {
+        "input_tokens": 4002,
+        "output_tokens": 38,
+        "cost": 0.000168084
+      }
+    },
+    {
+      "id": "padded-side-dented-grey-brief-3",
+      "photo": "samples/side-dented-grey.jpg",
+      "condition": "padded",
+      "preparedFile": "padded-side-dented-grey.jpg",
+      "mappedBox": {
+        "left": 0.3619,
+        "right": 0.5082,
+        "top": 0.5214,
+        "bottom": 0.5478000000000001
+      },
+      "variant": "brief",
+      "repeat": 3,
+      "status": 200,
+      "presence": 0.93,
+      "confidence": 0.13,
+      "geometryValid": true,
+      "edges": {
+        "top": 0.37,
+        "bottom": 0.49,
+        "left": 0.41,
+        "right": 0.98
+      },
+      "latencyMs": 275,
+      "reportedCostUsd": 0.000168,
+      "requestedModel": "typesafe/jev-1.14",
+      "resolvedModel": "typesafe/jev-1.14-20261014",
+      "usage": {
+        "input_tokens": 4000,
+        "output_tokens": 38,
+        "cost": 0.000168
+      }
+    },
+    {
+      "id": "padded-side-dented-grey-shape-1",
+      "photo": "samples/side-dented-grey.jpg",
+      "condition": "padded",
+      "preparedFile": "padded-side-dented-grey.jpg",
+      "mappedBox": {
+        "left": 0.3413666666666667,
+        "right": 0.5082,
+        "top": 0.5214,
+        "bottom": 0.5478000000000001
+      },
+      "variant": "shape",
+      "repeat": 1,
+      "status": 200,
+      "presence": 0.88,
+      "confidence": 0.19,
+      "geometryValid": true,
+      "edges": {
+        "top": 0.37,
+        "bottom": 0.49,
+        "left": 0.33,
+        "right": 0.98
+      },
+      "latencyMs": 284,
+      "reportedCostUsd": 0.000170394,
+      "requestedModel": "typesafe/jev-1.14",
+      "resolvedModel": "typesafe/jev-1.14-20261014",
+      "usage": {
+        "input_tokens": 4057,
+        "output_tokens": 38,
+        "cost": 0.000170394
+      }
+    },
+    {
+      "id": "padded-side-dented-grey-shape-2",
+      "photo": "samples/side-dented-grey.jpg",
+      "condition": "padded",
+      "preparedFile": "padded-side-dented-grey.jpg",
+      "mappedBox": {
+        "left": 0.3131333333333333,
+        "right": 0.4517333333333333,
+        "top": 0.5236000000000001,
+        "bottom": 0.5456
+      },
+      "variant": "shape",
+      "repeat": 2,
+      "status": 200,
+      "presence": 0.88,
+      "confidence": 0.19,
+      "geometryValid": true,
+      "edges": {
+        "top": 0.38,
+        "bottom": 0.48,
+        "left": 0.22,
+        "right": 0.76
+      },
+      "latencyMs": 289,
+      "reportedCostUsd": 0.000170268,
+      "requestedModel": "typesafe/jev-1.14",
+      "resolvedModel": "typesafe/jev-1.14-20261014",
+      "usage": {
+        "input_tokens": 4054,
+        "output_tokens": 38,
+        "cost": 0.000170268
+      }
+    },
+    {
+      "id": "padded-side-dented-grey-shape-3",
+      "photo": "samples/side-dented-grey.jpg",
+      "condition": "padded",
+      "preparedFile": "padded-side-dented-grey.jpg",
+      "mappedBox": {
+        "left": 0.3619,
+        "right": 0.5082,
+        "top": 0.5236000000000001,
+        "bottom": 0.5478000000000001
+      },
+      "variant": "shape",
+      "repeat": 3,
+      "status": 200,
+      "presence": 0.88,
+      "confidence": 0.13,
+      "geometryValid": true,
+      "edges": {
+        "top": 0.38,
+        "bottom": 0.49,
+        "left": 0.41,
+        "right": 0.98
+      },
+      "latencyMs": 275,
+      "reportedCostUsd": 0.00017031,
+      "requestedModel": "typesafe/jev-1.14",
+      "resolvedModel": "typesafe/jev-1.14-20261014",
+      "usage": {
+        "input_tokens": 4055,
+        "output_tokens": 38,
+        "cost": 0.00017031
+      }
+    },
+    {
+      "id": "padded-side-dented-grey-specific-1",
+      "photo": "samples/side-dented-grey.jpg",
+      "condition": "padded",
+      "preparedFile": "padded-side-dented-grey.jpg",
+      "mappedBox": {
+        "left": 0.3670333333333333,
+        "right": 0.39783333333333337,
+        "top": 0.5214,
+        "bottom": 0.5478000000000001
+      },
+      "variant": "specific",
+      "repeat": 1,
+      "status": 200,
+      "presence": 0.84,
+      "confidence": 0.43,
+      "geometryValid": true,
+      "edges": {
+        "top": 0.37,
+        "bottom": 0.49,
+        "left": 0.43,
+        "right": 0.55
+      },
+      "latencyMs": 250,
+      "reportedCostUsd": 0.000171276,
+      "requestedModel": "typesafe/jev-1.14",
+      "resolvedModel": "typesafe/jev-1.14-20261014",
+      "usage": {
+        "input_tokens": 4078,
+        "output_tokens": 38,
+        "cost": 0.000171276
+      }
+    },
+    {
+      "id": "padded-side-dented-grey-specific-2",
+      "photo": "samples/side-dented-grey.jpg",
+      "condition": "padded",
+      "preparedFile": "padded-side-dented-grey.jpg",
+      "mappedBox": {
+        "left": 0.3670333333333333,
+        "right": 0.40040000000000003,
+        "top": 0.5214,
+        "bottom": 0.5478000000000001
+      },
+      "variant": "specific",
+      "repeat": 2,
+      "status": 200,
+      "presence": 0.85,
+      "confidence": 0.45,
+      "geometryValid": true,
+      "edges": {
+        "top": 0.37,
+        "bottom": 0.49,
+        "left": 0.43,
+        "right": 0.56
+      },
+      "latencyMs": 270,
+      "reportedCostUsd": 0.000171402,
+      "requestedModel": "typesafe/jev-1.14",
+      "resolvedModel": "typesafe/jev-1.14-20261014",
+      "usage": {
+        "input_tokens": 4081,
+        "output_tokens": 38,
+        "cost": 0.000171402
+      }
+    },
+    {
+      "id": "padded-side-dented-grey-specific-3",
+      "photo": "samples/side-dented-grey.jpg",
+      "condition": "padded",
+      "preparedFile": "padded-side-dented-grey.jpg",
+      "mappedBox": {
+        "left": 0.36446666666666666,
+        "right": 0.40040000000000003,
+        "top": 0.5214,
+        "bottom": 0.5478000000000001
+      },
+      "variant": "specific",
+      "repeat": 3,
+      "status": 200,
+      "presence": 0.84,
+      "confidence": 0.48,
+      "geometryValid": true,
+      "edges": {
+        "top": 0.37,
+        "bottom": 0.49,
+        "left": 0.42,
+        "right": 0.56
+      },
+      "latencyMs": 257,
+      "reportedCostUsd": 0.000171318,
+      "requestedModel": "typesafe/jev-1.14",
+      "resolvedModel": "typesafe/jev-1.14-20261014",
+      "usage": {
+        "input_tokens": 4079,
+        "output_tokens": 38,
+        "cost": 0.000171318
+      }
+    },
+    {
+      "id": "full-corner-torn-door-cai-20ft-brief-1",
+      "photo": "samples/corner-torn-door-cai-20ft.jpg",
+      "condition": "full",
+      "preparedFile": "full-corner-torn-door-cai-20ft.jpg",
+      "mappedBox": {
+        "left": 0.28,
+        "right": 0.47,
+        "top": 0.52,
+        "bottom": 0.87
+      },
+      "variant": "brief",
+      "repeat": 1,
+      "status": 200,
+      "presence": 0.98,
+      "confidence": 0.6,
+      "geometryValid": true,
+      "edges": {
+        "top": 0.52,
+        "bottom": 0.87,
+        "left": 0.28,
+        "right": 0.47
+      },
+      "latencyMs": 270,
+      "reportedCostUsd": 0.000070518,
+      "requestedModel": "typesafe/jev-1.14",
+      "resolvedModel": "typesafe/jev-1.14-20261014",
+      "usage": {
+        "input_tokens": 1679,
+        "output_tokens": 38,
+        "cost": 0.000070518
+      }
+    },
+    {
+      "id": "full-corner-torn-door-cai-20ft-brief-2",
+      "photo": "samples/corner-torn-door-cai-20ft.jpg",
+      "condition": "full",
+      "preparedFile": "full-corner-torn-door-cai-20ft.jpg",
+      "mappedBox": {
+        "left": 0.29,
+        "right": 0.47,
+        "top": 0.53,
+        "bottom": 0.86
+      },
+      "variant": "brief",
+      "repeat": 2,
+      "status": 200,
+      "presence": 0.97,
+      "confidence": 0.58,
+      "geometryValid": true,
+      "edges": {
+        "top": 0.53,
+        "bottom": 0.86,
+        "left": 0.29,
+        "right": 0.47
+      },
+      "latencyMs": 279,
+      "reportedCostUsd": 0.000070518,
+      "requestedModel": "typesafe/jev-1.14",
+      "resolvedModel": "typesafe/jev-1.14-20261014",
+      "usage": {
+        "input_tokens": 1679,
+        "output_tokens": 38,
+        "cost": 0.000070518
+      }
+    },
+    {
+      "id": "full-corner-torn-door-cai-20ft-brief-3",
+      "photo": "samples/corner-torn-door-cai-20ft.jpg",
+      "condition": "full",
+      "preparedFile": "full-corner-torn-door-cai-20ft.jpg",
+      "mappedBox": {
+        "left": 0.28,
+        "right": 0.47,
+        "top": 0.53,
+        "bottom": 0.86
+      },
+      "variant": "brief",
+      "repeat": 3,
+      "status": 200,
+      "presence": 0.98,
+      "confidence": 0.61,
+      "geometryValid": true,
+      "edges": {
+        "top": 0.53,
+        "bottom": 0.86,
+        "left": 0.28,
+        "right": 0.47
+      },
+      "latencyMs": 253,
+      "reportedCostUsd": 0.000070518,
+      "requestedModel": "typesafe/jev-1.14",
+      "resolvedModel": "typesafe/jev-1.14-20261014",
+      "usage": {
+        "input_tokens": 1679,
+        "output_tokens": 38,
+        "cost": 0.000070518
+      }
+    },
+    {
+      "id": "full-corner-torn-door-cai-20ft-shape-1",
+      "photo": "samples/corner-torn-door-cai-20ft.jpg",
+      "condition": "full",
+      "preparedFile": "full-corner-torn-door-cai-20ft.jpg",
+      "mappedBox": {
+        "left": 0.26,
+        "right": 0.47,
+        "top": 0.52,
+        "bottom": 0.87
+      },
+      "variant": "shape",
+      "repeat": 1,
+      "status": 200,
+      "presence": 0.96,
+      "confidence": 0.64,
+      "geometryValid": true,
+      "edges": {
+        "top": 0.52,
+        "bottom": 0.87,
+        "left": 0.26,
+        "right": 0.47
+      },
+      "latencyMs": 304,
+      "reportedCostUsd": 0.00007287,
+      "requestedModel": "typesafe/jev-1.14",
+      "resolvedModel": "typesafe/jev-1.14-20261014",
+      "usage": {
+        "input_tokens": 1735,
+        "output_tokens": 38,
+        "cost": 0.00007287
+      }
+    },
+    {
+      "id": "full-corner-torn-door-cai-20ft-shape-2",
+      "photo": "samples/corner-torn-door-cai-20ft.jpg",
+      "condition": "full",
+      "preparedFile": "full-corner-torn-door-cai-20ft.jpg",
+      "mappedBox": {
+        "left": 0.26,
+        "right": 0.48,
+        "top": 0.53,
+        "bottom": 0.87
+      },
+      "variant": "shape",
+      "repeat": 2,
+      "status": 200,
+      "presence": 0.97,
+      "confidence": 0.64,
+      "geometryValid": true,
+      "edges": {
+        "top": 0.53,
+        "bottom": 0.87,
+        "left": 0.26,
+        "right": 0.48
+      },
+      "latencyMs": 267,
+      "reportedCostUsd": 0.000072702,
+      "requestedModel": "typesafe/jev-1.14",
+      "resolvedModel": "typesafe/jev-1.14-20261014",
+      "usage": {
+        "input_tokens": 1731,
+        "output_tokens": 38,
+        "cost": 0.000072702
+      }
+    },
+    {
+      "id": "full-corner-torn-door-cai-20ft-shape-3",
+      "photo": "samples/corner-torn-door-cai-20ft.jpg",
+      "condition": "full",
+      "preparedFile": "full-corner-torn-door-cai-20ft.jpg",
+      "mappedBox": {
+        "left": 0.26,
+        "right": 0.47,
+        "top": 0.53,
+        "bottom": 0.87
+      },
+      "variant": "shape",
+      "repeat": 3,
+      "status": 200,
+      "presence": 0.96,
+      "confidence": 0.66,
+      "geometryValid": true,
+      "edges": {
+        "top": 0.53,
+        "bottom": 0.87,
+        "left": 0.26,
+        "right": 0.47
+      },
+      "latencyMs": 288,
+      "reportedCostUsd": 0.000072786,
+      "requestedModel": "typesafe/jev-1.14",
+      "resolvedModel": "typesafe/jev-1.14-20261014",
+      "usage": {
+        "input_tokens": 1733,
+        "output_tokens": 38,
+        "cost": 0.000072786
+      }
+    },
+    {
+      "id": "full-corner-torn-door-cai-20ft-specific-1",
+      "photo": "samples/corner-torn-door-cai-20ft.jpg",
+      "condition": "full",
+      "preparedFile": "full-corner-torn-door-cai-20ft.jpg",
+      "mappedBox": {
+        "left": 0.28,
+        "right": 0.47,
+        "top": 0.52,
+        "bottom": 0.87
+      },
+      "variant": "specific",
+      "repeat": 1,
+      "status": 200,
+      "presence": 0.89,
+      "confidence": 0.64,
+      "geometryValid": true,
+      "edges": {
+        "top": 0.52,
+        "bottom": 0.87,
+        "left": 0.28,
+        "right": 0.47
+      },
+      "latencyMs": 307,
+      "reportedCostUsd": 0.000073752,
+      "requestedModel": "typesafe/jev-1.14",
+      "resolvedModel": "typesafe/jev-1.14-20261014",
+      "usage": {
+        "input_tokens": 1756,
+        "output_tokens": 38,
+        "cost": 0.000073752
+      }
+    },
+    {
+      "id": "full-corner-torn-door-cai-20ft-specific-2",
+      "photo": "samples/corner-torn-door-cai-20ft.jpg",
+      "condition": "full",
+      "preparedFile": "full-corner-torn-door-cai-20ft.jpg",
+      "mappedBox": {
+        "left": 0.29,
+        "right": 0.48,
+        "top": 0.53,
+        "bottom": 0.87
+      },
+      "variant": "specific",
+      "repeat": 2,
+      "status": 200,
+      "presence": 0.89,
+      "confidence": 0.65,
+      "geometryValid": true,
+      "edges": {
+        "top": 0.53,
+        "bottom": 0.87,
+        "left": 0.29,
+        "right": 0.48
+      },
+      "latencyMs": 268,
+      "reportedCostUsd": 0.00007392,
+      "requestedModel": "typesafe/jev-1.14",
+      "resolvedModel": "typesafe/jev-1.14-20261014",
+      "usage": {
+        "input_tokens": 1760,
+        "output_tokens": 38,
+        "cost": 0.00007392
+      }
+    },
+    {
+      "id": "full-corner-torn-door-cai-20ft-specific-3",
+      "photo": "samples/corner-torn-door-cai-20ft.jpg",
+      "condition": "full",
+      "preparedFile": "full-corner-torn-door-cai-20ft.jpg",
+      "mappedBox": {
+        "left": 0.28,
+        "right": 0.46,
+        "top": 0.53,
+        "bottom": 0.86
+      },
+      "variant": "specific",
+      "repeat": 3,
+      "status": 200,
+      "presence": 0.9,
+      "confidence": 0.69,
+      "geometryValid": true,
+      "edges": {
+        "top": 0.53,
+        "bottom": 0.86,
+        "left": 0.28,
+        "right": 0.46
+      },
+      "latencyMs": 274,
+      "reportedCostUsd": 0.000073752,
+      "requestedModel": "typesafe/jev-1.14",
+      "resolvedModel": "typesafe/jev-1.14-20261014",
+      "usage": {
+        "input_tokens": 1756,
+        "output_tokens": 38,
+        "cost": 0.000073752
+      }
+    },
+    {
+      "id": "raw-corner-torn-door-cai-20ft-brief-1",
+      "photo": "samples/corner-torn-door-cai-20ft.jpg",
+      "condition": "raw",
+      "preparedFile": "raw-corner-torn-door-cai-20ft.jpg",
+      "mappedBox": {
+        "left": 0.3636,
+        "right": 0.4054,
+        "top": 0.6705,
+        "bottom": 0.723
+      },
+      "variant": "brief",
+      "repeat": 1,
+      "status": 200,
+      "presence": 0.75,
+      "confidence": 0.16,
+      "geometryValid": true,
+      "edges": {
+        "top": 0.43,
+        "bottom": 0.58,
+        "left": 0.44,
+        "right": 0.66
+      },
+      "latencyMs": 354,
+      "reportedCostUsd": 0.000209832,
+      "requestedModel": "typesafe/jev-1.14",
+      "resolvedModel": "typesafe/jev-1.14-20261014",
+      "usage": {
+        "input_tokens": 4996,
+        "output_tokens": 38,
+        "cost": 0.000209832
+      }
+    },
+    {
+      "id": "raw-corner-torn-door-cai-20ft-brief-2",
+      "photo": "samples/corner-torn-door-cai-20ft.jpg",
+      "condition": "raw",
+      "preparedFile": "raw-corner-torn-door-cai-20ft.jpg",
+      "mappedBox": {
+        "left": 0.3636,
+        "right": 0.40730000000000005,
+        "top": 0.6705,
+        "bottom": 0.723
+      },
+      "variant": "brief",
+      "repeat": 2,
+      "status": 200,
+      "presence": 0.76,
+      "confidence": 0.17,
+      "geometryValid": true,
+      "edges": {
+        "top": 0.43,
+        "bottom": 0.58,
+        "left": 0.44,
+        "right": 0.67
+      },
+      "latencyMs": 411,
+      "reportedCostUsd": 0.000209664,
+      "requestedModel": "typesafe/jev-1.14",
+      "resolvedModel": "typesafe/jev-1.14-20261014",
+      "usage": {
+        "input_tokens": 4992,
+        "output_tokens": 38,
+        "cost": 0.000209664
+      }
+    },
+    {
+      "id": "raw-corner-torn-door-cai-20ft-brief-3",
+      "photo": "samples/corner-torn-door-cai-20ft.jpg",
+      "condition": "raw",
+      "preparedFile": "raw-corner-torn-door-cai-20ft.jpg",
+      "mappedBox": {
+        "left": 0.3636,
+        "right": 0.4092,
+        "top": 0.6669999999999999,
+        "bottom": 0.723
+      },
+      "variant": "brief",
+      "repeat": 3,
+      "status": 200,
+      "presence": 0.76,
+      "confidence": 0.22,
+      "geometryValid": true,
+      "edges": {
+        "top": 0.42,
+        "bottom": 0.58,
+        "left": 0.44,
+        "right": 0.68
+      },
+      "latencyMs": 314,
+      "reportedCostUsd": 0.000209622,
+      "requestedModel": "typesafe/jev-1.14",
+      "resolvedModel": "typesafe/jev-1.14-20261014",
+      "usage": {
+        "input_tokens": 4991,
+        "output_tokens": 38,
+        "cost": 0.000209622
+      }
+    },
+    {
+      "id": "raw-corner-torn-door-cai-20ft-shape-1",
+      "photo": "samples/corner-torn-door-cai-20ft.jpg",
+      "condition": "raw",
+      "preparedFile": "raw-corner-torn-door-cai-20ft.jpg",
+      "mappedBox": {
+        "left": 0.3636,
+        "right": 0.4092,
+        "top": 0.6739999999999999,
+        "bottom": 0.723
+      },
+      "variant": "shape",
+      "repeat": 1,
+      "status": 200,
+      "presence": 0.66,
+      "confidence": 0.21,
+      "geometryValid": true,
+      "edges": {
+        "top": 0.44,
+        "bottom": 0.58,
+        "left": 0.44,
+        "right": 0.68
+      },
+      "latencyMs": 349,
+      "reportedCostUsd": 0.000212058,
+      "requestedModel": "typesafe/jev-1.14",
+      "resolvedModel": "typesafe/jev-1.14-20261014",
+      "usage": {
+        "input_tokens": 5049,
+        "output_tokens": 38,
+        "cost": 0.000212058
+      }
+    },
+    {
+      "id": "raw-corner-torn-door-cai-20ft-shape-2",
+      "photo": "samples/corner-torn-door-cai-20ft.jpg",
+      "condition": "raw",
+      "preparedFile": "raw-corner-torn-door-cai-20ft.jpg",
+      "mappedBox": {
+        "left": 0.3655,
+        "right": 0.42060000000000003,
+        "top": 0.6739999999999999,
+        "bottom": 0.7195
+      },
+      "variant": "shape",
+      "repeat": 2,
+      "status": 200,
+      "presence": 0.69,
+      "confidence": 0.17,
+      "geometryValid": true,
+      "edges": {
+        "top": 0.44,
+        "bottom": 0.57,
+        "left": 0.45,
+        "right": 0.74
+      },
+      "latencyMs": 361,
+      "reportedCostUsd": 0.000212142,
+      "requestedModel": "typesafe/jev-1.14",
+      "resolvedModel": "typesafe/jev-1.14-20261014",
+      "usage": {
+        "input_tokens": 5051,
+        "output_tokens": 38,
+        "cost": 0.000212142
+      }
+    },
+    {
+      "id": "raw-corner-torn-door-cai-20ft-shape-3",
+      "photo": "samples/corner-torn-door-cai-20ft.jpg",
+      "condition": "raw",
+      "preparedFile": "raw-corner-torn-door-cai-20ft.jpg",
+      "mappedBox": {
+        "left": 0.3655,
+        "right": 0.42060000000000003,
+        "top": 0.6739999999999999,
+        "bottom": 0.7195
+      },
+      "variant": "shape",
+      "repeat": 3,
+      "status": 200,
+      "presence": 0.69,
+      "confidence": 0.16,
+      "geometryValid": true,
+      "edges": {
+        "top": 0.44,
+        "bottom": 0.57,
+        "left": 0.45,
+        "right": 0.74
+      },
+      "latencyMs": 480,
+      "reportedCostUsd": 0.000212142,
+      "requestedModel": "typesafe/jev-1.14",
+      "resolvedModel": "typesafe/jev-1.14-20261014",
+      "usage": {
+        "input_tokens": 5051,
+        "output_tokens": 38,
+        "cost": 0.000212142
+      }
+    },
+    {
+      "id": "raw-corner-torn-door-cai-20ft-specific-1",
+      "photo": "samples/corner-torn-door-cai-20ft.jpg",
+      "condition": "raw",
+      "preparedFile": "raw-corner-torn-door-cai-20ft.jpg",
+      "mappedBox": {
+        "left": 0.3636,
+        "right": 0.4092,
+        "top": 0.6775,
+        "bottom": 0.723
+      },
+      "variant": "specific",
+      "repeat": 1,
+      "status": 200,
+      "presence": 0.62,
+      "confidence": 0.14,
+      "geometryValid": true,
+      "edges": {
+        "top": 0.45,
+        "bottom": 0.58,
+        "left": 0.44,
+        "right": 0.68
+      },
+      "latencyMs": 325,
+      "reportedCostUsd": 0.000212982,
+      "requestedModel": "typesafe/jev-1.14",
+      "resolvedModel": "typesafe/jev-1.14-20261014",
+      "usage": {
+        "input_tokens": 5071,
+        "output_tokens": 38,
+        "cost": 0.000212982
+      }
+    },
+    {
+      "id": "raw-corner-torn-door-cai-20ft-specific-2",
+      "photo": "samples/corner-torn-door-cai-20ft.jpg",
+      "condition": "raw",
+      "preparedFile": "raw-corner-torn-door-cai-20ft.jpg",
+      "mappedBox": {
+        "left": 0.3655,
+        "right": 0.41869999999999996,
+        "top": 0.6775,
+        "bottom": 0.7195
+      },
+      "variant": "specific",
+      "repeat": 2,
+      "status": 200,
+      "presence": 0.62,
+      "confidence": 0.14,
+      "geometryValid": true,
+      "edges": {
+        "top": 0.45,
+        "bottom": 0.57,
+        "left": 0.45,
+        "right": 0.73
+      },
+      "latencyMs": 319,
+      "reportedCostUsd": 0.000212856,
+      "requestedModel": "typesafe/jev-1.14",
+      "resolvedModel": "typesafe/jev-1.14-20261014",
+      "usage": {
+        "input_tokens": 5068,
+        "output_tokens": 38,
+        "cost": 0.000212856
+      }
+    },
+    {
+      "id": "raw-corner-torn-door-cai-20ft-specific-3",
+      "photo": "samples/corner-torn-door-cai-20ft.jpg",
+      "condition": "raw",
+      "preparedFile": "raw-corner-torn-door-cai-20ft.jpg",
+      "mappedBox": {
+        "left": 0.3636,
+        "right": 0.4092,
+        "top": 0.6739999999999999,
+        "bottom": 0.723
+      },
+      "variant": "specific",
+      "repeat": 3,
+      "status": 200,
+      "presence": 0.64,
+      "confidence": 0.18,
+      "geometryValid": true,
+      "edges": {
+        "top": 0.44,
+        "bottom": 0.58,
+        "left": 0.44,
+        "right": 0.68
+      },
+      "latencyMs": 338,
+      "reportedCostUsd": 0.000212856,
+      "requestedModel": "typesafe/jev-1.14",
+      "resolvedModel": "typesafe/jev-1.14-20261014",
+      "usage": {
+        "input_tokens": 5068,
+        "output_tokens": 38,
+        "cost": 0.000212856
+      }
+    },
+    {
+      "id": "padded-corner-torn-door-cai-20ft-brief-1",
+      "photo": "samples/corner-torn-door-cai-20ft.jpg",
+      "condition": "padded",
+      "preparedFile": "padded-corner-torn-door-cai-20ft.jpg",
+      "mappedBox": {
+        "left": 0.27,
+        "right": 0.4725,
+        "top": 0.5279333333333334,
+        "bottom": 0.8680333333333332
+      },
+      "variant": "brief",
+      "repeat": 1,
+      "status": 200,
+      "presence": 0.91,
+      "confidence": 0.31,
+      "geometryValid": true,
+      "edges": {
+        "top": 0.22,
+        "bottom": 0.79,
+        "left": 0.22,
+        "right": 0.76
+      },
+      "latencyMs": 421,
+      "reportedCostUsd": 0.000237972,
+      "requestedModel": "typesafe/jev-1.14",
+      "resolvedModel": "typesafe/jev-1.14-20261014",
+      "usage": {
+        "input_tokens": 5666,
+        "output_tokens": 38,
+        "cost": 0.000237972
+      }
+    },
+    {
+      "id": "padded-corner-torn-door-cai-20ft-brief-2",
+      "photo": "samples/corner-torn-door-cai-20ft.jpg",
+      "condition": "padded",
+      "preparedFile": "padded-corner-torn-door-cai-20ft.jpg",
+      "mappedBox": {
+        "left": 0.27,
+        "right": 0.4725,
+        "top": 0.5279333333333334,
+        "bottom": 0.8740000000000001
+      },
+      "variant": "brief",
+      "repeat": 2,
+      "status": 200,
+      "presence": 0.92,
+      "confidence": 0.34,
+      "geometryValid": true,
+      "edges": {
+        "top": 0.22,
+        "bottom": 0.8,
+        "left": 0.22,
+        "right": 0.76
+      },
+      "latencyMs": 377,
+      "reportedCostUsd": 0.000238056,
+      "requestedModel": "typesafe/jev-1.14",
+      "resolvedModel": "typesafe/jev-1.14-20261014",
+      "usage": {
+        "input_tokens": 5668,
+        "output_tokens": 38,
+        "cost": 0.000238056
+      }
+    },
+    {
+      "id": "padded-corner-torn-door-cai-20ft-brief-3",
+      "photo": "samples/corner-torn-door-cai-20ft.jpg",
+      "condition": "padded",
+      "preparedFile": "padded-corner-torn-door-cai-20ft.jpg",
+      "mappedBox": {
+        "left": 0.27,
+        "right": 0.4725,
+        "top": 0.5279333333333334,
+        "bottom": 0.8680333333333332
+      },
+      "variant": "brief",
+      "repeat": 3,
+      "status": 200,
+      "presence": 0.93,
+      "confidence": 0.29,
+      "geometryValid": true,
+      "edges": {
+        "top": 0.22,
+        "bottom": 0.79,
+        "left": 0.22,
+        "right": 0.76
+      },
+      "latencyMs": 382,
+      "reportedCostUsd": 0.000237888,
+      "requestedModel": "typesafe/jev-1.14",
+      "resolvedModel": "typesafe/jev-1.14-20261014",
+      "usage": {
+        "input_tokens": 5664,
+        "output_tokens": 38,
+        "cost": 0.000237888
+      }
+    },
+    {
+      "id": "padded-corner-torn-door-cai-20ft-shape-1",
+      "photo": "samples/corner-torn-door-cai-20ft.jpg",
+      "condition": "padded",
+      "preparedFile": "padded-corner-torn-door-cai-20ft.jpg",
+      "mappedBox": {
+        "left": 0.27,
+        "right": 0.47625,
+        "top": 0.5279333333333334,
+        "bottom": 0.8799666666666667
+      },
+      "variant": "shape",
+      "repeat": 1,
+      "status": 200,
+      "presence": 0.94,
+      "confidence": 0.35,
+      "geometryValid": true,
+      "edges": {
+        "top": 0.22,
+        "bottom": 0.81,
+        "left": 0.22,
+        "right": 0.77
+      },
+      "latencyMs": 461,
+      "reportedCostUsd": 0.000240156,
+      "requestedModel": "typesafe/jev-1.14",
+      "resolvedModel": "typesafe/jev-1.14-20261014",
+      "usage": {
+        "input_tokens": 5718,
+        "output_tokens": 38,
+        "cost": 0.000240156
+      }
+    },
+    {
+      "id": "padded-corner-torn-door-cai-20ft-shape-2",
+      "photo": "samples/corner-torn-door-cai-20ft.jpg",
+      "condition": "padded",
+      "preparedFile": "padded-corner-torn-door-cai-20ft.jpg",
+      "mappedBox": {
+        "left": 0.27,
+        "right": 0.4725,
+        "top": 0.5279333333333334,
+        "bottom": 0.8680333333333332
+      },
+      "variant": "shape",
+      "repeat": 2,
+      "status": 200,
+      "presence": 0.94,
+      "confidence": 0.39,
+      "geometryValid": true,
+      "edges": {
+        "top": 0.22,
+        "bottom": 0.79,
+        "left": 0.22,
+        "right": 0.76
+      },
+      "latencyMs": 401,
+      "reportedCostUsd": 0.000240282,
+      "requestedModel": "typesafe/jev-1.14",
+      "resolvedModel": "typesafe/jev-1.14-20261014",
+      "usage": {
+        "input_tokens": 5721,
+        "output_tokens": 38,
+        "cost": 0.000240282
+      }
+    },
+    {
+      "id": "padded-corner-torn-door-cai-20ft-shape-3",
+      "photo": "samples/corner-torn-door-cai-20ft.jpg",
+      "condition": "padded",
+      "preparedFile": "padded-corner-torn-door-cai-20ft.jpg",
+      "mappedBox": {
+        "left": 0.26625,
+        "right": 0.4725,
+        "top": 0.5279333333333334,
+        "bottom": 0.8740000000000001
+      },
+      "variant": "shape",
+      "repeat": 3,
+      "status": 200,
+      "presence": 0.94,
+      "confidence": 0.38,
+      "geometryValid": true,
+      "edges": {
+        "top": 0.22,
+        "bottom": 0.8,
+        "left": 0.21,
+        "right": 0.76
+      },
+      "latencyMs": 502,
+      "reportedCostUsd": 0.00024024,
+      "requestedModel": "typesafe/jev-1.14",
+      "resolvedModel": "typesafe/jev-1.14-20261014",
+      "usage": {
+        "input_tokens": 5720,
+        "output_tokens": 38,
+        "cost": 0.00024024
+      }
+    },
+    {
+      "id": "padded-corner-torn-door-cai-20ft-specific-1",
+      "photo": "samples/corner-torn-door-cai-20ft.jpg",
+      "condition": "padded",
+      "preparedFile": "padded-corner-torn-door-cai-20ft.jpg",
+      "mappedBox": {
+        "left": 0.27375,
+        "right": 0.4725,
+        "top": 0.5339,
+        "bottom": 0.8740000000000001
+      },
+      "variant": "specific",
+      "repeat": 1,
+      "status": 200,
+      "presence": 0.83,
+      "confidence": 0.27,
+      "geometryValid": true,
+      "edges": {
+        "top": 0.23,
+        "bottom": 0.8,
+        "left": 0.23,
+        "right": 0.76
+      },
+      "latencyMs": 380,
+      "reportedCostUsd": 0.000241374,
+      "requestedModel": "typesafe/jev-1.14",
+      "resolvedModel": "typesafe/jev-1.14-20261014",
+      "usage": {
+        "input_tokens": 5747,
+        "output_tokens": 38,
+        "cost": 0.000241374
+      }
+    },
+    {
+      "id": "padded-corner-torn-door-cai-20ft-specific-2",
+      "photo": "samples/corner-torn-door-cai-20ft.jpg",
+      "condition": "padded",
+      "preparedFile": "padded-corner-torn-door-cai-20ft.jpg",
+      "mappedBox": {
+        "left": 0.27375,
+        "right": 0.4725,
+        "top": 0.5339,
+        "bottom": 0.8680333333333332
+      },
+      "variant": "specific",
+      "repeat": 2,
+      "status": 200,
+      "presence": 0.82,
+      "confidence": 0.28,
+      "geometryValid": true,
+      "edges": {
+        "top": 0.23,
+        "bottom": 0.79,
+        "left": 0.23,
+        "right": 0.76
+      },
+      "latencyMs": 399,
+      "reportedCostUsd": 0.000241122,
+      "requestedModel": "typesafe/jev-1.14",
+      "resolvedModel": "typesafe/jev-1.14-20261014",
+      "usage": {
+        "input_tokens": 5741,
+        "output_tokens": 38,
+        "cost": 0.000241122
+      }
+    },
+    {
+      "id": "padded-corner-torn-door-cai-20ft-specific-3",
+      "photo": "samples/corner-torn-door-cai-20ft.jpg",
+      "condition": "padded",
+      "preparedFile": "padded-corner-torn-door-cai-20ft.jpg",
+      "mappedBox": {
+        "left": 0.27375,
+        "right": 0.4725,
+        "top": 0.5339,
+        "bottom": 0.8740000000000001
+      },
+      "variant": "specific",
+      "repeat": 3,
+      "status": 200,
+      "presence": 0.81,
+      "confidence": 0.28,
+      "geometryValid": true,
+      "edges": {
+        "top": 0.23,
+        "bottom": 0.8,
+        "left": 0.23,
+        "right": 0.76
+      },
+      "latencyMs": 614,
+      "reportedCostUsd": 0.000241374,
+      "requestedModel": "typesafe/jev-1.14",
+      "resolvedModel": "typesafe/jev-1.14-20261014",
+      "usage": {
+        "input_tokens": 5747,
+        "output_tokens": 38,
+        "cost": 0.000241374
+      }
+    },
+    {
+      "id": "full-jdlu-200690-4-long-side-brief-1",
+      "photo": "samples/jdlu-200690-4-long-side.jpg",
+      "condition": "full",
+      "preparedFile": "full-jdlu-200690-4-long-side.jpg",
+      "mappedBox": {
+        "left": 0.66,
+        "right": 0.8,
+        "top": 0.45,
+        "bottom": 0.75
+      },
+      "variant": "brief",
+      "repeat": 1,
+      "status": 200,
+      "presence": 0.43,
+      "confidence": 0.18,
+      "geometryValid": true,
+      "edges": {
+        "top": 0.45,
+        "bottom": 0.75,
+        "left": 0.66,
+        "right": 0.8
+      },
+      "latencyMs": 340,
+      "reportedCostUsd": 0.00018774,
+      "requestedModel": "typesafe/jev-1.14",
+      "resolvedModel": "typesafe/jev-1.14-20261014",
+      "usage": {
+        "input_tokens": 4470,
+        "output_tokens": 38,
+        "cost": 0.00018774
+      }
+    },
+    {
+      "id": "full-jdlu-200690-4-long-side-brief-2",
+      "photo": "samples/jdlu-200690-4-long-side.jpg",
+      "condition": "full",
+      "preparedFile": "full-jdlu-200690-4-long-side.jpg",
+      "mappedBox": {
+        "left": 0.67,
+        "right": 0.8,
+        "top": 0.44,
+        "bottom": 0.75
+      },
+      "variant": "brief",
+      "repeat": 2,
+      "status": 200,
+      "presence": 0.46,
+      "confidence": 0.19,
+      "geometryValid": true,
+      "edges": {
+        "top": 0.44,
+        "bottom": 0.75,
+        "left": 0.67,
+        "right": 0.8
+      },
+      "latencyMs": 393,
+      "reportedCostUsd": 0.00018795,
+      "requestedModel": "typesafe/jev-1.14",
+      "resolvedModel": "typesafe/jev-1.14-20261014",
+      "usage": {
+        "input_tokens": 4475,
+        "output_tokens": 38,
+        "cost": 0.00018795
+      }
+    },
+    {
+      "id": "full-jdlu-200690-4-long-side-brief-3",
+      "photo": "samples/jdlu-200690-4-long-side.jpg",
+      "condition": "full",
+      "preparedFile": "full-jdlu-200690-4-long-side.jpg",
+      "mappedBox": {
+        "left": 0.67,
+        "right": 0.8,
+        "top": 0.45,
+        "bottom": 0.75
+      },
+      "variant": "brief",
+      "repeat": 3,
+      "status": 200,
+      "presence": 0.42,
+      "confidence": 0.17,
+      "geometryValid": true,
+      "edges": {
+        "top": 0.45,
+        "bottom": 0.75,
+        "left": 0.67,
+        "right": 0.8
+      },
+      "latencyMs": 339,
+      "reportedCostUsd": 0.000187824,
+      "requestedModel": "typesafe/jev-1.14",
+      "resolvedModel": "typesafe/jev-1.14-20261014",
+      "usage": {
+        "input_tokens": 4472,
+        "output_tokens": 38,
+        "cost": 0.000187824
+      }
+    },
+    {
+      "id": "full-jdlu-200690-4-long-side-shape-1",
+      "photo": "samples/jdlu-200690-4-long-side.jpg",
+      "condition": "full",
+      "preparedFile": "full-jdlu-200690-4-long-side.jpg",
+      "mappedBox": {
+        "left": 0.66,
+        "right": 0.8,
+        "top": 0.45,
+        "bottom": 0.75
+      },
+      "variant": "shape",
+      "repeat": 1,
+      "status": 200,
+      "presence": 0.34,
+      "confidence": 0.16,
+      "geometryValid": true,
+      "edges": {
+        "top": 0.45,
+        "bottom": 0.75,
+        "left": 0.66,
+        "right": 0.8
+      },
+      "latencyMs": 336,
+      "reportedCostUsd": 0.000190176,
+      "requestedModel": "typesafe/jev-1.14",
+      "resolvedModel": "typesafe/jev-1.14-20261014",
+      "usage": {
+        "input_tokens": 4528,
+        "output_tokens": 38,
+        "cost": 0.000190176
+      }
+    },
+    {
+      "id": "full-jdlu-200690-4-long-side-shape-2",
+      "photo": "samples/jdlu-200690-4-long-side.jpg",
+      "condition": "full",
+      "preparedFile": "full-jdlu-200690-4-long-side.jpg",
+      "mappedBox": {
+        "left": 0.66,
+        "right": 0.81,
+        "top": 0.45,
+        "bottom": 0.75
+      },
+      "variant": "shape",
+      "repeat": 2,
+      "status": 200,
+      "presence": 0.33,
+      "confidence": 0.16,
+      "geometryValid": true,
+      "edges": {
+        "top": 0.45,
+        "bottom": 0.75,
+        "left": 0.66,
+        "right": 0.81
+      },
+      "latencyMs": 356,
+      "reportedCostUsd": 0.000190092,
+      "requestedModel": "typesafe/jev-1.14",
+      "resolvedModel": "typesafe/jev-1.14-20261014",
+      "usage": {
+        "input_tokens": 4526,
+        "output_tokens": 38,
+        "cost": 0.000190092
+      }
+    },
+    {
+      "id": "full-jdlu-200690-4-long-side-shape-3",
+      "photo": "samples/jdlu-200690-4-long-side.jpg",
+      "condition": "full",
+      "preparedFile": "full-jdlu-200690-4-long-side.jpg",
+      "mappedBox": {
+        "left": 0.66,
+        "right": 0.8,
+        "top": 0.45,
+        "bottom": 0.75
+      },
+      "variant": "shape",
+      "repeat": 3,
+      "status": 200,
+      "presence": 0.34,
+      "confidence": 0.17,
+      "geometryValid": true,
+      "edges": {
+        "top": 0.45,
+        "bottom": 0.75,
+        "left": 0.66,
+        "right": 0.8
+      },
+      "latencyMs": 357,
+      "reportedCostUsd": 0.000190176,
+      "requestedModel": "typesafe/jev-1.14",
+      "resolvedModel": "typesafe/jev-1.14-20261014",
+      "usage": {
+        "input_tokens": 4528,
+        "output_tokens": 38,
+        "cost": 0.000190176
+      }
+    },
+    {
+      "id": "full-jdlu-200690-4-long-side-specific-1",
+      "photo": "samples/jdlu-200690-4-long-side.jpg",
+      "condition": "full",
+      "preparedFile": "full-jdlu-200690-4-long-side.jpg",
+      "mappedBox": {
+        "left": 0.66,
+        "right": 0.8,
+        "top": 0.45,
+        "bottom": 0.75
+      },
+      "variant": "specific",
+      "repeat": 1,
+      "status": 200,
+      "presence": 0.39,
+      "confidence": 0.15,
+      "geometryValid": true,
+      "edges": {
+        "top": 0.45,
+        "bottom": 0.75,
+        "left": 0.66,
+        "right": 0.8
+      },
+      "latencyMs": 464,
+      "reportedCostUsd": 0.0001911,
+      "requestedModel": "typesafe/jev-1.14",
+      "resolvedModel": "typesafe/jev-1.14-20261014",
+      "usage": {
+        "input_tokens": 4550,
+        "output_tokens": 38,
+        "cost": 0.0001911
+      }
+    },
+    {
+      "id": "full-jdlu-200690-4-long-side-specific-2",
+      "photo": "samples/jdlu-200690-4-long-side.jpg",
+      "condition": "full",
+      "preparedFile": "full-jdlu-200690-4-long-side.jpg",
+      "mappedBox": {
+        "left": 0.66,
+        "right": 0.8,
+        "top": 0.45,
+        "bottom": 0.75
+      },
+      "variant": "specific",
+      "repeat": 2,
+      "status": 200,
+      "presence": 0.39,
+      "confidence": 0.16,
+      "geometryValid": true,
+      "edges": {
+        "top": 0.45,
+        "bottom": 0.75,
+        "left": 0.66,
+        "right": 0.8
+      },
+      "latencyMs": 332,
+      "reportedCostUsd": 0.00019131,
+      "requestedModel": "typesafe/jev-1.14",
+      "resolvedModel": "typesafe/jev-1.14-20261014",
+      "usage": {
+        "input_tokens": 4555,
+        "output_tokens": 38,
+        "cost": 0.00019131
+      }
+    },
+    {
+      "id": "full-jdlu-200690-4-long-side-specific-3",
+      "photo": "samples/jdlu-200690-4-long-side.jpg",
+      "condition": "full",
+      "preparedFile": "full-jdlu-200690-4-long-side.jpg",
+      "mappedBox": {
+        "left": 0.66,
+        "right": 0.8,
+        "top": 0.45999999999999996,
+        "bottom": 0.75
+      },
+      "variant": "specific",
+      "repeat": 3,
+      "status": 200,
+      "presence": 0.39,
+      "confidence": 0.22,
+      "geometryValid": true,
+      "edges": {
+        "top": 0.46,
+        "bottom": 0.75,
+        "left": 0.66,
+        "right": 0.8
+      },
+      "latencyMs": 337,
+      "reportedCostUsd": 0.000190974,
+      "requestedModel": "typesafe/jev-1.14",
+      "resolvedModel": "typesafe/jev-1.14-20261014",
+      "usage": {
+        "input_tokens": 4547,
+        "output_tokens": 38,
+        "cost": 0.000190974
+      }
+    },
+    {
+      "id": "raw-jdlu-200690-4-long-side-brief-1",
+      "photo": "samples/jdlu-200690-4-long-side.jpg",
+      "condition": "raw",
+      "preparedFile": "raw-jdlu-200690-4-long-side.jpg",
+      "mappedBox": {
+        "left": 0.7325,
+        "right": 0.737,
+        "top": 0.6869999999999999,
+        "bottom": 0.696
+      },
+      "variant": "brief",
+      "repeat": 1,
+      "status": 200,
+      "presence": 0.43,
+      "confidence": 0.06,
+      "geometryValid": true,
+      "edges": {
+        "top": 0.79,
+        "bottom": 0.82,
+        "left": 0.55,
+        "right": 0.58
+      },
+      "latencyMs": 314,
+      "reportedCostUsd": 0.000116256,
+      "requestedModel": "typesafe/jev-1.14",
+      "resolvedModel": "typesafe/jev-1.14-20261014",
+      "usage": {
+        "input_tokens": 2768,
+        "output_tokens": 38,
+        "cost": 0.000116256
+      }
+    },
+    {
+      "id": "raw-jdlu-200690-4-long-side-brief-2",
+      "photo": "samples/jdlu-200690-4-long-side.jpg",
+      "condition": "raw",
+      "preparedFile": "raw-jdlu-200690-4-long-side.jpg",
+      "mappedBox": {
+        "left": 0.734,
+        "right": 0.7460000000000001,
+        "top": 0.6869999999999999,
+        "bottom": 0.6930000000000001
+      },
+      "variant": "brief",
+      "repeat": 2,
+      "status": 200,
+      "presence": 0.42,
+      "confidence": 0.06,
+      "geometryValid": true,
+      "edges": {
+        "top": 0.79,
+        "bottom": 0.81,
+        "left": 0.56,
+        "right": 0.64
+      },
+      "latencyMs": 319,
+      "reportedCostUsd": 0.000116298,
+      "requestedModel": "typesafe/jev-1.14",
+      "resolvedModel": "typesafe/jev-1.14-20261014",
+      "usage": {
+        "input_tokens": 2769,
+        "output_tokens": 38,
+        "cost": 0.000116298
+      }
+    },
+    {
+      "id": "raw-jdlu-200690-4-long-side-brief-3",
+      "photo": "samples/jdlu-200690-4-long-side.jpg",
+      "condition": "raw",
+      "preparedFile": "raw-jdlu-200690-4-long-side.jpg",
+      "mappedBox": {
+        "left": 0.7325,
+        "right": 0.7460000000000001,
+        "top": 0.516,
+        "bottom": 0.609
+      },
+      "variant": "brief",
+      "repeat": 3,
+      "status": 200,
+      "presence": 0.38,
+      "confidence": 0.05,
+      "geometryValid": true,
+      "edges": {
+        "top": 0.22,
+        "bottom": 0.53,
+        "left": 0.55,
+        "right": 0.64
+      },
+      "latencyMs": 356,
+      "reportedCostUsd": 0.00011634,
+      "requestedModel": "typesafe/jev-1.14",
+      "resolvedModel": "typesafe/jev-1.14-20261014",
+      "usage": {
+        "input_tokens": 2770,
+        "output_tokens": 38,
+        "cost": 0.00011634
+      }
+    },
+    {
+      "id": "raw-jdlu-200690-4-long-side-shape-1",
+      "photo": "samples/jdlu-200690-4-long-side.jpg",
+      "condition": "raw",
+      "preparedFile": "raw-jdlu-200690-4-long-side.jpg",
+      "mappedBox": {
+        "left": 0.7295,
+        "right": 0.737,
+        "top": 0.6869999999999999,
+        "bottom": 0.696
+      },
+      "variant": "shape",
+      "repeat": 1,
+      "status": 200,
+      "presence": 0.37,
+      "confidence": 0.05,
+      "geometryValid": true,
+      "edges": {
+        "top": 0.79,
+        "bottom": 0.82,
+        "left": 0.53,
+        "right": 0.58
+      },
+      "latencyMs": 313,
+      "reportedCostUsd": 0.000118566,
+      "requestedModel": "typesafe/jev-1.14",
+      "resolvedModel": "typesafe/jev-1.14-20261014",
+      "usage": {
+        "input_tokens": 2823,
+        "output_tokens": 38,
+        "cost": 0.000118566
+      }
+    },
+    {
+      "id": "raw-jdlu-200690-4-long-side-shape-2",
+      "photo": "samples/jdlu-200690-4-long-side.jpg",
+      "condition": "raw",
+      "preparedFile": "raw-jdlu-200690-4-long-side.jpg",
+      "mappedBox": {
+        "left": 0.731,
+        "right": 0.734,
+        "top": 0.6869999999999999,
+        "bottom": 0.696
+      },
+      "variant": "shape",
+      "repeat": 2,
+      "status": 200,
+      "presence": 0.35,
+      "confidence": 0.04,
+      "geometryValid": true,
+      "edges": {
+        "top": 0.79,
+        "bottom": 0.82,
+        "left": 0.54,
+        "right": 0.56
+      },
+      "latencyMs": 299,
+      "reportedCostUsd": 0.000118692,
+      "requestedModel": "typesafe/jev-1.14",
+      "resolvedModel": "typesafe/jev-1.14-20261014",
+      "usage": {
+        "input_tokens": 2826,
+        "output_tokens": 38,
+        "cost": 0.000118692
+      }
+    },
+    {
+      "id": "raw-jdlu-200690-4-long-side-shape-3",
+      "photo": "samples/jdlu-200690-4-long-side.jpg",
+      "condition": "raw",
+      "preparedFile": "raw-jdlu-200690-4-long-side.jpg",
+      "mappedBox": {
+        "left": 0.731,
+        "right": 0.7460000000000001,
+        "top": 0.6869999999999999,
+        "bottom": 0.696
+      },
+      "variant": "shape",
+      "repeat": 3,
+      "status": 200,
+      "presence": 0.36,
+      "confidence": 0.05,
+      "geometryValid": true,
+      "edges": {
+        "top": 0.79,
+        "bottom": 0.82,
+        "left": 0.54,
+        "right": 0.64
+      },
+      "latencyMs": 301,
+      "reportedCostUsd": 0.000118566,
+      "requestedModel": "typesafe/jev-1.14",
+      "resolvedModel": "typesafe/jev-1.14-20261014",
+      "usage": {
+        "input_tokens": 2823,
+        "output_tokens": 38,
+        "cost": 0.000118566
+      }
+    },
+    {
+      "id": "raw-jdlu-200690-4-long-side-specific-1",
+      "photo": "samples/jdlu-200690-4-long-side.jpg",
+      "condition": "raw",
+      "preparedFile": "raw-jdlu-200690-4-long-side.jpg",
+      "mappedBox": {
+        "left": 0.731,
+        "right": 0.749,
+        "top": 0.516,
+        "bottom": 0.7140000000000001
+      },
+      "variant": "specific",
+      "repeat": 1,
+      "status": 200,
+      "presence": 0.42,
+      "confidence": 0.06,
+      "geometryValid": true,
+      "edges": {
+        "top": 0.22,
+        "bottom": 0.88,
+        "left": 0.54,
+        "right": 0.66
+      },
+      "latencyMs": 297,
+      "reportedCostUsd": 0.00011949,
+      "requestedModel": "typesafe/jev-1.14",
+      "resolvedModel": "typesafe/jev-1.14-20261014",
+      "usage": {
+        "input_tokens": 2845,
+        "output_tokens": 38,
+        "cost": 0.00011949
+      }
+    },
+    {
+      "id": "raw-jdlu-200690-4-long-side-specific-2",
+      "photo": "samples/jdlu-200690-4-long-side.jpg",
+      "condition": "raw",
+      "preparedFile": "raw-jdlu-200690-4-long-side.jpg",
+      "mappedBox": {
+        "left": 0.731,
+        "right": 0.7460000000000001,
+        "top": 0.516,
+        "bottom": 0.612
+      },
+      "variant": "specific",
+      "repeat": 2,
+      "status": 200,
+      "presence": 0.43,
+      "confidence": 0.04,
+      "geometryValid": true,
+      "edges": {
+        "top": 0.22,
+        "bottom": 0.54,
+        "left": 0.54,
+        "right": 0.64
+      },
+      "latencyMs": 320,
+      "reportedCostUsd": 0.00011949,
+      "requestedModel": "typesafe/jev-1.14",
+      "resolvedModel": "typesafe/jev-1.14-20261014",
+      "usage": {
+        "input_tokens": 2845,
+        "output_tokens": 38,
+        "cost": 0.00011949
+      }
+    },
+    {
+      "id": "raw-jdlu-200690-4-long-side-specific-3",
+      "photo": "samples/jdlu-200690-4-long-side.jpg",
+      "condition": "raw",
+      "preparedFile": "raw-jdlu-200690-4-long-side.jpg",
+      "mappedBox": {
+        "left": 0.731,
+        "right": 0.7474999999999999,
+        "top": 0.516,
+        "bottom": 0.612
+      },
+      "variant": "specific",
+      "repeat": 3,
+      "status": 200,
+      "presence": 0.41,
+      "confidence": 0.04,
+      "geometryValid": true,
+      "edges": {
+        "top": 0.22,
+        "bottom": 0.54,
+        "left": 0.54,
+        "right": 0.65
+      },
+      "latencyMs": 333,
+      "reportedCostUsd": 0.000119616,
+      "requestedModel": "typesafe/jev-1.14",
+      "resolvedModel": "typesafe/jev-1.14-20261014",
+      "usage": {
+        "input_tokens": 2848,
+        "output_tokens": 38,
+        "cost": 0.000119616
+      }
+    },
+    {
+      "id": "padded-jdlu-200690-4-long-side-brief-1",
+      "photo": "samples/jdlu-200690-4-long-side.jpg",
+      "condition": "padded",
+      "preparedFile": "padded-jdlu-200690-4-long-side.jpg",
+      "mappedBox": {
+        "left": 0.7336296296296296,
+        "right": 0.8328703703703704,
+        "top": 0.46199999999999997,
+        "bottom": 0.5744444444444444
+      },
+      "variant": "brief",
+      "repeat": 1,
+      "status": 200,
+      "presence": 0.39,
+      "confidence": 0.12,
+      "geometryValid": true,
+      "edges": {
+        "top": 0.23,
+        "bottom": 0.45,
+        "left": 0.52,
+        "right": 0.75
+      },
+      "latencyMs": 423,
+      "reportedCostUsd": 0.000186774,
+      "requestedModel": "typesafe/jev-1.14",
+      "resolvedModel": "typesafe/jev-1.14-20261014",
+      "usage": {
+        "input_tokens": 4447,
+        "output_tokens": 38,
+        "cost": 0.000186774
+      }
+    },
+    {
+      "id": "padded-jdlu-200690-4-long-side-brief-2",
+      "photo": "samples/jdlu-200690-4-long-side.jpg",
+      "condition": "padded",
+      "preparedFile": "padded-jdlu-200690-4-long-side.jpg",
+      "mappedBox": {
+        "left": 0.7379444444444445,
+        "right": 0.8371851851851853,
+        "top": 0.45688888888888884,
+        "bottom": 0.6204444444444445
+      },
+      "variant": "brief",
+      "repeat": 2,
+      "status": 200,
+      "presence": 0.42,
+      "confidence": 0.12,
+      "geometryValid": true,
+      "edges": {
+        "top": 0.22,
+        "bottom": 0.54,
+        "left": 0.53,
+        "right": 0.76
+      },
+      "latencyMs": 380,
+      "reportedCostUsd": 0.000186858,
+      "requestedModel": "typesafe/jev-1.14",
+      "resolvedModel": "typesafe/jev-1.14-20261014",
+      "usage": {
+        "input_tokens": 4449,
+        "output_tokens": 38,
+        "cost": 0.000186858
+      }
+    },
+    {
+      "id": "padded-jdlu-200690-4-long-side-brief-3",
+      "photo": "samples/jdlu-200690-4-long-side.jpg",
+      "condition": "padded",
+      "preparedFile": "padded-jdlu-200690-4-long-side.jpg",
+      "mappedBox": {
+        "left": 0.7293148148148147,
+        "right": 0.8328703703703704,
+        "top": 0.45688888888888884,
+        "bottom": 0.5744444444444444
+      },
+      "variant": "brief",
+      "repeat": 3,
+      "status": 200,
+      "presence": 0.39,
+      "confidence": 0.13,
+      "geometryValid": true,
+      "edges": {
+        "top": 0.22,
+        "bottom": 0.45,
+        "left": 0.51,
+        "right": 0.75
+      },
+      "latencyMs": 561,
+      "reportedCostUsd": 0.000186732,
+      "requestedModel": "typesafe/jev-1.14",
+      "resolvedModel": "typesafe/jev-1.14-20261014",
+      "usage": {
+        "input_tokens": 4446,
+        "output_tokens": 38,
+        "cost": 0.000186732
+      }
+    },
+    {
+      "id": "padded-jdlu-200690-4-long-side-shape-1",
+      "photo": "samples/jdlu-200690-4-long-side.jpg",
+      "condition": "padded",
+      "preparedFile": "padded-jdlu-200690-4-long-side.jpg",
+      "mappedBox": {
+        "left": 0.7422592592592593,
+        "right": 0.8328703703703704,
+        "top": 0.4517777777777777,
+        "bottom": 0.6255555555555555
+      },
+      "variant": "shape",
+      "repeat": 1,
+      "status": 200,
+      "presence": 0.28,
+      "confidence": 0.06,
+      "geometryValid": true,
+      "edges": {
+        "top": 0.21,
+        "bottom": 0.55,
+        "left": 0.54,
+        "right": 0.75
+      },
+      "latencyMs": 396,
+      "reportedCostUsd": 0.000189126,
+      "requestedModel": "typesafe/jev-1.14",
+      "resolvedModel": "typesafe/jev-1.14-20261014",
+      "usage": {
+        "input_tokens": 4503,
+        "output_tokens": 38,
+        "cost": 0.000189126
+      }
+    },
+    {
+      "id": "padded-jdlu-200690-4-long-side-shape-2",
+      "photo": "samples/jdlu-200690-4-long-side.jpg",
+      "condition": "padded",
+      "preparedFile": "padded-jdlu-200690-4-long-side.jpg",
+      "mappedBox": {
+        "left": 0.7422592592592593,
+        "right": 0.8371851851851853,
+        "top": 0.4466666666666667,
+        "bottom": 0.6255555555555555
+      },
+      "variant": "shape",
+      "repeat": 2,
+      "status": 200,
+      "presence": 0.28,
+      "confidence": 0.04,
+      "geometryValid": true,
+      "edges": {
+        "top": 0.2,
+        "bottom": 0.55,
+        "left": 0.54,
+        "right": 0.76
+      },
+      "latencyMs": 774,
+      "reportedCostUsd": 0.00018921,
+      "requestedModel": "typesafe/jev-1.14",
+      "resolvedModel": "typesafe/jev-1.14-20261014",
+      "usage": {
+        "input_tokens": 4505,
+        "output_tokens": 38,
+        "cost": 0.00018921
+      }
+    },
+    {
+      "id": "padded-jdlu-200690-4-long-side-shape-3",
+      "photo": "samples/jdlu-200690-4-long-side.jpg",
+      "condition": "padded",
+      "preparedFile": "padded-jdlu-200690-4-long-side.jpg",
+      "mappedBox": {
+        "left": 0.7379444444444445,
+        "right": 0.8328703703703704,
+        "top": 0.4517777777777777,
+        "bottom": 0.6204444444444445
+      },
+      "variant": "shape",
+      "repeat": 3,
+      "status": 200,
+      "presence": 0.29,
+      "confidence": 0.05,
+      "geometryValid": true,
+      "edges": {
+        "top": 0.21,
+        "bottom": 0.54,
+        "left": 0.53,
+        "right": 0.75
+      },
+      "latencyMs": 417,
+      "reportedCostUsd": 0.000189252,
+      "requestedModel": "typesafe/jev-1.14",
+      "resolvedModel": "typesafe/jev-1.14-20261014",
+      "usage": {
+        "input_tokens": 4506,
+        "output_tokens": 38,
+        "cost": 0.000189252
+      }
+    },
+    {
+      "id": "padded-jdlu-200690-4-long-side-specific-1",
+      "photo": "samples/jdlu-200690-4-long-side.jpg",
+      "condition": "padded",
+      "preparedFile": "padded-jdlu-200690-4-long-side.jpg",
+      "mappedBox": {
+        "left": 0.7077407407407408,
+        "right": 0.7983518518518519,
+        "top": 0.4517777777777777,
+        "bottom": 0.7277777777777777
+      },
+      "variant": "specific",
+      "repeat": 1,
+      "status": 200,
+      "presence": 0.4,
+      "confidence": 0.09,
+      "geometryValid": true,
+      "edges": {
+        "top": 0.21,
+        "bottom": 0.75,
+        "left": 0.46,
+        "right": 0.67
+      },
+      "latencyMs": 404,
+      "reportedCostUsd": 0.000190134,
+      "requestedModel": "typesafe/jev-1.14",
+      "resolvedModel": "typesafe/jev-1.14-20261014",
+      "usage": {
+        "input_tokens": 4527,
+        "output_tokens": 38,
+        "cost": 0.000190134
+      }
+    },
+    {
+      "id": "padded-jdlu-200690-4-long-side-specific-2",
+      "photo": "samples/jdlu-200690-4-long-side.jpg",
+      "condition": "padded",
+      "preparedFile": "padded-jdlu-200690-4-long-side.jpg",
+      "mappedBox": {
+        "left": 0.7120555555555556,
+        "right": 0.794037037037037,
+        "top": 0.4517777777777777,
+        "bottom": 0.5795555555555555
+      },
+      "variant": "specific",
+      "repeat": 2,
+      "status": 200,
+      "presence": 0.38,
+      "confidence": 0.16,
+      "geometryValid": true,
+      "edges": {
+        "top": 0.21,
+        "bottom": 0.46,
+        "left": 0.47,
+        "right": 0.66
+      },
+      "latencyMs": 443,
+      "reportedCostUsd": 0.000190092,
+      "requestedModel": "typesafe/jev-1.14",
+      "resolvedModel": "typesafe/jev-1.14-20261014",
+      "usage": {
+        "input_tokens": 4526,
+        "output_tokens": 38,
+        "cost": 0.000190092
+      }
+    },
+    {
+      "id": "padded-jdlu-200690-4-long-side-specific-3",
+      "photo": "samples/jdlu-200690-4-long-side.jpg",
+      "condition": "padded",
+      "preparedFile": "padded-jdlu-200690-4-long-side.jpg",
+      "mappedBox": {
+        "left": 0.7293148148148147,
+        "right": 0.8285555555555555,
+        "top": 0.45688888888888884,
+        "bottom": 0.5744444444444444
+      },
+      "variant": "specific",
+      "repeat": 3,
+      "status": 200,
+      "presence": 0.42,
+      "confidence": 0.1,
+      "geometryValid": true,
+      "edges": {
+        "top": 0.22,
+        "bottom": 0.45,
+        "left": 0.51,
+        "right": 0.74
+      },
+      "latencyMs": 372,
+      "reportedCostUsd": 0.000190176,
+      "requestedModel": "typesafe/jev-1.14",
+      "resolvedModel": "typesafe/jev-1.14-20261014",
+      "usage": {
+        "input_tokens": 4528,
+        "output_tokens": 38,
+        "cost": 0.000190176
+      }
+    }
+  ]
+}
