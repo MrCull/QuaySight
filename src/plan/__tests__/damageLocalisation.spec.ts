@@ -9,11 +9,15 @@ import { onlyRequests } from '../registry'
 import { survey } from '../requests/survey'
 import { doorDamage } from '../requests/doorDamage'
 import { damageLocalisation } from '../requests/damageLocalisation'
-import { doorReply, keyedReply, openAiShape } from '../../__tests__/planReplies'
+import { dentedSideReply, doorReply, keyedReply, openAiShape } from '../../__tests__/planReplies'
 import { openRouterSurveyReply, openAiSurveyReply } from '../../__tests__/surveyReplies'
 import { recordRun } from '../recording'
 import { replayRecording } from '../replay'
 import { buildInspectionExport } from '../../domain/exports'
+import { liveRoute } from '../../services/__tests__/liveCalls'
+import { sideDamage } from '../requests/sideDamage'
+import { doorEndCrop } from '../requests/doorEndCrop'
+import type { PlanView } from '../requestPlan'
 
 let restore: () => void
 beforeEach(() => {
@@ -75,6 +79,35 @@ function reply(presence = 0.95, confidence = 0.67, geometry: unknown = box) {
     target_box: { type: 'box', box: geometry, confidence },
   })
 }
+it('locates a long-side finding even when a corner photo has a separate cropped door assessment', () => {
+  const route = liveRoute('openrouter', 'typesafe/jev-1.14')
+  const side = sideDamage.replay!(dentedSideReply(), { route } as PlanView, {})
+  const door = doorDamage.replay!(doorReply(), { route } as PlanView, {})
+  const answers = new Map<string, unknown>([
+    [
+      survey.id,
+      {
+        findings: {
+          face: {
+            face: 'long-side',
+            shown: ['long-side', 'rear-doors'],
+            probability: 0.95,
+            certainty: 'Confident',
+          },
+        },
+      },
+    ],
+    [sideDamage.id, side],
+    [doorDamage.id, door],
+    [doorEndCrop.id, { reading: door }],
+  ])
+  const plan: PlanView = { route, answer: (request) => answers.get(request.id) as never }
+  expect(damageLocalisation.needed!(plan)).toBe(true)
+  const located = damageLocalisation.replay!(reply(), plan, {})
+  expect(located).toHaveLength(1)
+  expect(located[0]!.observation).toContain('long-side')
+  expect(located[0]!.location?.box).toEqual(box)
+})
 it('adds an approximate focal highlight to an existing observation and preserves it in replay and export', async () => {
   const { store } = await run(reply())
   const observation = store.record!.damage!.findings[0]!.observations![0]!

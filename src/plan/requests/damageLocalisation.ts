@@ -22,9 +22,13 @@ interface LocatedTarget {
 }
 type Located = LocatedTarget[]
 function targetsOf(plan: PlanView): DamageObservation[] {
-  // Crop classifications describe crop-relative zones. Until those targets can be mapped, leave them unlocated.
-  if (plan.answer(doorEndCrop)?.reading.inspectable) return []
-  const readings = [plan.answer(sideDamage), plan.answer(doorDamage)].filter((r) => r !== undefined)
+  // A cropped door assessment replaces the full-photo door reading. Its zones are crop-relative,
+  // so it must not produce a full-photo target, but a separate side assessment remains usable.
+  const croppedDoor = plan.answer(doorEndCrop)?.reading
+  const readings = [
+    plan.answer(sideDamage),
+    croppedDoor?.inspectable ? croppedDoor : plan.answer(doorDamage),
+  ].filter((r) => r !== undefined)
   const damage = assessDamage(plan.answer(survey)?.findings.face, readings, null, 40)
   const targets =
     damage?.findings.filter(
@@ -36,7 +40,9 @@ function targetsOf(plan: PlanView): DamageObservation[] {
         (f.types[0]?.probability ?? 0) >= 0.8,
     ) ?? []
   // Each question checks that its region contains one distinguishable instance.
-  return targets.flatMap((f) => f.observations?.slice(0, 1) ?? [])
+  return targets
+    .flatMap((f) => f.observations?.slice(0, 1) ?? [])
+    .filter((o) => !croppedDoor?.inspectable || o.evidence.face !== 'rear')
 }
 function ask(plan: PlanView) {
   const observations = targetsOf(plan)
