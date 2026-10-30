@@ -1,0 +1,39 @@
+# Jev photographic-reference follow-up — 30 October 2026
+
+This is an opt-in research comparison for #122. It uses the application's existing side-damage CEDEX question set, unchanged, through OpenRouter Decisions with `typesafe/jev-1.14`. It does not change production questions, the localisation confidence thresholds or recorded demos. Input images, complete credential-free requests and raw responses are retained locally under `.scratch/reference-study/live/`; the user-supplied images and this evidence have not been published with this report. A local `.scratch/reference-study/reference-evidence.zip` contains the runner, input photographs, prepared images and responses. Source and prepared image SHA-256 hashes and byte sizes are in the manifest. Reproducing the study requires placing the input photographs at the paths in that manifest. The working runner is `.scratch/reference-study/experiment.mjs`; scratch content is not committed and is not a durable publication.
+
+## Design
+
+Each target photo was tested three times without examples and three times with two labelled, illustrative photographs added to the state: a user-supplied apparently intact Portable Space side, and the existing `samples/side-dented-grey.jpg` dented side. The target is explicitly identified after the examples. The original 132 CEDEX questions and rubric are identical across conditions. Images were upright, prepared through the application's `preparePhoto` and catalogue limits. The baseline yellow request body was 229,760 bytes with 120,617 image bytes; with examples it was 628,634 bytes with 419,417 image bytes, below the documented 32 MiB request/expanded-image limits. Actual model context expansion was not independently measured. The 64k/long-context provider details in the baseline research are not a measurement of this run.
+
+Targets were the supplied severely crushed yellow container, a rusty Yang Ming side, a white corrugated side, a port-side container and the earlier supplied blue container side. Neither reference photograph is an evaluation photograph. The blue side has another view in the earlier six-photo study; the grey reference is the same dent scene used in the original baseline. Source filenames and visual descriptions are not independently verified labels. Rust, surface wear, shadows and true deformation are not reliably distinguishable from these small images alone; the severity of the yellow container is visually clear, but no expert annotation or ground-truth defect inventory exists.
+
+## Results
+
+All 30 requests succeeded, resolved to `typesafe/jev-1.14-20261014`, and were sequential with no automatic paid retries. The table shows the mean of three model probabilities, not measured accuracy or calibrated confidence. Maximum zone-DT is the largest dent probability among the ten side-panel zones in each response, averaged across repeats. The last two columns are diagnostic question outputs, not complete app findings.
+
+| Target | Significant: baseline → references | Maximum zone dent: baseline → references |
+| --- | ---: | ---: |
+| Crushed yellow | 0.983 → 0.983 | 0.903 → 0.850 |
+| Rusty Yang Ming side | 0.583 → 0.547 | 0.260 → 0.223 |
+| White corrugated side | 0.727 → 0.523 | 0.287 → 0.230 |
+| Port-side container | 0.317 → 0.240 | 0.173 → 0.130 |
+| Blue patched side | 0.777 → 0.753 | 0.457 → 0.363 |
+
+A credential-free replay of the first baseline yellow response through the actual `sideDamage` parser produced five findings with multiple possible damage types. Feeding that result into `damageLocalisation.needed` with a synthetic long-side survey answer returned **false**: the current localisation selector requires exactly one type, so this result would not request a damage box even before applying the Box confidence guard. This isolated replay uses a synthetic face answer and is not an end-to-end live inspection.
+
+The examples lowered the significant-damage score on several ambiguous images and did not lower that score for the yellow image in this small sample. They also lowered its highest zone-dent score. Without independent labels the ambiguous reductions cannot be classified reliably as fewer false positives rather than missed defects. The experiment did not ask a Box question, did not change or test the localisation confidence threshold, and cannot establish that it fixes the yellow container's rejected highlight. Do not adopt photographic references in production based on this result alone.
+
+Baseline requests used 270,706 input and 50,266 output tokens and cost $0.011369652; reference requests used 358,503 input and 50,285 output tokens and cost $0.015057126. For 15 requests per condition, provider-reported median latency was 425 ms and 595 ms respectively; this excludes local preparation, is not a controlled end-to-end benchmark, and the values are not application inspection cost estimates. Total reported cost was $0.026426778. No automatic paid retries occurred.
+
+## Marking fallback follow-up
+
+An offline analysis selected the already-recorded padded native crop when available, otherwise the existing region crop, for each pre-labelled ID in the three earlier marking studies. This is a counterfactual selection from separate model calls, not a new app run. Of 45 repeated labelled attempts, the selection read 29 exactly, versus 27 for regions and 31 for the hybrid. Native padded crops were available in 38 of 45 cases; otherwise the region answer was used. The studies differ in image selection and provisional labelling, include repeated views of the same containers, and do not prove the small difference generalises. The result does not currently justify adding a new production dependency or replacing the numbered-region path.
+
+## Follow-up
+
+The offline unit suite, with OpenRouter and OpenAI credentials explicitly removed from that command, returned 1,288 passed, 21 failed and 37 skipped, matching the prior baseline. After restoring fixtures and rebuilding, the Chromium suite returned 93 passed and the same two known stale manifest-demo failures. The repository gate was rerun after restoring fixtures. A new focused test verifies that a finding with several plausible damage types remains visible without an optional Box request or invented highlight; all 22 tests in the localisation suite passed. The earlier focused localisation/replay/regression run passed 35 tests.
+
+The first unit run accidentally inherited the injected OpenRouter key and enabled opt-in live tests, contrary to the intended offline check. Some failed in photo preparation; successful tests overwrote one tracked fixture and generated another. Both live outputs were copied to `.scratch/reference-study/accidental-live-output/`, and the tracked fixture was restored exactly from the previously clean HEAD; the newly generated fixture was removed from the tracked tree. The two preserved outputs show at least three successful chargeable calls with provider-reported cost totalling $0.002872674. Other live tests may have made additional calls whose costs were not recorded in those outputs, so this is a lower bound, not a complete total. The deliberate 30-call reference experiment's cost above excludes this accidental test run.
+
+The full final verification and a durable evidence-publication decision remain open. For #123 include the yellow container's nine raw boxes, which all failed the current Box confidence guard despite high presence scores, the damaged white door, and apparently clean controls. Those direct-box tests did not establish complete application behaviour. Preserve the threshold until additional independently labelled examples and a measured false-highlight/missed-highlight tradeoff support changing it. Run final review and retain the documented existing test failures separately from new regressions.

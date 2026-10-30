@@ -2,6 +2,8 @@
 
 Index of research notes on live provider facts. Each note states its own check date; re-check before relying on a fact.
 
+- `jev-reference-followup-2026-10-30.md`: paired side-damage classifications with and without photographic examples, a marking-fallback analysis and the yellow-container eligibility finding. Evidence remains local and has not been published; #122 and final verification remain open.
+
 - `jev-markings-2026-10-30.md`: matched numbered-region, native Box, padded Box and conservative hybrid crop comparison for IDs and other markings (ticket #121), with provisional labels, raw live evidence and reproducible offline review. Checked 30 October 2026; retains the numbered-region application pipeline.
 
 - `jev-box-baseline-2026-10-30.md`: current Box/image contract, damage/marking audit, historical replay scores and reusable full-photo presence-plus-box experiment method for ticket #116. Checked 30 October 2026; distinguishes live evidence from provisional review and synthetic checks.

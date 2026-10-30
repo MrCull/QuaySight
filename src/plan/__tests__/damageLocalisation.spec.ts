@@ -224,6 +224,15 @@ it('keeps a valid batch location when another target is absent', async () => {
   expect(observations[0]!.localisation?.box).toEqual(box)
   expect(observations[1]!.localisation).toBeUndefined()
 })
+it('retains a finding with several plausible damage types without requesting a misleading highlight', async () => {
+  const damage = doorReply()
+  damage.answers.D2B_BT = { type: 'noul', noul: 0.72 }
+  const { store, fetcher } = await run(reply(), true, 'typesafe/jev-1.14', undefined, false, damage)
+  const finding = store.record!.damage!.findings[0]!
+  expect(finding.types.map((type) => type.name)).toEqual(expect.arrayContaining(['Dent', 'Bent']))
+  expect(finding.observations![0]!.localisation).toBeUndefined()
+  expect(fetcher.mock.calls.some(([, init]) => String(init?.body).includes('target_box'))).toBe(false)
+})
 it('discards a stale optional answer after New inspection and retains the session charge', async () => {
   const { store } = await run(reply(), true, 'typesafe/jev-1.14', async (body) => {
     if (body.includes('target_box')) useInspectionStore().newInspection()
