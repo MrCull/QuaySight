@@ -2,6 +2,7 @@
 // them, so importers keep their path.
 import type {
   DamageComponent,
+  DamageObservation,
   DamageFace,
   FaceCoverage,
   FaceStatus,
@@ -47,6 +48,7 @@ export interface ExportUnresolved {
 export type FaceExportStatus = FaceStatus | 'not-assessed'
 
 export interface ExportFindingLink {
+  observations?: DamageObservation[]
   findingId: number
   title: string
   face: DamageFace

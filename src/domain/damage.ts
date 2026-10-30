@@ -98,6 +98,19 @@ export interface DamageFinding {
   surfaceWear?: boolean
   /** The photos (1-based) the damage was seen in, when the inspection has several photos. */
   photos?: number[]
+  /** Independent photo observations grouped for presentation; not a physical-defect identity claim. */
+  observations?: DamageObservation[]
+}
+
+/** Classification evidence in its original photo-relative region, before cross-photo agreement. */
+export interface DamageObservation {
+  /** Stable within a photo's region/component, independent of card ordering and run id. */
+  id: string
+  findingId: number
+  /** Null when the source photograph was not supplied; never guessed from another finding. */
+  photo: { name: string; index?: number } | null
+  passId: string | null
+  evidence: Omit<DamageFinding, 'observations' | 'photos'>
 }
 
 /** One photo-relative zone a damage set judged, with how well it could be seen. */

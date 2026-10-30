@@ -5,6 +5,7 @@ import { cedexType, cedexTypeDescription } from '../../domain/cedexType'
 import type { DamageFinding } from '../../domain/damage'
 import CertaintyChip from '../CertaintyChip.vue'
 import SeverityBadge from './SeverityBadge.vue'
+import DamageEvidence from './DamageEvidence.vue'
 
 // The selected finding, expanded beside the drawing (design-system FindingCard, detail panel): what it is,
 // its CEDEX location and damage type, severity and certainty kept apart, the interpretation and caveats.
@@ -13,6 +14,7 @@ const props = defineProps<{
   location: CedexLocation | null
   /** Where the open finding sits among all of them (0-based), for the previous and next arrows. */
   position?: { index: number; total: number } | null
+  photos?: { name: string; url: string }[]
 }>()
 const emit = defineEmits<{ previous: []; next: [] }>()
 
@@ -85,6 +87,7 @@ function uncertaintyClass(f: DamageFinding): string {
       </div>
 
       <p class="qs-finding-detail__desc">{{ finding.description }}</p>
+      <DamageEvidence :finding="finding" :photos="photos ?? []" />
 
       <section class="qs-finding-detail__section" data-detail="cedex-location">
         <h4>CEDEX location</h4>
