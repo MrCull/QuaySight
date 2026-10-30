@@ -20,6 +20,7 @@ import type {
   ZoneCoverage,
 } from './damage'
 import type { InspectionRecord } from './inspection'
+import { observeDamage } from './damageObservation'
 import { sectionWords } from './sideSections'
 import { chosenLength, type ContainerLengthFt, type LengthReading } from './chosenLength'
 import { facesShown, type FaceReading, type PhotoFace } from './photoFace'
@@ -151,6 +152,12 @@ function fromReading(
   if (!reading.inspectable || !face) {
     return notAssessed(`The ${FACE_NAME[reading.face]} is not inspectable in this photo.`)
   }
+  reading = {
+    ...reading,
+    findings: reading.findings.map((finding) =>
+      observeDamage(finding, reading.face, photo ? { name: photo } : null, reading.passId ?? null),
+    ),
+  }
   if (face === 'long-side') {
     const sideInference = sideFor(reading.doorEnd)
     return {
@@ -186,7 +193,13 @@ function mergeAssessments(parts: DamageAssessment[]): DamageAssessment {
   return {
     ...main,
     photos: parts.flatMap((p) => p.photos),
-    findings: parts.flatMap((p) => p.findings).map((f, i) => ({ ...f, id: i + 1 })),
+    findings: parts
+      .flatMap((p) => p.findings)
+      .map((f, i) => ({
+        ...f,
+        id: i + 1,
+        observations: f.observations?.map((o) => ({ ...o, findingId: i + 1 })),
+      })),
     zones: parts.flatMap((p) => p.zones ?? []),
     significantProbability: probabilities.length > 0 ? Math.max(...probabilities) : null,
     doorEnd: main.doorEnd ?? parts.find((p) => p.doorEnd)?.doorEnd ?? null,
