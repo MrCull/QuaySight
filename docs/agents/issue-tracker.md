@@ -2,9 +2,17 @@
 
 Issues and specs for this repo live as GitHub issues. Use the `gh` CLI for all operations.
 
+## Authentication in a sandbox
+
+If `gh` reports HTTP 401 or an invalid token despite a recent successful login, retry one read-only
+repository request outside the sandbox using the normal escalation mechanism. Sandbox credential
+visibility can differ from the host session. If the host request succeeds, use that context for the
+remaining GitHub operations. Ask the user to authenticate again only if the host request also fails.
+Keep tokens out of diagnostic output; use `gh auth status`, never print the token or credential file.
+
 ## Conventions
 
-- **Create an issue**: `gh issue create --title "..." --body "..."`. Use a heredoc for multi-line bodies.
+- **Create an issue**: write multiline Markdown to a UTF-8 temporary file and use `gh issue create --title "..." --body-file <file>`.
 - **Read an issue**: `gh issue view <number> --comments`, filtering comments by `jq` and also fetching labels.
 - **List issues**: `gh issue list --state open --json number,title,body,labels,comments --jq '[.[] | {number, title, body, labels: [.labels[].name], comments: [.comments[].body]}]'` with appropriate `--label` and `--state` filters.
 - **Comment on an issue**: `gh issue comment <number> --body "..."`
@@ -28,6 +36,25 @@ GitHub shares one number space across issues and PRs, so a bare `#42` may be eit
 ## When a skill says "publish to the issue tracker"
 
 Create a GitHub issue.
+
+For an approved ticket breakdown, use the [ticket publisher](ticket-publisher.md). It previews and
+secret-scans the complete batch, reconciles existing GitHub issues on restart, and verifies labels,
+sub-issue relationships and blocking links. Store disposable inputs under the system temporary
+directory or ignored `.scratch/`; keep durable specifications in `docs/`.
+
+## Approval handoffs between skills
+
+Carry approved decisions forward through grilling, spec and ticket workflows. A directive to take
+the next step can confirm the grilling outcome. Recheck only new or materially changed testing
+seams; a new ticket breakdown still needs its own approval unless that exact breakdown and graph
+were already accepted. Publication remains within the user's authorised scope.
+
+The installed plugin's three approval steps have a narrow local patch in
+`scripts/skill-approval-updates.json`. Plugin updates may replace cache edits. To preview reapplying
+it, run `scripts/update-skill-approvals.ps1 -SkillRoot <installed-plugin-skills-directory>`; add
+`-Apply` after reviewing the preview. The updater checks the original wording, backs up originals to
+the system temporary directory and skips already patched files. It stops if an upstream update
+changed the relevant wording, so the patch must be reviewed rather than applied blindly.
 
 ## When a skill says "fetch the relevant ticket"
 
