@@ -164,6 +164,22 @@ it('locates two distinct assessed regions in one request and associates each ans
     { top: 0.1, bottom: 0.3, left: 0.1, right: 0.4 },
   ])
 })
+it('keeps a valid batch location when another target is absent', async () => {
+  const damage = doorReply()
+  damage.answers.D1T_DT = { type: 'noul', noul: 0.91 }
+  damage.answers.D1T_severity = damage.answers.D2B_severity!
+  const response = keyedReply({
+    target_present_0: { type: 'noul', noul: 0.95 },
+    target_box_0: { type: 'box', box, confidence: 0.67 },
+    target_present_1: { type: 'noul', noul: 0.2 },
+    target_box_1: { type: 'box', box, confidence: 0.99 },
+  })
+  const { store } = await run(response, true, 'typesafe/jev-1.14', undefined, false, damage)
+  const observations = store.record!.damage!.findings.flatMap((f) => f.observations ?? [])
+  expect(observations).toHaveLength(2)
+  expect(observations[0]!.localisation?.box).toEqual(box)
+  expect(observations[1]!.localisation).toBeUndefined()
+})
 it('discards a stale optional answer after New inspection and retains the session charge', async () => {
   const { store } = await run(reply(), true, 'typesafe/jev-1.14', async (body) => {
     if (body.includes('target_box')) useInspectionStore().newInspection()
