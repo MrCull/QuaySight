@@ -51,3 +51,14 @@ The owner rates the app 4/10 before this branch and about 5/10 after. The branch
 8. **A designed analysing state.** Today it is the photo plus three grey skeleton tiles on an empty page. Show the readings appearing on the photo as each stage settles.
 9. **Custom controls and real assets.** The native select, the monogram provider badges and the stock sample photo as hero all look unfinished; a commissioned or better-shot hero photograph and consistent custom controls would help.
 10. **Design it before coding it.** Getting past 8 needs mock-ups of the result screen agreed first (and the design-system rules that force the boxes and labels revisited), not more CSS on the current structure.
+
+## Mock-up of roadmap items 1 to 4
+
+`docs/mockups/result-screen.html` (open it in a browser from the repo; image: `docs/mockups/result-screen.png`). A static page, not app code, built on `tokens.css` and `bundle.css`. It shows the result screen with: the photo and the answer composed together above the fold (1), readings and damage outlined on the photo (2), unread markings as one sentence and findings as one grouped table with a single detail panel (3), and lists on hairlines with chips for certainty only (4). Values come from the recorded "Rear doors with markings" sample; the outlines and pins on the photo are placed by hand. Not yet reviewed by the owner; nothing is implemented in the app.
+
+## Other open PRs (checked 12 Nov 2026, both left open)
+
+- **#114 Loupe shows over the whole ledger close-up**: a 3-line CSS fix in `bundle.css` plus an e2e test. Not in `main`, merges cleanly. Useful; ready to merge.
+- **#124 Add experimental Jev damage photo highlights** (`try-box`, 31 commits, 825 files, mostly research evidence and fixtures; about 1,300 lines in `src`). Not in `main`, merges cleanly. Useful: it is the groundwork for roadmap item 2. Its own description says it is for testing and leaves #122 and #123 open.
+
+Each open PR holds one Azure preview environment (see the quota section above).
