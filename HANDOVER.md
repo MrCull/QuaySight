@@ -11,13 +11,13 @@ Branch `claude/loving-hopper-85brdw`, PR https://github.com/MrCull/QuaySight/pul
 - `design-system/README.md` and `docs/user-guide.md` updated; `docs/images/*.png` re-captured.
 - `e2e/layout.spec.ts` expects the photo strip about 320px tall (was 260px).
 
-## Last change (not yet verified in a browser)
+## Last change
 
-The owner said the hero wording "makes zero sense". The copy in `SetupHero.vue` was rewritten in plainer words and the photo shade darkened so the markings painted on the container no longer show through the headline. Still to do:
+The owner said the hero wording "makes zero sense". The copy in `SetupHero.vue` was rewritten in plainer words ("Inspect a shipping container from photos. Every result shows how certain it is.") and the photo shade darkened so the markings painted on the container no longer show through the headline. Checked in a browser at 1440px and 390px, light theme, and the three setup images in `docs/images/` re-captured. Still to do:
 
-1. Run the app (`npm run dev`), look at the first screen in light, dark and phone widths, and confirm the new wording with the owner.
-2. Re-capture `docs/images/setup-card.png`, `setup-provider-list.png` and `mobile-setup.png` (they still show the old wording).
-3. Run `npm run check` and the e2e suite once more.
+1. Confirm the new wording with the owner.
+2. Look at the first screen in the dark theme.
+3. Run the e2e suite once more (`npm run check` passed before the wording change; only text and gradient values changed since).
 
 ## Things to know
 
