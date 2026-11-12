@@ -29,3 +29,25 @@ The owner said the hero wording "makes zero sense". The copy in `SetupHero.vue` 
 ## Ideas offered to the owner (none started)
 
 Photo overlay of readings; batch mode; printable report; session history; model comparison; camera capture with coaching; manifest CSV import; before/after comparison; owner/BIC lookup; presenter mode.
+
+## CI: Azure staging-environment quota
+
+The Azure Static Web Apps job failed on PR #126 with "This Static Web App already has the maximum number of staging environments". It is a quota on the Azure side, not a build error: the plan allows 3 preview environments, and open PRs #114 and #124 (plus, probably, one left over from a closed PR) hold them.
+
+- Done in this branch: the PR preview deploy step is `continue-on-error` for pull requests only, so a full quota no longer fails a PR. Pushes to `main` still fail loudly. Not yet seen running on GitHub.
+- Still needed, by the owner (no Azure access from the agent session): Azure portal > the Static Web App > Environments > delete a stale preview environment; or close/merge #114 or #124. Until then PR #126 has no preview site.
+
+## What it would take to reach 8/10 visually (owner's question, nothing started)
+
+The owner rates the app 4/10 before this branch and about 5/10 after. The branch changed the wrapping (first screen, picker, fonts, depth); the result screen itself, where the time is spent, is still the same layout. In rough order of payoff:
+
+1. **Give the result screen a hierarchy.** It is one long column of equal-weight boxes (about 3,500px tall). Put the photo, the container ID and the key facts together above the fold as one composed "verdict" area, and move Readings, Container details and Damage behind tabs or collapsible sections.
+2. **Put the findings on the photo.** Outline the ID, seal, placards and damage on the photograph itself, linked both ways to the lists. This is the single change that would make it look impressive (PR #124 has experimental damage highlights).
+3. **Cut the repetition.** Rows of "Not clear from this photo / Can't tell" and nine near-identical finding cards read as noise. Collapse unread rows into one line ("5 markings not readable in this photo") and show findings as a compact grouped table with one detail panel.
+4. **Fewer boxes.** Almost every value sits in a bordered chip inside a bordered row inside a bordered card. Drop most borders; use spacing and type weight instead; keep chips for certainty only.
+5. **Redraw the damage schematic.** The 3D drawing is small, pale and the weakest illustration on the page. It needs a proper, larger, higher-contrast drawing with real door and corrugation detail.
+6. **A braver palette and type scale.** Everything is grey-blue on grey-blue with many 12-13px uppercase labels. Stronger neutral contrast, one confident accent, larger body text, fewer sizes.
+7. **Shrink the demo banner.** The two-ruled band takes about 90px of prime space on every demo screen; a slim strip or a pill in the top bar says the same.
+8. **A designed analysing state.** Today it is the photo plus three grey skeleton tiles on an empty page. Show the readings appearing on the photo as each stage settles.
+9. **Custom controls and real assets.** The native select, the monogram provider badges and the stock sample photo as hero all look unfinished; a commissioned or better-shot hero photograph and consistent custom controls would help.
+10. **Design it before coding it.** Getting past 8 needs mock-ups of the result screen agreed first (and the design-system rules that force the boxes and labels revisited), not more CSS on the current structure.

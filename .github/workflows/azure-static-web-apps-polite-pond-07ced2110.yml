@@ -21,6 +21,9 @@ jobs:
           lfs: false
       - name: Build And Deploy
         id: builddeploy
+        # A pull request's preview is optional: the Static Web App allows only a few staging environments,
+        # and a full quota must not fail the pull request (ci.yml is the gate). A push to main still fails loudly.
+        continue-on-error: ${{ github.event_name == 'pull_request' }}
         uses: Azure/static-web-apps-deploy@v1
         env:
           # Read by vite.config.ts for the footer build stamp.
