@@ -1,0 +1,60 @@
+/* Shared by the three direction mock-ups: reset, certainty glyphs, photo overlays, the flat container drawing.
+   Each direction sets the colour variables; nothing here names a colour. */
+*, *::before, *::after { box-sizing: border-box; }
+html { -webkit-text-size-adjust: 100%; }
+body { margin: 0; -webkit-font-smoothing: antialiased; text-rendering: optimizeLegibility; }
+img { display: block; max-width: 100%; }
+ul, ol, dl, dd, figure, p, h1, h2, h3 { margin: 0; padding: 0; }
+ul, ol { list-style: none; }
+button { font: inherit; color: inherit; border: 0; background: none; cursor: pointer; }
+.num { font-variant-numeric: tabular-nums; }
+
+/* Certainty: one glyph whose fill says how sure, plus the fixed word. Blue family and amber only. */
+.cert { display: inline-flex; align-items: center; gap: 7px; white-space: nowrap; color: var(--cert-fg); }
+.cert i { flex: none; width: 11px; height: 11px; border-radius: 50%; border: 1.5px solid currentColor; }
+.cert--confident { --cert-fg: var(--c-confident); }
+.cert--confident i { background: currentColor; }
+.cert--likely { --cert-fg: var(--c-likely); }
+.cert--likely i { background: conic-gradient(currentColor 0 75%, transparent 0); }
+.cert--uncertain { --cert-fg: var(--c-uncertain); }
+.cert--uncertain i { background: conic-gradient(currentColor 0 50%, transparent 0); }
+.cert--unknown { --cert-fg: var(--c-unknown); }
+.cert--unseen { --cert-fg: var(--c-unknown); }
+.cert--unseen i { border-style: dashed; }
+
+/* Photo with what was read outlined on it and damage pinned on it. */
+.shot { position: relative; aspect-ratio: 3 / 4; }
+.shot > img { width: 100%; height: 100%; object-fit: cover; border-radius: inherit; }
+.box { position: absolute; border: 1.5px solid var(--box, #fff); border-radius: 3px; box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.35), inset 0 0 0 1px rgba(0, 0, 0, 0.25); }
+.box--hazard { --box: var(--hazard); }
+.pin { position: absolute; display: grid; place-items: center; width: 26px; height: 26px; margin: -13px 0 0 -13px; border-radius: 50%; background: var(--pin-bg); border: 2px solid var(--damage); color: var(--damage); font: 600 13px/1 var(--mono); box-shadow: 0 2px 8px rgba(0, 0, 0, 0.45); }
+.pin.is-on { background: var(--damage); color: var(--pin-on-ink); box-shadow: 0 0 0 5px color-mix(in srgb, var(--damage) 32%, transparent), 0 2px 8px rgba(0, 0, 0, 0.45); }
+
+/* Flat container drawing (see mock.js). */
+svg[data-net] { display: block; width: 100%; height: auto; overflow: visible; }
+.sk-panel { fill: var(--sk-face); }
+.sk-face--door .sk-panel, .sk-face--blank .sk-panel { fill: var(--sk-end, var(--sk-face)); }
+.sk-rib { stroke: var(--sk-rib); stroke-width: 2.2; }
+.sk-rail, .sk-corner { fill: var(--sk-frame); }
+.sk-outline { fill: none; stroke: var(--sk-frame); stroke-width: 1.5; }
+.sk-seam { stroke: var(--sk-frame); stroke-width: 1.5; }
+.sk-rod { stroke: var(--sk-detail); stroke-width: 1.8; }
+.sk-cam, .sk-hinge { fill: var(--sk-detail); }
+.sk-section { stroke: var(--sk-frame); stroke-width: 1; stroke-dasharray: 3 3; opacity: 0.7; }
+.sk-name { font: 600 8.5px var(--sans); letter-spacing: 0.08em; text-transform: uppercase; fill: var(--sk-text); }
+.sk-num { font: 500 8px var(--mono); fill: var(--sk-text); text-anchor: middle; opacity: 0.8; }
+.sk-zone { fill: var(--damage); fill-opacity: 0.2; stroke: var(--damage); stroke-width: 1.2; }
+.sk-zone.is-on { fill-opacity: 0.42; stroke-width: 2; }
+.sk-pin circle { fill: var(--pin-bg); stroke: var(--damage); stroke-width: 1.6; }
+.sk-pin text { font: 600 9.5px var(--mono); fill: var(--damage); text-anchor: middle; }
+.sk-pin.is-on circle { fill: var(--damage); }
+.sk-pin.is-on text { fill: var(--pin-on-ink); }
+
+/* Severity: four rising bars, the damage hue only. */
+.sev { display: inline-flex; align-items: center; gap: 7px; color: var(--damage); white-space: nowrap; }
+.sev i { display: inline-flex; align-items: flex-end; gap: 2px; height: 12px; }
+.sev i b { width: 3px; border-radius: 1px; background: currentColor; opacity: 0.28; }
+.sev i b:nth-child(1) { height: 4px; opacity: 1; }
+.sev i b:nth-child(2) { height: 6.5px; }
+.sev i b:nth-child(3) { height: 9px; }
+.sev i b:nth-child(4) { height: 12px; }

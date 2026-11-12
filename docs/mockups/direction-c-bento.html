@@ -1,0 +1,228 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Quay Sight · Direction C · Bright tiles</title>
+<!-- Static mock-up, not app code. Direction C: bright and friendly. A few large, borderless tiles of different sizes;
+     the ID is the one dark tile, every other tile answers one question in big type. -->
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,600;12..96,700&family=Geist+Mono:wght@400;500;600&family=Instrument+Sans:wght@400;500;600&display=swap">
+<link rel="stylesheet" href="mock.css">
+<style>
+  :root {
+    --display: "Bricolage Grotesque", system-ui, sans-serif;
+    --sans: "Instrument Sans", system-ui, sans-serif;
+    --mono: "Geist Mono", ui-monospace, monospace;
+    --bg: #e8eaf0; --tile: #ffffff; --tile-2: #f3f4f8; --line: #e3e6ed; --ink: #0f1219; --ink-2: #555e70; --ink-3: #8a93a5;
+    --night: #0f1219; --on-night: #f5f6fa; --on-night-2: #9aa3b7;
+    --accent: #2743f5; --accent-soft: #e6eaff;
+    --c-confident: #2743f5; --c-likely: #4a63d8; --c-uncertain: #8a5300; --c-unknown: #6b7486;
+    --damage: #c9146a; --damage-soft: #fde8f1; --pin-bg: #fde8f1; --pin-on-ink: #ffffff; --hazard: #d1400f; --hazard-soft: #ffeee4;
+    --sk-face: #dde2ec; --sk-end: #d2d9e5; --sk-rib: #c9d1de; --sk-frame: #7f8ba0; --sk-detail: #596579; --sk-text: var(--ink-2);
+    --r: 28px;
+  }
+  body { background: var(--bg); color: var(--ink); font: 400 15px/22px var(--sans); }
+  .page { max-width: 1440px; margin: 0 auto; padding: 16px 24px 40px; display: grid; gap: 16px; }
+  .k { font: 600 13px/16px var(--sans); color: var(--ink-2); }
+  .mono { font-family: var(--mono); }
+  .tile { background: var(--tile); border-radius: var(--r); padding: 24px; min-width: 0; }
+  .cert { height: 28px; padding: 0 11px 0 9px; border-radius: 14px; background: color-mix(in srgb, var(--cert-fg) 11%, transparent); font: 600 13px/1 var(--sans); }
+
+  .top { display: flex; align-items: center; gap: 12px; height: 60px; padding: 0 12px 0 20px; border-radius: 30px; background: var(--tile); }
+  .brand { display: flex; align-items: center; gap: 10px; font: 700 20px/1 var(--display); letter-spacing: -0.02em; }
+  .brand img { width: 26px; height: 26px; }
+  .top__right { margin-left: auto; display: flex; align-items: center; gap: 8px; }
+  .chip { display: flex; align-items: center; gap: 8px; height: 36px; padding: 0 14px; border-radius: 18px; background: var(--tile-2); color: var(--ink-2); font: 500 13px/1 var(--sans); }
+  .chip b { color: var(--ink); font: 500 13px/1 var(--mono); }
+  .btn { height: 40px; padding: 0 18px; border-radius: 20px; background: var(--accent); color: #fff; font: 600 14px/1 var(--sans); }
+
+  .hero { display: grid; grid-template-columns: 384px minmax(0, 1fr); gap: 16px; }
+  .photo { padding: 12px; display: grid; gap: 12px; align-content: start; }
+  .photo .shot { border-radius: 18px; overflow: hidden; }
+  .box { --box: #ffffff; }
+  .tag { position: absolute; left: -1.5px; bottom: calc(100% + 5px); padding: 4px 8px; border-radius: 7px; background: var(--night); color: var(--on-night); font: 600 11px/13px var(--sans); white-space: nowrap; }
+  .strip { display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px; }
+  .strip li { position: relative; aspect-ratio: 1; border-radius: 12px; overflow: hidden; }
+  .strip img { width: 100%; height: 100%; object-fit: cover; }
+  .strip .is-on { outline: 2.5px solid var(--accent); outline-offset: 2px; }
+  .photo__cap { display: flex; justify-content: space-between; align-items: center; padding: 0 8px 4px; color: var(--ink-2); font-size: 13px; }
+  .photo__cap b { color: var(--ink); font-weight: 600; }
+
+  .right { display: grid; grid-template-rows: auto minmax(0, 1fr); gap: 16px; }
+  .idt { position: relative; overflow: hidden; display: grid; gap: 18px; padding: 30px 36px 32px; background: var(--night); color: var(--on-night); }
+  .idt::after { content: ""; position: absolute; inset: 0 0 0 55%; background: repeating-linear-gradient(90deg, rgba(255, 255, 255, 0.045) 0 12px, transparent 12px 24px); mask-image: linear-gradient(90deg, transparent, #000); -webkit-mask-image: linear-gradient(90deg, transparent, #000); pointer-events: none; }
+  .idt .k { color: var(--on-night-2); }
+  .idt__head { display: flex; align-items: center; gap: 14px; }
+  .idt .cert { --c-confident: #8ea2ff; background: rgba(142, 162, 255, 0.16); }
+  .id { display: flex; align-items: center; gap: 26px; font: 600 92px/1 var(--mono); letter-spacing: -0.01em; }
+  .id em { display: grid; place-items: center; height: 108px; padding: 0 18px; border: 4px solid currentColor; border-radius: 18px; font-style: normal; }
+  .checks { display: flex; flex-wrap: wrap; gap: 8px; position: relative; z-index: 1; }
+  .checks span { height: 30px; display: inline-flex; align-items: center; padding: 0 12px; border-radius: 15px; background: rgba(255, 255, 255, 0.09); color: var(--on-night); font: 500 13px/1 var(--sans); }
+
+  .facts { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.7fr) minmax(0, 1fr) minmax(0, 1fr); gap: 16px; }
+  .fact { display: flex; flex-direction: column; gap: 6px; }
+  .fact__head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px; }
+  .big { font: 600 44px/48px var(--display); letter-spacing: -0.03em; }
+  .big small { margin-left: 6px; font: 500 18px/1 var(--sans); letter-spacing: 0; color: var(--ink-2); }
+  .big.mono { font: 600 30px/40px var(--mono); letter-spacing: -0.01em; }
+  .fact p { color: var(--ink-2); font-size: 14px; line-height: 20px; }
+  .fact .cert { align-self: flex-start; margin-top: auto; }
+  .specs { margin-top: 6px; display: grid; gap: 0; }
+  .specs li { display: flex; justify-content: space-between; padding: 8px 0; border-top: 1px solid var(--line); font-size: 14px; }
+  .specs li span { color: var(--ink-2); }
+  .specs li b { font-weight: 600; }
+  .bar { display: flex; gap: 3px; height: 44px; margin-top: 10px; }
+  .bar i { display: flex; align-items: center; padding: 0 12px; border-radius: 10px; font: 600 12px/1 var(--sans); font-style: normal; white-space: nowrap; }
+  .bar i:first-child { width: 13%; padding: 0; background: var(--ink); }
+  .bar i:last-child { flex: 1; background: var(--accent); color: #fff; }
+  .wts { display: grid; grid-template-columns: repeat(3, auto); justify-content: space-between; margin-top: 12px; }
+  .wts dt { display: flex; align-items: center; gap: 6px; color: var(--ink-2); font-size: 13px; }
+  .wts dt u { width: 9px; height: 9px; border-radius: 3px; background: var(--ink); }
+  .wts div:nth-child(2) dt u { background: var(--accent); }
+  .wts dd { font: 600 19px/26px var(--mono); }
+  .wts dd small { margin-left: 3px; color: var(--ink-3); font: 500 12px/1 var(--sans); }
+  .seal { padding: 12px; }
+  .seal__img { height: 150px; border-radius: 18px; overflow: hidden; }
+  .seal__img img { width: 100%; height: 100%; object-fit: cover; object-position: 50% 12%; }
+  .seal__body { display: flex; flex-direction: column; gap: 4px; flex: 1; padding: 8px 12px 12px; }
+  .plac { background: var(--hazard-soft); }
+  .plac svg { width: 76px; height: 76px; margin: 6px 0 8px; }
+  .plac .big { font-size: 34px; line-height: 36px; }
+
+  .lower { display: grid; grid-template-columns: minmax(0, 1.3fr) minmax(0, 1fr); gap: 16px; align-items: start; }
+  .h { display: flex; align-items: center; gap: 12px; margin-bottom: 18px; }
+  .h h2 { font: 600 30px/34px var(--display); letter-spacing: -0.03em; }
+  .h .cert { margin-left: auto; }
+  .h p { color: var(--ink-2); }
+  .net { padding: 22px 24px 14px; border-radius: 18px; background: var(--tile-2); }
+  .cover { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 16px; }
+  .cover span { display: inline-flex; align-items: center; gap: 7px; height: 32px; padding: 0 13px; border-radius: 16px; background: var(--tile-2); font: 500 13px/1 var(--sans); }
+  .cover span::before { content: ""; width: 8px; height: 8px; border-radius: 50%; background: var(--ink); }
+  .cover .no { color: var(--ink-2); }
+  .cover .no::before { background: none; border: 1.5px dashed var(--ink-3); }
+  .cover p { flex-basis: 100%; margin-top: 4px; color: var(--ink-3); font-size: 13px; }
+  .find { display: grid; grid-template-columns: 30px minmax(0, 1fr) auto; align-items: center; gap: 12px; padding: 10px 12px; margin: 0 -12px; border-radius: 16px; }
+  .find .n { display: grid; place-items: center; width: 28px; height: 28px; border-radius: 50%; background: var(--damage-soft); color: var(--damage); font: 600 13px/1 var(--mono); }
+  .find b { display: block; font-weight: 600; }
+  .find small { display: block; color: var(--ink-2); font-size: 13px; line-height: 18px; }
+  .find .cert { height: auto; padding: 0; background: none; font-weight: 500; }
+  .find.is-on { align-items: start; padding: 14px 12px; margin-bottom: 6px; background: var(--damage-soft); }
+  .find.is-on .n { background: var(--damage); color: #fff; }
+  .find.is-on p { grid-column: 2 / -1; display: grid; grid-template-columns: 72px minmax(0, 1fr); gap: 12px; font-size: 14px; line-height: 20px; }
+  .find.is-on p span { width: 72px; height: 72px; border-radius: 12px; overflow: hidden; }
+  .find.is-on p img { width: 100%; height: 100%; object-fit: cover; object-position: 22% 46%; transform: scale(2.4); }
+  .find.is-on .sev { grid-column: 2 / -1; font: 600 13px/1 var(--sans); }
+  .foot { text-align: center; color: var(--ink-3); font-size: 13px; }
+
+  @media (max-width: 900px) {
+    .page { padding: 12px 16px 32px; gap: 12px; }
+    :root { --r: 24px; }
+    .chip { display: none; }
+    .hero, .facts, .lower { grid-template-columns: minmax(0, 1fr); gap: 12px; }
+    .right { gap: 12px; }
+    .idt { padding: 22px 20px 24px; }
+    .id { gap: 10px; font-size: 34px; }
+    .id em { height: 44px; padding: 0 8px; border-width: 2px; border-radius: 9px; }
+    .facts { grid-template-columns: 1fr 1fr; }
+    .facts .wide { grid-column: 1 / -1; }
+    .tile { padding: 20px; }
+    .seal, .photo { padding: 10px; }
+    .seal__img { height: 110px; }
+    .big { font-size: 36px; line-height: 40px; }
+    .big.mono { font-size: 22px; line-height: 30px; }
+    .plac .big { font-size: 26px; line-height: 28px; }
+    .plac svg { width: 56px; height: 56px; }
+    .h { flex-wrap: wrap; gap: 6px 12px; }
+    .h h2 { font-size: 26px; }
+    .net { padding: 14px 12px 8px; }
+  }
+</style>
+</head>
+<body>
+<div class="page">
+  <header class="top">
+    <span class="brand"><img src="../../design-system/assets/logo/quay-sight-mark.svg" alt="">Quay Sight</span>
+    <div class="top__right"><span class="chip">Jev latest</span><span class="chip">This container <b>$0.0209</b></span><button class="btn">New inspection</button></div>
+  </header>
+
+  <section class="hero">
+    <div class="tile photo">
+      <div class="shot">
+        <img src="../../samples/jdlu-200690-1-rear-doors.jpg" alt="Rear doors of a blue container on a trailer">
+        <div class="box" style="left:58.5%;top:26.2%;width:26%;height:8.2%"><span class="tag">ID and type</span></div>
+        <div class="box" style="left:56.5%;top:36.3%;width:27%;height:15%"></div>
+        <div class="box box--hazard" style="left:74%;top:55.2%;width:9%;height:7%"></div>
+        <span class="pin is-on" style="left:30%;top:47%">1</span>
+        <span class="pin" style="left:29%;top:68%">5</span>
+      </div>
+      <ul class="strip">
+        <li class="is-on"><img src="../../samples/jdlu-200690-1-rear-doors.jpg" alt=""></li>
+        <li><img src="../../samples/jdlu-200690-2-corner-doors-left.jpg" alt=""></li>
+        <li><img src="../../samples/jdlu-200690-3-corner-doors-right.jpg" alt=""></li>
+        <li><img src="../../samples/jdlu-200690-4-long-side.jpg" alt=""></li>
+        <li><img src="../../samples/seal-closeup-coyu-0154620.jpg" alt="" style="object-position:50% 14%"></li>
+      </ul>
+      <div class="photo__cap"><span><b>Doors</b> · photo 1 of 5</span><span>3 readings · 2 findings here</span></div>
+    </div>
+
+    <div class="right">
+      <div class="tile idt">
+        <div class="idt__head"><span class="k">Container ID</span><span class="cert cert--confident"><i></i>Confident</span></div>
+        <div class="id"><span>JDLU</span><span>200690</span><em>2</em></div>
+        <div class="checks"><span>Check digit valid</span><span>Same in photos 1, 2 and 3</span><span>Painted on the right door</span></div>
+      </div>
+
+      <div class="facts">
+        <div class="tile fact wide">
+          <div class="fact__head"><span class="k">Size and type</span></div>
+          <div class="big">22G1</div>
+          <ul class="specs"><li><span>Length</span><b>20 ft</b></li><li><span>Height</span><b>8 ft 6 in</b></li><li><span>Type</span><b>General purpose</b></li></ul>
+          <span class="cert cert--confident"><i></i>Confident</span>
+        </div>
+        <div class="tile fact wide">
+          <div class="fact__head"><span class="k">Max gross weight</span><span class="cert cert--confident"><i></i>Confident</span></div>
+          <div class="big num">32,500<small>kg</small></div>
+          <div class="bar" aria-hidden="true"><i></i><i>Room for 30,320 kg of cargo</i></div>
+          <dl class="wts num">
+            <div><dt><u></u>Tare</dt><dd>2,180<small>kg</small></dd></div>
+            <div><dt><u></u>Payload</dt><dd>30,320<small>kg</small></dd></div>
+            <div><dt>Capacity</dt><dd>33.2<small>m³</small></dd></div>
+          </dl>
+        </div>
+        <div class="tile fact seal">
+          <div class="seal__img"><img src="../../samples/seal-closeup-coyu-0154620.jpg" alt="Yellow bolt seal"></div>
+          <div class="seal__body"><span class="k">Seal</span><div class="big mono">0154620</div><p>Bolt seal, photo 5</p><span class="cert cert--confident"><i></i>Confident</span></div>
+        </div>
+        <div class="tile fact plac">
+          <div class="fact__head"><span class="k">Placards</span></div>
+          <svg viewBox="0 0 24 24" fill="none" stroke="var(--hazard)" stroke-width="1.8" stroke-linejoin="round"><path d="M12 3 21.5 20h-19Z" fill="#fff"/><path d="M12 10v5M12 17.5v.4" stroke-linecap="round"/></svg>
+          <div class="big">Super heavy</div>
+          <p>No dangerous-goods placard seen</p>
+          <span class="cert cert--confident"><i></i>Confident</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="lower">
+    <div class="tile">
+      <div class="h"><h2>Where the damage is</h2><p>20 ft, unfolded flat</p></div>
+      <div class="net"><svg data-net="stack" role="img" aria-label="Container unfolded flat with six damage areas"></svg></div>
+      <div class="cover"><span>Door end</span><span>Right side</span><span>Left side</span><span>Blank end</span><span class="no">Roof not seen</span><p>Approximate areas on a drawing. Not measured.</p></div>
+    </div>
+    <div class="tile">
+      <div class="h"><h2>6 findings</h2><p>all cosmetic</p><span class="cert cert--likely"><i></i>Likely</span></div>
+      <div class="find is-on"><span class="n">1</span><div><b>Surface wear on the door panel</b><small>Door end · left leaf, middle third</small></div><span class="cert cert--likely"><i></i>Likely</span>
+        <p><span><img src="../../samples/jdlu-200690-1-rear-doors.jpg" alt=""></span>Cosmetic wear across the middle of the left door. Depth and extent can't be judged from these photos.</p><span class="sev"><i><b></b><b></b><b></b><b></b></i>Cosmetic</span></div>
+      <div class="find"><span class="n">5</span><div><b>Surface wear on the door panel</b><small>Door end · left leaf, bottom third</small></div><span class="cert cert--likely"><i></i>Likely</span></div>
+      <div class="find"><span class="n">3</span><div><b>Surface wear on the side sheet</b><small>Right side · section 3, lower half</small></div><span class="cert cert--uncertain"><i></i>Uncertain</span></div>
+      <div class="find"><span class="n">4</span><div><b>Surface wear on the side sheet</b><small>Left side · section 2, upper half</small></div><span class="cert cert--likely"><i></i>Likely</span></div>
+      <div class="find"><span class="n">2</span><div><b>Surface wear on the side sheet</b><small>Left side · section 2, lower half</small></div><span class="cert cert--likely"><i></i>Likely</span></div>
+      <div class="find"><span class="n">6</span><div><b>Surface wear on the side sheet</b><small>Left side · section 1, upper half</small></div><span class="cert cert--uncertain"><i></i>Uncertain</span></div>
+    </div>
+  </section>
+  <p class="foot">Observations and estimates from photographs. Not a certified survey.</p>
+</div>
+<script src="mock.js"></script>
+</body>
+</html>
