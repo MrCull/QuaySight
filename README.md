@@ -1,6 +1,14 @@
-# .
+# Quay Sight
 
-This template should help get you started developing with Vue 3 in Vite.
+A browser-only Vue 3 app that inspects photos of freight containers: ID, size and type, weights, seal, placards and damage, each with a certainty. It is a demonstration, not a certified survey.
+
+**Documentation:** see [`docs/`](docs/README.md) for an overview, a user guide with screenshots, how results are read, how it works, and the architecture.
+
+![Quay Sight result](docs/images/demo-rear-result.png)
+
+## Development
+
+This project started from the Vue 3 + Vite template.
 
 ## Recommended IDE Setup
 
