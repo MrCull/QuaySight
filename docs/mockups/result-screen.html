@@ -4,151 +4,299 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Quay Sight: result screen mock-up</title>
-<!-- A static mock-up, not app code. It shows roadmap items 1 to 4 from HANDOVER.md on the "Rear doors with markings" sample.
-     Overlay positions are placed by hand for illustration. -->
+<!-- A static mock-up, not app code. It shows roadmap items 1 to 4 from HANDOVER.md for a five-photo inspection:
+     four photos of JDLU 200690 2 and a seal close-up. Outlines, pins and finding wording are placed by hand. -->
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600&display=swap">
 <link rel="stylesheet" href="../../design-system/tokens.css">
 <link rel="stylesheet" href="../../design-system/components/bundle.css">
 <style>
   body { margin: 0; background: var(--bg); }
-  .m { min-height: 100vh; }
-  .m-top { display: flex; align-items: center; gap: var(--space-5); height: 56px; padding: 0 var(--space-6); background: var(--surface); border-bottom: 1px solid var(--line); }
-  .m-demo { display: inline-flex; align-items: center; gap: var(--space-2); height: 28px; padding: 0 var(--space-3); border: 1.5px solid var(--ink); border-radius: var(--radius-pill); font: 600 13px/1 var(--font-sans); letter-spacing: .04em; }
-  .m-demo b { letter-spacing: .1em; }
-  .m-top__right { margin-left: auto; display: flex; align-items: center; gap: var(--space-4); color: var(--ink-muted); font: 400 13px/1 var(--font-sans); }
-  .m-verdict { display: grid; grid-template-columns: minmax(0, 1.35fr) minmax(0, 1fr); gap: var(--space-7); padding: var(--space-6); background: var(--surface); border-bottom: 1px solid var(--line); }
-  .m-photo { position: relative; border-radius: var(--radius-lg); overflow: hidden; background: var(--surface-sunken); aspect-ratio: 4 / 3; max-height: 560px; justify-self: center; width: min(100%, 746px); }
-  .m-photo img { display: block; width: 100%; height: 100%; object-fit: cover; }
-  .m-box { position: absolute; border: 2.5px solid var(--cert-uncertain-fg); border-radius: var(--radius-xs); box-shadow: 0 0 0 1px var(--scrim); }
-  .m-box--placard { border-color: var(--hazard-fg); }
-  .m-tag { position: absolute; left: -2px; bottom: calc(100% + 4px); padding: 3px var(--space-2); border-radius: var(--radius-xs); background: var(--scrim); color: var(--on-hero); font: 600 12px/1.2 var(--font-sans); white-space: nowrap; }
-  .m-pin { position: absolute; display: grid; place-items: center; width: 26px; height: 26px; margin: -13px 0 0 -13px; border-radius: 50%; background: var(--sev-cosmetic); border: 2px solid var(--on-hero); color: var(--damage-fg); font: 600 13px/1 var(--font-mono); box-shadow: 0 1px 4px var(--scrim); }
-  .m-pin.is-on { background: var(--damage-fg); color: var(--on-hero); outline: 2px solid var(--damage-fg); outline-offset: 2px; }
-  .m-photo__cap { position: absolute; left: var(--space-3); bottom: var(--space-3); display: flex; gap: var(--space-2); }
-  .m-toggle { display: inline-flex; align-items: center; gap: 6px; height: 28px; padding: 0 var(--space-3); border-radius: var(--radius-pill); background: var(--scrim); color: var(--on-hero); font: 500 13px/1 var(--font-sans); }
-  .m-toggle i { width: 10px; height: 10px; border-radius: 2px; border: 2px solid currentColor; }
-  .m-facts { display: grid; align-content: start; gap: var(--space-5); padding-top: var(--space-2); }
+  .m { min-height: 100vh; color: var(--ink); font: 400 15px/22px var(--font-sans); }
   .m-k { font: 600 12px/16px var(--font-sans); letter-spacing: .08em; text-transform: uppercase; color: var(--ink-muted); }
+  .m-mono { font-family: var(--font-mono); }
+
+  /* Top bar: one slim line. Model, cost and theme are quiet; New inspection is the one action. */
+  .m-top { position: sticky; top: 0; z-index: 5; display: flex; align-items: center; gap: var(--space-4); height: 56px; padding: 0 var(--space-6); background: var(--surface); border-bottom: 1px solid var(--line); }
+  .m-top .qs-brand { font-size: 24px; }
+  .m-top .qs-logo { width: 26px; height: 26px; }
+  .m-top__right { margin-left: auto; display: flex; align-items: center; gap: var(--space-5); color: var(--ink-muted); font: 400 13px/1 var(--font-sans); white-space: nowrap; }
+  .m-top__right b { color: var(--ink); font: 500 13px/1 var(--font-mono); }
+
+  /* 1. The answer: photos and facts composed as one area above the fold. */
+  .m-verdict { display: grid; grid-template-columns: 88px 438px minmax(0, 1fr); gap: var(--space-3) var(--space-4); padding: var(--space-6); background: var(--surface); border-bottom: 1px solid var(--line); }
+  .m-rail { display: grid; gap: var(--space-2); align-content: start; margin: 0; padding: 0; list-style: none; }
+  .m-thumb { position: relative; aspect-ratio: 3 / 4; border-radius: var(--radius-sm); overflow: hidden; background: var(--surface-sunken); outline: 1px solid var(--line); }
+  .m-thumb img { display: block; width: 100%; height: 100%; object-fit: cover; }
+  .m-thumb.is-on { outline: 3px solid var(--brand); outline-offset: 2px; }
+  .m-thumb span { position: absolute; inset: auto 0 0 0; padding: 14px 6px 4px; background: linear-gradient(0deg, var(--hero-ground), transparent); color: var(--on-hero); font: 600 11px/14px var(--font-sans); }
+  .m-thumb em { position: absolute; top: 4px; left: 4px; display: grid; place-items: center; width: 18px; height: 18px; border-radius: var(--radius-xs); background: var(--scrim); color: var(--on-hero); font: 600 11px/1 var(--font-mono); font-style: normal; }
+  .m-photo { position: relative; aspect-ratio: 3 / 4; border-radius: var(--radius-lg); overflow: hidden; background: var(--surface-sunken); box-shadow: var(--shadow-panel); }
+  .m-photo > img { display: block; width: 100%; height: 100%; object-fit: cover; }
+  .m-box { position: absolute; border: 2px solid var(--on-hero); border-radius: var(--radius-xs); box-shadow: 0 0 0 1.5px var(--cert-confident-fg), inset 0 0 0 1.5px var(--cert-confident-fg); }
+  .m-box--hazard { box-shadow: 0 0 0 1.5px var(--hazard-fg), inset 0 0 0 1.5px var(--hazard-fg); }
+  .m-tag { position: absolute; left: -2px; bottom: calc(100% + 5px); padding: 3px 7px; border-radius: var(--radius-xs); background: var(--hero-ground); color: var(--on-hero); font: 600 11px/14px var(--font-sans); letter-spacing: .02em; white-space: nowrap; }
+  .m-tag--under { bottom: auto; top: calc(100% + 5px); }
+  .m-pin { position: absolute; display: grid; place-items: center; width: 26px; height: 26px; margin: -13px 0 0 -13px; border-radius: 50%; background: var(--damage-bg); border: 2px solid var(--damage-fg); color: var(--damage-fg); font: 600 13px/1 var(--font-mono); box-shadow: 0 2px 6px var(--scrim); }
+  .m-pin.is-on { background: var(--damage-fg); color: var(--on-hero); box-shadow: 0 0 0 4px color-mix(in srgb, var(--damage-fg) 30%, transparent), 0 2px 6px var(--scrim); }
+  .m-photo__bar { position: absolute; inset: auto 0 0 0; display: flex; align-items: center; justify-content: space-between; gap: var(--space-2); padding: var(--space-6) var(--space-3) var(--space-3); background: linear-gradient(0deg, var(--hero-ground), transparent); color: var(--on-hero); font: 500 13px/1 var(--font-sans); }
+  .m-layers { display: flex; gap: var(--space-2); }
+  .m-layer { display: inline-flex; align-items: center; gap: 6px; height: 26px; padding: 0 10px; border-radius: var(--radius-pill); border: 1px solid color-mix(in srgb, var(--on-hero) 50%, transparent); font: 500 12px/1 var(--font-sans); }
+  .m-layer i { width: 8px; height: 8px; border-radius: 50%; background: currentColor; }
+
+  .m-facts { display: grid; align-content: start; gap: var(--space-5); padding-left: var(--space-6); min-width: 0; }
   .m-idrow { display: flex; align-items: center; gap: var(--space-4); flex-wrap: wrap; margin-top: var(--space-2); }
-  .m-also { margin: var(--space-2) 0 0; color: var(--ink-muted); font: 400 14px/20px var(--font-sans); }
-  .m-also span { font-family: var(--font-mono); color: var(--ink); }
-  .m-list { margin: 0; padding: 0; list-style: none; border-top: 1px solid var(--line); }
-  .m-list li { display: grid; grid-template-columns: 112px 1fr auto; align-items: baseline; gap: var(--space-4); padding: var(--space-3) 0; border-bottom: 1px solid var(--line); }
-  .m-list strong { font: 600 22px/26px var(--font-display); letter-spacing: .01em; }
-  .m-list strong.mono { font: 500 20px/26px var(--font-mono); }
-  .m-list small { display: block; color: var(--ink-muted); font: 400 14px/20px var(--font-sans); }
-  .m-unread { margin: 0; color: var(--ink-muted); font: 400 14px/21px var(--font-sans); }
-  .m-unread b { color: var(--ink); font-weight: 600; }
-  .m-tabs { display: flex; gap: var(--space-6); padding: 0 var(--space-6); background: var(--surface); border-bottom: 1px solid var(--line); }
-  .m-tab { padding: var(--space-4) 0; border-bottom: 3px solid transparent; color: var(--ink-muted); font: 600 15px/20px var(--font-sans); }
+  .m-sub { margin: var(--space-2) 0 0; color: var(--ink-muted); font: 400 14px/20px var(--font-sans); }
+  .m-stats { display: grid; grid-template-columns: 1.5fr repeat(4, 1fr); margin: 0; padding: var(--space-4) 0; border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); }
+  .m-stats div { padding: 0 var(--space-4); border-left: 1px solid var(--line); min-width: 0; }
+  .m-stats div:first-child { padding-left: 0; border-left: 0; }
+  .m-stats dt { margin-bottom: var(--space-1); }
+  .m-stats dd { margin: 0; font: 500 22px/28px var(--font-mono); white-space: nowrap; }
+  .m-stats dd small { margin-left: 3px; color: var(--ink-muted); font: 400 13px/1 var(--font-sans); }
+  .m-stats p { margin: 2px 0 0; color: var(--ink-muted); font: 400 13px/18px var(--font-sans); }
+  .m-rows { margin: 0; padding: 0; list-style: none; }
+  .m-rows li { display: grid; grid-template-columns: 96px minmax(0, 1fr) auto; align-items: center; gap: var(--space-4); padding: var(--space-3) 0; border-bottom: 1px solid var(--line); }
+  .m-rows li:first-child { padding-top: 0; }
+  .m-rows strong { display: block; font: 600 22px/26px var(--font-display); letter-spacing: .01em; }
+  .m-rows strong.m-mono { font: 500 20px/26px var(--font-mono); letter-spacing: .04em; }
+  .m-rows small { display: block; color: var(--ink-muted); font: 400 13px/18px var(--font-sans); }
+  .m-val { display: flex; align-items: center; gap: var(--space-3); min-width: 0; }
+  .m-crop { flex: none; width: 76px; height: 48px; border-radius: var(--radius-sm); overflow: hidden; outline: 1px solid var(--line); }
+  .m-crop img { width: 100%; height: 100%; object-fit: cover; }
+  .m-cover { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-2) var(--space-4); margin: 0; color: var(--ink-muted); font: 400 13px/18px var(--font-sans); }
+  .m-cover b { color: var(--ink); font-weight: 500; }
+  .m-cover span { display: inline-flex; align-items: center; gap: 5px; }
+  .m-cover .qs-glyph { width: 13px; height: 13px; }
+
+  .m-tabs { position: sticky; top: 56px; z-index: 4; display: flex; gap: var(--space-6); padding: 0 var(--space-6); background: var(--surface); border-bottom: 1px solid var(--line); overflow-x: auto; }
+  .m-tab { padding: var(--space-4) 0 13px; border-bottom: 3px solid transparent; color: var(--ink-muted); font: 600 15px/20px var(--font-sans); white-space: nowrap; }
   .m-tab.is-on { color: var(--ink); border-color: var(--brand); }
   .m-tab span { margin-left: 6px; color: var(--ink-muted); font: 500 13px/1 var(--font-mono); }
-  .m-body { display: grid; grid-template-columns: minmax(0, 1fr) 400px; gap: var(--space-7); padding: var(--space-6); }
-  table { width: 100%; border-collapse: collapse; font: 400 15px/22px var(--font-sans); color: var(--ink); }
-  th { padding: 0 var(--space-3) var(--space-2); text-align: left; font: 600 12px/16px var(--font-sans); letter-spacing: .08em; text-transform: uppercase; color: var(--ink-muted); }
-  td { padding: var(--space-3); border-top: 1px solid var(--line); vertical-align: middle; }
-  tr.group td { padding-top: var(--space-5); border-top: 0; font: 600 20px/24px var(--font-display); }
-  tr.group td span { margin-left: var(--space-2); color: var(--ink-muted); font: 400 14px/20px var(--font-sans); }
-  tr.is-on td { background: var(--brand-soft); }
-  td.n { width: 28px; font: 600 14px/1 var(--font-mono); color: var(--damage-fg); }
-  td.code { font: 500 14px/1 var(--font-mono); color: var(--ink-muted); }
-  .m-detail { align-self: start; padding-left: var(--space-6); border-left: 1px solid var(--line); display: grid; gap: var(--space-4); }
-  .m-detail h3 { margin: 0; font: 600 28px/32px var(--font-display); }
-  .m-detail p { margin: 0; font: 400 15px/22px var(--font-sans); color: var(--ink); }
-  .m-detail p.q { color: var(--ink-muted); font-size: 14px; line-height: 20px; }
-  .m-detail .row { display: flex; gap: var(--space-2); flex-wrap: wrap; }
-  .m-note { padding: var(--space-3) var(--space-6); color: var(--ink-muted); font: 400 13px/18px var(--font-sans); }
+
+  /* Damage: the drawing and the list side by side, one selection shared with the photo above. */
+  .m-damage { display: grid; grid-template-columns: minmax(0, 1.05fr) minmax(0, 1fr); gap: var(--space-6); padding: var(--space-6); align-items: start; }
+  .m-panel { background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius-lg); box-shadow: var(--shadow-panel); }
+  .m-schem { padding: var(--space-5); }
+  .m-schem__head { display: flex; align-items: baseline; justify-content: space-between; gap: var(--space-3); margin-bottom: var(--space-2); }
+  .m-schem h2, .m-list h2 { margin: 0; font: 600 28px/32px var(--font-display); letter-spacing: .01em; }
+  .m-views { display: grid; grid-template-columns: minmax(0, 1fr); gap: var(--space-2); }
+  .m-view { margin: 0; }
+  .m-view figcaption { margin-bottom: calc(var(--space-5) * -1); }
+  .m-view svg { display: block; width: 100%; height: auto; overflow: visible; }
+  .m-view text { font: 600 9px var(--font-sans); fill: var(--ink-muted); }
+  .m-view text.face { font-size: 10px; letter-spacing: .06em; text-transform: uppercase; fill: var(--ink); }
+  .m-view .pin circle { fill: var(--damage-bg); stroke: var(--damage-fg); stroke-width: 2; }
+  .m-view .pin text { fill: var(--damage-fg); font: 600 10px var(--font-mono); text-anchor: middle; }
+  .m-view .pin.is-on circle { fill: var(--damage-fg); }
+  .m-view .pin.is-on text { fill: var(--on-hero); }
+  .m-view .zone { fill: var(--sev-cosmetic); fill-opacity: .55; stroke: var(--damage-fg); stroke-width: 1.5; }
+  .m-view .zone.is-on { fill-opacity: .9; stroke-width: 2.5; }
+  .m-schem__foot { margin: var(--space-4) 0 0; padding-top: var(--space-3); border-top: 1px solid var(--line); color: var(--ink-muted); font: 400 13px/18px var(--font-sans); }
+
+  .m-list { padding: var(--space-5) var(--space-5) var(--space-2); }
+  .m-list__head { display: flex; align-items: baseline; justify-content: space-between; gap: var(--space-3); margin-bottom: var(--space-3); }
+  .m-group { margin: var(--space-4) 0 var(--space-1); display: flex; align-items: baseline; gap: var(--space-2); }
+  .m-group b { font: 600 13px/16px var(--font-sans); letter-spacing: .06em; text-transform: uppercase; }
+  .m-group span { color: var(--ink-muted); font-size: 13px; }
+  .m-find { display: grid; grid-template-columns: 26px minmax(0, 1fr) auto auto; align-items: center; gap: var(--space-3); padding: 10px var(--space-3); margin: 0 calc(var(--space-3) * -1); border-top: 1px solid var(--line); }
+  .m-find .n { display: grid; place-items: center; width: 24px; height: 24px; border-radius: 50%; border: 1.5px solid var(--damage-fg); color: var(--damage-fg); font: 600 12px/1 var(--font-mono); }
+  .m-find small { display: block; color: var(--ink-muted); font: 400 13px/18px var(--font-sans); }
+  .m-find.is-on { border-top-color: transparent; border-radius: var(--radius-md) var(--radius-md) 0 0; background: var(--brand-soft); }
+  .m-find.is-on .n { background: var(--damage-fg); color: var(--on-hero); }
+  .m-find.is-on + .m-find, .m-open + .m-find { border-top-color: transparent; }
+  .m-open { display: grid; grid-template-columns: 96px minmax(0, 1fr); gap: var(--space-4); margin: 0 calc(var(--space-3) * -1) var(--space-2); padding: var(--space-2) var(--space-3) var(--space-4) calc(var(--space-3) + 38px); border-radius: 0 0 var(--radius-md) var(--radius-md); background: var(--brand-soft); }
+  .m-open .m-crop { width: 96px; height: 96px; }
+  .m-open p { margin: 0 0 var(--space-2); font: 400 14px/20px var(--font-sans); }
+  .m-open p:last-child { margin: 0; color: var(--ink-muted); font-size: 13px; line-height: 18px; }
+  .m-sevtxt { display: inline-flex; align-items: center; gap: 6px; color: var(--damage-fg); font: 600 13px/1 var(--font-sans); }
+  .m-sevtxt i { display: inline-flex; align-items: flex-end; gap: 2px; height: 12px; }
+  .m-sevtxt i b { width: 3px; background: var(--line-strong); opacity: .4; border-radius: 1px; }
+  .m-sevtxt i b:nth-child(1) { height: 4px; background: var(--damage-fg); opacity: 1; } .m-sevtxt i b:nth-child(2) { height: 6px; } .m-sevtxt i b:nth-child(3) { height: 9px; } .m-sevtxt i b:nth-child(4) { height: 12px; }
+  .m-note { padding: 0 var(--space-6) var(--space-6); color: var(--ink-muted); font: 400 13px/18px var(--font-sans); }
+
+  /* Phone: the same order, stacked; the photo rail becomes a strip. */
+  @media (max-width: 900px) {
+    .m-top { padding: 0 var(--space-4); }
+    .m-top__right span { display: none; }
+    .m-verdict { grid-template-columns: minmax(0, 1fr); padding: var(--space-4); }
+    .m-rail { grid-auto-flow: column; grid-auto-columns: 1fr; order: 2; }
+    .m-thumb span { font-size: 10px; padding: 10px 4px 3px; }
+    .m-facts { order: 3; padding: var(--space-3) 0 0; }
+    .m-stats { grid-template-columns: 1fr 1fr; row-gap: var(--space-4); }
+    .m-stats div:first-child { grid-column: 1 / -1; }
+    .m-stats div:nth-child(2), .m-stats div:nth-child(4) { padding-left: 0; border-left: 0; }
+    .m-rows li { grid-template-columns: minmax(0, 1fr) auto; }
+    .m-rows li > .m-k { grid-column: 1 / -1; margin-bottom: -8px; }
+    .m-tabs { padding: 0 var(--space-4); gap: var(--space-5); }
+    .m-damage { grid-template-columns: minmax(0, 1fr); padding: var(--space-4); gap: var(--space-4); }
+    .m-schem, .m-list { padding: var(--space-4) var(--space-4) var(--space-2); }
+    .m-schem { padding-bottom: var(--space-4); }
+    .m-find { grid-template-columns: 26px minmax(0, 1fr) auto; }
+    .m-find .m-sevtxt { display: none; }
+    .m-open { grid-template-columns: 72px minmax(0, 1fr); padding-left: var(--space-3); }
+    .m-open .m-crop { width: 72px; height: 72px; }
+    .m-note { padding: 0 var(--space-4) var(--space-5); }
+    .m-view figcaption { margin-bottom: 0; }
+    .m-list__head, .m-schem__head { flex-direction: column; gap: var(--space-1); }
+    .qs-id { font-size: 30px; line-height: 38px; gap: var(--space-3); }
+  }
 </style>
 </head>
 <body>
 <div class="qs-root m">
   <header class="m-top">
     <span class="qs-brand"><i class="qs-logo" aria-hidden="true"></i>Quay Sight</span>
-    <span class="m-demo"><b>DEMO</b> sample result, not a real inspection</span>
     <div class="m-top__right">
-      <span>Recorded: GPT-6 Luna · no charge</span>
-      <button class="qs-btn qs-btn--secondary qs-btn--sm">Connect a provider</button>
+      <span>OpenRouter · Jev latest</span>
+      <span>This container <b>$0.0209</b></span>
       <button class="qs-btn qs-btn--primary qs-btn--sm">New inspection</button>
     </div>
   </header>
 
-  <!-- 1. Hierarchy: the photo and the answer together, above the fold. 2. Findings drawn on the photo. -->
   <section class="m-verdict">
+    <!-- Five photos: one rail, one large photo. Each thumbnail names the face the model found. -->
+    <ul class="m-rail">
+      <li class="m-thumb is-on"><img src="../../samples/jdlu-200690-1-rear-doors.jpg" alt=""><em>1</em><span>Doors</span></li>
+      <li class="m-thumb"><img src="../../samples/jdlu-200690-2-corner-doors-left.jpg" alt=""><em>2</em><span>Right side</span></li>
+      <li class="m-thumb"><img src="../../samples/jdlu-200690-3-corner-doors-right.jpg" alt=""><em>3</em><span>Left side</span></li>
+      <li class="m-thumb"><img src="../../samples/jdlu-200690-4-long-side.jpg" alt=""><em>4</em><span>Blank end</span></li>
+      <li class="m-thumb"><img src="../../samples/seal-closeup-coyu-0154620.jpg" alt=""><em>5</em><span>Seal</span></li>
+    </ul>
+
+    <!-- 2. What was read, and where damage is suspected, drawn on the photograph itself. -->
     <div class="m-photo">
-      <img src="../../samples/rear-door-aphu-45g1.jpg" alt="Rear doors of a blue container">
-      <div class="m-box" style="left:53%;top:13.5%;width:22%;height:10%"><span class="m-tag">Container ID · Uncertain</span></div>
-      <div class="m-box m-box--placard" style="left:52.5%;top:72%;width:6%;height:8.5%"><span class="m-tag">DG placard</span></div>
-      <span class="m-pin is-on" style="left:33%;top:42%">1</span>
-      <span class="m-pin" style="left:33%;top:66%">2</span>
-      <span class="m-pin" style="left:61%;top:33%">3</span>
-      <span class="m-pin" style="left:63%;top:50%">4</span>
-      <span class="m-pin" style="left:62%;top:66%">5</span>
-      <span class="m-pin" style="left:46%;top:7%">6</span>
-      <span class="m-pin" style="left:46%;top:88%">7</span>
-      <div class="m-photo__cap"><span class="m-toggle"><i></i>Readings</span><span class="m-toggle"><i></i>Damage</span></div>
+      <img src="../../samples/jdlu-200690-1-rear-doors.jpg" alt="Rear doors of a blue container on a trailer">
+      <div class="m-box" style="left:58.5%;top:26.2%;width:26%;height:8.2%"><span class="m-tag">Container ID and type</span></div>
+      <div class="m-box" style="left:56.5%;top:36.3%;width:27%;height:15%"><span class="m-tag m-tag--under" style="top:auto;bottom:-22px">Weights and capacity</span></div>
+      <div class="m-box m-box--hazard" style="left:74%;top:55.2%;width:9%;height:7%"><span class="m-tag m-tag--under">Placard</span></div>
+      <span class="m-pin is-on" style="left:30%;top:47%">1</span>
+      <span class="m-pin" style="left:29%;top:68%">5</span>
+      <div class="m-photo__bar">
+        <span>Photo 1 of 5 · Doors</span>
+        <span class="m-layers"><span class="m-layer"><i></i>Readings</span><span class="m-layer"><i></i>Damage</span></span>
+      </div>
     </div>
 
     <div class="m-facts">
       <div>
         <div class="m-k">Container ID</div>
         <div class="m-idrow">
-          <span class="qs-id"><span class="qs-id__group"><span class="qs-id__ch">A</span><span class="qs-id__ch">P</span><span class="qs-id__ch">H</span><span class="qs-id__ch">U</span></span><span class="qs-id__group"><span class="qs-id__ch">6</span><span class="qs-id__ch">5</span><span class="qs-id__ch">8</span><span class="qs-id__ch">6</span><span class="qs-id__ch">8</span><span class="qs-id__ch">4</span></span><span class="qs-id__check">7</span></span>
-          <span class="qs-cert qs-cert--uncertain"><i class="qs-glyph qs-glyph--uncertain"></i>Uncertain</span>
+          <span class="qs-id"><span class="qs-id__group"><span class="qs-id__ch">J</span><span class="qs-id__ch">D</span><span class="qs-id__ch">L</span><span class="qs-id__ch">U</span></span><span class="qs-id__group"><span class="qs-id__ch">2</span><span class="qs-id__ch">0</span><span class="qs-id__ch">0</span><span class="qs-id__ch">6</span><span class="qs-id__ch">9</span><span class="qs-id__ch">0</span></span><span class="qs-id__check">2</span></span>
+          <span class="qs-cert qs-cert--confident"><i class="qs-glyph qs-glyph--confident"></i>Confident</span>
         </div>
-        <p class="m-also">Check digit valid. One character is hard to read. Also possible: <span>APRU 658684 7</span></p>
+        <p class="m-sub">Printed on the doors. Check digit valid. Read the same in photos 1, 2 and 3.</p>
       </div>
 
-      <!-- 4. Fewer boxes: one list on hairlines; a chip only for certainty. -->
-      <ul class="m-list">
-        <li><span class="m-k">Size and type</span><div><strong class="mono">45G1</strong><small>40 ft High Cube, general purpose</small></div><span class="qs-cert qs-cert--confident"><i class="qs-glyph qs-glyph--confident"></i>Confident</span></li>
-        <li><span class="m-k">Damage</span><div><strong>9 findings</strong><small>All cosmetic surface wear</small></div><span class="qs-cert qs-cert--likely"><i class="qs-glyph qs-glyph--likely"></i>Likely</span></li>
-        <li><span class="m-k">Placards</span><div><strong>DG placard seen</strong><small>Class and UN number not read</small></div><span class="qs-cert qs-cert--confident"><i class="qs-glyph qs-glyph--confident"></i>Confident</span></li>
-        <li><span class="m-k">Seal</span><div><strong>No seal in this photo</strong></div><span class="qs-cert qs-cert--unseen"><i class="qs-glyph qs-glyph--unseen"></i>Not seen</span></li>
+      <!-- 4. Fewer boxes: figures on hairlines, no card per value. -->
+      <dl class="m-stats">
+        <div><dt class="m-k">Size and type</dt><dd>22G1</dd><p>20 ft, standard height, general purpose</p></div>
+        <div><dt class="m-k">Max gross</dt><dd>32,500<small>kg</small></dd></div>
+        <div><dt class="m-k">Tare</dt><dd>2,180<small>kg</small></dd></div>
+        <div><dt class="m-k">Payload</dt><dd>30,320<small>kg</small></dd></div>
+        <div><dt class="m-k">Capacity</dt><dd>33.2<small>m³</small></dd></div>
+      </dl>
+
+      <ul class="m-rows">
+        <li><span class="m-k">Seal</span><div class="m-val"><span class="m-crop"><img src="../../samples/seal-closeup-coyu-0154620.jpg" alt="" style="object-position:50% 12%"></span><div><strong class="m-mono">0154620</strong><small>Bolt seal, read from the close-up in photo 5</small></div></div><span class="qs-cert qs-cert--confident"><i class="qs-glyph qs-glyph--confident"></i>Confident</span></li>
+        <li><span class="m-k">Placards</span><div><strong>Super heavy marking</strong><small>No DG placard visible</small></div><span class="qs-cert qs-cert--confident"><i class="qs-glyph qs-glyph--confident"></i>Confident</span></li>
+        <li><span class="m-k">Damage</span><div><strong>6 findings, all cosmetic</strong><small>Surface wear on the doors and both long sides</small></div><span class="qs-cert qs-cert--likely"><i class="qs-glyph qs-glyph--likely"></i>Likely</span></li>
       </ul>
 
-      <!-- 3. Repetition cut: five "Can't tell" rows become one sentence. -->
-      <p class="m-unread"><b>4 door markings can't be read from this photo:</b> max gross, tare, payload and cubic capacity. A closer photo of the door plate may help.</p>
+      <!-- 3. One line for what was and was not photographed, instead of a row each. -->
+      <p class="m-cover"><b>Photographed</b>
+        <span><i class="qs-glyph qs-glyph--check"></i>Door end</span><span><i class="qs-glyph qs-glyph--check"></i>Right side</span><span><i class="qs-glyph qs-glyph--check"></i>Left side</span><span><i class="qs-glyph qs-glyph--check"></i>Blank end</span><span><i class="qs-glyph qs-glyph--unseen"></i>Roof not seen</span></p>
     </div>
   </section>
 
   <nav class="m-tabs">
-    <span class="m-tab is-on">Damage<span>9</span></span>
-    <span class="m-tab">Readings<span>3</span></span>
+    <span class="m-tab is-on">Damage<span>6</span></span>
+    <span class="m-tab">Readings<span>9</span></span>
     <span class="m-tab">Container details</span>
-    <span class="m-tab">Schematic</span>
+    <span class="m-tab">Markings</span>
     <span class="m-tab">Export</span>
   </nav>
 
-  <!-- 3. Repetition cut: nine cards become one grouped table with a single detail panel. -->
-  <section class="m-body">
-    <table>
-      <thead><tr><th></th><th>Where</th><th>CEDEX</th><th>Severity</th><th>Certainty</th></tr></thead>
-      <tbody>
-        <tr class="group"><td colspan="5">Door panels <span>5 findings · surface wear</span></td></tr>
-        <tr class="is-on"><td class="n">1</td><td>Left door leaf, middle third</td><td class="code">DX12</td><td><span class="qs-sev"><span class="qs-sev__bars" data-level="1"><i></i><i></i><i></i><i></i></span>Cosmetic</span></td><td><span class="qs-cert qs-cert--likely"><i class="qs-glyph qs-glyph--likely"></i>Likely</span></td></tr>
-        <tr><td class="n">2</td><td>Left door leaf, bottom third</td><td class="code">DB12</td><td><span class="qs-sev">Cosmetic</span></td><td><span class="qs-cert qs-cert--confident"><i class="qs-glyph qs-glyph--confident"></i>Confident</span></td></tr>
-        <tr><td class="n">3</td><td>Right door leaf, top third</td><td class="code">DT34</td><td><span class="qs-sev">Cosmetic</span></td><td><span class="qs-cert qs-cert--likely"><i class="qs-glyph qs-glyph--likely"></i>Likely</span></td></tr>
-        <tr><td class="n">4</td><td>Right door leaf, middle third</td><td class="code">DX34 · CO</td><td><span class="qs-sev">Cosmetic</span></td><td><span class="qs-cert qs-cert--confident"><i class="qs-glyph qs-glyph--confident"></i>Confident</span></td></tr>
-        <tr><td class="n">5</td><td>Right door leaf, bottom third</td><td class="code">DB34 · CO</td><td><span class="qs-sev">Cosmetic</span></td><td><span class="qs-cert qs-cert--confident"><i class="qs-glyph qs-glyph--confident"></i>Confident</span></td></tr>
-        <tr class="group"><td colspan="5">Door header and sill <span>2 findings · surface wear</span></td></tr>
-        <tr><td class="n">6</td><td>Door header</td><td class="code">DH14 · CO</td><td><span class="qs-sev">Cosmetic</span></td><td><span class="qs-cert qs-cert--uncertain"><i class="qs-glyph qs-glyph--uncertain"></i>Uncertain</span></td></tr>
-        <tr><td class="n">7</td><td>Door sill</td><td class="code">DG14 · CO</td><td><span class="qs-sev">Cosmetic</span></td><td><span class="qs-cert qs-cert--confident"><i class="qs-glyph qs-glyph--confident"></i>Confident</span></td></tr>
-        <tr class="group"><td colspan="5">Right side sheet <span>2 findings · surface wear</span></td></tr>
-        <tr><td class="n">8</td><td>Sections 5 and 6 of 10, lower half</td><td class="code">RB56 · CO</td><td><span class="qs-sev">Cosmetic</span></td><td><span class="qs-cert qs-cert--likely"><i class="qs-glyph qs-glyph--likely"></i>Likely</span></td></tr>
-        <tr><td class="n">9</td><td>Sections 7 and 8 of 10, lower half</td><td class="code">RB78 · CO</td><td><span class="qs-sev">Cosmetic</span></td><td><span class="qs-cert qs-cert--likely"><i class="qs-glyph qs-glyph--likely"></i>Likely</span></td></tr>
-      </tbody>
-    </table>
+  <section class="m-damage">
+    <div class="m-panel m-schem">
+      <div class="m-schem__head"><h2>Where on the container</h2><span class="m-k">20 ft · 5 sections a side</span></div>
+      <div class="m-views">
+        <figure class="m-view"><figcaption class="m-k">Door end and right side</figcaption><svg id="v1" viewBox="20 10 500 275"></svg></figure>
+        <figure class="m-view"><figcaption class="m-k">Blank end and left side</figcaption><svg id="v2" viewBox="0 10 500 275"></svg></figure>
+      </div>
+      <p class="m-schem__foot">Approximate areas on an illustrative drawing. Not measured, not pixel-precise and not a certified location. The roof was not photographed.</p>
+    </div>
 
-    <aside class="m-detail">
-      <div class="m-k">Finding 1 of 9</div>
-      <h3>Surface wear on the door panel</h3>
-      <div class="row"><span class="qs-sev">Cosmetic</span><span class="qs-cert qs-cert--likely"><i class="qs-glyph qs-glyph--likely"></i>Likely</span></div>
-      <p><b>Best interpretation:</b> apparent cosmetic surface wear on the left door leaf, middle third.</p>
-      <p><b>What remains uncertain:</b> depth and extent cannot be judged precisely from one photo. The damage type is not probable enough to name; corrosion is the leading candidate (0.24).</p>
-      <p class="q">Approximate area. Severity is an apparent visual judgement from one photo, not a repair verdict.</p>
-    </aside>
+    <!-- 3. Six cards become one grouped list; the selected finding opens in place with its photo crop. -->
+    <div class="m-panel m-list">
+      <div class="m-list__head"><h2>6 suspected findings</h2><span class="m-k">CEDEX · ISO 9897</span></div>
+
+      <div class="m-group"><b>Door end</b><span>2 findings</span></div>
+      <div class="m-find is-on"><span class="n">1</span><div>Surface wear on the door panel<small>Left door leaf, middle third · <span class="m-mono">DX12</span></small></div><span class="m-sevtxt"><i><b></b><b></b><b></b><b></b></i>Cosmetic</span><span class="qs-cert qs-cert--likely"><i class="qs-glyph qs-glyph--likely"></i>Likely</span></div>
+      <div class="m-open">
+        <span class="m-crop"><img src="../../samples/jdlu-200690-1-rear-doors.jpg" alt="" style="object-position:22% 46%;transform:scale(2.4)"></span>
+        <div>
+          <p><b>Best interpretation:</b> apparent cosmetic surface wear across the middle of the left door leaf.</p>
+          <p><b>What remains uncertain:</b> depth and extent cannot be judged from these photos. Corrosion is the leading damage type, but not probable enough to name.</p>
+          <p>Seen in photos 1 and 2. Severity is an apparent visual judgement, not a repair verdict.</p>
+        </div>
+      </div>
+      <div class="m-find"><span class="n">5</span><div>Surface wear on the door panel<small>Left door leaf, bottom third · <span class="m-mono">DB12</span></small></div><span class="m-sevtxt"><i><b></b><b></b><b></b><b></b></i>Cosmetic</span><span class="qs-cert qs-cert--likely"><i class="qs-glyph qs-glyph--likely"></i>Likely</span></div>
+
+      <div class="m-group"><b>Right side</b><span>1 finding</span></div>
+      <div class="m-find"><span class="n">3</span><div>Surface wear on the side sheet<small>Section 3 of 5, lower half · <span class="m-mono">RB3N</span></small></div><span class="m-sevtxt"><i><b></b><b></b><b></b><b></b></i>Cosmetic</span><span class="qs-cert qs-cert--uncertain"><i class="qs-glyph qs-glyph--uncertain"></i>Uncertain</span></div>
+
+      <div class="m-group"><b>Left side</b><span>3 findings</span></div>
+      <div class="m-find"><span class="n">4</span><div>Surface wear on the side sheet<small>Section 2 of 5, upper half · <span class="m-mono">LT2N</span></small></div><span class="m-sevtxt"><i><b></b><b></b><b></b><b></b></i>Cosmetic</span><span class="qs-cert qs-cert--likely"><i class="qs-glyph qs-glyph--likely"></i>Likely</span></div>
+      <div class="m-find"><span class="n">2</span><div>Surface wear on the side sheet<small>Section 2 of 5, lower half · <span class="m-mono">LB2N</span></small></div><span class="m-sevtxt"><i><b></b><b></b><b></b><b></b></i>Cosmetic</span><span class="qs-cert qs-cert--likely"><i class="qs-glyph qs-glyph--likely"></i>Likely</span></div>
+      <div class="m-find"><span class="n">6</span><div>Surface wear on the side sheet<small>Section 1 of 5, upper half · <span class="m-mono">LT1N</span></small></div><span class="m-sevtxt"><i><b></b><b></b><b></b><b></b></i>Cosmetic</span><span class="qs-cert qs-cert--uncertain"><i class="qs-glyph qs-glyph--uncertain"></i>Uncertain</span></div>
+    </div>
   </section>
-  <p class="m-note">Mock-up. Values are from the recorded "Rear doors with markings" sample; outlines and pins on the photo are placed by hand to show the idea.</p>
+  <p class="m-note">Mock-up of a five-photo inspection. The ID, size and type, weights and seal number are what is painted in the photos; the outlines and pins on the photo, the damage findings and their wording are placed by hand to show the layout.</p>
 </div>
+
+<script>
+// The container drawing: an end face, a long side in five sections and the roof. `mirror` flips it for the far side.
+function draw(svg, { mirror, rev, doors, zones, pins, endLabel, sideLabel }) {
+  const NS = 'http://www.w3.org/2000/svg'
+  const X = (x) => (mirror ? 520 - x : x)
+  const P = (pts) => pts.map(([x, y]) => `${X(x)},${y}`).join(' ')
+  const el = (name, attrs, text) => { const e = document.createElementNS(NS, name); for (const k in attrs) e.setAttribute(k, attrs[k]); if (text) e.textContent = text; svg.appendChild(e); return e }
+  const css = (v) => `var(--${v})`
+  // Side face corners A B C D, end face E A D F, roof E A B G.
+  const A = [150, 110], B = [490, 60], C = [490, 200], D = [150, 250], E = [60, 80], F = [60, 220], G = [400, 30]
+  const lerp = (p, q, t) => [p[0] + (q[0] - p[0]) * t, p[1] + (q[1] - p[1]) * t]
+  el('ellipse', { cx: X(280), cy: 262, rx: 215, ry: 14, fill: css('schem-shadow'), opacity: 0.35 })
+  el('polygon', { points: P([E, A, B, G]), fill: css('schem-top'), stroke: css('schem-rail'), 'stroke-width': 1.5, 'stroke-linejoin': 'round' })
+  el('polygon', { points: P([A, B, C, D]), fill: css('schem-side'), stroke: css('schem-rail'), 'stroke-width': 2, 'stroke-linejoin': 'round' })
+  // Corrugation.
+  for (let i = 1; i < 40; i++) { const t = i / 40, p = lerp(A, B, t), q = lerp(D, C, t); el('line', { x1: X(p[0]), y1: p[1] + 5, x2: X(q[0]), y2: q[1] - 5, stroke: css('schem-side-rib'), 'stroke-width': 1 }) }
+  // Damage zones on the side: [section 1-5 counted from the door end, 'T' | 'B', selected]. `rev`: the door end is the far end.
+  const quad = (t0, t1, top) => { const a = lerp(A, B, t0), b = lerp(A, B, t1), c = lerp(D, C, t1), d = lerp(D, C, t0); const am = lerp(a, d, 0.5), bm = lerp(b, c, 0.5); return top ? [a, b, bm, am] : [am, bm, c, d] }
+  for (const z of zones.side || []) el('polygon', { points: P(quad((rev ? 5 - z[0] : z[0] - 1) / 5, (rev ? 6 - z[0] : z[0]) / 5, z[1] === 'T')), class: 'zone' + (z[2] ? ' is-on' : '') })
+  // Section lines and numbers.
+  for (let i = 1; i < 5; i++) { const p = lerp(A, B, i / 5), q = lerp(D, C, i / 5); el('line', { x1: X(p[0]), y1: p[1], x2: X(q[0]), y2: q[1], stroke: css('schem-rail'), 'stroke-width': 1.25, 'stroke-dasharray': '5 4' }) }
+  for (let i = 0; i < 5; i++) { const q = lerp(D, C, (i + 0.5) / 5); el('text', { x: X(q[0]), y: q[1] + 16, 'text-anchor': 'middle' }, String(rev ? 5 - i : i + 1)) }
+  // End face.
+  el('polygon', { points: P([E, A, D, F]), fill: css('schem-end'), stroke: css('schem-rail'), 'stroke-width': 2, 'stroke-linejoin': 'round' })
+  const equad = (t0, t1, v0, v1) => { const a = lerp(E, A, t0), b = lerp(E, A, t1), c = lerp(F, D, t1), d = lerp(F, D, t0); return [lerp(a, d, v0), lerp(b, c, v0), lerp(b, c, v1), lerp(a, d, v1)] }
+  for (const z of zones.end || []) el('polygon', { points: P(equad(z[0], z[1], z[2], z[3])), class: 'zone' + (z[4] ? ' is-on' : '') })
+  if (doors) {
+    const m0 = lerp(E, A, 0.5), m1 = lerp(F, D, 0.5)
+    el('line', { x1: X(m0[0]), y1: m0[1], x2: X(m1[0]), y2: m1[1], stroke: css('schem-rail'), 'stroke-width': 1.5 })
+    for (const t of [0.2, 0.38, 0.62, 0.8]) { const p = lerp(E, A, t), q = lerp(F, D, t); el('line', { x1: X(p[0]), y1: p[1] + 3, x2: X(q[0]), y2: q[1] - 3, stroke: css('schem-detail'), 'stroke-width': 2, 'stroke-linecap': 'round' }) }
+    for (const t of [0.2, 0.38, 0.62, 0.8]) { const p = lerp(lerp(E, A, t), lerp(F, D, t), 0.6); el('line', { x1: X(p[0] - 7), y1: p[1] - 2, x2: X(p[0] + 7), y2: p[1] + 2, stroke: css('schem-detail'), 'stroke-width': 3, 'stroke-linecap': 'round' }) }
+  }
+  el('text', { x: X(105), y: 262, 'text-anchor': 'middle', class: 'face' }, endLabel)
+  el('text', { x: X(488), y: 240, 'text-anchor': mirror ? 'start' : 'end', class: 'face' }, sideLabel)
+  for (const [n, x, y, on] of pins) {
+    const g = el('g', { class: 'pin' + (on ? ' is-on' : '') })
+    const c = document.createElementNS(NS, 'circle'); c.setAttribute('cx', X(x)); c.setAttribute('cy', y); c.setAttribute('r', 10); g.appendChild(c)
+    const t = document.createElementNS(NS, 'text'); t.setAttribute('x', X(x)); t.setAttribute('y', y + 3.5); t.textContent = n; g.appendChild(t)
+  }
+}
+draw(document.getElementById('v1'), { doors: true, endLabel: 'Door end', sideLabel: 'Right side',
+  zones: { end: [[0, 0.5, 0.33, 0.66, true], [0, 0.5, 0.66, 1]], side: [[3, 'B']] }, pins: [[1, 82, 158, true], [5, 82, 204], [3, 320, 188]] })
+draw(document.getElementById('v2'), { mirror: true, rev: true, doors: false, endLabel: 'Blank end', sideLabel: 'Left side',
+  zones: { side: [[2, 'T'], [2, 'B'], [1, 'T']] }, pins: [[4, 388, 112], [2, 388, 176], [6, 456, 100]] })
+</script>
 </body>
 </html>
