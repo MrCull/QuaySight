@@ -36,7 +36,7 @@ onMounted(() => card.value?.querySelector<HTMLElement>('#provider-button')?.focu
 <template>
   <section ref="card" class="qs-setupcard" role="region" aria-labelledby="setup-title">
     <div class="qs-setupcard__head">
-      <h1 id="setup-title" class="qs-setupcard__title">Set up a provider</h1>
+      <h2 id="setup-title" class="qs-setupcard__title">Set up a provider</h2>
       <p class="qs-setupcard__lede">
         Choose who analyses the photos, then paste that provider's API key.
       </p>
@@ -58,9 +58,18 @@ onMounted(() => card.value?.querySelector<HTMLElement>('#provider-button')?.focu
     </div>
   </section>
   <!-- Visitors without a key: demo mode, the bundled samples only (design-system DemoBanner). -->
-  <div class="qs-setupcard__after">
-    <button type="button" class="qs-setupcard__demo" @click="setup.enterDemo()">
-      Enter as demo user
+  <div class="qs-setupcard__after rs-demo-offer">
+    <span class="rs-demo-offer__or qs-type-label" aria-hidden="true">or</span>
+    <button
+      type="button"
+      class="qs-btn qs-btn--secondary qs-btn--lg rs-demo-offer__button"
+      aria-describedby="demo-offer-why"
+      @click="setup.enterDemo()"
+    >
+      <i class="qs-glyph qs-glyph--recorded" aria-hidden="true"></i>Enter as demo user
     </button>
+    <p id="demo-offer-why" class="rs-demo-offer__why qs-type-body-sm">
+      Sample containers with saved results. No key, no charge.
+    </p>
   </div>
 </template>

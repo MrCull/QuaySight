@@ -13,10 +13,10 @@ Open the address Vite prints. For a production build, use `npm run build` then `
 
 ![The setup card](images/setup-card.png)
 
-The first screen is **Set up a provider**.
+The first screen has a short introduction beside the **Set up a provider** card.
 
 - **Live:** pick a provider and model, paste that provider's API key, and press **Continue**. OpenRouter with Jev latest is pre-selected. The key stays in this tab's memory only and is forgotten when you close or reload the page. Keys that don't start with the provider's usual prefix (`sk-or-` for OpenRouter) get a warning but are not refused.
-- **Demo:** press **Enter as demo user**. No key is needed.
+- **Demo:** press **Enter as demo user** under the card. No key is needed.
 
 ![The provider list](images/setup-provider-list.png)
 

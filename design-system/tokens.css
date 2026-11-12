@@ -53,7 +53,12 @@
   --schem-stroke: #4f5f70;
   --schem-grid: #71839a;
   --scrim: rgba(15, 23, 34, 0.55);
+  --hero-ground: #0a1a33;
+  --on-hero: #ffffff;
+  --on-hero-muted: #c5d1e3;
   --shadow-raised: 0 12px 32px rgba(15, 23, 34, 0.14);
+  --shadow-panel: 0 1px 2px rgba(15, 23, 34, 0.05), 0 6px 16px rgba(15, 23, 34, 0.05);
+  --shadow-lift: 0 14px 32px rgba(15, 23, 34, 0.16);
   --space-1: 4px;
   --space-2: 8px;
   --space-3: 12px;
@@ -132,7 +137,12 @@
   --schem-stroke: #8ea4bb;
   --schem-grid: #5a7591;
   --scrim: rgba(4, 7, 11, 0.72);
+  --hero-ground: #050b13;
+  --on-hero: #f2f6fb;
+  --on-hero-muted: #b4c0cf;
   --shadow-raised: 0 12px 32px rgba(0, 0, 0, 0.5);
+  --shadow-panel: 0 1px 2px rgba(0, 0, 0, 0.45);
+  --shadow-lift: 0 14px 32px rgba(0, 0, 0, 0.55);
 }
 
 /* Type styles */

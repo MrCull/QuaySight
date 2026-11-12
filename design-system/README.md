@@ -37,6 +37,7 @@ What the app looks like after photos are uploaded. Live, animated versions are i
 
 ### Colour
 - **Themes.** `Daylight` (light) is the default. `Night quay` (dark) suits darkened event rooms and photo-heavy screens; the top bar's `ThemeToggle` switches between them. Every token is defined in both.
+- **Hero.** `hero-ground` under and over the first screen's photograph, with `on-hero` and `on-hero-muted` text. Only there: never a panel colour.
 - **Grounds.** `bg` for the page, `surface` for panels, `surface-raised` for floating layers, `surface-sunken` for the photo stage and schematic well. Separate panels with `line` hairlines, and draw control edges with `line-strong` (3:1 or better everywhere).
 - **Text.** `ink` for primary text and `ink-muted` for labels and captions. Both pass 4.5:1 on every ground in both themes.
 - **Action.** `brand` (shipping navy in Daylight, signal teal in Night quay) is the only action colour: primary button, selected provider, active stage, links. Text on it is `on-brand`. Focus is a solid 2px `focus-ring` outline offset 2px, 3:1 or better on every surface.
@@ -51,12 +52,12 @@ What the app looks like after photos are uploaded. Live, animated versions are i
 - **Display.** Barlow Condensed, echoing quay signage and stencilled door markings: `display-xl` for the empty state, `display-lg` for the result headline, `display-md` for panel and face titles.
 - **Text.** IBM Plex Sans: `title`, `body` (16px, the projected-reading floor), `body-sm`, `label` (uppercase field names) and `caption` (caveats).
 - **Data.** IBM Plex Mono: `id-xl` for the container ID, `data` for readings, `data-sm` for the cost ledger. Plex Mono's dotted zero keeps 0 and O apart. Never set an ID in another face.
-- All three faces load from Google Fonts. `components/bundle.css` imports them.
+- The app bundles all three faces (`@fontsource/*`, imported in `src/main.ts`), so the type holds offline and in demo mode. The standalone previews load them from Google Fonts through `components/bundle.css`.
 
 ### Space, radius, elevation
 - **Spacing.** A 4px scale, `space-1` to `space-8`. Panels pad `space-5`, major regions sit `space-6` apart, presentation displays keep a `space-8` margin, phones a `space-4` gutter.
 - **Radii.** Small, like steel: `radius-sm` for controls and chips, `radius-md` for panels, `radius-lg` for the photo and schematic wells, `radius-xs` for tags and the check-digit box. `radius-pill` is reserved for the cost indicator and stage dots.
-- **Elevation.** Panels sit flat on borders. `shadow-raised` is only for floating layers: the cost ledger, marker popovers and the settings drawer.
+- **Elevation.** Panels sit on borders, with `shadow-panel` (a faint resting depth) under panels and photographs: always with the hairline, never instead of it. `shadow-lift` is for the hover and focus of a tile that opens something (sample tiles, key-fact tiles). `shadow-raised` is only for floating layers: the cost ledger, marker popovers and the settings drawer.
 - **Controls.** Heights are `control-sm` 32, `control-md` 40 and `control-lg` 52 (the Inspect button). Schematic markers are `marker` 28px.
 
 ### Motion
@@ -70,7 +71,7 @@ What the app looks like after photos are uploaded. Live, animated versions are i
 - Never animate a fake progress bar or a ticking cost meter.
 
 ### Layout
-- **First visit.** Only the `SetupCard`, centred, under a top bar holding the brand and the crumb *Container inspection*, with *Enter as demo user* beneath it. After Continue, the inspection screen below. Until a photo is added, the `PhotoDrop` (or, in demo mode, the sample picker) spans the full width. In demo mode the `DemoBanner` sits under the top bar and the sample picker takes the place of the `PhotoDrop`.
+- **First visit.** Under a top bar holding the brand and the crumb *Container inspection*, the screen splits: at the left a hero photograph of a container under `hero-ground` (headline, one paragraph, what an inspection reads, and the five certainty words; it shows no reading and claims no result), at the right the `SetupCard` on the ribbed ground, with *Enter as demo user* as a secondary button beneath it and one line on what it opens. Below 1100px the hero becomes a short banner above the card. After Continue, the inspection screen below. Until a photo is added, the `PhotoDrop` (or, in demo mode, the sample picker) spans the full width. Once photos are chosen they stand on the photo stage: a `surface-sunken` band across the full width, ribbed like a side sheet. In demo mode the `DemoBanner` sits under the top bar and the sample picker takes the place of the `PhotoDrop`.
 - **Desktop.** See the `ResultsScreen` and `AnalysingScreen` cards in the Screens group. A top bar with the name, the `SettingsChip` (in demo mode, the `RunChip` naming who answered the recording instead), the quiet `CostIndicator` and `NewInspection`. Below it, the photo strip across the top, then the `KeyFactTile` row, then the `ReadingsLedger` (the `DoorFace` in the middle, the readings painted on each leaf beside it, evidence crops at the right edge, and `FieldRow`s for what is not painted on the doors), then any suggestion `Notice`, then the damage view across the full width. The damage view holds the `ContainerSchematic`'s two views (rear and right side, front and left side, roof greyed out) stacked, with the `FindingCard`s in a column beside them. On wide screens (1800px and up) the two views sit side by side and the cards form a row underneath. `AnalysingScreen` shows the screen while results are pending; it still has the earlier readings column and is to be brought in line with the ledger (the ledger's own *Reading* state is in `ReadingsLedger`).
 - **Phone.** The same order, stacked. The top bar wraps: the name and *New inspection* on the first line, the chip and the cost line beneath. In demo mode the top bar scrolls away and only the `DemoBanner` stays stuck. The cost ledger opens as a bottom sheet over `scrim`.
 - **States.** Every surface needs designed empty (`PhotoDrop`), in-progress (`StageProgress`), confident, uncertain, insufficient-evidence and error (`Notice`) states.

@@ -67,9 +67,9 @@ test.describe('desktop width (1920x1080)', () => {
     await expect(page.locator('.qs-ledger')).toBeVisible()
     const strip = (await page.locator('.rs-photos__frame').first().boundingBox())!
     expect(strip.y + strip.height).toBeLessThanOrEqual(1080)
-    // About 260px tall, centred, and not stretched to the full width.
-    expect(strip.height).toBeGreaterThan(200)
-    expect(strip.height).toBeLessThan(300)
+    // About 320px tall, centred, and not stretched to the full width.
+    expect(strip.height).toBeGreaterThan(260)
+    expect(strip.height).toBeLessThan(360)
     expect(strip.width).toBeLessThan(1920 * 0.5)
     const readings = (await page.locator('.qs-ledger').boundingBox())!
     expect(readings.y).toBeLessThan(1080 - 100)

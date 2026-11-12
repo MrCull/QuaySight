@@ -6,6 +6,7 @@ import { findSample } from './domain/demoSamples'
 import { needsManifest } from './domain/manifest'
 import { DETAIL_IDS } from './composables/detailJump'
 import SetupCard from './components/SetupCard.vue'
+import SetupHero from './components/SetupHero.vue'
 import SettingsChip from './components/SettingsChip.vue'
 import BuildStamp from './components/BuildStamp.vue'
 import SettingsDrawer from './components/SettingsDrawer.vue'
@@ -80,8 +81,10 @@ const showDamageView = computed(
       <DemoBanner v-if="setup.view === 'inspection' && store.demo" />
     </div>
 
+    <!-- First visit: the hero photograph and what an inspection reads, beside the setup card. -->
     <main v-if="setup.view === 'setup'" class="rs-setupview">
-      <SetupCard />
+      <SetupHero />
+      <div class="rs-setupview__card"><SetupCard /></div>
     </main>
 
     <main v-else id="stage" :class="['rs-main', stageClass, { 'rs-main--start': startScreen }]">
@@ -118,6 +121,12 @@ const showDamageView = computed(
       </ResultsPanel>
     </main>
     <SettingsDrawer v-if="setup.view === 'inspection' && setup.drawerOpen" />
-    <footer><BuildStamp /></footer>
+    <footer class="rs-foot">
+      <p class="rs-foot__note qs-type-caption">
+        <i class="qs-logo qs-logo--sm qs-logo--ink" aria-hidden="true"></i>
+        Observations and estimates from photographs. Not a certified survey.
+      </p>
+      <BuildStamp />
+    </footer>
   </div>
 </template>

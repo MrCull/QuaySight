@@ -20,7 +20,9 @@ function choose(id: DemoSampleId) {
 <template>
   <div class="qs-samples rs-samples">
     <div class="qs-samples__head">
-      <span id="samples-title" class="qs-samples__title">Choose a sample container</span>
+      <h1 id="samples-title" class="rs-samples__title qs-type-display-lg">
+        Choose a sample container
+      </h1>
       <span class="qs-samples__why"
         >Each sample opens a result recorded from that photo. It works offline, with no API key and
         no charge. Inspecting your own photos needs an API provider.</span
@@ -32,6 +34,7 @@ function choose(id: DemoSampleId) {
         :key="sample.id"
         type="button"
         class="qs-sample"
+        :style="{ '--i': index }"
         :data-next-step="index === 0 ? 'photo' : undefined"
         @click="choose(sample.id)"
       >
@@ -40,10 +43,17 @@ function choose(id: DemoSampleId) {
           <span class="qs-sample__badge"
             ><i class="qs-glyph qs-glyph--recorded" aria-hidden="true"></i>Saved result</span
           >
+          <span v-if="sample.photos.length > 1" class="qs-sample__badge rs-samples__count"
+            ><i class="qs-glyph qs-glyph--photo" aria-hidden="true"></i
+            >{{ sample.photos.length }} photos</span
+          >
         </span>
         <span class="qs-sample__body">
-          <strong>{{ sample.title }}</strong>
+          <span class="rs-samples__name qs-type-display-md">{{ sample.title }}</span>
           <small>{{ sample.hint }}</small>
+          <span class="rs-samples__open qs-type-body-sm" aria-hidden="true"
+            >Open saved result<i class="qs-glyph qs-glyph--chevron"></i
+          ></span>
         </span>
       </button>
     </div>

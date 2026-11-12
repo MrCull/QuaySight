@@ -200,10 +200,10 @@ function openPicker() {
   justify-content: center;
   align-items: flex-start;
   gap: var(--space-3);
-  /* About 260px on a large screen (4 x 64px). With several photos the row height also shrinks so that
+  /* About 320px on a large screen (5 x 64px). With several photos the row height also shrinks so that
      n landscape photos plus their gaps fit the page width; a narrower photo simply leaves room. */
   --strip-h: min(
-    calc(var(--space-8) * 4),
+    calc(var(--space-8) * 5),
     calc((100vw - 2 * var(--space-6) - (var(--n) - 1) * var(--space-3)) / (var(--n) * 1.5))
   );
 }
