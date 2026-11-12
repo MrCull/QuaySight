@@ -1,0 +1,1200 @@
+{
+  "id": "rear-door-coyu-22g1-2-weights-regions",
+  "photo": "rear-door-coyu-22g1.jpg",
+  "repeat": 2,
+  "kind": "weights",
+  "strategy": "regions",
+  "imageFile": "rear-door-coyu-22g1-2-weights-regions.jpg",
+  "request": {
+    "model": "typesafe/jev-1.14",
+    "state": [
+      "Read only the visible printed markings in this photograph. Never infer hidden characters.",
+      {
+        "imageFile": "rear-door-coyu-22g1-2-weights-regions.jpg"
+      }
+    ],
+    "questions": {
+      "max_gross_kg_units": {
+        "type": "choice",
+        "instructions": "The weight markings on a container door print each weight as a number followed by its unit, one row each: MAX. GROSS, TARE and NET (or PAYLOAD), each in KGS and again in LBS, then CU. CAP. in CU.M and again in CU.FT. Look at the MAX. GROSS (also written MAX GROSS or MAXIMUM GROSS WEIGHT) figure in kg (printed KGS or KG). Read only the units digit: the first digit counting from its right-hand end, which is the last digit of the whole-number part. If the figure is shorter and has no digit at this place, answer none. Read the digit exactly as printed; do not work it out from the other unit, from the other rows or from what is usual for a container.",
+        "criteria": {
+          "0": "Digit 0",
+          "1": "Digit 1",
+          "2": "Digit 2",
+          "3": "Digit 3",
+          "4": "Digit 4",
+          "5": "Digit 5",
+          "6": "Digit 6",
+          "7": "Digit 7",
+          "8": "Digit 8",
+          "9": "Digit 9",
+          "unreadable": "There is a digit here, but it cannot be read clearly",
+          "not_visible": "This figure is not visible in this photo"
+        }
+      },
+      "max_gross_kg_tens": {
+        "type": "choice",
+        "instructions": "The weight markings on a container door print each weight as a number followed by its unit, one row each: MAX. GROSS, TARE and NET (or PAYLOAD), each in KGS and again in LBS, then CU. CAP. in CU.M and again in CU.FT. Look at the MAX. GROSS (also written MAX GROSS or MAXIMUM GROSS WEIGHT) figure in kg (printed KGS or KG). Read only the tens digit: the second digit counting from its right-hand end, which is the digit just before the units digit. If the figure is shorter and has no digit at this place, answer none. Read the digit exactly as printed; do not work it out from the other unit, from the other rows or from what is usual for a container.",
+        "criteria": {
+          "0": "Digit 0",
+          "1": "Digit 1",
+          "2": "Digit 2",
+          "3": "Digit 3",
+          "4": "Digit 4",
+          "5": "Digit 5",
+          "6": "Digit 6",
+          "7": "Digit 7",
+          "8": "Digit 8",
+          "9": "Digit 9",
+          "none": "No digit at this place: the figure is shorter",
+          "unreadable": "There is a digit here, but it cannot be read clearly",
+          "not_visible": "This figure is not visible in this photo"
+        }
+      },
+      "max_gross_kg_hundreds": {
+        "type": "choice",
+        "instructions": "The weight markings on a container door print each weight as a number followed by its unit, one row each: MAX. GROSS, TARE and NET (or PAYLOAD), each in KGS and again in LBS, then CU. CAP. in CU.M and again in CU.FT. Look at the MAX. GROSS (also written MAX GROSS or MAXIMUM GROSS WEIGHT) figure in kg (printed KGS or KG). Read only the hundreds digit: the third digit counting from its right-hand end, which is the first digit of the three-digit group after the thousands separator. If the figure is shorter and has no digit at this place, answer none. Read the digit exactly as printed; do not work it out from the other unit, from the other rows or from what is usual for a container.",
+        "criteria": {
+          "0": "Digit 0",
+          "1": "Digit 1",
+          "2": "Digit 2",
+          "3": "Digit 3",
+          "4": "Digit 4",
+          "5": "Digit 5",
+          "6": "Digit 6",
+          "7": "Digit 7",
+          "8": "Digit 8",
+          "9": "Digit 9",
+          "none": "No digit at this place: the figure is shorter",
+          "unreadable": "There is a digit here, but it cannot be read clearly",
+          "not_visible": "This figure is not visible in this photo"
+        }
+      },
+      "max_gross_kg_thousands": {
+        "type": "choice",
+        "instructions": "The weight markings on a container door print each weight as a number followed by its unit, one row each: MAX. GROSS, TARE and NET (or PAYLOAD), each in KGS and again in LBS, then CU. CAP. in CU.M and again in CU.FT. Look at the MAX. GROSS (also written MAX GROSS or MAXIMUM GROSS WEIGHT) figure in kg (printed KGS or KG). Read only the thousands digit: the fourth digit counting from its right-hand end, which is the last digit before the thousands separator. If the figure is shorter and has no digit at this place, answer none. Read the digit exactly as printed; do not work it out from the other unit, from the other rows or from what is usual for a container.",
+        "criteria": {
+          "0": "Digit 0",
+          "1": "Digit 1",
+          "2": "Digit 2",
+          "3": "Digit 3",
+          "4": "Digit 4",
+          "5": "Digit 5",
+          "6": "Digit 6",
+          "7": "Digit 7",
+          "8": "Digit 8",
+          "9": "Digit 9",
+          "none": "No digit at this place: the figure is shorter",
+          "unreadable": "There is a digit here, but it cannot be read clearly",
+          "not_visible": "This figure is not visible in this photo"
+        }
+      },
+      "max_gross_kg_ten_thousands": {
+        "type": "choice",
+        "instructions": "The weight markings on a container door print each weight as a number followed by its unit, one row each: MAX. GROSS, TARE and NET (or PAYLOAD), each in KGS and again in LBS, then CU. CAP. in CU.M and again in CU.FT. Look at the MAX. GROSS (also written MAX GROSS or MAXIMUM GROSS WEIGHT) figure in kg (printed KGS or KG). Read only the ten-thousands digit: the fifth digit counting from its right-hand end, which is the digit just before the thousands digit, the first of a five-digit figure. If the figure is shorter and has no digit at this place, answer none. Read the digit exactly as printed; do not work it out from the other unit, from the other rows or from what is usual for a container.",
+        "criteria": {
+          "0": "Digit 0",
+          "1": "Digit 1",
+          "2": "Digit 2",
+          "3": "Digit 3",
+          "4": "Digit 4",
+          "5": "Digit 5",
+          "6": "Digit 6",
+          "7": "Digit 7",
+          "8": "Digit 8",
+          "9": "Digit 9",
+          "none": "No digit at this place: the figure is shorter",
+          "unreadable": "There is a digit here, but it cannot be read clearly",
+          "not_visible": "This figure is not visible in this photo"
+        }
+      },
+      "max_gross_lb_units": {
+        "type": "choice",
+        "instructions": "The weight markings on a container door print each weight as a number followed by its unit, one row each: MAX. GROSS, TARE and NET (or PAYLOAD), each in KGS and again in LBS, then CU. CAP. in CU.M and again in CU.FT. Look at the MAX. GROSS (also written MAX GROSS or MAXIMUM GROSS WEIGHT) figure in lb (printed LBS or LB). Read only the units digit: the first digit counting from its right-hand end, which is the last digit of the whole-number part. If the figure is shorter and has no digit at this place, answer none. Read the digit exactly as printed; do not work it out from the other unit, from the other rows or from what is usual for a container.",
+        "criteria": {
+          "0": "Digit 0",
+          "1": "Digit 1",
+          "2": "Digit 2",
+          "3": "Digit 3",
+          "4": "Digit 4",
+          "5": "Digit 5",
+          "6": "Digit 6",
+          "7": "Digit 7",
+          "8": "Digit 8",
+          "9": "Digit 9",
+          "unreadable": "There is a digit here, but it cannot be read clearly",
+          "not_visible": "This figure is not visible in this photo"
+        }
+      },
+      "max_gross_lb_tens": {
+        "type": "choice",
+        "instructions": "The weight markings on a container door print each weight as a number followed by its unit, one row each: MAX. GROSS, TARE and NET (or PAYLOAD), each in KGS and again in LBS, then CU. CAP. in CU.M and again in CU.FT. Look at the MAX. GROSS (also written MAX GROSS or MAXIMUM GROSS WEIGHT) figure in lb (printed LBS or LB). Read only the tens digit: the second digit counting from its right-hand end, which is the digit just before the units digit. If the figure is shorter and has no digit at this place, answer none. Read the digit exactly as printed; do not work it out from the other unit, from the other rows or from what is usual for a container.",
+        "criteria": {
+          "0": "Digit 0",
+          "1": "Digit 1",
+          "2": "Digit 2",
+          "3": "Digit 3",
+          "4": "Digit 4",
+          "5": "Digit 5",
+          "6": "Digit 6",
+          "7": "Digit 7",
+          "8": "Digit 8",
+          "9": "Digit 9",
+          "none": "No digit at this place: the figure is shorter",
+          "unreadable": "There is a digit here, but it cannot be read clearly",
+          "not_visible": "This figure is not visible in this photo"
+        }
+      },
+      "max_gross_lb_hundreds": {
+        "type": "choice",
+        "instructions": "The weight markings on a container door print each weight as a number followed by its unit, one row each: MAX. GROSS, TARE and NET (or PAYLOAD), each in KGS and again in LBS, then CU. CAP. in CU.M and again in CU.FT. Look at the MAX. GROSS (also written MAX GROSS or MAXIMUM GROSS WEIGHT) figure in lb (printed LBS or LB). Read only the hundreds digit: the third digit counting from its right-hand end, which is the first digit of the three-digit group after the thousands separator. If the figure is shorter and has no digit at this place, answer none. Read the digit exactly as printed; do not work it out from the other unit, from the other rows or from what is usual for a container.",
+        "criteria": {
+          "0": "Digit 0",
+          "1": "Digit 1",
+          "2": "Digit 2",
+          "3": "Digit 3",
+          "4": "Digit 4",
+          "5": "Digit 5",
+          "6": "Digit 6",
+          "7": "Digit 7",
+          "8": "Digit 8",
+          "9": "Digit 9",
+          "none": "No digit at this place: the figure is shorter",
+          "unreadable": "There is a digit here, but it cannot be read clearly",
+          "not_visible": "This figure is not visible in this photo"
+        }
+      },
+      "max_gross_lb_thousands": {
+        "type": "choice",
+        "instructions": "The weight markings on a container door print each weight as a number followed by its unit, one row each: MAX. GROSS, TARE and NET (or PAYLOAD), each in KGS and again in LBS, then CU. CAP. in CU.M and again in CU.FT. Look at the MAX. GROSS (also written MAX GROSS or MAXIMUM GROSS WEIGHT) figure in lb (printed LBS or LB). Read only the thousands digit: the fourth digit counting from its right-hand end, which is the last digit before the thousands separator. If the figure is shorter and has no digit at this place, answer none. Read the digit exactly as printed; do not work it out from the other unit, from the other rows or from what is usual for a container.",
+        "criteria": {
+          "0": "Digit 0",
+          "1": "Digit 1",
+          "2": "Digit 2",
+          "3": "Digit 3",
+          "4": "Digit 4",
+          "5": "Digit 5",
+          "6": "Digit 6",
+          "7": "Digit 7",
+          "8": "Digit 8",
+          "9": "Digit 9",
+          "none": "No digit at this place: the figure is shorter",
+          "unreadable": "There is a digit here, but it cannot be read clearly",
+          "not_visible": "This figure is not visible in this photo"
+        }
+      },
+      "max_gross_lb_ten_thousands": {
+        "type": "choice",
+        "instructions": "The weight markings on a container door print each weight as a number followed by its unit, one row each: MAX. GROSS, TARE and NET (or PAYLOAD), each in KGS and again in LBS, then CU. CAP. in CU.M and again in CU.FT. Look at the MAX. GROSS (also written MAX GROSS or MAXIMUM GROSS WEIGHT) figure in lb (printed LBS or LB). Read only the ten-thousands digit: the fifth digit counting from its right-hand end, which is the digit just before the thousands digit, the first of a five-digit figure. If the figure is shorter and has no digit at this place, answer none. Read the digit exactly as printed; do not work it out from the other unit, from the other rows or from what is usual for a container.",
+        "criteria": {
+          "0": "Digit 0",
+          "1": "Digit 1",
+          "2": "Digit 2",
+          "3": "Digit 3",
+          "4": "Digit 4",
+          "5": "Digit 5",
+          "6": "Digit 6",
+          "7": "Digit 7",
+          "8": "Digit 8",
+          "9": "Digit 9",
+          "none": "No digit at this place: the figure is shorter",
+          "unreadable": "There is a digit here, but it cannot be read clearly",
+          "not_visible": "This figure is not visible in this photo"
+        }
+      },
+      "tare_kg_units": {
+        "type": "choice",
+        "instructions": "The weight markings on a container door print each weight as a number followed by its unit, one row each: MAX. GROSS, TARE and NET (or PAYLOAD), each in KGS and again in LBS, then CU. CAP. in CU.M and again in CU.FT. Look at the TARE (also written TARE WEIGHT) figure in kg (printed KGS or KG). Read only the units digit: the first digit counting from its right-hand end, which is the last digit of the whole-number part. If the figure is shorter and has no digit at this place, answer none. Read the digit exactly as printed; do not work it out from the other unit, from the other rows or from what is usual for a container.",
+        "criteria": {
+          "0": "Digit 0",
+          "1": "Digit 1",
+          "2": "Digit 2",
+          "3": "Digit 3",
+          "4": "Digit 4",
+          "5": "Digit 5",
+          "6": "Digit 6",
+          "7": "Digit 7",
+          "8": "Digit 8",
+          "9": "Digit 9",
+          "unreadable": "There is a digit here, but it cannot be read clearly",
+          "not_visible": "This figure is not visible in this photo"
+        }
+      },
+      "tare_kg_tens": {
+        "type": "choice",
+        "instructions": "The weight markings on a container door print each weight as a number followed by its unit, one row each: MAX. GROSS, TARE and NET (or PAYLOAD), each in KGS and again in LBS, then CU. CAP. in CU.M and again in CU.FT. Look at the TARE (also written TARE WEIGHT) figure in kg (printed KGS or KG). Read only the tens digit: the second digit counting from its right-hand end, which is the digit just before the units digit. If the figure is shorter and has no digit at this place, answer none. Read the digit exactly as printed; do not work it out from the other unit, from the other rows or from what is usual for a container.",
+        "criteria": {
+          "0": "Digit 0",
+          "1": "Digit 1",
+          "2": "Digit 2",
+          "3": "Digit 3",
+          "4": "Digit 4",
+          "5": "Digit 5",
+          "6": "Digit 6",
+          "7": "Digit 7",
+          "8": "Digit 8",
+          "9": "Digit 9",
+          "none": "No digit at this place: the figure is shorter",
+          "unreadable": "There is a digit here, but it cannot be read clearly",
+          "not_visible": "This figure is not visible in this photo"
+        }
+      },
+      "tare_kg_hundreds": {
+        "type": "choice",
+        "instructions": "The weight markings on a container door print each weight as a number followed by its unit, one row each: MAX. GROSS, TARE and NET (or PAYLOAD), each in KGS and again in LBS, then CU. CAP. in CU.M and again in CU.FT. Look at the TARE (also written TARE WEIGHT) figure in kg (printed KGS or KG). Read only the hundreds digit: the third digit counting from its right-hand end, which is the first digit of the three-digit group after the thousands separator. If the figure is shorter and has no digit at this place, answer none. Read the digit exactly as printed; do not work it out from the other unit, from the other rows or from what is usual for a container.",
+        "criteria": {
+          "0": "Digit 0",
+          "1": "Digit 1",
+          "2": "Digit 2",
+          "3": "Digit 3",
+          "4": "Digit 4",
+          "5": "Digit 5",
+          "6": "Digit 6",
+          "7": "Digit 7",
+          "8": "Digit 8",
+          "9": "Digit 9",
+          "none": "No digit at this place: the figure is shorter",
+          "unreadable": "There is a digit here, but it cannot be read clearly",
+          "not_visible": "This figure is not visible in this photo"
+        }
+      },
+      "tare_kg_thousands": {
+        "type": "choice",
+        "instructions": "The weight markings on a container door print each weight as a number followed by its unit, one row each: MAX. GROSS, TARE and NET (or PAYLOAD), each in KGS and again in LBS, then CU. CAP. in CU.M and again in CU.FT. Look at the TARE (also written TARE WEIGHT) figure in kg (printed KGS or KG). Read only the thousands digit: the fourth digit counting from its right-hand end, which is the last digit before the thousands separator. If the figure is shorter and has no digit at this place, answer none. Read the digit exactly as printed; do not work it out from the other unit, from the other rows or from what is usual for a container.",
+        "criteria": {
+          "0": "Digit 0",
+          "1": "Digit 1",
+          "2": "Digit 2",
+          "3": "Digit 3",
+          "4": "Digit 4",
+          "5": "Digit 5",
+          "6": "Digit 6",
+          "7": "Digit 7",
+          "8": "Digit 8",
+          "9": "Digit 9",
+          "none": "No digit at this place: the figure is shorter",
+          "unreadable": "There is a digit here, but it cannot be read clearly",
+          "not_visible": "This figure is not visible in this photo"
+        }
+      },
+      "tare_kg_ten_thousands": {
+        "type": "choice",
+        "instructions": "The weight markings on a container door print each weight as a number followed by its unit, one row each: MAX. GROSS, TARE and NET (or PAYLOAD), each in KGS and again in LBS, then CU. CAP. in CU.M and again in CU.FT. Look at the TARE (also written TARE WEIGHT) figure in kg (printed KGS or KG). Read only the ten-thousands digit: the fifth digit counting from its right-hand end, which is the digit just before the thousands digit, the first of a five-digit figure. If the figure is shorter and has no digit at this place, answer none. Read the digit exactly as printed; do not work it out from the other unit, from the other rows or from what is usual for a container.",
+        "criteria": {
+          "0": "Digit 0",
+          "1": "Digit 1",
+          "2": "Digit 2",
+          "3": "Digit 3",
+          "4": "Digit 4",
+          "5": "Digit 5",
+          "6": "Digit 6",
+          "7": "Digit 7",
+          "8": "Digit 8",
+          "9": "Digit 9",
+          "none": "No digit at this place: the figure is shorter",
+          "unreadable": "There is a digit here, but it cannot be read clearly",
+          "not_visible": "This figure is not visible in this photo"
+        }
+      },
+      "tare_lb_units": {
+        "type": "choice",
+        "instructions": "The weight markings on a container door print each weight as a number followed by its unit, one row each: MAX. GROSS, TARE and NET (or PAYLOAD), each in KGS and again in LBS, then CU. CAP. in CU.M and again in CU.FT. Look at the TARE (also written TARE WEIGHT) figure in lb (printed LBS or LB). Read only the units digit: the first digit counting from its right-hand end, which is the last digit of the whole-number part. If the figure is shorter and has no digit at this place, answer none. Read the digit exactly as printed; do not work it out from the other unit, from the other rows or from what is usual for a container.",
+        "criteria": {
+          "0": "Digit 0",
+          "1": "Digit 1",
+          "2": "Digit 2",
+          "3": "Digit 3",
+          "4": "Digit 4",
+          "5": "Digit 5",
+          "6": "Digit 6",
+          "7": "Digit 7",
+          "8": "Digit 8",
+          "9": "Digit 9",
+          "unreadable": "There is a digit here, but it cannot be read clearly",
+          "not_visible": "This figure is not visible in this photo"
+        }
+      },
+      "tare_lb_tens": {
+        "type": "choice",
+        "instructions": "The weight markings on a container door print each weight as a number followed by its unit, one row each: MAX. GROSS, TARE and NET (or PAYLOAD), each in KGS and again in LBS, then CU. CAP. in CU.M and again in CU.FT. Look at the TARE (also written TARE WEIGHT) figure in lb (printed LBS or LB). Read only the tens digit: the second digit counting from its right-hand end, which is the digit just before the units digit. If the figure is shorter and has no digit at this place, answer none. Read the digit exactly as printed; do not work it out from the other unit, from the other rows or from what is usual for a container.",
+        "criteria": {
+          "0": "Digit 0",
+          "1": "Digit 1",
+          "2": "Digit 2",
+          "3": "Digit 3",
+          "4": "Digit 4",
+          "5": "Digit 5",
+          "6": "Digit 6",
+          "7": "Digit 7",
+          "8": "Digit 8",
+          "9": "Digit 9",
+          "none": "No digit at this place: the figure is shorter",
+          "unreadable": "There is a digit here, but it cannot be read clearly",
+          "not_visible": "This figure is not visible in this photo"
+        }
+      },
+      "tare_lb_hundreds": {
+        "type": "choice",
+        "instructions": "The weight markings on a container door print each weight as a number followed by its unit, one row each: MAX. GROSS, TARE and NET (or PAYLOAD), each in KGS and again in LBS, then CU. CAP. in CU.M and again in CU.FT. Look at the TARE (also written TARE WEIGHT) figure in lb (printed LBS or LB). Read only the hundreds digit: the third digit counting from its right-hand end, which is the first digit of the three-digit group after the thousands separator. If the figure is shorter and has no digit at this place, answer none. Read the digit exactly as printed; do not work it out from the other unit, from the other rows or from what is usual for a container.",
+        "criteria": {
+          "0": "Digit 0",
+          "1": "Digit 1",
+          "2": "Digit 2",
+          "3": "Digit 3",
+          "4": "Digit 4",
+          "5": "Digit 5",
+          "6": "Digit 6",
+          "7": "Digit 7",
+          "8": "Digit 8",
+          "9": "Digit 9",
+          "none": "No digit at this place: the figure is shorter",
+          "unreadable": "There is a digit here, but it cannot be read clearly",
+          "not_visible": "This figure is not visible in this photo"
+        }
+      },
+      "tare_lb_thousands": {
+        "type": "choice",
+        "instructions": "The weight markings on a container door print each weight as a number followed by its unit, one row each: MAX. GROSS, TARE and NET (or PAYLOAD), each in KGS and again in LBS, then CU. CAP. in CU.M and again in CU.FT. Look at the TARE (also written TARE WEIGHT) figure in lb (printed LBS or LB). Read only the thousands digit: the fourth digit counting from its right-hand end, which is the last digit before the thousands separator. If the figure is shorter and has no digit at this place, answer none. Read the digit exactly as printed; do not work it out from the other unit, from the other rows or from what is usual for a container.",
+        "criteria": {
+          "0": "Digit 0",
+          "1": "Digit 1",
+          "2": "Digit 2",
+          "3": "Digit 3",
+          "4": "Digit 4",
+          "5": "Digit 5",
+          "6": "Digit 6",
+          "7": "Digit 7",
+          "8": "Digit 8",
+          "9": "Digit 9",
+          "none": "No digit at this place: the figure is shorter",
+          "unreadable": "There is a digit here, but it cannot be read clearly",
+          "not_visible": "This figure is not visible in this photo"
+        }
+      },
+      "tare_lb_ten_thousands": {
+        "type": "choice",
+        "instructions": "The weight markings on a container door print each weight as a number followed by its unit, one row each: MAX. GROSS, TARE and NET (or PAYLOAD), each in KGS and again in LBS, then CU. CAP. in CU.M and again in CU.FT. Look at the TARE (also written TARE WEIGHT) figure in lb (printed LBS or LB). Read only the ten-thousands digit: the fifth digit counting from its right-hand end, which is the digit just before the thousands digit, the first of a five-digit figure. If the figure is shorter and has no digit at this place, answer none. Read the digit exactly as printed; do not work it out from the other unit, from the other rows or from what is usual for a container.",
+        "criteria": {
+          "0": "Digit 0",
+          "1": "Digit 1",
+          "2": "Digit 2",
+          "3": "Digit 3",
+          "4": "Digit 4",
+          "5": "Digit 5",
+          "6": "Digit 6",
+          "7": "Digit 7",
+          "8": "Digit 8",
+          "9": "Digit 9",
+          "none": "No digit at this place: the figure is shorter",
+          "unreadable": "There is a digit here, but it cannot be read clearly",
+          "not_visible": "This figure is not visible in this photo"
+        }
+      },
+      "payload_kg_units": {
+        "type": "choice",
+        "instructions": "The weight markings on a container door print each weight as a number followed by its unit, one row each: MAX. GROSS, TARE and NET (or PAYLOAD), each in KGS and again in LBS, then CU. CAP. in CU.M and again in CU.FT. Look at the NET (also written PAYLOAD or MAX PAYLOAD) figure in kg (printed KGS or KG). Read only the units digit: the first digit counting from its right-hand end, which is the last digit of the whole-number part. If the figure is shorter and has no digit at this place, answer none. Read the digit exactly as printed; do not work it out from the other unit, from the other rows or from what is usual for a container.",
+        "criteria": {
+          "0": "Digit 0",
+          "1": "Digit 1",
+          "2": "Digit 2",
+          "3": "Digit 3",
+          "4": "Digit 4",
+          "5": "Digit 5",
+          "6": "Digit 6",
+          "7": "Digit 7",
+          "8": "Digit 8",
+          "9": "Digit 9",
+          "unreadable": "There is a digit here, but it cannot be read clearly",
+          "not_visible": "This figure is not visible in this photo"
+        }
+      },
+      "payload_kg_tens": {
+        "type": "choice",
+        "instructions": "The weight markings on a container door print each weight as a number followed by its unit, one row each: MAX. GROSS, TARE and NET (or PAYLOAD), each in KGS and again in LBS, then CU. CAP. in CU.M and again in CU.FT. Look at the NET (also written PAYLOAD or MAX PAYLOAD) figure in kg (printed KGS or KG). Read only the tens digit: the second digit counting from its right-hand end, which is the digit just before the units digit. If the figure is shorter and has no digit at this place, answer none. Read the digit exactly as printed; do not work it out from the other unit, from the other rows or from what is usual for a container.",
+        "criteria": {
+          "0": "Digit 0",
+          "1": "Digit 1",
+          "2": "Digit 2",
+          "3": "Digit 3",
+          "4": "Digit 4",
+          "5": "Digit 5",
+          "6": "Digit 6",
+          "7": "Digit 7",
+          "8": "Digit 8",
+          "9": "Digit 9",
+          "none": "No digit at this place: the figure is shorter",
+          "unreadable": "There is a digit here, but it cannot be read clearly",
+          "not_visible": "This figure is not visible in this photo"
+        }
+      },
+      "payload_kg_hundreds": {
+        "type": "choice",
+        "instructions": "The weight markings on a container door print each weight as a number followed by its unit, one row each: MAX. GROSS, TARE and NET (or PAYLOAD), each in KGS and again in LBS, then CU. CAP. in CU.M and again in CU.FT. Look at the NET (also written PAYLOAD or MAX PAYLOAD) figure in kg (printed KGS or KG). Read only the hundreds digit: the third digit counting from its right-hand end, which is the first digit of the three-digit group after the thousands separator. If the figure is shorter and has no digit at this place, answer none. Read the digit exactly as printed; do not work it out from the other unit, from the other rows or from what is usual for a container.",
+        "criteria": {
+          "0": "Digit 0",
+          "1": "Digit 1",
+          "2": "Digit 2",
+          "3": "Digit 3",
+          "4": "Digit 4",
+          "5": "Digit 5",
+          "6": "Digit 6",
+          "7": "Digit 7",
+          "8": "Digit 8",
+          "9": "Digit 9",
+          "none": "No digit at this place: the figure is shorter",
+          "unreadable": "There is a digit here, but it cannot be read clearly",
+          "not_visible": "This figure is not visible in this photo"
+        }
+      },
+      "payload_kg_thousands": {
+        "type": "choice",
+        "instructions": "The weight markings on a container door print each weight as a number followed by its unit, one row each: MAX. GROSS, TARE and NET (or PAYLOAD), each in KGS and again in LBS, then CU. CAP. in CU.M and again in CU.FT. Look at the NET (also written PAYLOAD or MAX PAYLOAD) figure in kg (printed KGS or KG). Read only the thousands digit: the fourth digit counting from its right-hand end, which is the last digit before the thousands separator. If the figure is shorter and has no digit at this place, answer none. Read the digit exactly as printed; do not work it out from the other unit, from the other rows or from what is usual for a container.",
+        "criteria": {
+          "0": "Digit 0",
+          "1": "Digit 1",
+          "2": "Digit 2",
+          "3": "Digit 3",
+          "4": "Digit 4",
+          "5": "Digit 5",
+          "6": "Digit 6",
+          "7": "Digit 7",
+          "8": "Digit 8",
+          "9": "Digit 9",
+          "none": "No digit at this place: the figure is shorter",
+          "unreadable": "There is a digit here, but it cannot be read clearly",
+          "not_visible": "This figure is not visible in this photo"
+        }
+      },
+      "payload_kg_ten_thousands": {
+        "type": "choice",
+        "instructions": "The weight markings on a container door print each weight as a number followed by its unit, one row each: MAX. GROSS, TARE and NET (or PAYLOAD), each in KGS and again in LBS, then CU. CAP. in CU.M and again in CU.FT. Look at the NET (also written PAYLOAD or MAX PAYLOAD) figure in kg (printed KGS or KG). Read only the ten-thousands digit: the fifth digit counting from its right-hand end, which is the digit just before the thousands digit, the first of a five-digit figure. If the figure is shorter and has no digit at this place, answer none. Read the digit exactly as printed; do not work it out from the other unit, from the other rows or from what is usual for a container.",
+        "criteria": {
+          "0": "Digit 0",
+          "1": "Digit 1",
+          "2": "Digit 2",
+          "3": "Digit 3",
+          "4": "Digit 4",
+          "5": "Digit 5",
+          "6": "Digit 6",
+          "7": "Digit 7",
+          "8": "Digit 8",
+          "9": "Digit 9",
+          "none": "No digit at this place: the figure is shorter",
+          "unreadable": "There is a digit here, but it cannot be read clearly",
+          "not_visible": "This figure is not visible in this photo"
+        }
+      },
+      "payload_lb_units": {
+        "type": "choice",
+        "instructions": "The weight markings on a container door print each weight as a number followed by its unit, one row each: MAX. GROSS, TARE and NET (or PAYLOAD), each in KGS and again in LBS, then CU. CAP. in CU.M and again in CU.FT. Look at the NET (also written PAYLOAD or MAX PAYLOAD) figure in lb (printed LBS or LB). Read only the units digit: the first digit counting from its right-hand end, which is the last digit of the whole-number part. If the figure is shorter and has no digit at this place, answer none. Read the digit exactly as printed; do not work it out from the other unit, from the other rows or from what is usual for a container.",
+        "criteria": {
+          "0": "Digit 0",
+          "1": "Digit 1",
+          "2": "Digit 2",
+          "3": "Digit 3",
+          "4": "Digit 4",
+          "5": "Digit 5",
+          "6": "Digit 6",
+          "7": "Digit 7",
+          "8": "Digit 8",
+          "9": "Digit 9",
+          "unreadable": "There is a digit here, but it cannot be read clearly",
+          "not_visible": "This figure is not visible in this photo"
+        }
+      },
+      "payload_lb_tens": {
+        "type": "choice",
+        "instructions": "The weight markings on a container door print each weight as a number followed by its unit, one row each: MAX. GROSS, TARE and NET (or PAYLOAD), each in KGS and again in LBS, then CU. CAP. in CU.M and again in CU.FT. Look at the NET (also written PAYLOAD or MAX PAYLOAD) figure in lb (printed LBS or LB). Read only the tens digit: the second digit counting from its right-hand end, which is the digit just before the units digit. If the figure is shorter and has no digit at this place, answer none. Read the digit exactly as printed; do not work it out from the other unit, from the other rows or from what is usual for a container.",
+        "criteria": {
+          "0": "Digit 0",
+          "1": "Digit 1",
+          "2": "Digit 2",
+          "3": "Digit 3",
+          "4": "Digit 4",
+          "5": "Digit 5",
+          "6": "Digit 6",
+          "7": "Digit 7",
+          "8": "Digit 8",
+          "9": "Digit 9",
+          "none": "No digit at this place: the figure is shorter",
+          "unreadable": "There is a digit here, but it cannot be read clearly",
+          "not_visible": "This figure is not visible in this photo"
+        }
+      },
+      "payload_lb_hundreds": {
+        "type": "choice",
+        "instructions": "The weight markings on a container door print each weight as a number followed by its unit, one row each: MAX. GROSS, TARE and NET (or PAYLOAD), each in KGS and again in LBS, then CU. CAP. in CU.M and again in CU.FT. Look at the NET (also written PAYLOAD or MAX PAYLOAD) figure in lb (printed LBS or LB). Read only the hundreds digit: the third digit counting from its right-hand end, which is the first digit of the three-digit group after the thousands separator. If the figure is shorter and has no digit at this place, answer none. Read the digit exactly as printed; do not work it out from the other unit, from the other rows or from what is usual for a container.",
+        "criteria": {
+          "0": "Digit 0",
+          "1": "Digit 1",
+          "2": "Digit 2",
+          "3": "Digit 3",
+          "4": "Digit 4",
+          "5": "Digit 5",
+          "6": "Digit 6",
+          "7": "Digit 7",
+          "8": "Digit 8",
+          "9": "Digit 9",
+          "none": "No digit at this place: the figure is shorter",
+          "unreadable": "There is a digit here, but it cannot be read clearly",
+          "not_visible": "This figure is not visible in this photo"
+        }
+      },
+      "payload_lb_thousands": {
+        "type": "choice",
+        "instructions": "The weight markings on a container door print each weight as a number followed by its unit, one row each: MAX. GROSS, TARE and NET (or PAYLOAD), each in KGS and again in LBS, then CU. CAP. in CU.M and again in CU.FT. Look at the NET (also written PAYLOAD or MAX PAYLOAD) figure in lb (printed LBS or LB). Read only the thousands digit: the fourth digit counting from its right-hand end, which is the last digit before the thousands separator. If the figure is shorter and has no digit at this place, answer none. Read the digit exactly as printed; do not work it out from the other unit, from the other rows or from what is usual for a container.",
+        "criteria": {
+          "0": "Digit 0",
+          "1": "Digit 1",
+          "2": "Digit 2",
+          "3": "Digit 3",
+          "4": "Digit 4",
+          "5": "Digit 5",
+          "6": "Digit 6",
+          "7": "Digit 7",
+          "8": "Digit 8",
+          "9": "Digit 9",
+          "none": "No digit at this place: the figure is shorter",
+          "unreadable": "There is a digit here, but it cannot be read clearly",
+          "not_visible": "This figure is not visible in this photo"
+        }
+      },
+      "payload_lb_ten_thousands": {
+        "type": "choice",
+        "instructions": "The weight markings on a container door print each weight as a number followed by its unit, one row each: MAX. GROSS, TARE and NET (or PAYLOAD), each in KGS and again in LBS, then CU. CAP. in CU.M and again in CU.FT. Look at the NET (also written PAYLOAD or MAX PAYLOAD) figure in lb (printed LBS or LB). Read only the ten-thousands digit: the fifth digit counting from its right-hand end, which is the digit just before the thousands digit, the first of a five-digit figure. If the figure is shorter and has no digit at this place, answer none. Read the digit exactly as printed; do not work it out from the other unit, from the other rows or from what is usual for a container.",
+        "criteria": {
+          "0": "Digit 0",
+          "1": "Digit 1",
+          "2": "Digit 2",
+          "3": "Digit 3",
+          "4": "Digit 4",
+          "5": "Digit 5",
+          "6": "Digit 6",
+          "7": "Digit 7",
+          "8": "Digit 8",
+          "9": "Digit 9",
+          "none": "No digit at this place: the figure is shorter",
+          "unreadable": "There is a digit here, but it cannot be read clearly",
+          "not_visible": "This figure is not visible in this photo"
+        }
+      }
+    }
+  },
+  "status": 200,
+  "failure": null,
+  "latencyMs": 824,
+  "requestedModel": "typesafe/jev-1.14",
+  "resolvedModel": "typesafe/jev-1.14-20261014",
+  "usage": {
+    "input_tokens": 16850,
+    "output_tokens": 3350,
+    "cost": 0.0007077
+  },
+  "reportedCostUsd": 0.0007077,
+  "response": {
+    "model": "typesafe/jev-1.14-20261014",
+    "answers": {
+      "max_gross_kg_units": {
+        "type": "choice",
+        "choice": "0",
+        "probabilities": {
+          "0": 1,
+          "1": 0,
+          "2": 0,
+          "3": 0,
+          "4": 0,
+          "5": 0,
+          "6": 0,
+          "7": 0,
+          "8": 0,
+          "9": 0,
+          "unreadable": 0,
+          "not_visible": 0
+        },
+        "confidence": 1
+      },
+      "max_gross_kg_tens": {
+        "type": "choice",
+        "choice": "8",
+        "probabilities": {
+          "0": 0.02,
+          "1": 0,
+          "2": 0,
+          "3": 0,
+          "4": 0.01,
+          "5": 0,
+          "6": 0,
+          "7": 0,
+          "8": 0.97,
+          "9": 0,
+          "none": 0,
+          "unreadable": 0,
+          "not_visible": 0
+        },
+        "confidence": 0.97
+      },
+      "max_gross_kg_hundreds": {
+        "type": "choice",
+        "choice": "4",
+        "probabilities": {
+          "0": 0.01,
+          "1": 0,
+          "2": 0,
+          "3": 0,
+          "4": 0.98,
+          "5": 0,
+          "6": 0,
+          "7": 0,
+          "8": 0.01,
+          "9": 0,
+          "none": 0,
+          "unreadable": 0,
+          "not_visible": 0
+        },
+        "confidence": 0.98
+      },
+      "max_gross_kg_thousands": {
+        "type": "choice",
+        "choice": "0",
+        "probabilities": {
+          "0": 0.53,
+          "1": 0.02,
+          "2": 0.01,
+          "3": 0.39,
+          "4": 0.02,
+          "5": 0,
+          "6": 0.01,
+          "7": 0,
+          "8": 0,
+          "9": 0,
+          "none": 0.02,
+          "unreadable": 0,
+          "not_visible": 0
+        },
+        "confidence": 0.49
+      },
+      "max_gross_kg_ten_thousands": {
+        "type": "choice",
+        "choice": "3",
+        "probabilities": {
+          "0": 0.01,
+          "1": 0,
+          "2": 0.01,
+          "3": 0.98,
+          "4": 0,
+          "5": 0,
+          "6": 0,
+          "7": 0,
+          "8": 0,
+          "9": 0,
+          "none": 0,
+          "unreadable": 0,
+          "not_visible": 0
+        },
+        "confidence": 0.98
+      },
+      "max_gross_lb_units": {
+        "type": "choice",
+        "choice": "0",
+        "probabilities": {
+          "0": 1,
+          "1": 0,
+          "2": 0,
+          "3": 0,
+          "4": 0,
+          "5": 0,
+          "6": 0,
+          "7": 0,
+          "8": 0,
+          "9": 0,
+          "unreadable": 0,
+          "not_visible": 0
+        },
+        "confidence": 1
+      },
+      "max_gross_lb_tens": {
+        "type": "choice",
+        "choice": "0",
+        "probabilities": {
+          "0": 0.99,
+          "1": 0,
+          "2": 0.01,
+          "3": 0,
+          "4": 0,
+          "5": 0,
+          "6": 0,
+          "7": 0,
+          "8": 0,
+          "9": 0,
+          "none": 0,
+          "unreadable": 0,
+          "not_visible": 0
+        },
+        "confidence": 0.99
+      },
+      "max_gross_lb_hundreds": {
+        "type": "choice",
+        "choice": "2",
+        "probabilities": {
+          "0": 0.09,
+          "1": 0,
+          "2": 0.84,
+          "3": 0.01,
+          "4": 0.01,
+          "5": 0,
+          "6": 0.02,
+          "7": 0.03,
+          "8": 0,
+          "9": 0,
+          "none": 0,
+          "unreadable": 0,
+          "not_visible": 0
+        },
+        "confidence": 0.83
+      },
+      "max_gross_lb_thousands": {
+        "type": "choice",
+        "choice": "7",
+        "probabilities": {
+          "0": 0.02,
+          "1": 0.01,
+          "2": 0.02,
+          "3": 0.01,
+          "4": 0.01,
+          "5": 0,
+          "6": 0.1,
+          "7": 0.81,
+          "8": 0,
+          "9": 0,
+          "none": 0.02,
+          "unreadable": 0,
+          "not_visible": 0
+        },
+        "confidence": 0.79
+      },
+      "max_gross_lb_ten_thousands": {
+        "type": "choice",
+        "choice": "6",
+        "probabilities": {
+          "0": 0,
+          "1": 0,
+          "2": 0,
+          "3": 0,
+          "4": 0,
+          "5": 0,
+          "6": 0.97,
+          "7": 0.02,
+          "8": 0,
+          "9": 0,
+          "none": 0.01,
+          "unreadable": 0,
+          "not_visible": 0
+        },
+        "confidence": 0.97
+      },
+      "tare_kg_units": {
+        "type": "choice",
+        "choice": "0",
+        "probabilities": {
+          "0": 1,
+          "1": 0,
+          "2": 0,
+          "3": 0,
+          "4": 0,
+          "5": 0,
+          "6": 0,
+          "7": 0,
+          "8": 0,
+          "9": 0,
+          "unreadable": 0,
+          "not_visible": 0
+        },
+        "confidence": 1
+      },
+      "tare_kg_tens": {
+        "type": "choice",
+        "choice": "8",
+        "probabilities": {
+          "0": 0.02,
+          "1": 0.01,
+          "2": 0.01,
+          "3": 0,
+          "4": 0,
+          "5": 0,
+          "6": 0,
+          "7": 0,
+          "8": 0.96,
+          "9": 0,
+          "none": 0,
+          "unreadable": 0,
+          "not_visible": 0
+        },
+        "confidence": 0.96
+      },
+      "tare_kg_hundreds": {
+        "type": "choice",
+        "choice": "1",
+        "probabilities": {
+          "0": 0.02,
+          "1": 0.94,
+          "2": 0.03,
+          "3": 0,
+          "4": 0,
+          "5": 0,
+          "6": 0,
+          "7": 0,
+          "8": 0.01,
+          "9": 0,
+          "none": 0,
+          "unreadable": 0,
+          "not_visible": 0
+        },
+        "confidence": 0.94
+      },
+      "tare_kg_thousands": {
+        "type": "choice",
+        "choice": "2",
+        "probabilities": {
+          "0": 0,
+          "1": 0.03,
+          "2": 0.94,
+          "3": 0,
+          "4": 0,
+          "5": 0,
+          "6": 0,
+          "7": 0,
+          "8": 0,
+          "9": 0,
+          "none": 0.03,
+          "unreadable": 0,
+          "not_visible": 0
+        },
+        "confidence": 0.94
+      },
+      "tare_kg_ten_thousands": {
+        "type": "choice",
+        "choice": "none",
+        "probabilities": {
+          "0": 0.06,
+          "1": 0,
+          "2": 0.02,
+          "3": 0,
+          "4": 0,
+          "5": 0,
+          "6": 0,
+          "7": 0,
+          "8": 0,
+          "9": 0,
+          "none": 0.92,
+          "unreadable": 0,
+          "not_visible": 0
+        },
+        "confidence": 0.91
+      },
+      "tare_lb_units": {
+        "type": "choice",
+        "choice": "0",
+        "probabilities": {
+          "0": 0.99,
+          "1": 0.01,
+          "2": 0,
+          "3": 0,
+          "4": 0,
+          "5": 0,
+          "6": 0,
+          "7": 0,
+          "8": 0,
+          "9": 0,
+          "unreadable": 0,
+          "not_visible": 0
+        },
+        "confidence": 0.99
+      },
+      "tare_lb_tens": {
+        "type": "choice",
+        "choice": "1",
+        "probabilities": {
+          "0": 0.07,
+          "1": 0.93,
+          "2": 0,
+          "3": 0,
+          "4": 0,
+          "5": 0,
+          "6": 0,
+          "7": 0,
+          "8": 0,
+          "9": 0,
+          "none": 0,
+          "unreadable": 0,
+          "not_visible": 0
+        },
+        "confidence": 0.92
+      },
+      "tare_lb_hundreds": {
+        "type": "choice",
+        "choice": "8",
+        "probabilities": {
+          "0": 0.01,
+          "1": 0.03,
+          "2": 0,
+          "3": 0.01,
+          "4": 0.02,
+          "5": 0,
+          "6": 0,
+          "7": 0,
+          "8": 0.92,
+          "9": 0,
+          "none": 0.01,
+          "unreadable": 0,
+          "not_visible": 0
+        },
+        "confidence": 0.91
+      },
+      "tare_lb_thousands": {
+        "type": "choice",
+        "choice": "4",
+        "probabilities": {
+          "0": 0,
+          "1": 0,
+          "2": 0,
+          "3": 0,
+          "4": 0.95,
+          "5": 0,
+          "6": 0,
+          "7": 0,
+          "8": 0,
+          "9": 0,
+          "none": 0.05,
+          "unreadable": 0,
+          "not_visible": 0
+        },
+        "confidence": 0.95
+      },
+      "tare_lb_ten_thousands": {
+        "type": "choice",
+        "choice": "none",
+        "probabilities": {
+          "0": 0.05,
+          "1": 0,
+          "2": 0,
+          "3": 0,
+          "4": 0.13,
+          "5": 0,
+          "6": 0,
+          "7": 0,
+          "8": 0,
+          "9": 0,
+          "none": 0.82,
+          "unreadable": 0,
+          "not_visible": 0
+        },
+        "confidence": 0.8
+      },
+      "payload_kg_units": {
+        "type": "choice",
+        "choice": "0",
+        "probabilities": {
+          "0": 1,
+          "1": 0,
+          "2": 0,
+          "3": 0,
+          "4": 0,
+          "5": 0,
+          "6": 0,
+          "7": 0,
+          "8": 0,
+          "9": 0,
+          "unreadable": 0,
+          "not_visible": 0
+        },
+        "confidence": 1
+      },
+      "payload_kg_tens": {
+        "type": "choice",
+        "choice": "0",
+        "probabilities": {
+          "0": 0.98,
+          "1": 0,
+          "2": 0,
+          "3": 0.02,
+          "4": 0,
+          "5": 0,
+          "6": 0,
+          "7": 0,
+          "8": 0,
+          "9": 0,
+          "none": 0,
+          "unreadable": 0,
+          "not_visible": 0
+        },
+        "confidence": 0.98
+      },
+      "payload_kg_hundreds": {
+        "type": "choice",
+        "choice": "3",
+        "probabilities": {
+          "0": 0.03,
+          "1": 0,
+          "2": 0.01,
+          "3": 0.95,
+          "4": 0,
+          "5": 0,
+          "6": 0,
+          "7": 0,
+          "8": 0.01,
+          "9": 0,
+          "none": 0,
+          "unreadable": 0,
+          "not_visible": 0
+        },
+        "confidence": 0.95
+      },
+      "payload_kg_thousands": {
+        "type": "choice",
+        "choice": "2",
+        "probabilities": {
+          "0": 0.06,
+          "1": 0.03,
+          "2": 0.74,
+          "3": 0.08,
+          "4": 0.01,
+          "5": 0,
+          "6": 0,
+          "7": 0,
+          "8": 0.06,
+          "9": 0,
+          "none": 0.02,
+          "unreadable": 0,
+          "not_visible": 0
+        },
+        "confidence": 0.72
+      },
+      "payload_kg_ten_thousands": {
+        "type": "choice",
+        "choice": "2",
+        "probabilities": {
+          "0": 0.01,
+          "1": 0.01,
+          "2": 0.94,
+          "3": 0.02,
+          "4": 0,
+          "5": 0,
+          "6": 0,
+          "7": 0,
+          "8": 0,
+          "9": 0,
+          "none": 0.02,
+          "unreadable": 0,
+          "not_visible": 0
+        },
+        "confidence": 0.94
+      },
+      "payload_lb_units": {
+        "type": "choice",
+        "choice": "0",
+        "probabilities": {
+          "0": 1,
+          "1": 0,
+          "2": 0,
+          "3": 0,
+          "4": 0,
+          "5": 0,
+          "6": 0,
+          "7": 0,
+          "8": 0,
+          "9": 0,
+          "unreadable": 0,
+          "not_visible": 0
+        },
+        "confidence": 1
+      },
+      "payload_lb_tens": {
+        "type": "choice",
+        "choice": "9",
+        "probabilities": {
+          "0": 0.01,
+          "1": 0,
+          "2": 0,
+          "3": 0.01,
+          "4": 0,
+          "5": 0,
+          "6": 0,
+          "7": 0,
+          "8": 0,
+          "9": 0.98,
+          "none": 0,
+          "unreadable": 0,
+          "not_visible": 0
+        },
+        "confidence": 0.98
+      },
+      "payload_lb_hundreds": {
+        "type": "choice",
+        "choice": "3",
+        "probabilities": {
+          "0": 0.01,
+          "1": 0.01,
+          "2": 0.02,
+          "3": 0.9,
+          "4": 0.01,
+          "5": 0.02,
+          "6": 0.01,
+          "7": 0.01,
+          "8": 0,
+          "9": 0.01,
+          "none": 0,
+          "unreadable": 0,
+          "not_visible": 0
+        },
+        "confidence": 0.89
+      },
+      "payload_lb_thousands": {
+        "type": "choice",
+        "choice": "2",
+        "probabilities": {
+          "0": 0.01,
+          "1": 0.03,
+          "2": 0.68,
+          "3": 0.09,
+          "4": 0.01,
+          "5": 0.02,
+          "6": 0.14,
+          "7": 0.01,
+          "8": 0,
+          "9": 0,
+          "none": 0.01,
+          "unreadable": 0,
+          "not_visible": 0
+        },
+        "confidence": 0.65
+      },
+      "payload_lb_ten_thousands": {
+        "type": "choice",
+        "choice": "6",
+        "probabilities": {
+          "0": 0,
+          "1": 0,
+          "2": 0,
+          "3": 0,
+          "4": 0,
+          "5": 0.01,
+          "6": 0.98,
+          "7": 0,
+          "8": 0,
+          "9": 0,
+          "none": 0.01,
+          "unreadable": 0,
+          "not_visible": 0
+        },
+        "confidence": 0.98
+      }
+    },
+    "usage": {
+      "input_tokens": 16850,
+      "output_tokens": 3350,
+      "cost": 0.0007077
+    },
+    "id": "gen-dec-1793328775-QOMLXVtuY5A4Xpps7wDV",
+    "provider": "TypeSafe"
+  }
+}

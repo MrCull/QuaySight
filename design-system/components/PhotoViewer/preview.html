@@ -14,6 +14,11 @@ body{margin:0;background:var(--bg);min-height:100vh}
   <div class="qs-viewer" role="dialog" aria-modal="true" aria-label="Photo 2 of 3 · Long side" tabindex="-1">
     <!-- In the app this is <img class="qs-viewer__img" src="(the original photo)" alt="…">. -->
     <div class="qs-viewer__img stand-in" role="img" aria-label="Container photo 2: side.jpg"></div>
+    <div class="qs-viewer__tools">
+      <span class="qs-type-caption">Approximate focal area, not the full damage boundary</span>
+      <button type="button" class="qs-btn qs-btn--secondary qs-btn--sm" aria-pressed="false">Show original</button>
+      <button type="button" class="qs-btn qs-btn--secondary qs-btn--sm" aria-pressed="false">Zoom to highlight</button>
+    </div>
     <p class="qs-viewer__cap qs-type-caption">Photo 2 of 3 · Long side</p>
     <button type="button" class="qs-viewer__nav qs-viewer__nav--prev" aria-label="Previous photo"><i class="qs-glyph qs-glyph--chevron" aria-hidden="true"></i></button>
     <button type="button" class="qs-viewer__nav qs-viewer__nav--next" aria-label="Next photo"><i class="qs-glyph qs-glyph--chevron" aria-hidden="true"></i></button>

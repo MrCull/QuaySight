@@ -1,0 +1,428 @@
+{
+  "schemaVersion": 1,
+  "recordedAt": "2026-10-30T02:30:57.184Z",
+  "mode": "live",
+  "endpoint": "https://openrouter.ai/api/alpha/decisions",
+  "requestedModel": "typesafe/jev-1.14",
+  "repeats": 3,
+  "baselineCommit": "f23abdc",
+  "photos": [
+    {
+      "photo": "samples/side-dented-grey.jpg",
+      "sourceSha256": "87bd86f81a31b566e1ad13f7ebb91119c270e826af2c1cb628794f69d42b2fd1",
+      "preparedSha256": "1f03235b586f67307c49fa4305dd0a152383452aa4cd34c4c61d833e6989f5ba",
+      "originalSize": {
+        "width": 900,
+        "height": 600
+      },
+      "sentSize": {
+        "width": 900,
+        "height": 600
+      },
+      "preparation": "Existing preparePhoto/imageCodec: EXIF upright, full image, aspect-preserving fit, JPEG quality 0.9; no crop",
+      "transform": {
+        "crop": null,
+        "scaleX": 1,
+        "scaleY": 1
+      },
+      "preparedFile": "side-dented-grey.jpg"
+    },
+    {
+      "photo": "samples/rear-door-chsu-22g1.jpg",
+      "sourceSha256": "244cff48cc8089e27dfa71972542580ca44607efab9bb6f83d762f23b9e101f3",
+      "preparedSha256": "f9d535c861ffe8222ecadb739192e6da5ef3587a290647ff022f98e14e6802e6",
+      "originalSize": {
+        "width": 1312,
+        "height": 984
+      },
+      "sentSize": {
+        "width": 1312,
+        "height": 984
+      },
+      "preparation": "Existing preparePhoto/imageCodec: EXIF upright, full image, aspect-preserving fit, JPEG quality 0.9; no crop",
+      "transform": {
+        "crop": null,
+        "scaleX": 1,
+        "scaleY": 1
+      },
+      "preparedFile": "rear-door-chsu-22g1.jpg"
+    },
+    {
+      "photo": "samples/corner-torn-door-cai-20ft.jpg",
+      "sourceSha256": "b9aaf4b26c4fb4aac4b79e448ff4356e0b410cb403ca85cdb095b1e499fc7b01",
+      "preparedSha256": "bcf206e1e68258a9c7ec2ff89a8eee51a501fac24b15ff0ae63338d3b4a46407",
+      "originalSize": {
+        "width": 800,
+        "height": 600
+      },
+      "sentSize": {
+        "width": 800,
+        "height": 600
+      },
+      "preparation": "Existing preparePhoto/imageCodec: EXIF upright, full image, aspect-preserving fit, JPEG quality 0.9; no crop",
+      "transform": {
+        "crop": null,
+        "scaleX": 1,
+        "scaleY": 1
+      },
+      "preparedFile": "corner-torn-door-cai-20ft.jpg"
+    },
+    {
+      "photo": "samples/jdlu-200690-4-long-side.jpg",
+      "sourceSha256": "726cb0ef85ba05e218254008fc80e52290c8b126784fc3ddd757db3151767121",
+      "preparedSha256": "06c3a23477a398385783e08dcf703bdd447c03fec16a7b3805500c831613860d",
+      "originalSize": {
+        "width": 1080,
+        "height": 1440
+      },
+      "sentSize": {
+        "width": 1080,
+        "height": 1440
+      },
+      "preparation": "Existing preparePhoto/imageCodec: EXIF upright, full image, aspect-preserving fit, JPEG quality 0.9; no crop",
+      "transform": {
+        "crop": null,
+        "scaleX": 1,
+        "scaleY": 1
+      },
+      "preparedFile": "jdlu-200690-4-long-side.jpg"
+    },
+    {
+      "photo": "samples/rear-door-coyu-22g1.jpg",
+      "sourceSha256": "811d63187a171fd05c793c5aa684f05c5c6e8a1c96dce6fa2a3b5dccb379957d",
+      "preparedSha256": "db344c8eda1f7ae2f9e5e24989e2315fa331953ee32fba88bcbdc2d5923a2a45",
+      "originalSize": {
+        "width": 1079,
+        "height": 1080
+      },
+      "sentSize": {
+        "width": 1079,
+        "height": 1080
+      },
+      "preparation": "Existing preparePhoto/imageCodec: EXIF upright, full image, aspect-preserving fit, JPEG quality 0.9; no crop",
+      "transform": {
+        "crop": null,
+        "scaleX": 1,
+        "scaleY": 1
+      },
+      "preparedFile": "rear-door-coyu-22g1.jpg"
+    }
+  ],
+  "runs": [
+    {
+      "id": "side-dented-grey-brief-1",
+      "status": 200,
+      "latencyMs": 648,
+      "reportedCostUsd": 0.00007854,
+      "file": "side-dented-grey-brief-1.json"
+    },
+    {
+      "id": "side-dented-grey-brief-2",
+      "status": 200,
+      "latencyMs": 303,
+      "reportedCostUsd": 0.000078624,
+      "file": "side-dented-grey-brief-2.json"
+    },
+    {
+      "id": "side-dented-grey-brief-3",
+      "status": 200,
+      "latencyMs": 454,
+      "reportedCostUsd": 0.00007854,
+      "file": "side-dented-grey-brief-3.json"
+    },
+    {
+      "id": "side-dented-grey-shape-1",
+      "status": 200,
+      "latencyMs": 340,
+      "reportedCostUsd": 0.000080808,
+      "file": "side-dented-grey-shape-1.json"
+    },
+    {
+      "id": "side-dented-grey-shape-2",
+      "status": 200,
+      "latencyMs": 255,
+      "reportedCostUsd": 0.000080724,
+      "file": "side-dented-grey-shape-2.json"
+    },
+    {
+      "id": "side-dented-grey-shape-3",
+      "status": 200,
+      "latencyMs": 292,
+      "reportedCostUsd": 0.000080682,
+      "file": "side-dented-grey-shape-3.json"
+    },
+    {
+      "id": "side-dented-grey-specific-1",
+      "status": 200,
+      "latencyMs": 260,
+      "reportedCostUsd": 0.000081648,
+      "file": "side-dented-grey-specific-1.json"
+    },
+    {
+      "id": "side-dented-grey-specific-2",
+      "status": 200,
+      "latencyMs": 262,
+      "reportedCostUsd": 0.000081816,
+      "file": "side-dented-grey-specific-2.json"
+    },
+    {
+      "id": "side-dented-grey-specific-3",
+      "status": 200,
+      "latencyMs": 272,
+      "reportedCostUsd": 0.000081606,
+      "file": "side-dented-grey-specific-3.json"
+    },
+    {
+      "id": "rear-door-chsu-22g1-brief-1",
+      "status": 200,
+      "latencyMs": 543,
+      "reportedCostUsd": 0.000159936,
+      "file": "rear-door-chsu-22g1-brief-1.json"
+    },
+    {
+      "id": "rear-door-chsu-22g1-brief-2",
+      "status": 200,
+      "latencyMs": 577,
+      "reportedCostUsd": 0.000159684,
+      "file": "rear-door-chsu-22g1-brief-2.json"
+    },
+    {
+      "id": "rear-door-chsu-22g1-brief-3",
+      "status": 200,
+      "latencyMs": 616,
+      "reportedCostUsd": 0.00015981,
+      "file": "rear-door-chsu-22g1-brief-3.json"
+    },
+    {
+      "id": "rear-door-chsu-22g1-shape-1",
+      "status": 200,
+      "latencyMs": 514,
+      "reportedCostUsd": 0.000162078,
+      "file": "rear-door-chsu-22g1-shape-1.json"
+    },
+    {
+      "id": "rear-door-chsu-22g1-shape-2",
+      "status": 200,
+      "latencyMs": 596,
+      "reportedCostUsd": 0.000161994,
+      "file": "rear-door-chsu-22g1-shape-2.json"
+    },
+    {
+      "id": "rear-door-chsu-22g1-shape-3",
+      "status": 200,
+      "latencyMs": 619,
+      "reportedCostUsd": 0.000162036,
+      "file": "rear-door-chsu-22g1-shape-3.json"
+    },
+    {
+      "id": "rear-door-chsu-22g1-specific-1",
+      "status": 200,
+      "latencyMs": 601,
+      "reportedCostUsd": 0.000163128,
+      "file": "rear-door-chsu-22g1-specific-1.json"
+    },
+    {
+      "id": "rear-door-chsu-22g1-specific-2",
+      "status": 200,
+      "latencyMs": 719,
+      "reportedCostUsd": 0.000163044,
+      "file": "rear-door-chsu-22g1-specific-2.json"
+    },
+    {
+      "id": "rear-door-chsu-22g1-specific-3",
+      "status": 200,
+      "latencyMs": 433,
+      "reportedCostUsd": 0.000163002,
+      "file": "rear-door-chsu-22g1-specific-3.json"
+    },
+    {
+      "id": "corner-torn-door-cai-20ft-brief-1",
+      "status": 200,
+      "latencyMs": 262,
+      "reportedCostUsd": 0.000070518,
+      "file": "corner-torn-door-cai-20ft-brief-1.json"
+    },
+    {
+      "id": "corner-torn-door-cai-20ft-brief-2",
+      "status": 200,
+      "latencyMs": 266,
+      "reportedCostUsd": 0.000070644,
+      "file": "corner-torn-door-cai-20ft-brief-2.json"
+    },
+    {
+      "id": "corner-torn-door-cai-20ft-brief-3",
+      "status": 200,
+      "latencyMs": 247,
+      "reportedCostUsd": 0.000070392,
+      "file": "corner-torn-door-cai-20ft-brief-3.json"
+    },
+    {
+      "id": "corner-torn-door-cai-20ft-shape-1",
+      "status": 200,
+      "latencyMs": 314,
+      "reportedCostUsd": 0.00007266,
+      "file": "corner-torn-door-cai-20ft-shape-1.json"
+    },
+    {
+      "id": "corner-torn-door-cai-20ft-shape-2",
+      "status": 200,
+      "latencyMs": 299,
+      "reportedCostUsd": 0.000072744,
+      "file": "corner-torn-door-cai-20ft-shape-2.json"
+    },
+    {
+      "id": "corner-torn-door-cai-20ft-shape-3",
+      "status": 200,
+      "latencyMs": 286,
+      "reportedCostUsd": 0.000072786,
+      "file": "corner-torn-door-cai-20ft-shape-3.json"
+    },
+    {
+      "id": "corner-torn-door-cai-20ft-specific-1",
+      "status": 200,
+      "latencyMs": 297,
+      "reportedCostUsd": 0.000073836,
+      "file": "corner-torn-door-cai-20ft-specific-1.json"
+    },
+    {
+      "id": "corner-torn-door-cai-20ft-specific-2",
+      "status": 200,
+      "latencyMs": 265,
+      "reportedCostUsd": 0.00007371,
+      "file": "corner-torn-door-cai-20ft-specific-2.json"
+    },
+    {
+      "id": "corner-torn-door-cai-20ft-specific-3",
+      "status": 200,
+      "latencyMs": 243,
+      "reportedCostUsd": 0.000073668,
+      "file": "corner-torn-door-cai-20ft-specific-3.json"
+    },
+    {
+      "id": "jdlu-200690-4-long-side-brief-1",
+      "status": 200,
+      "latencyMs": 423,
+      "reportedCostUsd": 0.000187908,
+      "file": "jdlu-200690-4-long-side-brief-1.json"
+    },
+    {
+      "id": "jdlu-200690-4-long-side-brief-2",
+      "status": 200,
+      "latencyMs": 430,
+      "reportedCostUsd": 0.000187824,
+      "file": "jdlu-200690-4-long-side-brief-2.json"
+    },
+    {
+      "id": "jdlu-200690-4-long-side-brief-3",
+      "status": 200,
+      "latencyMs": 365,
+      "reportedCostUsd": 0.000187866,
+      "file": "jdlu-200690-4-long-side-brief-3.json"
+    },
+    {
+      "id": "jdlu-200690-4-long-side-shape-1",
+      "status": 200,
+      "latencyMs": 324,
+      "reportedCostUsd": 0.000189924,
+      "file": "jdlu-200690-4-long-side-shape-1.json"
+    },
+    {
+      "id": "jdlu-200690-4-long-side-shape-2",
+      "status": 200,
+      "latencyMs": 408,
+      "reportedCostUsd": 0.000190218,
+      "file": "jdlu-200690-4-long-side-shape-2.json"
+    },
+    {
+      "id": "jdlu-200690-4-long-side-shape-3",
+      "status": 200,
+      "latencyMs": 312,
+      "reportedCostUsd": 0.000190008,
+      "file": "jdlu-200690-4-long-side-shape-3.json"
+    },
+    {
+      "id": "jdlu-200690-4-long-side-specific-1",
+      "status": 200,
+      "latencyMs": 308,
+      "reportedCostUsd": 0.000191184,
+      "file": "jdlu-200690-4-long-side-specific-1.json"
+    },
+    {
+      "id": "jdlu-200690-4-long-side-specific-2",
+      "status": 200,
+      "latencyMs": 308,
+      "reportedCostUsd": 0.000191184,
+      "file": "jdlu-200690-4-long-side-specific-2.json"
+    },
+    {
+      "id": "jdlu-200690-4-long-side-specific-3",
+      "status": 200,
+      "latencyMs": 296,
+      "reportedCostUsd": 0.0001911,
+      "file": "jdlu-200690-4-long-side-specific-3.json"
+    },
+    {
+      "id": "rear-door-coyu-22g1-brief-1",
+      "status": 200,
+      "latencyMs": 323,
+      "reportedCostUsd": 0.000145488,
+      "file": "rear-door-coyu-22g1-brief-1.json"
+    },
+    {
+      "id": "rear-door-coyu-22g1-brief-2",
+      "status": 200,
+      "latencyMs": 436,
+      "reportedCostUsd": 0.000145572,
+      "file": "rear-door-coyu-22g1-brief-2.json"
+    },
+    {
+      "id": "rear-door-coyu-22g1-brief-3",
+      "status": 200,
+      "latencyMs": 375,
+      "reportedCostUsd": 0.000145362,
+      "file": "rear-door-coyu-22g1-brief-3.json"
+    },
+    {
+      "id": "rear-door-coyu-22g1-shape-1",
+      "status": 200,
+      "latencyMs": 321,
+      "reportedCostUsd": 0.000147714,
+      "file": "rear-door-coyu-22g1-shape-1.json"
+    },
+    {
+      "id": "rear-door-coyu-22g1-shape-2",
+      "status": 200,
+      "latencyMs": 398,
+      "reportedCostUsd": 0.000147672,
+      "file": "rear-door-coyu-22g1-shape-2.json"
+    },
+    {
+      "id": "rear-door-coyu-22g1-shape-3",
+      "status": 200,
+      "latencyMs": 383,
+      "reportedCostUsd": 0.000147756,
+      "file": "rear-door-coyu-22g1-shape-3.json"
+    },
+    {
+      "id": "rear-door-coyu-22g1-specific-1",
+      "status": 200,
+      "latencyMs": 309,
+      "reportedCostUsd": 0.000148638,
+      "file": "rear-door-coyu-22g1-specific-1.json"
+    },
+    {
+      "id": "rear-door-coyu-22g1-specific-2",
+      "status": 200,
+      "latencyMs": 302,
+      "reportedCostUsd": 0.00014889,
+      "file": "rear-door-coyu-22g1-specific-2.json"
+    },
+    {
+      "id": "rear-door-coyu-22g1-specific-3",
+      "status": 200,
+      "latencyMs": 317,
+      "reportedCostUsd": 0.000148722,
+      "file": "rear-door-coyu-22g1-specific-3.json"
+    }
+  ]
+}

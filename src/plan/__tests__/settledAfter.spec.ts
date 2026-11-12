@@ -53,6 +53,32 @@ async function run(requests: PlanRequest[]): Promise<string[]> {
 }
 
 describe('a request that waits for another to settle (settledAfter)', () => {
+  it('cancels a deferred request without waiting for another photo or charging it', async () => {
+    let charges = 0
+    const outcomes: string[] = []
+    const plan = runPlan({
+      requests: [request('optional', 'a', { deferred: true })],
+      route: liveRoute('openrouter', '~typesafe/jev-latest'),
+      apiKey: 'k',
+      photo: new Blob(),
+      inspectionId: 'i',
+      beforeDeferred: new Promise<void>(() => {}),
+      charge: async (r) => {
+        charges++
+        return charge(r)
+      },
+      onState: () => {},
+      onSettled: (s) => outcomes.push(s.outcome.status),
+    })
+    await Promise.resolve()
+    plan.cancel()
+    await Promise.race([
+      plan.done,
+      new Promise((_, reject) => setTimeout(() => reject(new Error('Cancellation hung')), 200)),
+    ])
+    expect(charges).toBe(0)
+    expect(outcomes).toEqual(['cancelled'])
+  })
   it('starts after it answers, and reads its answer', async () => {
     const first = request('first', 'a')
     let seen: unknown

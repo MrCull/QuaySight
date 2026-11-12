@@ -8,6 +8,8 @@ import { useInspectionStore } from '../../stores/inspection'
 import { useLedgerStore } from '../../stores/ledger'
 import { recordRun, parsePlanRecording } from '../recording'
 import { replayRecording } from '../replay'
+import { combinePhotoRuns } from '../../domain/combinePhotos'
+import { buildInspectionExport } from '../../domain/exports'
 import {
   weightChoices,
   COYU_WEIGHTS,
@@ -163,6 +165,131 @@ describe('replaying a recorded run of the whole plan', () => {
     ] as const) {
       expect({ [key]: replayed[key] }).toEqual({ [key]: live[key] })
     }
+  })
+
+  it('keeps same-type damage in different door regions separate across replayed photos', async () => {
+    const { recording } = await liveRun('openrouter')
+    const other = parsePlanRecording(JSON.parse(JSON.stringify(recording)))
+    const door = other.entries.find((e) => e.request === 'door-damage')!
+    const response = door.response as ReturnType<typeof doorReply>
+    response.answers.D1T_DT = response.answers.D2B_DT
+    response.answers.D1T_severity = response.answers.D2B_severity
+    delete response.answers.D2B_DT
+    delete response.answers.D2B_severity
+    const combined = combinePhotoRuns(
+      [recording, other].map((r, i) => ({
+        index: i + 1,
+        name: `doors-${i + 1}.jpg`,
+        record: replayRecording(r, {
+          id: `photo-${i + 1}`,
+          photo: { ...PHOTO, name: `doors-${i + 1}.jpg` },
+        }),
+      })),
+      { id: 'combined' },
+    )
+
+    expect(combined.damage?.findings.map((f) => [f.location, f.photos])).toEqual([
+      ['Photo-right door leaf, bottom third', [1]],
+      ['Photo-left door leaf, top third', [2]],
+    ])
+  })
+
+  it('retains separate source observations and their evidence under a combined finding', async () => {
+    const { recording } = await liveRun('openrouter')
+    const combined = combinePhotoRuns(
+      [1, 2].map((index) => ({
+        index,
+        name: `doors-${index}.jpg`,
+        record: replayRecording(recording, {
+          id: `photo-${index}`,
+          photo: { ...PHOTO, name: `doors-${index}.jpg` },
+        }),
+      })),
+      { id: 'combined' },
+    )
+    const finding = combined.damage!.findings[0]!
+    expect(finding.observations).toMatchObject([
+      {
+        findingId: 1,
+        photo: { index: 1, name: 'doors-1.jpg' },
+        evidence: {
+          location: 'Photo-right door leaf, bottom third',
+          severity: 'minor',
+          types: [{ code: 'DT', probability: 0.9 }],
+        },
+      },
+      {
+        findingId: 1,
+        photo: { index: 2, name: 'doors-2.jpg' },
+        evidence: {
+          location: 'Photo-right door leaf, bottom third',
+          severity: 'minor',
+          types: [{ code: 'DT', probability: 0.9 }],
+        },
+      },
+    ])
+    expect(new Set(finding.observations!.map((o) => o.id)).size).toBe(2)
+    expect(buildInspectionExport(combined).damage.findings[0]?.observations).toEqual(
+      finding.observations,
+    )
+    const reordered = combinePhotoRuns(
+      [2, 1].map((index) => ({
+        index,
+        name: `doors-${index}.jpg`,
+        record: replayRecording(recording, {
+          id: `another-run-${index}`,
+          photo: { ...PHOTO, name: `doors-${index}.jpg` },
+        }),
+      })),
+      { id: 'another-combination' },
+    )
+    expect(reordered.damage!.findings[0]!.observations!.map((o) => o.id).sort()).toEqual(
+      finding.observations!.map((o) => o.id).sort(),
+    )
+  })
+
+  it('leaves unavailable legacy provenance unlocated in replay and export', async () => {
+    const { recording } = await liveRun('openrouter')
+    const replayed = replayRecording(recording, { id: 'legacy', photo: null })
+    expect(replayed.damage!.findings[0]!.observations?.[0]?.photo).toBeNull()
+    const legacy = JSON.parse(JSON.stringify(replayed)) as typeof replayed
+    for (const finding of legacy.damage!.findings) delete finding.observations
+    const exported = buildInspectionExport(legacy).damage.findings[0]!
+    expect(exported.observations).toBeUndefined()
+    expect(exported.photo).toBeNull()
+    expect(exported.region.zone).toEqual(legacy.damage!.findings[0]!.zone)
+    expect(JSON.parse(JSON.stringify(exported))).not.toHaveProperty('observations')
+  })
+
+  it('preserves photo evidence for an observation whose container face cannot be placed', async () => {
+    const { recording } = await liveRun('openrouter')
+    const known = replayRecording(recording, { id: 'known', photo: PHOTO })
+    const unknown = replayRecording(recording, {
+      id: 'unknown',
+      photo: { ...PHOTO, name: 'obscured.jpg' },
+    })
+    // A legacy recording can contain damage answers even when its survey could not place the face.
+    unknown.photoFace = { face: 'unknown', certainty: "Can't tell", probability: 0.2 }
+    unknown.damage = {
+      source: 'recorded',
+      photos: [],
+      findings: [],
+      notAssessed: { reason: 'Unknown face' },
+    }
+    const combined = combinePhotoRuns(
+      [
+        { index: 1, name: PHOTO.name, record: known },
+        { index: 2, name: 'obscured.jpg', record: unknown },
+      ],
+      { id: 'combined' },
+    )
+    expect(combined.damage!.unplaced?.[0]?.observations).toMatchObject([
+      {
+        findingId: 2,
+        photo: { index: 2, name: 'obscured.jpg' },
+        evidence: { location: 'Photo-right door leaf, bottom third' },
+      },
+    ])
   })
 
   it('is a recorded demonstration: no live source, saved bodies kept, complete', async () => {

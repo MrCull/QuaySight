@@ -165,6 +165,7 @@ describe('ProviderSelect (the form in the setup card and the settings drawer)', 
     store.setApiKey(KEY)
     await wrapper.vm.$nextTick()
     expect(wrapper.text()).not.toMatch(/replay|recorded sample/i)
-    expect(wrapper.find('input[type="checkbox"]').exists()).toBe(false)
+    expect(wrapper.get('input[type="checkbox"]').element).toHaveProperty('checked', true)
+    expect(wrapper.text()).toContain('Experimental damage highlights')
   })
 })

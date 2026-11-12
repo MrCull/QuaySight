@@ -8,6 +8,7 @@
 // - Every face that has a photo is photographed; only faces with no photo stay Not seen.
 // - Cards are numbered 1.. in the order sortFindings gives (certainty, then severity); unplaced ones follow.
 import { agree } from './combineReadings'
+import { observeDamage } from './damageObservation'
 import {
   sortFindings,
   type DamageAssessment,
@@ -74,6 +75,12 @@ function sectionsIntersect(a: number[] | null, b: number[] | null): boolean {
 }
 
 function sameDamage(a: Placed, b: Placed): boolean {
+  // Door regions carry detail that a shared component and damage type cannot replace.
+  if (a.finding.face === 'rear') {
+    const x = a.finding.zone
+    const y = b.finding.zone
+    if (!x || !y || x.u0 !== y.u0 || x.u1 !== y.u1 || x.v0 !== y.v0 || x.v1 !== y.v1) return false
+  }
   return (
     a.finding.face === b.finding.face &&
     a.finding.component === b.finding.component &&
@@ -97,6 +104,11 @@ function merge(group: Placed[]): DamageFinding {
     ...best.finding,
     certainty,
     photos: [...new Set(group.map((g) => g.photo))].sort((a, b) => a - b),
+    ...(group.some((g) => g.finding.observations)
+      ? {
+          observations: group.flatMap((g) => g.finding.observations ?? []),
+        }
+      : {}),
   }
 }
 
@@ -117,7 +129,18 @@ export function combineDamage(runs: readonly DamageRun[]): {
     const damage = assessedDamage(run)!
     const scheme = sectionScheme(damage)
     return damage.findings.map((finding) => ({
-      finding,
+      finding: {
+        ...finding,
+        ...(finding.observations
+          ? {
+              observations: finding.observations.map((o) => ({
+                ...o,
+                id: `photo-${run.index}:${o.id}`,
+                photo: { name: run.name, index: run.index },
+              })),
+            }
+          : {}),
+      },
       photo: run.index,
       sections:
         scheme && finding.zone && (finding.face === 'left' || finding.face === 'right')
@@ -131,7 +154,13 @@ export function combineDamage(runs: readonly DamageRun[]): {
     if (group) group.push(p)
     else groups.push([p])
   }
-  const merged = sortFindings(groups.map(merge)).map((f, i) => ({ ...f, id: i + 1 }))
+  const merged = sortFindings(groups.map(merge)).map((f, i) => ({
+    ...f,
+    id: i + 1,
+    ...(f.observations
+      ? { observations: f.observations.map((o) => ({ ...o, findingId: i + 1 })) }
+      : {}),
+  }))
 
   // Photos whose face could not be identified: their findings are listed but not drawn.
   const unidentified = kept.filter((r) => {
@@ -142,9 +171,23 @@ export function combineDamage(runs: readonly DamageRun[]): {
     .flatMap((run) =>
       (run.record.damageReadings ?? [])
         .filter((reading) => reading.inspectable)
-        .flatMap((reading) => reading.findings.map((f) => ({ ...f, photos: [run.index] }))),
+        .flatMap((reading) =>
+          reading.findings.map((f) => ({
+            ...observeDamage(
+              f,
+              reading.face,
+              { name: run.name, index: run.index },
+              reading.passId ?? null,
+            ),
+            photos: [run.index],
+          })),
+        ),
     )
-    .map((f, i) => ({ ...f, id: merged.length + i + 1 }))
+    .map((f, i) => ({
+      ...f,
+      id: merged.length + i + 1,
+      observations: f.observations?.map((o) => ({ ...o, findingId: merged.length + i + 1 })),
+    }))
 
   const from: Record<number, number[]> = {}
   for (const f of [...merged, ...unplaced]) {

@@ -1,0 +1,173 @@
+{
+  "id": "rear-door-chsu-22g1-1-native",
+  "photo": "rear-door-chsu-22g1.jpg",
+  "repeat": 1,
+  "kind": "native",
+  "imageFile": "rear-door-chsu-22g1-prepared.jpg",
+  "request": {
+    "model": "typesafe/jev-1.14",
+    "state": [
+      "Inspect only visible freight container markings. Presence and geometry are separate.",
+      {
+        "imageFile": "rear-door-chsu-22g1-prepared.jpg"
+      }
+    ],
+    "questions": {
+      "id_present": {
+        "type": "noul",
+        "instructions": "Is the complete printed container identification: all four owner letters, six serial digits and the boxed check digit visible?"
+      },
+      "id_box": {
+        "type": "box",
+        "instructions": "Locate the complete printed container identification: all four owner letters, six serial digits and the boxed check digit. Include its entire extent."
+      },
+      "iso_present": {
+        "type": "noul",
+        "instructions": "Is the complete four-character printed ISO size/type code visible?"
+      },
+      "iso_box": {
+        "type": "box",
+        "instructions": "Locate the complete four-character printed ISO size/type code. Include its entire extent."
+      },
+      "weights_present": {
+        "type": "noul",
+        "instructions": "Is the complete printed weights panel including maximum gross, tare and payload figures and units visible?"
+      },
+      "weights_box": {
+        "type": "box",
+        "instructions": "Locate the complete printed weights panel including maximum gross, tare and payload figures and units. Include its entire extent."
+      },
+      "seal_present": {
+        "type": "noul",
+        "instructions": "Is the complete tamper-evident seal device and its printed number visible?"
+      },
+      "seal_box": {
+        "type": "box",
+        "instructions": "Locate the complete tamper-evident seal device and its printed number. Include its entire extent."
+      },
+      "hazard_present": {
+        "type": "noul",
+        "instructions": "Is the first actual diamond-shaped dangerous-goods placard, counting from top left; exclude residue or removed labels visible?"
+      },
+      "hazard_box": {
+        "type": "box",
+        "instructions": "Locate the first actual diamond-shaped dangerous-goods placard, counting from top left; exclude residue or removed labels. Include its entire extent."
+      },
+      "doorEnd_present": {
+        "type": "noul",
+        "instructions": "Is the complete container door end from corner post to corner post, including both door leaves visible?"
+      },
+      "doorEnd_box": {
+        "type": "box",
+        "instructions": "Locate the complete container door end from corner post to corner post, including both door leaves. Include its entire extent."
+      }
+    }
+  },
+  "status": 200,
+  "failure": null,
+  "latencyMs": 804,
+  "requestedModel": "typesafe/jev-1.14",
+  "resolvedModel": "typesafe/jev-1.14-20261014",
+  "usage": {
+    "input_tokens": 4030,
+    "output_tokens": 214,
+    "cost": 0.00016926
+  },
+  "reportedCostUsd": 0.00016926,
+  "response": {
+    "model": "typesafe/jev-1.14-20261014",
+    "answers": {
+      "id_present": {
+        "type": "noul",
+        "noul": 0.93
+      },
+      "id_box": {
+        "type": "box",
+        "box": {
+          "top": 0.21,
+          "bottom": 0.28,
+          "left": 0.58,
+          "right": 0.76
+        },
+        "confidence": 0.98
+      },
+      "iso_present": {
+        "type": "noul",
+        "noul": 0.89
+      },
+      "iso_box": {
+        "type": "box",
+        "box": {
+          "top": 0.25,
+          "bottom": 0.3,
+          "left": 0.63,
+          "right": 0.7
+        },
+        "confidence": 0.94
+      },
+      "weights_present": {
+        "type": "noul",
+        "noul": 0.98
+      },
+      "weights_box": {
+        "type": "box",
+        "box": {
+          "top": 0.35,
+          "bottom": 0.45,
+          "left": 0.55,
+          "right": 0.74
+        },
+        "confidence": 0.95
+      },
+      "seal_present": {
+        "type": "noul",
+        "noul": 0.09
+      },
+      "seal_box": {
+        "type": "box",
+        "box": {
+          "top": 0.56,
+          "bottom": 0.6,
+          "left": 0.33,
+          "right": 0.37
+        },
+        "confidence": 0.13
+      },
+      "hazard_present": {
+        "type": "noul",
+        "noul": 0.16
+      },
+      "hazard_box": {
+        "type": "box",
+        "box": {
+          "top": 0.44,
+          "bottom": 0.46,
+          "left": 0.29,
+          "right": 0.37
+        },
+        "confidence": 0.05
+      },
+      "doorEnd_present": {
+        "type": "noul",
+        "noul": 0.87
+      },
+      "doorEnd_box": {
+        "type": "box",
+        "box": {
+          "top": 0.12,
+          "bottom": 0.89,
+          "left": 0.22,
+          "right": 0.78
+        },
+        "confidence": 0.68
+      }
+    },
+    "usage": {
+      "input_tokens": 4030,
+      "output_tokens": 214,
+      "cost": 0.00016926
+    },
+    "id": "gen-dec-1793328793-QSERVGno3ZQZAtATm0Zy",
+    "provider": "TypeSafe"
+  }
+}

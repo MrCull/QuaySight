@@ -1,0 +1,920 @@
+{
+  "schemaVersion": 1,
+  "recordedAt": "2026-10-30T02:52:35.771Z",
+  "mode": "live",
+  "endpoint": "https://openrouter.ai/api/alpha/decisions",
+  "requestedModel": "typesafe/jev-1.14",
+  "repeats": 3,
+  "baselineCommit": "46ab4f6",
+  "selection": "Baseline specific-1 raw rectangle, fixed before crop calls; includes low-confidence ambiguous JDLU control; no damage truth implied",
+  "photos": [
+    {
+      "photo": "samples/side-dented-grey.jpg",
+      "condition": "full",
+      "margin": null,
+      "seedRun": "side-dented-grey-specific-1",
+      "seedBox": {
+        "type": "box",
+        "box": {
+          "top": 0.52,
+          "bottom": 0.58,
+          "left": 0.31,
+          "right": 0.46
+        },
+        "confidence": 0.67
+      },
+      "sourceSha256": "87bd86f81a31b566e1ad13f7ebb91119c270e826af2c1cb628794f69d42b2fd1",
+      "preparedSha256": "1f03235b586f67307c49fa4305dd0a152383452aa4cd34c4c61d833e6989f5ba",
+      "originalSize": {
+        "width": 900,
+        "height": 600
+      },
+      "sentSize": {
+        "width": 900,
+        "height": 600
+      },
+      "preparation": "Existing imageCodec upright decode; full preparePhoto or cropPhoto directly on original bytes; aspect-preserving output, JPEG quality 0.9",
+      "transform": {
+        "crop": null,
+        "scaleX": 1,
+        "scaleY": 1
+      },
+      "preparedFile": "full-side-dented-grey.jpg"
+    },
+    {
+      "photo": "samples/side-dented-grey.jpg",
+      "condition": "raw",
+      "margin": 0,
+      "seedRun": "side-dented-grey-specific-1",
+      "seedBox": {
+        "type": "box",
+        "box": {
+          "top": 0.52,
+          "bottom": 0.58,
+          "left": 0.31,
+          "right": 0.46
+        },
+        "confidence": 0.67
+      },
+      "sourceSha256": "87bd86f81a31b566e1ad13f7ebb91119c270e826af2c1cb628794f69d42b2fd1",
+      "preparedSha256": "7f73b720809f8bf9764a6a82b2a3bfae8110d50816f1386d15bb557fe6e709ad",
+      "originalSize": {
+        "width": 900,
+        "height": 600
+      },
+      "sentSize": {
+        "width": 1568,
+        "height": 418
+      },
+      "preparation": "Existing imageCodec upright decode; full preparePhoto or cropPhoto directly on original bytes; aspect-preserving output, JPEG quality 0.9",
+      "transform": {
+        "crop": {
+          "x": 279,
+          "y": 312,
+          "width": 135,
+          "height": 36,
+          "outWidth": 1568,
+          "outHeight": 418
+        },
+        "scaleX": 11.614814814814816,
+        "scaleY": 11.61111111111111
+      },
+      "preparedFile": "raw-side-dented-grey.jpg"
+    },
+    {
+      "photo": "samples/side-dented-grey.jpg",
+      "condition": "padded",
+      "margin": 0.35,
+      "seedRun": "side-dented-grey-specific-1",
+      "seedBox": {
+        "type": "box",
+        "box": {
+          "top": 0.52,
+          "bottom": 0.58,
+          "left": 0.31,
+          "right": 0.46
+        },
+        "confidence": 0.67
+      },
+      "sourceSha256": "87bd86f81a31b566e1ad13f7ebb91119c270e826af2c1cb628794f69d42b2fd1",
+      "preparedSha256": "5a0345d5492fd3373c9ac7d54cf5ba71c478f68e16e1a53d330ad3b70dc8e295",
+      "originalSize": {
+        "width": 900,
+        "height": 600
+      },
+      "sentSize": {
+        "width": 1568,
+        "height": 896
+      },
+      "preparation": "Existing imageCodec upright decode; full preparePhoto or cropPhoto directly on original bytes; aspect-preserving output, JPEG quality 0.9",
+      "transform": {
+        "crop": {
+          "x": 231,
+          "y": 264,
+          "width": 231,
+          "height": 132,
+          "outWidth": 1568,
+          "outHeight": 896
+        },
+        "scaleX": 6.787878787878788,
+        "scaleY": 6.787878787878788
+      },
+      "preparedFile": "padded-side-dented-grey.jpg"
+    },
+    {
+      "photo": "samples/corner-torn-door-cai-20ft.jpg",
+      "condition": "full",
+      "margin": null,
+      "seedRun": "corner-torn-door-cai-20ft-specific-1",
+      "seedBox": {
+        "type": "box",
+        "box": {
+          "top": 0.52,
+          "bottom": 0.87,
+          "left": 0.28,
+          "right": 0.47
+        },
+        "confidence": 0.61
+      },
+      "sourceSha256": "b9aaf4b26c4fb4aac4b79e448ff4356e0b410cb403ca85cdb095b1e499fc7b01",
+      "preparedSha256": "bcf206e1e68258a9c7ec2ff89a8eee51a501fac24b15ff0ae63338d3b4a46407",
+      "originalSize": {
+        "width": 800,
+        "height": 600
+      },
+      "sentSize": {
+        "width": 800,
+        "height": 600
+      },
+      "preparation": "Existing imageCodec upright decode; full preparePhoto or cropPhoto directly on original bytes; aspect-preserving output, JPEG quality 0.9",
+      "transform": {
+        "crop": null,
+        "scaleX": 1,
+        "scaleY": 1
+      },
+      "preparedFile": "full-corner-torn-door-cai-20ft.jpg"
+    },
+    {
+      "photo": "samples/corner-torn-door-cai-20ft.jpg",
+      "condition": "raw",
+      "margin": 0,
+      "seedRun": "corner-torn-door-cai-20ft-specific-1",
+      "seedBox": {
+        "type": "box",
+        "box": {
+          "top": 0.52,
+          "bottom": 0.87,
+          "left": 0.28,
+          "right": 0.47
+        },
+        "confidence": 0.61
+      },
+      "sourceSha256": "b9aaf4b26c4fb4aac4b79e448ff4356e0b410cb403ca85cdb095b1e499fc7b01",
+      "preparedSha256": "e336024168c7a7b565853fd9b4b1055d59b5de8f68a368dc2600e83f1e784c03",
+      "originalSize": {
+        "width": 800,
+        "height": 600
+      },
+      "sentSize": {
+        "width": 1134,
+        "height": 1568
+      },
+      "preparation": "Existing imageCodec upright decode; full preparePhoto or cropPhoto directly on original bytes; aspect-preserving output, JPEG quality 0.9",
+      "transform": {
+        "crop": {
+          "x": 224,
+          "y": 312,
+          "width": 152,
+          "height": 210,
+          "outWidth": 1134,
+          "outHeight": 1568
+        },
+        "scaleX": 7.4605263157894735,
+        "scaleY": 7.466666666666667
+      },
+      "preparedFile": "raw-corner-torn-door-cai-20ft.jpg"
+    },
+    {
+      "photo": "samples/corner-torn-door-cai-20ft.jpg",
+      "condition": "padded",
+      "margin": 0.35,
+      "seedRun": "corner-torn-door-cai-20ft-specific-1",
+      "seedBox": {
+        "type": "box",
+        "box": {
+          "top": 0.52,
+          "bottom": 0.87,
+          "left": 0.28,
+          "right": 0.47
+        },
+        "confidence": 0.61
+      },
+      "sourceSha256": "b9aaf4b26c4fb4aac4b79e448ff4356e0b410cb403ca85cdb095b1e499fc7b01",
+      "preparedSha256": "c266107039bcd984a879dcb7f56070df04fbd6781d94919e2130d3f347d64535",
+      "originalSize": {
+        "width": 800,
+        "height": 600
+      },
+      "sentSize": {
+        "width": 1313,
+        "height": 1568
+      },
+      "preparation": "Existing imageCodec upright decode; full preparePhoto or cropPhoto directly on original bytes; aspect-preserving output, JPEG quality 0.9",
+      "transform": {
+        "crop": {
+          "x": 150,
+          "y": 238,
+          "width": 300,
+          "height": 358,
+          "outWidth": 1313,
+          "outHeight": 1568
+        },
+        "scaleX": 4.376666666666667,
+        "scaleY": 4.379888268156424
+      },
+      "preparedFile": "padded-corner-torn-door-cai-20ft.jpg"
+    },
+    {
+      "photo": "samples/jdlu-200690-4-long-side.jpg",
+      "condition": "full",
+      "margin": null,
+      "seedRun": "jdlu-200690-4-long-side-specific-1",
+      "seedBox": {
+        "type": "box",
+        "box": {
+          "top": 0.45,
+          "bottom": 0.75,
+          "left": 0.65,
+          "right": 0.8
+        },
+        "confidence": 0.16
+      },
+      "sourceSha256": "726cb0ef85ba05e218254008fc80e52290c8b126784fc3ddd757db3151767121",
+      "preparedSha256": "06c3a23477a398385783e08dcf703bdd447c03fec16a7b3805500c831613860d",
+      "originalSize": {
+        "width": 1080,
+        "height": 1440
+      },
+      "sentSize": {
+        "width": 1080,
+        "height": 1440
+      },
+      "preparation": "Existing imageCodec upright decode; full preparePhoto or cropPhoto directly on original bytes; aspect-preserving output, JPEG quality 0.9",
+      "transform": {
+        "crop": null,
+        "scaleX": 1,
+        "scaleY": 1
+      },
+      "preparedFile": "full-jdlu-200690-4-long-side.jpg"
+    },
+    {
+      "photo": "samples/jdlu-200690-4-long-side.jpg",
+      "condition": "raw",
+      "margin": 0,
+      "seedRun": "jdlu-200690-4-long-side-specific-1",
+      "seedBox": {
+        "type": "box",
+        "box": {
+          "top": 0.45,
+          "bottom": 0.75,
+          "left": 0.65,
+          "right": 0.8
+        },
+        "confidence": 0.16
+      },
+      "sourceSha256": "726cb0ef85ba05e218254008fc80e52290c8b126784fc3ddd757db3151767121",
+      "preparedSha256": "8e68fd43713a185747c2728c5abbd4bebd278bf979ead94006595ca7501d336b",
+      "originalSize": {
+        "width": 1080,
+        "height": 1440
+      },
+      "sentSize": {
+        "width": 588,
+        "height": 1568
+      },
+      "preparation": "Existing imageCodec upright decode; full preparePhoto or cropPhoto directly on original bytes; aspect-preserving output, JPEG quality 0.9",
+      "transform": {
+        "crop": {
+          "x": 702,
+          "y": 648,
+          "width": 162,
+          "height": 432,
+          "outWidth": 588,
+          "outHeight": 1568
+        },
+        "scaleX": 3.6296296296296298,
+        "scaleY": 3.6296296296296298
+      },
+      "preparedFile": "raw-jdlu-200690-4-long-side.jpg"
+    },
+    {
+      "photo": "samples/jdlu-200690-4-long-side.jpg",
+      "condition": "padded",
+      "margin": 0.35,
+      "seedRun": "jdlu-200690-4-long-side-specific-1",
+      "seedBox": {
+        "type": "box",
+        "box": {
+          "top": 0.45,
+          "bottom": 0.75,
+          "left": 0.65,
+          "right": 0.8
+        },
+        "confidence": 0.16
+      },
+      "sourceSha256": "726cb0ef85ba05e218254008fc80e52290c8b126784fc3ddd757db3151767121",
+      "preparedSha256": "289d1b8979d7bbdb4a039c14de258faf44418defec0599e0731aef5e43095496",
+      "originalSize": {
+        "width": 1080,
+        "height": 1440
+      },
+      "sentSize": {
+        "width": 992,
+        "height": 1568
+      },
+      "preparation": "Existing imageCodec upright decode; full preparePhoto or cropPhoto directly on original bytes; aspect-preserving output, JPEG quality 0.9",
+      "transform": {
+        "crop": {
+          "x": 550,
+          "y": 496,
+          "width": 466,
+          "height": 736,
+          "outWidth": 992,
+          "outHeight": 1568
+        },
+        "scaleX": 2.128755364806867,
+        "scaleY": 2.130434782608696
+      },
+      "preparedFile": "padded-jdlu-200690-4-long-side.jpg"
+    }
+  ],
+  "runs": [
+    {
+      "id": "full-side-dented-grey-brief-1",
+      "status": 200,
+      "latencyMs": 598,
+      "reportedCostUsd": 0.00007854,
+      "file": "full-side-dented-grey-brief-1.json"
+    },
+    {
+      "id": "full-side-dented-grey-brief-2",
+      "status": 200,
+      "latencyMs": 317,
+      "reportedCostUsd": 0.00007854,
+      "file": "full-side-dented-grey-brief-2.json"
+    },
+    {
+      "id": "full-side-dented-grey-brief-3",
+      "status": 200,
+      "latencyMs": 399,
+      "reportedCostUsd": 0.00007854,
+      "file": "full-side-dented-grey-brief-3.json"
+    },
+    {
+      "id": "full-side-dented-grey-shape-1",
+      "status": 200,
+      "latencyMs": 303,
+      "reportedCostUsd": 0.00008085,
+      "file": "full-side-dented-grey-shape-1.json"
+    },
+    {
+      "id": "full-side-dented-grey-shape-2",
+      "status": 200,
+      "latencyMs": 320,
+      "reportedCostUsd": 0.000080598,
+      "file": "full-side-dented-grey-shape-2.json"
+    },
+    {
+      "id": "full-side-dented-grey-shape-3",
+      "status": 200,
+      "latencyMs": 303,
+      "reportedCostUsd": 0.00008085,
+      "file": "full-side-dented-grey-shape-3.json"
+    },
+    {
+      "id": "full-side-dented-grey-specific-1",
+      "status": 200,
+      "latencyMs": 319,
+      "reportedCostUsd": 0.00008169,
+      "file": "full-side-dented-grey-specific-1.json"
+    },
+    {
+      "id": "full-side-dented-grey-specific-2",
+      "status": 200,
+      "latencyMs": 436,
+      "reportedCostUsd": 0.000081858,
+      "file": "full-side-dented-grey-specific-2.json"
+    },
+    {
+      "id": "full-side-dented-grey-specific-3",
+      "status": 200,
+      "latencyMs": 294,
+      "reportedCostUsd": 0.000081858,
+      "file": "full-side-dented-grey-specific-3.json"
+    },
+    {
+      "id": "raw-side-dented-grey-brief-1",
+      "status": 200,
+      "latencyMs": 264,
+      "reportedCostUsd": 0.000088032,
+      "file": "raw-side-dented-grey-brief-1.json"
+    },
+    {
+      "id": "raw-side-dented-grey-brief-2",
+      "status": 200,
+      "latencyMs": 248,
+      "reportedCostUsd": 0.000088074,
+      "file": "raw-side-dented-grey-brief-2.json"
+    },
+    {
+      "id": "raw-side-dented-grey-brief-3",
+      "status": 200,
+      "latencyMs": 338,
+      "reportedCostUsd": 0.00008799,
+      "file": "raw-side-dented-grey-brief-3.json"
+    },
+    {
+      "id": "raw-side-dented-grey-shape-1",
+      "status": 200,
+      "latencyMs": 381,
+      "reportedCostUsd": 0.000090342,
+      "file": "raw-side-dented-grey-shape-1.json"
+    },
+    {
+      "id": "raw-side-dented-grey-shape-2",
+      "status": 200,
+      "latencyMs": 372,
+      "reportedCostUsd": 0.000090342,
+      "file": "raw-side-dented-grey-shape-2.json"
+    },
+    {
+      "id": "raw-side-dented-grey-shape-3",
+      "status": 200,
+      "latencyMs": 235,
+      "reportedCostUsd": 0.0000903,
+      "file": "raw-side-dented-grey-shape-3.json"
+    },
+    {
+      "id": "raw-side-dented-grey-specific-1",
+      "status": 200,
+      "latencyMs": 227,
+      "reportedCostUsd": 0.000091392,
+      "file": "raw-side-dented-grey-specific-1.json"
+    },
+    {
+      "id": "raw-side-dented-grey-specific-2",
+      "status": 200,
+      "latencyMs": 238,
+      "reportedCostUsd": 0.000091182,
+      "file": "raw-side-dented-grey-specific-2.json"
+    },
+    {
+      "id": "raw-side-dented-grey-specific-3",
+      "status": 200,
+      "latencyMs": 245,
+      "reportedCostUsd": 0.000091392,
+      "file": "raw-side-dented-grey-specific-3.json"
+    },
+    {
+      "id": "padded-side-dented-grey-brief-1",
+      "status": 200,
+      "latencyMs": 251,
+      "reportedCostUsd": 0.000168,
+      "file": "padded-side-dented-grey-brief-1.json"
+    },
+    {
+      "id": "padded-side-dented-grey-brief-2",
+      "status": 200,
+      "latencyMs": 290,
+      "reportedCostUsd": 0.000168084,
+      "file": "padded-side-dented-grey-brief-2.json"
+    },
+    {
+      "id": "padded-side-dented-grey-brief-3",
+      "status": 200,
+      "latencyMs": 275,
+      "reportedCostUsd": 0.000168,
+      "file": "padded-side-dented-grey-brief-3.json"
+    },
+    {
+      "id": "padded-side-dented-grey-shape-1",
+      "status": 200,
+      "latencyMs": 284,
+      "reportedCostUsd": 0.000170394,
+      "file": "padded-side-dented-grey-shape-1.json"
+    },
+    {
+      "id": "padded-side-dented-grey-shape-2",
+      "status": 200,
+      "latencyMs": 289,
+      "reportedCostUsd": 0.000170268,
+      "file": "padded-side-dented-grey-shape-2.json"
+    },
+    {
+      "id": "padded-side-dented-grey-shape-3",
+      "status": 200,
+      "latencyMs": 275,
+      "reportedCostUsd": 0.00017031,
+      "file": "padded-side-dented-grey-shape-3.json"
+    },
+    {
+      "id": "padded-side-dented-grey-specific-1",
+      "status": 200,
+      "latencyMs": 250,
+      "reportedCostUsd": 0.000171276,
+      "file": "padded-side-dented-grey-specific-1.json"
+    },
+    {
+      "id": "padded-side-dented-grey-specific-2",
+      "status": 200,
+      "latencyMs": 270,
+      "reportedCostUsd": 0.000171402,
+      "file": "padded-side-dented-grey-specific-2.json"
+    },
+    {
+      "id": "padded-side-dented-grey-specific-3",
+      "status": 200,
+      "latencyMs": 257,
+      "reportedCostUsd": 0.000171318,
+      "file": "padded-side-dented-grey-specific-3.json"
+    },
+    {
+      "id": "full-corner-torn-door-cai-20ft-brief-1",
+      "status": 200,
+      "latencyMs": 270,
+      "reportedCostUsd": 0.000070518,
+      "file": "full-corner-torn-door-cai-20ft-brief-1.json"
+    },
+    {
+      "id": "full-corner-torn-door-cai-20ft-brief-2",
+      "status": 200,
+      "latencyMs": 279,
+      "reportedCostUsd": 0.000070518,
+      "file": "full-corner-torn-door-cai-20ft-brief-2.json"
+    },
+    {
+      "id": "full-corner-torn-door-cai-20ft-brief-3",
+      "status": 200,
+      "latencyMs": 253,
+      "reportedCostUsd": 0.000070518,
+      "file": "full-corner-torn-door-cai-20ft-brief-3.json"
+    },
+    {
+      "id": "full-corner-torn-door-cai-20ft-shape-1",
+      "status": 200,
+      "latencyMs": 304,
+      "reportedCostUsd": 0.00007287,
+      "file": "full-corner-torn-door-cai-20ft-shape-1.json"
+    },
+    {
+      "id": "full-corner-torn-door-cai-20ft-shape-2",
+      "status": 200,
+      "latencyMs": 267,
+      "reportedCostUsd": 0.000072702,
+      "file": "full-corner-torn-door-cai-20ft-shape-2.json"
+    },
+    {
+      "id": "full-corner-torn-door-cai-20ft-shape-3",
+      "status": 200,
+      "latencyMs": 288,
+      "reportedCostUsd": 0.000072786,
+      "file": "full-corner-torn-door-cai-20ft-shape-3.json"
+    },
+    {
+      "id": "full-corner-torn-door-cai-20ft-specific-1",
+      "status": 200,
+      "latencyMs": 307,
+      "reportedCostUsd": 0.000073752,
+      "file": "full-corner-torn-door-cai-20ft-specific-1.json"
+    },
+    {
+      "id": "full-corner-torn-door-cai-20ft-specific-2",
+      "status": 200,
+      "latencyMs": 268,
+      "reportedCostUsd": 0.00007392,
+      "file": "full-corner-torn-door-cai-20ft-specific-2.json"
+    },
+    {
+      "id": "full-corner-torn-door-cai-20ft-specific-3",
+      "status": 200,
+      "latencyMs": 274,
+      "reportedCostUsd": 0.000073752,
+      "file": "full-corner-torn-door-cai-20ft-specific-3.json"
+    },
+    {
+      "id": "raw-corner-torn-door-cai-20ft-brief-1",
+      "status": 200,
+      "latencyMs": 354,
+      "reportedCostUsd": 0.000209832,
+      "file": "raw-corner-torn-door-cai-20ft-brief-1.json"
+    },
+    {
+      "id": "raw-corner-torn-door-cai-20ft-brief-2",
+      "status": 200,
+      "latencyMs": 411,
+      "reportedCostUsd": 0.000209664,
+      "file": "raw-corner-torn-door-cai-20ft-brief-2.json"
+    },
+    {
+      "id": "raw-corner-torn-door-cai-20ft-brief-3",
+      "status": 200,
+      "latencyMs": 314,
+      "reportedCostUsd": 0.000209622,
+      "file": "raw-corner-torn-door-cai-20ft-brief-3.json"
+    },
+    {
+      "id": "raw-corner-torn-door-cai-20ft-shape-1",
+      "status": 200,
+      "latencyMs": 349,
+      "reportedCostUsd": 0.000212058,
+      "file": "raw-corner-torn-door-cai-20ft-shape-1.json"
+    },
+    {
+      "id": "raw-corner-torn-door-cai-20ft-shape-2",
+      "status": 200,
+      "latencyMs": 361,
+      "reportedCostUsd": 0.000212142,
+      "file": "raw-corner-torn-door-cai-20ft-shape-2.json"
+    },
+    {
+      "id": "raw-corner-torn-door-cai-20ft-shape-3",
+      "status": 200,
+      "latencyMs": 480,
+      "reportedCostUsd": 0.000212142,
+      "file": "raw-corner-torn-door-cai-20ft-shape-3.json"
+    },
+    {
+      "id": "raw-corner-torn-door-cai-20ft-specific-1",
+      "status": 200,
+      "latencyMs": 325,
+      "reportedCostUsd": 0.000212982,
+      "file": "raw-corner-torn-door-cai-20ft-specific-1.json"
+    },
+    {
+      "id": "raw-corner-torn-door-cai-20ft-specific-2",
+      "status": 200,
+      "latencyMs": 319,
+      "reportedCostUsd": 0.000212856,
+      "file": "raw-corner-torn-door-cai-20ft-specific-2.json"
+    },
+    {
+      "id": "raw-corner-torn-door-cai-20ft-specific-3",
+      "status": 200,
+      "latencyMs": 338,
+      "reportedCostUsd": 0.000212856,
+      "file": "raw-corner-torn-door-cai-20ft-specific-3.json"
+    },
+    {
+      "id": "padded-corner-torn-door-cai-20ft-brief-1",
+      "status": 200,
+      "latencyMs": 421,
+      "reportedCostUsd": 0.000237972,
+      "file": "padded-corner-torn-door-cai-20ft-brief-1.json"
+    },
+    {
+      "id": "padded-corner-torn-door-cai-20ft-brief-2",
+      "status": 200,
+      "latencyMs": 377,
+      "reportedCostUsd": 0.000238056,
+      "file": "padded-corner-torn-door-cai-20ft-brief-2.json"
+    },
+    {
+      "id": "padded-corner-torn-door-cai-20ft-brief-3",
+      "status": 200,
+      "latencyMs": 382,
+      "reportedCostUsd": 0.000237888,
+      "file": "padded-corner-torn-door-cai-20ft-brief-3.json"
+    },
+    {
+      "id": "padded-corner-torn-door-cai-20ft-shape-1",
+      "status": 200,
+      "latencyMs": 461,
+      "reportedCostUsd": 0.000240156,
+      "file": "padded-corner-torn-door-cai-20ft-shape-1.json"
+    },
+    {
+      "id": "padded-corner-torn-door-cai-20ft-shape-2",
+      "status": 200,
+      "latencyMs": 401,
+      "reportedCostUsd": 0.000240282,
+      "file": "padded-corner-torn-door-cai-20ft-shape-2.json"
+    },
+    {
+      "id": "padded-corner-torn-door-cai-20ft-shape-3",
+      "status": 200,
+      "latencyMs": 502,
+      "reportedCostUsd": 0.00024024,
+      "file": "padded-corner-torn-door-cai-20ft-shape-3.json"
+    },
+    {
+      "id": "padded-corner-torn-door-cai-20ft-specific-1",
+      "status": 200,
+      "latencyMs": 380,
+      "reportedCostUsd": 0.000241374,
+      "file": "padded-corner-torn-door-cai-20ft-specific-1.json"
+    },
+    {
+      "id": "padded-corner-torn-door-cai-20ft-specific-2",
+      "status": 200,
+      "latencyMs": 399,
+      "reportedCostUsd": 0.000241122,
+      "file": "padded-corner-torn-door-cai-20ft-specific-2.json"
+    },
+    {
+      "id": "padded-corner-torn-door-cai-20ft-specific-3",
+      "status": 200,
+      "latencyMs": 614,
+      "reportedCostUsd": 0.000241374,
+      "file": "padded-corner-torn-door-cai-20ft-specific-3.json"
+    },
+    {
+      "id": "full-jdlu-200690-4-long-side-brief-1",
+      "status": 200,
+      "latencyMs": 340,
+      "reportedCostUsd": 0.00018774,
+      "file": "full-jdlu-200690-4-long-side-brief-1.json"
+    },
+    {
+      "id": "full-jdlu-200690-4-long-side-brief-2",
+      "status": 200,
+      "latencyMs": 393,
+      "reportedCostUsd": 0.00018795,
+      "file": "full-jdlu-200690-4-long-side-brief-2.json"
+    },
+    {
+      "id": "full-jdlu-200690-4-long-side-brief-3",
+      "status": 200,
+      "latencyMs": 339,
+      "reportedCostUsd": 0.000187824,
+      "file": "full-jdlu-200690-4-long-side-brief-3.json"
+    },
+    {
+      "id": "full-jdlu-200690-4-long-side-shape-1",
+      "status": 200,
+      "latencyMs": 336,
+      "reportedCostUsd": 0.000190176,
+      "file": "full-jdlu-200690-4-long-side-shape-1.json"
+    },
+    {
+      "id": "full-jdlu-200690-4-long-side-shape-2",
+      "status": 200,
+      "latencyMs": 356,
+      "reportedCostUsd": 0.000190092,
+      "file": "full-jdlu-200690-4-long-side-shape-2.json"
+    },
+    {
+      "id": "full-jdlu-200690-4-long-side-shape-3",
+      "status": 200,
+      "latencyMs": 357,
+      "reportedCostUsd": 0.000190176,
+      "file": "full-jdlu-200690-4-long-side-shape-3.json"
+    },
+    {
+      "id": "full-jdlu-200690-4-long-side-specific-1",
+      "status": 200,
+      "latencyMs": 464,
+      "reportedCostUsd": 0.0001911,
+      "file": "full-jdlu-200690-4-long-side-specific-1.json"
+    },
+    {
+      "id": "full-jdlu-200690-4-long-side-specific-2",
+      "status": 200,
+      "latencyMs": 332,
+      "reportedCostUsd": 0.00019131,
+      "file": "full-jdlu-200690-4-long-side-specific-2.json"
+    },
+    {
+      "id": "full-jdlu-200690-4-long-side-specific-3",
+      "status": 200,
+      "latencyMs": 337,
+      "reportedCostUsd": 0.000190974,
+      "file": "full-jdlu-200690-4-long-side-specific-3.json"
+    },
+    {
+      "id": "raw-jdlu-200690-4-long-side-brief-1",
+      "status": 200,
+      "latencyMs": 314,
+      "reportedCostUsd": 0.000116256,
+      "file": "raw-jdlu-200690-4-long-side-brief-1.json"
+    },
+    {
+      "id": "raw-jdlu-200690-4-long-side-brief-2",
+      "status": 200,
+      "latencyMs": 319,
+      "reportedCostUsd": 0.000116298,
+      "file": "raw-jdlu-200690-4-long-side-brief-2.json"
+    },
+    {
+      "id": "raw-jdlu-200690-4-long-side-brief-3",
+      "status": 200,
+      "latencyMs": 356,
+      "reportedCostUsd": 0.00011634,
+      "file": "raw-jdlu-200690-4-long-side-brief-3.json"
+    },
+    {
+      "id": "raw-jdlu-200690-4-long-side-shape-1",
+      "status": 200,
+      "latencyMs": 313,
+      "reportedCostUsd": 0.000118566,
+      "file": "raw-jdlu-200690-4-long-side-shape-1.json"
+    },
+    {
+      "id": "raw-jdlu-200690-4-long-side-shape-2",
+      "status": 200,
+      "latencyMs": 299,
+      "reportedCostUsd": 0.000118692,
+      "file": "raw-jdlu-200690-4-long-side-shape-2.json"
+    },
+    {
+      "id": "raw-jdlu-200690-4-long-side-shape-3",
+      "status": 200,
+      "latencyMs": 301,
+      "reportedCostUsd": 0.000118566,
+      "file": "raw-jdlu-200690-4-long-side-shape-3.json"
+    },
+    {
+      "id": "raw-jdlu-200690-4-long-side-specific-1",
+      "status": 200,
+      "latencyMs": 297,
+      "reportedCostUsd": 0.00011949,
+      "file": "raw-jdlu-200690-4-long-side-specific-1.json"
+    },
+    {
+      "id": "raw-jdlu-200690-4-long-side-specific-2",
+      "status": 200,
+      "latencyMs": 320,
+      "reportedCostUsd": 0.00011949,
+      "file": "raw-jdlu-200690-4-long-side-specific-2.json"
+    },
+    {
+      "id": "raw-jdlu-200690-4-long-side-specific-3",
+      "status": 200,
+      "latencyMs": 333,
+      "reportedCostUsd": 0.000119616,
+      "file": "raw-jdlu-200690-4-long-side-specific-3.json"
+    },
+    {
+      "id": "padded-jdlu-200690-4-long-side-brief-1",
+      "status": 200,
+      "latencyMs": 423,
+      "reportedCostUsd": 0.000186774,
+      "file": "padded-jdlu-200690-4-long-side-brief-1.json"
+    },
+    {
+      "id": "padded-jdlu-200690-4-long-side-brief-2",
+      "status": 200,
+      "latencyMs": 380,
+      "reportedCostUsd": 0.000186858,
+      "file": "padded-jdlu-200690-4-long-side-brief-2.json"
+    },
+    {
+      "id": "padded-jdlu-200690-4-long-side-brief-3",
+      "status": 200,
+      "latencyMs": 561,
+      "reportedCostUsd": 0.000186732,
+      "file": "padded-jdlu-200690-4-long-side-brief-3.json"
+    },
+    {
+      "id": "padded-jdlu-200690-4-long-side-shape-1",
+      "status": 200,
+      "latencyMs": 396,
+      "reportedCostUsd": 0.000189126,
+      "file": "padded-jdlu-200690-4-long-side-shape-1.json"
+    },
+    {
+      "id": "padded-jdlu-200690-4-long-side-shape-2",
+      "status": 200,
+      "latencyMs": 774,
+      "reportedCostUsd": 0.00018921,
+      "file": "padded-jdlu-200690-4-long-side-shape-2.json"
+    },
+    {
+      "id": "padded-jdlu-200690-4-long-side-shape-3",
+      "status": 200,
+      "latencyMs": 417,
+      "reportedCostUsd": 0.000189252,
+      "file": "padded-jdlu-200690-4-long-side-shape-3.json"
+    },
+    {
+      "id": "padded-jdlu-200690-4-long-side-specific-1",
+      "status": 200,
+      "latencyMs": 404,
+      "reportedCostUsd": 0.000190134,
+      "file": "padded-jdlu-200690-4-long-side-specific-1.json"
+    },
+    {
+      "id": "padded-jdlu-200690-4-long-side-specific-2",
+      "status": 200,
+      "latencyMs": 443,
+      "reportedCostUsd": 0.000190092,
+      "file": "padded-jdlu-200690-4-long-side-specific-2.json"
+    },
+    {
+      "id": "padded-jdlu-200690-4-long-side-specific-3",
+      "status": 200,
+      "latencyMs": 372,
+      "reportedCostUsd": 0.000190176,
+      "file": "padded-jdlu-200690-4-long-side-specific-3.json"
+    }
+  ]
+}

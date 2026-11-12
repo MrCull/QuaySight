@@ -85,6 +85,7 @@ export function damageExport(record: InspectionRecord): {
         ...(assessment?.unplaced ?? []).map((f) => ({ f, unidentifiedFace: true })),
       ].map(({ f, unidentifiedFace }) => ({
         findingId: f.id,
+        ...(f.observations ? { observations: f.observations } : {}),
         title: f.title,
         face: f.face,
         component: f.component,

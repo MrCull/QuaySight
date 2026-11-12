@@ -171,13 +171,15 @@ describe('live Jev through OpenRouter in the store', () => {
     )
     expect(body.questions.legibility).toMatchObject({ type: 'score', criteria: expect.any(Array) })
     expect(body.questions.full_number_visible).toMatchObject({ type: 'noul' })
-    // The survey: the Jev ID set (eleven characters, legibility, full number, box), then the details.
-    expect(Object.keys(body.questions).slice(0, 14)).toEqual([
-      ...Array.from({ length: 11 }, (_, i) => `id_char_${String(i + 1).padStart(2, '0')}`),
-      'legibility',
-      'full_number_visible',
-      'container_box',
-    ])
+    // The survey contains the ID questions and native Box regardless of other registered families.
+    expect(Object.keys(body.questions)).toEqual(
+      expect.arrayContaining([
+        ...Array.from({ length: 11 }, (_, i) => `id_char_${String(i + 1).padStart(2, '0')}`),
+        'legibility',
+        'full_number_visible',
+        'container_box',
+      ]),
+    )
     expect(body.questions.size_type_code).toMatchObject({ type: 'choice' })
     // The survey also asks which face the photo shows.
     expect(body.questions.photo_face).toMatchObject({ type: 'choice' })

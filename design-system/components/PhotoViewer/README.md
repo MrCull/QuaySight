@@ -11,7 +11,7 @@ Elsewhere this system says "never a modal" (`Notice`, `NewInspection`, `Settings
 
 ## Anatomy
 - `.qs-viewer`: the fixed layer, `role="dialog"`, `aria-modal="true"`, named after the caption (or "Photo" with one photo). It takes focus when it opens.
-- `.qs-viewer__img`: the **original** photo, the full-resolution source held for the inspection, fitted with `object-fit: contain` and `image-orientation: from-image`. Nothing is drawn on it: no damage regions, no ID box, now or later. No zoom inside the viewer.
+- `.qs-viewer__img`: the **original** photo, the full-resolution source held for the inspection, fitted with `object-fit: contain` and `image-orientation: from-image`. The photograph stays unchanged. An optional, separate `.qs-viewer__highlight` shows the selected damage observation as an approximate focal area, never its full boundary. `.qs-viewer__frame` follows the actual fitted upright image bounds, and the image and overlay zoom together.
 - `.qs-viewer__cap` (with `qs-type-caption`): "Photo N of M · <face>" on `scrim` in the bottom-left corner. The face is the survey's face chip, once it has named one; before that the caption is just "Photo N of M". Shown only with 2 or more photos.
 - `.qs-viewer__nav--prev` / `--next`: round buttons with the `chevron` glyph turned left and right, "Previous photo" / "Next photo". The ← and → keys do the same. Both wrap around at the ends. Shown only with 2 or more photos.
 - `.qs-viewer__close`: the visible ×, "Close photo".
@@ -26,6 +26,10 @@ Elsewhere this system says "never a modal" (`Notice`, `NewInspection`, `Settings
 Each main or grid photo is a `<button>` named "Enlarge photo N of M" ("Enlarge photo" with one photo), with a `zoom-in` cursor and the `focus-ring` outline. `PhotoCrop` close-ups keep their own tap-to-toggle and sample tiles keep click-to-choose; neither opens the viewer.
 
 ## Don't
-- Don't put overlays, results, certainty or text other than the caption on the viewer.
+- Only the selected observation may supply a damage overlay. Keep certainty, severity and classification out of the overlay.
 - Don't show passes, candidates or anything about how the photo was read.
 - Tokens only; don't re-colour `qs-viewer` parts locally.
+
+## Optional damage evidence
+
+The approved Jev localisation spec extends this viewer with an approximate focal overlay and zoom. `.qs-viewer__tools` contains a plain-language caveat, **Show original** / **Show highlight** (pressed when the original is shown), and **Zoom to highlight** / **Fit photo**. Controls remain keyboard accessible inside the existing focus trap. Switching photographs resets zoom and restores the highlight for that photo. A missing or rejected localisation shows the original viewer without these controls. The original source URL never changes. Neutral dashed outlines use `ink` and `surface`, separate from severity and certainty colours.

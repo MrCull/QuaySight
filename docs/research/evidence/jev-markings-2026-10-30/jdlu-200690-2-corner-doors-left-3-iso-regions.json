@@ -1,0 +1,127 @@
+{
+  "id": "jdlu-200690-2-corner-doors-left-3-iso-regions",
+  "photo": "jdlu-200690-2-corner-doors-left.jpg",
+  "repeat": 3,
+  "kind": "iso",
+  "strategy": "regions",
+  "imageFile": "jdlu-200690-2-corner-doors-left-3-iso-regions.jpg",
+  "request": {
+    "model": "typesafe/jev-1.14",
+    "state": [
+      "Read only the visible printed markings in this photograph. Never infer hidden characters.",
+      {
+        "imageFile": "jdlu-200690-2-corner-doors-left-3-iso-regions.jpg"
+      }
+    ],
+    "questions": {
+      "size_type_code": {
+        "type": "choice",
+        "instructions": "The ISO size/type code is printed on the container as four characters, usually below or beside the container number (for example 22G1 or 45G1). Which code is printed? Read it exactly as printed; do not work it out from the container size.",
+        "criteria": {
+          "22G1": "Code 22G1",
+          "22G0": "Code 22G0",
+          "20G1": "Code 20G1",
+          "20G0": "Code 20G0",
+          "25G1": "Code 25G1",
+          "22R1": "Code 22R1",
+          "22R0": "Code 22R0",
+          "22U1": "Code 22U1",
+          "22U6": "Code 22U6",
+          "22T6": "Code 22T6",
+          "22T0": "Code 22T0",
+          "22P1": "Code 22P1",
+          "22P3": "Code 22P3",
+          "22V1": "Code 22V1",
+          "22B0": "Code 22B0",
+          "22H0": "Code 22H0",
+          "42G1": "Code 42G1",
+          "42G0": "Code 42G0",
+          "40G1": "Code 40G1",
+          "45G1": "Code 45G1",
+          "45G0": "Code 45G0",
+          "42R1": "Code 42R1",
+          "45R1": "Code 45R1",
+          "45R0": "Code 45R0",
+          "42U1": "Code 42U1",
+          "45U1": "Code 45U1",
+          "42P1": "Code 42P1",
+          "42P3": "Code 42P3",
+          "45P3": "Code 45P3",
+          "42T6": "Code 42T6",
+          "L5G1": "Code L5G1",
+          "L2G1": "Code L2G1",
+          "LEG1": "Code LEG1",
+          "other": "A size/type code is printed, but it is none of the codes listed",
+          "unreadable": "A size/type code is printed, but it cannot be read clearly",
+          "not_visible": "No size/type code is visible in this photo"
+        }
+      }
+    }
+  },
+  "status": 200,
+  "failure": null,
+  "latencyMs": 297,
+  "requestedModel": "typesafe/jev-1.14",
+  "resolvedModel": "typesafe/jev-1.14-20261014",
+  "usage": {
+    "input_tokens": 6372,
+    "output_tokens": 374,
+    "cost": 0.000267624
+  },
+  "reportedCostUsd": 0.000267624,
+  "response": {
+    "model": "typesafe/jev-1.14-20261014",
+    "answers": {
+      "size_type_code": {
+        "type": "choice",
+        "choice": "22G1",
+        "probabilities": {
+          "22G1": 1,
+          "22G0": 0,
+          "20G1": 0,
+          "20G0": 0,
+          "25G1": 0,
+          "22R1": 0,
+          "22R0": 0,
+          "22U1": 0,
+          "22U6": 0,
+          "22T6": 0,
+          "22T0": 0,
+          "22P1": 0,
+          "22P3": 0,
+          "22V1": 0,
+          "22B0": 0,
+          "22H0": 0,
+          "42G1": 0,
+          "42G0": 0,
+          "40G1": 0,
+          "45G1": 0,
+          "45G0": 0,
+          "42R1": 0,
+          "45R1": 0,
+          "45R0": 0,
+          "42U1": 0,
+          "45U1": 0,
+          "42P1": 0,
+          "42P3": 0,
+          "45P3": 0,
+          "42T6": 0,
+          "L5G1": 0,
+          "L2G1": 0,
+          "LEG1": 0,
+          "other": 0,
+          "unreadable": 0,
+          "not_visible": 0
+        },
+        "confidence": 1
+      }
+    },
+    "usage": {
+      "input_tokens": 6372,
+      "output_tokens": 374,
+      "cost": 0.000267624
+    },
+    "id": "gen-dec-1793371100-zRgLMtdPUa2VANvy2uDv",
+    "provider": "TypeSafe"
+  }
+}

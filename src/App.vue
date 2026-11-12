@@ -112,6 +112,7 @@ const showDamageView = computed(
           tabindex="-1"
           data-detail
           :assessment="store.record.damage"
+          :photos="store.photos"
           :selected="store.selectedFinding"
           @update:selected="store.selectFinding"
         />

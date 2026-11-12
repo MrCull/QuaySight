@@ -79,7 +79,7 @@ describe('choosing the damage for the face the photo shows', () => {
       )
       const finding = damage!.findings[0]!
       expect(finding.location).toBe(`${words}, lower half of the side sheet`)
-      expect(JSON.stringify(damage)).not.toMatch(/photo column/i)
+      expect(finding.location).not.toMatch(/photo column/i)
     },
   )
 
@@ -99,7 +99,8 @@ describe('choosing the damage for the face the photo shows', () => {
         ],
       })
       const damage = assessDamage(seen('long-side'), [reading], 'side.jpg')
-      expect(JSON.stringify(damage)).not.toMatch(/photo column/i)
+      expect(damage?.findings[0]?.location).not.toMatch(/photo column/i)
+      expect(damage?.zones?.[0]?.label).not.toMatch(/photo column/i)
       expect(damage?.findings[0]?.location).toMatch(/door end, lower half/)
     },
   )
@@ -139,7 +140,9 @@ describe('choosing the damage for the face the photo shows', () => {
   })
 
   it('without a detected face, uses the one set whose own coverage says its face is inspectable', () => {
-    expect(assessDamage(undefined, [sideReading()], 'side.jpg')?.findings).toEqual([placedDent])
+    expect(assessDamage(undefined, [sideReading()], 'side.jpg')?.findings).toMatchObject([
+      placedDent,
+    ])
     expect(
       assessDamage(undefined, [sideReading({ inspectable: false })], 'side.jpg')?.notAssessed
         ?.reason,
@@ -158,7 +161,7 @@ describe('folding into the record, whichever request answers first', () => {
   it('gives the same damage when the face lands before or after the set', () => {
     const faceFirst = withDamageReading(withPhotoFace(record, seen('long-side')), sideReading())
     const setFirst = withPhotoFace(withDamageReading(record, sideReading()), seen('long-side'))
-    expect(faceFirst.damage?.findings).toEqual([placedDent])
+    expect(faceFirst.damage?.findings).toMatchObject([placedDent])
     expect(setFirst.damage).toEqual(faceFirst.damage)
     expect(setFirst.photoFace).toEqual(seen('long-side'))
   })

@@ -12,7 +12,10 @@ import '../../styles/damage.css'
 // Follows design-system/components/DamageAssessment: the set's own photo checks, the significance
 // flag, then the schematic with the selected finding's details beside it, and every finding in a grid
 // across the full width below; or "Damage not assessed for this view" with the reason.
-const props = defineProps<{ assessment: DamageAssessment | null }>()
+const props = defineProps<{
+  assessment: DamageAssessment | null
+  photos?: { name: string; url: string }[]
+}>()
 
 // Selection is shared: a marker, its area and its finding card select together.
 // The app binds it to the inspection store (v-model:selected) so New inspection clears it.
@@ -200,6 +203,7 @@ const significant = computed(() => !!assessed.value && potentiallySignificant(as
           :finding="selected"
           :location="selectedLocation"
           :position="position"
+          :photos="photos"
           @previous="step(-1)"
           @next="step(1)"
         />

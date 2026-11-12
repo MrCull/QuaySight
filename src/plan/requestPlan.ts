@@ -91,6 +91,8 @@ export interface PlanRequest<A = unknown> {
   needed?(plan: PlanView): boolean
   /** A refinement of an answer that is already usable: its failure leaves the stage done and the result complete. */
   optional?: boolean
+  /** Wait for the inspection-wide essential/read barrier before charging this request. */
+  deferred?: boolean
   /** Builds the questions, sends them on the route with ctx.signal and maps the answer. Throws a ProviderError on failure. */
   send(ctx: RequestContext): Promise<RequestReply<A>>
   /**
@@ -135,6 +137,7 @@ export interface PlanRunOptions {
   onSettled(settled: SettledRequest): void
   /** Several photos share one inspection: `idPrefix` goes ahead of each request's pass id (`p2-`), `purposeSuffix` after its purpose. */
   photoLabel?: { idPrefix: string; purposeSuffix: string }
+  beforeDeferred?: Promise<void>
   now?: () => number
 }
 
@@ -215,6 +218,25 @@ export function runPlan(options: PlanRunOptions): PlanRun {
     controllers.set(r, controller)
     const label = options.photoLabel
     const passId = `${options.inspectionId}-${label?.idPrefix ?? ''}${r.id}`
+    if (r.deferred && options.beforeDeferred) {
+      const released = await new Promise<boolean>((resolve) => {
+        const onAbort = () => resolve(false)
+        controller.signal.addEventListener('abort', onAbort, { once: true })
+        void options.beforeDeferred!.then(() => {
+          controller.signal.removeEventListener('abort', onAbort)
+          resolve(!controller.signal.aborted)
+        })
+        if (controller.signal.aborted) onAbort()
+      })
+      if (!released) {
+        controllers.delete(r)
+        const outcome: RequestOutcome<unknown> = { status: 'cancelled' }
+        set(r, 'cancelled')
+        options.onSettled({ request: r, outcome, reply: null, passId, plan: view })
+        advance()
+        return
+      }
+    }
     let reply: RequestReply<unknown> | null = null
     const result = await options.charge({
       id: passId,
