@@ -8,18 +8,18 @@ import type { CertaintyLabel } from '../domain/inspection'
 const READS = [
   {
     glyph: 'tag',
-    title: 'Container ID',
-    body: 'Read character by character, with the ISO 6346 check digit worked out.',
+    title: 'Container number',
+    body: 'Reads the ID painted on the container and checks it against its check digit.',
   },
   {
     glyph: 'padlock',
-    title: 'Markings, seal and placards',
-    body: 'Size and type, weights and capacity, each beside the crop it was read from.',
+    title: 'Door markings',
+    body: 'Size and type, weights, seal number and hazard placards.',
   },
   {
     glyph: 'container',
-    title: 'Suspected damage',
-    body: 'Marked on a flat drawing of the container, with an apparent severity.',
+    title: 'Possible damage',
+    body: 'Dents, holes and wear, marked on a drawing of the container.',
   },
 ] as const
 
@@ -36,13 +36,13 @@ const WORDS: CertaintyLabel[] = ['Confident', 'Likely', 'Uncertain', "Can't tell
     <div class="rs-hero__copy">
       <p class="rs-hero__eyebrow qs-type-label">Container inspection from photographs</p>
       <h1 id="hero-title" class="rs-hero__title">
-        Read a container from its photos.
-        <span>Say plainly how sure.</span>
+        Inspect a shipping container from photos.
+        <span>Every result shows how certain it is.</span>
       </h1>
       <p class="rs-hero__lede qs-type-body">
-        Choose one to five photos of one container. Quay Sight reads what is painted on it, marks
-        suspected damage and shows the evidence for every value. It is a demonstration, not a
-        certified survey.
+        Upload one to five photos of a container. Quay Sight reads the container number and door
+        markings, flags possible damage, and tells you how certain it is about each result. This is
+        a demonstration, not a certified survey.
       </p>
 
       <ul class="rs-hero__reads">
@@ -56,7 +56,7 @@ const WORDS: CertaintyLabel[] = ['Confident', 'Likely', 'Uncertain', "Can't tell
       </ul>
 
       <div class="rs-hero__words">
-        <span class="qs-type-label">Every value carries one of five words</span>
+        <span class="qs-type-label">Each result is labelled with one of five certainty levels</span>
         <span class="rs-hero__chips">
           <CertaintyChip v-for="word in WORDS" :key="word" :level="word" />
         </span>
@@ -95,14 +95,15 @@ const WORDS: CertaintyLabel[] = ['Confident', 'Likely', 'Uncertain', "Can't tell
     linear-gradient(
       0deg,
       var(--hero-ground) 0%,
-      color-mix(in srgb, var(--hero-ground) 88%, transparent) 38%,
-      color-mix(in srgb, var(--hero-ground) 30%, transparent) 72%,
-      color-mix(in srgb, var(--hero-ground) 45%, transparent) 100%
+      color-mix(in srgb, var(--hero-ground) 92%, transparent) 45%,
+      color-mix(in srgb, var(--hero-ground) 72%, transparent) 80%,
+      color-mix(in srgb, var(--hero-ground) 60%, transparent) 100%
     ),
     linear-gradient(
       90deg,
-      color-mix(in srgb, var(--hero-ground) 70%, transparent) 0%,
-      transparent 70%
+      color-mix(in srgb, var(--hero-ground) 85%, transparent) 0%,
+      color-mix(in srgb, var(--hero-ground) 55%, transparent) 70%,
+      transparent 100%
     );
 }
 .rs-hero__finder {
