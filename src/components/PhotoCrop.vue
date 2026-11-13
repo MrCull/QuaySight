@@ -2,9 +2,10 @@
 // An enlarged crop of where a reading was read (ticket #67). Give it the reading's own photo and the box it
 // carries; the seal and the placards use it the same way. With no usable box, or a photo that will not
 // load, it renders nothing at all: no caption, no frame.
-import { computed, ref, watch } from 'vue'
+import { computed, ref, useTemplateRef, watch } from 'vue'
 import { enlargedCrop, type ReadingBox } from '../domain/enlargedCrop'
-import { usableIdBox } from '../domain/cropRead'
+import { usableIdBox, type IdBox } from '../domain/cropRead'
+import { trimBorders } from '../domain/trimBorders'
 import { useLoupe } from '../composables/loupe'
 import PhotoLoupe from './PhotoLoupe.vue'
 
@@ -24,6 +25,8 @@ const props = defineProps<{
   compact?: boolean
   /** The hover loupe over the close-up (design-system Loupe), magnifying it further. Mouse only. */
   magnify?: boolean
+  /** The box is the whole photo: trim plain borders off it (black bars on a screenshot) once it loads. */
+  trim?: boolean
 }>()
 
 /** How much more the loupe enlarges a close-up that is already shown enlarged. */
@@ -40,14 +43,21 @@ watch(
   () => props.src,
   () => {
     size.value = null
+    trimmed.value = null
     failed.value = false
     full.value = false
   },
 )
 
+const cropImg = useTemplateRef<HTMLImageElement>('cropImg')
+/** The area inside the photo's plain borders, when trimming found any. */
+const trimmed = ref<IdBox | null>(null)
+// Only while the close-up is a whole photo: the same photo may later be framed on a part of it.
+const shownBox = computed(() => (props.trim && trimmed.value) || props.box)
+
 const usable = computed(() => usableIdBox(props.box) !== null)
 const frame = computed(() =>
-  size.value ? enlargedCrop(size.value, props.box, props.margin) : null,
+  size.value ? enlargedCrop(size.value, shownBox.value, props.margin) : null,
 )
 
 // Tapping shows the whole photo with the area outlined; tapping again returns to the close-up.
@@ -68,9 +78,42 @@ const area = computed(() => {
   }
 })
 
+/** Side of the small copy the borders are measured on. */
+const TRIM_SAMPLE = 160
+
 function onLoad(event: Event) {
   const img = event.target as HTMLImageElement
   size.value = { width: img.naturalWidth, height: img.naturalHeight }
+  trimmed.value = props.trim ? measureTrim(img) : null
+}
+
+// The photo is already loaded when a close-up of it turns into a whole-photo one: measure then.
+watch(
+  () => props.trim,
+  (trim) => {
+    const img = cropImg.value
+    if (trim && !trimmed.value && img?.complete && img.naturalWidth)
+      trimmed.value = measureTrim(img)
+  },
+)
+
+/** The photo's plain borders, measured on a small copy. Null where a canvas cannot be read (tests, tainted images). */
+function measureTrim(img: HTMLImageElement): IdBox | null {
+  try {
+    const scale = Math.min(1, TRIM_SAMPLE / Math.max(img.naturalWidth, img.naturalHeight))
+    const w = Math.max(1, Math.round(img.naturalWidth * scale))
+    const h = Math.max(1, Math.round(img.naturalHeight * scale))
+    const canvas = document.createElement('canvas')
+    canvas.width = w
+    canvas.height = h
+    const g = canvas.getContext('2d')
+    if (!g) return null
+    g.drawImage(img, 0, 0, w, h)
+    const area = trimBorders(g.getImageData(0, 0, w, h).data, w, h)
+    return area ? { ...area, confidence: 1 } : null
+  } catch {
+    return null
+  }
 }
 
 // --crop-aspect lets a small place (a key-facts tile) cap the close-up's height as well as its width.
@@ -122,6 +165,7 @@ const imgStyle = computed(() => {
         @pointerdown="loupe.hide()"
       >
         <img
+          ref="cropImg"
           class="rs-crop__img"
           :src="src"
           :alt="`${label}, enlarged`"

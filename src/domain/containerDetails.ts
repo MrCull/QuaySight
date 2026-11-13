@@ -74,7 +74,7 @@ function readChoice(answer: SharedAnswer | undefined): ChoiceRead | null {
 
 const UNCLEAR = "Can't tell" as const
 
-function readSizeCode(answer: SharedAnswer | undefined): SizeCodeReading {
+export function readSizeCode(answer: SharedAnswer | undefined): SizeCodeReading {
   const unclear: SizeCodeReading = {
     state: 'unclear',
     code: null,

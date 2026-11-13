@@ -20,7 +20,7 @@ test.describe('photo loupe', () => {
 
   test('renders 384 px square beside the pointer', async ({ page }) => {
     await page.goto('/')
-    await page.getByRole('button', { name: 'Enter as demo user' }).click()
+    await page.getByRole('button', { name: 'Try the demo' }).click()
     await page.getByRole('button', { name: /Rear doors with markings/ }).click()
 
     await page.locator('#stage.qs-arrived').waitFor()
@@ -45,7 +45,7 @@ test.describe('photo loupe', () => {
   // The ledger's close-up hangs down beside the rows below it; their empty boxes once took its lower half.
   test('shows over the whole of a ledger close-up', async ({ page }) => {
     await page.goto('/')
-    await page.getByRole('button', { name: 'Enter as demo user' }).click()
+    await page.getByRole('button', { name: 'Try the demo' }).click()
     await page.getByRole('button', { name: /Dusty blue container/ }).click()
 
     await page.locator('#stage.qs-arrived').waitFor()

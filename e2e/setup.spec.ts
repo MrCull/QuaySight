@@ -10,7 +10,7 @@ const samplePhoto = path.resolve(
 // A placeholder typed into the real field. It is not a credential and no provider receives it.
 const PLACEHOLDER_KEY = 'playwright-placeholder-not-a-key'
 
-const setupCard = (page: Page) => page.getByRole('region', { name: 'Set up a provider' })
+const setupCard = (page: Page) => page.locator('.qs-landing')
 
 test.describe('first visit', () => {
   test('shows only the setup card, with the recommended provider and model chosen', async ({
@@ -32,7 +32,7 @@ test.describe('first visit', () => {
     ).toHaveCount(0)
     await expect(page.locator('#stage')).toHaveCount(0)
     await expect(page.getByRole('button', { name: 'New inspection' })).toHaveCount(0)
-    await expect(page.getByRole('button', { name: 'Enter as demo user' })).toBeVisible()
+    await expect(page.getByRole('button', { name: 'Try the demo' })).toBeVisible()
   })
 })
 
@@ -40,7 +40,7 @@ async function continueWithKey(page: Page) {
   await page.goto('/')
   const key = setupCard(page).getByLabel('OpenRouter API key', { exact: true })
   await key.fill(PLACEHOLDER_KEY)
-  await setupCard(page).getByRole('button', { name: 'Continue' }).click()
+  await setupCard(page).getByRole('button', { name: 'Start' }).click()
 }
 
 const chip = (page: Page) => page.locator('.rs-top').getByRole('button', { name: /^Settings:/ })
@@ -51,7 +51,7 @@ test.describe('continue', () => {
     page,
   }) => {
     await page.goto('/')
-    const continueButton = setupCard(page).getByRole('button', { name: 'Continue' })
+    const continueButton = setupCard(page).getByRole('button', { name: 'Start' })
     const key = setupCard(page).getByLabel('OpenRouter API key', { exact: true })
     await expect(continueButton).toBeDisabled()
     await key.fill('   ')
@@ -80,10 +80,10 @@ test.describe('continue', () => {
     await page.keyboard.press('Tab')
     await expect(card.getByRole('button', { name: 'Clear' })).toBeFocused()
     await page.keyboard.press('Tab')
-    await expect(card.getByRole('button', { name: 'Continue' })).toBeFocused()
+    await expect(card.getByRole('button', { name: 'Start' })).toBeFocused()
     // Then the demo entry under the card.
     await page.keyboard.press('Tab')
-    await expect(page.getByRole('button', { name: 'Enter as demo user' })).toBeFocused()
+    await expect(page.getByRole('button', { name: 'Try the demo' })).toBeFocused()
   })
 })
 
@@ -206,7 +206,7 @@ test.describe('refresh', () => {
     await page.goto('/')
     await setupCard(page).getByLabel('Model version').selectOption('typesafe/jev-1.14')
     await setupCard(page).getByLabel('OpenRouter API key', { exact: true }).fill(PLACEHOLDER_KEY)
-    await setupCard(page).getByRole('button', { name: 'Continue' }).click()
+    await setupCard(page).getByRole('button', { name: 'Start' }).click()
     await expect(chip(page)).toContainText('Jev 1.14')
 
     await page.reload()
@@ -214,7 +214,7 @@ test.describe('refresh', () => {
     await expect(setupCard(page).locator('#provider-button')).toContainText('OpenRouter')
     await expect(setupCard(page).getByLabel('Model version')).toHaveValue('typesafe/jev-1.14')
     await expect(setupCard(page).getByLabel('OpenRouter API key', { exact: true })).toHaveValue('')
-    await expect(setupCard(page).getByRole('button', { name: 'Continue' })).toBeDisabled()
+    await expect(setupCard(page).getByRole('button', { name: 'Start' })).toBeDisabled()
 
     const stored = await page.evaluate(() =>
       JSON.stringify([{ ...localStorage }, { ...sessionStorage }]),
@@ -243,7 +243,7 @@ test.describe('phone width (390px)', () => {
     await setupCard(page).locator('#provider-button').click()
 
     await setupCard(page).getByLabel('OpenRouter API key', { exact: true }).fill(PLACEHOLDER_KEY)
-    await setupCard(page).getByRole('button', { name: 'Continue' }).click()
+    await setupCard(page).getByRole('button', { name: 'Start' }).click()
     await noSideScroll(page)
     await chip(page).click()
     await expect(drawer(page)).toBeVisible()

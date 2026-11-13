@@ -29,7 +29,6 @@ async function inspectRearDoors(page: Page) {
     route.fulfill({ status: 200, contentType: 'application/json', body: surveyReply }),
   )
   await page.goto('/')
-  await page.locator('#provider-button').click()
   await page.getByTestId('provider-option-luna').click()
   const key = page.getByLabel('OpenAI API key', { exact: true })
   await key.fill(PLACEHOLDER_KEY)

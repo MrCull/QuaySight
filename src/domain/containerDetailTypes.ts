@@ -3,6 +3,7 @@
 // containerDetails.ts re-exports all of it, so importers keep their path.
 import type { CertaintyLabel } from './inspection'
 import type { DecodedSizeCode } from './isoSizeCode'
+import type { RegionBox } from './regionMarks'
 
 /** Where a detail came from: printed on the container, decoded from the ISO code, or judged from the photo. */
 export type DetailSource = 'printed' | 'decoded' | 'observed'
@@ -24,6 +25,12 @@ export interface SizeCodeReading {
   alternative: string | null
   /** What the code decodes to; null when not read or not in the decoding table. */
   decoded: DecodedSizeCode | null
+  /** Several photos: the 1-based photo the close-up is cut from (closeUpSources.ts). */
+  photo?: number
+  /** Several photos: where the regions step found the code on that photo. */
+  area?: RegionBox
+  /** Several photos: where reading parts of that photo placed the code itself (tileSearch.ts). */
+  tileBox?: RegionBox & { confidence: number }
 }
 
 /** One yes/no/unknown check. answer null: can't tell. */

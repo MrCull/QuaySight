@@ -20,13 +20,13 @@ async function blockProviders(page: Page): Promise<string[]> {
 }
 
 const banner = (page: Page) => page.getByRole('region', { name: 'Demo mode' })
-const setupCard = (page: Page) => page.getByRole('region', { name: 'Set up a provider' })
+const setupCard = (page: Page) => page.locator('.qs-landing')
 const sampleTile = (page: Page, name: string) =>
   page.getByRole('button', { name: new RegExp(name) })
 
 async function enterDemo(page: Page) {
   await page.goto('/')
-  await page.getByRole('button', { name: 'Enter as demo user' }).click()
+  await page.getByRole('button', { name: 'Try the demo' }).click()
 }
 
 async function inspectSample(page: Page, name: string) {
@@ -129,7 +129,7 @@ test.describe('demo mode', () => {
     await expect(setupCard(page)).toBeVisible()
     await expect(banner(page)).toHaveCount(0)
     await expect(setupCard(page).getByLabel('OpenRouter API key', { exact: true })).toHaveValue('')
-    await expect(setupCard(page).getByRole('button', { name: 'Continue' })).toBeDisabled()
+    await expect(setupCard(page).getByRole('button', { name: 'Start' })).toBeDisabled()
   })
 
   test('is never remembered: a refresh opens the setup card', async ({ page }) => {

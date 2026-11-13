@@ -13,7 +13,7 @@ const samplePhoto = path.resolve(
 const WRONG_PREFIX_KEY = 'placeholder-without-prefix'
 const OPENROUTER_SHAPED_KEY = 'sk-or-placeholder'
 
-const setupCard = (page: Page) => page.getByRole('region', { name: 'Set up a provider' })
+const setupCard = (page: Page) => page.locator('.qs-landing')
 const keyField = (page: Page) => page.getByLabel('OpenRouter API key', { exact: true })
 const warning = (page: Page) => page.locator('.qs-keywarn')
 const dropZone = (page: Page) => page.locator('.qs-drop')
@@ -31,7 +31,7 @@ test.describe('key-format warning', () => {
     await expect(warning(page)).not.toContainText(WRONG_PREFIX_KEY)
     await expect(keyField(page)).toHaveAttribute('aria-describedby', /key-format/)
 
-    const continueButton = setupCard(page).getByRole('button', { name: 'Continue' })
+    const continueButton = setupCard(page).getByRole('button', { name: 'Start' })
     await expect(continueButton).toBeEnabled()
     await continueButton.click()
     await expect(setupCard(page)).toHaveCount(0)
@@ -67,7 +67,7 @@ test.describe('focus after each step', () => {
   test('Continue moves focus to the photo drop zone', async ({ page }) => {
     await page.goto('/')
     await keyField(page).fill(OPENROUTER_SHAPED_KEY)
-    await setupCard(page).getByRole('button', { name: 'Continue' }).click()
+    await setupCard(page).getByRole('button', { name: 'Start' }).click()
     await expect(dropZone(page)).toBeFocused()
   })
 
@@ -96,7 +96,7 @@ test.describe('focus after each step', () => {
     page,
   }) => {
     await page.goto('/')
-    await page.getByRole('button', { name: 'Enter as demo user' }).click()
+    await page.getByRole('button', { name: 'Try the demo' }).click()
 
     await page.getByRole('button', { name: /Rear doors with markings/ }).click()
     // The recorded inspection starts at once; New inspection reads Cancel meanwhile and holds focus.

@@ -5,7 +5,7 @@ import { HOLD, kindOfRequest, rearDoorsScript } from './screens/mockRuns'
 /** Demo mode, no key and no network call: the rear-doors sample, ready to start. */
 async function prepareRecordedRun(page: Page) {
   await page.goto('/')
-  await page.getByRole('button', { name: 'Enter as demo user' }).click()
+  await page.getByRole('button', { name: 'Try the demo' }).click()
   await page.getByRole('button', { name: /Rear doors with markings/ }).click()
 }
 
@@ -129,7 +129,6 @@ async function liveRun(page: Page, hold: Array<'side' | 'door'>, cancel: boolean
     })
   })
   await page.goto('/')
-  await page.locator('#provider-button').click()
   await page.getByTestId('provider-option-luna').click()
   const key = page.getByLabel('OpenAI API key', { exact: true })
   await key.fill('playwright-placeholder-not-a-key')

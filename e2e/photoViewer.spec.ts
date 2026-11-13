@@ -9,7 +9,7 @@ const SHOTS = process.env.QS_SHOT_DIR
  */
 async function openSample(page: Page) {
   await page.goto('/')
-  await page.getByRole('button', { name: 'Enter as demo user' }).click()
+  await page.getByRole('button', { name: 'Try the demo' }).click()
   await page.getByRole('button', { name: /Rear doors with markings/ }).click()
 }
 

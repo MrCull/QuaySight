@@ -88,12 +88,6 @@ body {
   gap: var(--space-6);
   align-items: start;
 }
-.rs-detail__main {
-  min-width: 0;
-}
-.rs-detail__main:empty {
-  display: none;
-}
 /* Scan sweep over the photo (design-system AnalysingScreen); no text. Shown only while .qs-arriving. */
 .rs-analysing {
   position: absolute;
@@ -199,20 +193,6 @@ body {
   gap: var(--space-4);
   align-items: start;
 }
-/* The Container details and Markings cards share the row and its height, wrapping to one column when narrow.
-   (A grid with auto-fit would keep an empty third track: the full-width export row holds every track open.) */
-.rs-cards {
-  display: flex;
-  flex-wrap: wrap;
-  gap: var(--space-4);
-}
-.rs-cards > .rs-card {
-  flex: 1 1 calc(var(--space-8) * 8);
-  min-width: 0;
-}
-.rs-right:empty {
-  display: none;
-}
 /* The ledger's skeleton in place of a value while the ID is read: a reading's width, a line's height. */
 .rs-ledger-skeleton {
   display: block;
@@ -229,6 +209,13 @@ body {
 .qs-ledger__crop .rs-crop .rs-crop__frame {
   max-width: min(100%, calc(var(--space-8) * 2 * var(--crop-aspect, 2)));
   margin-left: auto;
+}
+/* In the narrow list each close-up has a line of its own under its row: up to twice as tall, and left-aligned. */
+@container (max-width: 1300px) {
+  .qs-ledger__crop .rs-crop .rs-crop__frame {
+    max-width: min(100%, calc(var(--space-8) * 4 * var(--crop-aspect, 2)));
+    margin-left: 0;
+  }
 }
 .rs-damage {
   grid-column: 1/-1;

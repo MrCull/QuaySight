@@ -140,13 +140,31 @@ function combineSeal(runs: PhotoRecord[]): { reading: SealReading | null; from: 
   // The crop: the photo that gave most of the characters used, among those where the seal was located
   // (the model's own box, or the area the regions or the zoomed read found; combinePhotos adds the area).
   const located = (r: PhotoRecord) =>
-    Boolean(r.record.seal!.box ?? r.record.sealZoomRead?.box ?? r.record.regions?.found?.seal?.box)
+    Boolean(
+      r.record.tileSearch?.seal ??
+      r.record.seal!.box ??
+      r.record.sealZoomRead?.box ??
+      r.record.regions?.found?.seal?.box,
+    )
+  // A photo where reading its parts placed the number comes first: its close-up frames the number.
+  const placed = (r: PhotoRecord) => (r.record.tileSearch?.seal ? 1 : 0)
   const boxed = same
     .filter(located)
-    .sort((a, b) => (taken.get(b.photo) ?? 0) - (taken.get(a.photo) ?? 0) || a.photo - b.photo)[0]
+    .sort(
+      (a, b) =>
+        placed(b) - placed(a) ||
+        (taken.get(b.photo) ?? 0) - (taken.get(a.photo) ?? 0) ||
+        a.photo - b.photo,
+    )[0]
   if (boxed) {
     if (boxed.record.seal!.box) reading.box = boxed.record.seal!.box
+    if (boxed.record.tileSearch?.seal) reading.tileBox = boxed.record.tileSearch.seal
     reading.photo = boxed.photo
+  } else {
+    // Located nowhere: still name the photo that gave most characters. A seal close-up photo is then
+    // shown whole (closeUpSources.ts); any other photo shows nothing.
+    const most = [...taken.entries()].sort((a, b) => b[1] - a[1] || a[0] - b[0])[0]
+    if (most) reading.photo = most[0]
   }
   return { reading, from: [...taken.keys()].sort((a, b) => a - b) }
 }

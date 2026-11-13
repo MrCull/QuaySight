@@ -64,7 +64,6 @@ test.describe('Seal and placards across photos', () => {
   }) => {
     await answer(page)
     await page.goto('/')
-    await page.locator('#provider-button').click()
     await page.getByTestId('provider-option-luna').click()
     const key = page.getByLabel('OpenAI API key', { exact: true })
     await key.fill('playwright-placeholder-not-a-key')
