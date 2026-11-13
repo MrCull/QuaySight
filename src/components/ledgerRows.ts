@@ -6,6 +6,7 @@
 // Markings builders, so the words, certainties and notes are the same; whatever the ledger shows is left
 // out of those cards (LEDGER_DETAIL_LABELS, ledgerMarkingLabels).
 import { placardInDoubt } from '../domain/keyFacts'
+import { isTankContainer } from '../domain/tankContainer'
 import { idResultState, visibleAlternatives } from '../domain/certainty'
 import type { CertaintyLabel, InspectionRecord } from '../domain/inspection'
 import type { Units } from '../domain/unitPreference'
@@ -322,7 +323,9 @@ function sealRow(record: InspectionRecord, door: DoorPaint): LedgerRow | null {
     return {
       ...base,
       groups: null,
-      words: 'No seal visible in this photo',
+      words: isTankContainer(record)
+        ? 'No seal visible: a tank has no doors; any seal is on its valves or manlid'
+        : 'No seal visible in this photo',
       slot: null,
       spoken: null,
     }

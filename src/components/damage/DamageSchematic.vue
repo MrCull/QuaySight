@@ -16,6 +16,8 @@ const props = defineProps<{
   selectedId: number | null
   /** The selected finding's CEDEX location code, lit on the drawing when it has one. */
   selectedCode?: string | null
+  /** A tank container: the tank is drawn in its frame, and its ends are the rear and front ends, not doors. */
+  tank?: boolean
 }>()
 const emit = defineEmits<{ select: [id: number] }>()
 
@@ -51,8 +53,14 @@ function coverageText(face: FixedFace, status: FaceStatus): string {
   return 'Not seen'
 }
 
+// A tank has no doors: its ends are named the rear end and the front end.
+const TANK_END_NAME: Partial<Record<FixedFace, string>> = { rear: 'Rear end', front: 'Front end' }
+const endWord = (face: FixedFace, name: string) => (props.tank && TANK_END_NAME[face]) || name
+const viewCaption = (spec: (typeof VIEWS)[keyof typeof VIEWS]) =>
+  props.tank ? `${endWord(spec.end, '')} and ${spec.side} side` : spec.label
+
 const coverage = computed(() =>
-  COVERAGE.map((row) => {
+  COVERAGE.map((row) => ({ ...row, name: endWord(row.face, row.name) })).map((row) => {
     const status = faceStatus(props.assessment, row.face)
     return { ...row, status, text: coverageText(row.face, status) }
   }),
@@ -83,7 +91,7 @@ const views = computed(() =>
   Object.values(VIEWS).map((spec) => {
     const sideStatus = faceStatus(props.assessment, spec.side)
     const endStatus = faceStatus(props.assessment, spec.end)
-    const endName = spec.end === 'rear' ? 'Door end' : 'Blank end (no doors)'
+    const endName = endWord(spec.end, spec.end === 'rear' ? 'Door end' : 'Blank end (no doors)')
     return {
       spec,
       noPhotos: !viewHasPhotos(props.assessment, spec.id),
@@ -126,12 +134,12 @@ const hasZones = computed(() => (props.assessment.zones ?? []).length > 0)
             :data-view-hidden="v.spec.id"
           >
             <i class="qs-glyph qs-glyph--unseen" aria-hidden="true"></i>
-            <span>{{ v.spec.label }}: not photographed</span>
+            <span>{{ viewCaption(v.spec) }}: not photographed</span>
           </p>
           <SchematicFigure
             v-else
             :id="v.spec.id"
-            :caption="v.spec.label"
+            :caption="viewCaption(v.spec)"
             :no-photos="v.noPhotos"
             :side="v.side"
             :end="v.end"
@@ -139,6 +147,7 @@ const hasZones = computed(() => (props.assessment.zones ?? []).length > 0)
             :markers="v.markers"
             :zones="v.zones"
             :length-ft="assessment.lengthFt"
+            :tank="tank"
             :section-numbers="sidesNumbered && v.side.status === 'photographed'"
             :cedex="cedexOn(v.spec)"
             :selected-id="selectedId"

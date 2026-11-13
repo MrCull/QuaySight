@@ -11,6 +11,7 @@ import { dgClassName } from './containerDetailTypes'
 import type { DamageFinding, Severity } from './damage'
 import type { CertaintyLabel, ContainerIdReading, InspectionRecord } from './inspection'
 import type { StageId } from './runStages'
+import { isTankContainer } from './tankContainer'
 
 export type PartState = 'reading' | 'arrived' | 'unavailable'
 /** Where each stage of the run is: still reading, arrived, or failed or did not finish (unavailable). */
@@ -37,6 +38,7 @@ export const READING_TEXT = 'Reading…'
 export const NO_RESULT_TEXT = 'No result'
 export const ID_NOT_READABLE_TEXT = 'ID not readable in this photo'
 const NOT_ASSESSED_TEXT = 'Not assessed'
+export const TANK_SEAL_NOTE = 'Tank container: no doors; any seal is on the valves or manlid'
 
 const LABEL: Record<KeyFactId, string> = {
   id: 'Container ID',
@@ -73,7 +75,11 @@ function idTile(state: PartState, record: InspectionRecord | null): KeyFactTile 
 function sealTile(state: PartState, record: InspectionRecord | null): KeyFactTile {
   const seal = record?.seal
   if (!seal) return tile('seal', state, { headline: NOT_ASSESSED_TEXT })
-  if (!seal.visible) return tile('seal', state, { headline: 'Not seen', certainty: 'Not seen' })
+  if (!seal.visible) {
+    // A tank has no doors to seal: say where a seal would be, so Not seen is not read as a missing seal.
+    const notes = isTankContainer(record) ? [TANK_SEAL_NOTE] : []
+    return tile('seal', state, { headline: 'Not seen', certainty: 'Not seen', notes })
+  }
   if (!seal.characters.some((c) => c.value !== null)) {
     return tile('seal', state, { headline: 'Number not readable', certainty: seal.certainty })
   }

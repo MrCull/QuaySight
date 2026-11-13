@@ -1,5 +1,6 @@
 import { describe, it, expect } from 'vitest'
-import { buildKeyFacts, type KeyFactTile, type PartStates } from '../keyFacts'
+import { buildKeyFacts, TANK_SEAL_NOTE, type KeyFactTile, type PartStates } from '../keyFacts'
+import { decodeSizeCode } from '../isoSizeCode'
 import { buildContainerIdReading } from '../containerId'
 import type { DamageAssessment, DamageFinding } from '../damage'
 import type { InspectionRecord } from '../inspection'
@@ -134,6 +135,15 @@ describe('the Seal tile', () => {
     const t = tile(buildKeyFacts(await record({ seal: reading }), ARRIVED), 'seal')!
     expect(t.headline).toBe('Not seen')
     expect(t.certainty).toBe('Not seen')
+    expect(t.notes).toEqual([])
+  })
+
+  it('says where a seal would be on a tank container, which has no doors', async () => {
+    const reading = seal({ visible: false, characters: [], value: '', certainty: 'Not seen' })
+    const tank = await record({ seal: reading, sizeCode: decodeSizeCode('22T6', 'Confident') })
+    const t = tile(buildKeyFacts(tank, ARRIVED), 'seal')!
+    expect(t.headline).toBe('Not seen')
+    expect(t.notes).toEqual([TANK_SEAL_NOTE])
   })
 
   it('says the number is not readable when a seal is visible with no number', async () => {

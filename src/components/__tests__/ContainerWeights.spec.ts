@@ -44,10 +44,7 @@ describe('the weights in Container details', () => {
       'PAYLOAD',
       'PAYLOAD (CALCULATED)',
       'CUBIC CAPACITY',
-      'REEFER',
-      'OPEN TOP',
-      'TANK',
-      'FLAT RACK',
+      'NOT',
     ])
     const gross = rowOf(wrapper, 'MAX GROSS')
     expect(gross.find('.qs-field__value').text()).toContain('30,480 kg')

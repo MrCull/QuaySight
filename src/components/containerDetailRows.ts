@@ -347,6 +347,38 @@ export function equipmentGroup(record: InspectionRecord): DetailGroup {
   }
 }
 
+/** The label of the one row that gathers every equipment check answered no. */
+export const NOT_LABEL = 'NOT'
+
+const CERTAINTY_ORDER: CertaintyLabel[] = ['Confident', 'Likely', 'Uncertain', "Can't tell", 'Not seen']
+const titleCase = (label: string) => label.charAt(0) + label.slice(1).toLowerCase()
+
+/**
+ * The equipment checks grouped by answer: each yes as its own row first, then the noes gathered into one
+ * NOT row ("Reefer · Open top · Flat rack"), one per certainty when they differ, then each unclear check.
+ * A no that disagrees with the code keeps its own row, so its note stays beside it.
+ */
+export function groupedEquipmentRows(group: DetailGroup): DetailRow[] {
+  const yes = group.rows.filter((r) => r.value === yesNoText('yes'))
+  const plainNo = group.rows.filter((r) => r.value === yesNoText('no') && r.note === null)
+  const rest = group.rows.filter((r) => !yes.includes(r) && !plainNo.includes(r))
+  const noes = CERTAINTY_ORDER.flatMap((certainty): DetailRow[] => {
+    const rows = plainNo.filter((r) => r.certainty === certainty)
+    if (rows.length === 0) return []
+    return [
+      {
+        label: NOT_LABEL,
+        value: rows.map((r) => titleCase(r.label)).join(' · '),
+        absentText: NOT_CLEAR,
+        ...MODEL_SELECTED,
+        certainty,
+        note: null,
+      },
+    ]
+  })
+  return [...yes, ...noes, ...rest]
+}
+
 /** Every group, in panel order. */
 export function detailGroups(record: InspectionRecord, units: Units = 'metric'): DetailGroup[] {
   return [sizeGroup(record), weightGroup(record, units), equipmentGroup(record)]

@@ -92,7 +92,7 @@ describe('ContainerDetails', () => {
     }
   })
 
-  it('shows each equipment check as its own row, with a conflict with the code explained', async () => {
+  it('groups the equipment checks: yes first, the noes in one row, a conflict and an unclear one apart', async () => {
     const record = await liveDetailsRecord()
     record.details!.equipment.reefer = {
       answer: 'no',
@@ -112,9 +112,27 @@ describe('ContainerDetails', () => {
     expect(row('REEFER').text()).toContain('No')
     expect(row('REEFER').text()).toContain('Uncertain')
     expect(row('REEFER').find('.qs-field__note').text()).toContain('42R1')
-    expect(row('OPEN TOP').text()).toContain('No')
     expect(row('TANK').text()).toContain("Can't tell")
-    expect(row('FLAT RACK').text()).toContain('Confident')
+    // Open top and flat rack are both a Confident no: one row says what the container is not.
+    expect(row('NOT').text()).toContain('Open top · Flat rack')
+    expect(row('NOT').text()).toContain('Confident')
+    expect(row('OPEN TOP')).toBeUndefined()
+    const labels = wrapper.findAll('.qs-field__label').map((l) => l.text())
+    expect(labels.slice(-3)).toEqual(['NOT', 'REEFER', 'TANK'])
+  })
+
+  it('puts a yes first among the equipment checks', async () => {
+    const record = await liveDetailsRecord()
+    record.details!.equipment.tank = {
+      answer: 'yes',
+      certainty: 'Confident',
+      source: 'observed',
+      conflict: null,
+    }
+    const wrapper = mount(ContainerDetails, { props: { record } })
+    const labels = wrapper.findAll('.qs-field__label').map((l) => l.text())
+    expect(labels.slice(-2)).toEqual(['TANK', 'NOT'])
+    expect(wrapper.findAll('.qs-field').slice(-1)[0]!.text()).toContain('Reefer · Open top · Flat rack')
   })
 
   it("keeps a code it cannot read honest: not visible is Not seen, unreadable is Can't tell", async () => {

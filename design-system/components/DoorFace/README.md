@@ -21,6 +21,7 @@ One `svg.qs-door` with `viewBox="0 0 600 620"` (the door end of a container, in 
   | High-container caution | top of both corner posts | two rects filled with the `qs-door__caution-a` / `-b` stripe pattern |
 
 - **Certainty** of each painted value: one `line.qs-door__u` under it, with `data-c` for the value's weakest character: none (confident, solid), `likely` (dashed), `uncertain` (dotted, amber), `unknown` (thin). The ledger shows the per-character detail; the drawing shows one line per value.
+- **Tank end** (`tank`): a tank container has no doors. The same frame and castings, an octagonal surround (four `qs-door__frame` corner gussets) round a `circle.qs-door__tank` head with its stiffening ring (`qs-door__crease`), and the valve cabinet at the bottom (`qs-door__hw`). No leaves, panels, bars, hinges or handles. Every painted slot stays where it is, so the ledger rows line up the same; the `aria-label` says *Tank end drawn flat* instead of *Rear doors drawn flat*.
 
 ## Rules
 - **Paint only what was read.** A reading that was not read, or was calculated (a payload worked out as max gross minus tare), is not painted: its place on the door stays bare. Never fill a slot with a placeholder number.

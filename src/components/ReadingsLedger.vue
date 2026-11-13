@@ -7,6 +7,7 @@ import type { InspectionRecord } from '../domain/inspection'
 import type { CloseUpSource } from '../domain/closeUpSources'
 import { DOOR_WIDTH, SLOT_Y, ledgerModel, placeRows, type LedgerRow } from './ledgerRows'
 import { useUnits } from '../composables/units'
+import { isTankContainer } from '../domain/tankContainer'
 import CertaintyChip from './CertaintyChip.vue'
 import DoorFace from './DoorFace.vue'
 import PhotoCrop from './PhotoCrop.vue'
@@ -43,11 +44,15 @@ const SKELETON: Pick<LedgerRow, 'key' | 'glyph' | 'label' | 'slot'>[] = [
 ]
 const reading = computed(() => props.busy)
 
+// A tank container has no doors: once the details say it is a tank, its end is drawn instead.
+const tank = computed(() => props.parts.details && isTankContainer(props.record))
+
 const doorLabel = computed(() => {
   const painted = model.value?.rows.filter((r) => r.slot !== null).map((r) => r.label) ?? []
+  const face = tank.value ? 'Tank end' : 'Rear doors'
   return painted.length
-    ? `Rear doors drawn flat, with ${painted.join(', ')} painted where they are usually stencilled`
-    : 'Rear doors drawn flat, readings pending'
+    ? `${face} drawn flat, with ${painted.join(', ')} painted where they are usually stencilled`
+    : `${face} drawn flat, readings pending`
 })
 
 const photoUrl = (n: number | undefined) => (n ? props.photos[n - 1] : undefined)
@@ -186,7 +191,7 @@ watch([model, reading], () => void nextTick(layout), { deep: true })
       </div>
 
       <div ref="door" class="qs-ledger__door">
-        <DoorFace :paint="model?.door ?? {}" :label="doorLabel" />
+        <DoorFace :paint="model?.door ?? {}" :label="doorLabel" :tank="tank" />
       </div>
 
       <div ref="rightSide" class="qs-ledger__side qs-ledger__side--right">

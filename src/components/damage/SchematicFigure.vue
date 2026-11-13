@@ -34,6 +34,8 @@ const props = defineProps<{
   sectionNumbers?: boolean
   /** The selected finding's CEDEX sections (on the side) or positions (on the end), to light up. */
   cedex?: { on: 'side' | 'end'; first: number; last: number } | null
+  /** A tank container: the tank is drawn in its frame (a barrel along the side, the round head on the end). */
+  tank?: boolean
 }>()
 
 const emit = defineEmits<{ select: [id: number] }>()
@@ -134,6 +136,23 @@ const positionShapes = computed(() =>
   [1, 2, 3, 4]
     .filter((p) => inSpan('end', p))
     .map((p) => ({ id: p, points: quad(endPt, (p - 1) / 4, p / 4, 0, 1) })),
+)
+
+// The tank in its frame: the barrel inset from the side's rails and posts, with its hoop bands, and the
+// round head on the end (a circle on the flat end, so an ellipse once projected).
+const TANK_V = [0.1, 0.9]
+const tankSide = computed(() => quad(sidePt, 0.03, 0.97, TANK_V[0]!, TANK_V[1]!))
+const tankBands = computed(() =>
+  [0.25, 0.5, 0.75].map((u) => {
+    const [a, b] = [sidePt(u, TANK_V[0]!), sidePt(u, TANK_V[1]!)]
+    return { id: u, x1: a[0], y1: a[1], x2: b[0], y2: b[1] }
+  }),
+)
+const tankHead = computed(() =>
+  Array.from({ length: 36 }, (_, i) => {
+    const t = (i / 36) * 2 * Math.PI
+    return endPt(0.5 + 0.42 * Math.cos(t), 0.5 + 0.42 * Math.sin(t)).join(',')
+  }).join(' '),
 )
 
 const SIDE_POINTS = computed(() => quad(sidePt, 0, 1, 0, 1))
@@ -266,6 +285,10 @@ function select(id: number) {
           </text>
         </g>
       </g>
+      <g v-if="tank && side.status !== 'not-seen'" class="qs-c-tank" data-tank="side">
+        <polygon :points="tankSide" />
+        <line v-for="b in tankBands" :key="b.id" :x1="b.x1" :y1="b.y1" :x2="b.x2" :y2="b.y2" />
+      </g>
       <text class="qs-c-label" text-anchor="end" :x="sideLabel[0]" :y="sideLabel[1]">
         {{ side.text }}
       </text>
@@ -278,6 +301,9 @@ function select(id: number) {
           :points="END_POINTS"
           :fill="`url(#${id}-hatch)`"
         />
+        <g v-if="tank && end.status !== 'not-seen'" class="qs-c-tank" data-tank="end">
+          <polygon :points="tankHead" />
+        </g>
         <text class="qs-c-label" :x="endLabel[0]" :y="endLabel[1]">
           {{ end.text }}
         </text>

@@ -210,6 +210,10 @@
 .qs-c-side-rib { fill: var(--schem-side-rib); }
 .qs-c-end { fill: var(--schem-end); }
 .qs-c-end-rib { fill: var(--schem-end-rib); }
+/* A tank container: the tank in its frame, drawn over the face, under the sections and markers. */
+.qs-c-tank { pointer-events: none; }
+.qs-c-tank polygon { fill: var(--schem-top); stroke: var(--schem-stroke); stroke-width: 1.2; }
+.qs-c-tank line { stroke: var(--schem-stroke); stroke-width: 1; opacity: 0.55; }
 .qs-c-top { fill: var(--schem-top); }
 .qs-c-rail { fill: var(--schem-rail); }
 .qs-c-crease { stroke: var(--schem-rail); stroke-width: 1; opacity: 0.55; }
@@ -711,6 +715,8 @@
 .qs-door__frame { fill: var(--schem-rail); stroke: var(--schem-stroke); stroke-width: 1.2; }
 .qs-door__leaf { fill: var(--schem-end); stroke: var(--schem-stroke); stroke-width: 1.2; }
 .qs-door__panel { fill: var(--schem-end-rib); }
+/* The tank end (DoorFace with no doors): the round tank head in the frame. */
+.qs-door__tank { fill: var(--schem-side); stroke: var(--schem-stroke); stroke-width: 1.2; }
 .qs-door__crease { stroke: var(--schem-stroke); stroke-opacity: 0.35; }
 .qs-door__gap { stroke: var(--schem-stroke); stroke-width: 2; }
 .qs-door__bar { stroke: var(--schem-detail); stroke-width: 5; stroke-linecap: round; }
