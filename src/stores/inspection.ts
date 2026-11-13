@@ -41,7 +41,8 @@ import {
 import { draftRecord } from '../plan/draftRecord'
 import { planRequests } from '../plan/registry'
 import { planForPhoto } from '../plan/photoPlan'
-import { combinePhotoRuns, droppedPhotoMessage } from '../domain/combinePhotos'
+import { combinePhotoRuns } from '../domain/combinePhotos'
+import { notAContainerCount } from '../domain/notAContainer'
 
 export interface SelectedPhoto {
   name: string
@@ -199,6 +200,14 @@ export const useInspectionStore = defineStore('inspection', {
      */
     showNewInspection(): boolean {
       return this.photo !== null || this.sample !== null
+    },
+    /**
+     * How many photos the not-a-container screen is for: every photo of a completed live run is not a
+     * container. 0 otherwise, including while the run is still going.
+     */
+    notAContainer(): number {
+      if (this.demo || this.status !== 'complete') return 0
+      return notAContainerCount(this.record, this.photos.length)
     },
     /** The key for the selected provider only. */
     apiKey(): string {
@@ -588,13 +597,8 @@ export const useInspectionStore = defineStore('inspection', {
           return
         }
         const result = combined()
-        if (several && result.photos!.every((p) => p.dropped)) {
-          // No photo shows a container: there is nothing to show but why.
-          this.record = null
-          this.status = 'failed'
-          this.errorMessage = result.photos!.map((p) => droppedPhotoMessage(p.index)).join('. ')
-          return
-        }
+        // No photo shows a container: the result is kept and completes, and the not-a-container screen
+        // takes over (notAContainer getter, components/NotAContainer.vue).
         // Partial when any photo lost a part, even one another photo gave.
         const incomplete = failedStagesByPhoto(this.planned).length > 0
         this.record = { ...result, status: incomplete ? 'partial' : 'complete' }

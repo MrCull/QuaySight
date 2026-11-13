@@ -121,6 +121,7 @@ Priority labels: **MUST** = core innovation-event POC; **SHOULD** = strongly des
 - Do not require the user to know or supply the container ID, length, face, orientation, equipment type or any other classification.
 - The model works out which face each photo shows (doors, front end, left side, right side, not a container, or can't tell) from the survey of that photo. The presenter cannot correct it. Where the face cannot be told, use image-relative positions. No mandatory classification questions to the user.
 - A photo that does not show a container is dropped with "Photo N doesn't show a container", gets no further requests and does not spoil the result.
+- When no photo shows a container, the results give way to the not-a-container screen (design-system/components/NotAContainer): the photos stamped REJECTED, a made-up container ID, a "Wannabe QA" achievement and a way back to a new inspection. It is the one screen that jokes. The model only says a photo is not a container, so the screen never names what the photo shows. The one exception is an Easter egg: the survey asks one yes/no question, whether the photo shows a banana or a banana skin, and when a non-container photo does, the screen turns gold (A-PEEL DENIED, a Legendary "Banana skin" achievement).
 - Start analysis explicitly, with visible progress through understandable stages; use provider-neutral terms in the main flow and specific provider/model labels in detail.
 
 **SHOULD**

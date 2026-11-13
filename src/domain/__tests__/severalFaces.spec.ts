@@ -12,9 +12,28 @@ const choice = (value: string, p = 0.96): SharedAnswer => ({
 const yes = (probability: number): SharedAnswer => ({ type: 'predicate', probability })
 
 describe('several faces in one photo', () => {
-  it('asks one yes/no question per face beside the main face', () => {
+  it('asks one yes/no question per face beside the main face, then the banana question', () => {
     const names = facePart.questions({ questionSet: 'luna', box: false }).map((q) => q.name)
-    expect(names).toEqual(['photo_face', 'shows_rear_doors', 'shows_long_side', 'shows_front_end'])
+    expect(names).toEqual([
+      'photo_face',
+      'shows_rear_doors',
+      'shows_long_side',
+      'shows_front_end',
+      'shows_banana',
+    ])
+  })
+
+  it('marks a banana only on a photo that is not a container, at even odds or more', () => {
+    expect(faceOf({ photo_face: choice('not_a_container'), shows_banana: yes(0.9) })?.banana).toBe(
+      true,
+    )
+    expect(
+      faceOf({ photo_face: choice('not_a_container'), shows_banana: yes(0.3) })?.banana,
+    ).toBeUndefined()
+    expect(
+      faceOf({ photo_face: choice('rear_doors'), shows_banana: yes(0.99) })?.banana,
+    ).toBeUndefined()
+    expect(faceOf({ photo_face: choice('not_a_container') })?.banana).toBeUndefined()
   })
 
   it('lists the main face first, then each other face above even odds', () => {

@@ -32,6 +32,11 @@ export interface FaceReading {
    * when the model answered none of the "shows" questions: the photo then shows its main face only.
    */
   shown?: PhotoFace[]
+  /**
+   * A photo that is not a container and shows a banana or a banana skin (the not-a-container screen's
+   * Easter egg). Present only then; never set on a photo of a container.
+   */
+  banana?: true
 }
 
 /** The faces a photo shows, the main face first. A close-up, a non-container and an unknown face show only themselves. */
@@ -82,6 +87,20 @@ const SHOWS_QUESTIONS: { name: string; face: PhotoFace; instructions: string }[]
       'Does this photo show any of the front end: the end wall opposite the doors, a short corrugated or flat panel between two corner posts with no locking bars, handles or hinges? It may carry the container ID, the size-type code or a hazard placard. Count it even if it is seen at an angle beside a long side and is not the main subject.',
   },
 ]
+
+/**
+ * The Easter-egg question: whether a photo shows a banana or its skin. Asked in every survey (one yes/no), used
+ * only when the photo is not a container, so a false yes on a container photo changes nothing.
+ */
+export const BANANA_QUESTION: PredicateQuestion = {
+  type: 'predicate',
+  name: 'shows_banana',
+  instructions:
+    'Does this photo show a banana or a banana skin (peel)? Answer only from what is visible; most photos will not.',
+}
+
+/** A banana counts when the model puts it at this or more. */
+export const BANANA_MIN = 0.5
 
 /** A face counts as shown beside the main one when the model puts it above even odds. */
 const SHOWN_MIN = 0.5
@@ -166,7 +185,14 @@ export function faceOf(answers: Record<string, SharedAnswer>): FaceReading | nul
     probability,
     certainty: applyMargin(certaintyOfProbability(probability), probability, runnerUp),
     ...shownBeside(face, answers, answer.probabilities),
+    ...(face === 'not-container' && showsBanana(answers) ? { banana: true as const } : {}),
   }
+}
+
+/** Whether the survey says the photo shows a banana or its skin. False when the question was not answered. */
+function showsBanana(answers: Record<string, SharedAnswer>): boolean {
+  const answer = answers[BANANA_QUESTION.name]
+  return answer?.type === 'predicate' && (answer.probability ?? 0) >= BANANA_MIN
 }
 
 /**
@@ -220,6 +246,7 @@ export const facePart: SurveyPart = {
       name: q.name,
       instructions: q.instructions,
     })),
+    BANANA_QUESTION,
   ],
   read: (answers) => faceOf(answers),
   apply: (record, face) => withPhotoFace(record, face),

@@ -268,18 +268,41 @@ describe('several photos of one container', () => {
     expect(store.record?.containerId?.value).toBe(COYU)
   })
 
-  it('says why when no photo shows a container', async () => {
-    const { store } = run([
+  it('completes for the not-a-container screen when no photo shows a container', async () => {
+    const { store, requests } = run([
       { name: 'a.jpg', width: 1000, id: '???????????', face: 'not_a_container' },
       { name: 'b.jpg', width: 1100, id: '???????????', face: 'not_a_container' },
     ])
 
     await store.start()
 
-    expect(store.status).toBe('failed')
-    expect(store.errorMessage).toBe(
-      "Photo 1 doesn't show a container. Photo 2 doesn't show a container",
-    )
+    expect(store.status).toBe('complete')
+    expect(store.errorMessage).toBeNull()
+    expect(store.notAContainer).toBe(2)
+    // Nothing more than the survey is sent for a photo that is not a container.
+    expect(requests().map((r) => r.kind)).toEqual(['survey', 'survey'])
+  })
+
+  it('completes for the not-a-container screen when the one photo is not a container', async () => {
+    const { store } = run([
+      { name: 'a.jpg', width: 1000, id: '???????????', face: 'not_a_container' },
+    ])
+
+    await store.start()
+
+    expect(store.status).toBe('complete')
+    expect(store.notAContainer).toBe(1)
+  })
+
+  it('keeps the normal result when only some photos are not containers', async () => {
+    const { store } = run([
+      DOORS,
+      { name: 'lorry.jpg', width: 1200, id: '???????????', face: 'not_a_container' },
+    ])
+
+    await store.start()
+
+    expect(store.notAContainer).toBe(0)
   })
 
   it('lets a photo whose face cannot be identified still give its ID, with no damage request', async () => {
