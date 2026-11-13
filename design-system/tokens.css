@@ -42,6 +42,8 @@
   --hazard-bg: #fff0e5;
   --error-fg: #c0282d;
   --error-bg: #fdeaea;
+  --troll-fg: #c2183f;
+  --troll-bg: #fde6ec;
   --schem-side: #c3cfdb;
   --schem-side-rib: #d4dee8;
   --schem-end: #aab9c9;
@@ -86,6 +88,7 @@
   --font-sans: "IBM Plex Sans", system-ui, sans-serif;
   --font-mono: "IBM Plex Mono", ui-monospace, monospace;
   --font-hero: "Bricolage Grotesque", "IBM Plex Sans", system-ui, sans-serif;
+  --font-troll: "Comic Neue", "Comic Sans MS", cursive;
 }
 
 :root[data-theme="dark"] {
@@ -129,6 +132,8 @@
   --hazard-bg: #3a1d08;
   --error-fg: #ff6b6b;
   --error-bg: #3b1416;
+  --troll-fg: #ff5c7a;
+  --troll-bg: #3d1020;
   --schem-side: #24364a;
   --schem-side-rib: #2f465f;
   --schem-end: #1b2a3a;

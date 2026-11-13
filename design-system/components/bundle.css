@@ -859,3 +859,66 @@
 .qs-tabs__count { color: var(--ink-muted); font: 500 14px/1 var(--font-mono); letter-spacing: 0; }
 .qs-tabs__panel { min-width: 0; }
 @media (max-width: 640px) { .qs-tabs__list { gap: var(--space-5); } .qs-tabs__tab { font-size: 20px; } }
+
+/* ---------- Not a container (every photo is something else; the one screen that jokes) ----------
+   Photos stamped REJECTED, a made-up container ID, an achievement, a "next up" and a way back. Stacked on a
+   phone; photos left and the rest right from 960px. Set on .qs-nac: --cols, photo columns on a phone (the count,
+   at most 3), and --rest, the columns under the first photo on a wide screen (the count less one, at least 1). */
+.qs-nac { --cols: 1; --rest: 1; display: grid; gap: var(--space-5); align-items: start; }
+.qs-nac__title { position: absolute; width: 1px; height: 1px; margin: -1px; padding: 0; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0; }
+.qs-nac__photos { display: grid; gap: var(--space-2); grid-template-columns: repeat(var(--cols), minmax(0, 1fr)); }
+.qs-nac__photo { position: relative; margin: 0; height: 170px; border: 1px solid var(--line); border-radius: var(--radius-lg); overflow: hidden; background: var(--surface-sunken); container-type: inline-size; }
+.qs-nac[data-several] .qs-nac__photo { height: 118px; border-radius: var(--radius-md); }
+.qs-nac__photo img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; filter: grayscale(0.6) brightness(0.65); }
+.qs-nac__num { position: absolute; left: var(--space-2); top: var(--space-2); padding: 2px 6px; border-radius: var(--radius-xs); background: var(--surface); color: var(--ink-muted); font: 500 12px/1 var(--font-mono); }
+.qs-nac__stamp { position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%) rotate(-14deg); padding: 0.06em 0.3em; border: 0.09em double var(--troll-fg); border-radius: var(--radius-md); background: color-mix(in srgb, var(--troll-bg) 55%, transparent); color: var(--troll-fg); font: 600 clamp(18px, 13cqi, 104px)/1.05 var(--font-display); letter-spacing: 0.08em; white-space: nowrap; -webkit-mask-image: repeating-linear-gradient(35deg, #000 0 7px, rgba(0, 0, 0, 0.72) 7px 9px); mask-image: repeating-linear-gradient(35deg, #000 0 7px, rgba(0, 0, 0, 0.72) 7px 9px); }
+.qs-nac__tally { grid-column: 1 / -1; margin: 0; color: var(--ink-muted); font: 400 12px/16px var(--font-sans); }
+.qs-nac__side { display: grid; gap: var(--space-4); min-width: 0; }
+.qs-nac__tile { position: relative; display: grid; gap: var(--space-3); padding: var(--space-4) var(--space-5); background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius-md); }
+.qs-nac__head { display: flex; align-items: center; justify-content: space-between; gap: var(--space-2); }
+.qs-nac__label { color: var(--ink-muted); font: 600 13px/16px var(--font-sans); letter-spacing: 0.06em; text-transform: uppercase; }
+.qs-nac .qs-id { font-size: 28px; line-height: 36px; gap: var(--space-2); }
+.qs-nac__tags { display: flex; flex-wrap: wrap; gap: 6px; }
+.qs-nac__tag { display: inline-flex; align-items: center; height: 24px; padding: 0 var(--space-2); border: 1px solid var(--line-strong); border-radius: var(--radius-xs); color: var(--ink-muted); font: 400 12px/1 var(--font-sans); }
+.qs-nac__ach { border-color: var(--brand); }
+.qs-nac__achrow { display: flex; align-items: center; gap: var(--space-4); }
+.qs-nac__badge { flex: none; width: 76px; height: 76px; }
+.qs-nac__badge-rim { fill: var(--surface); stroke: var(--brand); stroke-width: 6; }
+.qs-nac__badge-ring { fill: none; stroke: var(--line-strong); stroke-width: 2; stroke-dasharray: 5 5; }
+.qs-nac__badge-mark { fill: none; stroke: var(--brand); stroke-width: 9; }
+.qs-nac__badge-eye { fill: var(--brand); }
+.qs-nac__achtext { display: grid; gap: 3px; }
+.qs-nac__achtitle { margin: 0; font: 600 30px/30px var(--font-display); }
+.qs-nac__caption { margin: 0; color: var(--ink-muted); font: 400 12px/16px var(--font-sans); }
+.qs-nac__xphead { display: flex; justify-content: space-between; gap: var(--space-2); }
+.qs-nac__xpgain { color: var(--ink); font: 500 12px/16px var(--font-mono); }
+.qs-nac__xp { height: 10px; border: 1px solid var(--line); border-radius: var(--radius-xs); background: var(--surface-sunken); overflow: hidden; }
+.qs-nac__xp i { display: block; height: 100%; width: var(--xp, 5%); background: var(--brand); }
+.qs-nac__combo { position: absolute; right: -6px; top: -14px; transform: rotate(8deg); padding: var(--space-1) 10px; border-radius: var(--radius-sm); background: var(--brand); color: var(--on-brand); font: 700 18px/20px var(--font-troll); }
+.qs-nac__next { display: grid; grid-template-columns: 40px 1fr auto; align-items: center; gap: var(--space-3); padding: 10px var(--space-3); background: var(--surface); border: 1px dashed var(--line-strong); border-radius: var(--radius-md); }
+.qs-nac__lock { width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; border: 2px dashed var(--line-strong); border-radius: var(--radius-md); color: var(--ink-muted); font: 500 18px/1 var(--font-mono); }
+.qs-nac__nexttitle { display: block; font: 600 15px/20px var(--font-sans); }
+.qs-nac__mock { display: block; color: var(--ink-muted); font: 700 14px/18px var(--font-troll); }
+.qs-nac__progress { color: var(--ink-muted); font: 500 12px/16px var(--font-mono); }
+.qs-nac__respawn { width: 100%; }
+.qs-nac__egg { margin: 0; color: var(--ink-muted); opacity: 0.55; font: 400 11px/14px var(--font-mono); text-align: center; }
+
+/* Wide screens: the photos lead on the left, the first one large and the rest in a row beneath it. */
+@media (min-width: 960px) {
+  .qs-nac { grid-template-columns: minmax(0, 1.35fr) minmax(0, 1fr); gap: var(--space-6); }
+  .qs-nac__photos { grid-template-columns: repeat(var(--rest), minmax(0, 1fr)); }
+  .qs-nac__photo, .qs-nac[data-several] .qs-nac__photo { height: 220px; border-radius: var(--radius-lg); }
+  .qs-nac__photo:first-child, .qs-nac[data-several] .qs-nac__photo:first-child { grid-column: 1 / -1; height: 460px; }
+  .qs-nac:not([data-several]) .qs-nac__photo:first-child { height: 560px; }
+  .qs-nac .qs-id { font-size: 52px; line-height: 62px; gap: var(--space-4); }
+  .qs-nac__tile { padding: var(--space-5) var(--space-5); }
+  .qs-nac__badge { width: 104px; height: 104px; }
+  .qs-nac__achtitle { font-size: 44px; line-height: 44px; }
+  .qs-nac__combo { font-size: 24px; line-height: 26px; padding: 6px 14px; top: -18px; right: -10px; }
+  .qs-nac__mock { font-size: 16px; line-height: 22px; }
+  .qs-nac__egg { grid-column: 1 / -1; text-align: left; }
+}
+
+/* Arrival: each stamp thunks down in turn, then the rest rises (.qs-rise). Reduced motion drops it (above). */
+@keyframes qs-stamp { from { opacity: 0; transform: translate(-50%, -50%) rotate(-14deg) scale(2.4); } 60% { opacity: 1; transform: translate(-50%, -50%) rotate(-14deg) scale(0.94); } to { opacity: 1; transform: translate(-50%, -50%) rotate(-14deg) scale(1); } }
+.qs-arrived .qs-nac__stamp { animation: qs-stamp 420ms cubic-bezier(.2,.8,.2,1) both; animation-delay: calc(var(--i, 0) * 160ms + 120ms); }

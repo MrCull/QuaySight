@@ -18,6 +18,7 @@ import DemoBanner from './components/DemoBanner.vue'
 import SamplePicker from './components/SamplePicker.vue'
 import RunChip from './components/RunChip.vue'
 import ThemeToggle from './components/ThemeToggle.vue'
+import NotAContainer from './components/NotAContainer.vue'
 import { isTankContainer } from './domain/tankContainer'
 
 const store = useInspectionStore()
@@ -73,7 +74,9 @@ const stageClass = computed(() => {
     <LandingScreen v-if="setup.view === 'setup'" />
 
     <main v-else id="stage" :class="['rs-main', stageClass, { 'rs-main--start': startScreen }]">
-      <section class="rs-band">
+      <!-- Every photo is something other than a container: this screen takes the place of the results. -->
+      <NotAContainer v-if="store.notAContainer > 0" />
+      <section v-if="store.notAContainer === 0" class="rs-band">
         <SamplePicker v-if="store.demo && !store.photo" />
         <PhotoPanel v-else />
         <div
@@ -93,7 +96,7 @@ const stageClass = computed(() => {
           >
         </div>
       </section>
-      <ResultsPanel>
+      <ResultsPanel v-if="store.notAContainer === 0">
         <!-- The panel shows this under its Damage tab, once damage has run to the end. -->
         <DamageView
           v-if="store.record"
