@@ -48,7 +48,7 @@ describe('Build stamp', () => {
 
     it('is in the footer of the setup screen', () => {
       const wrapper = mount(App)
-      expect(wrapper.find('.qs-setupcard').exists()).toBe(true)
+      expect(wrapper.find('.qs-landing').exists()).toBe(true)
       expect(wrapper.get('footer .rs-buildstamp').text()).toMatch(stamp)
     })
 

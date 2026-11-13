@@ -17,7 +17,6 @@ async function choosePhoto(page: Page) {
 /** Types the placeholder on the setup card, then continues to the inspection screen. */
 async function enterKey(page: Page) {
   // OpenRouter is pre-selected; these runs use OpenAI's Luna.
-  await page.locator('#provider-button').click()
   await page.getByTestId('provider-option-luna').click()
   const key = page.getByLabel('OpenAI API key', { exact: true })
   await key.fill(PLACEHOLDER_KEY)
@@ -26,7 +25,7 @@ async function enterKey(page: Page) {
 
 /** Demo mode with no key: the rear-doors sample on screen, ready to start. */
 async function openRearDoorsSample(page: Page) {
-  await page.getByRole('button', { name: 'Enter as demo user' }).click()
+  await page.getByRole('button', { name: 'Try the demo' }).click()
   await page.getByRole('button', { name: /Rear doors with markings/ }).click()
 }
 
@@ -41,7 +40,7 @@ function trackProviderRequests(page: Page): string[] {
 test('a live run cannot start without a key', async ({ page }) => {
   const providerRequests = trackProviderRequests(page)
   await page.goto('/')
-  await expect(page.getByRole('button', { name: 'Continue' })).toBeDisabled()
+  await expect(page.getByRole('button', { name: 'Start' })).toBeDisabled()
 
   // Continue with a key, then clear it from the settings drawer: nothing can start.
   await enterKey(page)

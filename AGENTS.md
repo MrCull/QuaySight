@@ -6,7 +6,7 @@ Quay Sight is a Vue 3 + Vite + TypeScript app that inspects photos of freight co
 
 ## Scope and tech
 
-A static, browser-only app (no backend, no relay). The presenter enters a provider key, which is kept in memory only. They then pick 1–5 photos of one container, and the inspection starts as soon as the photos are chosen. A recorded demo mode with bundled samples needs no key.
+A static, browser-only app (no backend, no relay). The landing screen takes a provider and its key, which is kept in memory only. They then pick 1–5 photos of one container, and the inspection starts as soon as the photos are chosen. A recorded demo mode with bundled samples needs no key.
 
 - **Output:** container ID (ISO 6346 check digit, owner-code list), size/type code, length, weights, seal, placards, and damage on a flat schematic. Each value has a certainty. It is not a certified survey.
 - **Providers:** OpenAI GPT-6 Luna (Decisions API) and Jev, reached through OpenRouter (`docs/adr/0001-*`). One model at a time. Catalogue in `src/domain/providers.ts`.

@@ -47,7 +47,6 @@ const newInspection = (page: Page) =>
 async function continueWithKey(page: Page) {
   await page.goto('/')
   // OpenRouter is pre-selected; these runs use OpenAI's recorded Luna responses.
-  await page.locator('#provider-button').click()
   await page.getByTestId('provider-option-luna').click()
   const key = page.getByLabel('OpenAI API key', { exact: true })
   await key.fill(PLACEHOLDER_KEY)
@@ -115,7 +114,7 @@ test.describe('New inspection', () => {
     page,
   }) => {
     await page.goto('/')
-    await page.getByRole('button', { name: 'Enter as demo user' }).click()
+    await page.getByRole('button', { name: 'Try the demo' }).click()
     await expect(page.getByRole('button', { name: /Rear doors with markings/ })).toBeVisible()
     await expect(newInspection(page)).toHaveCount(0)
 
@@ -222,7 +221,7 @@ test.describe('New inspection', () => {
   test('clears the manifest retry panel', async ({ page }) => {
     // Demo mode: the rear doors' recorded ID has an unread position, so the manifest offer opens.
     await page.goto('/')
-    await page.getByRole('button', { name: 'Enter as demo user' }).click()
+    await page.getByRole('button', { name: 'Try the demo' }).click()
     await page.getByRole('button', { name: /Rear doors with markings/ }).click()
     await page.locator('#stage.qs-arrived').waitFor()
     const offer = page.getByRole('heading', { name: 'Container ID not identified' })

@@ -16,9 +16,9 @@ const startButton = (wrapper: ReturnType<typeof mount>) =>
 describe('App: setup gate', () => {
   beforeEach(() => setActivePinia(createPinia()))
 
-  it('shows only the setup card before Continue, and the inspection screen after', async () => {
+  it('shows only the landing before Start, and the inspection screen after', async () => {
     const wrapper = mount(App)
-    expect(wrapper.find('.qs-setupcard').exists()).toBe(true)
+    expect(wrapper.find('.qs-landing').exists()).toBe(true)
     expect(wrapper.find('#stage').exists()).toBe(false)
     expect(startButton(wrapper)).toBeUndefined()
 
@@ -26,9 +26,9 @@ describe('App: setup gate', () => {
     await nextTick()
     await wrapper
       .findAll('button')
-      .find((b) => b.text() === 'Continue')!
+      .find((b) => b.text() === 'Start')!
       .trigger('click')
-    expect(wrapper.find('.qs-setupcard').exists()).toBe(false)
+    expect(wrapper.find('.qs-landing').exists()).toBe(false)
     expect(wrapper.find('#stage').exists()).toBe(true)
     expect(wrapper.find('.qs-settingschip').attributes('title')).toContain('key set')
   })

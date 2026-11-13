@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed } from 'vue'
+import { computed, nextTick, useSlots, watch } from 'vue'
 import { useInspectionStore } from '../stores/inspection'
 import { recordedDemonstrationLabel } from '../domain/providers'
 import { idResultState, UNREAD } from '../domain/certainty'
@@ -12,7 +12,7 @@ import KeyFacts from './KeyFacts.vue'
 import ReadingsLedger from './ReadingsLedger.vue'
 import { LEDGER_DETAIL_LABELS, ledgerModel } from './ledgerRows'
 import { useUnits } from '../composables/units'
-import { DETAIL_IDS } from '../composables/detailJump'
+import { DETAIL_IDS, detailTab, type DetailTab } from '../composables/detailJump'
 import { DIFFERENT_CONTAINERS_MESSAGE, droppedPhotoMessage } from '../domain/combinePhotos'
 import { causeSentence, type RequestFailure } from '../domain/requestFailure'
 import { idCloseUp, sealCloseUp } from '../domain/closeUpSources'
@@ -129,6 +129,57 @@ const remainsUncertain = computed(() => {
     : 'some characters are hard to read, so the reading could be one of a few things.'
 })
 const showExplanation = computed(() => idState.value === 'uncertain' || idState.value === 'partial')
+
+// Tabs under the readings (design-system Tabs): Characteristics, Damage, Markings. A tab shows once its part
+// has arrived. Damage is left out after a failed damage request: the error notice names it as not checked,
+// and "not assessed in this inspection" would be untrue.
+const slots = useSlots()
+const showDamage = computed(
+  () => !!slots.default && store.landed('damage') && store.stageState('damage') !== 'failed',
+)
+const tabs = computed(() => {
+  const list: { id: DetailTab; label: string; count?: number }[] = []
+  const details = !!record.value && detailsLanded.value
+  if (details) list.push({ id: 'characteristics', label: 'Characteristics' })
+  if (showDamage.value) {
+    const count = record.value?.damage?.findings.length
+    list.push({ id: 'damage', label: 'Damage', count: count || undefined })
+  }
+  if (details) list.push({ id: 'markings', label: 'Markings' })
+  return list
+})
+/** The chosen tab, or the first one there is while the chosen one has not arrived. */
+const activeTab = computed(() =>
+  tabs.value.some((t) => t.id === detailTab.value) ? detailTab.value : tabs.value[0]?.id,
+)
+// Each inspection opens on Characteristics.
+watch(
+  () => record.value === null,
+  (cleared) => {
+    if (cleared) detailTab.value = 'characteristics'
+  },
+)
+
+// Keyboard (WAI-ARIA tabs): arrows, Home and End move along the tabs and open the one they land on.
+async function onTabKey(event: KeyboardEvent) {
+  const ids = tabs.value.map((t) => t.id)
+  const at = ids.indexOf(activeTab.value!)
+  const to =
+    event.key === 'ArrowRight'
+      ? (at + 1) % ids.length
+      : event.key === 'ArrowLeft'
+        ? (at - 1 + ids.length) % ids.length
+        : event.key === 'Home'
+          ? 0
+          : event.key === 'End'
+            ? ids.length - 1
+            : -1
+  if (to < 0) return
+  event.preventDefault()
+  detailTab.value = ids[to]!
+  await nextTick()
+  document.getElementById(`detail-tab-${ids[to]}`)?.focus()
+}
 </script>
 
 <template>
@@ -235,18 +286,75 @@ const showExplanation = computed(() => idState.value === 'uncertain' || idState.
         </div>
       </ReadingsLedger>
 
-      <section class="rs-right" aria-live="polite">
-        <!-- Live: a live call on the same model. Demo: the sample's own recorded check. Never a replay against another photo. -->
-        <ManifestRetry v-if="store.canCheckManifest && !differentContainers" />
+      <!-- Live: a live call on the same model. Demo: the sample's own recorded check. Never a replay against another photo. -->
+      <section
+        v-if="store.canCheckManifest && !differentContainers"
+        class="rs-right"
+        aria-live="polite"
+      >
+        <ManifestRetry />
+      </section>
 
-        <!-- Side by side across the full width when there is room, each card as tall as the taller. -->
-        <div v-if="record && detailsLanded" class="rs-cards">
+      <!-- What is not painted on the doors, one tab at a time. Every panel stays in the page; only one shows. -->
+      <div v-if="tabs.length" class="qs-tabs">
+        <div
+          class="qs-tabs__list"
+          role="tablist"
+          aria-label="Inspection detail"
+          @keydown="onTabKey"
+        >
+          <button
+            v-for="tab in tabs"
+            :id="`detail-tab-${tab.id}`"
+            :key="tab.id"
+            type="button"
+            role="tab"
+            class="qs-tabs__tab"
+            :aria-selected="tab.id === activeTab ? 'true' : 'false'"
+            :aria-controls="`detail-panel-${tab.id}`"
+            :tabindex="tab.id === activeTab ? 0 : -1"
+            @click="detailTab = tab.id"
+          >
+            {{ tab.label }}
+            <span v-if="tab.count" class="qs-tabs__count">{{ tab.count }}</span>
+          </button>
+        </div>
+        <div
+          v-if="record && detailsLanded"
+          v-show="activeTab === 'characteristics'"
+          id="detail-panel-characteristics"
+          class="qs-tabs__panel"
+          role="tabpanel"
+          aria-labelledby="detail-tab-characteristics"
+          data-detail-tab="characteristics"
+        >
           <ContainerDetails
             :record="record"
             :omit="LEDGER_DETAIL_LABELS"
             :units-toggle="false"
             :class="{ 'qs-arrived': detailsEarly }"
           />
+        </div>
+        <div
+          v-if="showDamage"
+          v-show="activeTab === 'damage'"
+          id="detail-panel-damage"
+          class="qs-tabs__panel"
+          role="tabpanel"
+          aria-labelledby="detail-tab-damage"
+          data-detail-tab="damage"
+        >
+          <slot />
+        </div>
+        <div
+          v-if="record && detailsLanded"
+          v-show="activeTab === 'markings'"
+          id="detail-panel-markings"
+          class="qs-tabs__panel"
+          role="tabpanel"
+          aria-labelledby="detail-tab-markings"
+          data-detail-tab="markings"
+        >
           <ContainerMarkings
             :id="markingsInLedger ? undefined : DETAIL_IDS.markings"
             :tabindex="markingsInLedger ? undefined : -1"
@@ -258,10 +366,9 @@ const showExplanation = computed(() => idState.value === 'uncertain' || idState.
             :class="{ 'qs-arrived': detailsEarly }"
           />
         </div>
+      </div>
 
-        <ExportActions v-if="!running" />
-      </section>
-      <div class="rs-detail__main"><slot /></div>
+      <ExportActions v-if="!running" />
     </div>
   </div>
 </template>

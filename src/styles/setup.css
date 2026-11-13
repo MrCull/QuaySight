@@ -1,5 +1,5 @@
-/* Setup-first flow: the centred setup card, and the settings chip and drawer around the inspection screen.
-   The qs-setupcard, qs-settingschip and qs-drawer components live in design-system/components/bundle.css. */
+/* Setup-first flow: the landing, and the settings chip and drawer around the inspection screen.
+   The qs-landing, qs-settingschip and qs-drawer components live in design-system/components/bundle.css. */
 
 /* The top bar and the demo banner stick together, so the banner never slides under the bar. */
 .rs-chrome {
@@ -8,12 +8,12 @@
   z-index: 5;
 }
 
-/* First visit: only the setup card, centred under the top bar. */
-.rs-setupview {
-  display: grid;
-  justify-items: center;
-  align-content: start;
-  padding: var(--space-8) var(--space-4);
+/* First visit: only the landing, filling the window on its own ground, with the build stamp at the foot. */
+.rs--landing {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  background: var(--landing-bg);
 }
 
 .rs-drawer__note {
@@ -33,11 +33,5 @@
   }
   .rs-chrome:has(.qs-demobanner) .rs-top {
     position: relative;
-  }
-}
-
-@media (max-width: 960px) {
-  .rs-setupview {
-    padding: var(--space-5) var(--space-4);
   }
 }

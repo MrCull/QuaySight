@@ -8,7 +8,7 @@
  * Output: screenshots/<state>-<width>x<height>.png (full page) and screenshots/index.json.
  *         screenshots/ is generated and git-ignored; never commit it.
  *
- * Recorded states run in demo mode (Enter as demo user: no key, the bundled samples that have a recording).
+ * Recorded states run in demo mode (Try the demo: no key, the bundled samples that have a recording).
  * Network: every external request is aborted, so nothing leaves the machine. The only "live" calls are
  * the Decisions endpoints, answered request by request (survey, long-side damage, door-end damage, second
  * looks) from e2e/screens/mockRuns.ts: hand-written replies built from the COYU 266813 0 door figures, a copy
@@ -90,13 +90,12 @@ const choosePhoto = (page: Page) => page.locator('input[type="file"]').setInputF
 
 /** On the setup card: picks OpenAI. OpenRouter is pre-selected; the Luna captures replay OpenAI responses. */
 async function chooseOpenAI(page: Page) {
-  await page.locator('#provider-button').click()
   await page.getByTestId('provider-option-luna').click()
 }
 
-/** On the setup card: Enter as demo user (no key), then the sample picker. */
+/** On the setup card: Try the demo (no key), then the sample picker. */
 async function enterDemo(page: Page) {
-  await page.getByRole('button', { name: 'Enter as demo user' }).click()
+  await page.getByRole('button', { name: 'Try the demo' }).click()
   await page.getByRole('region', { name: 'Demo mode' }).waitFor()
 }
 
@@ -390,7 +389,7 @@ const CAPTURES: Capture[] = [
   {
     state: 'demo-picker',
     screen: 'demo',
-    steps: ['Open /', 'Click Enter as demo user (demo banner, sample picker, no upload)'],
+    steps: ['Open /', 'Click Try the demo (demo banner, sample picker, no upload)'],
     motion: 'frozen',
     run: async (page) => {
       await open(page)

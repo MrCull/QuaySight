@@ -16,7 +16,7 @@ const tile = (page: Page, id: 'id' | 'seal' | 'damage' | 'placards') =>
 
 async function startDemo(page: Page, sample = 'Rear doors with markings') {
   await page.goto('/')
-  await page.getByRole('button', { name: 'Enter as demo user' }).click()
+  await page.getByRole('button', { name: 'Try the demo' }).click()
   await page.getByRole('button', { name: new RegExp(sample) }).click()
 }
 
@@ -142,7 +142,6 @@ test.describe('the Placards tile on a live run', () => {
       })
     })
     await page.goto('/')
-    await page.locator('#provider-button').click()
     await page.getByTestId('provider-option-luna').click()
     const key = page.getByLabel('OpenAI API key', { exact: true })
     await key.fill('playwright-placeholder-not-a-key')

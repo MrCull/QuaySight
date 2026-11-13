@@ -17,7 +17,6 @@ const PLACEHOLDER_KEY = 'playwright-placeholder-not-a-key'
 async function liveOpenAI(page: Page, beforePhoto?: () => Promise<void>) {
   await page.route(/api\.openai\.com\/v1\/decisions/, (route) => route.abort('failed'))
   await page.goto('/')
-  await page.locator('#provider-button').click()
   await page.getByTestId('provider-option-luna').click()
   const key = page.getByLabel('OpenAI API key', { exact: true })
   await key.fill(PLACEHOLDER_KEY)
@@ -54,7 +53,6 @@ test('a failed run offers Try again, which starts a new run on the same photo', 
     return route.abort('failed')
   })
   await page.goto('/')
-  await page.locator('#provider-button').click()
   await page.getByTestId('provider-option-luna').click()
   const key = page.getByLabel('OpenAI API key', { exact: true })
   await key.fill(PLACEHOLDER_KEY)

@@ -88,12 +88,6 @@ body {
   gap: var(--space-6);
   align-items: start;
 }
-.rs-detail__main {
-  min-width: 0;
-}
-.rs-detail__main:empty {
-  display: none;
-}
 /* Scan sweep over the photo (design-system AnalysingScreen); no text. Shown only while .qs-arriving. */
 .rs-analysing {
   position: absolute;
@@ -198,20 +192,6 @@ body {
   grid-template-columns: minmax(0, 1fr);
   gap: var(--space-4);
   align-items: start;
-}
-/* The Container details and Markings cards share the row and its height, wrapping to one column when narrow.
-   (A grid with auto-fit would keep an empty third track: the full-width export row holds every track open.) */
-.rs-cards {
-  display: flex;
-  flex-wrap: wrap;
-  gap: var(--space-4);
-}
-.rs-cards > .rs-card {
-  flex: 1 1 calc(var(--space-8) * 8);
-  min-width: 0;
-}
-.rs-right:empty {
-  display: none;
 }
 /* The ledger's skeleton in place of a value while the ID is read: a reading's width, a line's height. */
 .rs-ledger-skeleton {

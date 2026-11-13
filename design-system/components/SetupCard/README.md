@@ -1,5 +1,7 @@
 # SetupCard
 
+> Superseded as the first screen by `Landing`. The app no longer renders this card.
+
 The setup card is the first screen. It holds the `ProviderSelect` form (provider, model, key) and one primary **Continue**, centred on `bg`. Nothing else from the inspection screen shows: no photo drop, no Inspect button, no result panels. The top bar keeps the brand and the crumb *Container inspection* (the crumb hides on phones); the `SettingsChip`, `CostIndicator` and `NewInspection` appear only after Continue.
 
 ## Use

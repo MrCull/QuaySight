@@ -41,7 +41,6 @@ async function decisions(page: Page, hold: number[]) {
 
 async function startLive(page: Page) {
   await page.goto('/')
-  await page.locator('#provider-button').click()
   await page.getByTestId('provider-option-luna').click()
   const key = page.getByLabel('OpenAI API key', { exact: true })
   await key.fill(PLACEHOLDER_KEY)
