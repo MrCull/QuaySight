@@ -11,6 +11,9 @@ The question: can the seal's close-up in the readings show just the number, rath
 - **Seal zooms where there is no seal.** The regions step named a seal area on photos 1, 2 and 4, so a zoomed seal read was sent for each (about $0.0007 each). None found a seal number there.
 - **Reading.** The number itself was read right, Confident on every character, from the seal photo.
 
+- **The container ID's own box.** On the same run (and a repeat), Jev's `container_box` was usable only on the rear-door photo: `{top 0.25, bottom 0.35, left 0.59 to 0.62, right 0.79}` at confidence 0.50 to 0.52, inside the grid area the regions step chose (mark 19). On the other photos it was 0.12 to 0.24 and misplaced. The grid area alone cut the first letters off (`TU 990633`); the box with a 0.35 margin framed `RWTU 990633 1` and `25G1` whole. The app now frames the ID with the model's box only where it lies inside the found area, and otherwise shows the area with the zoomed read's 0.25 margin.
+- **The ISO code's grid area** on a photo other than the ID's landed on a long side's logo. The ISO close-up is left out when the ID close-up's photo also read the code.
+
 ## What this means
 
 With Jev today the app cannot frame the seal number on its own. A seal read from a seal close-up photo shows that whole photo, where the number is readable. A finer location would need another approach (for example a second numbered grid on the zoomed view), and the regions result above suggests Jev's placement is weak there too; test it live before building it.

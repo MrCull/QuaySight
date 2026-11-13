@@ -30,6 +30,7 @@ import { combineLengthSealPlacards } from './combineLengthSealPlacards'
 import { decodeSizeCode } from './isoSizeCode'
 import type { CertaintyLabel, ContainerIdReading, InspectionRecord } from './inspection'
 import type { FaceReading } from './photoFace'
+import { boxAgrees } from './closeUpSources'
 import type { CapacityRow, WeightChecks, WeightRow } from './weights'
 
 /** Which readings of the combined result came from one photo (1-based id positions; field names). */
@@ -426,12 +427,36 @@ export function combinePhotoRuns(
   // Close-ups (ticket #85): the ID and the seal carry the photo whose reading won and the area found on it.
   const runOf = (photo: number) => runs.find((r) => r.index === photo)?.record
   if (containerId && idResult?.kind === 'combined') {
-    const winner = Object.entries(idResult.taken)
+    // The photo that gave most characters, unless another that gave some has the ID pinned down: the
+    // model's own box, inside the area the regions found (two locators that agree).
+    const ranked = Object.entries(idResult.taken)
       .map(([photo, positions]) => ({ photo: Number(photo), count: positions.length }))
-      .sort((a, b) => b.count - a.count || a.photo - b.photo)[0]
-    const own = winner ? runOf(winner.photo) : undefined
-    const area = own?.idCropRead?.box ?? own?.regions?.found?.id?.box
-    if (winner) containerId = { ...containerId, photo: winner.photo, ...(area ? { area } : {}) }
+      .sort((a, b) => b.count - a.count || a.photo - b.photo)
+    const areaOn = (photo: number) => {
+      const own = runOf(photo)
+      return own?.idCropRead?.box ?? own?.regions?.found?.id?.box
+    }
+    const boxOn = (photo: number) => runOf(photo)?.containerId?.box
+    const winner = ranked.find((r) => boxAgrees(boxOn(r.photo), areaOn(r.photo))) ?? ranked[0]
+    if (winner) {
+      const area = areaOn(winner.photo)
+      // The model's own box, else the area the zoomed read was cut from, as before (the export names it).
+      const box = boxOn(winner.photo) ?? runOf(winner.photo)?.idCropRead?.box
+      // The box and the area belong to the photo the close-up is cut from, never to another one.
+      const {
+        box: _box,
+        area: _area,
+        ...reading
+      } = containerId as ContainerIdReading & {
+        area?: unknown
+      }
+      containerId = {
+        ...reading,
+        photo: winner.photo,
+        ...(area ? { area } : {}),
+        ...(box ? { box } : {}),
+      } as ContainerIdReading
+    }
   }
   // The ISO code: the first photo that gave the agreed code and has the code located on it.
   const sizeFrom = [...contributions.entries()]

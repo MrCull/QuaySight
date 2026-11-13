@@ -16,6 +16,8 @@ export interface CloseUpSource {
   box: IdBox
   /** 0 for a found area, which is already generous; ENLARGED_MARGIN for a model's own tight box. */
   margin: number
+  /** A whole photo: trim plain borders off it (black bars on a screenshot) before showing it. */
+  trim?: boolean
 }
 
 /** The parts of a reading a close-up looks at. `area` is where a combined reading says its winning area is. */
@@ -48,13 +50,51 @@ function source(
   return own ? { photo, box: own, margin: ENLARGED_MARGIN } : null
 }
 
+/**
+ * Space around the ID's own box. Jev's ID box is tight and stops short of the first letters and the
+ * check digit; 0.35 of its long side brings them back (docs/research/live-api-findings-2026-10-16.md).
+ */
+export const ID_BOX_MARGIN = 0.35
+/**
+ * Space around a found area for the ID or the ISO code: the margin the zoomed ID read crops with
+ * (idCropRead.ts). The area is a grid cell and the painting often runs over its edge; with this margin
+ * the close-up shows what the zoomed read read the ID from.
+ */
+export const AREA_MARGIN = 0.25
+
+/** Whether a model's box is usable and lies inside a found area (with the area's margin): two locators agree. */
+export function boxAgrees(
+  box: (RegionBox & { confidence?: number }) | null | undefined,
+  area: RegionBox | null | undefined,
+): boolean {
+  const usable = box ? usableIdBox({ confidence: 1, ...box }) : null
+  if (!usable || !area) return false
+  // The area itself stood in for a box (no model box): that is one locator, not two.
+  const same = (['top', 'bottom', 'left', 'right'] as const).every((k) => usable[k] === area[k])
+  if (same) return false
+  const pad = AREA_MARGIN * Math.max(area.right - area.left, area.bottom - area.top)
+  return (
+    usable.left >= area.left - pad &&
+    usable.right <= area.right + pad &&
+    usable.top >= area.top - pad &&
+    usable.bottom <= area.bottom + pad
+  )
+}
+
 export function idCloseUp(record: InspectionRecord): CloseUpSource | null {
-  const reading = record.containerId
+  const reading = record.containerId as (Located & { box?: IdBox | null }) | null | undefined
   if (!reading) return null
   const found = hasSeveralPhotos(record)
     ? null
     : (record.idCropRead?.box ?? record.regions?.found?.id?.box)
-  return source(reading as Located, found, record)
+  const area = reading.area ?? found
+  // The model's own box, where the found area agrees with it: the tightest frame of the ID.
+  if (boxAgrees(reading.box, area)) {
+    const photo = reading.photo ?? (hasSeveralPhotos(record) ? undefined : 1)
+    if (photo !== undefined) return { photo, box: reading.box!, margin: ID_BOX_MARGIN }
+  }
+  const located = source(reading, found, record)
+  return located && located.margin === 0 ? { ...located, margin: AREA_MARGIN } : located
 }
 
 /** The whole of a photo, as a found area: nothing to enlarge, the photo is the close-up. */
@@ -73,7 +113,7 @@ export function sealCloseUp(record: InspectionRecord): CloseUpSource | null {
   const photo = reading.photo ?? (hasSeveralPhotos(record) ? undefined : 1)
   const face = photo === undefined ? null : faceOf(record, photo)
   if (photo !== undefined && face?.face === 'close-up' && face.closeUpSubject === 'seal') {
-    return { photo, box: WHOLE_PHOTO, margin: 0 }
+    return { photo, box: WHOLE_PHOTO, margin: 0, trim: true }
   }
   const found = hasSeveralPhotos(record)
     ? null
@@ -100,9 +140,21 @@ export function isoCloseUp(record: InspectionRecord): CloseUpSource | null {
   if (reading?.state !== 'read' || !reading.code) return null
   const found = hasSeveralPhotos(record) ? null : record.regions?.found?.iso?.box
   const iso = source(reading as Located, found, record)
-  const id = idCloseUp(record)
-  if (iso && id && iso.photo === id.photo && overlap(iso.box, id.box) >= 0.5) return null
-  return iso
+  if (!iso) return null
+  // Compared with the ID's found area, not its tighter box: the grid puts both in one area.
+  const idReading = record.containerId as Located | null | undefined
+  const idFound = hasSeveralPhotos(record)
+    ? null
+    : (record.idCropRead?.box ?? record.regions?.found?.id?.box)
+  const idArea = idReading ? source(idReading, idFound, record) : null
+  if (idArea && iso.photo === idArea.photo && overlap(iso.box, idArea.box) >= 0.5) return null
+  // Several photos: the code is painted under the ID, so when the photo the ID's close-up is cut from
+  // also read the code, that close-up shows it. A grid area on another photo is more often wrong than
+  // right (a live RWTU run cut a long side's logo for it).
+  const idPhoto = idCloseUp(record)?.photo
+  const gave = record.photos?.find((p) => p.index === idPhoto)?.contributed?.details ?? []
+  if (hasSeveralPhotos(record) && (gave.includes('sizeCode') || gave.includes('all'))) return null
+  return { ...iso, margin: AREA_MARGIN }
 }
 
 /**

@@ -1,5 +1,12 @@
 import { describe, it, expect } from 'vitest'
-import { idCloseUp, isoCloseUp, placardCloseUp, sealCloseUp } from '../closeUpSources'
+import {
+  AREA_MARGIN,
+  ID_BOX_MARGIN,
+  idCloseUp,
+  isoCloseUp,
+  placardCloseUp,
+  sealCloseUp,
+} from '../closeUpSources'
 import type { InspectionRecord } from '../inspection'
 import { ENLARGED_MARGIN } from '../enlargedCrop'
 
@@ -13,7 +20,7 @@ const record = (extra: Record<string, unknown>, id: Record<string, unknown> = {}
 describe('the ID close-up source', () => {
   it('cuts the area the zoomed read used, from photo 1 when the reading names no photo', () => {
     const s = idCloseUp(record({ idCropRead: { box: AREA, marks: [3] } }))
-    expect(s).toMatchObject({ photo: 1, margin: 0, box: { ...AREA, confidence: 1 } })
+    expect(s).toMatchObject({ photo: 1, margin: AREA_MARGIN, box: { ...AREA, confidence: 1 } })
   })
 
   it('takes the photo from the reading', () => {
@@ -31,6 +38,22 @@ describe('the ID close-up source', () => {
       box: SURVEY,
     })
     expect(idCloseUp(record({}))).toBeNull()
+  })
+
+  it('frames the model box when it lies inside the found area, and the area when it does not', () => {
+    const tight = { top: 0.25, bottom: 0.3, left: 0.55, right: 0.7, confidence: 0.6 }
+    const agrees = record({ idCropRead: { box: AREA } }, { box: tight })
+    expect(idCloseUp(agrees)).toEqual({ photo: 1, box: tight, margin: ID_BOX_MARGIN })
+    const elsewhere = record(
+      { idCropRead: { box: AREA } },
+      { box: { ...tight, top: 0.8, bottom: 0.9 } },
+    )
+    expect(idCloseUp(elsewhere)).toMatchObject({
+      margin: AREA_MARGIN,
+      box: { ...AREA, confidence: 1 },
+    })
+    const unsure = record({ idCropRead: { box: AREA } }, { box: { ...tight, confidence: 0.3 } })
+    expect(idCloseUp(unsure)?.margin).toBe(AREA_MARGIN)
   })
 
   it('shows nothing for several photos when the reading names no photo', () => {
@@ -65,12 +88,12 @@ describe('the seal close-up from a close-up photo of the seal', () => {
         { index: 2, face: sealPhoto },
       ],
     })
-    expect(sealCloseUp(r)).toEqual({ photo: 2, box: WHOLE, margin: 0 })
+    expect(sealCloseUp(r)).toEqual({ photo: 2, box: WHOLE, margin: 0, trim: true })
   })
 
   it('does the same for a single photo that is a seal close-up', () => {
     const r = record({ seal: { visible: true }, photoFace: sealPhoto })
-    expect(sealCloseUp(r)).toEqual({ photo: 1, box: WHOLE, margin: 0 })
+    expect(sealCloseUp(r)).toEqual({ photo: 1, box: WHOLE, margin: 0, trim: true })
   })
 
   it('prefers the whole close-up photo to a grid area found on it, and nothing from other photos', () => {
@@ -79,7 +102,7 @@ describe('the seal close-up from a close-up photo of the seal', () => {
       photoFace: sealPhoto,
       sealZoomRead: { box: AREA },
     })
-    expect(sealCloseUp(located)).toEqual({ photo: 1, box: WHOLE, margin: 0 })
+    expect(sealCloseUp(located)).toEqual({ photo: 1, box: WHOLE, margin: 0, trim: true })
     const doors = record({
       seal: { visible: true, photo: 1 },
       photos: [
@@ -101,7 +124,11 @@ describe('the ISO code close-up source', () => {
 
   it('cuts the area the regions step found, from photo 1', () => {
     const r = record({ details: { sizeCode: read }, regions: { found: { iso: { box: AREA } } } })
-    expect(isoCloseUp(r)).toEqual({ photo: 1, box: { ...AREA, confidence: 1 }, margin: 0 })
+    expect(isoCloseUp(r)).toEqual({
+      photo: 1,
+      box: { ...AREA, confidence: 1 },
+      margin: AREA_MARGIN,
+    })
   })
 
   it('takes the photo and area the combined reading carries with several photos', () => {
@@ -110,7 +137,11 @@ describe('the ISO code close-up source', () => {
       regions: { found: { iso: { box: AREA } } },
       photos: [{}, {}, {}],
     })
-    expect(isoCloseUp(r)).toEqual({ photo: 3, box: { ...OTHER, confidence: 1 }, margin: 0 })
+    expect(isoCloseUp(r)).toEqual({
+      photo: 3,
+      box: { ...OTHER, confidence: 1 },
+      margin: AREA_MARGIN,
+    })
   })
 
   it('leaves the code out when its area is mostly the ID area on the same photo', () => {
@@ -126,6 +157,19 @@ describe('the ISO code close-up source', () => {
       regions: { found: { iso: { box: OTHER } } },
     })
     expect(isoCloseUp(apart)?.box).toEqual({ ...OTHER, confidence: 1 })
+  })
+
+  it('leaves the code out with several photos when the ID close-up photo also read the code', () => {
+    const photos = (details: string[]) => [
+      { index: 1, contributed: { details } },
+      { index: 2, contributed: { details: ['sizeCode'] } },
+    ]
+    const base = {
+      details: { sizeCode: { ...read, photo: 2, area: OTHER } },
+    }
+    const idOn1 = { photo: 1, area: AREA }
+    expect(isoCloseUp(record({ ...base, photos: photos(['sizeCode']) }, idOn1))).toBeNull()
+    expect(isoCloseUp(record({ ...base, photos: photos([]) }, idOn1))?.photo).toBe(2)
   })
 
   it('shows nothing when the code was not read or not located', () => {

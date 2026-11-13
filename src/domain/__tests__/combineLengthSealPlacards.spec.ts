@@ -5,7 +5,7 @@ import { lengthDisagreement } from '../shapeLength'
 import type { CertaintyLabel, InspectionRecord } from '../inspection'
 import type { PhotoFace } from '../photoFace'
 import type { SealReading } from '../sealFamily'
-import { isoCloseUp, sealCloseUp } from '../closeUpSources'
+import { AREA_MARGIN, isoCloseUp, sealCloseUp } from '../closeUpSources'
 import {
   EQUIPMENT_CHECKS,
   MARKING_CHECKS,
@@ -257,6 +257,7 @@ describe('close-ups for the seal and the ISO code across photos', () => {
       photo: 2,
       box: { top: 0, left: 0, bottom: 1, right: 1, confidence: 1 },
       margin: 0,
+      trim: true,
     })
   })
 
@@ -292,7 +293,11 @@ describe('close-ups for the seal and the ISO code across photos', () => {
       { id: 'x' },
     )
     expect(record.details!.sizeCode).toMatchObject({ code: '25G1', photo: 2, area })
-    expect(isoCloseUp(record)).toEqual({ photo: 2, box: { ...area, confidence: 1 }, margin: 0 })
+    expect(isoCloseUp(record)).toEqual({
+      photo: 2,
+      box: { ...area, confidence: 1 },
+      margin: AREA_MARGIN,
+    })
   })
 })
 

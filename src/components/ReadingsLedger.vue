@@ -268,6 +268,7 @@ watch([model, reading], () => void nextTick(layout), { deep: true })
               :src="closeUp(row.key)!.url"
               :box="closeUp(row.key)!.source.box"
               :margin="closeUp(row.key)!.source.margin"
+              :trim="closeUp(row.key)!.source.trim"
               :photo-number="closeUp(row.key)!.source.photo"
               :caption="closeUp(row.key)!.caption"
               :label="closeUp(row.key)!.label"
