@@ -94,7 +94,7 @@ export function recordRun(
               height: crop.height,
               outWidth: crop.sentWidth,
               outHeight: crop.sentHeight,
-              ...(sourceOf(crop) ?? {}),
+              ...sourceOf(crop),
             },
           }
         : {}),
