@@ -60,7 +60,7 @@ A confidently read ISO size code decides length. Otherwise the shape of a side p
 
 ## Several photos
 
-Readings merge across photos: the ID combines character by character, details and weights take the most certain reading, and damage and placards are de-duplicated. If two photos give two different valid IDs, the app says "These photos may be of different containers" and doesn't merge them. A photo with no container in it is dropped ("Photo N doesn't show a container") and gets no further requests. If no photo shows a container, a joke screen takes the place of the results: the photos stamped REJECTED, a "Wannabe QA" achievement and **Respawn with a real container**, which starts a new inspection.
+Readings merge across photos: the ID combines character by character, details and weights take the most certain reading, and damage and placards are de-duplicated. If two photos give two different valid IDs, the app says "These photos may be of different containers" and doesn't merge them. A photo with no container in it is dropped ("Photo N doesn't show a container") and gets no further requests. If no photo shows a container, a joke screen takes the place of the results: the photos stamped REJECTED, a "Wannabe QA" achievement and **Respawn with a real container**, which starts a new inspection. Photograph a banana skin to find out what happens.
 
 ## Exports
 

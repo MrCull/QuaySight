@@ -15,15 +15,21 @@ const photo = (n: number): SelectedPhoto => ({
   orientation: 'landscape',
 })
 
-function finished(count: number) {
+function finished(count: number, banana = false) {
   const store = useInspectionStore()
   store.photo = photo(1)
   store.extraPhotos = Array.from({ length: count - 1 }, (_, i) => photo(i + 2))
   store.status = 'complete'
+  const face = {
+    face: 'not-container',
+    probability: 0.9,
+    certainty: 'Confident',
+    ...(banana ? { banana: true } : {}),
+  }
   store.record = (count === 1
-    ? { photoFace: { face: 'not-container', probability: 0.9, certainty: 'Confident' } }
+    ? { photoFace: face }
     : {
-        photos: Array.from({ length: count }, () => ({ dropped: true })),
+        photos: Array.from({ length: count }, () => ({ dropped: true, face })),
       }) as unknown as InspectionRecord
   return store
 }
@@ -79,5 +85,21 @@ describe('NotAContainer', () => {
 
     expect(wrapper.find('.qs-nac').exists()).toBe(true)
     expect(wrapper.find('.rs-band').exists()).toBe(false)
+  })
+
+  it('turns gold when the photo is a banana skin', () => {
+    finished(1, true)
+    const wrapper = mount(NotAContainer)
+
+    expect(wrapper.get('.qs-nac').classes()).toContain('qs-nac--banana')
+    expect(wrapper.get('.qs-nac__stamp').text()).toBe('A-PEEL DENIED')
+    expect(wrapper.get('.qs-id').attributes('aria-label')).toBe(
+      'P E E L 0 0 0 0 0 6, check digit 7',
+    )
+    expect(wrapper.get('.qs-nac__rarity').text()).toBe('Legendary')
+    expect(wrapper.get('.qs-nac__achtitle').text()).toBe('Banana skin')
+    expect(wrapper.get('.qs-nac__xpgain').text()).toBe('+10 XP')
+    expect(wrapper.get('.qs-nac__taunt').text()).toBe('oKaY yOu AcTuAlLy DiD iT')
+    expect(wrapper.get('.qs-nac__respawn').text()).toBe('Slip back to a real container')
   })
 })

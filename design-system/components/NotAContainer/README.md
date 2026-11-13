@@ -16,6 +16,17 @@ The model can only say a photo is *not a container*. It never says what the phot
   4. `button.qs-btn.qs-btn--primary.qs-btn--lg.qs-nac__respawn`: **Respawn with a real container**. It does what New inspection does.
 - `p.qs-nac__egg` (`aria-hidden`): *↑ ↑ ↓ ↓ ← → ← → B A also does nothing*.
 
+## The banana skin Easter egg
+The survey asks one extra yes/no question of every photo: does it show a banana or a banana skin? It counts only on a photo that is not a container. When any photo of the screen has one, add `qs-nac--banana` and the screen turns gold (`banana-fg`, `banana-bg`, never the troll red):
+- the banana photos' stamps read **A-PEEL DENIED** (`span.qs-nac__stamp.qs-nac__stamp--banana`); other photos keep theirs;
+- `p.qs-nac__taunt` under the photos: *oKaY yOu AcTuAlLy DiD iT* (with the plain sentence as `aria-label`);
+- the ID is **PEEL 000006 7**, tagged *Owner: PEEL*, *Potassium: high*, *Slip risk: Confident*;
+- the achievement shows `span.qs-nac__rarity` **Legendary** in place of *Achievement unlocked*, a banana in the badge (`g.qs-nac__peel`), **Banana skin**, *We dared you. You did it. We regret everything.*, *Level 2 · Banana pro* and a full bar at **+10 XP**;
+- Next up is **An actual container**, *The final boss. Nobody has beaten it.*, in plain text;
+- the button reads **Slip back to a real container**, and the egg *this screen is bananas. no containers were harmed.*
+
+Checked live on Jev (13 Nov 2026): four banana and banana-skin photos answered yes (0.96 where shown), a photo of a car 0.02.
+
 ## Its own rules
 This screen is allowed things the rest of the system is not: mocking case, a question mark and exclamation tone, the troll font (`font-troll`, Comic Neue) and the troll red (`troll-fg`, `troll-bg`). They stay on this screen. The troll red is never an error, a finding or a certainty colour, and the Confident chip on the made-up ID is part of the joke: the ID never reaches an export.
 

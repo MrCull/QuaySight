@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { mockingCase, notAContainerCount, notAContainerWords } from '../notAContainer'
+import { bananaPhotos, mockingCase, notAContainerCount, notAContainerWords } from '../notAContainer'
 import type { InspectionRecord } from '../inspection'
 import type { PhotoSummary } from '../combinePhotos'
 
@@ -40,7 +40,9 @@ describe('notAContainerWords', () => {
     expect(w.combo).toBeNull()
     expect(w.tally).toBeNull()
     expect(w.xp).toBe(1)
-    expect(w.bananaMocking).toBe('wHaT aRe YoU gOiNg To Do NeXt, A bAnAnA sKiN?')
+    expect(w.next.shown).toBe('wHaT aRe YoU gOiNg To Do NeXt, A bAnAnA sKiN?')
+    expect(w.id.owner).toBe('TROL')
+    expect(w.respawn).toBe('Respawn with a real container')
   })
 
   it('words three photos', () => {
@@ -49,18 +51,55 @@ describe('notAContainerWords', () => {
     expect(w.achievement).toBe('Wannabe QA x3')
     expect(w.combo).toBe('COMBO x3')
     expect(w.tally).toBe('3 photos · 0 containers · 3 rejections')
-    expect(w.registered).toBe('Registered: three times')
+    expect(w.tags).toEqual(['Owner: TROL', 'Registered: three times', '6-7'])
     expect(w.xp).toBe(3)
-    expect(w.bananaMocking).toBe('fIvE pHoToS oF bAnAnA sKiNs?')
+    expect(w.next.shown).toBe('fIvE pHoToS oF bAnAnA sKiNs?')
   })
 
   it('jokes about the limit at five photos', () => {
-    expect(notAContainerWords(5).banana).toBe('Six photos of banana skins? The limit is five.')
+    expect(notAContainerWords(5).next.plain).toBe('Six photos of banana skins? The limit is five.')
   })
 })
 
 describe('mockingCase', () => {
   it('alternates letters and skips everything else', () => {
     expect(mockingCase('ab, cd!')).toBe('aB, cD!')
+  })
+})
+
+describe('the banana Easter egg', () => {
+  it('reads a banana per photo from the survey', () => {
+    const one = {
+      photoFace: { face: 'not-container', probability: 0.9, certainty: 'Confident', banana: true },
+    } as unknown as InspectionRecord
+    expect(bananaPhotos(one, 1)).toEqual([true])
+    const two = {
+      photos: [{ face: { banana: true } }, { face: { face: 'not-container' } }],
+    } as unknown as InspectionRecord
+    expect(bananaPhotos(two, 2)).toEqual([true, false])
+  })
+
+  it('turns the screen gold for one banana skin', () => {
+    const w = notAContainerWords(1, [true])
+    expect(w.banana).toBe(true)
+    expect(w.stamps).toEqual(['A-PEEL DENIED'])
+    expect(w.id.owner).toBe('PEEL')
+    expect(w.taunt?.mocking).toBe('oKaY yOu AcTuAlLy DiD iT')
+    expect(w.rarity).toBe('Legendary')
+    expect(w.achievement).toBe('Banana skin')
+    expect(w.xp).toBe(10)
+    expect(w.xpPercent).toBe(100)
+    expect(w.nextTitle).toBe('Next up: An actual container')
+    expect(w.respawn).toBe('Slip back to a real container')
+  })
+
+  it('stamps only the banana photos A-PEEL DENIED among several', () => {
+    const w = notAContainerWords(3, [false, true, false])
+    expect(w.stamps).toEqual(['REJECTED', 'A-PEEL DENIED', 'ALSO NO'])
+    expect(w.combo).toBe('COMBO x3')
+  })
+
+  it('stays the plain screen with no banana', () => {
+    expect(notAContainerWords(2, [false, false]).banana).toBe(false)
   })
 })
