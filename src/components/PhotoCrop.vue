@@ -2,7 +2,7 @@
 // An enlarged crop of where a reading was read (ticket #67). Give it the reading's own photo and the box it
 // carries; the seal and the placards use it the same way. With no usable box, or a photo that will not
 // load, it renders nothing at all: no caption, no frame.
-import { computed, ref, watch } from 'vue'
+import { computed, ref, useTemplateRef, watch } from 'vue'
 import { enlargedCrop, type ReadingBox } from '../domain/enlargedCrop'
 import { usableIdBox, type IdBox } from '../domain/cropRead'
 import { trimBorders } from '../domain/trimBorders'
@@ -49,9 +49,11 @@ watch(
   },
 )
 
+const cropImg = useTemplateRef<HTMLImageElement>('cropImg')
 /** The area inside the photo's plain borders, when trimming found any. */
 const trimmed = ref<IdBox | null>(null)
-const shownBox = computed(() => trimmed.value ?? props.box)
+// Only while the close-up is a whole photo: the same photo may later be framed on a part of it.
+const shownBox = computed(() => (props.trim && trimmed.value) || props.box)
 
 const usable = computed(() => usableIdBox(props.box) !== null)
 const frame = computed(() =>
@@ -84,6 +86,16 @@ function onLoad(event: Event) {
   size.value = { width: img.naturalWidth, height: img.naturalHeight }
   trimmed.value = props.trim ? measureTrim(img) : null
 }
+
+// The photo is already loaded when a close-up of it turns into a whole-photo one: measure then.
+watch(
+  () => props.trim,
+  (trim) => {
+    const img = cropImg.value
+    if (trim && !trimmed.value && img?.complete && img.naturalWidth)
+      trimmed.value = measureTrim(img)
+  },
+)
 
 /** The photo's plain borders, measured on a small copy. Null where a canvas cannot be read (tests, tainted images). */
 function measureTrim(img: HTMLImageElement): IdBox | null {
@@ -153,6 +165,7 @@ const imgStyle = computed(() => {
         @pointerdown="loupe.hide()"
       >
         <img
+          ref="cropImg"
           class="rs-crop__img"
           :src="src"
           :alt="`${label}, enlarged`"

@@ -14,6 +14,14 @@ The question: can the seal's close-up in the readings show just the number, rath
 - **The container ID's own box.** On the same run (and a repeat), Jev's `container_box` was usable only on the rear-door photo: `{top 0.25, bottom 0.35, left 0.59 to 0.62, right 0.79}` at confidence 0.50 to 0.52, inside the grid area the regions step chose (mark 19). On the other photos it was 0.12 to 0.24 and misplaced. The grid area alone cut the first letters off (`TU 990633`); the box with a 0.35 margin framed `RWTU 990633 1` and `25G1` whole. The app now frames the ID with the model's box only where it lies inside the found area, and otherwise shows the area with the zoomed read's 0.25 margin.
 - **The ISO code's grid area** on a photo other than the ID's landed on a long side's logo. The ISO close-up is left out when the ID close-up's photo also read the code.
 
+## Reading parts of the photo instead (same day)
+
+Jev reads well where it places badly, so the place can be found by reading. Each part is a crop sent with the usual questions (the seal number, or the ISO size/type code alone).
+
+- **ISO code, rear-door photo.** Of four overlapping quarter tiles, only the one holding the code read `25G1` (probability 1.00); the other three answered `not_visible` at 0.93 to 0.99. Starting from the ID's grid area grown by 0.25, two rounds of cutting each side back by a quarter (four parts a round, every cut that still read `25G1` kept) ended on `{left 0.656, top 0.203, right 0.797, bottom 0.344}`: the code, with the end of the ID above it.
+- **Seal, close-up photo.** Square tiles cut the number at their edges (`015462?`, `46220`). Three overlapping bands across the photo (0 to 0.4, 0.3 to 0.7, 0.6 to 1) found the top and bottom tags (the middle band, the rod, read nothing). Jev read `01546220` in a band, one character more than the number: a part counts when its reading is within one character of the photo's number and Likely or better. Three rounds of cuts on the top band ended on the tag itself, `SEALED 0154620`, with little else.
+- **In the app** (a five-photo run): 19 more requests (11 for the seal: 3 bands and two rounds; 8 for the ISO code), 46 requests in all against the cap of 50, about $0.008 more ($0.0287 for the inspection). The searches start only after every other request for their photo has settled.
+
 ## What this means
 
-With Jev today the app cannot frame the seal number on its own. A seal read from a seal close-up photo shows that whole photo, where the number is readable. A finer location would need another approach (for example a second numbered grid on the zoomed view), and the regions result above suggests Jev's placement is weak there too; test it live before building it.
+With Jev today neither its boxes nor the numbered regions can frame the seal number; reading parts of the photo can (above), and the app now does that. A seal read from a seal close-up photo shows that whole photo, where the number is readable. A finer location would need another approach (for example a second numbered grid on the zoomed view), and the regions result above suggests Jev's placement is weak there too; test it live before building it.

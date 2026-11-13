@@ -36,6 +36,8 @@ export interface SealReading {
   photo?: number
   /** The area found for the seal on that photo (fractions); a close-up is cut from it when present. */
   area?: { top: number; bottom: number; left: number; right: number }
+  /** Where reading parts of that photo placed the number itself (tileSearch.ts); the close-up frames it first. */
+  tileBox?: ReadingBox
   /** The numbers this read makes plausible, for the seal pick (sealPick.ts). Never shown. */
   candidates?: string[]
 }

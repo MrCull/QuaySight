@@ -8,6 +8,7 @@ import { sealPick } from './requests/sealPick'
 import { sealZoom } from './requests/sealZoom'
 import { sideDamage } from './requests/sideDamage'
 import { survey } from './requests/survey'
+import { tileSearchRequests } from './requests/tileSearch'
 import { weightCheck } from './requests/weightCheck'
 
 /**
@@ -26,6 +27,7 @@ const registered: PlanRequest[] = [
   doorDamage,
   doorEndCrop,
   weightCheck,
+  ...tileSearchRequests,
 ]
 
 export function planRequests(): readonly PlanRequest[] {

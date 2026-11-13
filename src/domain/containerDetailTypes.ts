@@ -29,6 +29,8 @@ export interface SizeCodeReading {
   photo?: number
   /** Several photos: where the regions step found the code on that photo. */
   area?: RegionBox
+  /** Several photos: where reading parts of that photo placed the code itself (tileSearch.ts). */
+  tileBox?: RegionBox & { confidence: number }
 }
 
 /** One yes/no/unknown check. answer null: can't tell. */

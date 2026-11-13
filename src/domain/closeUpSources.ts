@@ -97,6 +97,12 @@ export function idCloseUp(record: InspectionRecord): CloseUpSource | null {
   return located && located.margin === 0 ? { ...located, margin: AREA_MARGIN } : located
 }
 
+/**
+ * Space around a part of the photo that reading parts placed a reading in (tileSearch.ts). The part
+ * already holds the whole reading with room to spare: only a little is added.
+ */
+export const TILE_MARGIN = 0.1
+
 /** The whole of a photo, as a found area: nothing to enlarge, the photo is the close-up. */
 const WHOLE_PHOTO: IdBox = { top: 0, left: 0, bottom: 1, right: 1, confidence: 1 }
 
@@ -109,8 +115,13 @@ function faceOf(record: InspectionRecord, photo: number): FaceReading | null {
 export function sealCloseUp(record: InspectionRecord): CloseUpSource | null {
   const reading = record.seal
   if (!reading?.visible) return null
-  // Read from a close-up of the seal: that photo is the close-up, whatever area was found on it.
   const photo = reading.photo ?? (hasSeveralPhotos(record) ? undefined : 1)
+  // The number itself, where reading parts of the photo placed it.
+  const tile = usableIdBox(
+    reading.tileBox ?? (hasSeveralPhotos(record) ? undefined : record.tileSearch?.seal),
+  )
+  if (photo !== undefined && tile) return { photo, box: tile, margin: TILE_MARGIN }
+  // Read from a close-up of the seal: that photo is the close-up, whatever area was found on it.
   const face = photo === undefined ? null : faceOf(record, photo)
   if (photo !== undefined && face?.face === 'close-up' && face.closeUpSubject === 'seal') {
     return { photo, box: WHOLE_PHOTO, margin: 0, trim: true }
@@ -138,6 +149,16 @@ function overlap(a: IdBox, b: IdBox): number {
 export function isoCloseUp(record: InspectionRecord): CloseUpSource | null {
   const reading = record.details?.sizeCode
   if (reading?.state !== 'read' || !reading.code) return null
+  // The code itself, where reading parts of the photo placed it: shown whatever the ID's close-up shows.
+  const tile = hasSeveralPhotos(record)
+    ? reading.tileBox && reading.photo
+      ? { photo: reading.photo, box: reading.tileBox }
+      : null
+    : record.tileSearch?.iso
+      ? { photo: 1, box: record.tileSearch.iso }
+      : null
+  const usableTile = tile ? usableIdBox(tile.box) : null
+  if (tile && usableTile) return { photo: tile.photo, box: usableTile, margin: TILE_MARGIN }
   const found = hasSeveralPhotos(record) ? null : record.regions?.found?.iso?.box
   const iso = source(reading as Located, found, record)
   if (!iso) return null

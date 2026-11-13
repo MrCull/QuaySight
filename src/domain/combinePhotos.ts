@@ -462,10 +462,21 @@ export function combinePhotoRuns(
   const sizeFrom = [...contributions.entries()]
     .filter(([, c]) => c.details.includes('sizeCode') || c.details.includes('all'))
     .map(([photo]) => photo)
-  const isoPhoto = sizeFrom.find((photo) => runOf(photo)?.regions?.found?.iso?.box)
+  // A photo where reading its parts placed the code comes first.
+  const tiled = sizeFrom.find((photo) => runOf(photo)?.tileSearch?.iso)
+  const isoPhoto = tiled ?? sizeFrom.find((photo) => runOf(photo)?.regions?.found?.iso?.box)
   const isoArea = isoPhoto ? runOf(isoPhoto)?.regions?.found?.iso?.box : undefined
-  if (details?.sizeCode.state === 'read' && isoPhoto && isoArea) {
-    details = { ...details, sizeCode: { ...details.sizeCode, photo: isoPhoto, area: isoArea } }
+  const isoTile = tiled ? runOf(tiled)?.tileSearch?.iso : undefined
+  if (details?.sizeCode.state === 'read' && isoPhoto && (isoArea || isoTile)) {
+    details = {
+      ...details,
+      sizeCode: {
+        ...details.sizeCode,
+        photo: isoPhoto,
+        ...(isoArea ? { area: isoArea } : {}),
+        ...(isoTile ? { tileBox: isoTile } : {}),
+      },
+    }
   }
   const sealFrom = merged.fields.seal?.photo
   const sealRun = sealFrom ? runOf(sealFrom) : undefined
