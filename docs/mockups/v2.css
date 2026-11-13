@@ -1,0 +1,91 @@
+/* Shared by the second round of mock-ups: how the two drawings and the shared content pieces are built.
+   Every colour is a variable set by the direction's own page. Loaded after mock.css (reset, certainty, severity). */
+
+/* Door drawing */
+svg[data-door], svg[data-iso] { display: block; width: 100%; height: auto; overflow: visible; }
+.sh { stroke: var(--ln, none); stroke-width: var(--ln-w, 0); }
+.dr-shadow { fill: var(--d-shadow, rgba(0, 0, 0, 0.18)); stroke: none; }
+.dr-sheen { opacity: var(--d-sheen, 1); pointer-events: none; }
+.dr-frame { fill: var(--d-frame); }
+.dr-panel { fill: var(--d-panel); }
+.dr-recess { fill: var(--d-recess); }
+.dr-shade { fill: var(--d-shade); }
+.dr-lite { fill: var(--d-lite); }
+.dr-cast { fill: var(--d-cast); }
+.dr-hole { fill: var(--d-hole); }
+.dr-rod { fill: var(--d-steel); }
+.dr-rodlite { fill: var(--d-steel-lite); }
+.dr-steel2 { fill: var(--d-steel-2); }
+.dr-paint { fill: var(--d-paint); font-family: var(--paint-font, "Barlow Condensed", sans-serif); font-weight: 600; letter-spacing: 0.02em; }
+.dr-paintbox { fill: none; stroke: var(--d-paint); stroke-width: 1.4; }
+.dr-placard { fill: var(--d-placard-fill); stroke: var(--hazard); stroke-width: 2; stroke-linejoin: round; }
+.dr-placardmark { fill: none; stroke: var(--hazard); stroke-width: 2.2; stroke-linecap: round; }
+.dr-seal { fill: var(--d-seal); }
+.dr-plate { fill: var(--d-plate); }
+.dr-plateline { fill: var(--d-plateline); }
+.ld { fill: none; stroke: var(--lead); stroke-width: 1; }
+.ld-dot { fill: var(--lead-dot, var(--lead)); stroke: var(--lead-ring, none); stroke-width: 3; paint-order: stroke; }
+.co--hazard .ld { stroke: var(--hazard); }
+.co--hazard .ld-dot { fill: var(--hazard); }
+.co-k { font: 600 9.5px var(--sans); letter-spacing: 0.09em; text-transform: uppercase; fill: var(--co-key); }
+.co-c { letter-spacing: 0.02em; text-transform: none; font-weight: 600; }
+.co-c--confident { fill: var(--c-confident); }
+.co-c--likely { fill: var(--c-likely); }
+.co-c--uncertain { fill: var(--c-uncertain); }
+.co-c--unknown { fill: var(--c-unknown); }
+.co-v { font: var(--co-v-font, 500 18px var(--mono)); fill: var(--co-val); letter-spacing: var(--co-v-track, 0); }
+.co-s { font: 400 10.5px var(--sans); fill: var(--co-sub); }
+.cg-ring { fill: var(--cg-bg, none); stroke-width: 1.3; }
+.cg--confident .cg-ring, .cg--confident .cg-fill { stroke: var(--c-confident); }
+.cg--confident .cg-fill { fill: var(--c-confident); }
+.cg--likely .cg-ring { stroke: var(--c-likely); }
+.cg--likely .cg-fill { fill: var(--c-likely); }
+.cg--uncertain .cg-ring { stroke: var(--c-uncertain); }
+.cg--uncertain .cg-fill { fill: var(--c-uncertain); }
+.cg--unknown .cg-ring { stroke: var(--c-unknown); }
+
+/* 3D container */
+.iso-shadow { fill: var(--i-shadow, rgba(0, 0, 0, 0.3)); }
+.iso-top { fill: var(--i-top); }
+.iso-toprib { stroke: var(--i-toprib); stroke-width: 1; }
+.iso-hatch { stroke: var(--i-hatch); stroke-width: 1.4; }
+.iso-side { fill: var(--i-side); }
+.iso-rib { fill: var(--i-rib); }
+.iso-end { fill: var(--i-end); }
+.iso-endrib { fill: var(--i-endrib); }
+.iso-endrecess { fill: var(--i-endrib); }
+.iso-frame { fill: var(--i-frame); }
+.iso-frame2 { fill: var(--i-frame2, var(--i-frame)); }
+.iso-dark { fill: var(--i-dark); }
+.iso-cast { fill: var(--i-cast); }
+.iso-seam { stroke: var(--i-dark); stroke-width: 1.4; }
+.iso-rod { stroke: var(--i-steel); stroke-width: 1.5; stroke-linecap: round; }
+.iso-handle { stroke: var(--i-steel); stroke-width: 1.8; stroke-linecap: round; }
+.iso-section { stroke: var(--i-section); stroke-width: 1; stroke-dasharray: 3 3; }
+.iso-edge { fill: none; stroke: var(--i-edge); stroke-width: var(--i-edge-w, 1.2); stroke-linejoin: round; }
+.iso-num { font: 500 8.5px var(--mono); fill: var(--i-text); text-anchor: middle; }
+.iso-name { font: 600 9px var(--sans); letter-spacing: 0.1em; text-transform: uppercase; fill: var(--i-text-strong, var(--i-text)); }
+.iso-roofnote { font: 600 8px var(--sans); letter-spacing: 0.12em; text-transform: uppercase; fill: var(--i-roofnote); }
+.iso-zone { fill: var(--damage-zone, var(--damage)); fill-opacity: var(--zone-o, 0.26); stroke: var(--damage-zone, var(--damage)); stroke-width: 1.3; stroke-linejoin: round; }
+.iso-zone.is-on { fill-opacity: var(--zone-on-o, 0.5); stroke-width: 2; }
+.iso-pin circle { fill: var(--pin-bg); stroke: var(--damage-zone, var(--damage)); stroke-width: 1.7; }
+.iso-pin text { font: 600 10px var(--mono); fill: var(--pin-ink, var(--damage)); text-anchor: middle; }
+.iso-pin.is-on circle { fill: var(--damage-zone, var(--damage)); }
+.iso-pin.is-on text { fill: var(--pin-on-ink); }
+.iso-pin .iso-halo { fill: var(--damage-zone, var(--damage)); fill-opacity: 0.22; stroke: none; }
+
+/* Shared content pieces */
+.idx { display: flex; align-items: center; }
+.idx em { display: grid; place-items: center; font-style: normal; }
+.fl-i { display: grid; grid-template-columns: 28px minmax(0, 1fr) auto auto; align-items: center; column-gap: 14px; }
+.fl-n { display: grid; place-items: center; width: 26px; height: 26px; border-radius: 50%; border: 1.6px solid var(--damage); color: var(--damage); font: 600 12px/1 var(--mono); }
+.fl-i.is-on .fl-n { background: var(--damage); color: var(--pin-on-ink); }
+.fl-t b { display: block; font-weight: 600; }
+.fl-t small { display: block; }
+.fl-i p { grid-column: 2 / -1; }
+.dl div { display: flex; justify-content: space-between; align-items: baseline; gap: 16px; }
+.ml li { display: flex; justify-content: space-between; align-items: center; gap: 16px; }
+.ph { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); }
+.ph li { position: relative; aspect-ratio: 3 / 4; overflow: hidden; }
+.ph img { width: 100%; height: 100%; object-fit: cover; }
+.ph span { position: absolute; left: 0; right: 0; bottom: 0; }

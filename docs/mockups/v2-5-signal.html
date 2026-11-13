@@ -1,0 +1,122 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=1440">
+<title>Quay Sight · 5 · Signal</title>
+<!-- Static mock-up, not app code. Signal: loud and exact. Black and white, a hard grid and very large type;
+     the door stands in a black band, drawn in bare steel. Colour is used only for certainty, damage and hazard. -->
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,400..900&family=Barlow+Condensed:wght@600&family=JetBrains+Mono:wght@400;500;700&display=swap">
+<link rel="stylesheet" href="mock.css">
+<link rel="stylesheet" href="v2.css">
+<style>
+  :root {
+    --sans: "Archivo", system-ui, sans-serif; --mono: "JetBrains Mono", ui-monospace, monospace;
+    --bg: #ffffff; --ink: #0a0a0a; --ink-2: #55565a; --ink-3: #8e8f94; --line: #0a0a0a; --hair: #dcdcdc; --night: #0a0a0a; --on-night: #ffffff; --on-night-2: #9c9da3;
+    --c-confident: #1846e0; --c-likely: #4466dd; --c-uncertain: #8f5600; --c-unknown: #6f7076;
+    --damage: #d4146f; --pin-bg: #ffffff; --pin-on-ink: #ffffff; --hazard: #e04a0c;
+    --d-frame: #9da1a8; --d-panel: #e4e5e7; --d-recess: #d6d8db; --d-shade: #b4b7bc; --d-lite: #f4f4f5; --d-cast: #6d7178; --d-hole: #0a0a0a;
+    --d-steel: #f7f7f8; --d-steel-lite: #ffffff; --d-steel-2: #8b8f96; --d-paint: #0a0a0a; --d-placard-fill: #ffd84d; --d-seal: #0a0a0a; --d-plate: #ffffff; --d-plateline: #55565a;
+    --d-shadow: rgba(255, 255, 255, 0.25); --d-sheen: 0.5;
+    --lead: rgba(255, 255, 255, 0.4); --lead-dot: #ffffff; --lead-ring: #0a0a0a; --co-key: var(--on-night-2); --co-val: var(--on-night); --co-sub: var(--on-night-2);
+    --i-top: #f1f1f2; --i-hatch: rgba(10, 10, 10, 0.16); --i-toprib: #dcdcdc; --i-side: #e2e3e5; --i-rib: #cfd1d4; --i-end: #c9cbcf; --i-endrib: #b9bcc1;
+    --i-frame: #8b8f96; --i-dark: #0a0a0a; --i-cast: #55585e; --i-steel: #0a0a0a; --i-section: rgba(10, 10, 10, 0.55); --i-edge: #0a0a0a; --i-edge-w: 1.5;
+    --i-text: var(--ink-2); --i-text-strong: var(--ink); --i-roofnote: var(--ink-2); --i-shadow: rgba(0, 0, 0, 0.22);
+    --zone-o: 0.3; --zone-on-o: 0.6;
+  }
+  body { background: var(--bg); color: var(--ink); font: 400 15px/22px var(--sans); }
+  .wrap { padding: 0 40px; }
+  .k { font: 700 11px/14px var(--mono); letter-spacing: 0.08em; text-transform: uppercase; }
+  .cert { font: 600 13px/1 var(--sans); }
+
+  .nav { display: flex; align-items: center; height: 60px; border-bottom: 3px solid var(--line); }
+  .brand { display: flex; align-items: center; gap: 10px; font: 800 18px/1 var(--sans); font-stretch: 112%; letter-spacing: -0.01em; text-transform: uppercase; }
+  .brand img { width: 24px; height: 24px; }
+  .nav__r { margin-left: auto; display: flex; align-items: center; gap: 28px; }
+  .btn { height: 60px; margin-right: -40px; padding: 0 28px; background: var(--ink); color: #fff; font: 700 12px/1 var(--mono); letter-spacing: 0.08em; text-transform: uppercase; }
+
+  .hero { display: grid; grid-template-columns: minmax(0, 1fr) 300px; align-items: end; gap: 40px; padding: 26px 0 30px; }
+  .hero__k { display: flex; align-items: center; gap: 16px; }
+  .idx { gap: 30px; margin-top: 8px; font: 900 146px/0.86 var(--sans); font-stretch: 78%; letter-spacing: -0.02em; }
+  .idx em { height: 132px; padding: 0 22px; border: 9px solid var(--ink); }
+  .sum li { display: flex; justify-content: space-between; align-items: baseline; padding: 9px 0; border-top: 1px solid var(--line); }
+  .sum li:first-child { border-top-width: 3px; }
+  .sum b { font: 700 16px/22px var(--mono); }
+
+  .band { background: var(--night); color: var(--on-night); }
+  .band .cert, .band svg { --c-confident: #7ea2ff; --c-likely: #a9c0ff; --c-unknown: #9c9da3; --hazard: #ff7a3d; }
+  .band__in { display: grid; grid-template-columns: 250px minmax(0, 1fr); gap: 20px; padding: 36px 40px 44px; }
+  .band h2, .sec h2 { font: 900 44px/0.95 var(--sans); font-stretch: 78%; text-transform: uppercase; }
+  .band p { margin-top: 14px; color: var(--on-night-2); font-size: 14px; line-height: 21px; }
+  .seg { display: inline-flex; margin-top: 22px; border: 1.5px solid var(--on-night); font: 700 11px/1 var(--mono); letter-spacing: 0.08em; text-transform: uppercase; }
+  .seg span { padding: 9px 12px; }
+  .seg .is-on { background: var(--on-night); color: var(--night); }
+
+  .sec { display: grid; grid-template-columns: 250px minmax(0, 1fr) 420px; gap: 20px; padding: 36px 0 40px; }
+  .sec__k p { margin-top: 14px; color: var(--ink-2); font-size: 14px; line-height: 21px; }
+  .sec__k .cert { margin-top: 18px; }
+  .views { display: grid; gap: 0; margin-top: -12px; }
+  .fl-i { grid-template-columns: 28px minmax(0, 1fr) auto; padding: 12px 0; border-top: 1px solid var(--line); }
+  .fl-i:first-child { border-top-width: 3px; }
+  .fl-i > .sev { display: none; }
+  .fl-n { border-radius: 0; border-width: 2px; }
+  .fl-t b { font-weight: 700; }
+  .fl-t small { color: var(--ink-2); font: 400 12px/18px var(--mono); }
+  .fl-i p { margin-top: 6px; color: var(--ink-2); font-size: 14px; line-height: 20px; }
+
+  .cols { display: grid; grid-template-columns: 250px 1fr 1fr 1.2fr; gap: 20px; padding: 0 0 44px; }
+  .cols > div { border-top: 3px solid var(--line); padding-top: 14px; }
+  .cols h3 { margin-bottom: 10px; font: 900 22px/1 var(--sans); font-stretch: 78%; text-transform: uppercase; }
+  .dl div, .ml li { padding: 8px 0; border-top: 1px solid var(--hair); font-size: 14px; }
+  .dl dt { color: var(--ink-2); }
+  .dl dd, .ml b { font-weight: 600; }
+  .ml .is-off b { color: var(--ink-2); font-weight: 400; }
+  .note { margin-top: 10px; color: var(--ink-3); font-size: 13px; line-height: 18px; }
+  .ph { gap: 6px; }
+  .ph li { filter: grayscale(1) contrast(1.1); }
+  .ph span { padding: 2px 5px; right: auto; background: var(--ink); color: #fff; font: 700 9px/13px var(--mono); letter-spacing: 0.05em; text-transform: uppercase; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="nav">
+    <span class="brand"><img src="../../design-system/assets/logo/quay-sight-mark-black.svg" alt="">Quay Sight</span>
+    <div class="nav__r"><span class="k">Jev latest</span><span class="k">This container $0.0209</span><button class="btn">New inspection</button></div>
+  </header>
+  <section class="hero">
+    <div>
+      <div class="hero__k"><span class="k">Container ID</span><span class="cert cert--confident"><i></i>Confident</span><span class="k" style="color:var(--ink-2)">Check digit valid</span></div>
+      <h1 class="idx" data-part="id"></h1>
+    </div>
+    <ul class="sum">
+      <li><span class="k">Size and type</span><b>22G1</b></li>
+      <li><span class="k">Max gross</span><b>32,500 kg</b></li>
+      <li><span class="k">Seal</span><b>0154620</b></li>
+      <li><span class="k">Damage</span><b>6 cosmetic</b></li>
+    </ul>
+  </section>
+</div>
+
+<section class="band">
+  <div class="band__in">
+    <div><h2>Read from the doors</h2><p>Nine markings looked for on the door end. Eight read.</p><div class="seg"><span class="is-on">Metric</span><span>Imperial</span></div></div>
+    <svg data-door="both" role="img" aria-label="Door end with the readings marked on it"></svg>
+  </div>
+</section>
+
+<div class="wrap">
+  <section class="sec">
+    <div class="sec__k"><h2>Damage</h2><p>6 findings, all cosmetic. Areas are approximate. The roof was not photographed.</p><span class="cert cert--likely"><i></i>Likely</span></div>
+    <div class="views"><svg data-iso="door"></svg><svg data-iso="blank"></svg></div>
+    <div data-part="findings"></div>
+  </section>
+  <section class="cols">
+    <div><span class="k">Observations and estimates from photographs. Not a certified survey.</span></div>
+    <div><h3>Container details</h3><div data-part="details"></div></div>
+    <div><h3>Markings</h3><div data-part="markings"></div></div>
+    <div><h3>Photos inspected</h3><div data-part="photos"></div></div>
+  </section>
+</div>
+<script src="v2.js"></script>
+</body>
+</html>

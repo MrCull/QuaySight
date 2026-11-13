@@ -1,0 +1,130 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=1440">
+<title>Quay Sight · 3 · Blueprint</title>
+<!-- Static mock-up, not app code. Blueprint: the inspection as an engineering drawing sheet. Line work on deep blue,
+     an elevation and two views, a schedule of findings and a title block. -->
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600&family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans+Condensed:wght@400;500;600;700&display=swap">
+<link rel="stylesheet" href="mock.css">
+<link rel="stylesheet" href="v2.css">
+<style>
+  :root {
+    color-scheme: dark;
+    --sans: "IBM Plex Sans Condensed", "Arial Narrow", sans-serif; --mono: "IBM Plex Mono", ui-monospace, monospace;
+    --bg: #0a2147; --bg-2: #0c2853; --rule: rgba(190, 215, 255, 0.34); --rule-2: rgba(190, 215, 255, 0.16);
+    --ink: #eaf2ff; --ink-2: #a9c1e8; --ink-3: #7392c4;
+    --c-confident: #ffffff; --c-likely: #cfe0ff; --c-uncertain: #ffd27a; --c-unknown: #8fa8d2;
+    --damage: #ff8fc0; --pin-bg: #0a2147; --pin-on-ink: #0a2147; --hazard: #ffa26b;
+    --ln: rgba(215, 232, 255, 0.85); --ln-w: 0.9;
+    --d-frame: rgba(255, 255, 255, 0.05); --d-panel: rgba(255, 255, 255, 0.03); --d-recess: rgba(255, 255, 255, 0.035); --d-shade: transparent; --d-lite: transparent; --d-cast: rgba(255, 255, 255, 0.1); --d-hole: rgba(215, 232, 255, 0.85);
+    --d-steel: #0a2147; --d-steel-lite: transparent; --d-steel-2: #0c2853; --d-paint: #ffffff; --d-placard-fill: #0a2147; --d-seal: rgba(255, 255, 255, 0.9); --d-plate: #0c2853; --d-plateline: rgba(215, 232, 255, 0.7);
+    --d-shadow: transparent; --d-sheen: 0;
+    --lead: rgba(215, 232, 255, 0.55); --lead-dot: #ffffff; --lead-ring: #0a2147; --co-key: var(--ink-2); --co-val: var(--ink); --co-sub: var(--ink-3); --cg-bg: #0a2147;
+    --i-top: rgba(255, 255, 255, 0.03); --i-hatch: rgba(215, 232, 255, 0.28); --i-toprib: rgba(215, 232, 255, 0.3); --i-side: rgba(255, 255, 255, 0.05); --i-rib: rgba(215, 232, 255, 0.13); --i-end: rgba(255, 255, 255, 0.09); --i-endrib: rgba(215, 232, 255, 0.14);
+    --i-frame: rgba(215, 232, 255, 0.3); --i-dark: #0a2147; --i-cast: rgba(215, 232, 255, 0.5); --i-steel: rgba(235, 244, 255, 0.9); --i-section: rgba(215, 232, 255, 0.6); --i-edge: rgba(235, 244, 255, 0.95); --i-edge-w: 1.1;
+    --i-text: var(--ink-3); --i-text-strong: var(--ink-2); --i-roofnote: var(--ink-2); --i-shadow: transparent;
+    --zone-o: 0.28; --zone-on-o: 0.55;
+  }
+  body { background: var(--bg); background-image: linear-gradient(var(--rule-2) 1px, transparent 1px), linear-gradient(90deg, var(--rule-2) 1px, transparent 1px), linear-gradient(rgba(190, 215, 255, 0.06) 1px, transparent 1px), linear-gradient(90deg, rgba(190, 215, 255, 0.06) 1px, transparent 1px); background-size: 96px 96px, 96px 96px, 24px 24px, 24px 24px; background-position: 24px 24px; color: var(--ink); font: 400 14px/20px var(--sans); }
+  .k { font: 500 11px/14px var(--mono); letter-spacing: 0.1em; text-transform: uppercase; color: var(--ink-2); }
+  .cert { font: 500 12px/1 var(--mono); }
+  .sheet { margin: 24px; border: 1.5px solid var(--ink); background: linear-gradient(180deg, rgba(10, 33, 71, 0.55), rgba(10, 33, 71, 0.85)); }
+  .sheet > * + * { border-top: 1px solid var(--rule); }
+
+  .top { display: grid; grid-template-columns: auto 1fr auto; align-items: center; gap: 28px; padding: 18px 28px; }
+  .brand { display: flex; align-items: center; gap: 10px; font: 700 18px/1 var(--sans); letter-spacing: 0.08em; text-transform: uppercase; }
+  .brand img { width: 24px; height: 24px; }
+  .top__r { display: flex; align-items: center; gap: 24px; }
+  .top__r b { font: 500 13px/1 var(--mono); color: var(--ink); }
+  .btn { height: 34px; padding: 0 16px; border: 1.5px solid var(--ink); background: var(--ink); color: var(--bg); font: 600 12px/1 var(--mono); letter-spacing: 0.08em; text-transform: uppercase; }
+
+  .title { display: grid; grid-template-columns: minmax(0, 1fr) repeat(4, auto); align-items: stretch; }
+  .title > div { padding: 22px 28px; }
+  .title > div + div { border-left: 1px solid var(--rule); }
+  .idx { gap: 22px; margin-top: 8px; font: 500 72px/1 var(--mono); letter-spacing: -0.02em; }
+  .idx em { height: 82px; padding: 0 14px; border: 2.5px solid var(--ink); }
+  .title dd { margin-top: 10px; font: 500 24px/28px var(--mono); white-space: nowrap; }
+  .title dd small { margin-left: 4px; font-size: 12px; color: var(--ink-2); }
+  .title .cert { margin-top: 12px; display: flex; }
+
+  .draw { display: grid; grid-template-columns: minmax(0, 1fr) 452px; }
+  .draw > div + div { border-left: 1px solid var(--rule); }
+  .cap { display: flex; align-items: center; gap: 14px; padding: 16px 28px 0; }
+  .cap b { display: grid; place-items: center; width: 30px; height: 30px; border: 1.5px solid var(--ink); border-radius: 50%; font: 600 14px/1 var(--mono); }
+  .cap h2 { font: 600 17px/20px var(--sans); letter-spacing: 0.08em; text-transform: uppercase; }
+  .cap span { margin-left: auto; }
+  .door { padding: 44px 36px 28px; }
+  .view { padding: 0 20px 6px; }
+  .draw .views > div + div { border-top: 1px solid var(--rule); }
+
+  .sched { display: grid; grid-template-columns: minmax(0, 1fr) 452px; }
+  .sched > div + div { border-left: 1px solid var(--rule); }
+  .fl { padding: 12px 28px 20px; }
+  .fl-i { grid-template-columns: 30px minmax(0, 1fr) 110px 110px; padding: 11px 0; border-bottom: 1px solid var(--rule-2); }
+  .fl-i:last-child { border-bottom: 0; }
+  .fl-n { border-radius: 50%; }
+  .fl-t { display: grid; grid-template-columns: 300px 1fr; align-items: baseline; }
+  .fl-t b { font: 500 15px/20px var(--sans); letter-spacing: 0.01em; }
+  .fl-t small { color: var(--ink-2); font: 400 12px/18px var(--mono); }
+  .fl-i .sev { font: 500 12px/1 var(--mono); }
+  .fl-i p { margin-top: 4px; color: var(--ink-2); font-size: 13px; }
+  .block { display: grid; grid-template-columns: 1fr 1fr; }
+  .block > div { padding: 14px 20px; border-bottom: 1px solid var(--rule); }
+  .block > div:nth-child(odd) { border-right: 1px solid var(--rule); }
+  .block > .wide { grid-column: 1 / -1; border-right: 0 !important; }
+  .block > div:last-child { border-bottom: 0; }
+  .block dd, .block p { margin-top: 6px; font: 500 15px/20px var(--mono); }
+  .ph { gap: 6px; margin-top: 8px; }
+  .ph li { border: 1px solid var(--rule); filter: grayscale(1) contrast(1.05) brightness(0.9); }
+  .ph li::after { content: ""; position: absolute; inset: 0; background: #1b4d99; mix-blend-mode: screen; opacity: 0.55; }
+  .ph span { z-index: 1; padding: 2px 4px; background: var(--bg); font: 500 9px/12px var(--mono); letter-spacing: 0.04em; text-transform: uppercase; }
+  .block .note { font: 400 12px/17px var(--sans); color: var(--ink-2); }
+</style>
+</head>
+<body>
+<div class="sheet">
+  <header class="top">
+    <span class="brand"><img src="../../design-system/assets/logo/quay-sight-mark-white.svg" alt="">Quay Sight</span>
+    <span class="k">Container inspection from photographs · sheet 1 of 1</span>
+    <div class="top__r"><span class="k">Jev latest</span><span class="k">This container <b>$0.0209</b></span><button class="btn">New inspection</button></div>
+  </header>
+
+  <section class="title">
+    <div><span class="k">Container ID</span><h1 class="idx" data-part="id"></h1><span class="cert cert--confident"><i></i>Confident · check digit valid</span></div>
+    <div><dt class="k">Size and type</dt><dd>22G1</dd><span class="cert cert--confident"><i></i>Confident</span></div>
+    <div><dt class="k">Max gross</dt><dd>32,500<small>KG</small></dd><span class="cert cert--confident"><i></i>Confident</span></div>
+    <div><dt class="k">Seal</dt><dd>0154620</dd><span class="cert cert--confident"><i></i>Confident</span></div>
+    <div><dt class="k">Damage</dt><dd>6<small>COSMETIC</small></dd><span class="cert cert--likely"><i></i>Likely</span></div>
+  </section>
+
+  <section class="draw">
+    <div>
+      <div class="cap"><b>A</b><h2>Door end · what was read</h2><span class="k">Elevation · not to scale</span></div>
+      <div class="door"><svg data-door="both" role="img" aria-label="Door end with the readings marked on it"></svg></div>
+    </div>
+    <div class="views">
+      <div><div class="cap"><b>B</b><h2>Door end and right side</h2></div><div class="view"><svg data-iso="door"></svg></div></div>
+      <div><div class="cap"><b>C</b><h2>Blank end and left side</h2></div><div class="view"><svg data-iso="blank"></svg></div></div>
+    </div>
+  </section>
+
+  <section class="sched">
+    <div>
+      <div class="cap"><b>D</b><h2>Schedule of findings</h2><span class="k">6 findings · all cosmetic · areas approximate</span></div>
+      <div data-part="findings"></div>
+    </div>
+    <dl class="block">
+      <div><dt class="k">Length</dt><dd>20 ft</dd></div>
+      <div><dt class="k">Height</dt><dd>8 ft 6 in</dd></div>
+      <div><dt class="k">Type</dt><dd>General purpose</dd></div>
+      <div><dt class="k">Markings</dt><dd>Super heavy</dd></div>
+      <div class="wide"><dt class="k">Photos inspected · roof not seen</dt><div data-part="photos"></div></div>
+      <div class="wide"><p class="note">Observations and estimates from photographs. Not a certified survey.</p></div>
+    </dl>
+  </section>
+</div>
+<script src="v2.js"></script>
+</body>
+</html>

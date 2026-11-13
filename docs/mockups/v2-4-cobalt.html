@@ -1,0 +1,115 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=1440">
+<title>Quay Sight · 4 · Cobalt</title>
+<!-- Static mock-up, not app code. Cobalt: printed-report elegance. Porcelain white, one cobalt ink for every drawing,
+     a serif for the big words. A fixed summary column on the left, the drawings on the right. -->
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600&family=DM+Mono:wght@400;500&family=Instrument+Sans:wght@400;500;600&family=Newsreader:opsz,wght@6..72,400;6..72,500&display=swap">
+<link rel="stylesheet" href="mock.css">
+<link rel="stylesheet" href="v2.css">
+<style>
+  :root {
+    --serif: "Newsreader", Georgia, serif; --sans: "Instrument Sans", system-ui, sans-serif; --mono: "DM Mono", ui-monospace, monospace;
+    --bg: #f6f6f3; --paper: #ffffff; --line: #dcdcd6; --ink: #101320; --ink-2: #565b6b; --ink-3: #8d91a0; --cobalt: #1a36c8; --cobalt-soft: #e7eafb;
+    --c-confident: #1a36c8; --c-likely: #4a61d6; --c-uncertain: #8f5600; --c-unknown: #7d8291;
+    --damage: #c2156a; --pin-bg: #ffffff; --pin-on-ink: #ffffff; --hazard: #d9480f;
+    --d-frame: #1229a3; --d-panel: #1a36c8; --d-recess: #1730b8; --d-shade: #1026a0; --d-lite: #3550dc; --d-cast: #0d1f85; --d-hole: #071257;
+    --d-steel: #ffffff; --d-steel-lite: #ffffff; --d-steel-2: #c5cdf5; --d-paint: #ffffff; --d-placard-fill: #ffffff; --d-seal: #ffffff; --d-plate: #ffffff; --d-plateline: #1a36c8;
+    --d-shadow: rgba(26, 54, 200, 0.28); --d-sheen: 0.6;
+    --lead: #b4b9cc; --lead-dot: #101320; --lead-ring: #f6f6f3; --co-key: var(--ink-2); --co-val: var(--ink); --co-sub: var(--ink-3);
+    --co-v-font: 500 21px var(--serif); --co-v-track: -0.01em;
+    --i-top: #4862e6; --i-hatch: rgba(255, 255, 255, 0.3); --i-toprib: #3550dc; --i-side: #1a36c8; --i-rib: #1730b8; --i-end: #1229a3; --i-endrib: #0f2392;
+    --i-frame: #0d1f85; --i-dark: #071257; --i-cast: #0d1f85; --i-steel: #ffffff; --i-section: rgba(255, 255, 255, 0.6); --i-edge: #0d1f85;
+    --i-text: var(--ink-3); --i-text-strong: var(--ink-2); --i-roofnote: #ffffff; --i-shadow: rgba(26, 54, 200, 0.3);
+    --damage-zone: #ff8fc3; --zone-o: 0.42; --zone-on-o: 0.75; --pin-ink: #c2156a;
+  }
+  body { background: var(--bg); color: var(--ink); font: 400 15px/23px var(--sans); }
+  .k { font: 600 11px/14px var(--sans); letter-spacing: 0.14em; text-transform: uppercase; color: var(--ink-2); }
+  .cert { font: 500 13px/1 var(--sans); }
+  .page { display: grid; grid-template-columns: 480px minmax(0, 1fr); min-height: 100vh; }
+
+  .side { display: flex; flex-direction: column; padding: 28px 44px 32px 48px; border-right: 1px solid var(--line); background: var(--paper); }
+  .brand { display: flex; align-items: center; gap: 10px; font: 600 16px/1 var(--sans); letter-spacing: -0.01em; }
+  .brand img { width: 24px; height: 24px; }
+  .side__mid { margin: 84px 0 44px; }
+  .idx { display: grid; grid-template-columns: auto auto; justify-content: start; align-items: center; column-gap: 16px; margin: 16px 0 28px; font: 400 88px/0.96 var(--serif); letter-spacing: -0.035em; }
+  .idx span:first-child { grid-column: 1 / -1; }
+  .idx em { height: 72px; padding: 0 12px 4px; border: 2px solid var(--ink); font: 400 64px/1 var(--serif); letter-spacing: 0; }
+  .lede { max-width: 360px; font: 400 21px/30px var(--serif); letter-spacing: -0.005em; }
+  .lede b { font-weight: 500; color: var(--cobalt); }
+  .facts { margin-top: 28px; }
+  .facts li { display: grid; grid-template-columns: 96px minmax(0, 1fr) auto; align-items: baseline; gap: 12px; padding: 12px 0; border-top: 1px solid var(--line); }
+  .facts li:last-child { border-bottom: 1px solid var(--line); }
+  .facts b { font: 500 16px/22px var(--mono); }
+  .side__foot { display: flex; align-items: center; justify-content: space-between; gap: 16px; color: var(--ink-2); font-size: 13px; }
+  .side__foot b { font: 500 13px/1 var(--mono); color: var(--ink); }
+  .btn { height: 44px; padding: 0 22px; border-radius: 22px; background: var(--cobalt); color: #fff; font: 600 14px/1 var(--sans); }
+
+  .main { padding: 40px 56px 48px; }
+  .sec + .sec { margin-top: 48px; padding-top: 36px; border-top: 1px solid var(--line); }
+  .head { display: flex; align-items: baseline; gap: 16px; margin-bottom: 18px; }
+  .head h2 { font: 400 40px/44px var(--serif); letter-spacing: -0.02em; }
+  .head p { color: var(--ink-2); }
+  .head .seg, .head .cert { margin-left: auto; }
+  .seg { display: flex; gap: 18px; font: 500 13px/1 var(--sans); color: var(--ink-3); }
+  .seg .is-on { color: var(--ink); box-shadow: 0 6px 0 -4px var(--ink); }
+  .door { padding: 0 8px; }
+  .views { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin: 0 -12px; }
+  .fl { display: grid; grid-template-columns: 1fr 1fr; column-gap: 48px; margin-top: 22px; }
+  .fl-i { grid-template-columns: 28px minmax(0, 1fr) auto; padding: 14px 0; border-top: 1px solid var(--line); align-self: start; }
+  .fl-i > .sev { display: none; }
+  .fl-i.is-on { grid-row: span 2; }
+  .fl-t b { font: 500 18px/24px var(--serif); }
+  .fl-t small { color: var(--ink-2); font-size: 13px; line-height: 18px; }
+  .fl-i p { margin-top: 8px; color: var(--ink-2); font-size: 14px; line-height: 21px; }
+  .trio { display: grid; grid-template-columns: 1fr 1fr 1.2fr; gap: 48px; }
+  .trio h3 { margin-bottom: 12px; font: 400 26px/30px var(--serif); letter-spacing: -0.01em; }
+  .dl div, .ml li { padding: 9px 0; border-top: 1px solid var(--line); font-size: 14px; }
+  .dl dt { color: var(--ink-2); }
+  .dl dd, .ml b { font-weight: 500; }
+  .ml .is-off b { color: var(--ink-2); font-weight: 400; }
+  .note { margin-top: 12px; color: var(--ink-3); font-size: 13px; line-height: 19px; }
+  .ph { gap: 8px; }
+  .ph span { padding: 14px 6px 5px; background: linear-gradient(0deg, rgba(8, 12, 40, 0.8), transparent); color: #fff; font: 500 11px/13px var(--sans); }
+</style>
+</head>
+<body>
+<div class="page">
+  <aside class="side">
+    <span class="brand"><img src="../../design-system/assets/logo/quay-sight-mark.svg" alt="">Quay Sight</span>
+    <div class="side__mid">
+      <span class="k">Container ID</span> &nbsp;<span class="cert cert--confident"><i></i>Confident</span>
+      <h1 class="idx" data-part="id"></h1>
+      <p class="lede">A 20 ft general-purpose container, <b>22G1</b>. Eight of nine door markings were read. Six cosmetic findings, nothing more serious seen.</p>
+      <ul class="facts">
+        <li><span class="k">Seal</span><b>0154620</b><span class="cert cert--confident"><i></i>Confident</span></li>
+        <li><span class="k">Max gross</span><b>32,500 kg</b><span class="cert cert--confident"><i></i>Confident</span></li>
+        <li><span class="k">Placards</span><b>Super heavy</b><span class="cert cert--confident"><i></i>Confident</span></li>
+        <li><span class="k">Damage</span><b>6 cosmetic</b><span class="cert cert--likely"><i></i>Likely</span></li>
+      </ul>
+    </div>
+    <div class="side__foot"><span>Jev latest · <b>$0.0209</b></span><button class="btn">New inspection</button></div>
+  </aside>
+
+  <main class="main">
+    <section class="sec">
+      <div class="head"><h2>Read from the doors</h2><div class="seg"><span class="is-on">Metric</span><span>Imperial</span></div></div>
+      <div class="door"><svg data-door="both" role="img" aria-label="Door end with the readings marked on it"></svg></div>
+    </section>
+    <section class="sec">
+      <div class="head"><h2>Damage</h2><p>6 findings, all cosmetic. Areas are approximate.</p><span class="cert cert--likely"><i></i>Likely</span></div>
+      <div class="views"><svg data-iso="door"></svg><svg data-iso="blank"></svg></div>
+      <div data-part="findings"></div>
+    </section>
+    <section class="sec trio">
+      <div><h3>Container details</h3><div data-part="details"></div></div>
+      <div><h3>Markings</h3><div data-part="markings"></div></div>
+      <div><h3>Photos inspected</h3><div data-part="photos"></div><p class="note">The roof was not photographed. Observations and estimates from photographs, not a certified survey.</p></div>
+    </section>
+  </main>
+</div>
+<script src="v2.js"></script>
+</body>
+</html>

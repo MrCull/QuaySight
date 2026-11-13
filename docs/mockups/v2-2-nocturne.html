@@ -1,0 +1,132 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=1440">
+<title>Quay Sight · 2 · Nocturne</title>
+<!-- Static mock-up, not app code. Nocturne: a night-shift control room. Near-black glass panels, a graphite door
+     with luminous paint, one teal light. The whole inspection on a single dashboard. -->
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600&family=JetBrains+Mono:wght@400;500;600&family=Manrope:wght@400;500;600;700&display=swap">
+<link rel="stylesheet" href="mock.css">
+<link rel="stylesheet" href="v2.css">
+<style>
+  :root {
+    color-scheme: dark;
+    --sans: "Manrope", system-ui, sans-serif; --mono: "JetBrains Mono", ui-monospace, monospace;
+    --bg: #05070b; --glass: rgba(255, 255, 255, 0.035); --edge: rgba(255, 255, 255, 0.09); --line: rgba(255, 255, 255, 0.07);
+    --ink: #f1f5fa; --ink-2: #9ba8ba; --ink-3: #5f6c7f; --accent: #46e3d3; --on-accent: #03201d;
+    --c-confident: #84b6ff; --c-likely: #a7c4ee; --c-uncertain: #ffc861; --c-unknown: #8492a6;
+    --damage: #ff7db4; --pin-bg: #1c0b14; --pin-on-ink: #1c0b14; --hazard: #ff9259;
+    --d-frame: #0c1118; --d-panel: #1b2430; --d-recess: #161e29; --d-shade: #0b1016; --d-lite: #2a3645; --d-cast: #080c11; --d-hole: #000;
+    --d-steel: #7c8b9f; --d-steel-lite: #b9c5d4; --d-steel-2: #566475; --d-paint: #eaf6ff; --d-placard-fill: #3a2410; --d-seal: #46e3d3; --d-plate: #3a4656; --d-plateline: #7c8b9f;
+    --d-shadow: rgba(70, 227, 211, 0.22);
+    --lead: rgba(160, 180, 205, 0.4); --lead-dot: #46e3d3; --lead-ring: rgba(5, 7, 11, 0.9); --co-key: var(--ink-2); --co-val: var(--ink); --co-sub: var(--ink-3);
+    --i-top: #263241; --i-hatch: rgba(255, 255, 255, 0.1); --i-toprib: #2d3a4b; --i-side: #1d2733; --i-rib: #18212c; --i-end: #151d27; --i-endrib: #111820;
+    --i-frame: #0c1118; --i-dark: #05080c; --i-cast: #080c11; --i-steel: #8b9aae; --i-section: rgba(255, 255, 255, 0.28); --i-edge: rgba(120, 220, 215, 0.55); --i-edge-w: 1;
+    --i-text: var(--ink-3); --i-text-strong: var(--ink-2); --i-roofnote: rgba(255, 255, 255, 0.5); --i-shadow: rgba(70, 227, 211, 0.2);
+    --zone-o: 0.3; --zone-on-o: 0.55;
+  }
+  body { min-height: 100vh; background:
+      radial-gradient(900px 520px at 12% -8%, rgba(70, 227, 211, 0.13), transparent 60%),
+      radial-gradient(900px 600px at 96% 4%, rgba(92, 110, 255, 0.16), transparent 60%), var(--bg);
+    color: var(--ink); font: 500 14px/20px var(--sans); }
+  .page { padding: 0 28px 28px; }
+  .k { font: 700 11px/14px var(--sans); letter-spacing: 0.12em; text-transform: uppercase; color: var(--ink-3); }
+  .cert { font: 600 12px/1 var(--sans); }
+  .glass { position: relative; border-radius: 20px; background: var(--glass); box-shadow: inset 0 0 0 1px var(--edge), inset 0 1px 0 rgba(255, 255, 255, 0.08), 0 30px 60px -30px rgba(0, 0, 0, 0.8); backdrop-filter: blur(20px); }
+
+  .nav { display: flex; align-items: center; height: 60px; }
+  .brand { display: flex; align-items: center; gap: 10px; font: 700 16px/1 var(--sans); letter-spacing: -0.01em; }
+  .brand img { width: 24px; height: 24px; }
+  .nav__r { margin-left: auto; display: flex; align-items: center; gap: 10px; }
+  .chip { display: flex; align-items: center; gap: 8px; height: 32px; padding: 0 13px; border-radius: 16px; box-shadow: inset 0 0 0 1px var(--edge); color: var(--ink-2); font-size: 12px; }
+  .chip b { color: var(--ink); font: 500 12px/1 var(--mono); }
+  .btn { height: 34px; padding: 0 16px; border-radius: 17px; background: var(--accent); color: var(--on-accent); font: 700 13px/1 var(--sans); box-shadow: 0 0 24px rgba(70, 227, 211, 0.35); }
+
+  .hero { display: flex; align-items: flex-end; gap: 40px; padding: 18px 4px 26px; }
+  .idx { gap: 20px; margin-top: 10px; font: 600 68px/1 var(--mono); letter-spacing: -0.02em; text-shadow: 0 0 40px rgba(132, 182, 255, 0.35); }
+  .idx em { height: 78px; padding: 0 14px; border: 3px solid var(--ink); border-radius: 12px; }
+  .hero__meta { display: flex; align-items: center; gap: 14px; }
+  .stats { margin-left: auto; display: flex; gap: 36px; padding-bottom: 6px; }
+  .stats dd { margin-top: 6px; font: 500 22px/26px var(--mono); }
+  .stats dd small { margin-left: 4px; color: var(--ink-3); font: 500 12px/1 var(--sans); }
+
+  .grid { display: grid; grid-template-columns: minmax(0, 1fr) 384px 350px; gap: 16px; }
+  .head { display: flex; align-items: center; gap: 12px; padding: 20px 22px 0; }
+  .head h2 { font: 700 15px/20px var(--sans); letter-spacing: -0.01em; }
+  .head p { color: var(--ink-3); font-size: 13px; }
+  .head .cert, .head .seg { margin-left: auto; }
+  .seg { display: flex; padding: 3px; border-radius: 9px; background: rgba(255, 255, 255, 0.05); font: 600 12px/1 var(--sans); color: var(--ink-2); }
+  .seg span { padding: 6px 10px; border-radius: 6px; }
+  .seg .is-on { background: rgba(255, 255, 255, 0.1); color: var(--ink); }
+  .grid .glass { display: flex; flex-direction: column; }
+  .door { flex: 1; display: grid; align-content: center; padding: 10px 30px 22px; }
+  .views { flex: 1; display: grid; align-content: space-evenly; padding: 4px 10px 14px; }
+  .fl { padding: 10px 12px 12px; }
+  .fl-i { grid-template-columns: 26px minmax(0, 1fr) auto; column-gap: 10px; padding: 10px; border-radius: 12px; }
+  .fl-i > .sev { display: none; }
+  .fl-n { width: 24px; height: 24px; font-size: 11px; }
+  .fl-t b { font-size: 13px; line-height: 18px; }
+  .fl-t small { color: var(--ink-3); font-size: 12px; line-height: 16px; }
+  .fl-i.is-on { background: rgba(255, 125, 180, 0.09); box-shadow: inset 0 0 0 1px rgba(255, 125, 180, 0.28); }
+  .fl-i p { margin-top: 6px; color: var(--ink-2); font-size: 12.5px; line-height: 18px; }
+
+  .low { display: grid; grid-template-columns: 1fr 1fr 1.3fr; gap: 16px; margin-top: 16px; }
+  .low .glass { padding: 20px 22px; }
+  .low h3 { margin-bottom: 10px; font: 700 15px/20px var(--sans); }
+  .dl { display: grid; grid-template-columns: 1fr 1fr; column-gap: 28px; }
+  .dl div, .ml li { padding: 8px 0; border-top: 1px solid var(--line); font-size: 13px; }
+  .dl dt { color: var(--ink-2); }
+  .ml .is-off b { color: var(--ink-2); font-weight: 500; }
+  .note { margin-top: 10px; color: var(--ink-3); font-size: 12px; line-height: 17px; }
+  .ph { gap: 8px; }
+  .ph li { border-radius: 10px; box-shadow: 0 0 0 1px var(--edge); }
+  .ph span { padding: 14px 6px 5px; background: linear-gradient(0deg, rgba(0, 0, 0, 0.8), transparent); font: 600 10.5px/13px var(--sans); }
+  .foot { padding-top: 18px; color: var(--ink-3); font-size: 12px; text-align: center; }
+</style>
+</head>
+<body>
+<div class="page">
+  <header class="nav">
+    <span class="brand"><img src="../../design-system/assets/logo/quay-sight-mark-on-dark.svg" alt="">Quay Sight</span>
+    <div class="nav__r"><span class="chip">Jev latest</span><span class="chip">This container <b>$0.0209</b></span><button class="btn">New inspection</button></div>
+  </header>
+
+  <section class="hero">
+    <div>
+      <div class="hero__meta"><span class="k">Container ID</span><span class="cert cert--confident"><i></i>Confident</span><span class="k" style="letter-spacing:0;text-transform:none;font-weight:500;font-size:13px">Check digit valid</span></div>
+      <h1 class="idx" data-part="id"></h1>
+    </div>
+    <dl class="stats">
+      <div><dt class="k">Size and type</dt><dd>22G1</dd></div>
+      <div><dt class="k">Max gross</dt><dd>32,500<small>kg</small></dd></div>
+      <div><dt class="k">Seal</dt><dd>0154620</dd></div>
+      <div><dt class="k">Damage</dt><dd>6<small>cosmetic</small></dd></div>
+    </dl>
+  </section>
+
+  <section class="grid">
+    <div class="glass">
+      <div class="head"><h2>Read from the doors</h2><p>8 markings</p><div class="seg"><span class="is-on">Metric</span><span>Imperial</span></div></div>
+      <div class="door"><svg data-door="right" role="img" aria-label="Door end with the readings marked on it"></svg></div>
+    </div>
+    <div class="glass">
+      <div class="head"><h2>Where the damage is</h2></div>
+      <div class="views"><svg data-iso="door"></svg><svg data-iso="blank"></svg></div>
+    </div>
+    <div class="glass">
+      <div class="head"><h2>6 findings</h2><p>all cosmetic</p><span class="cert cert--likely"><i></i>Likely</span></div>
+      <div data-part="findings"></div>
+    </div>
+  </section>
+
+  <section class="low">
+    <div class="glass"><h3>Container details</h3><div data-part="details"></div></div>
+    <div class="glass"><h3>Markings</h3><div data-part="markings"></div></div>
+    <div class="glass"><h3>Photos inspected</h3><div data-part="photos"></div></div>
+  </section>
+  <p class="foot">Observations and estimates from photographs. Not a certified survey.</p>
+</div>
+<script src="v2.js"></script>
+</body>
+</html>
