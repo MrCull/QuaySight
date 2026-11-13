@@ -1,11 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import {
-  idCloseUp,
-  isoCloseUp,
-  NUMBER_MARGIN,
-  placardCloseUp,
-  sealCloseUp,
-} from '../closeUpSources'
+import { idCloseUp, isoCloseUp, placardCloseUp, sealCloseUp } from '../closeUpSources'
 import type { InspectionRecord } from '../inspection'
 import { ENLARGED_MARGIN } from '../enlargedCrop'
 
@@ -99,24 +93,6 @@ describe('the seal close-up from a close-up photo of the seal', () => {
       photoFace: { face: 'close-up', closeUpSubject: 'id' },
     })
     expect(sealCloseUp(other)).toBeNull()
-  })
-})
-
-describe('the seal close-up of the number itself', () => {
-  const NUMBER = { top: 0.4, bottom: 0.45, left: 0.3, right: 0.6, confidence: 0.8 }
-
-  it('frames the boxed number before the whole close-up photo or any found area', () => {
-    const r = record({
-      seal: { visible: true, numberBox: NUMBER },
-      photoFace: { face: 'close-up', closeUpSubject: 'seal' },
-      sealZoomRead: { box: AREA },
-    })
-    expect(sealCloseUp(r)).toEqual({ photo: 1, box: NUMBER, margin: NUMBER_MARGIN })
-  })
-
-  it('takes the photo from the reading with several photos', () => {
-    const r = record({ seal: { visible: true, photo: 5, numberBox: NUMBER }, photos: [{}, {}] })
-    expect(sealCloseUp(r)?.photo).toBe(5)
   })
 })
 

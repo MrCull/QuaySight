@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { boxOnPhoto, combineIdReadings, cropRegion, usableIdBox } from '../cropRead'
+import { combineIdReadings, cropRegion, usableIdBox } from '../cropRead'
 import type { ChoiceReading } from '../idQuestions'
 import type { PhotoLimits } from '../providers'
 
@@ -173,8 +173,6 @@ describe('cropRegion', () => {
       height: 180,
       outWidth: 1568,
       outHeight: 852,
-      sourceWidth: 1079,
-      sourceHeight: 1080,
     })
   })
 
@@ -224,31 +222,5 @@ describe('cropRegion', () => {
     expect(region.outWidth * region.outHeight).toBeLessThanOrEqual(2_000_000)
     expect(region.outWidth).toBeLessThanOrEqual(1568)
     expect(region.outHeight).toBeLessThanOrEqual(1568)
-  })
-})
-
-describe('a box on a crop, on the photo', () => {
-  const region = { x: 200, y: 100, width: 400, height: 300, outWidth: 800, outHeight: 600 }
-  const box = { top: 0, bottom: 1, left: 0.5, right: 1, confidence: 0.9 }
-
-  it('maps the box through the crop to fractions of the photo it was cut from', () => {
-    expect(boxOnPhoto(box, { ...region, sourceWidth: 1000, sourceHeight: 500 })).toEqual({
-      top: 0.2,
-      bottom: 0.8,
-      left: 0.4,
-      right: 0.6,
-      confidence: 0.9,
-    })
-  })
-
-  it('gives nothing without the photo size or a usable box', () => {
-    expect(boxOnPhoto(box, region)).toBeNull()
-    expect(boxOnPhoto(null, { ...region, sourceWidth: 1000, sourceHeight: 500 })).toBeNull()
-  })
-
-  it('keeps the size of the photo on every crop region', () => {
-    const limits = { maxSide: 1568, minSide: 0, maxPixels: 1568 * 1568 } as never
-    const crop = cropRegion({ width: 1200, height: 900 }, { ...box, confidence: 1 }, limits)
-    expect(crop).toMatchObject({ sourceWidth: 1200, sourceHeight: 900 })
   })
 })

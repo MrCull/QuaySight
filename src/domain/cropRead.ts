@@ -51,28 +51,6 @@ export interface CropRegion {
   height: number
   outWidth: number
   outHeight: number
-  /** The size of the photo the crop was cut from, so a box on the crop maps back to it. Absent on old recordings. */
-  sourceWidth?: number
-  sourceHeight?: number
-}
-
-/**
- * A box given on a crop, as fractions of the photo the crop was cut from. Null when the crop does not
- * say how large that photo was (old recordings), or the box is unusable.
- */
-export function boxOnPhoto(box: IdBox | null | undefined, region: CropRegion): IdBox | null {
-  const usable = usableIdBox(box)
-  const w = region.sourceWidth
-  const h = region.sourceHeight
-  if (!usable || !w || !h) return null
-  const clamp = (n: number) => Math.min(1, Math.max(0, n))
-  return {
-    left: clamp((region.x + usable.left * region.width) / w),
-    right: clamp((region.x + usable.right * region.width) / w),
-    top: clamp((region.y + usable.top * region.height) / h),
-    bottom: clamp((region.y + usable.bottom * region.height) / h),
-    confidence: usable.confidence,
-  }
 }
 
 /** Widens [lo, hi] to `want` about its centre, inside [0, max], shifting off an edge it meets. */
@@ -122,16 +100,7 @@ export function cropRegion(
 
   const out = largestWithin({ width, height }, limits)
   if (!out) return null
-  return {
-    x,
-    y,
-    width,
-    height,
-    outWidth: out.width,
-    outHeight: out.height,
-    sourceWidth: photo.width,
-    sourceHeight: photo.height,
-  }
+  return { x, y, width, height, outWidth: out.width, outHeight: out.height }
 }
 
 /**

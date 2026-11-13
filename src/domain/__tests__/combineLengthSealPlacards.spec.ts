@@ -260,18 +260,6 @@ describe('close-ups for the seal and the ISO code across photos', () => {
     })
   })
 
-  it('carries the number box of the photo the crop is taken from', () => {
-    const numberBox = { top: 0.4, bottom: 0.45, left: 0.3, right: 0.6, confidence: 0.8 }
-    const record = combinePhotoRuns(
-      [
-        run(1, 'rear-doors', { seal: seal('0154620', 'Likely', false) }),
-        run(2, 'close-up', { seal: { ...seal('0154620', 'Confident', false), numberBox } }),
-      ],
-      { id: 'x' },
-    )
-    expect(record.seal).toMatchObject({ photo: 2, numberBox })
-  })
-
   it('cuts the ISO code from a photo that gave the agreed code and has it located', () => {
     const area = { top: 0.1, bottom: 0.2, left: 0.6, right: 0.8 }
     const check = {

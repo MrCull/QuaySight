@@ -1,4 +1,4 @@
-import { boxOnPhoto, usableIdBox, type CropRegion, type IdBox } from '../../domain/cropRead'
+import { usableIdBox, type CropRegion, type IdBox } from '../../domain/cropRead'
 import { questionSet } from '../../domain/questionSet'
 import { questionSetAsk } from '../../domain/questionSetAsk'
 import { readSeal, sealQuestions, type SealReading } from '../../domain/sealFamily'
@@ -19,14 +19,10 @@ export interface SealZoomAnswer {
 const INSTRUCTIONS =
   'This is a close view of part of a freight container photo. Read the number on the seal fitted to the container door, character by character. Answer each question from what is visible; if a character cannot be read, answer unreadable rather than guessing.'
 
-const sealAsk = (box: boolean) =>
-  questionSetAsk(questionSet(INSTRUCTIONS, sealQuestions({ box })), ({ answers }) =>
-    readSeal(answers, { box }),
-  )
-const SEAL_ASK = sealAsk(false)
-/** For a model that answers boxes: also where the number is on the close view, for the seal close-up. */
-const SEAL_ASK_BOX = sealAsk(true)
-const askFor = (route: { entry: { box: boolean } }) => (route.entry.box ? SEAL_ASK_BOX : SEAL_ASK)
+const SEAL_ASK = questionSetAsk(
+  questionSet(INSTRUCTIONS, sealQuestions({ box: false })),
+  ({ answers }) => readSeal(answers, { box: false }),
+)
 
 function areaOf(plan: PlanView): { box: IdBox; marks: number[] } | null {
   const area = plan.answer(regions)?.seal
@@ -58,12 +54,12 @@ export const sealZoom: PlanRequest<SealZoomAnswer> = {
       ctx.route.entry.photoLimits,
       ZOOM_MARGIN,
     )
-    const reply = await askDecisions({ ...ctx, photo }, askFor(ctx.route))
+    const reply = await askDecisions({ ...ctx, photo }, SEAL_ASK)
     return { ...reply, answer: { seal: reply.answer, region } }
   },
   replay(raw, plan, { crop }) {
     if (!crop) throw new Error('A recorded seal zoom names the region it was cut from.')
-    return { seal: askFor(plan.route).map(raw, plan.route), region: crop }
+    return { seal: SEAL_ASK.map(raw, plan.route), region: crop }
   },
   apply(record, outcome, plan) {
     const area = areaOf(plan)
@@ -76,12 +72,8 @@ export const sealZoom: PlanRequest<SealZoomAnswer> = {
 
     switch (outcome.status) {
       case 'answered': {
-        const { seal: zoomed, region } = outcome.answer
-        // A box on the close view is on the crop, not the photo: it never joins the reading as its box.
-        const { box: onCrop, ...seal } = zoomed ?? { box: undefined }
-        const numberBox = boxOnPhoto(onCrop, region)
-        const read = combineSealReads(record.seal, zoomed ? (seal as SealReading) : null)
-        const combined = read && numberBox && read.visible ? { ...read, numberBox } : read
+        const { seal, region } = outcome.answer
+        const combined = combineSealReads(record.seal, seal)
         return {
           ...record,
           ...(combined ? { seal: combined } : {}),
@@ -96,11 +88,7 @@ export const sealZoom: PlanRequest<SealZoomAnswer> = {
               height: region.height,
               sentWidth: region.outWidth,
               sentHeight: region.outHeight,
-              ...(region.sourceWidth
-                ? { sourceWidth: region.sourceWidth, sourceHeight: region.sourceHeight }
-                : {}),
             },
-            ...(numberBox ? { numberBox } : {}),
             resolvedVersion: outcome.resolvedModel,
             reason: null,
           },

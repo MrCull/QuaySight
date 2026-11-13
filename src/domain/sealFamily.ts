@@ -36,8 +36,6 @@ export interface SealReading {
   photo?: number
   /** The area found for the seal on that photo (fractions); a close-up is cut from it when present. */
   area?: { top: number; bottom: number; left: number; right: number }
-  /** Where the zoomed read boxed the number itself on that photo (fractions); the close-up frames it first. */
-  numberBox?: ReadingBox
   /** The numbers this read makes plausible, for the seal pick (sealPick.ts). Never shown. */
   candidates?: string[]
 }
