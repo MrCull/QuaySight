@@ -5,6 +5,12 @@ import { lengthDisagreement } from '../shapeLength'
 import type { CertaintyLabel, InspectionRecord } from '../inspection'
 import type { PhotoFace } from '../photoFace'
 import type { SealReading } from '../sealFamily'
+import { isoCloseUp, sealCloseUp } from '../closeUpSources'
+import {
+  EQUIPMENT_CHECKS,
+  MARKING_CHECKS,
+  type ContainerDetailsReading,
+} from '../containerDetailTypes'
 import type { PlacardReading, PlacardsReading } from '../placards'
 
 const BOX = { top: 0.4, bottom: 0.5, left: 0.3, right: 0.4, confidence: 0.9 }
@@ -219,6 +225,74 @@ describe('seal across photos', () => {
     )
     expect(record.seal).toMatchObject({ photo: 2, area })
     expect(record.seal!.box).toBeUndefined()
+  })
+})
+
+describe('close-ups for the seal and the ISO code across photos', () => {
+  it('names a seal close-up photo that was not located, and shows it whole', () => {
+    const record = combinePhotoRuns(
+      [
+        run(1, 'rear-doors', {}),
+        run(2, 'close-up', { seal: seal('0154620', 'Confident', false) }),
+      ].map((r, i) =>
+        i === 1
+          ? {
+              ...r,
+              record: {
+                ...r.record,
+                photoFace: {
+                  face: 'close-up',
+                  closeUpSubject: 'seal',
+                  probability: 0.9,
+                  certainty: 'Confident',
+                },
+              } as InspectionRecord,
+            }
+          : r,
+      ),
+      { id: 'x' },
+    )
+    expect(record.seal).toMatchObject({ value: '0154620', photo: 2 })
+    expect(sealCloseUp(record)).toEqual({
+      photo: 2,
+      box: { top: 0, left: 0, bottom: 1, right: 1, confidence: 1 },
+      margin: 0,
+    })
+  })
+
+  it('cuts the ISO code from a photo that gave the agreed code and has it located', () => {
+    const area = { top: 0.1, bottom: 0.2, left: 0.6, right: 0.8 }
+    const check = {
+      answer: 'no',
+      certainty: 'Confident',
+      source: 'observed',
+      conflict: null,
+    } as const
+    const details = (code: string): ContainerDetailsReading => ({
+      sizeCode: {
+        state: 'read',
+        code,
+        certainty: 'Confident',
+        source: 'printed',
+        alternative: null,
+        decoded: null,
+      },
+      equipment: Object.fromEntries(EQUIPMENT_CHECKS.map((k) => [k, check])) as never,
+      markings: Object.fromEntries(MARKING_CHECKS.map((k) => [k, check])) as never,
+      dgPlacard: { answer: 'none', dgClass: null, symbol: null, certainty: 'Confident' },
+    })
+    const record = combinePhotoRuns(
+      [
+        run(1, 'long-side', { details: details('25G1') }),
+        run(2, 'rear-doors', {
+          details: details('25G1'),
+          regions: { found: { iso: { box: area } } },
+        } as unknown as Partial<InspectionRecord>),
+      ],
+      { id: 'x' },
+    )
+    expect(record.details!.sizeCode).toMatchObject({ code: '25G1', photo: 2, area })
+    expect(isoCloseUp(record)).toEqual({ photo: 2, box: { ...area, confidence: 1 }, margin: 0 })
   })
 })
 

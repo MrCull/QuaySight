@@ -147,6 +147,11 @@ function combineSeal(runs: PhotoRecord[]): { reading: SealReading | null; from: 
   if (boxed) {
     if (boxed.record.seal!.box) reading.box = boxed.record.seal!.box
     reading.photo = boxed.photo
+  } else {
+    // Located nowhere: still name the photo that gave most characters. A seal close-up photo is then
+    // shown whole (closeUpSources.ts); any other photo shows nothing.
+    const most = [...taken.entries()].sort((a, b) => b[1] - a[1] || a[0] - b[0])[0]
+    if (most) reading.photo = most[0]
   }
   return { reading, from: [...taken.keys()].sort((a, b) => a - b) }
 }

@@ -1,10 +1,12 @@
 // Where each close-up on screen is cut from (ticket #85). Pure. A close-up is the area the numbered
-// regions found (ticket #84: idCropRead.box, sealZoomRead.box, the regions' hazard areas), cut from the
-// photo whose reading won. The photo comes from the reading ("photo", 1-based); only a reading that has
-// none is taken to be photo 1. Without an area nothing is shown, never a guess.
+// regions found (ticket #84: idCropRead.box, sealZoomRead.box, the ISO code's area, the regions' hazard
+// areas), cut from the photo whose reading won. The photo comes from the reading ("photo", 1-based); only
+// a reading that has none is taken to be photo 1. Without an area nothing is shown, never a guess, with
+// one exception: a seal read from a photo that is itself a close-up of the seal shows that whole photo.
 import { usableIdBox, type IdBox } from './cropRead'
 import { ENLARGED_MARGIN, type ReadingBox } from './enlargedCrop'
 import type { InspectionRecord } from './inspection'
+import type { FaceReading } from './photoFace'
 import type { RegionBox } from './regionMarks'
 
 /** What a close-up needs: the 1-based photo, the box on it, and the margin to keep around the box. */
@@ -54,12 +56,37 @@ export function idCloseUp(record: InspectionRecord): CloseUpSource | null {
   return source(reading as Located, found, record)
 }
 
+/** The whole of a photo, as a found area: nothing to enlarge, the photo is the close-up. */
+const WHOLE_PHOTO: IdBox = { top: 0, left: 0, bottom: 1, right: 1, confidence: 1 }
+
+/** What the survey says photo `photo` shows: the record's own face with one photo, its summary with several. */
+function faceOf(record: InspectionRecord, photo: number): FaceReading | null {
+  if (!hasSeveralPhotos(record)) return photo === 1 ? (record.photoFace ?? null) : null
+  return record.photos?.find((p) => p.index === photo)?.face ?? null
+}
+
 export function sealCloseUp(record: InspectionRecord): CloseUpSource | null {
   const reading = record.seal
   if (!reading?.visible) return null
   const found = hasSeveralPhotos(record)
     ? null
     : (record.sealZoomRead?.box ?? record.regions?.found?.seal?.box)
+  const located = source(reading as Located, found, record)
+  if (located) return located
+  // Not located, but read from a close-up of the seal: that photo is the close-up.
+  const photo = reading.photo ?? (hasSeveralPhotos(record) ? undefined : 1)
+  if (photo === undefined) return null
+  const face = faceOf(record, photo)
+  return face?.face === 'close-up' && face.closeUpSubject === 'seal'
+    ? { photo, box: WHOLE_PHOTO, margin: 0 }
+    : null
+}
+
+/** The ISO size and type code, where the regions step found it. Nothing when the code was not read. */
+export function isoCloseUp(record: InspectionRecord): CloseUpSource | null {
+  const reading = record.details?.sizeCode
+  if (reading?.state !== 'read' || !reading.code) return null
+  const found = hasSeveralPhotos(record) ? null : record.regions?.found?.iso?.box
   return source(reading as Located, found, record)
 }
 

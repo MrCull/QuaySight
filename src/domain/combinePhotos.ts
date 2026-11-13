@@ -433,6 +433,15 @@ export function combinePhotoRuns(
     const area = own?.idCropRead?.box ?? own?.regions?.found?.id?.box
     if (winner) containerId = { ...containerId, photo: winner.photo, ...(area ? { area } : {}) }
   }
+  // The ISO code: the first photo that gave the agreed code and has the code located on it.
+  const sizeFrom = [...contributions.entries()]
+    .filter(([, c]) => c.details.includes('sizeCode') || c.details.includes('all'))
+    .map(([photo]) => photo)
+  const isoPhoto = sizeFrom.find((photo) => runOf(photo)?.regions?.found?.iso?.box)
+  const isoArea = isoPhoto ? runOf(isoPhoto)?.regions?.found?.iso?.box : undefined
+  if (details?.sizeCode.state === 'read' && isoPhoto && isoArea) {
+    details = { ...details, sizeCode: { ...details.sizeCode, photo: isoPhoto, area: isoArea } }
+  }
   const sealFrom = merged.fields.seal?.photo
   const sealRun = sealFrom ? runOf(sealFrom) : undefined
   const sealArea = sealRun?.sealZoomRead?.box ?? sealRun?.regions?.found?.seal?.box

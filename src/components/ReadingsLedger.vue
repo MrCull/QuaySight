@@ -18,7 +18,7 @@ const props = defineProps<{
   parts: { id: boolean; details: boolean }
   /** Every photo's URL in order; a close-up is cut from the photo its reading names. */
   photos: string[]
-  closeUps: { id: CloseUpSource | null; seal: CloseUpSource | null }
+  closeUps: { id: CloseUpSource | null; type?: CloseUpSource | null; seal: CloseUpSource | null }
   /** The run is going and the ID has not landed: the door bare, skeletons for the values. */
   busy: boolean
 }>()
@@ -52,14 +52,15 @@ const doorLabel = computed(() => {
 
 const photoUrl = (n: number | undefined) => (n ? props.photos[n - 1] : undefined)
 
-/** The close-up beside the ID or seal row, cut from the photo its reading names. */
+/** The close-up beside the ID, ISO code or seal row, cut from the photo its reading names. */
 const CLOSE_UP_WORDS = {
   id: { caption: 'Where we read the ID', label: 'The container ID' },
+  type: { caption: 'Where we read the ISO code', label: 'The ISO size and type code' },
   seal: { caption: 'Where we read the seal', label: 'The seal' },
 } as const
 function closeUp(key: string) {
-  if (key !== 'id' && key !== 'seal') return null
-  const source = props.closeUps[key]
+  if (key !== 'id' && key !== 'type' && key !== 'seal') return null
+  const source = props.closeUps[key] ?? null
   const url = photoUrl(source?.photo)
   return source && url ? { source, url, ...CLOSE_UP_WORDS[key] } : null
 }
@@ -85,7 +86,11 @@ function placeSide(side: HTMLElement | null, rows: { key: string; slot: string |
   const placed = placeRows(
     rows.map((r, i) => ({
       ideal: r.slot ? SLOT_Y[r.slot as keyof typeof SLOT_Y] * scale - HALF_LINE : null,
-      height: els[i]?.offsetHeight ?? 0,
+      // A row holds its close-up's height too, so a close-up never hangs over the next row's.
+      height: Math.max(
+        els[i]?.offsetHeight ?? 0,
+        els[i]?.querySelector<HTMLElement>('.qs-ledger__crop > *')?.offsetHeight ?? 0,
+      ),
     })),
     GAP,
   )
@@ -255,7 +260,7 @@ watch([model, reading], () => void nextTick(layout), { deep: true })
             >
             <span v-if="row.note">{{ row.note }}</span>
           </p>
-          <!-- Where the ID or the seal was read, cut from the photo, with the loupe; absent without a usable box. -->
+          <!-- Where the ID, the ISO code or the seal was read, cut from the photo, with the loupe; absent without a usable box. -->
           <div v-if="closeUp(row.key)" class="qs-ledger__crop">
             <PhotoCrop
               compact
