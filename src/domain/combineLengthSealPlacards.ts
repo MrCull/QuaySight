@@ -140,12 +140,18 @@ function combineSeal(runs: PhotoRecord[]): { reading: SealReading | null; from: 
   // The crop: the photo that gave most of the characters used, among those where the seal was located
   // (the model's own box, or the area the regions or the zoomed read found; combinePhotos adds the area).
   const located = (r: PhotoRecord) =>
-    Boolean(r.record.seal!.box ?? r.record.sealZoomRead?.box ?? r.record.regions?.found?.seal?.box)
+    Boolean(
+      r.record.seal!.numberBox ??
+      r.record.seal!.box ??
+      r.record.sealZoomRead?.box ??
+      r.record.regions?.found?.seal?.box,
+    )
   const boxed = same
     .filter(located)
     .sort((a, b) => (taken.get(b.photo) ?? 0) - (taken.get(a.photo) ?? 0) || a.photo - b.photo)[0]
   if (boxed) {
     if (boxed.record.seal!.box) reading.box = boxed.record.seal!.box
+    if (boxed.record.seal!.numberBox) reading.numberBox = boxed.record.seal!.numberBox
     reading.photo = boxed.photo
   } else {
     // Located nowhere: still name the photo that gave most characters. A seal close-up photo is then

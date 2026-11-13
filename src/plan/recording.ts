@@ -55,6 +55,12 @@ function requestOf(passId: string, inspectionId: string): string {
  * with its latency and cost from the ledger. A run that failed, was cancelled or came back partial is
  * not a recording.
  */
+/** The size of the photo a crop was cut from, when the record kept it (the seal zoom does). */
+function sourceOf(crop: object): { sourceWidth: number; sourceHeight: number } | null {
+  const { sourceWidth, sourceHeight } = crop as { sourceWidth?: number; sourceHeight?: number }
+  return sourceWidth && sourceHeight ? { sourceWidth, sourceHeight } : null
+}
+
 export function recordRun(
   record: InspectionRecord,
   ledger: readonly LedgerEntry[],
@@ -88,6 +94,7 @@ export function recordRun(
               height: crop.height,
               outWidth: crop.sentWidth,
               outHeight: crop.sentHeight,
+              ...(sourceOf(crop) ?? {}),
             },
           }
         : {}),

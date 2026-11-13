@@ -89,7 +89,11 @@ export interface SealZoomRecord {
     height: number
     sentWidth: number
     sentHeight: number
+    sourceWidth?: number
+    sourceHeight?: number
   } | null
+  /** Where the zoomed read boxed the seal number, as fractions of the photo. Only from models that answer boxes. */
+  numberBox?: IdBox
   resolvedVersion: string | null
   reason: 'requests' | 'spend' | null
 }

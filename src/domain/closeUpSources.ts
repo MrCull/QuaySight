@@ -2,8 +2,9 @@
 // regions found (ticket #84: idCropRead.box, sealZoomRead.box, the ISO code's area, the regions' hazard
 // areas), cut from the photo whose reading won. The photo comes from the reading ("photo", 1-based); only
 // a reading that has none is taken to be photo 1. Without an area nothing is shown, never a guess.
-// A seal read from a photo that is itself a close-up of the seal shows that whole photo: the photo is the
-// close-up, and a grid area of it (a quarter of the photo each way) only cuts the seal in half.
+// The seal's close-up frames the number itself when the zoomed read boxed it (models that answer boxes).
+// Otherwise a seal read from a photo that is itself a close-up of the seal shows that whole photo: a grid
+// area of it (a quarter of the photo each way) only cuts the seal in half.
 import { usableIdBox, type IdBox } from './cropRead'
 import { ENLARGED_MARGIN, type ReadingBox } from './enlargedCrop'
 import type { InspectionRecord } from './inspection'
@@ -57,6 +58,13 @@ export function idCloseUp(record: InspectionRecord): CloseUpSource | null {
   return source(reading as Located, found, record)
 }
 
+/**
+ * Space kept around the seal number's own box, as a fraction of its long side. A model's box stops a
+ * little short of the characters (docs/research/live-api-findings-2026-10-16.md); this brings them back
+ * in with a little of the seal around them.
+ */
+export const NUMBER_MARGIN = 0.35
+
 /** The whole of a photo, as a found area: nothing to enlarge, the photo is the close-up. */
 const WHOLE_PHOTO: IdBox = { top: 0, left: 0, bottom: 1, right: 1, confidence: 1 }
 
@@ -69,8 +77,11 @@ function faceOf(record: InspectionRecord, photo: number): FaceReading | null {
 export function sealCloseUp(record: InspectionRecord): CloseUpSource | null {
   const reading = record.seal
   if (!reading?.visible) return null
-  // Read from a close-up of the seal: that photo is the close-up, whatever area was found on it.
   const photo = reading.photo ?? (hasSeveralPhotos(record) ? undefined : 1)
+  // The number itself, where the zoomed read boxed it.
+  const number = usableIdBox(reading.numberBox)
+  if (photo !== undefined && number) return { photo, box: number, margin: NUMBER_MARGIN }
+  // Read from a close-up of the seal: that photo is the close-up, whatever area was found on it.
   const face = photo === undefined ? null : faceOf(record, photo)
   if (photo !== undefined && face?.face === 'close-up' && face.closeUpSubject === 'seal') {
     return { photo, box: WHOLE_PHOTO, margin: 0 }
