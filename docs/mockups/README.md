@@ -2,7 +2,25 @@
 
 Static pages, not app code. Open the `.html` files in a browser from the repo; each has a `.png` capture at 1440px.
 
-## Round 2: five directions (desktop only)
+## Round 3: five directions on the agreed structure (current)
+
+Brief from the owner after round 2: the door drawing must read as a schematic, not an imitation of the photo; photos in a row across the top; damage below, under tabs, with a Characteristics tab (reefer yes/no, tank yes/no and so on); and a better first screen with better wording.
+
+Every direction has a first screen and a result screen, built by `v3.js` on the shared structure in `v3.css`. A direction is one stylesheet.
+
+| Direction | Stylesheet | Pages | Captures |
+| --- | --- | --- | --- |
+| 1. Harbour | `v3-1-harbour.css` | `v3-1-harbour-setup.html`, `-result.html` | `-setup.png`, `-result.png`, `-characteristics.png`, `-board.png` |
+| 2. Graphite | `v3-2-graphite.css` | `v3-2-graphite-*.html` | same |
+| 3. Draft | `v3-3-draft.css` | `v3-3-draft-*.html` | same |
+| 4. Sky | `v3-4-sky.css` | `v3-4-sky-*.html` | same |
+| 5. Mono | `v3-5-mono.css` | `v3-5-mono-*.html` | same |
+
+`-board.png` stacks the three captures of a direction into one image. The tabs work: open a result page with `#chars` or `#marks` to land on that tab.
+
+New first-screen wording (same in all five): "Read a shipping container from a few photos." / "Connect your AI model" / "Held in this tab's memory only. Never saved, and gone when you close the tab." / "Continue to photos" / "About 2 cents a container. Never more than 50 cents." / "Try the demo".
+
+## Round 2: five directions (superseded)
 
 Brief from the owner after round 1: keep the door face drawn with the readings on it, keep a 3D-style damage view, desktop only, and do not point back at the photographs for the ID, seal or other writing.
 

@@ -1,0 +1,50 @@
+/* 1. Harbour: today's Quay Sight, grown up. Navy and white, condensed headings, the photos on a navy quay
+   with the answer card moored over its edge. Schematics in slate tints with fine outlines. */
+@import url("https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600&display=swap");
+:root {
+  --display: "Barlow Condensed", "Arial Narrow", sans-serif; --sans: "IBM Plex Sans", system-ui, sans-serif; --mono: "IBM Plex Mono", ui-monospace, monospace;
+  --bg: #f0f2f5; --surface: #ffffff; --sunken: #e8ecf1; --line: #dbe1e8; --line-strong: #8794a6; --ink: #0d1726; --ink-2: #4b596b; --ink-3: #8491a2;
+  --navy: #102a52; --accent: #14315e; --on-accent: #ffffff; --accent-soft: #eef2f8; --logo: url(../../design-system/assets/logo/quay-sight-mark.svg);
+  --brand: 600 24px/1 var(--display); --h1: 600 72px/68px var(--display); --h2: 600 32px/36px var(--display); --h3: 600 24px/28px var(--display);
+  --id: 500 58px/1 var(--mono); --id-h: 70px; --kf: 500 21px/26px var(--mono); --r: 8px; --r-card: 14px;
+  --c-confident: #1d4fb8; --c-likely: #3a67b5; --c-uncertain: #8a5300; --c-unknown: #5b6776;
+  --damage: #b3125a; --pin-bg: #ffffff; --pin-on-ink: #ffffff; --hazard: #c4320a;
+  --ln: #5b6c82; --ln-w: 0.8;
+  --d-frame: #c0ccd9; --d-panel: #e6ecf2; --d-recess: #d7dfe9; --d-shade: transparent; --d-lite: transparent; --d-cast: #a9b7c7; --d-hole: #4b596b;
+  --d-steel: #f8fafc; --d-steel-lite: transparent; --d-steel-2: #b3c0cf; --d-paint: #0d1726; --d-placard-fill: #fff0e5; --d-seal: #0d1726; --d-plate: #ffffff; --d-plateline: #8491a2;
+  --lead: #9aa7b8; --lead-dot: #0d1726; --lead-ring: #ffffff; --co-key: var(--ink-2); --co-val: var(--ink); --co-sub: var(--ink-3);
+  --i-top: #eef2f6; --i-hatch: rgba(13, 23, 38, 0.13); --i-toprib: #dbe1e8; --i-side: #dde4ec; --i-rib: #ced8e3; --i-end: #c9d3df; --i-endrib: #bcc8d6;
+  --i-frame: #a9b7c7; --i-dark: #4b596b; --i-cast: #8797aa; --i-steel: #4b596b; --i-section: rgba(13, 23, 38, 0.45); --i-edge: #4b596b; --i-edge-w: 1;
+  --i-text: var(--ink-3); --i-text-strong: var(--ink-2); --i-roofnote: var(--ink-2); --zone-o: 0.22; --zone-on-o: 0.45;
+}
+.bar { background: var(--surface); border-bottom: 1px solid var(--line); }
+.photos { padding-block: 28px 104px; background: linear-gradient(180deg, #0c2145, var(--navy)); color: #fff; --st-h: 232px; --st-r: 6px; }
+.st img { box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.14); }
+.st b { color: rgba(255, 255, 255, 0.55); }
+.st span { color: rgba(255, 255, 255, 0.9); }
+.app > .sum, .app > .read, .app > .more { margin-inline: var(--gut); padding: 28px 32px; border-radius: var(--r-card); background: var(--surface); box-shadow: 0 1px 2px rgba(13, 23, 38, 0.06), 0 16px 40px -24px rgba(13, 23, 38, 0.25); }
+.app > .sum { position: relative; margin-top: -72px; }
+.app > .read, .app > .more { margin-top: 20px; }
+.app > .more { padding-top: 10px; }
+.fl-i.is-on { margin: 0 -14px; padding: 14px; border: 0; border-radius: 10px; background: var(--accent-soft); }
+.fl-i.is-on + .fl-i { border-top-color: transparent; }
+.ch-flags li { background: var(--bg); border-color: transparent; }
+.ch-flags .is-yes { background: var(--accent-soft); box-shadow: inset 0 0 0 1.5px var(--accent); }
+
+.setup { background: linear-gradient(180deg, #0c2145, var(--navy) 62%, var(--bg) 62%); }
+.setup .bar { background: none; border: 0; color: #fff; --line: rgba(255, 255, 255, 0.25); }
+.setup .bar .bar-mid, .setup .bar .bar-r { color: rgba(255, 255, 255, 0.72); }
+.setup .logo { background-image: url(../../design-system/assets/logo/quay-sight-mark-white.svg); }
+.su { align-items: start; padding-top: 44px; }
+.su-hero > .k { color: rgba(255, 255, 255, 0.7); }
+.su h1 { color: #fff; }
+.su-lede { color: rgba(255, 255, 255, 0.82); }
+.su-steps { color: #fff; }
+.su-fig { margin-top: 36px; padding: 22px 26px 14px; border-radius: var(--r-card); background: var(--surface); box-shadow: 0 16px 40px -24px rgba(13, 23, 38, 0.35); }
+.sf { box-shadow: 0 1px 2px rgba(13, 23, 38, 0.08), 0 30px 60px -30px rgba(13, 23, 38, 0.5); }
+.su-fig svg { max-width: 600px; margin: 0 auto; }
+.su { padding-top: 28px; }
+.su h1 { margin: 10px 0 14px; }
+.su-steps { margin-top: 20px; }
+.su-fig { margin-top: 26px; padding: 14px 26px 8px; }
+.su-legend { margin-top: 18px; }

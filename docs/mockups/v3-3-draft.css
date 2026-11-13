@@ -1,0 +1,53 @@
+/* 3. Draft: the drawing office. Warm paper, black ink, the schematics as plain ink drawings on squared paper,
+   mono labels, and the detail sections filed under folder tabs. */
+@import url("https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=Schibsted+Grotesk:wght@400;500;600;700;800&display=swap");
+:root {
+  --sans: "Schibsted Grotesk", system-ui, sans-serif; --mono: "IBM Plex Mono", ui-monospace, monospace;
+  --bg: #eeede8; --surface: #fbfaf7; --sunken: #e3e1da; --line: #cfccc2; --line-strong: #191919; --ink: #191919; --ink-2: #55534d; --ink-3: #8b887f;
+  --accent: #191919; --on-accent: #fbfaf7; --accent-soft: #eeede8; --logo: url(../../design-system/assets/logo/quay-sight-mark-black.svg);
+  --brand: 800 19px/1 var(--sans); --h1: 800 56px/58px var(--sans); --h2: 800 28px/32px var(--sans); --h3: 700 19px/24px var(--sans);
+  --id: 600 66px/1 var(--mono); --id-h: 78px; --kf: 600 20px/26px var(--mono); --r: 4px; --r-btn: 4px; --r-card: 4px;
+  --c-confident: #1846c4; --c-likely: #3d63c9; --c-uncertain: #8a5300; --c-unknown: #6c6a63;
+  --damage: #c2156a; --pin-bg: #fbfaf7; --pin-on-ink: #ffffff; --hazard: #cf4410;
+  --ln: #191919; --ln-w: 0.9;
+  --d-frame: #e3e1da; --d-panel: #fbfaf7; --d-recess: #f2f0ea; --d-shade: transparent; --d-lite: transparent; --d-cast: #cfccc2; --d-hole: #191919;
+  --d-steel: #fbfaf7; --d-steel-lite: transparent; --d-steel-2: #e3e1da; --d-paint: #191919; --d-placard-fill: #fbfaf7; --d-seal: #191919; --d-plate: #fbfaf7; --d-plateline: #55534d;
+  --lead: #191919; --lead-dot: #191919; --lead-ring: #fbfaf7; --co-key: var(--ink-2); --co-val: var(--ink); --co-sub: var(--ink-3); --cg-bg: #fbfaf7;
+  --i-top: #fbfaf7; --i-hatch: rgba(25, 25, 25, 0.2); --i-toprib: #cfccc2; --i-side: #f2f0ea; --i-rib: #e3e1da; --i-end: #e3e1da; --i-endrib: #d5d2c9;
+  --i-frame: #cfccc2; --i-dark: #191919; --i-cast: #8b887f; --i-steel: #191919; --i-section: rgba(25, 25, 25, 0.6); --i-edge: #191919; --i-edge-w: 1.2;
+  --i-text: var(--ink-2); --i-text-strong: var(--ink); --i-roofnote: var(--ink-2); --zone-o: 0.25; --zone-on-o: 0.5;
+}
+.k { font: 500 11px/14px var(--mono); letter-spacing: 0.08em; }
+.ld { stroke-width: 0.7; }
+.bar { border-bottom: 1.5px solid var(--ink); }
+.photos { padding-block: 28px 8px; --st-h: 212px; --st-r: 2px; --st-gap: 18px; }
+.st img { border: 6px solid #fff; box-shadow: 0 1px 0 var(--line), 0 10px 22px -12px rgba(25, 25, 25, 0.5); }
+.st div { font: 500 11px/16px var(--mono); letter-spacing: 0.06em; text-transform: uppercase; }
+.st b { color: var(--ink); font-weight: 600; }
+.st b::before { content: "0"; }
+.sum { margin: 22px var(--gut) 0; padding: 22px 0 !important; border-block: 1.5px solid var(--ink); }
+.kf li { border-left: 1.5px solid var(--ink); }
+.read { padding-block: 34px 0; }
+.seg { border-radius: 0; background: none; box-shadow: inset 0 0 0 1.5px var(--ink); padding: 0; font: 500 12px/1 var(--mono); }
+.seg span { border-radius: 0; padding: 9px 12px; }
+.seg .is-on { background: var(--ink); color: var(--surface); box-shadow: none; }
+.read-f { max-width: none; margin-top: 18px; padding: 26px 60px 22px; border: 1.5px solid var(--ink); background: var(--surface) linear-gradient(rgba(25, 25, 25, 0.045) 1px, transparent 1px) 0 0 / 20px 20px; background-image: linear-gradient(rgba(25, 25, 25, 0.045) 1px, transparent 1px), linear-gradient(90deg, rgba(25, 25, 25, 0.045) 1px, transparent 1px); background-size: 20px 20px; }
+.read-f svg { max-width: 1080px; margin: 0 auto; }
+.more { padding-top: 40px; }
+.tabs { gap: 6px; border-bottom: 1.5px solid var(--ink); }
+.tabs button { margin-bottom: -1.5px; padding: 12px 22px 11px; border: 1.5px solid var(--ink); border-radius: 8px 8px 0 0; background: var(--sunken); font: 700 15px/20px var(--sans); }
+.tabs button.is-on { background: var(--surface); border-color: var(--ink); border-bottom-color: var(--surface); }
+.panel { padding: 30px 32px 28px; border: 1.5px solid var(--ink); border-top: 0; background: var(--surface); }
+.fl-n { border-radius: 4px; }
+.fl-i.is-on { margin: 0 -12px; padding: 12px; border: 1.5px solid var(--ink); background: var(--bg); }
+.fl-i.is-on + .fl-i { border-top-color: transparent; }
+.ch-flags li { background: none; border: 1.5px solid var(--line); }
+.ch-flags .is-yes { border-color: var(--ink); box-shadow: 4px 4px 0 var(--ink); }
+.su { padding-top: 22px; }
+.su h1 { letter-spacing: -0.03em; margin: 10px 0 14px; }
+.su-steps { margin-top: 20px; }
+.su-fig { margin-top: 24px; padding: 14px 22px 8px; border: 1.5px solid var(--ink); background-color: var(--surface); background-image: linear-gradient(rgba(25, 25, 25, 0.045) 1px, transparent 1px), linear-gradient(90deg, rgba(25, 25, 25, 0.045) 1px, transparent 1px); background-size: 20px 20px; }
+.su-fig svg { max-width: 580px; margin: 0 auto; }
+.su-legend { margin-top: 16px; }
+.sf { border: 1.5px solid var(--ink); box-shadow: 8px 8px 0 var(--ink); }
+.sf-opt, .sf-key, .sf-demo { border-width: 1.5px; }

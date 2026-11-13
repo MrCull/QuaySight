@@ -1,0 +1,54 @@
+/* 4. Sky: soft and bright. Rounded white cards on a pale blue-violet morning sky, one cobalt for the answer card
+   and anything you can press, schematics in cobalt tints. */
+@import url("https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap");
+:root {
+  --sans: "Plus Jakarta Sans", system-ui, sans-serif; --mono: "JetBrains Mono", ui-monospace, monospace;
+  --bg: #f4f6fc; --surface: #ffffff; --sunken: #eef1fa; --line: #e3e7f3; --line-strong: #c3cbe3; --ink: #121735; --ink-2: #5a6184; --ink-3: #959bb8;
+  --accent: #2f54eb; --on-accent: #ffffff; --accent-soft: #eef2ff; --logo: url(../../design-system/assets/logo/quay-sight-mark.svg);
+  --brand: 800 19px/1 var(--sans); --h1: 800 62px/66px var(--sans); --h2: 800 26px/32px var(--sans); --h3: 700 19px/24px var(--sans);
+  --id: 600 60px/1 var(--mono); --id-h: 72px; --id-r: 14px; --id-pad: 14px; --kf: 600 20px/26px var(--mono); --r: 16px; --r-btn: 14px; --r-card: 28px;
+  --c-confident: #2f54eb; --c-likely: #5a78ee; --c-uncertain: #8a5300; --c-unknown: #6d7493;
+  --damage: #d1126c; --pin-bg: #ffffff; --pin-on-ink: #ffffff; --hazard: #d9480f;
+  --ln: #4863d6; --ln-w: 0.8;
+  --d-frame: #bfcbfa; --d-panel: #e8edff; --d-recess: #d9e1ff; --d-shade: transparent; --d-lite: transparent; --d-cast: #9fb0f5; --d-hole: #2f54eb;
+  --d-steel: #ffffff; --d-steel-lite: transparent; --d-steel-2: #bfcbfa; --d-paint: #1b2a7a; --d-placard-fill: #fff0e5; --d-seal: #1b2a7a; --d-plate: #ffffff; --d-plateline: #7f93ea;
+  --lead: #aab6ea; --lead-dot: #2f54eb; --lead-ring: #ffffff; --co-key: var(--ink-2); --co-val: var(--ink); --co-sub: var(--ink-3);
+  --i-top: #f1f4ff; --i-hatch: rgba(47, 84, 235, 0.2); --i-toprib: #d9e1ff; --i-side: #e1e8ff; --i-rib: #d0daff; --i-end: #c9d4ff; --i-endrib: #bac8fb;
+  --i-frame: #9fb0f5; --i-dark: #2f54eb; --i-cast: #7f93ea; --i-steel: #3550c9; --i-section: rgba(27, 42, 122, 0.5); --i-edge: #3550c9; --i-edge-w: 1.1;
+  --i-text: var(--ink-3); --i-text-strong: var(--ink-2); --i-roofnote: #3550c9; --zone-o: 0.22; --zone-on-o: 0.45;
+}
+body { background: linear-gradient(180deg, #e6edff 0, #f1eeff 420px, var(--bg) 900px) no-repeat, var(--bg); }
+.k { letter-spacing: 0.04em; text-transform: none; font: 600 13px/16px var(--sans); }
+.btn { border-radius: 19px; }
+.photos { padding-block: 12px 0; --st-h: 224px; --st-r: 22px; --st-gap: 16px; }
+.st img { box-shadow: 0 18px 36px -20px rgba(47, 84, 235, 0.55), 0 0 0 4px #fff; }
+.st div { justify-content: center; margin-top: 14px; font-weight: 600; }
+.st b { display: grid; place-items: center; width: 20px; height: 20px; border-radius: 50%; background: #fff; color: var(--accent); font-weight: 600; }
+.sum { grid-template-columns: 560px minmax(0, 1fr); align-items: stretch; gap: 16px; padding-block: 28px 0; }
+.sum-id { padding: 26px 30px 30px; border-radius: var(--r-card); background: linear-gradient(135deg, #2f54eb, #5d3fe6); color: #fff; box-shadow: 0 24px 48px -24px rgba(47, 84, 235, 0.7); --c-confident: #ffffff; }
+.sum-id .k, .sum-id .chk { color: rgba(255, 255, 255, 0.78); }
+.kf { gap: 16px; }
+.kf li { padding: 20px 20px 18px; border: 0; border-radius: 22px; background: var(--surface); box-shadow: 0 14px 30px -22px rgba(18, 23, 53, 0.4); }
+.kf b { white-space: normal; }
+.app > .read, .app > .more { margin: 16px var(--gut) 0; padding: 28px 32px; border-radius: var(--r-card); background: var(--surface); box-shadow: 0 20px 44px -30px rgba(18, 23, 53, 0.4); }
+.tabs { gap: 8px; border: 0; }
+.tabs button { margin: 0; padding: 10px 20px; border: 0; border-radius: 22px; background: var(--sunken); font-weight: 700; font-size: 15px; }
+.tabs button.is-on { background: var(--accent); color: #fff; }
+.tabs .is-on i { color: rgba(255, 255, 255, 0.75); }
+.fl-n { border-color: transparent; background: #fde8f1; }
+.fl-i.is-on { margin: 0 -14px; padding: 14px; border: 0; border-radius: 18px; background: #fde8f1; }
+.fl-i.is-on + .fl-i { border-top-color: transparent; }
+.ch-flags li { border: 0; background: var(--sunken); }
+.ch-flags .is-yes { background: var(--accent); }
+.ch-flags .is-yes b, .ch-flags .is-yes span { color: #fff; }
+.su { grid-template-columns: 470px minmax(0, 1fr); gap: 80px; padding-top: 20px; }
+.su .sf { order: -1; box-shadow: 0 30px 60px -30px rgba(47, 84, 235, 0.5); }
+.su h1 { letter-spacing: -0.035em; margin: 10px 0 14px; }
+.su-steps { margin-top: 20px; }
+.su-steps b { border: 0; background: var(--accent); color: #fff; }
+.su-fig { margin-top: 22px; padding: 14px 24px 8px; border-radius: var(--r-card); background: var(--surface); box-shadow: 0 20px 44px -30px rgba(18, 23, 53, 0.4); }
+.su-fig svg { max-width: 620px; margin: 0 auto; }
+.su-legend { margin-top: 16px; }
+.sf-go { border-radius: 26px; }
+.sf-demo { border-radius: 23px; border-color: var(--line-strong); }
+.sf-key { background: var(--sunken); border-color: transparent; }

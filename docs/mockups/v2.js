@@ -228,7 +228,7 @@ const PARTS = {
   id: () => '<span>JDLU</span><span>200690</span><em>2</em>',
 }
 function render() {
-  document.querySelectorAll('[data-part]').forEach((e) => (e.innerHTML = PARTS[e.dataset.part]()))
+  document.querySelectorAll('[data-part]').forEach((e) => PARTS[e.dataset.part] && (e.innerHTML = PARTS[e.dataset.part]()))
   document.querySelectorAll('svg[data-door]').forEach((s) => drawDoor(s, { mode: s.dataset.door }))
   document.querySelectorAll('svg[data-iso]').forEach((s) => drawIso(s, { view: s.dataset.iso, findings: ISO_FINDINGS[s.dataset.iso] }))
 }
