@@ -1,0 +1,34 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=1440">
+<title>Quay Sight · B · Bento · result</title>
+<!-- Static mock-up, not app code. B, Bento: one dark tile for the ID, three light tiles for the ISO code, the seal and the weights block. -->
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,700&family=IBM+Plex+Mono:wght@400;500;600&family=Instrument+Sans:wght@400;500;600&display=swap">
+<link rel="stylesheet" href="mock.css">
+<link rel="stylesheet" href="v2.css">
+<link rel="stylesheet" href="v5.css">
+</head>
+<body class="vb">
+<main class="wrap">
+  <header class="bar" data-part="bar"></header>
+  <ul class="shots" data-part="shots"></ul>
+  <section class="bento">
+    <div class="card b-id"><img class="crop" src="crops/v5-id.jpg" alt="The ID as photographed"><div><span class="k">Container ID<span class="cert cert--confident"><i></i>Confident</span></span><h1 data-part="idtext"></h1><p>Check digit valid. Same in photos 1, 2 and 3.</p></div></div>
+    <div class="bento-r"><div class="card"><img class="crop" src="crops/v5-iso.jpg" alt="ISO code as photographed" style="object-position:50% 50%"><div class="c-b"><div><span class="k">ISO code</span><span class="cert cert--confident"><i></i>Confident</span></div><b class="v">22G1</b><small>20 ft general purpose</small></div></div><div class="card"><img class="crop" src="crops/seal.jpg" alt="Seal as photographed" style="object-position:50% 60%"><div class="c-b"><div><span class="k">Seal</span><span class="cert cert--confident"><i></i>Confident</span></div><b class="v">0154620</b><small>Bolt seal</small></div></div><div class="card c-w"><img class="crop" src="crops/v5-weights.jpg" alt="The weights block as photographed"><ul class="vals" data-part="weights"></ul></div></div>
+  </section>
+  <nav class="tabs" data-part="tabs"></nav>
+  <section class="card pane">
+    <div data-panel="chars"><div class="pane-h"><h3>General purpose, 20 ft</h3><p>From the ISO code <b>22G1</b></p></div><div class="chars"><div data-part="profile"></div><ul class="checks" data-part="checks"></ul></div></div>
+    <div data-panel="damage"><div class="pane-h"><h3>6 findings, all cosmetic</h3><p>Roof not seen</p></div><div class="dmg"><div class="dmg-v"><svg data-iso="door"></svg><svg data-iso="blank"></svg></div><div data-find="1,5,3,4,2,6"></div></div></div>
+    <div data-panel="marks"><div class="pane-h"><h3>Markings</h3><p>2 seen, 4 not seen</p></div><div data-part="marks"></div></div>
+  </section>
+  <p class="foot" data-part="foot"></p>
+</main>
+<script src="v2.js"></script>
+<script src="v4.js"></script>
+<script src="v5.js"></script>
+<script>boot5()</script>
+</body>
+</html>

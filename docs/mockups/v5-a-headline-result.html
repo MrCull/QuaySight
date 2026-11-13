@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=1440">
+<title>Quay Sight · A · Headline · result</title>
+<!-- Static mock-up, not app code. A, Headline: the result keeps the landing's shape. The ID takes the headline's place, with its photo crop beneath. -->
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,700&family=IBM+Plex+Mono:wght@400;500;600&family=Instrument+Sans:wght@400;500;600&display=swap">
+<link rel="stylesheet" href="mock.css">
+<link rel="stylesheet" href="v2.css">
+<link rel="stylesheet" href="v5.css">
+</head>
+<body class="va">
+<div class="res">
+  <div class="hang"><ul class="shots" data-part="shots"></ul><span class="brand pill"><i class="logo"></i>Quay Sight</span><div class="bar-r"><span>This container <b>$0.0209</b></span><button class="btn">New inspection</button></div></div>
+  <main class="wrap">
+    <section class="hero">
+      <h1 data-part="idtext"></h1>
+      <p class="hero-s"><span class="cert cert--confident"><i></i>Confident</span><span>Check digit valid</span><span>Same in photos 1, 2 and 3</span></p>
+      <img class="crop" src="crops/v5-id.jpg" alt="The ID as photographed">
+    </section>
+    <section class="cards"><div class="card"><img class="crop" src="crops/v5-iso.jpg" alt="ISO code as photographed" style="object-position:50% 50%"><div class="c-b"><div><span class="k">ISO code</span><span class="cert cert--confident"><i></i>Confident</span></div><b class="v">22G1</b><small>20 ft general purpose</small></div></div><div class="card"><img class="crop" src="crops/seal.jpg" alt="Seal as photographed" style="object-position:50% 60%"><div class="c-b"><div><span class="k">Seal</span><span class="cert cert--confident"><i></i>Confident</span></div><b class="v">0154620</b><small>Bolt seal</small></div></div><div class="card c-w"><img class="crop" src="crops/v5-weights.jpg" alt="The weights block as photographed"><ul class="vals" data-part="weights"></ul></div></section>
+    <nav class="tabs" data-part="tabs"></nav>
+    <section class="card pane">
+      <div data-panel="chars"><div class="pane-h"><h3>General purpose, 20 ft</h3><p>From the ISO code <b>22G1</b></p></div><ul class="stats" data-part="stats"></ul><ul class="checks" data-part="checks"></ul></div>
+      <div data-panel="damage"><div class="pane-h"><h3>6 findings, all cosmetic</h3><p>Roof not seen</p></div><div class="dmg"><div data-find="1,5,3,4,2,6"></div><div class="dmg-v"><div class="seg"><button class="is-on" data-view="door">Door end</button><button data-view="blank">Blank end</button></div><svg data-iso="door"></svg><svg data-iso="blank" hidden></svg></div></div></div>
+      <div data-panel="marks"><div class="pane-h"><h3>Markings</h3><p>2 seen, 4 not seen</p></div><div data-part="marks"></div></div>
+    </section>
+    <p class="foot" data-part="foot"></p>
+  </main>
+</div>
+<script src="v2.js"></script>
+<script src="v4.js"></script>
+<script src="v5.js"></script>
+<script>
+  boot5()
+  // One drawing at a time; the switch turns the container round.
+  document.querySelectorAll('[data-view]').forEach((b) => b.addEventListener('click', () => {
+    document.querySelectorAll('[data-view]').forEach((x) => x.classList.toggle('is-on', x === b))
+    document.querySelectorAll('.dmg-v svg').forEach((v) => (v.hidden = v.dataset.iso !== b.dataset.view))
+  }))
+</script>
+</body>
+</html>

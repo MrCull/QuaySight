@@ -1,0 +1,38 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=1440">
+<title>Quay Sight · C · Sheet · result</title>
+<!-- Static mock-up, not app code. C, Sheet: one narrow column. Each reading is a row: the photo crop, the value, how sure. -->
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,700&family=IBM+Plex+Mono:wght@400;500;600&family=Instrument+Sans:wght@400;500;600&display=swap">
+<link rel="stylesheet" href="mock.css">
+<link rel="stylesheet" href="v2.css">
+<link rel="stylesheet" href="v5.css">
+</head>
+<body class="vc">
+<main class="wrap">
+  <header class="bar" data-part="bar"></header>
+  <ul class="shots" data-part="shots"></ul>
+  <section class="card sheet">
+    <div class="row row--id"><img class="crop" src="crops/v5-id.jpg" alt="The ID as photographed"><div><span class="k">Container ID</span><b class="v" data-part="idtext"></b><small>Check digit valid. Same in photos 1, 2 and 3.</small></div><span class="cert cert--confident"><i></i>Confident</span></div>
+    <div class="row"><img class="crop" src="crops/v5-iso.jpg" alt="The ISO code as photographed"><div><span class="k">ISO code</span><b class="v">22G1</b><small>20 ft general purpose</small></div><span class="cert cert--confident"><i></i>Confident</span></div>
+    <div class="row"><img class="crop" src="crops/sealnum.jpg" alt="The seal number as photographed"><div><span class="k">Seal</span><b class="v">0154620</b><small>Bolt seal</small></div><span class="cert cert--confident"><i></i>Confident</span></div>
+    <div class="row row--w"><img class="crop" src="crops/v5-weights.jpg" alt="The weights block as photographed"><ul class="vals" data-part="weights"></ul></div>
+  </section>
+  <section class="card more">
+    <nav class="tabs" data-part="tabs"></nav>
+    <div class="pane">
+      <div data-panel="chars"><div class="pane-h"><h3>General purpose, 20 ft</h3><p>From the ISO code <b>22G1</b></p></div><ul class="speclist" data-part="speclist"></ul></div>
+      <div data-panel="damage"><div class="pane-h"><h3>6 findings, all cosmetic</h3><p>Roof not seen</p></div><div class="dmg"><div><svg data-iso="door"></svg><div data-find="1,5,3"></div></div><div><svg data-iso="blank"></svg><div data-find="4,2,6"></div></div></div></div>
+      <div data-panel="marks"><div class="pane-h"><h3>Markings</h3><p>2 seen, 4 not seen</p></div><div data-part="marks"></div></div>
+    </div>
+  </section>
+  <p class="foot" data-part="foot"></p>
+</main>
+<script src="v2.js"></script>
+<script src="v4.js"></script>
+<script src="v5.js"></script>
+<script>boot5()</script>
+</body>
+</html>

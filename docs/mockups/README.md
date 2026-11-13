@@ -2,7 +2,21 @@
 
 Static pages, not app code. Open the `.html` files in a browser from the repo; each has a `.png` capture at 1440px.
 
-## Round 4: three layouts (current)
+## Round 5: three calmer layouts (current)
+
+Brief from the owner after round 4: the C landing page is liked, so vary that; the result pages were far too busy. Keep a separate photo crop for the container ID, the ISO code and the seal, one combined crop for the rest of the painted text (max gross, tare and so on), and tabs at the bottom with Characteristics first and Damage next.
+
+All three keep the liked landing's look (warm paper, black ink, pills, one display face) and drop the door drawing, the numbered tags and the per-weight crops. Each has a landing page and a result page with working tabs (`#damage`, `#marks`).
+
+| Variation | Files | Landing | Result |
+| --- | --- | --- | --- |
+| A. Headline | `v5-a-headline-*.html` | Photos hang from the top edge at stepped heights. | The same shape: the ID is the headline with its crop beneath, then three cards. Pill tabs. Damage shows one drawing at a time with a Door end / Blank end switch. |
+| B. Bento | `v5-b-bento-*.html` | Words on the left, photos stacked on the right with one read-out laid over them. | One dark ID tile and three light tiles. Underlined text tabs. Characteristics has a side and end drawing with the three dimensions. |
+| C. Sheet | `v5-c-sheet-*.html` | Words first, photos fanned along the bottom edge. | One narrow column: a row per reading (crop, value, certainty). Characteristics is a two-column list. Damage puts each drawing above its own findings. |
+
+Shared: `v5.css` (one block per variation), `v5.js` (content pieces) on top of `v4.js` and `v2.js`. New crops: `crops/v5-id.jpg`, `v5-iso.jpg`, `v5-weights.jpg`. `v5-*-board.png` stacks landing, result and the Damage tab. Landing B's outer column uses three other sample containers as decoration.
+
+## Round 4: three layouts (superseded)
 
 Brief from the owner after round 3: the five differed only in colour; keep the piece of the photo beside the ID, seal and other writing; make Characteristics the first tab and much better, with icons and ticks and crosses; make the landing screen slick and simple.
 
