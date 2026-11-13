@@ -12,15 +12,15 @@ function mk(parent, name, attrs = {}, text) {
 }
 
 const READS = [
-  { k: 'Container ID', v: 'JDLU 200690 2', s: 'Check digit valid', c: 'confident', w: 'Confident', a: [351, 59], side: 'r' },
-  { k: 'Size and type', v: '22G1', s: '20 ft, standard height, general purpose', c: 'confident', w: 'Confident', a: [351, 82], side: 'r' },
-  { k: 'Max gross', v: '32,500 kg', s: '71,650 lb', c: 'confident', w: 'Confident', a: [351, 141], side: 'r' },
-  { k: 'Tare', v: '2,180 kg', s: '4,810 lb', c: 'confident', w: 'Confident', a: [351, 167], side: 'r' },
-  { k: 'Payload', v: '30,320 kg', s: '66,840 lb', c: 'likely', w: 'Likely', a: [351, 193], side: 'r' },
-  { k: 'Capacity', v: '33.2 m³', s: '1,172 cu ft', c: 'likely', w: 'Likely', a: [351, 219], side: 'r' },
-  { k: 'Placards', v: 'Super heavy', s: 'No dangerous-goods placard', c: 'confident', w: 'Confident', a: [320, 312], side: 'r', hazard: true },
-  { k: 'Seal', v: '0154620', s: 'Bolt seal, right door', c: 'confident', w: 'Confident', a: [253, 281], side: 'l' },
-  { k: 'CSC plate', v: 'Not readable', s: 'Too small in these photos', c: 'unknown', w: "Can't tell", a: [86, 303], side: 'l' },
+  { img: 'id', t: [416, 59], k: 'Container ID', v: 'JDLU 200690 2', s: 'Check digit valid', c: 'confident', w: 'Confident', a: [351, 59], side: 'r' },
+  { img: 'type', t: [416, 82], k: 'Size and type', v: '22G1', s: '20 ft, standard height, general purpose', c: 'confident', w: 'Confident', a: [351, 82], side: 'r' },
+  { img: 'gross', t: [416, 141], k: 'Max gross', v: '32,500 kg', s: '71,650 lb', c: 'confident', w: 'Confident', a: [351, 141], side: 'r' },
+  { img: 'tare', t: [416, 167], k: 'Tare', v: '2,180 kg', s: '4,810 lb', c: 'confident', w: 'Confident', a: [351, 167], side: 'r' },
+  { img: 'payload', t: [416, 193], k: 'Payload', v: '30,320 kg', s: '66,840 lb', c: 'likely', w: 'Likely', a: [351, 193], side: 'r' },
+  { img: 'cap', t: [416, 219], k: 'Capacity', v: '33.2 m³', s: '1,172 cu ft', c: 'likely', w: 'Likely', a: [351, 219], side: 'r' },
+  { img: 'placard', t: [336, 311], k: 'Placards', v: 'Super heavy', s: 'No dangerous-goods placard', c: 'confident', w: 'Confident', a: [320, 312], side: 'r', hazard: true },
+  { img: 'sealnum', t: [274, 284], k: 'Seal', v: '0154620', s: 'Bolt seal, right door', c: 'confident', w: 'Confident', a: [253, 281], side: 'l' },
+  { img: '', t: [72, 303], k: 'CSC plate', v: 'Not readable', s: 'Too small in these photos', c: 'unknown', w: "Can't tell", a: [86, 303], side: 'l' },
 ]
 
 function certGlyph(g, cx, cy, c) {
@@ -32,10 +32,11 @@ function certGlyph(g, cx, cy, c) {
   if (c === 'uncertain') mk(grp, 'path', { d: `M${cx} ${cy - r}A${r} ${r} 0 0 1 ${cx} ${cy + r}Z`, class: 'cg-fill' })
 }
 
-function drawDoor(svg, { mode = 'both' } = {}) {
+function drawDoor(svg, { mode = 'both', crops = false } = {}) {
   const DW = 400, DH = 424
-  const ox = mode === 'both' ? 286 : 10, oy = 26
-  const VW = mode === 'both' ? 1010 : mode === 'right' ? 668 : 420
+  const ox = mode === 'both' ? (crops ? 416 : 286) : 10, oy = 26
+  const ORDER = ['Container ID', 'Size and type', 'Max gross', 'Tare', 'Payload', 'Capacity', 'Seal', 'Placards', 'CSC plate']
+  const VW = mode === 'both' ? (crops ? 1270 : 1010) : mode === 'right' ? 668 : mode === 'tags' ? 440 : 420
   svg.setAttribute('viewBox', `0 0 ${VW} 478`)
   const g = mk(svg, 'g', { transform: `translate(${ox} ${oy})`, class: 'dr' })
   const R = (x, y, w, h, cls, rx = 0) => mk(g, 'rect', { x, y, width: w, height: h, rx, class: cls + ' sh' })
@@ -101,22 +102,41 @@ function drawDoor(svg, { mode = 'both' } = {}) {
   for (let i = 0; i < 4; i++) mk(g, 'rect', { x: 91, y: 292 + i * 7, width: i % 2 ? 26 : 38, height: 2, class: 'dr-plateline' })
 
   if (mode === 'none') return
+  if (mode === 'tags') {
+    // Numbered tags that a list beside the drawing refers to.
+    READS.forEach((r) => {
+      const n = ORDER.indexOf(r.k) + 1
+      if (r.t[0] > DW) mk(g, 'path', { d: `M${r.a[0]} ${r.a[1]}H${r.t[0] - 9}`, class: 'ld' })
+      const tg = mk(g, 'g', { class: 'tg' + (r.hazard ? ' tg--hazard' : '') })
+      mk(tg, 'circle', { cx: r.t[0], cy: r.t[1], r: 8.5 })
+      mk(tg, 'text', { x: r.t[0], y: r.t[1] + 3.5 }, String(n))
+    })
+    return
+  }
   // Call-outs. Channels are ordered so no two leaders cross.
   const items = READS.filter((r) => mode === 'both' || r.k !== 'CSC plate').map((r) => (mode === 'right' ? { ...r, side: 'r' } : r))
   for (const side of ['r', 'l']) {
     const list = items.filter((r) => r.side === side).sort((p, q) => p.a[1] - q.a[1])
-    const gap = mode === 'right' ? 53 : 60
+    const gap = mode === 'right' ? 53 : crops ? 63 : 60
     list.forEach((r, i) => {
       const dirn = side === 'r' ? 1 : -1
       const lx = side === 'r' ? DW + 74 : -74
-      const ly = side === 'r' ? 30 + i * gap : 262 + i * 76
+      const ly = side === 'r' ? 30 + i * gap : 250 + i * 84
       const ex = side === 'r' ? DW + 16 + (list.length - 1 - i) * 6 : -16 - i * 8
       const c = mk(g, 'g', { class: 'co' + (r.hazard ? ' co--hazard' : '') })
       mk(c, 'path', { d: `M${r.a[0]} ${r.a[1]}H${ex}V${ly - 3.5}H${lx - dirn * 9}`, class: 'ld' })
       mk(c, 'circle', { cx: r.a[0], cy: r.a[1], r: 2.6, class: 'ld-dot' })
       certGlyph(c, lx, ly - 3.5, r.c)
       const anchor = side === 'r' ? 'start' : 'end'
-      const tx = lx + dirn * 12
+      let tx = lx + dirn * 12
+      if (crops && r.img) {
+        const ix = side === 'r' ? tx : tx - 124, iy = ly - 11, right = ['gross', 'tare', 'payload', 'cap'].includes(r.img), cid = did + 'c' + i + side
+        const cp = mk(defs, 'clipPath', { id: cid })
+        mk(cp, 'rect', { x: ix, y: iy, width: 124, height: 46, rx: 5 })
+        mk(c, 'image', { href: `crops/${r.img}.jpg`, x: ix, y: iy, width: 124, height: 46, preserveAspectRatio: right ? 'xMaxYMid slice' : 'xMidYMid slice', 'clip-path': `url(#${cid})` })
+        mk(c, 'rect', { x: ix, y: iy, width: 124, height: 46, rx: 5, class: 'co-crop' })
+        tx += dirn * 134
+      }
       const head = mk(c, 'text', { x: tx, y: ly, 'text-anchor': anchor, class: 'co-k' })
       mk(head, 'tspan', {}, r.k)
       mk(head, 'tspan', { class: 'co-c co-c--' + r.c, dx: 8 }, r.w)
@@ -229,7 +249,7 @@ const PARTS = {
 }
 function render() {
   document.querySelectorAll('[data-part]').forEach((e) => PARTS[e.dataset.part] && (e.innerHTML = PARTS[e.dataset.part]()))
-  document.querySelectorAll('svg[data-door]').forEach((s) => drawDoor(s, { mode: s.dataset.door }))
+  document.querySelectorAll('svg[data-door]').forEach((s) => drawDoor(s, { mode: s.dataset.door, crops: s.dataset.crops === '1' }))
   document.querySelectorAll('svg[data-iso]').forEach((s) => drawIso(s, { view: s.dataset.iso, findings: ISO_FINDINGS[s.dataset.iso] }))
 }
 render()

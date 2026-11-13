@@ -2,7 +2,21 @@
 
 Static pages, not app code. Open the `.html` files in a browser from the repo; each has a `.png` capture at 1440px.
 
-## Round 3: five directions on the agreed structure (current)
+## Round 4: three layouts (current)
+
+Brief from the owner after round 3: the five differed only in colour; keep the piece of the photo beside the ID, seal and other writing; make Characteristics the first tab and much better, with icons and ticks and crosses; make the landing screen slick and simple.
+
+These three differ in how the readings are laid out, not only in colour. Each has a landing page and a result page with working tabs (`#damage`, `#marks`).
+
+| Variation | Files | How the readings are shown |
+| --- | --- | --- |
+| A. Ledger | `v4-a-ledger-*.html`, `v4-a-ledger.css` | Numbered tags on the schematic; a ledger beside it with one row per reading and its photo crop. |
+| B. Around the door | `v4-b-around-*.html`, `v4-b-around.css` | The schematic in the middle; each reading beside it with its photo crop. Sections in a side list. |
+| C. Proof | `v4-c-proof-*.html`, `v4-c-proof.css` | The ID as a photo crop next to the same characters in cells; other readings as tiles with the crop on top. |
+
+Shared: `v4.js` (icon set, content, tabs), the drawings in `v2.js`, and the photo crops in `crops/`. `*-board.png` stacks landing, result and the Damage tab. `current-board.png` is the app as it is on `main` (from `docs/images/`).
+
+## Round 3: five directions on the agreed structure (superseded)
 
 Brief from the owner after round 2: the door drawing must read as a schematic, not an imitation of the photo; photos in a row across the top; damage below, under tabs, with a Characteristics tab (reefer yes/no, tank yes/no and so on); and a better first screen with better wording.
 

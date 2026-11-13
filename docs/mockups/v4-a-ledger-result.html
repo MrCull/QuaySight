@@ -1,0 +1,60 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=1440">
+<title>Quay Sight · A · Ledger · result</title>
+<!-- Static mock-up, not app code. A, Ledger: the schematic carries numbered tags; a ledger beside it lists each
+     reading with its certainty and the piece of the photo it was read from. -->
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&family=Geist+Mono:wght@400;500;600&display=swap">
+<link rel="stylesheet" href="mock.css">
+<link rel="stylesheet" href="v2.css">
+<link rel="stylesheet" href="v4-a-ledger.css">
+</head>
+<body>
+<header class="bar"><span class="brand"><i class="logo"></i>Quay Sight</span><div class="bar-r"><span>Jev latest</span><span>This container <b>$0.0209</b></span><button class="btn">New inspection</button></div></header>
+<main class="wrap">
+  <ul class="shots" data-part="shots"></ul>
+
+  <section class="hero">
+    <div>
+      <div class="hero-k"><span class="k">Container ID</span><span class="cert cert--confident"><i></i>Confident</span></div>
+      <h1 class="idx" data-part="id"></h1>
+      <p class="hero-s">Check digit valid. Read the same in photos 1, 2 and 3.</p>
+    </div>
+    <figure class="proof"><img src="crops/id.jpg" alt="The ID as painted on the door"><figcaption>From photo 1</figcaption></figure>
+  </section>
+
+  <section class="card read">
+    <div class="head"><h2>Readings</h2><div class="seg"><span class="is-on">Metric</span><span>Imperial</span></div></div>
+    <div class="read-g">
+      <svg data-door="tags" role="img" aria-label="Schematic of the door end with numbered tags"></svg>
+      <ol class="ledger" id="ledger"></ol>
+    </div>
+  </section>
+
+  <section class="card more">
+    <nav class="tabs"><button data-tab="chars">Characteristics</button><button data-tab="damage">Damage<i>6</i></button><button data-tab="marks">Markings<i>2</i></button></nav>
+    <div data-panel="chars">
+      <ul class="dims" id="dims"></ul>
+      <div class="sub-h"><h3>What kind of container</h3><p>From the size and type code <b>22G1</b></p></div>
+      <ul class="flags" id="flags"></ul>
+    </div>
+    <div data-panel="damage" class="dmg">
+      <div class="views"><svg data-iso="door"></svg><svg data-iso="blank"></svg></div>
+      <div><div class="sub-h"><h3>6 findings, all cosmetic</h3><span class="cert cert--likely"><i></i>Likely</span></div><div data-part="findings"></div></div>
+    </div>
+    <div data-panel="marks" data-part="marks"></div>
+  </section>
+  <p class="foot">Observations and estimates from photographs. Not a certified survey.</p>
+</main>
+<script src="v2.js"></script>
+<script src="v4.js"></script>
+<script>
+  document.getElementById('ledger').innerHTML = LEDGER.map(([n, k, v, s, c, w, img]) => `<li><span class="n${n === 8 ? ' n--hazard' : ''}">${n}</span><span class="k">${k}</span><div><b>${v}</b><small>${s}</small></div>${cert(c, w)}${img ? `<img src="crops/${img}.jpg" alt="">` : '<span class="nocrop">No clear view</span>'}</li>`).join('')
+  document.getElementById('dims').innerHTML = DIMS.map(([i, k, v]) => `<li>${ico(i)}<span class="k">${k}</span><b>${v}</b></li>`).join('')
+  document.getElementById('flags').innerHTML = [...KINDS, ...FEATS].slice(1).map(([i, k, y]) => `<li class="${y ? 'is-yes' : 'is-no'}"><span class="fi">${ico(i)}</span><div><b>${k}</b><small>${y ? 'Yes' : 'No'}</small></div>${mark(y)}</li>`).join('')
+  boot()
+</script>
+</body>
+</html>

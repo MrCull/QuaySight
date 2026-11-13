@@ -1,0 +1,63 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=1440">
+<title>Quay Sight · B · Around the door · result</title>
+<!-- Static mock-up, not app code. B, Around the door: the schematic in the middle, each reading beside it
+     with its certainty and the piece of the photo it was read from. Sections sit in a side list. -->
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap">
+<link rel="stylesheet" href="mock.css">
+<link rel="stylesheet" href="v2.css">
+<link rel="stylesheet" href="v4-b-around.css">
+</head>
+<body>
+<header class="bar"><span class="brand"><i class="logo"></i>Quay Sight</span><div class="bar-r"><span>Jev latest</span><span>This container <b>$0.0209</b></span><button class="btn">New inspection</button></div></header>
+<ul class="shots" data-part="shots"></ul>
+<main class="wrap">
+  <section class="stage">
+    <div class="stage-k"><span class="k">Container ID</span><span class="cert cert--confident"><i></i>Confident</span><span class="k" style="text-transform:none;letter-spacing:0">Check digit valid</span></div>
+    <h1 class="idx" data-part="id"></h1>
+    <div class="units"><span class="is-on">Metric</span><span>Imperial</span></div>
+    <svg data-door="both" data-crops="1" role="img" aria-label="Schematic of the door end with each reading and its photo crop beside it"></svg>
+  </section>
+
+  <section class="more">
+    <nav class="side"><button data-tab="chars">Characteristics</button><button data-tab="damage">Damage<i>6</i></button><button data-tab="marks">Markings<i>2</i></button></nav>
+    <div class="pane">
+      <div data-panel="chars">
+        <div class="pane-h"><h3>20 ft general-purpose container</h3><p>From the size and type code <b>22G1</b></p></div>
+        <div class="spec"><svg class="dimsvg" id="dimsvg" viewBox="0 0 470 230"></svg><ul class="check" id="check"></ul></div>
+      </div>
+      <div data-panel="damage">
+        <div class="pane-h"><h3>6 findings, all cosmetic</h3><span class="cert cert--likely"><i></i>Likely</span></div>
+        <div class="dmg"><div><svg data-iso="door"></svg><svg data-iso="blank"></svg></div><div data-part="findings"></div></div>
+      </div>
+      <div data-panel="marks"><div class="pane-h"><h3>Markings</h3><p>2 seen, 4 not seen</p></div><div data-part="marks"></div></div>
+    </div>
+  </section>
+  <p class="foot">Observations and estimates from photographs. Not a certified survey.</p>
+</main>
+<script src="v2.js"></script>
+<script src="v4.js"></script>
+<script>
+  document.getElementById('check').innerHTML = [...KINDS.slice(1), ...FEATS].map(([i, k, y]) => `<li class="${y ? 'is-yes' : ''}">${ico(i)}<b>${k}</b>${mark(y)}</li>`).join('')
+  // Side and end elevations with their dimensions.
+  ;(() => {
+    const s = document.getElementById('dimsvg'), a = (n, at, t) => mk(s, n, at, t)
+    a('rect', { x: 20, y: 44, width: 300, height: 128, rx: 3, class: 'body' })
+    for (let x = 32; x < 312; x += 9) a('line', { x1: x, y1: 52, x2: x, y2: 164, class: 'rib' })
+    a('rect', { x: 356, y: 44, width: 96, height: 128, rx: 3, class: 'body' })
+    a('line', { x1: 404, y1: 50, x2: 404, y2: 166, class: 'rib' })
+    const dim = (x1, y1, x2, y2, label, lx, ly) => { a('path', { d: `M${x1} ${y1}L${x2} ${y2}` + (y1 === y2 ? `M${x1} ${y1 - 5}v10M${x2} ${y2 - 5}v10` : `M${x1 - 5} ${y1}h10M${x2 - 5} ${y2}h10`), class: 'dl' }); a('text', { x: lx, y: ly }, label) }
+    dim(20, 196, 320, 196, '20 ft', 170, 218)
+    dim(356, 196, 452, 196, '8 ft', 404, 218)
+    dim(338, 44, 338, 172, '', 0, 0)
+    a('text', { x: 338, y: 30 }, '8 ft 6 in')
+    a('text', { x: 170, y: 30, class: 'c' }, 'SIDE')
+    a('text', { x: 420, y: 30, class: 'c' }, 'END')
+  })()
+  boot()
+</script>
+</body>
+</html>

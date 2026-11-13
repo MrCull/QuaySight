@@ -1,0 +1,67 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=1440">
+<title>Quay Sight · C · Proof · result</title>
+<!-- Static mock-up, not app code. C, Proof: the ID as proof (photo crop, then the same characters in cells),
+     every other reading a tile with its crop on top, characteristics as pictogram cards. -->
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,700&family=IBM+Plex+Mono:wght@400;500;600&family=Instrument+Sans:wght@400;500;600&display=swap">
+<link rel="stylesheet" href="mock.css">
+<link rel="stylesheet" href="v2.css">
+<link rel="stylesheet" href="v4-c-proof.css">
+</head>
+<body>
+<header class="bar"><span class="brand"><i class="logo"></i>Quay Sight</span><div class="bar-r"><span>Jev latest</span><span>This container <b>$0.0209</b></span><button class="btn">New inspection</button></div></header>
+<main class="wrap">
+  <ul class="shots" data-part="shots"></ul>
+
+  <section class="card proof">
+    <div class="proof-h"><h2>Container ID</h2><span class="cert cert--confident"><i></i>Confident</span><small>Read the same in photos 1, 2 and 3</small></div>
+    <div class="proof-g">
+      <img src="crops/id.jpg" alt="The ID as painted on the door">
+      <span class="arr" data-ico="arrow"></span>
+      <div class="cells">
+        <div><p><b>J</b><b>D</b><b>L</b><b>U</b></p><small>Owner code</small></div>
+        <div><p><b>2</b><b>0</b><b>0</b><b>6</b><b>9</b><b>0</b></p><small>Serial number</small></div>
+        <div class="chk"><p><b>2</b></p><small><span data-ico="tick"></span>Valid</small></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="read">
+    <div class="card read-door"><h2>Readings<span class="seg"><span class="is-on">Metric</span><span>Imperial</span></span></h2><svg data-door="tags" role="img" aria-label="Schematic of the door end with numbered tags"></svg></div>
+    <div class="tiles" id="tiles"></div>
+  </section>
+
+  <section class="card more">
+    <nav class="tabs"><button data-tab="chars">Characteristics</button><button data-tab="damage">Damage<i>6</i></button><button data-tab="marks">Markings<i>2</i></button></nav>
+    <div class="pane">
+      <div data-panel="chars">
+        <div class="pane-h"><h3>General purpose, 20 ft</h3><p>From the size and type code <b>22G1</b></p></div>
+        <ul class="kinds" id="kinds"></ul>
+      </div>
+      <div data-panel="damage">
+        <div class="pane-h"><h3>6 findings, all cosmetic</h3><span class="cert cert--likely"><i></i>Likely</span></div>
+        <div class="dmg"><div><svg data-iso="door"></svg><svg data-iso="blank"></svg></div><div data-part="findings"></div></div>
+      </div>
+      <div data-panel="marks"><div class="pane-h"><h3>Markings</h3><p>2 seen, 4 not seen</p></div><div data-part="marks"></div></div>
+    </div>
+  </section>
+  <p class="foot">Observations and estimates from photographs. Not a certified survey.</p>
+</main>
+<script src="v2.js"></script>
+<script src="v4.js"></script>
+<script>
+  const L = Object.fromEntries(LEDGER.map((r) => [r[0], r]))
+  const tile = (n, img, pos = '50% 50%') => { const [, k, v, s, c, w] = L[n]; return `<div class="tile"><img src="crops/${img}.jpg" alt="" style="object-position:${pos}"><div class="tile-b"><div class="tile-k"><span class="n${n === 8 ? ' n--hazard' : ''}">${n}</span><span class="k">${k}</span>${cert(c, w)}</div><b class="v">${v}</b><small>${s}</small></div></div>` }
+  document.getElementById('tiles').innerHTML = tile(2, 'type') + tile(7, 'seal', '50% 72%') + tile(8, 'placard', '50% 64%')
+    + `<div class="tile tile--w"><img src="crops/decal.jpg" alt=""><ul>${[3, 4, 5, 6].map((n) => { const [, k, v, s, c, w] = L[n]; return `<li><div class="tile-k"><span class="n">${n}</span><span class="k">${k}</span></div><b class="v">${v}</b><small>${s}</small>${cert(c, w)}</li>` }).join('')}</ul></div>`
+    + `<div class="tile tile--s"><span class="n">9</span><span class="k">CSC plate</span><b>Not readable</b><span>Too small in these photos</span>${cert('unknown', "Can't tell")}</div>`
+  document.getElementById('kinds').innerHTML = KINDS.map(([i, k, y]) => `<li class="${y ? 'is-yes' : ''}">${ico(i)}<b>${k}</b>${mark(y)}</li>`).join('')
+    + DIMS.slice(0, 3).map(([i, k, v]) => `<li class="is-dim">${ico(i)}<b>${k}<small>${v}</small></b></li>`).join('')
+    + FEATS.map(([i, k, y]) => `<li class="${y ? 'is-yes' : ''}">${ico(i)}<b>${k}</b>${mark(y)}</li>`).join('')
+  boot()
+</script>
+</body>
+</html>
