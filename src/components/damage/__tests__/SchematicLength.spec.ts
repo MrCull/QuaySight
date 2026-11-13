@@ -112,6 +112,6 @@ describe('SchematicFigure tank', () => {
     expect(box.find('[data-tank]').exists()).toBe(false)
     const tank = mount(SchematicFigure, { props: { ...base, tank: true } as never })
     expect(tank.find('[data-tank="side"]').exists()).toBe(true)
-    expect(tank.find('[data-tank="end"] polygon').attributes('points')!.split(' ')).toHaveLength(36)
+    expect(tank.find('[data-tank="end"] polygon').attributes('points')!.split(' ')).toHaveLength(49)
   })
 })

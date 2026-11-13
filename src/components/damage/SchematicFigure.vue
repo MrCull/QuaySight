@@ -138,21 +138,50 @@ const positionShapes = computed(() =>
     .map((p) => ({ id: p, points: quad(endPt, (p - 1) / 4, p / 4, 0, 1) })),
 )
 
-// The tank in its frame: the barrel inset from the side's rails and posts, with its hoop bands, and the
-// round head on the end (a circle on the flat end, so an ellipse once projected).
-const TANK_V = [0.1, 0.9]
-const tankSide = computed(() => quad(sidePt, 0.03, 0.97, TANK_V[0]!, TANK_V[1]!))
+// A tank container: an open frame (the faces drawn as rails and posts only) holding a cylinder. The tank is
+// a circle on the end (an ellipse once projected) carried along the length: its body is the outline of the
+// near and far heads together, with hoop bands where the barrel's half facing the side would show them.
+const TANK_RU = 0.46
+const TANK_RV = (TANK_RU * 8) / 9.5
+const TANK_STEPS = 48
+const toPoints = (pts: Pt[]) => pts.map(([x, y]) => `${x},${y}`).join(' ')
+
+/** The tank's ring `f` of the way along the length (0 at the drawn end), from angle a0 to a1 (radians). */
+function tankRing(f: number, a0 = 0, a1 = 2 * Math.PI): Pt[] {
+  const [ox, oy] = sidePt(0, 0)
+  const [fx, fy] = sidePt(f, 0)
+  return Array.from({ length: TANK_STEPS + 1 }, (_, i) => {
+    const t = a0 + ((a1 - a0) * i) / TANK_STEPS
+    const [x, y] = endPt(0.5 + TANK_RU * Math.cos(t), 0.5 + TANK_RV * Math.sin(t))
+    return [x + fx - ox, y + fy - oy] as Pt
+  })
+}
+
+/** The convex hull of points (monotone chain), for the cylinder's outline. */
+function hull(points: Pt[]): Pt[] {
+  const pts = [...points].sort((p, q) => p[0] - q[0] || p[1] - q[1])
+  const cross = (o: Pt, p: Pt, q: Pt) =>
+    (p[0] - o[0]) * (q[1] - o[1]) - (p[1] - o[1]) * (q[0] - o[0])
+  const half = (list: Pt[]) => {
+    const out: Pt[] = []
+    for (const p of list) {
+      while (out.length >= 2 && cross(out[out.length - 2]!, out[out.length - 1]!, p) <= 0) out.pop()
+      out.push(p)
+    }
+    out.pop()
+    return out
+  }
+  return [...half(pts), ...half([...pts].reverse())]
+}
+
+const tankBody = computed(() => toPoints(hull([...tankRing(0.01), ...tankRing(0.99)])))
+const tankHead = computed(() => toPoints(tankRing(0)))
+// The near half of each hoop band (end-face u above the middle is the half that meets the side).
 const tankBands = computed(() =>
-  [0.25, 0.5, 0.75].map((u) => {
-    const [a, b] = [sidePt(u, TANK_V[0]!), sidePt(u, TANK_V[1]!)]
-    return { id: u, x1: a[0], y1: a[1], x2: b[0], y2: b[1] }
-  }),
-)
-const tankHead = computed(() =>
-  Array.from({ length: 36 }, (_, i) => {
-    const t = (i / 36) * 2 * Math.PI
-    return endPt(0.5 + 0.42 * Math.cos(t), 0.5 + 0.42 * Math.sin(t)).join(',')
-  }).join(' '),
+  [0.2, 0.4, 0.6, 0.8].map((f) => ({
+    id: f,
+    points: toPoints(tankRing(f, -Math.PI / 2, Math.PI / 2)),
+  })),
 )
 
 const SIDE_POINTS = computed(() => quad(sidePt, 0, 1, 0, 1))
@@ -238,7 +267,12 @@ function select(id: number) {
       {{ caption }}
       <small v-if="noPhotos">No photos</small>
     </figcaption>
-    <svg class="qs-c" :viewBox="viewBox" role="group" :aria-label="`Container drawing, ${caption}`">
+    <svg
+      :class="['qs-c', { 'qs-c--tank': tank }]"
+      :viewBox="viewBox"
+      role="group"
+      :aria-label="`Container drawing, ${caption}`"
+    >
       <defs>
         <pattern
           :id="`${id}-hatch`"
@@ -260,6 +294,12 @@ function select(id: number) {
       </g>
 
       <polygon class="qs-c-side" :points="SIDE_POINTS" />
+      <g v-if="tank" class="qs-c-tank" data-tank="side">
+        <polygon class="qs-c-tank__body" :points="tankBody" />
+        <polyline v-for="b in tankBands" :key="b.id" class="qs-c-tank__band" :points="b.points" />
+        <!-- The side's rails and posts are nearer than the tank. -->
+        <polygon class="qs-c-tank__frame" :points="SIDE_POINTS" />
+      </g>
       <polygon
         v-if="side.status === 'side-unknown'"
         class="qs-c-face-edge"
@@ -285,25 +325,21 @@ function select(id: number) {
           </text>
         </g>
       </g>
-      <g v-if="tank && side.status !== 'not-seen'" class="qs-c-tank" data-tank="side">
-        <polygon :points="tankSide" />
-        <line v-for="b in tankBands" :key="b.id" :x1="b.x1" :y1="b.y1" :x2="b.x2" :y2="b.y2" />
-      </g>
       <text class="qs-c-label" text-anchor="end" :x="sideLabel[0]" :y="sideLabel[1]">
         {{ side.text }}
       </text>
 
       <template v-if="end">
         <polygon class="qs-c-end" :points="END_POINTS" />
+        <g v-if="tank" class="qs-c-tank" data-tank="end">
+          <polygon class="qs-c-tank__head" :points="tankHead" />
+        </g>
         <polygon
           v-if="end.status === 'not-seen'"
           class="qs-c-unseen-face"
           :points="END_POINTS"
           :fill="`url(#${id}-hatch)`"
         />
-        <g v-if="tank && end.status !== 'not-seen'" class="qs-c-tank" data-tank="end">
-          <polygon :points="tankHead" />
-        </g>
         <text class="qs-c-label" :x="endLabel[0]" :y="endLabel[1]">
           {{ end.text }}
         </text>
