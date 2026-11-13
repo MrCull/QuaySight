@@ -5,7 +5,7 @@
 import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import type { InspectionRecord } from '../domain/inspection'
 import type { CloseUpSource } from '../domain/closeUpSources'
-import { DOOR_WIDTH, SLOT_Y, ledgerModel, placeRows, type LedgerRow } from './ledgerRows'
+import { DOOR_WIDTH, ledgerModel, slotY, type Slot, placeRows, type LedgerRow } from './ledgerRows'
 import { useUnits } from '../composables/units'
 import { isTankContainer } from '../domain/tankContainer'
 import CertaintyChip from './CertaintyChip.vue'
@@ -90,7 +90,7 @@ function placeSide(side: HTMLElement | null, rows: { key: string; slot: string |
   const els = rows.map((r) => side.querySelector<HTMLElement>(`[data-row="${r.key}"]`))
   const placed = placeRows(
     rows.map((r, i) => ({
-      ideal: r.slot ? SLOT_Y[r.slot as keyof typeof SLOT_Y] * scale - HALF_LINE : null,
+      ideal: r.slot ? slotY(r.slot as Slot, tank.value) * scale - HALF_LINE : null,
       // A row holds its close-up's height too, so a close-up never hangs over the next row's.
       height: Math.max(
         els[i]?.offsetHeight ?? 0,
@@ -101,7 +101,7 @@ function placeSide(side: HTMLElement | null, rows: { key: string; slot: string |
   )
   rows.forEach((r, i) => {
     tops.value[r.key] = placed[i]!
-    if (r.slot) anchors.value[r.key] = SLOT_Y[r.slot as keyof typeof SLOT_Y] * scale
+    if (r.slot) anchors.value[r.key] = slotY(r.slot as Slot, tank.value) * scale
   })
   const last = rows.length - 1
   const bottom = last < 0 ? 0 : placed[last]! + (els[last]?.offsetHeight ?? 0)

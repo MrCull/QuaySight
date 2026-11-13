@@ -13,7 +13,11 @@ describe('DoorFace', () => {
     const tank = mount(DoorFace, { props: { paint, label: 'tank', tank: true } })
     expect(tank.find('.qs-door__tank').exists()).toBe(true)
     expect(tank.findAll('.qs-door__bar')).toHaveLength(0)
+    // Same slots, moved into the middle of the round head.
     expect(tank.find('.qs-door__paint').attributes('x')).toBe('350')
-    expect(tank.find('.qs-door__paint').text()).toBe('PRKU 010052')
+    expect(tank.find('.qs-door__paint').element.closest('g')!.getAttribute('transform')).toBe(
+      'translate(-145 60)',
+    )
+    expect(doors.find('.qs-door__paint').element.closest('g')!.getAttribute('transform')).toBeNull()
   })
 })

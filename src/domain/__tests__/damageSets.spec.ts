@@ -119,11 +119,21 @@ describe('choosing the damage for the face the photo shows', () => {
     ['roof', /roof/],
     ['close-up', /close-up/],
     ['unknown', /could not be identified/],
-    ['front-end', /front end/],
   ] as const)('says a %s photo is not assessed for this view, with the reason', (face, reason) => {
     const damage = assessDamage(seen(face), [sideReading()], 'p.jpg')
     expect(damage?.findings).toEqual([])
     expect(damage?.notAssessed?.reason).toMatch(reason)
+  })
+
+  it('assesses the long side beside a front end when the side set says it can inspect it', () => {
+    const corner = assessDamage(seen('front-end'), [sideReading()], 'tank.jpg')
+    expect(corner?.findings).toEqual([placedDent])
+    const shownOnlyEnd = { ...seen('front-end'), shown: ['front-end', 'rear-doors'] as PhotoFace[] }
+    expect(assessDamage(shownOnlyEnd, [sideReading()], 'p.jpg')?.notAssessed?.reason).toMatch(
+      /front end/,
+    )
+    const blind = assessDamage(seen('front-end'), [sideReading({ inspectable: false })], 'p.jpg')
+    expect(blind?.notAssessed?.reason).toMatch(/front end/)
   })
 
   it('never shows another face’s findings: a door photo waits for the door set, not the side set', () => {

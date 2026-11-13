@@ -4,7 +4,7 @@
 // A tank container has no doors: `tank` draws its end instead (the frame, the tank head, the valve cabinet),
 // with the readings in the same places.
 import { computed, useId } from 'vue'
-import type { DoorPaint } from './ledgerRows'
+import { TANK_PLACARD_SHIFT, TANK_SHIFT, type DoorPaint } from './ledgerRows'
 
 const props = defineProps<{ paint: DoorPaint; label: string; tank?: boolean }>()
 
@@ -129,32 +129,36 @@ const weights = computed(() =>
       v-if="paint.placard"
       :class="['qs-door__placard', { 'qs-door__placard--unseen': paint.placard === 'unseen' }]"
       d="M167 290 L207 330 L167 370 L127 330 Z"
+      :transform="tank ? `translate(${TANK_PLACARD_SHIFT.x} ${TANK_PLACARD_SHIFT.y})` : undefined"
     />
 
-    <template v-if="paint.id">
-      <text class="qs-door__paint" x="350" y="80">{{ paint.id.text }}</text>
-      <rect class="qs-door__check" x="518" y="59" width="21" height="27" />
-      <text class="qs-door__paint" x="522" y="80">{{ paint.id.check }}</text>
-      <line class="qs-door__u" :data-c="paint.id.state" x1="350" y1="91" x2="539" y2="91" />
-    </template>
-    <template v-if="paint.type">
-      <text class="qs-door__paint" x="436" y="120">{{ paint.type.text }}</text>
-      <line class="qs-door__u" :data-c="paint.type.state" x1="436" y1="128" x2="494" y2="128" />
-    </template>
-    <template v-for="w in weights" :key="w.key">
-      <text class="qs-door__stencil" x="352" :y="w.y">{{ w.label }}</text>
-      <text class="qs-door__paint qs-door__paint--sm" x="538" :y="w.y" text-anchor="end">
-        {{ w.text }}
-      </text>
-      <line
-        class="qs-door__u"
-        :data-c="w.state"
-        :x1="538 - w.width"
-        :y1="w.y + 5"
-        x2="538"
-        :y2="w.y + 5"
-      />
-    </template>
+    <!-- On a tank end the ID, code and weights sit in the middle of the round head. -->
+    <g :transform="tank ? `translate(${TANK_SHIFT.x} ${TANK_SHIFT.y})` : undefined">
+      <template v-if="paint.id">
+        <text class="qs-door__paint" x="350" y="80">{{ paint.id.text }}</text>
+        <rect class="qs-door__check" x="518" y="59" width="21" height="27" />
+        <text class="qs-door__paint" x="522" y="80">{{ paint.id.check }}</text>
+        <line class="qs-door__u" :data-c="paint.id.state" x1="350" y1="91" x2="539" y2="91" />
+      </template>
+      <template v-if="paint.type">
+        <text class="qs-door__paint" x="436" y="120">{{ paint.type.text }}</text>
+        <line class="qs-door__u" :data-c="paint.type.state" x1="436" y1="128" x2="494" y2="128" />
+      </template>
+      <template v-for="w in weights" :key="w.key">
+        <text class="qs-door__stencil" x="352" :y="w.y">{{ w.label }}</text>
+        <text class="qs-door__paint qs-door__paint--sm" x="538" :y="w.y" text-anchor="end">
+          {{ w.text }}
+        </text>
+        <line
+          class="qs-door__u"
+          :data-c="w.state"
+          :x1="538 - w.width"
+          :y1="w.y + 5"
+          x2="538"
+          :y2="w.y + 5"
+        />
+      </template>
+    </g>
     <template v-if="paint.seal">
       <rect class="qs-door__seal" x="342" y="398" width="16" height="28" rx="4" />
       <circle class="qs-door__hole" cx="350" cy="407" r="3" />

@@ -215,6 +215,19 @@ export function assessDamage(
       return notAssessed('The photo is a close-up, so the face it shows could not be placed.')
     }
     if (!DAMAGE_SET_FACES[face.face]) {
+      // A corner photo whose main face no set covers (a front end beside a long side): the faces beside it
+      // that a set covers, and says it can inspect, are still assessed. A front end with nothing said
+      // beside it takes the long side's set when that set says it can inspect the side: the "shows a long
+      // side" question asks for corrugated sheet, which a tank container's side does not have.
+      const shown = facesShown(face).filter((f) => f !== face.face)
+      const besideFaces: PhotoFace[] =
+        shown.length === 0 && face.face === 'front-end' ? ['long-side'] : shown
+      const beside = besideFaces
+        .filter((f) => DAMAGE_SET_FACES[f])
+        .flatMap((f) => readings.filter((r) => r.face === f && r.inspectable))
+        .map((r) => fromReading(r, photo, lengthFt))
+        .filter((a) => !a.notAssessed)
+      if (beside.length > 0) return beside.length === 1 ? beside[0]! : mergeAssessments(beside)
       return notAssessed(
         `The photo shows the ${FACE_NAME[face.face]}, which this inspection does not assess for damage.`,
       )
