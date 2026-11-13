@@ -1,10 +1,12 @@
 <script setup lang="ts">
 // The rear doors drawn flat (design-system DoorFace), each reading painted where it is normally
 // stencilled. A template, not a trace of the photo: only what was read is painted, and never any damage.
+// A tank container has no doors: `tank` draws its end instead (the frame, the tank head, the valve cabinet),
+// with the readings in the same places.
 import { computed, useId } from 'vue'
-import type { DoorPaint } from './ledgerRows'
+import { TANK_PLACARD_SHIFT, TANK_SHIFT, type DoorPaint } from './ledgerRows'
 
-const props = defineProps<{ paint: DoorPaint; label: string }>()
+const props = defineProps<{ paint: DoorPaint; label: string; tank?: boolean }>()
 
 const caution = `qs-door-caution-${useId()}`
 
@@ -16,6 +18,13 @@ const CASTINGS = [
   [556, 0],
   [0, 582],
   [556, 582],
+]
+// The tank end: the frame's octagonal surround (corner gussets), the round head, its stiffening ring.
+const GUSSETS = [
+  'M44 38 L150 38 L44 144 Z',
+  'M556 38 L450 38 L556 144 Z',
+  'M44 582 L150 582 L44 476 Z',
+  'M556 582 L450 582 L556 476 Z',
 ]
 const HINGE_Y = [70, 230, 390, 550]
 const BARS = [150, 256, 336, 552]
@@ -57,46 +66,59 @@ const weights = computed(() =>
       </pattern>
     </defs>
     <rect class="qs-door__frame" x="0" y="0" width="600" height="620" rx="4" />
-    <rect
-      v-for="x in LEAVES"
-      :key="x"
-      class="qs-door__leaf"
-      :x="x"
-      y="40"
-      width="266"
-      height="540"
-    />
-    <template v-for="x in PANEL_X" :key="x">
-      <template v-for="y in PANEL_Y" :key="y">
-        <rect class="qs-door__panel" :x="x" :y="y" width="238" height="34" rx="4" />
-        <line class="qs-door__crease" :x1="x" :y1="y + 34" :x2="x + 238" :y2="y + 34" />
+    <template v-if="tank">
+      <rect class="qs-door__leaf" x="44" y="38" width="512" height="544" />
+      <path v-for="d in GUSSETS" :key="d" class="qs-door__frame" :d="d" />
+      <circle class="qs-door__tank" cx="300" cy="310" r="250" />
+      <circle class="qs-door__crease" cx="300" cy="310" r="214" fill="none" />
+      <rect class="qs-door__hw" x="240" y="520" width="120" height="50" rx="4" />
+      <template v-for="[cx, cy] in CASTINGS" :key="`${cx}-${cy}`">
+        <rect class="qs-door__frame" :x="cx" :y="cy" width="44" height="38" rx="3" />
+        <ellipse class="qs-door__hole" :cx="cx! + 22" :cy="cy! + 19" rx="11" ry="7" />
       </template>
     </template>
-    <template v-for="[cx, cy] in CASTINGS" :key="`${cx}-${cy}`">
-      <rect class="qs-door__frame" :x="cx" :y="cy" width="44" height="38" rx="3" />
-      <ellipse class="qs-door__hole" :cx="cx! + 22" :cy="cy! + 19" rx="11" ry="7" />
-    </template>
-    <template v-for="y in HINGE_Y" :key="y">
-      <rect class="qs-door__hw" x="4" :y="y" width="26" height="22" rx="2" />
-      <rect class="qs-door__hw" x="570" :y="y" width="26" height="22" rx="2" />
-    </template>
-    <line class="qs-door__gap" x1="300" y1="40" x2="300" y2="580" />
-    <template v-for="x in BARS" :key="x">
-      <line class="qs-door__bar" :x1="x" y1="34" :x2="x" y2="586" />
+    <template v-else>
       <rect
-        v-for="y in KEEPER_Y"
-        :key="y"
-        class="qs-door__hw"
-        :x="x - 11"
-        :y="y"
-        width="22"
-        height="18"
-        rx="3"
+        v-for="x in LEAVES"
+        :key="x"
+        class="qs-door__leaf"
+        :x="x"
+        y="40"
+        width="266"
+        height="540"
       />
-    </template>
-    <template v-for="[x, dx] in HANDLES" :key="x">
-      <line class="qs-door__handle" :x1="x" y1="392" :x2="x! + dx!" y2="392" />
-      <circle class="qs-door__hw" :cx="x" cy="392" r="7" />
+      <template v-for="x in PANEL_X" :key="x">
+        <template v-for="y in PANEL_Y" :key="y">
+          <rect class="qs-door__panel" :x="x" :y="y" width="238" height="34" rx="4" />
+          <line class="qs-door__crease" :x1="x" :y1="y + 34" :x2="x + 238" :y2="y + 34" />
+        </template>
+      </template>
+      <template v-for="[cx, cy] in CASTINGS" :key="`${cx}-${cy}`">
+        <rect class="qs-door__frame" :x="cx" :y="cy" width="44" height="38" rx="3" />
+        <ellipse class="qs-door__hole" :cx="cx! + 22" :cy="cy! + 19" rx="11" ry="7" />
+      </template>
+      <template v-for="y in HINGE_Y" :key="y">
+        <rect class="qs-door__hw" x="4" :y="y" width="26" height="22" rx="2" />
+        <rect class="qs-door__hw" x="570" :y="y" width="26" height="22" rx="2" />
+      </template>
+      <line class="qs-door__gap" x1="300" y1="40" x2="300" y2="580" />
+      <template v-for="x in BARS" :key="x">
+        <line class="qs-door__bar" :x1="x" y1="34" :x2="x" y2="586" />
+        <rect
+          v-for="y in KEEPER_Y"
+          :key="y"
+          class="qs-door__hw"
+          :x="x - 11"
+          :y="y"
+          width="22"
+          height="18"
+          rx="3"
+        />
+      </template>
+      <template v-for="[x, dx] in HANDLES" :key="x">
+        <line class="qs-door__handle" :x1="x" y1="392" :x2="x! + dx!" y2="392" />
+        <circle class="qs-door__hw" :cx="x" cy="392" r="7" />
+      </template>
     </template>
 
     <template v-if="paint.caution">
@@ -107,32 +129,36 @@ const weights = computed(() =>
       v-if="paint.placard"
       :class="['qs-door__placard', { 'qs-door__placard--unseen': paint.placard === 'unseen' }]"
       d="M167 290 L207 330 L167 370 L127 330 Z"
+      :transform="tank ? `translate(${TANK_PLACARD_SHIFT.x} ${TANK_PLACARD_SHIFT.y})` : undefined"
     />
 
-    <template v-if="paint.id">
-      <text class="qs-door__paint" x="350" y="80">{{ paint.id.text }}</text>
-      <rect class="qs-door__check" x="518" y="59" width="21" height="27" />
-      <text class="qs-door__paint" x="522" y="80">{{ paint.id.check }}</text>
-      <line class="qs-door__u" :data-c="paint.id.state" x1="350" y1="91" x2="539" y2="91" />
-    </template>
-    <template v-if="paint.type">
-      <text class="qs-door__paint" x="436" y="120">{{ paint.type.text }}</text>
-      <line class="qs-door__u" :data-c="paint.type.state" x1="436" y1="128" x2="494" y2="128" />
-    </template>
-    <template v-for="w in weights" :key="w.key">
-      <text class="qs-door__stencil" x="352" :y="w.y">{{ w.label }}</text>
-      <text class="qs-door__paint qs-door__paint--sm" x="538" :y="w.y" text-anchor="end">
-        {{ w.text }}
-      </text>
-      <line
-        class="qs-door__u"
-        :data-c="w.state"
-        :x1="538 - w.width"
-        :y1="w.y + 5"
-        x2="538"
-        :y2="w.y + 5"
-      />
-    </template>
+    <!-- On a tank end the ID, code and weights sit in the middle of the round head. -->
+    <g :transform="tank ? `translate(${TANK_SHIFT.x} ${TANK_SHIFT.y})` : undefined">
+      <template v-if="paint.id">
+        <text class="qs-door__paint" x="350" y="80">{{ paint.id.text }}</text>
+        <rect class="qs-door__check" x="518" y="59" width="21" height="27" />
+        <text class="qs-door__paint" x="522" y="80">{{ paint.id.check }}</text>
+        <line class="qs-door__u" :data-c="paint.id.state" x1="350" y1="91" x2="539" y2="91" />
+      </template>
+      <template v-if="paint.type">
+        <text class="qs-door__paint" x="436" y="120">{{ paint.type.text }}</text>
+        <line class="qs-door__u" :data-c="paint.type.state" x1="436" y1="128" x2="494" y2="128" />
+      </template>
+      <template v-for="w in weights" :key="w.key">
+        <text class="qs-door__stencil" x="352" :y="w.y">{{ w.label }}</text>
+        <text class="qs-door__paint qs-door__paint--sm" x="538" :y="w.y" text-anchor="end">
+          {{ w.text }}
+        </text>
+        <line
+          class="qs-door__u"
+          :data-c="w.state"
+          :x1="538 - w.width"
+          :y1="w.y + 5"
+          x2="538"
+          :y2="w.y + 5"
+        />
+      </template>
+    </g>
     <template v-if="paint.seal">
       <rect class="qs-door__seal" x="342" y="398" width="16" height="28" rx="4" />
       <circle class="qs-door__hole" cx="350" cy="407" r="3" />

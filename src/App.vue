@@ -18,6 +18,7 @@ import DemoBanner from './components/DemoBanner.vue'
 import SamplePicker from './components/SamplePicker.vue'
 import RunChip from './components/RunChip.vue'
 import ThemeToggle from './components/ThemeToggle.vue'
+import { isTankContainer } from './domain/tankContainer'
 
 const store = useInspectionStore()
 const setup = useSetupStore()
@@ -100,6 +101,7 @@ const stageClass = computed(() => {
           tabindex="-1"
           data-detail
           :assessment="store.record.damage"
+          :tank="isTankContainer(store.record)"
           :selected="store.selectedFinding"
           @update:selected="store.selectFinding"
         />

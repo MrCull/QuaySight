@@ -105,3 +105,13 @@ describe('SchematicFigure length', () => {
     expect(wrapper.findAll('.qs-c-section')).toHaveLength(0)
   })
 })
+
+describe('SchematicFigure tank', () => {
+  it('draws the tank in its frame on a tank container only', () => {
+    const box = mount(SchematicFigure, { props: base as never })
+    expect(box.find('[data-tank]').exists()).toBe(false)
+    const tank = mount(SchematicFigure, { props: { ...base, tank: true } as never })
+    expect(tank.find('[data-tank="side"]').exists()).toBe(true)
+    expect(tank.find('[data-tank="end"] polygon').attributes('points')!.split(' ')).toHaveLength(49)
+  })
+})

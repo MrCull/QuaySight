@@ -2,6 +2,7 @@ import { combineSealReads } from '../../domain/sealZoom'
 import { readSizeCode } from '../../domain/containerDetails'
 import { containerDetailQuestions } from '../../domain/containerDetailQuestions'
 import { DETAIL_QUESTION_NAMES, type SizeCodeReading } from '../../domain/containerDetailTypes'
+import type { PhotoFace } from '../../domain/photoFace'
 import type { IdBox } from '../../domain/cropRead'
 import { questionSet } from '../../domain/questionSet'
 import { questionSetAsk, type QuestionSetAsk } from '../../domain/questionSetAsk'
@@ -85,14 +86,18 @@ const SEAL: Search<SealReading> = {
   fits: sealFits,
 }
 
+const CODE_FACES: PhotoFace[] = ['rear-doors', 'long-side', 'front-end']
+
 const ISO: Search<SizeCodeReading> = {
   name: 'iso',
   purpose: 'Finding the ISO code',
   ask: ISO_ASK,
   target(plan) {
     const found = plan.answer(survey)?.findings
-    if (found?.face?.face !== 'rear-doors') return null
-    const code = found.details?.sizeCode
+    // Any face that carries the code: the doors, or a long side or front end (a tank's ID and code are
+    // painted on its side or its end).
+    if (!CODE_FACES.includes(found?.face?.face as PhotoFace)) return null
+    const code = found?.details?.sizeCode
     return code?.state === 'read' && code.code && isoFits(code, code.code) ? code.code : null
   },
   start(plan) {

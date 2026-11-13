@@ -85,9 +85,16 @@ describe('finding the ISO code by reading parts round the ID', () => {
     )
   })
 
-  it('does nothing without the ID area or off the door end', () => {
+  it('does nothing without the ID area or on a photo that is not a container face', () => {
     expect(byId('iso-part-1-1').needed!(planOf(findings, {}))).toBe(false)
-    const side = planOf({ ...findings, face: { face: 'long-side' } }, {}, [idArea])
-    expect(byId('iso-part-1-1').needed!(side)).toBe(false)
+    const roof = planOf({ ...findings, face: { face: 'roof' } }, {}, [idArea])
+    expect(byId('iso-part-1-1').needed!(roof)).toBe(false)
+  })
+
+  it('searches a long side or front end too: a tank carries its code on its side or end', () => {
+    for (const face of ['long-side', 'front-end']) {
+      const plan = planOf({ ...findings, face: { face } }, {}, [idArea])
+      expect(byId('iso-part-1-1').needed!(plan)).toBe(true)
+    }
   })
 })

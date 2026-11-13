@@ -34,6 +34,8 @@ const props = defineProps<{
   sectionNumbers?: boolean
   /** The selected finding's CEDEX sections (on the side) or positions (on the end), to light up. */
   cedex?: { on: 'side' | 'end'; first: number; last: number } | null
+  /** A tank container: the tank is drawn in its frame (a barrel along the side, the round head on the end). */
+  tank?: boolean
 }>()
 
 const emit = defineEmits<{ select: [id: number] }>()
@@ -136,6 +138,52 @@ const positionShapes = computed(() =>
     .map((p) => ({ id: p, points: quad(endPt, (p - 1) / 4, p / 4, 0, 1) })),
 )
 
+// A tank container: an open frame (the faces drawn as rails and posts only) holding a cylinder. The tank is
+// a circle on the end (an ellipse once projected) carried along the length: its body is the outline of the
+// near and far heads together, with hoop bands where the barrel's half facing the side would show them.
+const TANK_RU = 0.46
+const TANK_RV = (TANK_RU * 8) / 9.5
+const TANK_STEPS = 48
+const toPoints = (pts: Pt[]) => pts.map(([x, y]) => `${x},${y}`).join(' ')
+
+/** The tank's ring `f` of the way along the length (0 at the drawn end), from angle a0 to a1 (radians). */
+function tankRing(f: number, a0 = 0, a1 = 2 * Math.PI): Pt[] {
+  const [ox, oy] = sidePt(0, 0)
+  const [fx, fy] = sidePt(f, 0)
+  return Array.from({ length: TANK_STEPS + 1 }, (_, i) => {
+    const t = a0 + ((a1 - a0) * i) / TANK_STEPS
+    const [x, y] = endPt(0.5 + TANK_RU * Math.cos(t), 0.5 + TANK_RV * Math.sin(t))
+    return [x + fx - ox, y + fy - oy] as Pt
+  })
+}
+
+/** The convex hull of points (monotone chain), for the cylinder's outline. */
+function hull(points: Pt[]): Pt[] {
+  const pts = [...points].sort((p, q) => p[0] - q[0] || p[1] - q[1])
+  const cross = (o: Pt, p: Pt, q: Pt) =>
+    (p[0] - o[0]) * (q[1] - o[1]) - (p[1] - o[1]) * (q[0] - o[0])
+  const half = (list: Pt[]) => {
+    const out: Pt[] = []
+    for (const p of list) {
+      while (out.length >= 2 && cross(out[out.length - 2]!, out[out.length - 1]!, p) <= 0) out.pop()
+      out.push(p)
+    }
+    out.pop()
+    return out
+  }
+  return [...half(pts), ...half([...pts].reverse())]
+}
+
+const tankBody = computed(() => toPoints(hull([...tankRing(0.01), ...tankRing(0.99)])))
+const tankHead = computed(() => toPoints(tankRing(0)))
+// The near half of each hoop band (end-face u above the middle is the half that meets the side).
+const tankBands = computed(() =>
+  [0.2, 0.4, 0.6, 0.8].map((f) => ({
+    id: f,
+    points: toPoints(tankRing(f, -Math.PI / 2, Math.PI / 2)),
+  })),
+)
+
 const SIDE_POINTS = computed(() => quad(sidePt, 0, 1, 0, 1))
 const END_POINTS = computed(() => quad(endPt, 0, 1, 0, 1))
 
@@ -219,7 +267,12 @@ function select(id: number) {
       {{ caption }}
       <small v-if="noPhotos">No photos</small>
     </figcaption>
-    <svg class="qs-c" :viewBox="viewBox" role="group" :aria-label="`Container drawing, ${caption}`">
+    <svg
+      :class="['qs-c', { 'qs-c--tank': tank }]"
+      :viewBox="viewBox"
+      role="group"
+      :aria-label="`Container drawing, ${caption}`"
+    >
       <defs>
         <pattern
           :id="`${id}-hatch`"
@@ -241,6 +294,12 @@ function select(id: number) {
       </g>
 
       <polygon class="qs-c-side" :points="SIDE_POINTS" />
+      <g v-if="tank" class="qs-c-tank" data-tank="side">
+        <polygon class="qs-c-tank__body" :points="tankBody" />
+        <polyline v-for="b in tankBands" :key="b.id" class="qs-c-tank__band" :points="b.points" />
+        <!-- The side's rails and posts are nearer than the tank. -->
+        <polygon class="qs-c-tank__frame" :points="SIDE_POINTS" />
+      </g>
       <polygon
         v-if="side.status === 'side-unknown'"
         class="qs-c-face-edge"
@@ -272,6 +331,9 @@ function select(id: number) {
 
       <template v-if="end">
         <polygon class="qs-c-end" :points="END_POINTS" />
+        <g v-if="tank" class="qs-c-tank" data-tank="end">
+          <polygon class="qs-c-tank__head" :points="tankHead" />
+        </g>
         <polygon
           v-if="end.status === 'not-seen'"
           class="qs-c-unseen-face"

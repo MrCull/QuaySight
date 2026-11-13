@@ -2,7 +2,7 @@
 import { computed } from 'vue'
 import type { InspectionRecord } from '../domain/inspection'
 import { lengthInDoubt } from '../domain/shapeLength'
-import { DETAIL_GLYPH, detailGroups } from './containerDetailRows'
+import { DETAIL_GLYPH, detailGroups, groupedEquipmentRows } from './containerDetailRows'
 import CertaintyChip from './CertaintyChip.vue'
 import UnitsToggle from './UnitsToggle.vue'
 import { causeSentence } from '../domain/requestFailure'
@@ -41,8 +41,11 @@ const detailsFailure = computed(() =>
 )
 
 // Each value keeps its source label: Printed, Decoded from ISO, Calculated or Model-selected (spec 4.3, 4.4).
+// The equipment checks are grouped by answer: what the container is, then one row of what it is not.
 const rows = computed(() =>
-  groups.value.flatMap((g) => g.rows).filter((row) => !props.omit.includes(row.label)),
+  groups.value
+    .flatMap((g) => (g.id === 'equipment' ? groupedEquipmentRows(g) : g.rows))
+    .filter((row) => !props.omit.includes(row.label)),
 )
 const notAssessed = computed(() => groups.value.flatMap((g) => g.notAssessed ?? []))
 </script>
@@ -66,7 +69,7 @@ const notAssessed = computed(() => groups.value.flatMap((g) => g.notAssessed ?? 
       the size code or the weights.
     </p>
     <template v-else-if="assessed">
-      <div v-for="row in rows" :key="row.label" class="qs-field">
+      <div v-for="row in rows" :key="`${row.label}-${row.certainty}`" class="qs-field">
         <span :class="['qs-field__label', { 'qs-field__label--glyph': DETAIL_GLYPH[row.label] }]">
           <i
             v-if="DETAIL_GLYPH[row.label]"

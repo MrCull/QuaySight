@@ -6,6 +6,7 @@
 // Markings builders, so the words, certainties and notes are the same; whatever the ledger shows is left
 // out of those cards (LEDGER_DETAIL_LABELS, ledgerMarkingLabels).
 import { placardInDoubt } from '../domain/keyFacts'
+import { isTankContainer } from '../domain/tankContainer'
 import { idResultState, visibleAlternatives } from '../domain/certainty'
 import type { CertaintyLabel, InspectionRecord } from '../domain/inspection'
 import type { Units } from '../domain/unitPreference'
@@ -29,6 +30,21 @@ export const SLOT_Y = {
   placard: 330,
 } as const
 export type Slot = keyof typeof SLOT_Y
+
+/**
+ * On a tank end the ID, code and weight block are painted in the middle of the round head, not top right,
+ * and the placard under them: those slots move by this much. The seal and caution stay put.
+ */
+export const TANK_SHIFT = { x: -145, y: 60 } as const
+export const TANK_PLACARD_SHIFT = { x: 133, y: 110 } as const
+const SHIFTED: readonly Slot[] = ['id', 'type', 'gross', 'tare', 'net', 'cube']
+
+/** A slot's middle height on the drawing: on a tank end, the moved slots are lower. */
+export function slotY(slot: Slot, tank: boolean): number {
+  if (!tank) return SLOT_Y[slot]
+  if (slot === 'placard') return SLOT_Y[slot] + TANK_PLACARD_SHIFT.y
+  return SLOT_Y[slot] + (SHIFTED.includes(slot) ? TANK_SHIFT.y : 0)
+}
 
 /** The door's own width in its coordinates: a slot's page height is SLOT_Y × drawn width ÷ DOOR_WIDTH. */
 export const DOOR_WIDTH = 600
@@ -322,7 +338,9 @@ function sealRow(record: InspectionRecord, door: DoorPaint): LedgerRow | null {
     return {
       ...base,
       groups: null,
-      words: 'No seal visible in this photo',
+      words: isTankContainer(record)
+        ? 'No seal visible: a tank has no doors; any seal is on its valves or manlid'
+        : 'No seal visible in this photo',
       slot: null,
       spoken: null,
     }
