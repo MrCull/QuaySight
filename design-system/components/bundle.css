@@ -793,7 +793,8 @@
   .qs-ledger__row > .qs-ledger__label, .qs-ledger__side--left .qs-ledger__label { grid-area: label; }
   .qs-ledger__row > .qs-ledger__value, .qs-ledger__side--left .qs-ledger__value { grid-area: value; justify-self: start; text-align: left; }
   .qs-ledger__row > .qs-cert, .qs-ledger__side--left .qs-ledger__row > .qs-cert { grid-area: chip; justify-self: end; }
-  .qs-ledger__row > .qs-ledger__note, .qs-ledger__side--left .qs-ledger__note { grid-area: note; justify-content: flex-start; text-align: left; }
+  /* Stretched: the note contains its inline size, so left to its content it would wrap a word to a line. */
+  .qs-ledger__row > .qs-ledger__note, .qs-ledger__side--left .qs-ledger__note { grid-area: note; justify-self: stretch; justify-content: flex-start; text-align: left; }
   .qs-ledger__row > .qs-ledger__crop { grid-column: 1 / -1; grid-row: auto; height: auto; margin-left: 0; }
 }
 /* Door face markings: the DG placard place (seen: the hazard diamond; not seen: a dashed outline) and the high-container caution stripes. */

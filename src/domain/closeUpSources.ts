@@ -1,8 +1,9 @@
 // Where each close-up on screen is cut from (ticket #85). Pure. A close-up is the area the numbered
 // regions found (ticket #84: idCropRead.box, sealZoomRead.box, the ISO code's area, the regions' hazard
 // areas), cut from the photo whose reading won. The photo comes from the reading ("photo", 1-based); only
-// a reading that has none is taken to be photo 1. Without an area nothing is shown, never a guess, with
-// one exception: a seal read from a photo that is itself a close-up of the seal shows that whole photo.
+// a reading that has none is taken to be photo 1. Without an area nothing is shown, never a guess.
+// A seal read from a photo that is itself a close-up of the seal shows that whole photo: the photo is the
+// close-up, and a grid area of it (a quarter of the photo each way) only cuts the seal in half.
 import { usableIdBox, type IdBox } from './cropRead'
 import { ENLARGED_MARGIN, type ReadingBox } from './enlargedCrop'
 import type { InspectionRecord } from './inspection'
@@ -68,26 +69,40 @@ function faceOf(record: InspectionRecord, photo: number): FaceReading | null {
 export function sealCloseUp(record: InspectionRecord): CloseUpSource | null {
   const reading = record.seal
   if (!reading?.visible) return null
+  // Read from a close-up of the seal: that photo is the close-up, whatever area was found on it.
+  const photo = reading.photo ?? (hasSeveralPhotos(record) ? undefined : 1)
+  const face = photo === undefined ? null : faceOf(record, photo)
+  if (photo !== undefined && face?.face === 'close-up' && face.closeUpSubject === 'seal') {
+    return { photo, box: WHOLE_PHOTO, margin: 0 }
+  }
   const found = hasSeveralPhotos(record)
     ? null
     : (record.sealZoomRead?.box ?? record.regions?.found?.seal?.box)
-  const located = source(reading as Located, found, record)
-  if (located) return located
-  // Not located, but read from a close-up of the seal: that photo is the close-up.
-  const photo = reading.photo ?? (hasSeveralPhotos(record) ? undefined : 1)
-  if (photo === undefined) return null
-  const face = faceOf(record, photo)
-  return face?.face === 'close-up' && face.closeUpSubject === 'seal'
-    ? { photo, box: WHOLE_PHOTO, margin: 0 }
-    : null
+  return source(reading as Located, found, record)
 }
 
-/** The ISO size and type code, where the regions step found it. Nothing when the code was not read. */
+/** How much of the smaller of two areas the other covers (0..1). */
+function overlap(a: IdBox, b: IdBox): number {
+  const w = Math.min(a.right, b.right) - Math.max(a.left, b.left)
+  const h = Math.min(a.bottom, b.bottom) - Math.max(a.top, b.top)
+  if (w <= 0 || h <= 0) return 0
+  const area = (x: IdBox) => (x.right - x.left) * (x.bottom - x.top)
+  return (w * h) / Math.min(area(a), area(b))
+}
+
+/**
+ * The ISO size and type code, where the regions step found it. Nothing when the code was not read, and
+ * nothing when the area is mostly the ID's own on the same photo: the code is painted under the ID, the
+ * grid often puts both in one area, and the ID's close-up already shows it.
+ */
 export function isoCloseUp(record: InspectionRecord): CloseUpSource | null {
   const reading = record.details?.sizeCode
   if (reading?.state !== 'read' || !reading.code) return null
   const found = hasSeveralPhotos(record) ? null : record.regions?.found?.iso?.box
-  return source(reading as Located, found, record)
+  const iso = source(reading as Located, found, record)
+  const id = idCloseUp(record)
+  if (iso && id && iso.photo === id.photo && overlap(iso.box, id.box) >= 0.5) return null
+  return iso
 }
 
 /**

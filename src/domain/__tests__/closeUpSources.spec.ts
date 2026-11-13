@@ -73,13 +73,13 @@ describe('the seal close-up from a close-up photo of the seal', () => {
     expect(sealCloseUp(r)).toEqual({ photo: 1, box: WHOLE, margin: 0 })
   })
 
-  it('still prefers a located area, and shows nothing from a photo that is not a seal close-up', () => {
+  it('prefers the whole close-up photo to a grid area found on it, and nothing from other photos', () => {
     const located = record({
       seal: { visible: true },
       photoFace: sealPhoto,
       sealZoomRead: { box: AREA },
     })
-    expect(sealCloseUp(located)?.box).toEqual({ ...AREA, confidence: 1 })
+    expect(sealCloseUp(located)).toEqual({ photo: 1, box: WHOLE, margin: 0 })
     const doors = record({
       seal: { visible: true, photo: 1 },
       photos: [
@@ -111,6 +111,21 @@ describe('the ISO code close-up source', () => {
       photos: [{}, {}, {}],
     })
     expect(isoCloseUp(r)).toEqual({ photo: 3, box: { ...OTHER, confidence: 1 }, margin: 0 })
+  })
+
+  it('leaves the code out when its area is mostly the ID area on the same photo', () => {
+    const same = record({
+      details: { sizeCode: read },
+      idCropRead: { box: AREA },
+      regions: { found: { iso: { box: AREA } } },
+    })
+    expect(isoCloseUp(same)).toBeNull()
+    const apart = record({
+      details: { sizeCode: read },
+      idCropRead: { box: AREA },
+      regions: { found: { iso: { box: OTHER } } },
+    })
+    expect(isoCloseUp(apart)?.box).toEqual({ ...OTHER, confidence: 1 })
   })
 
   it('shows nothing when the code was not read or not located', () => {

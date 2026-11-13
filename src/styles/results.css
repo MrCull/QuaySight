@@ -210,6 +210,13 @@ body {
   max-width: min(100%, calc(var(--space-8) * 2 * var(--crop-aspect, 2)));
   margin-left: auto;
 }
+/* In the narrow list each close-up has a line of its own under its row: up to twice as tall, and left-aligned. */
+@container (max-width: 1300px) {
+  .qs-ledger__crop .rs-crop .rs-crop__frame {
+    max-width: min(100%, calc(var(--space-8) * 4 * var(--crop-aspect, 2)));
+    margin-left: 0;
+  }
+}
 .rs-damage {
   grid-column: 1/-1;
   padding: var(--space-5);
