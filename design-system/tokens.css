@@ -60,10 +60,11 @@
   --schem-grid: #71839a;
   --scrim: rgba(15, 23, 34, 0.55);
   --landing-bg: #f0efea;
-  --landing-surface: #ffffff;
   --landing-ink: #17171a;
   --landing-ink-muted: #5d5c57;
   --landing-on-ink: #ffffff;
+  --landing-halo: rgba(255, 255, 255, 0.92);
+  --landing-glow: rgba(255, 255, 255, 0.6);
   --shadow-raised: 0 12px 32px rgba(15, 23, 34, 0.14);
   --shadow-landing: 0 26px 50px -30px rgba(23, 23, 26, 0.5);
   --shadow-landing-chip: 0 1px 2px rgba(0, 0, 0, 0.14);
@@ -154,10 +155,11 @@
   --schem-grid: #5a7591;
   --scrim: rgba(4, 7, 11, 0.72);
   --landing-bg: #121214;
-  --landing-surface: #1f1f23;
   --landing-ink: #f3f2ee;
   --landing-ink-muted: #a9a7a0;
   --landing-on-ink: #17171a;
+  --landing-halo: rgba(18, 18, 20, 0.8);
+  --landing-glow: rgba(46, 211, 198, 0.75);
   --shadow-raised: 0 12px 32px rgba(0, 0, 0, 0.5);
   --shadow-landing: 0 26px 50px -30px rgba(0, 0, 0, 0.9);
   --shadow-landing-chip: 0 1px 2px rgba(0, 0, 0, 0.6);

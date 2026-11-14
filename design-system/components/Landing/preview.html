@@ -7,17 +7,20 @@
   <!-- The app sets --h to the landing's measured height; the preview does the same in the script below. -->
   <div class="qs-landing__stage">
     <figure class="qs-landing__photo" aria-hidden="true">
-      <img src="../../../samples/jdlu-200690-1-rear-doors.jpg" alt="">
-      <!-- Boxes in percent of the 1080 by 1440 photo: left = x0/1080, top = y0/1440, width, height likewise. -->
-      <i class="qs-landing__box" data-box="id" style="--i:0;left:59.259%;top:25.556%;width:7.778%;height:3.542%"><b>Owner</b></i>
-      <i class="qs-landing__box" style="--i:0;left:70.741%;top:26.875%;width:9.815%;height:3.889%"><b>Serial</b></i>
-      <i class="qs-landing__box" style="--i:0;left:81.019%;top:28.333%;width:2.593%;height:2.778%"><b>Check</b></i>
-      <i class="qs-landing__box" data-box="type" style="--i:1;left:70.000%;top:30.625%;width:6.759%;height:3.056%"></i>
-      <i class="qs-landing__box" data-box="gross" style="--i:2;left:56.667%;top:36.111%;width:21.111%;height:2.847%"></i>
-      <i class="qs-landing__box" data-box="tare" style="--i:3;left:57.037%;top:39.306%;width:21.481%;height:3.056%"></i>
-      <i class="qs-landing__box" data-box="payload" style="--i:4;left:56.852%;top:43.333%;width:21.296%;height:2.778%"></i>
-      <i class="qs-landing__box" data-box="cube" style="--i:5;left:57.407%;top:46.806%;width:23.148%;height:2.778%"></i>
-      <i class="qs-landing__box" data-box="marking" style="--i:6;left:74.352%;top:55.347%;width:7.963%;height:6.528%"></i>
+      <!-- The plate is the whole photo; on narrow screens the figure crops it to the band with the outlines. -->
+      <div class="qs-landing__plate">
+        <img src="../../../samples/jdlu-200690-1-rear-doors.jpg" alt="">
+        <!-- Boxes in percent of the 1080 by 1440 photo: left = x0/1080, top = y0/1440, width, height likewise. -->
+        <i class="qs-landing__box" data-box="id" style="--i:0;left:59.259%;top:25.556%;width:7.778%;height:3.542%"><b>Owner</b></i>
+        <i class="qs-landing__box" style="--i:0;left:70.741%;top:26.875%;width:9.815%;height:3.889%"><b>Serial</b></i>
+        <i class="qs-landing__box" style="--i:0;left:81.019%;top:28.333%;width:2.593%;height:2.778%"><b>Check</b></i>
+        <i class="qs-landing__box" data-box="type" style="--i:1;left:70.000%;top:30.625%;width:6.759%;height:3.056%"></i>
+        <i class="qs-landing__box" data-box="gross" style="--i:2;left:56.667%;top:36.111%;width:21.111%;height:2.500%"></i>
+        <i class="qs-landing__box" data-box="tare" style="--i:3;left:57.037%;top:39.514%;width:21.481%;height:2.431%"></i>
+        <i class="qs-landing__box" data-box="payload" style="--i:4;left:56.852%;top:43.333%;width:21.296%;height:2.778%"></i>
+        <i class="qs-landing__box" data-box="cube" style="--i:5;left:57.407%;top:46.806%;width:23.148%;height:2.778%"></i>
+        <i class="qs-landing__box" data-box="marking" style="--i:6;left:74.352%;top:55.347%;width:7.963%;height:6.528%"></i>
+      </div>
     </figure>
     <i class="qs-landing__shade" aria-hidden="true"></i>
 
@@ -87,22 +90,28 @@
 </main>
 <script>
   // What the app does on mount and on resize: hang the photo from the measured height, then draw an elbow
-  // from the panel's right edge, level with each reading, to the left edge of its first outline.
+  // from each reading's card, level with the reading, to the left edge of its first outline. Lines that climb turn
+  // further out the lower they start; lines that drop turn further out the higher they start, so none cross.
+  // Narrow screens hide the lines, and nothing is drawn there.
   const root = document.querySelector('.qs-landing')
   const keys = ['id', 'type', 'gross', 'tare', 'payload', 'cube', 'marking']
   function measure() {
     root.querySelector('.qs-landing__stage').style.setProperty('--h', root.clientHeight + 'px')
     requestAnimationFrame(() => {
       const o = root.getBoundingClientRect()
-      const panel = root.querySelector('.qs-landing__panel').getBoundingClientRect()
       const svg = root.querySelector('.qs-landing__links')
-      svg.innerHTML = keys.map((k, n) => {
-        const row = root.querySelector('[data-row="' + k + '"]').getBoundingClientRect()
+      if (getComputedStyle(svg).display === 'none') { svg.innerHTML = ''; return }
+      const lines = keys.map((k, n) => {
+        const reading = root.querySelector('[data-row="' + k + '"]')
+        const row = reading.getBoundingClientRect(), card = reading.closest('.qs-landing__card').getBoundingClientRect()
         const box = root.querySelector('[data-box="' + k + '"]').getBoundingClientRect()
-        const x0 = panel.right - o.left, y0 = row.top + row.height / 2 - o.top
-        const x1 = box.left - o.left, y1 = box.top + box.height / 2 - o.top
-        const bend = x0 + 14 + (keys.length - 1 - n) * 8
-        return '<g class="qs-landing__link" style="--i:' + n + '"><path pathLength="1" d="M' + x0 + ' ' + y0 + 'H' + bend + 'V' + y1 + 'H' + x1 + '"/><circle r="4" cx="' + x1 + '" cy="' + y1 + '"/></g>'
+        return { n, x0: card.right - o.left, y0: row.top + row.height / 2 - o.top, x1: box.left - o.left, y1: box.top + box.height / 2 - o.top }
+      })
+      lines.filter((l) => l.y1 < l.y0).sort((a, b) => a.y0 - b.y0).forEach((l, i) => (l.rank = i))
+      lines.filter((l) => l.y1 >= l.y0).sort((a, b) => b.y0 - a.y0).forEach((l, i) => (l.rank = i))
+      svg.innerHTML = lines.map((l) => {
+        const d = 'M' + l.x0 + ' ' + l.y0 + 'H' + (l.x0 + 14 + l.rank * 8) + 'V' + l.y1 + 'H' + l.x1
+        return '<g class="qs-landing__link" style="--i:' + l.n + '"><path class="qs-landing__halo" pathLength="1" d="' + d + '"/><path pathLength="1" d="' + d + '"/><circle r="4" cx="' + l.x1 + '" cy="' + l.y1 + '"/></g>'
       }).join('')
     })
   }

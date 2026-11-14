@@ -45,8 +45,9 @@ export const POINTERS: Pointer[] = [
     ],
   },
   { key: 'type', outlines: [{ box: px(756, 441, 829, 485) }] },
-  { key: 'gross', outlines: [{ box: px(612, 520, 840, 561) }] },
-  { key: 'tare', outlines: [{ box: px(616, 566, 848, 610) }] },
+  // Max gross and Tare stop short of the small "LB" lines painted under each of them.
+  { key: 'gross', outlines: [{ box: px(612, 520, 840, 556) }] },
+  { key: 'tare', outlines: [{ box: px(616, 569, 848, 604) }] },
   { key: 'payload', outlines: [{ box: px(614, 624, 844, 664) }] },
   { key: 'cube', outlines: [{ box: px(620, 674, 870, 714) }] },
   { key: 'marking', outlines: [{ box: px(803, 797, 889, 891) }] },
@@ -65,6 +66,29 @@ export const WEIGHT_ROWS: WeightRow[] = [
   { key: 'payload', label: 'Payload', value: '30,320 kg' },
   { key: 'cube', label: 'Cubic capacity', value: '33.2 m³' },
 ]
+
+/** A leader line's ends, measured in the landing: from a reading's card (x0, y0) to its outline (x1, y1). */
+export interface LineEnds {
+  key: string
+  x0: number
+  y0: number
+  x1: number
+  y1: number
+}
+
+/**
+ * Where each elbow line turns (horizontal, vertical, horizontal), so that no line crosses another. Lines that climb
+ * to their outline turn further out the lower they start; lines that drop turn further out the higher they start.
+ * The two groups never share a height range when the climbers start above the droppers, as the cards and outlines do.
+ */
+export function elbows<T extends LineEnds>(lines: T[]): (T & { bend: number })[] {
+  const up = lines.filter((l) => l.y1 < l.y0).sort((a, b) => a.y0 - b.y0)
+  const down = lines.filter((l) => l.y1 >= l.y0).sort((a, b) => b.y0 - a.y0)
+  const rank = new Map<T, number>()
+  up.forEach((l, i) => rank.set(l, i))
+  down.forEach((l, i) => rank.set(l, i))
+  return lines.map((l) => ({ ...l, bend: l.x0 + 14 + (rank.get(l) ?? 0) * 8 }))
+}
 
 const pct = (n: number) => `${(n * 100).toFixed(3)}%`
 

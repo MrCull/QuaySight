@@ -13,6 +13,7 @@ import {
   WEIGHTS_CERTAINTY,
   WEIGHT_ROWS,
   boxStyle,
+  elbows,
 } from './landingReadings'
 import doors from '../../samples/jdlu-200690-1-rear-doors.jpg'
 
@@ -73,25 +74,35 @@ function measure() {
   height.value = root.clientHeight || height.value
   void nextTick(() => {
     const origin = root.getBoundingClientRect()
-    const panel = root.querySelector('.qs-landing__panel')?.getBoundingClientRect()
     // Narrow screens stack the photo and cards and draw no lines; the SVG is hidden there.
     const svg = root.querySelector<SVGElement>('.qs-landing__links')
-    if (!panel || !svg || getComputedStyle(svg).display === 'none') {
+    if (!svg || getComputedStyle(svg).display === 'none') {
       links.value = []
       return
     }
-    links.value = POINTERS.flatMap((p, n) => {
-      const row = root.querySelector(`[data-row="${p.key}"]`)?.getBoundingClientRect()
+    const ends = POINTERS.flatMap((p) => {
+      const reading = root.querySelector(`[data-row="${p.key}"]`)
+      const row = reading?.getBoundingClientRect()
+      // From the card's own right edge, so no line runs over a card.
+      const card = reading?.closest('.qs-landing__card')?.getBoundingClientRect()
       const box = root.querySelector(`[data-box="${p.key}"]`)?.getBoundingClientRect()
-      if (!row || !box) return []
-      const x0 = panel.right - origin.left
-      const y0 = row.top + row.height / 2 - origin.top
-      const x1 = box.left - origin.left
-      const y1 = box.top + box.height / 2 - origin.top
-      // Each line bends a little further out than the one below it, so the verticals never overlap.
-      const bend = x0 + 14 + (POINTERS.length - 1 - n) * 8
-      return [{ key: p.key, d: `M${x0} ${y0}H${bend}V${y1}H${x1}`, x: x1, y: y1 }]
+      if (!row || !card || !box) return []
+      return [
+        {
+          key: p.key,
+          x0: card.right - origin.left,
+          y0: row.top + row.height / 2 - origin.top,
+          x1: box.left - origin.left,
+          y1: box.top + box.height / 2 - origin.top,
+        },
+      ]
     })
+    links.value = elbows(ends).map((l) => ({
+      key: l.key,
+      d: `M${l.x0} ${l.y0}H${l.bend}V${l.y1}H${l.x1}`,
+      x: l.x1,
+      y: l.y1,
+    }))
   })
 }
 
@@ -108,18 +119,21 @@ onBeforeUnmount(() => observer?.disconnect())
 <template>
   <main ref="page" class="qs-landing">
     <div class="qs-landing__stage" :style="`--h: ${height}px`">
+      <!-- The plate is the whole photo; on narrow screens the figure crops it to the band with the outlines. -->
       <figure class="qs-landing__photo" aria-hidden="true">
-        <img :src="doors" alt="" />
-        <template v-for="(p, n) in POINTERS" :key="p.key">
-          <i
-            v-for="(o, k) in p.outlines"
-            :key="k"
-            :data-box="k === 0 ? p.key : undefined"
-            class="qs-landing__box"
-            :style="`--i: ${n}; ${boxStyle(o.box)}`"
-            ><b v-if="o.caption">{{ o.caption }}</b></i
-          >
-        </template>
+        <div class="qs-landing__plate">
+          <img :src="doors" alt="" />
+          <template v-for="(p, n) in POINTERS" :key="p.key">
+            <i
+              v-for="(o, k) in p.outlines"
+              :key="k"
+              :data-box="k === 0 ? p.key : undefined"
+              class="qs-landing__box"
+              :style="`--i: ${n}; ${boxStyle(o.box)}`"
+              ><b v-if="o.caption">{{ o.caption }}</b></i
+            >
+          </template>
+        </div>
       </figure>
       <i class="qs-landing__shade" aria-hidden="true"></i>
 
@@ -217,6 +231,7 @@ onBeforeUnmount(() => observer?.disconnect())
 
       <svg class="qs-landing__links" aria-hidden="true">
         <g v-for="(l, n) in links" :key="l.key" class="qs-landing__link" :style="`--i: ${n}`">
+          <path class="qs-landing__halo" :d="l.d" pathLength="1" />
           <path :d="l.d" pathLength="1" />
           <circle :cx="l.x" :cy="l.y" r="4" />
         </g>
