@@ -52,6 +52,7 @@ What the app looks like after photos are uploaded. Live, animated versions are i
 - **Text.** IBM Plex Sans: `title`, `body` (16px, the projected-reading floor), `body-sm`, `label` (uppercase field names) and `caption` (caveats).
 - **Data.** IBM Plex Mono: `id-xl` for the container ID, `data` for readings, `data-sm` for the cost ledger. Plex Mono's dotted zero keeps 0 and O apart. Never set an ID in another face.
 - **Landing only.** Bricolage Grotesque (`font-hero`) for the landing's headline and brand.
+- **As variables.** Each style's size and line height are also `--type-<name>-size` and `--type-<name>-line`, for a component that sets its own weight or family.
 - All four faces load from Google Fonts. `components/bundle.css` imports them.
 
 ### Space, radius, elevation
