@@ -31,6 +31,8 @@ which provider they pick and whether inspections finish or hit the spend cap.
   | `inspection_started` | `mode` (`demo` / `live`), `photo_count`, and `provider` on live runs | `inspection.start()` / `startLive()` |
   | `inspection_finished` | `mode` | the same runs, when they end with a result on screen (partial included) |
   | `spend_cap_hit` | `mode` (always `live`), `reason` (`requests` / `spend`) | `ledger.run()`, once per inspection |
+  | `not_a_container` | `photo_count` | `inspection.startLive()`, when the not-a-container screen shows |
+  | `banana_skin` | `photo_count`, `banana_count` | the same, when that screen is its banana Easter egg |
 
   Page views come from the tag's default `config` call. `provider_selected` fires only when the visitor
   changes provider, so a visitor who keeps the default sends none. The `provider` on live

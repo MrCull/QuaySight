@@ -3,6 +3,11 @@ import { setActivePinia, createPinia } from 'pinia'
 
 // jsdom has no image decoder or canvas; photo preparation runs on the fake codec.
 vi.mock('../../services/imageCodec')
+// Analytics calls are checked here only for the not-a-container screen; the service is in services/__tests__.
+const trackMock = vi.fn<(event: AnalyticsEvent) => void>()
+vi.mock('../../services/analytics', () => ({
+  track: (event: AnalyticsEvent) => trackMock(event),
+}))
 
 import { MAX_PHOTOS, TOO_MANY_PHOTOS, useInspectionStore, type SelectedPhoto } from '../inspection'
 import { useLedgerStore } from '../ledger'
@@ -16,6 +21,7 @@ import { buildInspectionExport } from '../../domain/exports'
 import { mount } from '@vue/test-utils'
 import ResultsPanel from '../../components/ResultsPanel.vue'
 import ContainerDetails from '../../components/ContainerDetails.vue'
+import type { AnalyticsEvent } from '../../services/analytics'
 
 // Several photos of one container (#70) through the store, with fetch stubbed at the network edge. Each fake
 // photo has its own size, so the stub can tell which photo a request carries.
@@ -95,6 +101,7 @@ describe('several photos of one container', () => {
 
   beforeEach(() => {
     setActivePinia(createPinia())
+    trackMock.mockReset()
     restore = onlyRequests(survey, idRecheck, sideDamage, doorDamage)
   })
 
@@ -292,6 +299,67 @@ describe('several photos of one container', () => {
 
     expect(store.status).toBe('complete')
     expect(store.notAContainer).toBe(1)
+  })
+
+  /** The not-a-container and banana events the run sent. */
+  const screenEvents = () =>
+    trackMock.mock.calls
+      .map(([event]) => event)
+      .filter((e) => e.name === 'not_a_container' || e.name === 'banana_skin')
+
+  it('sends not_a_container with the photo count when the screen shows', async () => {
+    const { store } = run([
+      { name: 'a.jpg', width: 1000, id: '???????????', face: 'not_a_container' },
+      { name: 'b.jpg', width: 1100, id: '???????????', face: 'not_a_container' },
+    ])
+
+    await store.start()
+
+    expect(screenEvents()).toEqual([{ name: 'not_a_container', photo_count: 2 }])
+  })
+
+  it('sends banana_skin too when the survey saw a banana, with how many photos showed one', async () => {
+    const { store } = run([
+      { name: 'a.jpg', width: 1000, id: '???????????', face: 'not_a_container', shows: ['banana'] },
+      { name: 'b.jpg', width: 1100, id: '???????????', face: 'not_a_container' },
+    ])
+
+    await store.start()
+
+    expect(screenEvents()).toEqual([
+      { name: 'not_a_container', photo_count: 2 },
+      { name: 'banana_skin', photo_count: 2, banana_count: 1 },
+    ])
+  })
+
+  it('sends banana_skin for a single banana photo', async () => {
+    const { store } = run([
+      { name: 'a.jpg', width: 1000, id: '???????????', face: 'not_a_container', shows: ['banana'] },
+    ])
+
+    await store.start()
+
+    expect(screenEvents()).toEqual([
+      { name: 'not_a_container', photo_count: 1 },
+      { name: 'banana_skin', photo_count: 1, banana_count: 1 },
+    ])
+  })
+
+  it('sends neither when some photo shows a container', async () => {
+    const { store } = run([
+      DOORS,
+      {
+        name: 'lorry.jpg',
+        width: 1200,
+        id: '???????????',
+        face: 'not_a_container',
+        shows: ['banana'],
+      },
+    ])
+
+    await store.start()
+
+    expect(screenEvents()).toEqual([])
   })
 
   it('keeps the normal result when only some photos are not containers', async () => {

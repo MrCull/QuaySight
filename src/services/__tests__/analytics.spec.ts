@@ -76,6 +76,8 @@ describe('analytics', () => {
     track({ name: 'inspection_started', mode: 'live', photo_count: 3, provider: 'openrouter' })
     track({ name: 'inspection_finished', mode: 'demo' })
     track({ name: 'spend_cap_hit', mode: 'live', reason: 'spend' })
+    track({ name: 'not_a_container', photo_count: 2 })
+    track({ name: 'banana_skin', photo_count: 2, banana_count: 1 })
 
     expect(queued().slice(2)).toEqual([
       ['event', 'demo_started', {}],
@@ -83,6 +85,8 @@ describe('analytics', () => {
       ['event', 'inspection_started', { mode: 'live', photo_count: 3, provider: 'openrouter' }],
       ['event', 'inspection_finished', { mode: 'demo' }],
       ['event', 'spend_cap_hit', { mode: 'live', reason: 'spend' }],
+      ['event', 'not_a_container', { photo_count: 2 }],
+      ['event', 'banana_skin', { photo_count: 2, banana_count: 1 }],
     ])
   })
 
