@@ -72,7 +72,7 @@ onBeforeUnmount(() => observer?.disconnect())
 
       <section class="w1__lead">
         <h1 class="w1__title">The whole <em>Quay</em>,<br />in <em>Sight</em>.</h1>
-        <p class="w1__sub">To OCR, and beyond.</p>
+        <p class="w1__sub">To OCR, and beyond…</p>
         <ProtoKeyField
           :demo="false"
           note="Never stored. Your key lives in this tab and goes only to your provider."
@@ -307,7 +307,7 @@ onBeforeUnmount(() => observer?.disconnect())
   gap: var(--space-3);
   justify-items: start;
   width: 17.5rem;
-  margin: var(--space-8) 0 0 var(--space-5);
+  margin: calc(var(--space-8) * 1.5) 0 0 var(--space-5);
   padding: var(--space-4);
   border-radius: var(--radius-xs);
   background: var(--landing-ink);
