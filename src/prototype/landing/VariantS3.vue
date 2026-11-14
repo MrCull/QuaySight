@@ -19,11 +19,19 @@ const HINGES = [16, 50, 84]
   <main class="ls3">
     <div class="ls3__door">
       <i class="ls3__rod" aria-hidden="true"><b></b></i>
-      <i v-for="y in HINGES" :key="y" class="ls3__hinge" :style="`top: ${y}%`" aria-hidden="true"></i>
+      <i
+        v-for="y in HINGES"
+        :key="y"
+        class="ls3__hinge"
+        :style="`top: ${y}%`"
+        aria-hidden="true"
+      ></i>
       <i class="ls3__post" aria-hidden="true"></i>
 
       <div class="ls3__marks">
-        <p class="ls3__id">Quay <span>Sight</span> <b><i class="qs-logo" aria-hidden="true"></i></b></p>
+        <p class="ls3__id">
+          Quay <span>Sight</span> <b><i class="qs-logo" aria-hidden="true"></i></b>
+        </p>
         <h1 class="ls3__title">The box, decoded.</h1>
 
         <div class="ls3__lower">
@@ -75,7 +83,13 @@ const HINGES = [16, 50, 84]
   color: var(--stencil);
   box-shadow: var(--shadow-landing);
   background:
-    linear-gradient(90deg, color-mix(in srgb, black 34%, transparent), transparent 4%, transparent 80%, color-mix(in srgb, black 22%, transparent) 91%),
+    linear-gradient(
+      90deg,
+      color-mix(in srgb, black 34%, transparent),
+      transparent 4%,
+      transparent 80%,
+      color-mix(in srgb, black 22%, transparent) 91%
+    ),
     repeating-linear-gradient(
       180deg,
       var(--paint) 0,
@@ -99,9 +113,12 @@ const HINGES = [16, 50, 84]
   bottom: 0;
   width: 58px;
   background:
-    linear-gradient(180deg, var(--steel-hi), var(--steel) 60%, var(--steel-lo)) 0 17% / 58px 34px no-repeat,
-    linear-gradient(180deg, var(--steel-hi), var(--steel) 60%, var(--steel-lo)) 0 88% / 58px 34px no-repeat,
-    linear-gradient(90deg, var(--steel-lo), var(--steel-hi) 36%, var(--steel) 62%, var(--steel-lo)) 50% 0 / 20px 100% no-repeat;
+    linear-gradient(180deg, var(--steel-hi), var(--steel) 60%, var(--steel-lo)) 0 17% / 58px 34px
+      no-repeat,
+    linear-gradient(180deg, var(--steel-hi), var(--steel) 60%, var(--steel-lo)) 0 88% / 58px 34px
+      no-repeat,
+    linear-gradient(90deg, var(--steel-lo), var(--steel-hi) 36%, var(--steel) 62%, var(--steel-lo))
+      50% 0 / 20px 100% no-repeat;
   filter: drop-shadow(7px 5px 5px color-mix(in srgb, black 45%, transparent));
 }
 .ls3__rod b {
@@ -141,8 +158,26 @@ const HINGES = [16, 50, 84]
   right: 0;
   width: 7.5%;
   background:
-    linear-gradient(90deg, black 0, var(--paint-deep) 6%, var(--paint-lo) 12%, var(--paint-hi) 22%, var(--paint) 30%, var(--paint-lo) 42%, var(--paint-deep) 44%, transparent 44%),
-    repeating-linear-gradient(90deg, var(--paint-lo) 0, var(--paint-deep) 0.5rem, color-mix(in srgb, var(--paint) 80%, black) 1.5rem, var(--paint-hi) 1.9rem, var(--paint) 2.3rem, var(--paint-lo) 3.2rem);
+    linear-gradient(
+      90deg,
+      black 0,
+      var(--paint-deep) 6%,
+      var(--paint-lo) 12%,
+      var(--paint-hi) 22%,
+      var(--paint) 30%,
+      var(--paint-lo) 42%,
+      var(--paint-deep) 44%,
+      transparent 44%
+    ),
+    repeating-linear-gradient(
+      90deg,
+      var(--paint-lo) 0,
+      var(--paint-deep) 0.5rem,
+      color-mix(in srgb, var(--paint) 80%, black) 1.5rem,
+      var(--paint-hi) 1.9rem,
+      var(--paint) 2.3rem,
+      var(--paint-lo) 3.2rem
+    );
 }
 .ls3__hinge {
   position: absolute;
@@ -175,7 +210,8 @@ const HINGES = [16, 50, 84]
   display: flex;
   flex-direction: column;
   min-width: 0;
-  padding: clamp(var(--space-5), 5vh, var(--space-8)) 11.5% clamp(var(--space-5), 4.5vh, var(--space-7)) 12.5%;
+  padding: clamp(var(--space-5), 5vh, var(--space-8)) 11.5%
+    clamp(var(--space-5), 4.5vh, var(--space-7)) 12.5%;
 }
 .ls3__id,
 .ls3__title {
@@ -255,7 +291,11 @@ const HINGES = [16, 50, 84]
     radial-gradient(circle at 10px 10px, var(--steel-lo) 0 2.5px, transparent 3px),
     radial-gradient(circle at calc(100% - 10px) 10px, var(--steel-lo) 0 2.5px, transparent 3px),
     radial-gradient(circle at 10px calc(100% - 10px), var(--steel-lo) 0 2.5px, transparent 3px),
-    radial-gradient(circle at calc(100% - 10px) calc(100% - 10px), var(--steel-lo) 0 2.5px, transparent 3px),
+    radial-gradient(
+      circle at calc(100% - 10px) calc(100% - 10px),
+      var(--steel-lo) 0 2.5px,
+      transparent 3px
+    ),
     linear-gradient(135deg, var(--landing-bg), var(--steel-hi) 50%, var(--landing-bg));
   color: var(--landing-ink);
   box-shadow: 0 14px 26px -12px black;

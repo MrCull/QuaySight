@@ -22,10 +22,21 @@ const HINGES = [9, 30, 51, 72, 91]
 <template>
   <main class="ls1">
     <div class="ls1__box">
-      <i v-for="n in 4" :key="n" :class="`qs-logo ls1__casting ls1__casting--${n}`" aria-hidden="true"></i>
+      <i
+        v-for="n in 4"
+        :key="n"
+        :class="`qs-logo ls1__casting ls1__casting--${n}`"
+        aria-hidden="true"
+      ></i>
 
       <section class="ls1__leaf ls1__leaf--left">
-        <i v-for="y in HINGES" :key="y" class="ls1__hinge" :style="`top: ${y}%`" aria-hidden="true"></i>
+        <i
+          v-for="y in HINGES"
+          :key="y"
+          class="ls1__hinge"
+          :style="`top: ${y}%`"
+          aria-hidden="true"
+        ></i>
         <i class="ls1__rod ls1__rod--outer" aria-hidden="true"><b></b></i>
         <i class="ls1__rod ls1__rod--inner" aria-hidden="true"><b></b></i>
 
@@ -40,7 +51,13 @@ const HINGES = [9, 30, 51, 72, 91]
       </section>
 
       <section class="ls1__leaf ls1__leaf--right">
-        <i v-for="y in HINGES" :key="y" class="ls1__hinge" :style="`top: ${y}%`" aria-hidden="true"></i>
+        <i
+          v-for="y in HINGES"
+          :key="y"
+          class="ls1__hinge"
+          :style="`top: ${y}%`"
+          aria-hidden="true"
+        ></i>
         <i class="ls1__rod ls1__rod--inner" aria-hidden="true"><b></b></i>
         <i class="ls1__rod ls1__rod--outer" aria-hidden="true"><b></b></i>
 
@@ -56,10 +73,22 @@ const HINGES = [9, 30, 51, 72, 91]
           </div>
         </dl>
         <div class="ls1__label">
-          <p><b>No key to hand?</b> Open a sample container and see what was read from it. No charge.</p>
+          <p>
+            <b>No key to hand?</b> Open a sample container and see what was read from it. No charge.
+          </p>
           <button type="button" @click="setup.enterDemo()">
             Try the demo
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 12h16M14 6l6 6-6 6" /></svg>
+            <svg
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="1.7"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              aria-hidden="true"
+            >
+              <path d="M4 12h16M14 6l6 6-6 6" />
+            </svg>
           </button>
         </div>
       </section>
@@ -94,8 +123,22 @@ const HINGES = [9, 30, 51, 72, 91]
   padding: var(--space-5) var(--space-4);
   border-radius: var(--radius-sm);
   background:
-    linear-gradient(180deg, color-mix(in srgb, white 16%, transparent), transparent 3%, transparent 96%, color-mix(in srgb, black 40%, transparent)),
-    linear-gradient(90deg, var(--paint-deep), var(--paint-lo) 1.2%, var(--paint-deep) 2.4%, var(--paint-deep) 97.6%, var(--paint-lo) 98.8%, var(--paint-deep));
+    linear-gradient(
+      180deg,
+      color-mix(in srgb, white 16%, transparent),
+      transparent 3%,
+      transparent 96%,
+      color-mix(in srgb, black 40%, transparent)
+    ),
+    linear-gradient(
+      90deg,
+      var(--paint-deep),
+      var(--paint-lo) 1.2%,
+      var(--paint-deep) 2.4%,
+      var(--paint-deep) 97.6%,
+      var(--paint-lo) 98.8%,
+      var(--paint-deep)
+    );
   color: var(--stencil);
   box-shadow: var(--shadow-landing);
 }
@@ -107,10 +150,22 @@ const HINGES = [9, 30, 51, 72, 91]
   color: var(--paint-hi);
   filter: drop-shadow(0 1px 1px color-mix(in srgb, black 60%, transparent));
 }
-.ls1__casting--1 { left: 0; top: 0; }
-.ls1__casting--2 { right: 0; top: 0; }
-.ls1__casting--3 { left: 0; bottom: 0; }
-.ls1__casting--4 { right: 0; bottom: 0; }
+.ls1__casting--1 {
+  left: 0;
+  top: 0;
+}
+.ls1__casting--2 {
+  right: 0;
+  top: 0;
+}
+.ls1__casting--3 {
+  left: 0;
+  bottom: 0;
+}
+.ls1__casting--4 {
+  right: 0;
+  bottom: 0;
+}
 
 /* A leaf: pressed panels between a rubber gasket */
 .ls1__leaf {
@@ -123,7 +178,13 @@ const HINGES = [9, 30, 51, 72, 91]
     inset 0 0 0 2px color-mix(in srgb, white 10%, transparent),
     inset 0 0 0 5px color-mix(in srgb, black 22%, transparent);
   background:
-    linear-gradient(90deg, color-mix(in srgb, black 30%, transparent), transparent 5%, transparent 95%, color-mix(in srgb, black 30%, transparent)),
+    linear-gradient(
+      90deg,
+      color-mix(in srgb, black 30%, transparent),
+      transparent 5%,
+      transparent 95%,
+      color-mix(in srgb, black 30%, transparent)
+    ),
     repeating-linear-gradient(
       180deg,
       var(--paint) 0,
@@ -138,13 +199,13 @@ const HINGES = [9, 30, 51, 72, 91]
     );
 }
 .ls1__leaf--left {
-  margin-right: 2px;
+  margin-right: calc(var(--space-1) / 2);
   animation: ls1-swing 900ms cubic-bezier(0.2, 0.8, 0.2, 1) both;
   transform-origin: left;
 }
 .ls1__leaf--right {
   --swing: -12deg;
-  margin-left: 2px;
+  margin-left: calc(var(--space-1) / 2);
   animation: ls1-swing 900ms cubic-bezier(0.2, 0.8, 0.2, 1) both;
   transform-origin: right;
 }
@@ -171,10 +232,19 @@ const HINGES = [9, 30, 51, 72, 91]
   border-radius: var(--radius-sm);
   background: linear-gradient(90deg, var(--paint-lo), var(--paint-hi) 50%, var(--paint-lo));
 }
-.ls1__leaf--left .ls1__hinge { left: -14px; }
-.ls1__leaf--left .ls1__hinge::before { left: 0; }
-.ls1__leaf--right .ls1__hinge { right: -14px; background-position-x: -22px, 0; }
-.ls1__leaf--right .ls1__hinge::before { right: 0; }
+.ls1__leaf--left .ls1__hinge {
+  left: -14px;
+}
+.ls1__leaf--left .ls1__hinge::before {
+  left: 0;
+}
+.ls1__leaf--right .ls1__hinge {
+  right: -14px;
+  background-position-x: -22px, 0;
+}
+.ls1__leaf--right .ls1__hinge::before {
+  right: 0;
+}
 
 /* Lock rods: tube, guide brackets, cam keepers and handle */
 .ls1__rod {
@@ -186,19 +256,31 @@ const HINGES = [9, 30, 51, 72, 91]
   background:
     linear-gradient(var(--steel-lo), var(--steel-lo)) 50% 0 / 30px 20px no-repeat,
     linear-gradient(var(--steel-lo), var(--steel-lo)) 50% 100% / 30px 20px no-repeat,
-    linear-gradient(180deg, var(--steel-hi), var(--steel) 60%, var(--steel-lo)) 0 13% / 34px 20px no-repeat,
-    linear-gradient(180deg, var(--steel-hi), var(--steel) 60%, var(--steel-lo)) 0 40% / 34px 20px no-repeat,
-    linear-gradient(180deg, var(--steel-hi), var(--steel) 60%, var(--steel-lo)) 0 87% / 34px 20px no-repeat,
-    linear-gradient(90deg, var(--steel-lo), var(--steel-hi) 38%, var(--steel) 64%, var(--steel-lo)) 50% 0 / 11px 100% no-repeat;
+    linear-gradient(180deg, var(--steel-hi), var(--steel) 60%, var(--steel-lo)) 0 13% / 34px 20px
+      no-repeat,
+    linear-gradient(180deg, var(--steel-hi), var(--steel) 60%, var(--steel-lo)) 0 40% / 34px 20px
+      no-repeat,
+    linear-gradient(180deg, var(--steel-hi), var(--steel) 60%, var(--steel-lo)) 0 87% / 34px 20px
+      no-repeat,
+    linear-gradient(90deg, var(--steel-lo), var(--steel-hi) 38%, var(--steel) 64%, var(--steel-lo))
+      50% 0 / 11px 100% no-repeat;
   filter: drop-shadow(4px 3px 3px color-mix(in srgb, black 45%, transparent));
 }
-.ls1__leaf--left .ls1__rod--outer { left: calc(var(--pad) * 0.3); }
-.ls1__leaf--left .ls1__rod--inner { right: calc(var(--pad) * 0.3); }
-.ls1__leaf--right .ls1__rod--inner { left: calc(var(--pad) * 0.3); }
-.ls1__leaf--right .ls1__rod--outer { right: calc(var(--pad) * 0.3); }
+.ls1__leaf--left .ls1__rod--outer {
+  left: calc(var(--pad) * 0.3);
+}
+.ls1__leaf--left .ls1__rod--inner {
+  right: calc(var(--pad) * 0.3);
+}
+.ls1__leaf--right .ls1__rod--inner {
+  left: calc(var(--pad) * 0.3);
+}
+.ls1__leaf--right .ls1__rod--outer {
+  right: calc(var(--pad) * 0.3);
+}
 .ls1__rod b {
   position: absolute;
-  top: 71.5%;
+  top: 73.5%;
   width: calc(var(--pad) * 1.15);
   height: 11px;
   border-radius: var(--radius-pill);
@@ -220,19 +302,34 @@ const HINGES = [9, 30, 51, 72, 91]
   height: 21px;
   background: var(--steel-lo);
 }
-.ls1__rod--outer b { top: 68%; }
+.ls1__rod--outer b {
+  top: 73.5%;
+  width: calc(var(--pad) * 0.9);
+}
 .ls1__leaf--left .ls1__rod--outer b,
-.ls1__leaf--right .ls1__rod--inner b { left: 4px; }
+.ls1__leaf--right .ls1__rod--inner b {
+  left: 4px;
+}
 .ls1__leaf--left .ls1__rod--outer b::before,
-.ls1__leaf--right .ls1__rod--inner b::before { left: 0; }
+.ls1__leaf--right .ls1__rod--inner b::before {
+  left: 0;
+}
 .ls1__leaf--left .ls1__rod--outer b::after,
-.ls1__leaf--right .ls1__rod--inner b::after { right: 6px; }
+.ls1__leaf--right .ls1__rod--inner b::after {
+  right: 6px;
+}
 .ls1__leaf--left .ls1__rod--inner b,
-.ls1__leaf--right .ls1__rod--outer b { right: 4px; }
+.ls1__leaf--right .ls1__rod--outer b {
+  right: 4px;
+}
 .ls1__leaf--left .ls1__rod--inner b::before,
-.ls1__leaf--right .ls1__rod--outer b::before { right: 0; }
+.ls1__leaf--right .ls1__rod--outer b::before {
+  right: 0;
+}
 .ls1__leaf--left .ls1__rod--inner b::after,
-.ls1__leaf--right .ls1__rod--outer b::after { left: 6px; }
+.ls1__leaf--right .ls1__rod--outer b::after {
+  left: 6px;
+}
 
 /* Left leaf: the name, the headline, the data plate */
 .ls1__name {
@@ -273,7 +370,11 @@ const HINGES = [9, 30, 51, 72, 91]
     radial-gradient(circle at 10px 10px, var(--steel-lo) 0 2.5px, transparent 3px),
     radial-gradient(circle at calc(100% - 10px) 10px, var(--steel-lo) 0 2.5px, transparent 3px),
     radial-gradient(circle at 10px calc(100% - 10px), var(--steel-lo) 0 2.5px, transparent 3px),
-    radial-gradient(circle at calc(100% - 10px) calc(100% - 10px), var(--steel-lo) 0 2.5px, transparent 3px),
+    radial-gradient(
+      circle at calc(100% - 10px) calc(100% - 10px),
+      var(--steel-lo) 0 2.5px,
+      transparent 3px
+    ),
     linear-gradient(135deg, var(--landing-bg), var(--steel-hi) 50%, var(--landing-bg));
   color: var(--landing-ink);
   box-shadow: 0 12px 24px -12px black;

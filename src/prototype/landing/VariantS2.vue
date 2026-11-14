@@ -17,7 +17,12 @@ const FACTS = [
 <template>
   <main class="ls2">
     <div class="ls2__box">
-      <i v-for="n in 4" :key="n" :class="`qs-logo ls2__casting ls2__casting--${n}`" aria-hidden="true"></i>
+      <i
+        v-for="n in 4"
+        :key="n"
+        :class="`qs-logo ls2__casting ls2__casting--${n}`"
+        aria-hidden="true"
+      ></i>
       <i class="ls2__rail ls2__rail--top" aria-hidden="true"></i>
 
       <div class="ls2__wall">
@@ -85,21 +90,46 @@ const FACTS = [
   color: var(--paint-hi);
   filter: drop-shadow(0 1px 1px color-mix(in srgb, black 60%, transparent));
 }
-.ls2__casting--1 { left: 0; top: 0; }
-.ls2__casting--2 { right: 0; top: 0; }
-.ls2__casting--3 { left: 0; bottom: 0; }
-.ls2__casting--4 { right: 0; bottom: 0; }
+.ls2__casting--1 {
+  left: 0;
+  top: 0;
+}
+.ls2__casting--2 {
+  right: 0;
+  top: 0;
+}
+.ls2__casting--3 {
+  left: 0;
+  bottom: 0;
+}
+.ls2__casting--4 {
+  right: 0;
+  bottom: 0;
+}
 
 /* Top and bottom side rails; the bottom one has the fork pockets */
 .ls2__rail {
   display: block;
   height: 26px;
-  background: linear-gradient(180deg, var(--paint-hi), var(--paint) 22%, var(--paint-lo) 80%, var(--paint-deep));
+  background: linear-gradient(
+    180deg,
+    var(--paint-hi),
+    var(--paint) 22%,
+    var(--paint-lo) 80%,
+    var(--paint-deep)
+  );
 }
 .ls2__rail--bottom {
   position: relative;
   height: 44px;
-  background: linear-gradient(180deg, var(--paint-deep), var(--paint-lo) 14%, var(--paint) 40%, var(--paint-lo) 86%, var(--paint-deep));
+  background: linear-gradient(
+    180deg,
+    var(--paint-deep),
+    var(--paint-lo) 14%,
+    var(--paint) 40%,
+    var(--paint-lo) 86%,
+    var(--paint-deep)
+  );
 }
 .ls2__rail--bottom b {
   position: absolute;
@@ -112,18 +142,30 @@ const FACTS = [
     0 0 0 2px var(--paint-lo),
     0 0 0 3px color-mix(in srgb, white 14%, transparent);
 }
-.ls2__rail--bottom b:first-child { left: 31%; }
-.ls2__rail--bottom b:last-child { right: 31%; }
+.ls2__rail--bottom b:first-child {
+  left: 31%;
+}
+.ls2__rail--bottom b:last-child {
+  right: 31%;
+}
 
 /* The corrugated wall. The same ribs are laid over the paint so the lettering follows the steel. */
 .ls2__wall {
   position: relative;
   display: flex;
   flex-direction: column;
-  padding: clamp(var(--space-5), 4.5vh, var(--space-7)) clamp(var(--space-6), 5vw, calc(var(--space-8) * 1.4)) clamp(var(--space-5), 4.5vh, var(--space-7));
+  padding: clamp(var(--space-5), 4.5vh, var(--space-7))
+    clamp(var(--space-6), 5vw, calc(var(--space-8) * 1.4))
+    clamp(var(--space-5), 4.5vh, var(--space-7));
   overflow: hidden;
   background:
-    linear-gradient(180deg, color-mix(in srgb, black 34%, transparent), transparent 5%, transparent 93%, color-mix(in srgb, black 36%, transparent)),
+    linear-gradient(
+      180deg,
+      color-mix(in srgb, black 34%, transparent),
+      transparent 5%,
+      transparent 93%,
+      color-mix(in srgb, black 36%, transparent)
+    ),
     repeating-linear-gradient(
       90deg,
       var(--paint-hi) 0,
@@ -238,7 +280,11 @@ const FACTS = [
     radial-gradient(circle at 10px 10px, var(--steel-lo) 0 2.5px, transparent 3px),
     radial-gradient(circle at calc(100% - 10px) 10px, var(--steel-lo) 0 2.5px, transparent 3px),
     radial-gradient(circle at 10px calc(100% - 10px), var(--steel-lo) 0 2.5px, transparent 3px),
-    radial-gradient(circle at calc(100% - 10px) calc(100% - 10px), var(--steel-lo) 0 2.5px, transparent 3px),
+    radial-gradient(
+      circle at calc(100% - 10px) calc(100% - 10px),
+      var(--steel-lo) 0 2.5px,
+      transparent 3px
+    ),
     linear-gradient(135deg, var(--landing-bg), var(--steel-hi) 50%, var(--landing-bg));
   color: var(--landing-ink);
   box-shadow: 0 14px 26px -12px black;
