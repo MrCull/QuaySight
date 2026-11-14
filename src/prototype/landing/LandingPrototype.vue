@@ -9,6 +9,7 @@ import VariantB from './VariantB.vue'
 import VariantC from './VariantC.vue'
 import VariantD from './VariantD.vue'
 import VariantE from './VariantE.vue'
+import VariantF from './VariantF.vue'
 
 const VARIANTS: { key: string; name: string; view: Component }[] = [
   { key: 'current', name: 'Current landing', view: LandingScreen },
@@ -17,6 +18,7 @@ const VARIANTS: { key: string; name: string; view: Component }[] = [
   { key: 'C', name: 'Night quay', view: VariantC },
   { key: 'D', name: 'Poster', view: VariantD },
   { key: 'E', name: 'Long read', view: VariantE },
+  { key: 'F', name: 'Composite', view: VariantF },
 ]
 
 const enabled = import.meta.env.DEV
