@@ -36,7 +36,7 @@ What the app looks like after photos are uploaded. Live, animated versions are i
 ## Visual foundations
 
 ### Colour
-- **Themes.** `Daylight` (light) is the default. `Night quay` (dark) suits darkened event rooms and photo-heavy screens; the top bar's `ThemeToggle` switches between them. Every token is defined in both.
+- **Themes.** `Night quay` (dark) is the app's default; `Daylight` (light) is the alternative. Night quay suits darkened event rooms and photo-heavy screens; the top bar's `ThemeToggle` switches between them. Every token is defined in both.
 - **Grounds.** `bg` for the page, `surface` for panels, `surface-raised` for floating layers, `surface-sunken` for the photo stage and schematic well. Separate panels with `line` hairlines, and draw control edges with `line-strong` (3:1 or better everywhere).
 - **Text.** `ink` for primary text and `ink-muted` for labels and captions. Both pass 4.5:1 on every ground in both themes.
 - **Action.** `brand` (shipping navy in Daylight, signal teal in Night quay) is the only action colour: primary button, selected provider, active stage, links. Text on it is `on-brand`. Focus is a solid 2px `focus-ring` outline offset 2px, 3:1 or better on every surface.
@@ -98,7 +98,7 @@ At `MrCull/QuaySight@cc7ec10` the repository is an unstyled create-vue scaffold:
 ## In this repository
 
 - `tokens.json` is the source for every token. `tokens.css` is generated from it: `python3 design-system/scripts/build-tokens.py design-system/tokens.json > design-system/tokens.css`. Never edit `tokens.css` by hand.
-- In the app, import `design-system/tokens.css` then `design-system/components/bundle.css` once (in `src/main.ts`), and wrap the app in `.qs-root`. Daylight is the default theme; set `data-theme="dark"` on `<html>` for Night quay.
+- In the app, import `design-system/tokens.css` then `design-system/components/bundle.css` once (in `src/main.ts`), and wrap the app in `.qs-root`. Night quay is the app's default; Daylight is the alternative. The app always sets `data-theme` on `<html>` (`dark` for Night quay, `light` for Daylight); with no attribute, as in the preview pages, the tokens fall back to Daylight.
 - Type styles are available as `.qs-type-{name}` classes (`display-lg`, `body`, `label` and so on) in `tokens.css`.
 - Open any `components/<Name>/preview.html` directly in a browser to see the reference rendering.
 - The **Logo** asset group lives in `design-system/assets/logo/` (SVG files and their rules). The app uses `public/favicon.svg`.

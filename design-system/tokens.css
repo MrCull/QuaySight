@@ -1,5 +1,5 @@
 /* Quay Sight tokens. Generated from tokens.json - edit that file, then run: python3 design-system/scripts/build-tokens.py design-system/tokens.json > design-system/tokens.css
-   Daylight (light) is the default; set data-theme="dark" on <html> for Night quay. */
+   Night quay is the app's default (it sets data-theme="dark" on <html>); Daylight is the alternative and the fallback with no data-theme. */
 :root,
 :root[data-theme="light"] {
   color-scheme: light;
