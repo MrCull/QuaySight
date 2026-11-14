@@ -9,6 +9,7 @@ import './styles/setup.css'
 import App from './App.vue'
 import router from './router'
 import { useSetupStore } from './stores/setup'
+import { initAnalytics } from './services/analytics'
 
 const app = createApp(App)
 
@@ -18,5 +19,8 @@ app.use(router)
 
 // The remembered provider and model only; a refresh never brings back a key.
 useSetupStore(pinia).restore()
+
+// Google Analytics: production domain and a deploy-time Measurement ID only (docs/adr/0002-*).
+initAnalytics(import.meta.env.VITE_GA_MEASUREMENT_ID, window.location.hostname)
 
 app.mount('#app')

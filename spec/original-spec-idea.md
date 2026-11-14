@@ -651,7 +651,7 @@ The exact supported version catalogue, model limits and prices should be verifie
 - Use **bring-your-own-key** credentials specific to the selected provider. Clearly label whose endpoint receives the image and key. Never send an OpenAI key to TypeSafe, a TypeSafe key to OpenAI, or either key to unrelated services.
 - Recognise that BYOK credentials held in browser JavaScript are accessible to code running in the page. A static frontend cannot promise server-grade secret protection.
 - Never bake a key into static assets, source, URLs, analytics, logs, exception messages or exported inspection files; keep it in memory only (it is forgotten when the page closes) and make clearing it simple. Do not use localStorage for credentials.
-- Avoid third-party scripts/analytics that could observe runtime credentials or uploaded photographs.
+- Avoid third-party scripts/analytics that could observe runtime credentials or uploaded photographs. *(Amended for the PoC by `docs/adr/0002-google-analytics-for-the-poc.md`: Google Analytics runs on the production domain only, and is never sent keys, photos or results.)*
 - If browser-to-provider calls are technically blocked or unacceptably risky, permit a **minimal trusted serverless relay** as a documented deployment fallback. This is a deviation from *strictly static* and must be made explicit; keys must remain transient and must not be logged or persisted by the relay.
 - Preserve usable partial analysis when a provider fails, becomes unavailable or rejects an unsupported model/feature; show provider-specific errors clearly and allow deliberate retries without unlimited chargeable loops.
 - Prevent repeated clicks, retries or provider switches from duplicating charges or mixing stale results.

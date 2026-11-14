@@ -9,6 +9,10 @@ import {
   type Totals,
 } from '../domain/ledger'
 import { rateSchedules, spendCaps } from '../domain/rates'
+import { track } from '../services/analytics'
+
+/** Inspections that already sent spend_cap_hit: once each, however many calls the cap refuses. */
+const capReported = new Set<string>()
 
 /**
  * Session ledger for live, chargeable calls only. Recorded samples never call run().
@@ -36,6 +40,11 @@ export const useLedgerStore = defineStore('ledger', {
     },
     async run(request: ChargeableRequest): Promise<ChargeableResult> {
       const result = await runChargeable(this.ledger, request)
+      // Only live runs reach the ledger; recorded samples never call run().
+      if (result.status === 'blocked' && !capReported.has(request.inspectionId)) {
+        capReported.add(request.inspectionId)
+        track({ name: 'spend_cap_hit', mode: 'live', reason: result.reason })
+      }
       this.version += 1
       return result
     },

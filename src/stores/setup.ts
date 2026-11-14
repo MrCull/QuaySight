@@ -1,4 +1,5 @@
 import { defineStore } from 'pinia'
+import { track } from '../services/analytics'
 import type { ProviderId } from '../domain/inspection'
 import { canContinue } from '../domain/keyGate'
 import {
@@ -66,6 +67,7 @@ export const useSetupStore = defineStore('setup', {
     enterDemo() {
       useInspectionStore().enterDemo()
       this.view = 'inspection'
+      track({ name: 'demo_started' })
     },
     /** Connect a provider, from the demo banner: leaves demo mode for the setup card. */
     connectProvider() {
@@ -80,6 +82,7 @@ export const useSetupStore = defineStore('setup', {
       inspection.newInspection()
       inspection.setProvider(provider)
       this.remember()
+      track({ name: 'provider_selected', provider })
     },
     /** A new model blanks the screen (New inspection). The same model again changes nothing. */
     chooseModel(model: string) {
