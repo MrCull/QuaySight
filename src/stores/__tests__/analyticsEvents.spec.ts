@@ -3,6 +3,9 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest'
 import { setActivePinia, createPinia } from 'pinia'
 
+// jsdom has no image decoder or canvas; photo preparation runs on the fake codec.
+vi.mock('../../services/imageCodec')
+
 const trackMock = vi.fn<(event: AnalyticsEvent) => void>()
 vi.mock('../../services/analytics', () => ({
   track: (event: AnalyticsEvent) => trackMock(event),
@@ -99,6 +102,28 @@ describe('analytics events', () => {
     await run
 
     expect(names().filter((n) => n === 'inspection_started')).toHaveLength(1)
+  })
+
+  it('a live run sends inspection_started with its mode, photo count and provider; a failed run sends no finish', async () => {
+    vi.stubGlobal(
+      'fetch',
+      vi.fn<typeof fetch>(() => Promise.reject(new TypeError('Failed to fetch'))),
+    )
+    const store = useInspectionStore()
+    store.setApiKey('test-only-key-value-0000')
+    const file = new Blob(['not-really-a-jpeg'], { type: 'image/jpeg' })
+    store.setPhotos([
+      { name: 'rear.jpg', url: 'blob:a', orientation: 'landscape', file },
+      { name: 'side.jpg', url: 'blob:b', orientation: 'landscape', file },
+    ])
+
+    await store.start()
+
+    expect(store.status).toBe('failed')
+    expect(trackMock.mock.calls).toEqual([
+      [{ name: 'inspection_started', mode: 'live', photo_count: 2, provider: 'openrouter' }],
+    ])
+    vi.unstubAllGlobals()
   })
 
   it('a live call refused by the spend limit sends spend_cap_hit once per inspection', async () => {

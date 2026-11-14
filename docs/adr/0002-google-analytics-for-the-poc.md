@@ -28,11 +28,14 @@ which provider they pick and whether inspections finish or hit the spend cap.
   | --- | --- | --- |
   | `demo_started` | none | `setup.enterDemo()` |
   | `provider_selected` | `provider` (`luna` / `openrouter`) | `setup.chooseProvider()` |
-  | `inspection_started` | `mode` (`demo` / `live`), `photo_count` | `inspection.start()` / `startLive()` |
-  | `inspection_finished` | `mode` | the same runs, on completion |
-  | `spend_cap_hit` | `mode`, `reason` (`requests` / `spend`) | `ledger.run()`, once per inspection |
+  | `inspection_started` | `mode` (`demo` / `live`), `photo_count`, and `provider` on live runs | `inspection.start()` / `startLive()` |
+  | `inspection_finished` | `mode` | the same runs, when they end with a result on screen (partial included) |
+  | `spend_cap_hit` | `mode` (always `live`), `reason` (`requests` / `spend`) | `ledger.run()`, once per inspection |
 
-  Page views come from the tag's default `config` call.
+  Page views come from the tag's default `config` call. `provider_selected` fires only when the visitor
+  changes provider, so a visitor who keeps the default sends none. The `provider` on live
+  `inspection_started` is the count to use for "which provider runs inspections". Failed and abandoned
+  runs send `inspection_started` with no `inspection_finished`.
 - **Never sent:** keys, photos or file names, container IDs or any reading, model answers, error
   text, or anything typed in. The GA web stream also has Enhanced Measurement's *form interactions*
   switched off, so the tag doesn't report activity on the key field.

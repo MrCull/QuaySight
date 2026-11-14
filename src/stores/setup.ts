@@ -1,5 +1,4 @@
 import { defineStore } from 'pinia'
-import { track } from '../services/analytics'
 import type { ProviderId } from '../domain/inspection'
 import { canContinue } from '../domain/keyGate'
 import {
@@ -7,6 +6,7 @@ import {
   rememberSelection,
   REMEMBERED_SELECTION_KEY,
 } from '../domain/rememberedSelection'
+import { track } from '../services/analytics'
 import { useInspectionStore } from './inspection'
 
 /** Which top-level screen shows: the setup card, or the inspection screen once the presenter continues. */

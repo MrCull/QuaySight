@@ -7,6 +7,9 @@
  * photo, a container ID, a reading or anything typed in.
  */
 
+import type { ProviderId } from '../domain/inspection'
+import type { CapReason } from '../domain/ledger'
+
 declare global {
   interface Window {
     dataLayer?: unknown[]
@@ -15,22 +18,24 @@ declare global {
 }
 
 /** The production hosts. Anywhere else the tag never loads. */
-export const ANALYTICS_HOSTS: readonly string[] = ['quay-sight.com', 'www.quay-sight.com']
+const ANALYTICS_HOSTS: readonly string[] = ['quay-sight.com', 'www.quay-sight.com']
 
 type Mode = 'demo' | 'live'
 
 export type AnalyticsEvent =
   | { name: 'demo_started' }
-  | { name: 'provider_selected'; provider: 'luna' | 'openrouter' }
-  | { name: 'inspection_started'; mode: Mode; photo_count: number }
+  | { name: 'provider_selected'; provider: ProviderId }
+  | { name: 'inspection_started'; mode: 'demo'; photo_count: number }
+  | { name: 'inspection_started'; mode: 'live'; photo_count: number; provider: ProviderId }
+  /** Sent when a run ends with a result on screen (partial included); failed or abandoned runs send nothing. */
   | { name: 'inspection_finished'; mode: Mode }
-  | { name: 'spend_cap_hit'; mode: Mode; reason: 'requests' | 'spend' }
+  | { name: 'spend_cap_hit'; mode: 'live'; reason: CapReason }
 
 /** The fields each event may carry; anything else on the object is dropped. */
-const FIELDS: { [E in AnalyticsEvent as E['name']]: readonly Exclude<keyof E, 'name'>[] } = {
+const FIELDS: Record<AnalyticsEvent['name'], readonly string[]> = {
   demo_started: [],
   provider_selected: ['provider'],
-  inspection_started: ['mode', 'photo_count'],
+  inspection_started: ['mode', 'photo_count', 'provider'],
   inspection_finished: ['mode'],
   spend_cap_hit: ['mode', 'reason'],
 }
@@ -63,18 +68,8 @@ export function initAnalytics(measurementId: string | undefined, hostname: strin
 /** Sends one event, or nothing while analytics is off. */
 export function track(event: AnalyticsEvent): void {
   if (!enabled || !window.gtag) return
-  const fields = FIELDS[event.name] as readonly string[] | undefined
-  if (!fields) return
-  const source = event as unknown as Record<string, unknown>
+  const source: Record<string, unknown> = { ...event }
   const params: Record<string, unknown> = {}
-  for (const field of fields) params[field] = source[field]
+  for (const field of FIELDS[event.name] ?? []) if (field in source) params[field] = source[field]
   window.gtag('event', event.name, params)
-}
-
-/** Tests only: forgets the tag, its queue and its script. */
-export function resetAnalyticsForTests(): void {
-  enabled = false
-  delete window.dataLayer
-  delete window.gtag
-  document.querySelectorAll('script[src*="googletagmanager"]').forEach((s) => s.remove())
 }

@@ -1,7 +1,10 @@
 // Google Analytics (docs/adr/0002-*): the tag loads only on the production domain with a build-time
 // Measurement ID, and every event carries only its own non-sensitive fields.
-import { describe, it, expect, beforeEach, afterEach } from 'vitest'
-import { initAnalytics, track, resetAnalyticsForTests } from '../analytics'
+import { describe, it, expect, beforeEach, vi } from 'vitest'
+
+// A fresh module per test: whether the tag is on is module state, set once per page load.
+let initAnalytics: typeof import('../analytics').initAnalytics
+let track: typeof import('../analytics').track
 
 const ID = 'G-TEST000000'
 
@@ -15,12 +18,12 @@ function queued(): unknown[][] {
 }
 
 describe('analytics', () => {
-  beforeEach(() => {
-    resetAnalyticsForTests()
-  })
-
-  afterEach(() => {
-    resetAnalyticsForTests()
+  beforeEach(async () => {
+    delete window.dataLayer
+    delete window.gtag
+    tagScripts().forEach((s) => s.remove())
+    vi.resetModules()
+    ;({ initAnalytics, track } = await import('../analytics'))
   })
 
   it.each(['quay-sight.com', 'www.quay-sight.com'])('loads the Google tag on %s', (host) => {
@@ -70,16 +73,28 @@ describe('analytics', () => {
 
     track({ name: 'demo_started' })
     track({ name: 'provider_selected', provider: 'luna' })
-    track({ name: 'inspection_started', mode: 'live', photo_count: 3 })
+    track({ name: 'inspection_started', mode: 'live', photo_count: 3, provider: 'openrouter' })
     track({ name: 'inspection_finished', mode: 'demo' })
     track({ name: 'spend_cap_hit', mode: 'live', reason: 'spend' })
 
     expect(queued().slice(2)).toEqual([
       ['event', 'demo_started', {}],
       ['event', 'provider_selected', { provider: 'luna' }],
-      ['event', 'inspection_started', { mode: 'live', photo_count: 3 }],
+      ['event', 'inspection_started', { mode: 'live', photo_count: 3, provider: 'openrouter' }],
       ['event', 'inspection_finished', { mode: 'demo' }],
       ['event', 'spend_cap_hit', { mode: 'live', reason: 'spend' }],
+    ])
+  })
+
+  it('leaves out a field an event does not have', () => {
+    initAnalytics(ID, 'quay-sight.com')
+
+    track({ name: 'inspection_started', mode: 'demo', photo_count: 2 })
+
+    expect(queued()[queued().length - 1]).toEqual([
+      'event',
+      'inspection_started',
+      { mode: 'demo', photo_count: 2 },
     ])
   })
 

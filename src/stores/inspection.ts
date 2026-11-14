@@ -1,5 +1,4 @@
 import { defineStore } from 'pinia'
-import { track } from '../services/analytics'
 import { markRaw } from 'vue'
 import { defaultModelFor, findModel, labelsFor, type ModelOption } from '../domain/providers'
 import { canStart as keyGateOpen, hasKey } from '../domain/keyGate'
@@ -16,6 +15,7 @@ import { askDecisions } from '../services/askDecisions'
 import { manifestAsk } from '../domain/manifestAsk'
 import type { ManifestMapping } from '../domain/luna'
 import { preparePhoto, PhotoPreparationError } from '../services/preparePhoto'
+import { track } from '../services/analytics'
 import { OPENROUTER_ENDPOINT_ID } from '../domain/openrouter'
 import { useLedgerStore } from './ledger'
 import { useSetupStore } from './setup'
@@ -450,7 +450,12 @@ export const useInspectionStore = defineStore('inspection', {
         this.errorMessage = 'Choose the photo again to run a live inspection.'
         return Promise.resolve()
       }
-      track({ name: 'inspection_started', mode: 'live', photo_count: photos.length })
+      track({
+        name: 'inspection_started',
+        mode: 'live',
+        photo_count: photos.length,
+        provider: this.provider,
+      })
 
       this.runToken += 1
       const token = this.runToken
