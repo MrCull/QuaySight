@@ -36,7 +36,7 @@ What the app looks like after photos are uploaded. Live, animated versions are i
 ## Visual foundations
 
 ### Colour
-- **Themes.** `Daylight` (light) is the default. `Night quay` (dark) suits darkened event rooms and photo-heavy screens; the top bar's `ThemeToggle` switches between them. Every token is defined in both.
+- **Themes.** `Night quay` (dark) is the app's default; `Daylight` (light) is the alternative. Night quay suits darkened event rooms and photo-heavy screens; the top bar's `ThemeToggle` switches between them. Every token is defined in both.
 - **Grounds.** `bg` for the page, `surface` for panels, `surface-raised` for floating layers, `surface-sunken` for the photo stage and schematic well. Separate panels with `line` hairlines, and draw control edges with `line-strong` (3:1 or better everywhere).
 - **Text.** `ink` for primary text and `ink-muted` for labels and captions. Both pass 4.5:1 on every ground in both themes.
 - **Action.** `brand` (shipping navy in Daylight, signal teal in Night quay) is the only action colour: primary button, selected provider, active stage, links. Text on it is `on-brand`. Focus is a solid 2px `focus-ring` outline offset 2px, 3:1 or better on every surface.
@@ -51,7 +51,8 @@ What the app looks like after photos are uploaded. Live, animated versions are i
 - **Display.** Barlow Condensed, echoing quay signage and stencilled door markings: `display-xl` for the empty state, `display-lg` for the result headline, `display-md` for panel and face titles.
 - **Text.** IBM Plex Sans: `title`, `body` (16px, the projected-reading floor), `body-sm`, `label` (uppercase field names) and `caption` (caveats).
 - **Data.** IBM Plex Mono: `id-xl` for the container ID, `data` for readings, `data-sm` for the cost ledger. Plex Mono's dotted zero keeps 0 and O apart. Never set an ID in another face.
-- **Landing only.** Bricolage Grotesque (`font-hero`) for the landing's headline and brand pill.
+- **Landing only.** Bricolage Grotesque (`font-hero`) for the landing's headline and brand.
+- **As variables.** Each style's size and line height are also `--type-<name>-size` and `--type-<name>-line`, for a component that sets its own weight or family.
 - All four faces load from Google Fonts. `components/bundle.css` imports them.
 
 ### Space, radius, elevation
@@ -71,7 +72,7 @@ What the app looks like after photos are uploaded. Live, animated versions are i
 - Never animate a fake progress bar or a ticking cost meter.
 
 ### Layout
-- **First visit.** Only the `Landing`: sample photos across the top fading into the page, the brand in a pill, one line, and one field holding the provider choice, the key and **Start**, with *Try the demo* beneath it. No top bar. After Start, the inspection screen below. Until a photo is added, the `PhotoDrop` (or, in demo mode, the sample picker) spans the full width. In demo mode the `DemoBanner` sits under the top bar and the sample picker takes the place of the `PhotoDrop`.
+- **First visit.** Only the `Landing`: a sample photo with the areas read from it outlined and joined to five reading cards, and on the left the brand, the headline, one field holding the provider choice, the key and **Start**, and a tilted label offering *Try the demo*. No top bar. After Start, the inspection screen below. Until a photo is added, the `PhotoDrop` (or, in demo mode, the sample picker) spans the full width. In demo mode the `DemoBanner` sits under the top bar and the sample picker takes the place of the `PhotoDrop`.
 - **Desktop.** See the `ResultsScreen` and `AnalysingScreen` cards in the Screens group. A top bar with the name, the `SettingsChip` (in demo mode, the `RunChip` naming who answered the recording instead), the quiet `CostIndicator` and `NewInspection`. Below it, the photo strip across the top, then the `KeyFactTile` row, then the `ReadingsLedger` (the `DoorFace` in the middle, the readings painted on each leaf beside it, evidence crops at the right edge), then any suggestion `Notice`, then `Tabs`: Characteristics, Damage and Markings, one panel at a time across the full width. The damage view holds the `ContainerSchematic`'s two views (rear and right side, front and left side, roof greyed out) stacked, with the `FindingCard`s in a column beside them. On wide screens (1800px and up) the two views sit side by side and the cards form a row underneath. `AnalysingScreen` shows the screen while results are pending; it still has the earlier readings column and is to be brought in line with the ledger (the ledger's own *Reading* state is in `ReadingsLedger`).
 - **Phone.** The same order, stacked. The top bar wraps: the name and *New inspection* on the first line, the chip and the cost line beneath. In demo mode the top bar scrolls away and only the `DemoBanner` stays stuck. The cost ledger opens as a bottom sheet over `scrim`.
 - **States.** Every surface needs designed empty (`PhotoDrop`), in-progress (`StageProgress`), confident, uncertain, insufficient-evidence and error (`Notice`) states.
@@ -98,7 +99,7 @@ At `MrCull/QuaySight@cc7ec10` the repository is an unstyled create-vue scaffold:
 ## In this repository
 
 - `tokens.json` is the source for every token. `tokens.css` is generated from it: `python3 design-system/scripts/build-tokens.py design-system/tokens.json > design-system/tokens.css`. Never edit `tokens.css` by hand.
-- In the app, import `design-system/tokens.css` then `design-system/components/bundle.css` once (in `src/main.ts`), and wrap the app in `.qs-root`. Daylight is the default theme; set `data-theme="dark"` on `<html>` for Night quay.
+- In the app, import `design-system/tokens.css` then `design-system/components/bundle.css` once (in `src/main.ts`), and wrap the app in `.qs-root`. Night quay is the app's default; Daylight is the alternative. The app always sets `data-theme` on `<html>` (`dark` for Night quay, `light` for Daylight); with no attribute, as in the preview pages, the tokens fall back to Daylight.
 - Type styles are available as `.qs-type-{name}` classes (`display-lg`, `body`, `label` and so on) in `tokens.css`.
 - Open any `components/<Name>/preview.html` directly in a browser to see the reference rendering.
 - The **Logo** asset group lives in `design-system/assets/logo/` (SVG files and their rules). The app uses `public/favicon.svg`.

@@ -32,6 +32,22 @@ describe('App: setup gate', () => {
     expect(wrapper.find('#stage').exists()).toBe(true)
     expect(wrapper.find('.qs-settingschip').attributes('title')).toContain('key set')
   })
+
+  it('greets a first visit with the headline', () => {
+    const wrapper = mount(App)
+    const headline = wrapper.get('h1')
+    expect(headline.text().replace(/\s+/g, ' ')).toBe('The whole Quay, in Sight.')
+    expect(wrapper.text()).toContain('To OCR, and beyond…')
+  })
+
+  it('opens demo mode from Try the demo, with no key', async () => {
+    const wrapper = mount(App)
+    await buttonNamed(wrapper, /^Try the demo$/)!.trigger('click')
+    expect(useInspectionStore().demo).toBe(true)
+    expect(wrapper.find('.qs-landing').exists()).toBe(false)
+    expect(wrapper.find('#stage').exists()).toBe(true)
+    expect(wrapper.text()).toContain('DEMO')
+  })
 })
 
 describe('App: the inspection starts itself', () => {

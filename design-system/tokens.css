@@ -1,5 +1,5 @@
 /* Quay Sight tokens. Generated from tokens.json - edit that file, then run: python3 design-system/scripts/build-tokens.py design-system/tokens.json > design-system/tokens.css
-   Daylight (light) is the default; set data-theme="dark" on <html> for Night quay. */
+   Night quay is the app's default (it sets data-theme="dark" on <html>); Daylight is the alternative and the fallback with no data-theme. */
 :root,
 :root[data-theme="light"] {
   color-scheme: light;
@@ -60,10 +60,11 @@
   --schem-grid: #71839a;
   --scrim: rgba(15, 23, 34, 0.55);
   --landing-bg: #f0efea;
-  --landing-surface: #ffffff;
   --landing-ink: #17171a;
   --landing-ink-muted: #5d5c57;
   --landing-on-ink: #ffffff;
+  --landing-halo: rgba(255, 255, 255, 0.92);
+  --landing-glow: rgba(255, 255, 255, 0.6);
   --shadow-raised: 0 12px 32px rgba(15, 23, 34, 0.14);
   --shadow-landing: 0 26px 50px -30px rgba(23, 23, 26, 0.5);
   --shadow-landing-chip: 0 1px 2px rgba(0, 0, 0, 0.14);
@@ -84,15 +85,50 @@
   --control-md: 40px;
   --control-lg: 52px;
   --marker: 28px;
+  --landing-height: 844px;
+  --landing-min-height: 680px;
+  --landing-logo: 46px;
+  --landing-outline: 2.5px;
   --duration-fast: 120ms;
   --duration-base: 200ms;
   --duration-slow: 360ms;
   --duration-arrive: 520ms;
+  --duration-landing-beat: 150ms;
   --font-display: "Barlow Condensed", "Arial Narrow", sans-serif;
   --font-sans: "IBM Plex Sans", system-ui, sans-serif;
   --font-mono: "IBM Plex Mono", ui-monospace, monospace;
   --font-hero: "Bricolage Grotesque", "IBM Plex Sans", system-ui, sans-serif;
   --font-troll: "Comic Neue", "Comic Sans MS", cursive;
+  --type-display-xl-size: 64px;
+  --type-display-xl-line: 60px;
+  --type-display-lg-size: 40px;
+  --type-display-lg-line: 44px;
+  --type-display-md-size: 24px;
+  --type-display-md-line: 28px;
+  --type-title-size: 20px;
+  --type-title-line: 28px;
+  --type-body-size: 16px;
+  --type-body-line: 24px;
+  --type-body-sm-size: 14px;
+  --type-body-sm-line: 20px;
+  --type-label-size: 13px;
+  --type-label-line: 16px;
+  --type-caption-size: 12px;
+  --type-caption-line: 16px;
+  --type-id-xl-size: 44px;
+  --type-id-xl-line: 52px;
+  --type-data-size: 15px;
+  --type-data-line: 22px;
+  --type-data-sm-size: 12px;
+  --type-data-sm-line: 16px;
+  --type-landing-brand-size: 32px;
+  --type-landing-brand-line: 32px;
+  --type-landing-headline-size: 84px;
+  --type-landing-headline-line: 0.98;
+  --type-landing-sub-size: 17px;
+  --type-landing-sub-line: 26px;
+  --type-landing-tag-size: 10px;
+  --type-landing-tag-line: 14px;
 }
 
 :root[data-theme="dark"] {
@@ -154,10 +190,11 @@
   --schem-grid: #5a7591;
   --scrim: rgba(4, 7, 11, 0.72);
   --landing-bg: #121214;
-  --landing-surface: #1f1f23;
   --landing-ink: #f3f2ee;
   --landing-ink-muted: #a9a7a0;
   --landing-on-ink: #17171a;
+  --landing-halo: rgba(18, 18, 20, 0.8);
+  --landing-glow: rgba(46, 211, 198, 0.75);
   --shadow-raised: 0 12px 32px rgba(0, 0, 0, 0.5);
   --shadow-landing: 0 26px 50px -30px rgba(0, 0, 0, 0.9);
   --shadow-landing-chip: 0 1px 2px rgba(0, 0, 0, 0.6);
@@ -175,3 +212,7 @@
 .qs-type-id-xl { font: 500 44px/52px var(--font-mono); letter-spacing: 0.06em; }
 .qs-type-data { font: 500 15px/22px var(--font-mono); }
 .qs-type-data-sm { font: 400 12px/16px var(--font-mono); }
+.qs-type-landing-brand { font: 700 32px/32px var(--font-hero); letter-spacing: -0.03em; }
+.qs-type-landing-headline { font: 700 84px/0.98 var(--font-hero); letter-spacing: -0.05em; }
+.qs-type-landing-sub { font: 400 17px/26px var(--font-sans); }
+.qs-type-landing-tag { font: 500 10px/14px var(--font-mono); letter-spacing: 0.1em; }
