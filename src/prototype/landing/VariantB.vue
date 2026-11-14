@@ -1,335 +1,381 @@
 <script setup lang="ts">
-// PROTOTYPE variant B, "Night quay": cinematic and dark. The four photos of one container stand full height
-// like doors on a stack, the headline sits over them, and the key field is the only bright object.
-// It forces the Night quay theme while it is on screen.
-import { onBeforeUnmount, onMounted } from 'vue'
+// PROTOTYPE variant B, "Read at the gate": the product at work. Words and the key field on the left; on the
+// right the picture runs the full height, with each reading bracketed where it is painted and listed in a
+// panel at the foot, every one with its certainty. The ID is shown as Uncertain because the check digit
+// painted in this picture (8) does not agree with the ISO 6346 calculation (9).
+import GateScene from './GateScene.vue'
 import ProtoKeyField from './ProtoKeyField.vue'
-import { useSetupStore } from '../../stores/setup'
-import doors from '../../../samples/jdlu-200690-1-rear-doors.jpg'
-import doorsLeft from '../../../samples/jdlu-200690-2-corner-doors-left.jpg'
-import doorsRight from '../../../samples/jdlu-200690-3-corner-doors-right.jpg'
-import longSide from '../../../samples/jdlu-200690-4-long-side.jpg'
-
-const setup = useSetupStore()
-const SHOTS = [
-  { src: doors, face: 'Rear doors', at: '50% 30%' },
-  { src: doorsLeft, face: 'Doors and right side', at: '40% 35%' },
-  { src: doorsRight, face: 'Left side and doors', at: '60% 35%' },
-  { src: longSide, face: 'Long side', at: '45% 40%' },
-]
-const READS = ['Container ID', 'Size and type', 'Weights', 'Seal', 'Placards', 'Damage']
-
-let before: string | null = null
-onMounted(() => {
-  before = document.documentElement.getAttribute('data-theme')
-  document.documentElement.setAttribute('data-theme', 'dark')
-})
-onBeforeUnmount(() => {
-  if (before) document.documentElement.setAttribute('data-theme', before)
-  else document.documentElement.removeAttribute('data-theme')
-})
+import CertaintyChip from '../../components/CertaintyChip.vue'
 </script>
 
 <template>
   <main class="lb">
-    <ul class="lb__shots" aria-hidden="true">
-      <li v-for="(shot, n) in SHOTS" :key="shot.face" :style="`--i: ${n}`">
-        <img :src="shot.src" alt="" :style="`object-position: ${shot.at}`" />
-        <span class="lb__face"
-          ><b>0{{ n + 1 }}</b
-          >{{ shot.face }}</span
-        >
-      </li>
-    </ul>
-
-    <header class="lb__top">
-      <span class="lb__brand"><i class="qs-logo" aria-hidden="true"></i>Quay Sight</span>
-      <p class="lb__count">One container <i></i> one to five photos</p>
-      <button type="button" class="lb__demo" @click="setup.enterDemo()">
-        Try the demo
-        <svg
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          stroke-width="1.7"
-          stroke-linecap="round"
-          stroke-linejoin="round"
-          aria-hidden="true"
-        >
-          <path d="M4 12h16M14 6l6 6-6 6" />
-        </svg>
-      </button>
-    </header>
-
-    <section class="lb__body">
+    <section class="lb__copy">
+      <p class="lb__brand"><i class="qs-logo" aria-hidden="true"></i>Quay Sight</p>
       <div class="lb__lead">
-        <h1 class="lb__title">It's all written<br />on the doors.</h1>
-        <p class="lb__sub">Quay Sight reads it from your photos, and tells you how sure it is.</p>
-        <ProtoKeyField :demo="false" />
+        <p class="lb__eyebrow">Container inspection from photos</p>
+        <h1 class="lb__title">Read any container from a photo.</h1>
+        <p class="lb__sub">
+          The ID, the weights, the seal, the placards and the damage, read from one to five photos.
+          Every reading tells you how sure it is.
+        </p>
+        <ProtoKeyField />
       </div>
-      <aside class="lb__reads">
-        <p>What it reads</p>
-        <ol>
-          <li v-for="(read, n) in READS" :key="read">
-            <span>0{{ n + 1 }}</span
-            >{{ read }}
-          </li>
-        </ol>
-        <p class="lb__caveat">Observations and estimates. Not a certified survey.</p>
-      </aside>
+      <ul class="lb__facts">
+        <li><b>Your key</b>Stays in this tab</li>
+        <li><b>Spend cap</b>$0.50 an inspection</li>
+        <li><b>Result</b>Not a certified survey</li>
+      </ul>
+    </section>
+
+    <section class="lb__stage" aria-label="A sample picture with its readings">
+      <GateScene class="lb__scene" :fy="0.08" :fx="0.55">
+        <i class="lb__beam" aria-hidden="true"></i>
+        <i class="lb__mark lb__mark--id" style="--i: 0" aria-hidden="true"><b>1</b></i>
+        <i class="lb__mark lb__mark--type" style="--i: 1" aria-hidden="true"><b>2</b></i>
+        <i class="lb__mark lb__mark--weights" style="--i: 2" aria-hidden="true"><b>3</b></i>
+        <i class="lb__mark lb__mark--plate" style="--i: 3" aria-hidden="true"><b>4</b></i>
+        <i class="lb__mark lb__mark--marking" style="--i: 4" aria-hidden="true"><b>5</b></i>
+      </GateScene>
+      <span class="lb__tag"
+        ><i class="qs-glyph qs-glyph--recorded" aria-hidden="true"></i>Sample picture</span
+      >
+      <ol class="lb__readout">
+        <li style="--i: 0">
+          <span class="lb__n">1</span>
+          <span class="lb__k">Container ID</span>
+          <span class="lb__v lb__v--mono">CMAU 210375 <b>8</b></span>
+          <CertaintyChip level="Uncertain" />
+          <span class="lb__why">The painted check digit is 8. The number works out to 9.</span>
+        </li>
+        <li style="--i: 1">
+          <span class="lb__n">2</span>
+          <span class="lb__k">Size and type</span>
+          <span class="lb__v lb__v--mono">22G1</span>
+          <CertaintyChip level="Confident" />
+        </li>
+        <li style="--i: 2">
+          <span class="lb__n">3</span>
+          <span class="lb__k">Max gross</span>
+          <span class="lb__v lb__v--mono">30,480 kg</span>
+          <CertaintyChip level="Confident" />
+        </li>
+        <li style="--i: 3">
+          <span class="lb__n">4</span>
+          <span class="lb__k">CSC plate</span>
+          <span class="lb__v">Too small to read</span>
+          <CertaintyChip level="Can't tell" />
+        </li>
+        <li style="--i: 4">
+          <span class="lb__n">5</span>
+          <span class="lb__k">Marking</span>
+          <span class="lb__v">Super heavy</span>
+          <CertaintyChip level="Likely" />
+        </li>
+      </ol>
     </section>
   </main>
 </template>
 
 <style scoped>
 .lb {
-  --lp-align: start;
-  --lp-field-width: 620px;
-  --lp-field-bg: var(--landing-ink);
-  --lp-field-ink: var(--landing-on-ink);
-  --lp-field-muted: color-mix(in srgb, var(--landing-on-ink) 62%, var(--landing-ink));
-  --lp-field-well: color-mix(in srgb, var(--landing-on-ink) 10%, var(--landing-ink));
-  --lp-opt-on-bg: var(--landing-on-ink);
-  --lp-opt-on-ink: var(--landing-ink);
-  --lp-go-bg: var(--brand);
-  --lp-go-ink: var(--on-brand);
-  --lp-note-ink: color-mix(in srgb, var(--landing-ink) 72%, transparent);
-  --lp-focus: var(--brand);
-  position: relative;
   flex: 1;
   display: grid;
-  grid-template-rows: auto 1fr;
-  min-height: 640px;
-  overflow: hidden;
+  grid-template-columns: minmax(0, 0.86fr) minmax(0, 1fr);
   background: var(--landing-bg);
   color: var(--landing-ink);
-  isolation: isolate;
 }
 
-/* Four photos, full height */
-.lb__shots {
-  position: absolute;
-  inset: 0;
-  z-index: -1;
+/* Words */
+.lb__copy {
+  --lp-align: start;
+  --lp-field-width: 580px;
   display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
-  margin: 0;
-  padding: 0;
-  list-style: none;
+  grid-template-rows: auto 1fr auto;
+  padding: var(--space-6) clamp(var(--space-5), 4.4vw, var(--space-8)) var(--space-5)
+    clamp(var(--space-5), 5vw, calc(var(--space-8) * 1.5));
 }
-.lb__shots li {
-  position: relative;
-  overflow: hidden;
-  border-left: 1px solid color-mix(in srgb, var(--landing-ink) 22%, transparent);
-  animation: lb-open 900ms cubic-bezier(0.2, 0.8, 0.2, 1) both;
-  animation-delay: calc(var(--i) * 110ms);
-}
-.lb__shots li:first-child {
-  border-left: 0;
-}
-.lb__shots img {
-  display: block;
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  filter: saturate(0.85) brightness(0.78);
-  transition:
-    filter var(--duration-slow),
-    transform 1200ms cubic-bezier(0.2, 0.8, 0.2, 1);
-}
-.lb__shots li:hover img {
-  filter: saturate(1) brightness(1);
-  transform: scale(1.03);
-}
-.lb__shots li::after {
-  content: '';
-  position: absolute;
-  inset: 0;
-  background:
-    linear-gradient(
-      180deg,
-      color-mix(in srgb, var(--landing-bg) 82%, transparent),
-      transparent 24%
-    ),
-    linear-gradient(
-      0deg,
-      var(--landing-bg) 4%,
-      color-mix(in srgb, var(--landing-bg) 82%, transparent) 38%,
-      transparent 78%
-    );
-  pointer-events: none;
-}
-.lb__face {
-  position: absolute;
-  z-index: 1;
-  left: var(--space-5);
-  top: 92px;
+.lb__brand {
   display: flex;
+  align-items: center;
   gap: var(--space-3);
-  color: var(--landing-ink);
-  font: 500 0.75rem/1 var(--font-mono);
+  margin: 0;
+  font: 700 2rem/1 var(--font-hero);
+  letter-spacing: -0.03em;
+}
+.lb__brand .qs-logo {
+  width: 46px;
+  height: 46px;
+  color: inherit;
+}
+.lb__lead {
+  align-self: center;
+  padding-block: var(--space-6);
+}
+.lb__eyebrow {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  margin: 0 0 var(--space-4);
+  color: var(--landing-ink-muted);
+  font: 500 0.8125rem/1 var(--font-mono);
   letter-spacing: 0.08em;
   text-transform: uppercase;
 }
-.lb__face b {
-  color: var(--brand);
-  font-weight: 500;
-}
-
-/* Top line */
-.lb__top {
-  display: grid;
-  grid-template-columns: 1fr auto 1fr;
-  align-items: center;
-  padding: var(--space-5) clamp(var(--space-5), 4vw, calc(var(--space-5) * 3));
-}
-.lb__brand {
-  display: inline-flex;
-  align-items: center;
-  gap: var(--space-2);
-  font: 700 1.375rem/1 var(--font-hero);
-  letter-spacing: -0.02em;
-}
-.lb__brand .qs-logo {
-  width: 28px;
-  height: 28px;
-  color: var(--brand);
-}
-.lb__count {
-  display: flex;
-  align-items: center;
-  gap: var(--space-3);
-  margin: 0;
-  font: 500 0.75rem/1 var(--font-mono);
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-}
-.lb__count i {
-  width: var(--space-6);
-  height: 1px;
+.lb__eyebrow::before {
+  content: '';
+  width: var(--space-5);
+  height: 1.5px;
   background: currentColor;
 }
-.lb__demo {
+.lb__title {
+  margin: 0;
+  font: 700 clamp(2.75rem, 5.3vw, 6rem)/0.94 var(--font-hero);
+  letter-spacing: -0.05em;
+  text-wrap: balance;
+}
+.lb__sub {
+  max-width: 33rem;
+  margin: var(--space-5) 0 var(--space-6);
+  color: var(--landing-ink-muted);
+  font: 400 1.125rem/1.75rem var(--font-sans);
+  text-wrap: pretty;
+}
+.lb__facts {
+  display: flex;
+  gap: var(--space-6);
+  margin: 0;
+  padding: var(--space-4) 0 0;
+  border-top: 1px solid color-mix(in srgb, var(--landing-ink) 16%, transparent);
+  list-style: none;
+  font: 400 0.875rem/1.25rem var(--font-sans);
+}
+.lb__facts b {
+  display: block;
+  color: var(--landing-ink-muted);
+  font: 600 0.6875rem/1.25rem var(--font-sans);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+/* Picture */
+.lb__stage {
+  position: relative;
+  margin: var(--space-4) var(--space-4) 0 0;
+  overflow: hidden;
+  border-radius: var(--radius-lg);
+  min-height: 620px;
+}
+.lb__scene {
+  position: absolute;
+  inset: 0;
+}
+.lb__tag {
+  position: absolute;
+  right: var(--space-4);
+  top: var(--space-4);
   display: inline-flex;
   align-items: center;
   gap: var(--space-2);
-  justify-self: end;
-  height: var(--control-md);
-  padding: 0 var(--space-4);
-  border: 1px solid color-mix(in srgb, var(--landing-ink) 45%, transparent);
+  padding: var(--space-1) var(--space-3) var(--space-1) var(--space-2);
   border-radius: var(--radius-pill);
-  background: color-mix(in srgb, var(--landing-bg) 55%, transparent);
-  color: var(--landing-ink);
-  font: 600 0.875rem/1 var(--font-sans);
-  backdrop-filter: blur(10px);
-  cursor: pointer;
-  transition:
-    background-color var(--duration-fast),
-    color var(--duration-fast);
+  background: var(--landing-surface);
+  font: 500 0.75rem/1.25rem var(--font-sans);
+  box-shadow: var(--shadow-landing-chip);
 }
-.lb__demo:hover {
-  background: var(--landing-ink);
-  color: var(--landing-on-ink);
+.lb__beam {
+  position: absolute;
+  left: 27.6%;
+  width: 46.6%;
+  top: 24.4%;
+  height: 43%;
+  overflow: hidden;
+  pointer-events: none;
 }
-.lb__demo:focus-visible {
-  outline: 2px solid var(--brand);
-  outline-offset: 2px;
-}
-.lb__demo svg {
-  width: 16px;
-  height: 16px;
+.lb__beam::after {
+  content: '';
+  position: absolute;
+  inset: 0 0 auto;
+  height: 22%;
+  border-bottom: 1.5px solid var(--landing-surface);
+  background: linear-gradient(
+    180deg,
+    transparent,
+    color-mix(in srgb, var(--landing-surface) 34%, transparent)
+  );
+  transform: translateY(-110%);
+  animation: lb-scan 1500ms cubic-bezier(0.45, 0, 0.25, 1) 300ms both;
 }
 
-/* Headline and field */
-.lb__body {
+/* Corner brackets round each reading, with its number */
+.lb__mark {
+  --c: var(--landing-surface);
+  position: absolute;
+  background:
+    linear-gradient(var(--c), var(--c)) 0 0 / 9px 2px,
+    linear-gradient(var(--c), var(--c)) 0 0 / 2px 9px,
+    linear-gradient(var(--c), var(--c)) 100% 0 / 9px 2px,
+    linear-gradient(var(--c), var(--c)) 100% 0 / 2px 9px,
+    linear-gradient(var(--c), var(--c)) 0 100% / 9px 2px,
+    linear-gradient(var(--c), var(--c)) 0 100% / 2px 9px,
+    linear-gradient(var(--c), var(--c)) 100% 100% / 9px 2px,
+    linear-gradient(var(--c), var(--c)) 100% 100% / 2px 9px;
+  background-repeat: no-repeat;
+  animation: lb-mark var(--duration-arrive) cubic-bezier(0.2, 0.8, 0.2, 1) both;
+  animation-delay: calc(1300ms + var(--i) * 150ms);
+}
+.lb__mark b {
+  position: absolute;
+  right: calc(100% + 6px);
+  top: 50%;
   display: grid;
-  grid-template-columns: minmax(0, 1fr) auto;
-  align-items: end;
-  gap: var(--space-7);
-  padding: 0 clamp(var(--space-5), 4vw, calc(var(--space-5) * 3)) var(--space-7);
+  place-items: center;
+  width: 22px;
+  height: 22px;
+  border-radius: var(--radius-pill);
+  background: var(--landing-surface);
+  color: var(--landing-ink);
+  font: 600 0.75rem/1 var(--font-mono);
+  translate: 0 -50%;
+  box-shadow: var(--shadow-landing-chip);
 }
-.lb__title {
-  margin: 0 0 var(--space-4);
-  font: 700 clamp(3rem, 7.6vw, 9rem)/0.9 var(--font-hero);
-  letter-spacing: -0.05em;
-  animation: lb-rise 800ms cubic-bezier(0.2, 0.8, 0.2, 1) 350ms both;
+.lb__mark--id {
+  left: 55.2%;
+  top: 31%;
+  width: 17.2%;
+  height: 3.5%;
 }
-.lb__sub {
-  margin: 0 0 var(--space-6);
-  font: 400 1.25rem/1.75rem var(--font-sans);
-  animation: lb-rise 800ms cubic-bezier(0.2, 0.8, 0.2, 1) 420ms both;
+.lb__mark--type {
+  left: 62%;
+  top: 34.3%;
+  width: 6%;
+  height: 2.6%;
 }
-.lb__lead :deep(.lp-key) {
-  animation: lb-rise 800ms cubic-bezier(0.2, 0.8, 0.2, 1) 500ms both;
+.lb__mark--type b {
+  right: auto;
+  left: calc(100% + 6px);
 }
-.lb__reads {
-  width: 300px;
-  padding-bottom: var(--space-2);
-  animation: lb-rise 800ms cubic-bezier(0.2, 0.8, 0.2, 1) 650ms both;
+.lb__mark--weights {
+  left: 55.6%;
+  top: 39.4%;
+  width: 15.2%;
+  height: 12.6%;
 }
-.lb__reads p {
-  margin: 0 0 var(--space-3);
-  color: var(--landing-ink-muted);
-  font: 400 0.8125rem/1.25rem var(--font-sans);
+.lb__mark--plate {
+  left: 32.4%;
+  top: 56%;
+  width: 6.6%;
+  height: 6.4%;
 }
-.lb__reads ol {
-  margin: 0 0 var(--space-4);
-  padding: 0;
-  list-style: none;
-  border-top: 1px solid color-mix(in srgb, var(--landing-ink) 28%, transparent);
-}
-.lb__reads li {
-  display: flex;
-  gap: var(--space-4);
-  padding: var(--space-2) 0;
-  border-bottom: 1px solid color-mix(in srgb, var(--landing-ink) 28%, transparent);
-  font: 500 0.9375rem/1.5rem var(--font-sans);
-}
-.lb__reads li span {
-  color: var(--brand);
-  font: 500 0.8125rem/1.5rem var(--font-mono);
-}
-.lb__reads .lb__caveat {
-  margin: 0;
+.lb__mark--marking {
+  left: 63%;
+  top: 55.8%;
+  width: 6.6%;
+  height: 5.4%;
 }
 
-@keyframes lb-open {
+/* Readings panel */
+.lb__readout {
+  position: absolute;
+  left: var(--space-4);
+  right: var(--space-4);
+  bottom: var(--space-4);
+  display: grid;
+  grid-template-columns: 1.5fr repeat(4, 1fr);
+  margin: 0;
+  padding: 0;
+  border-radius: var(--radius-md);
+  background: color-mix(in srgb, var(--landing-surface) 88%, transparent);
+  backdrop-filter: blur(18px) saturate(1.4);
+  box-shadow: var(--shadow-landing);
+  list-style: none;
+}
+.lb__readout li {
+  position: relative;
+  display: grid;
+  justify-items: start;
+  align-content: start;
+  gap: var(--space-1);
+  padding: var(--space-3) var(--space-4) var(--space-4);
+  border-left: 1px solid color-mix(in srgb, var(--landing-ink) 12%, transparent);
+  animation: lb-rise var(--duration-arrive) cubic-bezier(0.2, 0.8, 0.2, 1) both;
+  animation-delay: calc(1400ms + var(--i) * 150ms);
+}
+.lb__readout li:first-child {
+  border-left: 0;
+}
+.lb__n {
+  position: absolute;
+  right: var(--space-3);
+  top: var(--space-3);
+  color: var(--landing-ink-muted);
+  font: 500 0.75rem/1 var(--font-mono);
+}
+.lb__k {
+  color: var(--landing-ink-muted);
+  font: 600 0.6875rem/1.25rem var(--font-sans);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+.lb__v {
+  margin-bottom: var(--space-2);
+  font: 600 1rem/1.5rem var(--font-sans);
+  white-space: nowrap;
+}
+.lb__v--mono {
+  font: 500 1.0625rem/1.5rem var(--font-mono);
+}
+.lb__v b {
+  padding: 0 var(--space-1);
+  border: 1.5px solid var(--cert-uncertain-line);
+  border-radius: var(--radius-xs);
+  background: var(--cert-uncertain-bg);
+  color: var(--cert-uncertain-fg);
+  font-weight: 500;
+}
+.lb__why {
+  margin-top: var(--space-1);
+  color: var(--landing-ink-muted);
+  font: 400 0.75rem/1.0625rem var(--font-sans);
+}
+
+@keyframes lb-scan {
+  to {
+    transform: translateY(460%);
+    opacity: 0;
+  }
+}
+@keyframes lb-mark {
   from {
     opacity: 0;
-    clip-path: inset(0 0 100% 0);
-  }
-  to {
-    opacity: 1;
-    clip-path: inset(0);
+    scale: 1.25;
   }
 }
 @keyframes lb-rise {
   from {
     opacity: 0;
-    transform: translateY(24px);
+    transform: translateY(10px);
   }
 }
 @media (prefers-reduced-motion: reduce) {
   .lb *,
-  .lb :deep(.lp-key) {
+  .lb *::after {
     animation: none !important;
-    transition: none !important;
   }
 }
-@media (max-width: 900px) {
-  .lb__shots {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
-  .lb__shots li:nth-child(n + 3),
-  .lb__count,
-  .lb__reads {
-    display: none;
-  }
-  .lb__top {
-    grid-template-columns: 1fr auto;
-  }
-  .lb__body {
+@media (max-width: 1100px) {
+  .lb {
     grid-template-columns: minmax(0, 1fr);
+  }
+  .lb__stage {
+    margin: 0 var(--space-4);
+    min-height: 640px;
+  }
+  .lb__readout {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  .lb__facts {
+    flex-wrap: wrap;
   }
 }
 </style>

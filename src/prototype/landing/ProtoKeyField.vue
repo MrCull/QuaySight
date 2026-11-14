@@ -91,6 +91,8 @@ defineExpose({ focus: () => key.value?.focus() })
 }
 .lp-key__field {
   display: flex;
+  flex-wrap: var(--lp-field-wrap, nowrap);
+  row-gap: var(--space-2);
   align-items: center;
   box-sizing: border-box;
   width: min(var(--lp-field-width, 660px), 100%);
@@ -107,12 +109,13 @@ defineExpose({ focus: () => key.value?.focus() })
 }
 .lp-key__pick {
   display: flex;
-  flex: none;
+  flex: var(--lp-pick-flex, none);
   padding: var(--space-1);
   border-radius: var(--_inner);
   background: var(--_well);
 }
 .lp-key__opt {
+  flex: var(--lp-opt-flex, none);
   height: 44px;
   padding: 0 var(--space-4);
   border: 0;

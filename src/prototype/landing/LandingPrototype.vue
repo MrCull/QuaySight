@@ -12,10 +12,10 @@ import VariantE from './VariantE.vue'
 
 const VARIANTS: { key: string; name: string; view: Component }[] = [
   { key: 'current', name: 'Current landing', view: LandingScreen },
-  { key: 'A', name: 'Annotated photo', view: VariantA },
-  { key: 'B', name: 'Night quay', view: VariantB },
-  { key: 'C', name: 'Door markings', view: VariantC },
-  { key: 'D', name: 'Survey drawing', view: VariantD },
+  { key: 'A', name: 'Name in the sky', view: VariantA },
+  { key: 'B', name: 'Read at the gate', view: VariantB },
+  { key: 'C', name: 'Night quay', view: VariantC },
+  { key: 'D', name: 'Poster', view: VariantD },
   { key: 'E', name: 'Long read', view: VariantE },
 ]
 

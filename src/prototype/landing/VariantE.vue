@@ -1,16 +1,15 @@
 <script setup lang="ts">
-// PROTOTYPE variant E, "Long read": a scrolling page. The first screen is the headline and the key field
-// over a fan of photos; below it, what is read (each with the crop it was read from), the five certainty
-// words, and the facts about keys and cost.
+// PROTOTYPE variant E, "Long read": a scrolling page. First screen: the name, the headline, the key field and
+// the gate picture in a wide window. Below: what is read, each with the crop it was read from; the five
+// certainty words; and the facts about keys and cost.
 import { useTemplateRef } from 'vue'
+import GateScene from './GateScene.vue'
 import ProtoKeyField from './ProtoKeyField.vue'
 import CertaintyChip from '../../components/CertaintyChip.vue'
 import SeverityBadge from '../../components/damage/SeverityBadge.vue'
 import { useSetupStore } from '../../stores/setup'
 import type { CertaintyLabel } from '../../domain/inspection'
-import doors from '../../../samples/jdlu-200690-1-rear-doors.jpg'
-import doorsLeft from '../../../samples/jdlu-200690-2-corner-doors-left.jpg'
-import longSide from '../../../samples/jdlu-200690-4-long-side.jpg'
+import gate from './assets/gate.jpg'
 import seal from '../../../samples/seal-closeup-coyu-0154620.jpg'
 import torn from '../../../samples/corner-torn-door-cai-20ft.jpg'
 
@@ -24,6 +23,7 @@ function toKey() {
 // A 16:9 window onto part of a photo: left, top and width as fractions of the image; ratio is height / width.
 const crop = (l: number, t: number, w: number, ratio: number) =>
   `width: ${100 / w}%; left: ${(-l / w) * 100}%; top: ${((-t * ratio * (16 / 9)) / w) * 100}%`
+const GATE = 1354 / 1161
 
 interface Reading {
   glyph: string
@@ -39,11 +39,11 @@ const READINGS: Reading[] = [
   {
     glyph: 'tag',
     label: 'Container ID',
-    value: 'JDLU 200690 2',
-    note: 'Check digit read from the door and worked out separately.',
-    src: doors,
-    crop: crop(0.55, 0.245, 0.32, 4 / 3),
-    certainty: 'Confident',
+    value: 'CMAU 210375 8',
+    note: 'The painted check digit is 8. The number works out to 9, so it says so.',
+    src: gate,
+    crop: crop(0.535, 0.295, 0.21, GATE),
+    certainty: 'Uncertain',
     mono: true,
   },
   {
@@ -51,18 +51,18 @@ const READINGS: Reading[] = [
     label: 'Size and type',
     value: '22G1',
     note: '20 ft long, 8 ft 6 in high, general purpose.',
-    src: doors,
-    crop: crop(0.63, 0.287, 0.2, 4 / 3),
+    src: gate,
+    crop: crop(0.585, 0.325, 0.13, GATE),
     certainty: 'Confident',
     mono: true,
   },
   {
     glyph: 'weight',
     label: 'Weights',
-    value: '32,500 kg',
-    note: 'Max gross, with tare, payload and cubic capacity.',
-    src: doors,
-    crop: crop(0.54, 0.36, 0.32, 4 / 3),
+    value: '30,480 kg',
+    note: 'Max gross, with tare, net and cubic capacity.',
+    src: gate,
+    crop: crop(0.52, 0.39, 0.25, GATE),
     certainty: 'Confident',
     mono: true,
   },
@@ -81,8 +81,8 @@ const READINGS: Reading[] = [
     label: 'Placards and markings',
     value: 'Super heavy',
     note: 'Caution marking. No DG placard visible.',
-    src: doors,
-    crop: crop(0.68, 0.535, 0.2, 4 / 3),
+    src: gate,
+    crop: crop(0.595, 0.545, 0.13, GATE),
     certainty: 'Likely',
   },
   {
@@ -123,7 +123,7 @@ const FACTS = [
   <main class="le">
     <section class="le__hero">
       <nav class="le__nav">
-        <span class="le__brand"><i class="qs-logo" aria-hidden="true"></i>Quay Sight</span>
+        <p class="le__brand"><i class="qs-logo" aria-hidden="true"></i>Quay Sight</p>
         <ul>
           <li><a href="#le-reads">What it reads</a></li>
           <li><a href="#le-sure">How sure it is</a></li>
@@ -132,19 +132,16 @@ const FACTS = [
         <button type="button" class="le__ghost" @click="setup.enterDemo()">Try the demo</button>
       </nav>
       <div class="le__lead">
-        <p class="le__eyebrow">Runs in your browser <i></i> No account <i></i> Your own API key</p>
-        <h1 class="le__title">Photograph a container. Know what you're looking at.</h1>
+        <h1 class="le__title">Everything a container says about itself.</h1>
         <p class="le__sub">
-          Quay Sight reads the markings, marks the damage it suspects, and tells you how sure it is
-          of each one.
+          Quay Sight reads the markings from your photos, marks the damage it suspects, and tells
+          you how sure it is of each one.
         </p>
         <ProtoKeyField ref="field" />
       </div>
-      <ul class="le__fan" aria-hidden="true">
-        <li><img :src="doorsLeft" alt="" /></li>
-        <li><img :src="doors" alt="" /></li>
-        <li><img :src="longSide" alt="" /></li>
-      </ul>
+      <div class="le__window">
+        <GateScene class="le__scene" :fy="0.115" />
+      </div>
     </section>
 
     <section id="le-reads" class="le__band">
@@ -162,7 +159,7 @@ const FACTS = [
           <SeverityBadge v-else severity="major" />
         </li>
       </ul>
-      <p class="le__sample">Sample photos, with what was read from them.</p>
+      <p class="le__sample">Sample pictures, with example readings.</p>
     </section>
 
     <section id="le-sure" class="le__band le__band--ink">
@@ -197,6 +194,7 @@ const FACTS = [
     </section>
 
     <section class="le__close">
+      <i class="qs-logo" aria-hidden="true"></i>
       <h2>Start with a photo of the doors.</h2>
       <p>Observations and estimates. Not a certified survey.</p>
       <div>
@@ -209,20 +207,18 @@ const FACTS = [
 
 <style scoped>
 .le {
-  --gutter: clamp(var(--space-5), 6vw, 112px);
+  --gutter: clamp(var(--space-5), 6vw, calc(var(--space-7) * 2.5));
   flex: 1;
   background: var(--landing-bg);
   color: var(--landing-ink);
-  scroll-behavior: smooth;
 }
 
 /* First screen */
 .le__hero {
-  position: relative;
   display: grid;
-  grid-template-rows: auto 1fr;
+  grid-template-rows: auto auto 1fr;
   height: 100vh;
-  min-height: 760px;
+  min-height: 780px;
   overflow: hidden;
 }
 .le__nav {
@@ -232,15 +228,16 @@ const FACTS = [
   padding: var(--space-5) var(--gutter);
 }
 .le__brand {
-  display: inline-flex;
+  display: flex;
   align-items: center;
-  gap: var(--space-2);
-  font: 700 1.25rem/1 var(--font-hero);
-  letter-spacing: -0.02em;
+  gap: var(--space-3);
+  margin: 0;
+  font: 700 2rem/1 var(--font-hero);
+  letter-spacing: -0.03em;
 }
 .le__brand .qs-logo {
-  width: 26px;
-  height: 26px;
+  width: 46px;
+  height: 46px;
   color: inherit;
 }
 .le__nav ul {
@@ -283,87 +280,37 @@ const FACTS = [
   outline-offset: 2px;
 }
 .le__lead {
-  z-index: 1;
   display: grid;
   justify-items: center;
-  align-content: start;
-  padding: clamp(var(--space-5), 5vh, var(--space-8)) var(--gutter) 0;
+  padding: clamp(var(--space-4), 3vh, var(--space-7)) var(--gutter) var(--space-6);
   text-align: center;
 }
-.le__eyebrow {
-  display: flex;
-  align-items: center;
-  gap: var(--space-3);
-  margin: 0;
-  padding: var(--space-2) var(--space-4);
-  border-radius: var(--radius-pill);
-  background: var(--landing-surface);
-  font: 500 0.8125rem/1 var(--font-sans);
-}
-.le__eyebrow i {
-  width: 3px;
-  height: 3px;
-  border-radius: var(--radius-pill);
-  background: currentColor;
-}
 .le__title {
-  max-width: 13em;
-  margin: var(--space-5) 0 var(--space-4);
-  font: 700 clamp(2.75rem, 6.6vw, 7.5rem)/0.94 var(--font-hero);
+  max-width: 12em;
+  margin: 0 0 var(--space-4);
+  font: 700 clamp(2.75rem, 6.2vw, 7rem)/0.94 var(--font-hero);
   letter-spacing: -0.05em;
   text-wrap: balance;
 }
 .le__sub {
   max-width: 36rem;
-  margin: 0 0 var(--space-6);
+  margin: 0 0 var(--space-5);
   color: var(--landing-ink-muted);
   font: 400 1.125rem/1.75rem var(--font-sans);
+  text-wrap: pretty;
 }
 .le__lead :deep(.lp-key__note) {
   justify-content: center;
 }
-.le__fan {
-  position: absolute;
-  left: 50%;
-  bottom: 0;
-  display: flex;
-  gap: var(--space-5);
-  margin: 0;
-  padding: 0;
-  list-style: none;
-  transform: translate(-50%, 34%);
-}
-.le__fan li {
-  width: clamp(200px, 20vw, 360px);
-  aspect-ratio: 3 / 4;
+.le__window {
+  margin: 0 var(--gutter);
   overflow: hidden;
-  border: 6px solid var(--landing-surface);
-  border-radius: var(--radius-lg);
+  border-radius: var(--radius-lg) var(--radius-lg) 0 0;
   box-shadow: var(--shadow-landing);
-  animation: le-deal 900ms cubic-bezier(0.2, 0.8, 0.2, 1) both;
+  animation: le-rise 1100ms cubic-bezier(0.2, 0.8, 0.2, 1) 150ms both;
 }
-.le__fan li:nth-child(1) {
-  --tilt: -7deg;
-  --drop: 9%;
-}
-.le__fan li:nth-child(2) {
-  --tilt: 0deg;
-  --drop: 0%;
-  animation-delay: 120ms;
-}
-.le__fan li:nth-child(3) {
-  --tilt: 7deg;
-  --drop: 9%;
-  animation-delay: 240ms;
-}
-.le__fan li {
-  transform: translateY(var(--drop)) rotate(var(--tilt));
-}
-.le__fan img {
-  display: block;
-  width: 100%;
+.le__scene {
   height: 100%;
-  object-fit: cover;
 }
 
 /* Bands */
@@ -379,8 +326,8 @@ const FACTS = [
 }
 .le__head > p {
   margin: 0 0 var(--space-4);
-  font: 600 0.8125rem/1 var(--font-sans);
-  letter-spacing: 0.08em;
+  font: 500 0.8125rem/1 var(--font-mono);
+  letter-spacing: 0.1em;
   text-transform: uppercase;
   opacity: 0.7;
 }
@@ -388,8 +335,8 @@ const FACTS = [
 .le__close h2 {
   max-width: 18em;
   margin: 0;
-  font: 700 clamp(2rem, 3.6vw, 3.75rem)/1.02 var(--font-hero);
-  letter-spacing: -0.04em;
+  font: 700 clamp(2rem, 3.8vw, 4rem)/1 var(--font-hero);
+  letter-spacing: -0.045em;
   text-wrap: balance;
 }
 
@@ -528,6 +475,11 @@ const FACTS = [
   padding: 0 var(--gutter) clamp(var(--space-8), 9vw, calc(var(--space-8) * 2));
   text-align: center;
 }
+.le__close .qs-logo {
+  width: 72px;
+  height: 72px;
+  color: inherit;
+}
 .le__close p {
   margin: 0;
   color: var(--landing-ink-muted);
@@ -543,10 +495,10 @@ const FACTS = [
   padding: 0 var(--space-5);
 }
 
-@keyframes le-deal {
+@keyframes le-rise {
   from {
     opacity: 0;
-    transform: translateY(40%) rotate(0deg);
+    transform: translateY(60px);
   }
 }
 @media (prefers-reduced-motion: reduce) {
@@ -561,18 +513,12 @@ const FACTS = [
   .le__nav {
     grid-template-columns: 1fr auto;
   }
-  .le__eyebrow {
-    display: none;
-  }
   .le__grid,
   .le__band--ink {
     grid-template-columns: minmax(0, 1fr);
   }
   .le__facts {
     grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
-  .le__fan li {
-    width: 38vw;
   }
 }
 </style>
