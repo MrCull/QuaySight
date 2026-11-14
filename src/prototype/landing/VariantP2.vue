@@ -20,7 +20,7 @@ interface Pointer {
   pinned: boolean
 }
 const POINTERS: Pointer[] = [
-  { key: 'id', glyph: 'tag', label: 'Container ID', value: 'CMAU 210375 8', mono: true, note: 'Painted 8, works out to 9', certainty: 'Uncertain', pinned: true },
+  { key: 'id', glyph: 'tag', label: 'Container ID', value: 'CMAU 210375 8', mono: true, note: '9 expected, not 8', certainty: 'Uncertain', pinned: true },
   { key: 'type', glyph: 'container', label: 'Size and type', value: '22G1', mono: true, note: '20 ft general purpose', certainty: 'Confident', pinned: true },
   { key: 'weights', glyph: 'weight', label: 'Max gross', value: '30,480 kg', mono: true, note: 'Tare 2,185 kg', certainty: 'Confident', pinned: true },
   { key: 'cube', glyph: 'cube', label: 'Cubic capacity', value: '33.2 m³', mono: true, certainty: 'Confident', pinned: true },
