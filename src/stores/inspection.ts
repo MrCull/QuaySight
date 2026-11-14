@@ -15,6 +15,7 @@ import { askDecisions } from '../services/askDecisions'
 import { manifestAsk } from '../domain/manifestAsk'
 import type { ManifestMapping } from '../domain/luna'
 import { preparePhoto, PhotoPreparationError } from '../services/preparePhoto'
+import { track } from '../services/analytics'
 import { OPENROUTER_ENDPOINT_ID } from '../domain/openrouter'
 import { useLedgerStore } from './ledger'
 import { useSetupStore } from './setup'
@@ -404,6 +405,7 @@ export const useInspectionStore = defineStore('inspection', {
       if (!this.demo) return this.startLive()
       const sample = this.sample
       if (!sample) return Promise.resolve()
+      track({ name: 'inspection_started', mode: 'demo', photo_count: this.photos.length })
 
       // Demo: the sample's own recorded result. No network call, nothing on the cost ledger.
       this.runToken += 1
@@ -418,6 +420,7 @@ export const useInspectionStore = defineStore('inspection', {
           if (token !== this.runToken) return
           this.record = record
           this.status = 'complete'
+          track({ name: 'inspection_finished', mode: 'demo' })
         })
         .catch(() => {
           if (token === this.runToken) this.status = 'failed'
@@ -447,6 +450,12 @@ export const useInspectionStore = defineStore('inspection', {
         this.errorMessage = 'Choose the photo again to run a live inspection.'
         return Promise.resolve()
       }
+      track({
+        name: 'inspection_started',
+        mode: 'live',
+        photo_count: photos.length,
+        provider: this.provider,
+      })
 
       this.runToken += 1
       const token = this.runToken
@@ -603,6 +612,7 @@ export const useInspectionStore = defineStore('inspection', {
         const incomplete = failedStagesByPhoto(this.planned).length > 0
         this.record = { ...result, status: incomplete ? 'partial' : 'complete' }
         this.status = 'complete'
+        track({ name: 'inspection_finished', mode: 'live' })
       })().finally(() => {
         if (this.inFlight === run) this.inFlight = null
       })

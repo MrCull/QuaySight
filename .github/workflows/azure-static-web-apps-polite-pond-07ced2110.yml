@@ -25,6 +25,9 @@ jobs:
         env:
           # Read by vite.config.ts for the footer build stamp.
           BUILD_COMMIT: ${{ github.event.pull_request.head.sha || github.sha }}
+          # Google Analytics, production only: PR previews build without it, so the tag never loads there
+          # (docs/adr/0002-google-analytics-for-the-poc.md). Set as a repository variable, not a secret.
+          VITE_GA_MEASUREMENT_ID: ${{ github.event_name == 'push' && vars.VITE_GA_MEASUREMENT_ID || '' }}
         with:
           azure_static_web_apps_api_token: ${{ secrets.AZURE_STATIC_WEB_APPS_API_TOKEN_POLITE_POND_07CED2110 }}
           repo_token: ${{ secrets.GITHUB_TOKEN }} # Used for Github integrations (i.e. PR comments)

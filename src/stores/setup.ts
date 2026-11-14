@@ -6,6 +6,7 @@ import {
   rememberSelection,
   REMEMBERED_SELECTION_KEY,
 } from '../domain/rememberedSelection'
+import { track } from '../services/analytics'
 import { useInspectionStore } from './inspection'
 
 /** Which top-level screen shows: the setup card, or the inspection screen once the presenter continues. */
@@ -66,6 +67,7 @@ export const useSetupStore = defineStore('setup', {
     enterDemo() {
       useInspectionStore().enterDemo()
       this.view = 'inspection'
+      track({ name: 'demo_started' })
     },
     /** Connect a provider, from the demo banner: leaves demo mode for the setup card. */
     connectProvider() {
@@ -80,6 +82,7 @@ export const useSetupStore = defineStore('setup', {
       inspection.newInspection()
       inspection.setProvider(provider)
       this.remember()
+      track({ name: 'provider_selected', provider })
     },
     /** A new model blanks the screen (New inspection). The same model again changes nothing. */
     chooseModel(model: string) {
