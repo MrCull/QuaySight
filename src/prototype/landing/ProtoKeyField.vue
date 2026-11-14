@@ -4,7 +4,11 @@
 import { useTemplateRef } from 'vue'
 import { useLandingForm } from './useLandingForm'
 
-withDefaults(defineProps<{ demo?: boolean; go?: string }>(), { demo: true, go: 'Start' })
+withDefaults(defineProps<{ demo?: boolean; go?: string; note?: string }>(), {
+  demo: true,
+  go: 'Start',
+  note: 'Your key stays in this tab.',
+})
 
 const key = useTemplateRef<HTMLInputElement>('key')
 const { store, setup, providers, copy, keyWarning, needsKey, start, onPickKey } = useLandingForm(
@@ -64,7 +68,7 @@ defineExpose({ focus: () => key.value?.focus() })
       >. If yours is right, you can still start.
     </p>
     <p class="lp-key__note">
-      <span>Your key stays in this tab.</span>
+      <span>{{ note }}</span>
       <button v-if="demo" type="button" class="lp-key__demo" @click="setup.enterDemo()">
         Try the demo
       </button>

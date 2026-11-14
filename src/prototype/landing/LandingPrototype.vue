@@ -25,6 +25,7 @@ import VariantDK3 from './VariantDK3.vue'
 import VariantLT1 from './VariantLT1.vue'
 import VariantLT2 from './VariantLT2.vue'
 import VariantLT3 from './VariantLT3.vue'
+import VariantW1 from './VariantW1.vue'
 
 const VARIANTS: { key: string; name: string; view: Component }[] = [
   { key: 'current', name: 'Current landing', view: LandingScreen },
@@ -49,6 +50,7 @@ const VARIANTS: { key: string; name: string; view: Component }[] = [
   { key: 'LT1', name: 'Light 1', view: VariantLT1 },
   { key: 'LT2', name: 'Light 2', view: VariantLT2 },
   { key: 'LT3', name: 'Light 3', view: VariantLT3 },
+  { key: 'W1', name: 'Working pick', view: VariantW1 },
 ]
 
 const enabled = import.meta.env.DEV
