@@ -1,0 +1,111 @@
+<!-- @dsCard group="Setup" height=900 width=1440 subtitle="First screen: the outlined sample photo, five reading cards, the headline, the key field and the demo label" -->
+<!doctype html>
+<html data-theme="dark"><head><link rel="stylesheet" href="../../tokens.css"><link rel="stylesheet" href="../bundle.css"><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Landing</title>
+<style>html,body{margin:0;height:100%} body{display:flex;flex-direction:column;min-height:100vh;background:var(--landing-bg)}</style></head>
+<body class="qs-root">
+<main class="qs-landing">
+  <!-- The app sets --h to the landing's measured height; the preview does the same in the script below. -->
+  <div class="qs-landing__stage">
+    <figure class="qs-landing__photo" aria-hidden="true">
+      <img src="../../../samples/jdlu-200690-1-rear-doors.jpg" alt="">
+      <!-- Boxes in percent of the 1080 by 1440 photo: left = x0/1080, top = y0/1440, width, height likewise. -->
+      <i class="qs-landing__box" data-box="id" style="--i:0;left:59.259%;top:25.556%;width:7.778%;height:3.542%"><b>Owner</b></i>
+      <i class="qs-landing__box" style="--i:0;left:70.741%;top:26.875%;width:9.815%;height:3.889%"><b>Serial</b></i>
+      <i class="qs-landing__box" style="--i:0;left:81.019%;top:28.333%;width:2.593%;height:2.778%"><b>Check</b></i>
+      <i class="qs-landing__box" data-box="type" style="--i:1;left:70.000%;top:30.625%;width:6.759%;height:3.056%"></i>
+      <i class="qs-landing__box" data-box="gross" style="--i:2;left:56.667%;top:36.111%;width:21.111%;height:2.847%"></i>
+      <i class="qs-landing__box" data-box="tare" style="--i:3;left:57.037%;top:39.306%;width:21.481%;height:3.056%"></i>
+      <i class="qs-landing__box" data-box="payload" style="--i:4;left:56.852%;top:43.333%;width:21.296%;height:2.778%"></i>
+      <i class="qs-landing__box" data-box="cube" style="--i:5;left:57.407%;top:46.806%;width:23.148%;height:2.778%"></i>
+      <i class="qs-landing__box" data-box="marking" style="--i:6;left:74.352%;top:55.347%;width:7.963%;height:6.528%"></i>
+    </figure>
+    <i class="qs-landing__shade" aria-hidden="true"></i>
+
+    <p class="qs-landing__brand"><i class="qs-logo" aria-hidden="true"></i>Quay Sight</p>
+
+    <section class="qs-landing__lead">
+      <h1 class="qs-landing__title">The whole <em>Quay</em>, <br>in <em>Sight</em>.</h1>
+      <p class="qs-landing__sub">To OCR, and beyond…</p>
+      <form class="qs-landing__field">
+        <div class="qs-landing__pick" role="radiogroup" aria-label="AI provider">
+          <button type="button" role="radio" class="qs-landing__opt" aria-checked="true">OpenRouter</button>
+          <button type="button" role="radio" class="qs-landing__opt" aria-checked="false" tabindex="-1">OpenAI</button>
+        </div>
+        <input class="qs-landing__key" type="password" placeholder="API key" aria-label="OpenRouter API key">
+        <button type="button" class="qs-landing__go" aria-disabled="true">Start <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 12h16M14 6l6 6-6 6"/></svg></button>
+      </form>
+      <p class="qs-landing__note">Never stored. Your key lives in this tab and goes only to your provider.</p>
+      <div class="qs-landing__patch">
+        <p><b>No key to hand?</b> Open a sample container and see what it read. No charge.</p>
+        <button type="button" class="qs-landing__demo">Try the demo <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 12h16M14 6l6 6-6 6"/></svg></button>
+      </div>
+    </section>
+
+    <svg class="qs-landing__links" aria-hidden="true"></svg>
+
+    <section class="qs-landing__panel" aria-label="Read from a sample photo">
+      <div class="qs-landing__card qs-landing__card--id" data-row="id" style="--i:0">
+        <span class="qs-landing__k"><b>01</b>Container ID</span>
+        <span class="qs-id qs-id--md" role="img" aria-label="J D L U, 2 0 0, 6 9 0, check digit 2">
+          <span class="qs-id__group"><span class="qs-id__ch">J</span><span class="qs-id__ch">D</span><span class="qs-id__ch">L</span><span class="qs-id__ch">U</span></span>
+          <span class="qs-id__group"><span class="qs-id__ch">2</span><span class="qs-id__ch">0</span><span class="qs-id__ch">0</span></span>
+          <span class="qs-id__group"><span class="qs-id__ch">6</span><span class="qs-id__ch">9</span><span class="qs-id__ch">0</span></span>
+          <span class="qs-id__check">2</span>
+        </span>
+        <span class="qs-landing__meta">
+          <span class="qs-cert qs-cert--confident"><i class="qs-glyph qs-glyph--confident" aria-hidden="true"></i>Confident</span>
+          <span class="qs-prov qs-prov--calculated">Check digit valid</span>
+        </span>
+      </div>
+      <div class="qs-landing__card" data-row="type" style="--i:1">
+        <span class="qs-landing__k"><b>02</b>Size and type</span>
+        <span class="qs-landing__v qs-landing__v--code">22G1 <small>20 ft general purpose</small></span>
+        <span class="qs-cert qs-cert--confident"><i class="qs-glyph qs-glyph--confident" aria-hidden="true"></i>Confident</span>
+      </div>
+      <div class="qs-landing__card qs-landing__card--weights" style="--i:2">
+        <span class="qs-landing__k"><b>03</b>Weights</span>
+        <span class="qs-cert qs-cert--likely"><i class="qs-glyph qs-glyph--likely" aria-hidden="true"></i>Likely</span>
+        <dl>
+          <div data-row="gross"><dt>Max gross</dt><dd>32,500 kg</dd></div>
+          <div data-row="tare"><dt>Tare</dt><dd>2,180 kg</dd></div>
+          <div data-row="payload"><dt>Payload</dt><dd>30,320 kg</dd></div>
+          <div data-row="cube"><dt>Cubic capacity</dt><dd>33.2 m³</dd></div>
+        </dl>
+      </div>
+      <div class="qs-landing__card" data-row="marking" style="--i:3">
+        <span class="qs-landing__k"><b>04</b>Marking</span>
+        <span class="qs-landing__v">Super heavy <small>No DG placard visible</small></span>
+        <span class="qs-cert qs-cert--confident"><i class="qs-glyph qs-glyph--confident" aria-hidden="true"></i>Confident</span>
+      </div>
+      <div class="qs-landing__card" style="--i:4">
+        <span class="qs-landing__k"><b>05</b>Seal</span>
+        <span class="qs-landing__v">Not in this photo</span>
+        <span class="qs-cert qs-cert--unseen"><i class="qs-glyph qs-glyph--unseen" aria-hidden="true"></i>Not seen</span>
+      </div>
+    </section>
+  </div>
+</main>
+<script>
+  // What the app does on mount and on resize: hang the photo from the measured height, then draw an elbow
+  // from the panel's right edge, level with each reading, to the left edge of its first outline.
+  const root = document.querySelector('.qs-landing')
+  const keys = ['id', 'type', 'gross', 'tare', 'payload', 'cube', 'marking']
+  function measure() {
+    root.querySelector('.qs-landing__stage').style.setProperty('--h', root.clientHeight + 'px')
+    requestAnimationFrame(() => {
+      const o = root.getBoundingClientRect()
+      const panel = root.querySelector('.qs-landing__panel').getBoundingClientRect()
+      const svg = root.querySelector('.qs-landing__links')
+      svg.innerHTML = keys.map((k, n) => {
+        const row = root.querySelector('[data-row="' + k + '"]').getBoundingClientRect()
+        const box = root.querySelector('[data-box="' + k + '"]').getBoundingClientRect()
+        const x0 = panel.right - o.left, y0 = row.top + row.height / 2 - o.top
+        const x1 = box.left - o.left, y1 = box.top + box.height / 2 - o.top
+        const bend = x0 + 14 + (keys.length - 1 - n) * 8
+        return '<g class="qs-landing__link" style="--i:' + n + '"><path pathLength="1" d="M' + x0 + ' ' + y0 + 'H' + bend + 'V' + y1 + 'H' + x1 + '"/><circle r="4" cx="' + x1 + '" cy="' + y1 + '"/></g>'
+      }).join('')
+    })
+  }
+  new ResizeObserver(measure).observe(root)
+</script>
+</body></html>
