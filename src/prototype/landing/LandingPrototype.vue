@@ -19,6 +19,12 @@ import VariantS3 from './VariantS3.vue'
 import VariantG1 from './VariantG1.vue'
 import VariantG2 from './VariantG2.vue'
 import VariantG3 from './VariantG3.vue'
+import VariantDK1 from './VariantDK1.vue'
+import VariantDK2 from './VariantDK2.vue'
+import VariantDK3 from './VariantDK3.vue'
+import VariantLT1 from './VariantLT1.vue'
+import VariantLT2 from './VariantLT2.vue'
+import VariantLT3 from './VariantLT3.vue'
 
 const VARIANTS: { key: string; name: string; view: Component }[] = [
   { key: 'current', name: 'Current landing', view: LandingScreen },
@@ -37,6 +43,12 @@ const VARIANTS: { key: string; name: string; view: Component }[] = [
   { key: 'G1', name: 'Gate photo 1', view: VariantG1 },
   { key: 'G2', name: 'Gate photo 2', view: VariantG2 },
   { key: 'G3', name: 'Gate photo 3', view: VariantG3 },
+  { key: 'DK1', name: 'Dark 1', view: VariantDK1 },
+  { key: 'DK2', name: 'Dark 2', view: VariantDK2 },
+  { key: 'DK3', name: 'Dark 3', view: VariantDK3 },
+  { key: 'LT1', name: 'Light 1', view: VariantLT1 },
+  { key: 'LT2', name: 'Light 2', view: VariantLT2 },
+  { key: 'LT3', name: 'Light 3', view: VariantLT3 },
 ]
 
 const enabled = import.meta.env.DEV
