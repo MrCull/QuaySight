@@ -10,6 +10,15 @@ import VariantC from './VariantC.vue'
 import VariantD from './VariantD.vue'
 import VariantE from './VariantE.vue'
 import VariantF from './VariantF.vue'
+import VariantP1 from './VariantP1.vue'
+import VariantP2 from './VariantP2.vue'
+import VariantP3 from './VariantP3.vue'
+import VariantS1 from './VariantS1.vue'
+import VariantS2 from './VariantS2.vue'
+import VariantS3 from './VariantS3.vue'
+import VariantG1 from './VariantG1.vue'
+import VariantG2 from './VariantG2.vue'
+import VariantG3 from './VariantG3.vue'
 
 const VARIANTS: { key: string; name: string; view: Component }[] = [
   { key: 'current', name: 'Current landing', view: LandingScreen },
@@ -19,6 +28,15 @@ const VARIANTS: { key: string; name: string; view: Component }[] = [
   { key: 'D', name: 'Poster', view: VariantD },
   { key: 'E', name: 'Long read', view: VariantE },
   { key: 'F', name: 'Composite', view: VariantF },
+  { key: 'P1', name: 'Pointers 1', view: VariantP1 },
+  { key: 'P2', name: 'Pointers 2', view: VariantP2 },
+  { key: 'P3', name: 'Pointers 3', view: VariantP3 },
+  { key: 'S1', name: 'Door 1', view: VariantS1 },
+  { key: 'S2', name: 'Door 2', view: VariantS2 },
+  { key: 'S3', name: 'Door 3', view: VariantS3 },
+  { key: 'G1', name: 'Gate photo 1', view: VariantG1 },
+  { key: 'G2', name: 'Gate photo 2', view: VariantG2 },
+  { key: 'G3', name: 'Gate photo 3', view: VariantG3 },
 ]
 
 const enabled = import.meta.env.DEV
