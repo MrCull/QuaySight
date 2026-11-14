@@ -8,8 +8,8 @@ import { useSetupStore } from '../../stores/setup'
 
 const setup = useSetupStore()
 const MARKINGS = [
-  ['Reads', 'ID · Size · Type'],
-  ['', 'Weights · Seal'],
+  ['From', 'Your photos'],
+  ['Reads', 'ID · Weights · Seal'],
   ['Finds', 'Placards · Damage'],
   ['Photos', '1–5 per container'],
   ['Spend cap', '$0.50 an inspection'],
@@ -30,10 +30,10 @@ const MARKINGS = [
         <i class="lc__rod lc__rod--outer" aria-hidden="true"></i>
         <i class="lc__rod lc__rod--inner" aria-hidden="true"><b></b></i>
         <p class="lc__owner"><i class="qs-logo" aria-hidden="true"></i>Quay Sight</p>
-        <h1 class="lc__title">Container<br />inspection<br />from photos.</h1>
+        <h1 class="lc__title">Read<br />the box.</h1>
         <div class="lc__plate">
           <p class="lc__plate-head">
-            <span>Start an inspection</span><span>OpenRouter or OpenAI key</span>
+            <span>Inspect a container</span><span>OpenRouter or OpenAI key</span>
           </p>
           <ProtoKeyField :demo="false" />
         </div>
@@ -55,7 +55,7 @@ const MARKINGS = [
         </dl>
         <div class="lc__foot">
           <div class="lc__label">
-            <p><b>No key to hand?</b> Open a sample container with its saved result. No charge.</p>
+            <p><b>No key to hand?</b> Open a sample container and see what it read. No charge.</p>
             <button type="button" @click="setup.enterDemo()">
               Try the demo
               <svg
@@ -239,7 +239,7 @@ const MARKINGS = [
 .lc__title {
   margin: auto 0;
   padding-block: var(--space-6);
-  font: 600 clamp(3.5rem, 8.2vw, 9.5rem)/0.86 var(--font-display);
+  font: 600 clamp(4.5rem, 12.5vw, 15rem)/0.84 var(--font-display);
   letter-spacing: 0.005em;
   text-transform: uppercase;
 }

@@ -63,11 +63,12 @@ onBeforeUnmount(() => {
 
     <section class="lb__body">
       <div class="lb__lead">
-        <h1 class="lb__title">Container<br />inspection<br />from photos.</h1>
+        <h1 class="lb__title">It's all written<br />on the doors.</h1>
+        <p class="lb__sub">Quay Sight reads it from your photos, and tells you how sure it is.</p>
         <ProtoKeyField :demo="false" />
       </div>
       <aside class="lb__reads">
-        <p>Read from the photos, each with its certainty</p>
+        <p>What it reads</p>
         <ol>
           <li v-for="(read, n) in READS" :key="read">
             <span>0{{ n + 1 }}</span
@@ -248,10 +249,15 @@ onBeforeUnmount(() => {
   padding: 0 clamp(var(--space-5), 4vw, calc(var(--space-5) * 3)) var(--space-7);
 }
 .lb__title {
-  margin: 0 0 var(--space-6);
-  font: 700 clamp(3.25rem, 8.4vw, 9.5rem)/0.88 var(--font-hero);
+  margin: 0 0 var(--space-4);
+  font: 700 clamp(3rem, 7.6vw, 9rem)/0.9 var(--font-hero);
   letter-spacing: -0.05em;
   animation: lb-rise 800ms cubic-bezier(0.2, 0.8, 0.2, 1) 350ms both;
+}
+.lb__sub {
+  margin: 0 0 var(--space-6);
+  font: 400 1.25rem/1.75rem var(--font-sans);
+  animation: lb-rise 800ms cubic-bezier(0.2, 0.8, 0.2, 1) 420ms both;
 }
 .lb__lead :deep(.lp-key) {
   animation: lb-rise 800ms cubic-bezier(0.2, 0.8, 0.2, 1) 500ms both;

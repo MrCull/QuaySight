@@ -133,10 +133,10 @@ const FACTS = [
       </nav>
       <div class="le__lead">
         <p class="le__eyebrow">Runs in your browser <i></i> No account <i></i> Your own API key</p>
-        <h1 class="le__title">Container inspection from photos.</h1>
+        <h1 class="le__title">Photograph a container. Know what you're looking at.</h1>
         <p class="le__sub">
-          Quay Sight reads a container's markings, finds suspected damage, and says plainly how sure
-          it is of each.
+          Quay Sight reads the markings, marks the damage it suspects, and tells you how sure it is
+          of each one.
         </p>
         <ProtoKeyField ref="field" />
       </div>
@@ -150,7 +150,7 @@ const FACTS = [
     <section id="le-reads" class="le__band">
       <header class="le__head">
         <p>What it reads</p>
-        <h2>Six readings, each shown with the part of the photo it came from.</h2>
+        <h2>It shows you where it read each one.</h2>
       </header>
       <ul class="le__grid">
         <li v-for="r in READINGS" :key="r.label" class="le__tile">
@@ -162,13 +162,13 @@ const FACTS = [
           <SeverityBadge v-else severity="major" />
         </li>
       </ul>
-      <p class="le__sample">Sample photos, with the readings recorded from them.</p>
+      <p class="le__sample">Sample photos, with what was read from them.</p>
     </section>
 
     <section id="le-sure" class="le__band le__band--ink">
       <header class="le__head">
         <p>How sure it is</p>
-        <h2>Five words, and nothing is ever rounded up.</h2>
+        <h2>It tells you when it isn't sure.</h2>
         <blockquote>
           <b>Best interpretation:</b> 3,750 kg. <b>What remains uncertain:</b> the last digits are
           hard to read; it could be 3,780 kg.
@@ -185,7 +185,7 @@ const FACTS = [
     <section id="le-key" class="le__band">
       <header class="le__head">
         <p>Your key</p>
-        <h2>It stays in this tab.</h2>
+        <h2>It goes to your provider, and nowhere else.</h2>
       </header>
       <ul class="le__facts">
         <li v-for="[figure, unit, text] in FACTS" :key="unit">

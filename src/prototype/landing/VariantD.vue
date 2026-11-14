@@ -347,14 +347,14 @@ const BLOCK = [
 
         <header class="ld__head">
           <span class="ld__brand"><i class="qs-logo" aria-hidden="true"></i>Quay Sight</span>
-          <h1 class="ld__title">Container inspection from photos.</h1>
+          <h1 class="ld__title">Everything a container says about itself.</h1>
           <p class="ld__sub">
-            Six kinds of reading from one to five photographs, each with its certainty.
+            Read from one to five photographs. Every reading comes with how sure it is.
           </p>
         </header>
 
         <div class="ld__start">
-          <p>Start an inspection</p>
+          <p>Inspect a container</p>
           <ProtoKeyField />
         </div>
       </div>

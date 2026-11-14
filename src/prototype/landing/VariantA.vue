@@ -45,15 +45,15 @@ onBeforeUnmount(() => observer?.disconnect())
     <section class="la__copy">
       <span class="la__brand"><i class="qs-logo" aria-hidden="true"></i>Quay Sight</span>
       <div class="la__lead">
-        <h1 class="la__title">Container inspection from photos.</h1>
+        <h1 class="la__title">Read any container from a photo.</h1>
         <p class="la__sub">
-          Photograph the doors. Quay Sight reads the ID, size, weights, seal and placards, marks
-          suspected damage, and says plainly how sure it is of each.
+          Photograph the doors. Quay Sight reads the ID, weights, seal and placards, marks any
+          damage it suspects, and tells you how sure it is of every one.
         </p>
         <ProtoKeyField />
       </div>
       <div class="la__legend">
-        <p>Every reading carries one of five certainties</p>
+        <p>Five words for how sure it is</p>
         <ul>
           <li v-for="level in LEVELS" :key="level"><CertaintyChip :level="level" /></li>
         </ul>
