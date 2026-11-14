@@ -3,7 +3,7 @@
 // door leaf, bleeding off the page; each line of paint has a thin rule running left from it to its entry in
 // a mono parts list, level with where it is painted. Words and the key field stand on the left.
 // It forces the Night quay theme while it is on screen.
-import { onBeforeUnmount, onMounted } from 'vue'
+import { onBeforeUnmount, onMounted, ref, useTemplateRef } from 'vue'
 import ProtoKeyField from './ProtoKeyField.vue'
 import CertaintyChip from '../../components/CertaintyChip.vue'
 import { useSetupStore } from '../../stores/setup'
@@ -83,20 +83,34 @@ const POINTERS: Pointer[] = [
 ]
 const pct = (n: number) => `${(n * 100).toFixed(2)}%`
 
+// The page's own height, measured: everything is hung from it.
+const page = useTemplateRef<HTMLElement>('page')
+const height = ref(844)
+let observer: ResizeObserver | undefined
+
 let before: string | null = null
 onMounted(() => {
+  const measure = () => {
+    if (page.value) height.value = page.value.clientHeight
+  }
+  measure()
+  if (typeof ResizeObserver === 'function' && page.value) {
+    observer = new ResizeObserver(measure)
+    observer.observe(page.value)
+  }
   before = document.documentElement.getAttribute('data-theme')
   document.documentElement.setAttribute('data-theme', 'dark')
 })
 onBeforeUnmount(() => {
+  observer?.disconnect()
   if (before) document.documentElement.setAttribute('data-theme', before)
   else document.documentElement.removeAttribute('data-theme')
 })
 </script>
 
 <template>
-  <main class="lp3">
-    <div class="lp3__in">
+  <main ref="page" class="lp3">
+    <div class="lp3__in" :style="`--h: ${height}px`">
       <figure class="lp3__photo" aria-hidden="true">
         <img :src="doors" alt="" />
         <i
@@ -176,10 +190,10 @@ onBeforeUnmount(() => {
   overflow: hidden;
   background: var(--landing-bg);
   color: var(--landing-ink);
-  container-type: size;
+  container-type: inline-size;
 }
 .lp3__in {
-  --ph: calc(100cqh / 0.44);
+  --ph: calc(var(--h) / 0.44);
   --pw: calc(var(--ph) * 0.75);
   --pl: calc(93cqw - var(--pw) * 0.85);
   --pt: calc(var(--ph) * -0.22);
