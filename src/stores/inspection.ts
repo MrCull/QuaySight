@@ -43,7 +43,7 @@ import { draftRecord } from '../plan/draftRecord'
 import { planRequests } from '../plan/registry'
 import { planForPhoto } from '../plan/photoPlan'
 import { combinePhotoRuns } from '../domain/combinePhotos'
-import { notAContainerCount } from '../domain/notAContainer'
+import { bananaPhotos, notAContainerCount } from '../domain/notAContainer'
 
 export interface SelectedPhoto {
   name: string
@@ -613,6 +613,14 @@ export const useInspectionStore = defineStore('inspection', {
         this.record = { ...result, status: incomplete ? 'partial' : 'complete' }
         this.status = 'complete'
         track({ name: 'inspection_finished', mode: 'live' })
+        const notContainers = this.notAContainer
+        if (notContainers > 0) {
+          track({ name: 'not_a_container', photo_count: notContainers })
+          const bananas = bananaPhotos(this.record, notContainers).filter(Boolean).length
+          if (bananas > 0) {
+            track({ name: 'banana_skin', photo_count: notContainers, banana_count: bananas })
+          }
+        }
       })().finally(() => {
         if (this.inFlight === run) this.inFlight = null
       })

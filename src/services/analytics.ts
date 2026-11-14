@@ -30,6 +30,10 @@ export type AnalyticsEvent =
   /** Sent when a run ends with a result on screen (partial included); failed or abandoned runs send nothing. */
   | { name: 'inspection_finished'; mode: Mode }
   | { name: 'spend_cap_hit'; mode: 'live'; reason: CapReason }
+  /** The not-a-container screen showed: no photo of the run is a container. Live runs only. */
+  | { name: 'not_a_container'; photo_count: number }
+  /** Its banana Easter egg showed too: `banana_count` of the photos show a banana or its skin. */
+  | { name: 'banana_skin'; photo_count: number; banana_count: number }
 
 /** The fields each event may carry; anything else on the object is dropped. */
 const FIELDS: Record<AnalyticsEvent['name'], readonly string[]> = {
@@ -38,6 +42,8 @@ const FIELDS: Record<AnalyticsEvent['name'], readonly string[]> = {
   inspection_started: ['mode', 'photo_count', 'provider'],
   inspection_finished: ['mode'],
   spend_cap_hit: ['mode', 'reason'],
+  not_a_container: ['photo_count'],
+  banana_skin: ['photo_count', 'banana_count'],
 }
 
 let enabled = false
