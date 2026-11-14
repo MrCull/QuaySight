@@ -72,10 +72,7 @@ onBeforeUnmount(() => observer?.disconnect())
 
       <section class="w1__lead">
         <h1 class="w1__title">The whole <em>Quay</em>,<br />in <em>Sight</em>.</h1>
-        <p class="w1__kicker">To OCR, and beyond.</p>
-        <p class="w1__sub">
-          It checks the sums, maps the dents, flags the hazards, and never pretends to be sure.
-        </p>
+        <p class="w1__sub">To OCR, and beyond.</p>
         <ProtoKeyField
           :demo="false"
           note="Never stored. Your key lives in this tab and goes only to your provider."
@@ -138,7 +135,7 @@ onBeforeUnmount(() => observer?.disconnect())
         </div>
         <div class="w1__card w1__card--weights" style="--i: 2">
           <span class="w1__k"><b>03</b>Weights</span>
-          <CertaintyChip level="Confident" />
+          <CertaintyChip level="Likely" />
           <dl>
             <div v-for="p in POINTERS.slice(2, 6)" :key="p.key" :data-row="p.key">
               <dt>{{ p.label }}</dt>
@@ -149,7 +146,7 @@ onBeforeUnmount(() => observer?.disconnect())
         <div class="w1__card" data-row="marking" style="--i: 3">
           <span class="w1__k"><b>04</b>Marking</span>
           <b class="w1__v w1__plain">Super heavy <small>No DG placard visible</small></b>
-          <CertaintyChip level="Likely" />
+          <CertaintyChip level="Confident" />
         </div>
         <div class="w1__card" style="--i: 4">
           <span class="w1__k"><b>05</b>Seal</span>
@@ -248,9 +245,6 @@ onBeforeUnmount(() => observer?.disconnect())
   animation: w1-box var(--duration-arrive) cubic-bezier(0.2, 0.8, 0.2, 1) both;
   animation-delay: calc(700ms + var(--i) * 120ms);
 }
-.w1__box--likely {
-  border-style: dashed;
-}
 .w1__box b {
   position: absolute;
   left: -2px;
@@ -301,14 +295,9 @@ onBeforeUnmount(() => observer?.disconnect())
   color: var(--brand);
   font-style: normal;
 }
-.w1__kicker {
-  margin: var(--space-5) 0 0;
-  font: 600 1.5rem/1.75rem var(--font-hero);
-  letter-spacing: -0.02em;
-}
 .w1__sub {
   max-width: 27rem;
-  margin: var(--space-2) 0 var(--space-5);
+  margin: var(--space-4) 0 var(--space-5);
   color: var(--landing-ink-muted);
   font: 400 1.0625rem/1.625rem var(--font-sans);
   text-wrap: pretty;
@@ -318,7 +307,7 @@ onBeforeUnmount(() => observer?.disconnect())
   gap: var(--space-3);
   justify-items: start;
   width: 17.5rem;
-  margin: var(--space-6) 0 0 var(--space-5);
+  margin: var(--space-8) 0 0 var(--space-5);
   padding: var(--space-4);
   border-radius: var(--radius-xs);
   background: var(--landing-ink);
