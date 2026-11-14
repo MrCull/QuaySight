@@ -11,16 +11,29 @@ export interface Outline {
   caption?: string
 }
 
+/** The weight lines painted on the doors, each with its own outline. */
+export type WeightKey = 'gross' | 'tare' | 'payload' | 'cube'
+/** Every reading with an outline on the photo: matches a card's or a weight row's data-row. */
+export type ReadingKey = 'id' | 'type' | WeightKey | 'marking'
+
 /** A reading joined to the photo: a leader line runs from it to the left edge of its first outline. */
 export interface Pointer {
-  key: string
+  key: ReadingKey
   outlines: Outline[]
 }
 
 export interface WeightRow {
-  key: string
+  key: WeightKey
   label: string
   value: string
+}
+
+/** A card with one value and an optional gloss after it. */
+export interface ValueCard {
+  label: string
+  value: string
+  gloss?: string
+  certainty: CertaintyLabel
 }
 
 const PHOTO_WIDTH = 1080
@@ -56,38 +69,49 @@ export const POINTERS: Pointer[] = [
 /** Card 01: the ID in its three groups and the check digit. */
 export const CONTAINER_ID = { owner: 'JDLU', serial: ['200', '690'], check: '2' } as const
 
-export const TYPE_READING = { code: '22G1', meaning: '20 ft general purpose' } as const
-
-/** Card 03: one certainty for the whole card. */
-export const WEIGHTS_CERTAINTY: CertaintyLabel = 'Likely'
-export const WEIGHT_ROWS: WeightRow[] = [
-  { key: 'gross', label: 'Max gross', value: '32,500 kg' },
-  { key: 'tare', label: 'Tare', value: '2,180 kg' },
-  { key: 'payload', label: 'Payload', value: '30,320 kg' },
-  { key: 'cube', label: 'Cubic capacity', value: '33.2 m³' },
-]
-
-/** A leader line's ends, measured in the landing: from a reading's card (x0, y0) to its outline (x1, y1). */
-export interface LineEnds {
-  key: string
-  x0: number
-  y0: number
-  x1: number
-  y1: number
+/** The ID as a screen reader says it, group by group: "J D L U, 2 0 0, 6 9 0, check digit 2". */
+export function idSpoken(id: { owner: string; serial: readonly string[]; check: string }): string {
+  const spell = (group: string) => group.split('').join(' ')
+  return [id.owner, ...id.serial].map(spell).join(', ') + `, check digit ${id.check}`
 }
 
-/**
- * Where each elbow line turns (horizontal, vertical, horizontal), so that no line crosses another. Lines that climb
- * to their outline turn further out the lower they start; lines that drop turn further out the higher they start.
- * The two groups never share a height range when the climbers start above the droppers, as the cards and outlines do.
- */
-export function elbows<T extends LineEnds>(lines: T[]): (T & { bend: number })[] {
-  const up = lines.filter((l) => l.y1 < l.y0).sort((a, b) => a.y0 - b.y0)
-  const down = lines.filter((l) => l.y1 >= l.y0).sort((a, b) => b.y0 - a.y0)
-  const rank = new Map<T, number>()
-  up.forEach((l, i) => rank.set(l, i))
-  down.forEach((l, i) => rank.set(l, i))
-  return lines.map((l) => ({ ...l, bend: l.x0 + 14 + (rank.get(l) ?? 0) * 8 }))
+/** The five cards, in order. Weights carries one certainty for the whole card. */
+export const CARDS = {
+  id: {
+    label: 'Container ID',
+    id: CONTAINER_ID,
+    tag: 'Check digit valid',
+    certainty: 'Confident',
+  },
+  type: {
+    label: 'Size and type',
+    value: '22G1',
+    gloss: '20 ft general purpose',
+    certainty: 'Confident',
+  },
+  weights: {
+    label: 'Weights',
+    certainty: 'Likely',
+    rows: [
+      { key: 'gross', label: 'Max gross', value: '32,500 kg' },
+      { key: 'tare', label: 'Tare', value: '2,180 kg' },
+      { key: 'payload', label: 'Payload', value: '30,320 kg' },
+      { key: 'cube', label: 'Cubic capacity', value: '33.2 m³' },
+    ],
+  },
+  marking: {
+    label: 'Marking',
+    value: 'Super heavy',
+    gloss: 'No DG placard visible',
+    certainty: 'Confident',
+  },
+  seal: { label: 'Seal', value: 'Not in this photo', certainty: 'Not seen' },
+} satisfies {
+  id: { label: string; id: typeof CONTAINER_ID; tag: string; certainty: CertaintyLabel }
+  type: ValueCard
+  weights: { label: string; certainty: CertaintyLabel; rows: WeightRow[] }
+  marking: ValueCard
+  seal: ValueCard
 }
 
 const pct = (n: number) => `${(n * 100).toFixed(3)}%`

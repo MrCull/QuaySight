@@ -13,11 +13,13 @@
     <!-- Apply the remembered theme before the first paint (see src/domain/themePreference.ts): Night quay unless
          Daylight was remembered, and Night quay where storage is blocked. -->
     <script>
-      var theme = 'dark'
-      try {
-        if (localStorage.getItem('quay-sight.theme') === 'light') theme = 'light'
-      } catch (e) {}
-      document.documentElement.setAttribute('data-theme', theme)
+      (function () {
+        var theme = 'dark'
+        try {
+          if (localStorage.getItem('quay-sight.theme') === 'light') theme = 'light'
+        } catch (e) {}
+        document.documentElement.setAttribute('data-theme', theme)
+      })()
     </script>
   </head>
   <body>

@@ -5,16 +5,10 @@ import { useSetupStore } from '../stores/setup'
 import { getProvider, providers } from '../domain/providers'
 import { keyFormatWarning } from '../domain/keyGate'
 import { focusNextStep } from './nextStepFocus'
+import { routeLeaderLines, type LeaderLine } from '../domain/leaderLines'
 import CertaintyChip from './CertaintyChip.vue'
-import {
-  CONTAINER_ID,
-  POINTERS,
-  TYPE_READING,
-  WEIGHTS_CERTAINTY,
-  WEIGHT_ROWS,
-  boxStyle,
-  elbows,
-} from './landingReadings'
+import LandingArrow from './LandingArrow.vue'
+import { CARDS, POINTERS, boxStyle, idSpoken } from './landingReadings'
 import doors from '../../samples/jdlu-200690-1-rear-doors.jpg'
 
 // design-system/components/Landing: the first screen. Pick a provider, paste its key, Start. Each provider's
@@ -60,12 +54,13 @@ function onPickKey(event: KeyboardEvent) {
   group.querySelector<HTMLElement>(`[data-testid="provider-option-${next.id}"]`)?.focus()
 }
 
-// The photo is hung from the landing's measured height (--h). Each leader line is measured from the laid-out
-// reading to the left edge of its first outline, at mid-height: horizontal, vertical, horizontal.
+// The photo is hung from the landing's measured height (--h). Until it is measured, --h is left unset and the
+// stylesheet's default (--landing-height) applies. Each leader line is measured from the laid-out reading to the
+// left edge of its first outline, at mid-height: horizontal, vertical, horizontal.
 // jsdom has no layout and no ResizeObserver, so there nothing is measured or drawn.
 const page = useTemplateRef<HTMLElement>('page')
-const height = ref(844)
-const links = ref<{ key: string; d: string; x: number; y: number }[]>([])
+const height = ref<number>()
+const links = ref<LeaderLine[]>([])
 let observer: ResizeObserver | undefined
 
 function measure() {
@@ -97,12 +92,7 @@ function measure() {
         },
       ]
     })
-    links.value = elbows(ends).map((l) => ({
-      key: l.key,
-      d: `M${l.x0} ${l.y0}H${l.bend}V${l.y1}H${l.x1}`,
-      x: l.x1,
-      y: l.y1,
-    }))
+    links.value = routeLeaderLines(ends)
   })
 }
 
@@ -118,7 +108,7 @@ onBeforeUnmount(() => observer?.disconnect())
 
 <template>
   <main ref="page" class="qs-landing">
-    <div class="qs-landing__stage" :style="`--h: ${height}px`">
+    <div class="qs-landing__stage" :style="height ? `--h: ${height}px` : undefined">
       <!-- The plate is the whole photo; on narrow screens the figure crops it to the band with the outlines. -->
       <figure class="qs-landing__photo" aria-hidden="true">
         <div class="qs-landing__plate">
@@ -186,17 +176,7 @@ onBeforeUnmount(() => observer?.disconnect())
             @click="start"
           >
             Start
-            <svg
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              stroke-width="1.7"
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              aria-hidden="true"
-            >
-              <path d="M4 12h16M14 6l6 6-6 6" />
-            </svg>
+            <LandingArrow />
           </button>
         </form>
         <p v-if="needsKey" id="landing-needs-key" class="qs-landing__hint" role="status">
@@ -214,17 +194,7 @@ onBeforeUnmount(() => observer?.disconnect())
           <p><b>No key to hand?</b> Open a sample container and see what it read. No charge.</p>
           <button type="button" class="qs-landing__demo" @click="setup.enterDemo()">
             Try the demo
-            <svg
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              stroke-width="1.7"
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              aria-hidden="true"
-            >
-              <path d="M4 12h16M14 6l6 6-6 6" />
-            </svg>
+            <LandingArrow />
           </button>
         </div>
       </section>
@@ -233,59 +203,57 @@ onBeforeUnmount(() => observer?.disconnect())
         <g v-for="(l, n) in links" :key="l.key" class="qs-landing__link" :style="`--i: ${n}`">
           <path class="qs-landing__halo" :d="l.d" pathLength="1" />
           <path :d="l.d" pathLength="1" />
-          <circle :cx="l.x" :cy="l.y" r="4" />
+          <circle :cx="l.x1" :cy="l.y1" r="4" />
         </g>
       </svg>
 
       <section class="qs-landing__panel" aria-label="Read from a sample photo">
         <div class="qs-landing__card qs-landing__card--id" data-row="id" style="--i: 0">
-          <span class="qs-landing__k"><b>01</b>Container ID</span>
-          <span
-            class="qs-id qs-id--md"
-            role="img"
-            aria-label="J D L U, 2 0 0, 6 9 0, check digit 2"
-          >
+          <span class="qs-landing__k"><b>01</b>{{ CARDS.id.label }}</span>
+          <span class="qs-id qs-id--md" role="img" :aria-label="idSpoken(CARDS.id.id)">
             <span class="qs-id__group"
-              ><span v-for="(c, k) in CONTAINER_ID.owner" :key="k" class="qs-id__ch">{{
+              ><span v-for="(c, k) in CARDS.id.id.owner" :key="k" class="qs-id__ch">{{
                 c
               }}</span></span
             >
-            <span v-for="group in CONTAINER_ID.serial" :key="group" class="qs-id__group"
+            <span v-for="group in CARDS.id.id.serial" :key="group" class="qs-id__group"
               ><span v-for="(c, k) in group" :key="k" class="qs-id__ch">{{ c }}</span></span
             >
-            <span class="qs-id__check">{{ CONTAINER_ID.check }}</span>
+            <span class="qs-id__check">{{ CARDS.id.id.check }}</span>
           </span>
           <span class="qs-landing__meta">
-            <CertaintyChip level="Confident" />
-            <span class="qs-prov qs-prov--calculated">Check digit valid</span>
+            <CertaintyChip :level="CARDS.id.certainty" />
+            <span class="qs-prov qs-prov--calculated">{{ CARDS.id.tag }}</span>
           </span>
         </div>
         <div class="qs-landing__card" data-row="type" style="--i: 1">
-          <span class="qs-landing__k"><b>02</b>Size and type</span>
+          <span class="qs-landing__k"><b>02</b>{{ CARDS.type.label }}</span>
           <span class="qs-landing__v qs-landing__v--code"
-            >{{ TYPE_READING.code }} <small>{{ TYPE_READING.meaning }}</small></span
+            >{{ CARDS.type.value }} <small>{{ CARDS.type.gloss }}</small></span
           >
-          <CertaintyChip level="Confident" />
+          <CertaintyChip :level="CARDS.type.certainty" />
         </div>
         <div class="qs-landing__card qs-landing__card--weights" style="--i: 2">
-          <span class="qs-landing__k"><b>03</b>Weights</span>
-          <CertaintyChip :level="WEIGHTS_CERTAINTY" />
+          <span class="qs-landing__k"><b>03</b>{{ CARDS.weights.label }}</span>
+          <CertaintyChip :level="CARDS.weights.certainty" />
           <dl>
-            <div v-for="w in WEIGHT_ROWS" :key="w.key" :data-row="w.key">
+            <div v-for="w in CARDS.weights.rows" :key="w.key" :data-row="w.key">
               <dt>{{ w.label }}</dt>
               <dd>{{ w.value }}</dd>
             </div>
           </dl>
         </div>
         <div class="qs-landing__card" data-row="marking" style="--i: 3">
-          <span class="qs-landing__k"><b>04</b>Marking</span>
-          <span class="qs-landing__v">Super heavy <small>No DG placard visible</small></span>
-          <CertaintyChip level="Confident" />
+          <span class="qs-landing__k"><b>04</b>{{ CARDS.marking.label }}</span>
+          <span class="qs-landing__v"
+            >{{ CARDS.marking.value }} <small>{{ CARDS.marking.gloss }}</small></span
+          >
+          <CertaintyChip :level="CARDS.marking.certainty" />
         </div>
         <div class="qs-landing__card" style="--i: 4">
-          <span class="qs-landing__k"><b>05</b>Seal</span>
-          <span class="qs-landing__v">Not in this photo</span>
-          <CertaintyChip level="Not seen" />
+          <span class="qs-landing__k"><b>05</b>{{ CARDS.seal.label }}</span>
+          <span class="qs-landing__v">{{ CARDS.seal.value }}</span>
+          <CertaintyChip :level="CARDS.seal.certainty" />
         </div>
       </section>
     </div>
