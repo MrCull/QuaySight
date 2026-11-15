@@ -32,6 +32,39 @@ describe('App: setup gate', () => {
     expect(wrapper.find('#stage').exists()).toBe(true)
     expect(wrapper.find('.qs-settingschip').attributes('title')).toContain('key set')
   })
+
+  it('greets a first visit with the headline', () => {
+    const wrapper = mount(App)
+    const headline = wrapper.get('h1')
+    expect(headline.text().replace(/\s+/g, ' ')).toBe('The whole Quay, in Sight.')
+    expect(wrapper.text()).toContain('To OCR, and beyond…')
+  })
+
+  it('explains how to get a key for the chosen provider', async () => {
+    const wrapper = mount(App)
+    const help = buttonNamed(wrapper, /^How do I get a key\?$/)!
+    expect(help.attributes('aria-expanded')).toBe('false')
+    await help.trigger('click')
+    expect(help.attributes('aria-expanded')).toBe('true')
+    const link = wrapper.get('a[href="https://openrouter.ai/keys"]')
+    expect(link.attributes('target')).toBe('_blank')
+    expect(link.attributes('rel')).toContain('noopener')
+
+    await wrapper.get('[data-testid="provider-option-luna"]').trigger('click')
+    expect(wrapper.find('a[href="https://platform.openai.com/api-keys"]').exists()).toBe(true)
+
+    await help.trigger('keydown', { key: 'Escape' })
+    expect(help.attributes('aria-expanded')).toBe('false')
+  })
+
+  it('opens demo mode from Try the demo, with no key', async () => {
+    const wrapper = mount(App)
+    await buttonNamed(wrapper, /^Try the demo$/)!.trigger('click')
+    expect(useInspectionStore().demo).toBe(true)
+    expect(wrapper.find('.qs-landing').exists()).toBe(false)
+    expect(wrapper.find('#stage').exists()).toBe(true)
+    expect(wrapper.text()).toContain('DEMO')
+  })
 })
 
 describe('App: the inspection starts itself', () => {
