@@ -42,6 +42,10 @@ function start() {
   key.value?.focus()
 }
 
+// "How do I get a key?": a small disclosure under the key note, for the chosen provider. Escape or Try the demo
+// closes it.
+const keyHelpOpen = ref(false)
+
 // Arrow keys move the choice, as in any radio group.
 function onPickKey(event: KeyboardEvent) {
   const step = { ArrowRight: 1, ArrowDown: 1, ArrowLeft: -1, ArrowUp: -1 }[event.key]
@@ -153,21 +157,25 @@ onBeforeUnmount(() => observer?.disconnect())
               {{ p.name }}
             </button>
           </div>
-          <input
-            :id="`${store.provider}-key`"
-            ref="key"
-            class="qs-landing__key"
-            type="password"
-            autocomplete="off"
-            spellcheck="false"
-            placeholder="API key"
-            :value="store.apiKey"
-            :aria-label="copy.label"
-            :aria-describedby="
-              needsKey ? 'landing-needs-key' : keyWarning ? 'landing-key-format' : undefined
-            "
-            @input="store.setApiKey(($event.target as HTMLInputElement).value)"
-          />
+          <!-- While the key is empty and unfocused, a blinking caret invites a paste. -->
+          <span class="qs-landing__keywrap">
+            <i v-if="!store.apiKey" class="qs-landing__caret" aria-hidden="true"></i>
+            <input
+              :id="`${store.provider}-key`"
+              ref="key"
+              class="qs-landing__key"
+              type="password"
+              autocomplete="off"
+              spellcheck="false"
+              placeholder="API key"
+              :value="store.apiKey"
+              :aria-label="copy.label"
+              :aria-describedby="
+                needsKey ? 'landing-needs-key' : keyWarning ? 'landing-key-format' : undefined
+              "
+              @input="store.setApiKey(($event.target as HTMLInputElement).value)"
+            />
+          </span>
           <!-- Enter in the key field submits the form; the button starts on its own click. -->
           <button
             type="button"
@@ -190,6 +198,24 @@ onBeforeUnmount(() => observer?.disconnect())
         <p class="qs-landing__note">
           Never stored. Your key lives in this tab and goes only to your provider.
         </p>
+        <div class="qs-landing__help" @keydown.esc="keyHelpOpen = false">
+          <button
+            type="button"
+            class="qs-landing__ask"
+            aria-controls="landing-key-help"
+            :aria-expanded="keyHelpOpen ? 'true' : 'false'"
+            @click="keyHelpOpen = !keyHelpOpen"
+          >
+            How do I get a key?
+          </button>
+          <p v-if="keyHelpOpen" id="landing-key-help" class="qs-landing__tip" role="note">
+            {{ copy.getKey.how }}
+            <a :href="copy.getKey.url" target="_blank" rel="noopener noreferrer"
+              >Get a key from {{ getProvider(store.provider).name
+              }}<span class="qs-landing__offscreen"> (opens in a new tab)</span></a
+            >
+          </p>
+        </div>
         <div class="qs-landing__patch">
           <p><b>No key to hand?</b> Open a sample container and see what it read. No charge.</p>
           <button type="button" class="qs-landing__demo" @click="setup.enterDemo()">

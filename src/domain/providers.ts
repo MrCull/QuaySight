@@ -53,6 +53,8 @@ export interface KeyFieldCopy {
   hint: string
   /** How this provider's keys start, e.g. "sk-or-". A key that doesn't is warned about, never refused. */
   prefix: string
+  /** Where a visitor without a key gets one, and how, in a sentence. */
+  getKey: { url: string; how: string }
 }
 
 export interface ProviderInfo {
@@ -105,6 +107,10 @@ export const providers: ProviderInfo[] = [
       placeholder: 'Paste your OpenRouter key (sk-or-…)',
       hint: `The photo and this key go only to OpenRouter's Decisions endpoint, and only for a live run. OpenRouter passes the photo, never your key, on to the model's maker. ${KEPT_IN_MEMORY}`,
       prefix: 'sk-or-',
+      getKey: {
+        url: 'https://openrouter.ai/keys',
+        how: 'Sign in at OpenRouter, add a little credit, then create a key under Keys. It starts with sk-or-.',
+      },
     },
     models: [
       {
@@ -157,6 +163,10 @@ export const providers: ProviderInfo[] = [
       placeholder: 'Paste your OpenAI key',
       hint: `The photo and this key go only to OpenAI's Decisions endpoint, and only for a live run. ${KEPT_IN_MEMORY}`,
       prefix: 'sk-',
+      getKey: {
+        url: 'https://platform.openai.com/api-keys',
+        how: 'Sign in to the OpenAI platform, set up billing, then create a secret key under API keys. It starts with sk-.',
+      },
     },
     models: [
       {

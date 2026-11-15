@@ -34,10 +34,14 @@
           <button type="button" role="radio" class="qs-landing__opt" aria-checked="true">OpenRouter</button>
           <button type="button" role="radio" class="qs-landing__opt" aria-checked="false" tabindex="-1">OpenAI</button>
         </div>
-        <input class="qs-landing__key" type="password" placeholder="API key" aria-label="OpenRouter API key">
+        <span class="qs-landing__keywrap"><i class="qs-landing__caret" aria-hidden="true"></i><input class="qs-landing__key" type="password" placeholder="API key" aria-label="OpenRouter API key"></span>
         <button type="button" class="qs-landing__go" aria-disabled="true">Start <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 12h16M14 6l6 6-6 6"/></svg></button>
       </form>
       <p class="qs-landing__note">Never stored. Your key lives in this tab and goes only to your provider.</p>
+      <div class="qs-landing__help">
+        <button type="button" class="qs-landing__ask" aria-controls="key-help" aria-expanded="true">How do I get a key?</button>
+        <p id="key-help" class="qs-landing__tip" role="note">Sign in at OpenRouter, add a little credit, then create a key under Keys. It starts with sk-or-. <a href="https://openrouter.ai/keys" target="_blank" rel="noopener noreferrer">Get a key from OpenRouter<span class="qs-landing__offscreen"> (opens in a new tab)</span></a></p>
+      </div>
       <div class="qs-landing__patch">
         <p><b>No key to hand?</b> Open a sample container and see what it read. No charge.</p>
         <button type="button" class="qs-landing__demo">Try the demo <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 12h16M14 6l6 6-6 6"/></svg></button>

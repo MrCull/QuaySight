@@ -40,6 +40,23 @@ describe('App: setup gate', () => {
     expect(wrapper.text()).toContain('To OCR, and beyond…')
   })
 
+  it('explains how to get a key for the chosen provider', async () => {
+    const wrapper = mount(App)
+    const help = buttonNamed(wrapper, /^How do I get a key\?$/)!
+    expect(help.attributes('aria-expanded')).toBe('false')
+    await help.trigger('click')
+    expect(help.attributes('aria-expanded')).toBe('true')
+    const link = wrapper.get('a[href="https://openrouter.ai/keys"]')
+    expect(link.attributes('target')).toBe('_blank')
+    expect(link.attributes('rel')).toContain('noopener')
+
+    await wrapper.get('[data-testid="provider-option-luna"]').trigger('click')
+    expect(wrapper.find('a[href="https://platform.openai.com/api-keys"]').exists()).toBe(true)
+
+    await help.trigger('keydown', { key: 'Escape' })
+    expect(help.attributes('aria-expanded')).toBe('false')
+  })
+
   it('opens demo mode from Try the demo, with no key', async () => {
     const wrapper = mount(App)
     await buttonNamed(wrapper, /^Try the demo$/)!.trigger('click')
