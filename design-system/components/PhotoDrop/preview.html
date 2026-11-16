@@ -1,10 +1,17 @@
-<!-- @dsCard group="Setup" height=560 subtitle="Your photo, or a sample container with a saved result" -->
+<!-- @dsCard group="Setup" height=860 subtitle="Your photo, or a sample container with a saved result" -->
 <!doctype html>
 <html><head><link rel="stylesheet" href="../../tokens.css"><link rel="stylesheet" href="../bundle.css"><meta charset="utf-8"><title>Photo drop</title>
 <style>body{margin:0;padding:24px;background:var(--surface)}</style></head>
 <body class="qs-root">
-<label class="qs-drop" tabindex="0">
-  <span class="qs-drop__icon"><i class="qs-glyph qs-glyph--photo"></i></span>
+<label class="qs-drop qs-drop--stage" tabindex="0">
+  <span class="qs-drop__eyebrow" aria-hidden="true">Example shots</span>
+  <span class="qs-drop__shots" aria-hidden="true">
+    <span class="qs-shot qs-shot--in"><span class="qs-shot__img"><img src="../../../samples/jdlu-200690-2-corner-doors-left.jpg" alt=""></span><span class="qs-shot__label">Left corner</span></span>
+    <span class="qs-shot qs-shot--in"><span class="qs-shot__img"><img src="../../../samples/jdlu-200690-4-long-side.jpg" alt=""></span><span class="qs-shot__label">Long side</span></span>
+    <span class="qs-shot qs-shot--in"><span class="qs-shot__img"><img src="../../../samples/jdlu-200690-1-rear-doors.jpg" alt=""><i class="qs-shot__box" style="left:58.1%;top:24.7%;width:26.7%;height:9.7%"></i></span><span class="qs-shot__label">Rear doors</span></span>
+    <span class="qs-shot qs-shot--in"><span class="qs-shot__img"><img src="../../../samples/jdlu-200690-3-corner-doors-right.jpg" alt=""></span><span class="qs-shot__label">Right corner</span></span>
+    <span class="qs-shot qs-shot--in"><span class="qs-shot__img"><img src="../../../samples/seal-closeup-coyu-0154620.jpg" alt="" style="object-position:50% 18%"></span><span class="qs-shot__label">Seal</span></span>
+  </span>
   <span class="qs-drop__title">Drop container photos here</span>
   <span class="qs-drop__meta">1–5 photos of one container · JPEG, PNG or WebP</span>
   <span class="qs-btn qs-btn--primary qs-btn--lg qs-drop__cta" aria-hidden="true"><i class="qs-glyph qs-glyph--upload" aria-hidden="true"></i>Choose photos</span>

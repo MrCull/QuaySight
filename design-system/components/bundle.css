@@ -543,6 +543,36 @@
 .qs-drop__meta { color: var(--ink-muted); font: 400 14px/20px var(--font-sans); }
 .qs-drop__cta { margin-top: var(--space-2); pointer-events: none; }
 .qs-drop:hover .qs-drop__cta, .qs-drop--over .qs-drop__cta { background: var(--brand-hover); }
+/* The start screen's drop zone: a stage with five example shots dealt onto it. Played once; nothing loops. */
+.qs-drop--stage { --ease-settle: cubic-bezier(0.2, 0.8, 0.2, 1); --shot-w: clamp(var(--space-7), 14vw, calc(var(--space-8) * 2.5)); grid-template-columns: minmax(0, 1fr); position: relative; overflow: hidden; isolation: isolate; align-content: center; width: min(100%, calc(var(--space-8) * 17)); min-height: min(calc(var(--space-8) * 9), 72vh); padding: var(--space-6) var(--space-4) var(--space-7); background: radial-gradient(ellipse 70% 60% at 50% 0%, color-mix(in srgb, var(--brand) 14%, transparent), transparent), var(--surface-sunken); transition: border-color var(--duration-base), background-color var(--duration-base); }
+.qs-drop--stage:hover, .qs-drop--stage.qs-drop--over { background: radial-gradient(ellipse 80% 70% at 50% 0%, color-mix(in srgb, var(--brand) 26%, transparent), transparent), var(--surface-sunken); }
+.qs-drop--stage.qs-drop--over { border-style: solid; }
+/* The whole zone is the control: nothing inside takes the pointer, so a drag never leaves it for a child. */
+.qs-drop--stage > * { pointer-events: none; }
+.qs-drop__eyebrow { color: var(--ink-muted); font: 600 var(--type-label-size)/var(--type-label-line) var(--font-sans); letter-spacing: 0.06em; text-transform: uppercase; }
+.qs-drop__shots { display: flex; justify-content: center; align-items: flex-start; padding: var(--space-4) 0 calc(var(--shot-w) * 0.3); }
+.qs-shot { --lean: 6deg; --dip: 0.05; --lift: 0px; position: relative; z-index: var(--z); flex: none; display: grid; gap: var(--space-1); width: var(--shot-w); margin-inline: calc(var(--shot-w) * -0.01); padding: var(--space-1); border: 1px solid var(--line-strong); border-radius: var(--radius-sm); background: var(--surface-raised); box-shadow: var(--shadow-raised); opacity: 0; rotate: calc(var(--k) * var(--lean)); translate: calc(var(--k) * var(--spread, 0px)) calc(var(--k) * var(--k) * var(--shot-w) * var(--dip) + var(--lift)); transition: rotate var(--duration-slow) var(--ease-settle), translate var(--duration-slow) var(--ease-settle), scale var(--duration-slow) var(--ease-settle), border-color var(--duration-base); }
+.qs-shot:nth-child(1) { --k: -2; --z: 1; --i: 0; }
+.qs-shot:nth-child(2) { --k: -1; --z: 2; --i: 2; }
+.qs-shot:nth-child(3) { --k: 0; --z: 3; --i: 4; scale: 1.12; }
+.qs-shot:nth-child(4) { --k: 1; --z: 2; --i: 3; }
+.qs-shot:nth-child(5) { --k: 2; --z: 1; --i: 1; }
+.qs-shot__img { position: relative; display: block; aspect-ratio: 3 / 4; overflow: hidden; border-radius: var(--radius-xs); background: var(--surface-sunken); }
+.qs-shot__img img { display: block; width: 100%; height: 100%; object-fit: cover; }
+.qs-shot__label { overflow: hidden; color: var(--ink-muted); font: 600 var(--type-caption-size)/var(--type-caption-line) var(--font-sans); letter-spacing: 0.06em; text-transform: uppercase; white-space: nowrap; text-overflow: ellipsis; }
+/* Each shot is drawn in once its photo has loaded: outer shots first, from their own side, the middle one last. */
+.qs-shot--in { opacity: 1; animation: qs-shot-in calc(var(--duration-arrive) * 1.5) var(--ease-settle) both; animation-delay: calc(var(--duration-base) + var(--i) * var(--duration-fast) * 1.25); }
+@keyframes qs-shot-in { from { opacity: 0; translate: calc(var(--k) * var(--shot-w) * 2.4) calc(var(--shot-w) * (0.5 - var(--k) * var(--k) * 0.35)); rotate: calc(var(--k) * 16deg + 10deg); scale: 0.82; } 35% { opacity: 1; } }
+/* The area a reading comes from, outlined on the middle shot as on the Landing. */
+.qs-shot__box { position: absolute; border: calc(var(--space-1) / 2) solid var(--brand); border-radius: var(--radius-xs); background: color-mix(in srgb, var(--brand) 16%, transparent); box-shadow: 0 0 var(--space-3) var(--landing-glow); animation: qs-shot-box var(--duration-arrive) var(--ease-settle) both; animation-delay: calc(var(--duration-arrive) * 2.6); }
+@keyframes qs-shot-box { from { opacity: 0; scale: 1.6; } }
+/* Hover opens the fan a little; a photo held over the zone opens it wide and lifts it. */
+.qs-drop--stage:hover .qs-shot { --lean: 7.5deg; --spread: calc(var(--shot-w) * 0.05); --lift: calc(var(--space-1) * -1); }
+.qs-drop--stage.qs-drop--over .qs-shot { --lean: 11deg; --dip: 0.08; --spread: calc(var(--shot-w) * 0.16); border-color: var(--brand); }
+.qs-drop--stage .qs-drop__title { font: 600 clamp(var(--type-display-md-size), 4.4vw, var(--type-display-lg-size))/1.1 var(--font-display); }
+@media (max-width: 720px) { .qs-shot__label { display: none; } .qs-drop--stage { min-height: 0; } }
+@media (prefers-reduced-motion: reduce) { .qs-shot, .qs-shot__box { animation: none; transition: none; } }
+.qs-reduced-motion .qs-shot, .qs-reduced-motion .qs-shot__box { animation: none; transition: none; }
 .qs-samples { margin-top: var(--space-5); }
 .qs-samples__head { display: flex; flex-wrap: wrap; align-items: baseline; gap: var(--space-2) var(--space-3); margin-bottom: var(--space-3); }
 .qs-samples__title { font: 600 16px/24px var(--font-sans); color: var(--ink); }
