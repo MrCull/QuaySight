@@ -57,7 +57,7 @@ test.describe('demo mode', () => {
       await expect(sampleTile(page, name)).toBeVisible()
     }
     await expect(page.locator('input[type="file"]')).toHaveCount(0)
-    await expect(page.getByText('Drop a container photo here')).toHaveCount(0)
+    await expect(page.getByText('Drop container photos here')).toHaveCount(0)
     await expect(page.getByText(/Inspecting your own photos needs an API provider/)).toHaveCount(2)
   })
 

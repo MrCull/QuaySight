@@ -563,16 +563,13 @@
 /* Each shot is drawn in once its photo has loaded: outer shots first, from their own side, the middle one last. */
 .qs-shot--in { opacity: 1; animation: qs-shot-in calc(var(--duration-arrive) * 1.5) var(--ease-settle) both; animation-delay: calc(var(--duration-base) + var(--i) * var(--duration-fast) * 1.25); }
 @keyframes qs-shot-in { from { opacity: 0; translate: calc(var(--k) * var(--shot-w) * 2.4) calc(var(--shot-w) * (0.5 - var(--k) * var(--k) * 0.35)); rotate: calc(var(--k) * 16deg + 10deg); scale: 0.82; } 35% { opacity: 1; } }
-/* The area a reading comes from, outlined on the middle shot as on the Landing. */
-.qs-shot__box { position: absolute; border: calc(var(--space-1) / 2) solid var(--brand); border-radius: var(--radius-xs); background: color-mix(in srgb, var(--brand) 16%, transparent); box-shadow: 0 0 var(--space-3) var(--landing-glow); animation: qs-shot-box var(--duration-arrive) var(--ease-settle) both; animation-delay: calc(var(--duration-arrive) * 2.6); }
-@keyframes qs-shot-box { from { opacity: 0; scale: 1.6; } }
 /* Hover opens the fan a little; a photo held over the zone opens it wide and lifts it. */
 .qs-drop--stage:hover .qs-shot { --lean: 7.5deg; --spread: calc(var(--shot-w) * 0.05); --lift: calc(var(--space-1) * -1); }
 .qs-drop--stage.qs-drop--over .qs-shot { --lean: 11deg; --dip: 0.08; --spread: calc(var(--shot-w) * 0.16); border-color: var(--brand); }
 .qs-drop--stage .qs-drop__title { font: 600 clamp(var(--type-display-md-size), 4.4vw, var(--type-display-lg-size))/1.1 var(--font-display); }
 @media (max-width: 720px) { .qs-shot__label { display: none; } .qs-drop--stage { min-height: 0; } }
-@media (prefers-reduced-motion: reduce) { .qs-shot, .qs-shot__box { animation: none; transition: none; } }
-.qs-reduced-motion .qs-shot, .qs-reduced-motion .qs-shot__box { animation: none; transition: none; }
+@media (prefers-reduced-motion: reduce) { .qs-shot { animation: none; transition: none; } }
+.qs-reduced-motion .qs-shot { animation: none; transition: none; }
 .qs-samples { margin-top: var(--space-5); }
 .qs-samples__head { display: flex; flex-wrap: wrap; align-items: baseline; gap: var(--space-2) var(--space-3); margin-bottom: var(--space-3); }
 .qs-samples__title { font: 600 16px/24px var(--font-sans); color: var(--ink); }

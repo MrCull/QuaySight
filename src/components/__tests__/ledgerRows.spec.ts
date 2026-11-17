@@ -35,6 +35,17 @@ describe('the readings ledger rows', () => {
     expect(payload.tags.map((t) => t.text)).toEqual(['Calculated'])
   })
 
+  it('says Payload once: a printed payload not seen gives way to the calculated one', async () => {
+    const base = await recordedInspection('luna', { delayMs: 0 })
+    const { rows } = ledgerModel({
+      ...base,
+      weights: { ...base.weights!, printedPayload: null },
+    })
+    const payloads = rows.filter((r) => r.label === 'Payload')
+    expect(payloads.map((r) => r.key)).toEqual(['payload'])
+    expect(payloads[0]!.groups).not.toBeNull()
+  })
+
   it('splits the unit from the number and follows the units setting', async () => {
     const record = await recordedInspection('luna', { delayMs: 0 })
     const gross = ledgerModel(record, 'imperial').rows.find((r) => r.key === 'gross')!

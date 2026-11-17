@@ -589,7 +589,7 @@ const CAPTURES: Capture[] = [
       await choosePhoto(page)
       await startAndSettle(page)
       await page.getByRole('button', { name: 'New inspection' }).click()
-      await page.getByText('Drop a container photo here').waitFor()
+      await page.getByText('Drop container photos here').waitFor()
     },
   },
   {

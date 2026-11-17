@@ -137,7 +137,7 @@ async function liveRun(page: Page, hold: Array<'side' | 'door'>, cancel: boolean
   if (cancel) {
     await expect(page.locator('[data-tile="id"]')).toHaveAttribute('data-state', 'arrived')
     await page.getByRole('button', { name: 'Cancel' }).click()
-    await page.getByText('Drop a container photo here').waitFor()
+    await page.getByText('Drop container photos here').waitFor()
   } else {
     await page.locator('#stage.qs-arrived').waitFor()
   }
