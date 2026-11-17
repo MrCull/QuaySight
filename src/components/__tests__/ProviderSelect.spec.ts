@@ -28,12 +28,13 @@ describe('ProviderSelect (the form in the setup card and the settings drawer)', 
     expect(store.photo).toBeNull()
   })
 
-  it('lists Jev latest (moving target, recommended), Jev 1.14 and Jev 1.13 for OpenRouter, each by maker and route', () => {
+  it('lists Jev latest (moving target, recommended), Jev 1.14, Jev 1.13 and Liquid d1.2-ultra for OpenRouter, each by maker and route', () => {
     const wrapper = mount(ProviderSelect)
     expect(wrapper.findAll('select option').map((o) => [o.attributes('value'), o.text()])).toEqual([
       ['~typesafe/jev-latest', 'Jev latest (TypeSafe) via OpenRouter · moving target, recommended'],
       ['typesafe/jev-1.14', 'Jev 1.14 (TypeSafe) via OpenRouter · pinned'],
       ['typesafe/jev-1.13', 'Jev 1.13 (TypeSafe) via OpenRouter · pinned'],
+      ['liquid/d1.2-ultra', 'd1.2-ultra (Liquid) via OpenRouter · pinned'],
     ])
   })
 

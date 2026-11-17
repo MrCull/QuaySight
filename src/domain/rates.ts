@@ -55,6 +55,18 @@ export const rateSchedules: RateSchedule[] = [
       inputUsdPerMillionTokens: 0.042,
       outputUsdPerMillionTokens: 0,
     })),
+  // Liquid d1.2-ultra through OpenRouter: the fallback when a response carries no usage.cost.
+  {
+    provider: 'openrouter',
+    model: 'liquid/d1.2-ultra',
+    endpoint: OPENROUTER_ENDPOINT_ID,
+    effectiveFrom: '2026-11-17',
+    source:
+      'OpenRouter usage.cost on live d1.2-ultra calls, 17 Nov 2026: 4,727 input tokens cost $0.000198534, i.e. $0.042 per Mtok input and output free. Matches the model page. Re-check before a demo.',
+    placeholder: false,
+    inputUsdPerMillionTokens: 0.042,
+    outputUsdPerMillionTokens: 0,
+  },
 ]
 
 /**

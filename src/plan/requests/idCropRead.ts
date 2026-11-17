@@ -8,6 +8,7 @@ import {
 import {
   jevIdQuestionSet,
   lunaIdQuestionSet,
+  placesOf,
   readIdCharacters,
   type ChoiceReading,
 } from '../../domain/idQuestions'
@@ -44,7 +45,12 @@ function zoomAsk(route: RunRoute) {
   const luna = questionSetOf(route.entry) === 'luna'
   const set = luna
     ? lunaIdQuestionSet(Array.from({ length: 11 }, (_, i) => i + 1))
-    : jevIdQuestionSet({ image: 'the photo', box: false, owner: false })
+    : jevIdQuestionSet({
+        image: 'the photo',
+        box: false,
+        owner: false,
+        places: placesOf(questionSetOf(route.entry)),
+      })
   return questionSetAsk(set, ({ answers }) => ({
     readings: readIdCharacters(answers),
     caveats: luna ? NO_CAVEATS : jevCaveatsOf(answers),

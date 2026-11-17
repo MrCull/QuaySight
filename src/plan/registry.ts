@@ -6,7 +6,7 @@ import { idRecheck } from './requests/idRecheck'
 import { regions } from './requests/regions'
 import { sealPick } from './requests/sealPick'
 import { sealZoom } from './requests/sealZoom'
-import { sideDamage } from './requests/sideDamage'
+import { sideDamage, sideDamageFirstHalf, sideDamageSecondHalf } from './requests/sideDamage'
 import { survey } from './requests/survey'
 import { tileSearchRequests } from './requests/tileSearch'
 import { weightCheck } from './requests/weightCheck'
@@ -24,6 +24,8 @@ const registered: PlanRequest[] = [
   sealZoom,
   sealPick,
   sideDamage,
+  sideDamageFirstHalf,
+  sideDamageSecondHalf,
   doorDamage,
   doorEndCrop,
   weightCheck,

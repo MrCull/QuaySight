@@ -37,10 +37,14 @@ function checkChoices(set: SharedQuestionSet, wire: QuestionWireFormat): void {
 }
 
 /** Refuses a set the wire format cannot take in one request. Called before anything is sent. */
-export function checkLimits(set: SharedQuestionSet, wire: QuestionWireFormat): void {
+export function checkLimits(
+  set: SharedQuestionSet,
+  wire: QuestionWireFormat,
+  modelMax?: number,
+): void {
   checkNames(set)
   checkChoices(set, wire)
-  const { maxQuestions } = REQUEST_LIMITS[wire]
+  const maxQuestions = Math.min(REQUEST_LIMITS[wire].maxQuestions, modelMax ?? Infinity)
   if (set.questions.length > maxQuestions) {
     throw new QuestionSetError(tooManyQuestionsText(set.questions.length, wire, maxQuestions))
   }
@@ -51,17 +55,18 @@ export function checkLimits(set: SharedQuestionSet, wire: QuestionWireFormat): v
 }
 
 /**
- * The set as one or more sets within the wire format's question limit, in order, each with the same
+ * The set as one or more sets within the wire format's (or the model's own) question limit, in order, each with the same
  * input. A choice question over the choice limit is refused: splitting its options would change what
  * it asks (the manifest check splits its own entries, saying so in each part).
  */
 export function splitQuestionSet(
   set: SharedQuestionSet,
   wire: QuestionWireFormat,
+  modelMax?: number,
 ): SharedQuestionSet[] {
   checkNames(set)
   checkChoices(set, wire)
-  const { maxQuestions } = REQUEST_LIMITS[wire]
+  const maxQuestions = Math.min(REQUEST_LIMITS[wire].maxQuestions, modelMax ?? Infinity)
   const parts: SharedQuestionSet[] = []
   for (let i = 0; i < set.questions.length; i += maxQuestions) {
     parts.push({ input: set.input, questions: set.questions.slice(i, i + maxQuestions) })

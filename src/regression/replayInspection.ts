@@ -1,8 +1,15 @@
 import { combinePhotoRuns } from '../domain/combinePhotos'
 import type { InspectionRecord, ProviderId } from '../domain/inspection'
 import type { PlanRecording } from '../plan/recording'
+import { defaultModelFor } from '../domain/providers'
 import { replayRecording } from '../plan/replay'
 import type { Expected } from './score'
+
+/**
+ * A route to replay: a provider (the recordings of its default model, so a model added beside it never
+ * changes what an existing check replays), or one provider and model by name.
+ */
+export type ReplayRoute = ProviderId | { provider: ProviderId; model: string }
 
 /**
  * Replays a whole expected inspection (1 to 5 photos) as the record the app would show: each photo's
@@ -12,11 +19,15 @@ import type { Expected } from './score'
 export function replayInspection(
   entry: Expected,
   recordings: readonly PlanRecording[],
-  route: ProviderId,
+  route: ReplayRoute,
 ): InspectionRecord {
+  const { provider, model } =
+    typeof route === 'string' ? { provider: route, model: defaultModelFor(route) } : route
   const runs = entry.photos.map((p, i) => {
-    const recording = recordings.find((r) => r.photo === p.photo && r.provider === route)
-    if (!recording) throw new Error(`No ${route} recording of ${p.photo}.`)
+    const recording = recordings.find(
+      (r) => r.photo === p.photo && r.provider === provider && r.model === model,
+    )
+    if (!recording) throw new Error(`No ${provider} recording of ${p.photo} on ${model}.`)
     return {
       index: i + 1,
       name: p.photo,

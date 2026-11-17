@@ -19,7 +19,7 @@ export interface PhotoLimits {
 }
 
 /** Who makes a model. The maker, not the route, decides the question set (see questionSetOf). */
-export type ModelMaker = 'OpenAI' | 'TypeSafe'
+export type ModelMaker = 'OpenAI' | 'TypeSafe' | 'Liquid'
 
 export interface ModelOption {
   /** The model id sent on the wire, exactly as the endpoint expects it. */
@@ -38,6 +38,11 @@ export interface ModelOption {
   probabilities: boolean
   /** Whether the model accepts the box question. Nothing else decides this. */
   box: boolean
+  /**
+   * Questions the model takes in one request, where that is fewer than the wire format's limit
+   * (REQUEST_LIMITS). Absent: the wire format's limit. A set over it is refused before anything is sent.
+   */
+  maxQuestions?: number
   photoLimits: PhotoLimits
   /** A moving alias: the provider can point it at a newer version between runs. */
   movingTarget: boolean
@@ -80,6 +85,20 @@ const JEV_LIMITS: PhotoLimits = {
 }
 /** Luna: up to 2,048 px on the long side. */
 const LUNA_LIMITS: PhotoLimits = { maxSide: 2048, minSide: 0, maxPixels: null, minPixels: 0 }
+
+/**
+ * Liquid d1.2-ultra (OpenRouter's Decisions guide and live probe, 17 Nov 2026): at most 8 images, a body of
+ * at most 4.5 MB and 10,000 image patches of 32x32 px in all. No minimum side: a 16x12 px photo is
+ * answered. A 3300x2475 px photo was accepted and 4000x3000 refused (422, too many patches). The long side
+ * is capped at 2,048 px, as for Luna: at most 4,096 patches, a body well under 4.5 MB, and every photo the
+ * app sends is within the patch limit (docs/research/liquid-d1-2-ultra-2026-11-17.md).
+ */
+const LIQUID_LIMITS: PhotoLimits = {
+  maxSide: 2048,
+  minSide: 0,
+  maxPixels: null,
+  minPixels: 0,
+}
 
 /** Jev through OpenRouter's Decisions endpoint: one JSON body, the photo as a data-URL part (docs/adr/0001). */
 const JEV_VIA_OPENROUTER = {
@@ -142,6 +161,23 @@ export const providers: ProviderInfo[] = [
         // Answers a box question with 400 "Invalid request." (checked 16 Oct 2026).
         probabilities: true,
         box: false,
+        movingTarget: false,
+        recommended: false,
+      },
+      {
+        id: 'liquid/d1.2-ultra',
+        note: 'pinned',
+        displayName: 'd1.2-ultra',
+        maker: 'Liquid',
+        route: 'openrouter',
+        wireFormat: 'openrouter-decisions',
+        // Answers choice, score and noul with probabilities. No box question: OpenRouter documents box for
+        // Jev 1.14 and Jev latest only, and Liquid's own bounding boxes are not offered on this endpoint.
+        probabilities: true,
+        box: false,
+        // OpenRouter answers 422 "A request accepts at most 128 questions" (checked live 17 Nov 2026).
+        maxQuestions: 128,
+        photoLimits: LIQUID_LIMITS,
         movingTarget: false,
         recommended: false,
       },
@@ -215,13 +251,14 @@ export function capabilitiesOf(provider: ProviderId): Capability[] {
 }
 
 /** The question set a model is asked. Fixed by the model's maker, whichever route reaches it. */
-export type QuestionSet = 'luna' | 'jev'
+export type QuestionSet = 'luna' | 'jev' | 'liquid'
 
 /**
  * OpenAI's models get the Luna question set (check-digit guidance, position re-check); TypeSafe's get
  * Jev's. OpenRouter carries both under one wire format, so the wire format cannot decide this (ticket #23).
  */
 export function questionSetOf(model: ModelOption): QuestionSet {
+  if (model.maker === 'Liquid') return 'liquid'
   return model.maker === 'OpenAI' ? 'luna' : 'jev'
 }
 

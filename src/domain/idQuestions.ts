@@ -8,6 +8,7 @@
 import { applyMargin, certaintyOfProbability } from './certainty'
 import { ownerQuestion } from './ownerPick'
 import type { CertaintyLabel } from './inspection'
+import type { QuestionSet } from './providers'
 import type { ChoiceQuestion, SharedAnswer, SharedQuestion, SharedQuestionSet } from './questionSet'
 import { questionSet } from './questionSet'
 
@@ -34,9 +35,25 @@ function layout(image: string): string {
   return `The container number on ${image} is printed as four capital letters, a gap, a six-digit group, then a single digit in a drawn box.`
 }
 
-function place(position: number): string {
+/**
+ * How a question names a character's place. `both-ends` (Luna and Jev) names a digit from the left and from
+ * the right of its group. `from-left` (Liquid d1.2-ultra) names it from the left only: given both, Liquid
+ * often read the third digit as the one beside it. On the zoomed ID crops of the four door photos, 12 runs
+ * of the both-ends wording gave 0 exact readings and 25 wrong characters; the from-left wording gave 12 of 12
+ * exact (17 Nov 2026, docs/research/liquid-d1-2-ultra-2026-11-17.md).
+ */
+export type PlaceWording = 'both-ends' | 'from-left'
+
+/** The place wording of a route's question set: Liquid's names a place from the left only. */
+export const placesOf = (questionSet: QuestionSet): PlaceWording =>
+  questionSet === 'liquid' ? 'from-left' : 'both-ends'
+
+function place(position: number, wording: PlaceWording = 'both-ends'): string {
   if (position <= LETTER_POSITIONS) {
-    return `Read only the ${ORDINALS[position - 1]} letter of the four-letter group.`
+    return `Read only the ${ORDINALS[position - 1]} letter of the four-letter group${wording === 'from-left' ? ', counting from the left' : ''}.`
+  }
+  if (position < ID_POSITIONS && wording === 'from-left') {
+    return `Read only the ${ORDINALS[position - LETTER_POSITIONS - 1]} digit of the six-digit group, counting from its left-hand end.`
   }
   if (position < ID_POSITIONS) {
     // Naming the digit from both ends of the group stops Luna slipping a place along a run of
@@ -53,12 +70,13 @@ function characterQuestion(
   position: number,
   image: string,
   extra: ChoiceQuestion['choices'] = [],
+  wording: PlaceWording = 'both-ends',
 ): ChoiceQuestion {
   const isLetter = position <= LETTER_POSITIONS
   return {
     type: 'choice',
     name: idQuestionName(position),
-    instructions: `${layout(image)} ${place(position)}`,
+    instructions: `${layout(image)} ${place(position, wording)}`,
     choices: [
       ...allowedAt(position).map((value) => ({
         value,
@@ -102,13 +120,20 @@ export interface JevIdOptions {
   box: boolean
   /** Ask the whole-prefix owner-code question (default true). The crop read leaves it out. */
   owner?: boolean
+  /** How the character questions name a place (default `both-ends`). */
+  places?: PlaceWording
 }
 
 /**
  * The Jev ID set: the character questions with an explicit unreadable option, legibility, whether the
  * whole number is in frame and, on box-capable models only, where the number is.
  */
-export function jevIdQuestionSet({ image, box, owner = true }: JevIdOptions): SharedQuestionSet {
+export function jevIdQuestionSet({
+  image,
+  box,
+  owner = true,
+  places = 'both-ends',
+}: JevIdOptions): SharedQuestionSet {
   const unreadable = [
     {
       value: UNREADABLE_OPTION,
@@ -116,7 +141,7 @@ export function jevIdQuestionSet({ image, box, owner = true }: JevIdOptions): Sh
     },
   ]
   const questions: SharedQuestion[] = [
-    ...allPositions().map((position) => characterQuestion(position, image, unreadable)),
+    ...allPositions().map((position) => characterQuestion(position, image, unreadable, places)),
     ...(owner ? [ownerQuestion(image)] : []),
     {
       type: 'score',

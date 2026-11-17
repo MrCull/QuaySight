@@ -5,6 +5,7 @@ import { parsePlanRecording } from '../../plan/recording'
 import { replayRecording } from '../../plan/replay'
 import { facesShown } from '../../domain/photoFace'
 import type { ProviderId } from '../../domain/inspection'
+import { defaultModelFor } from '../../domain/providers'
 import expected from '../expected.json'
 import { replayInspection } from '../replayInspection'
 import type { Expected } from '../score'
@@ -20,7 +21,9 @@ const ROUTES: ProviderId[] = ['luna', 'openrouter']
 describe.each(ROUTES)('JDLU corner photos on %s', (route) => {
   it.each([1, 2])('records the doors and a long side for corner photo %i', (n) => {
     const photo = jdlu.photos[n]!
-    const recording = recordings.find((r) => r.photo === photo.photo && r.provider === route)!
+    const recording = recordings.find(
+      (r) => r.photo === photo.photo && r.provider === route && r.model === defaultModelFor(route),
+    )!
     const record = replayRecording(recording, { id: 'x', photo: null })
     expect([...facesShown(record.photoFace)].sort()).toEqual([...photo.faces].sort())
   })

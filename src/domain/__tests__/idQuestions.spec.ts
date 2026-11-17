@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { jevIdQuestionSet, lunaIdQuestionSet } from '../idQuestions'
+import { jevIdQuestionSet, lunaIdQuestionSet, placesOf } from '../idQuestions'
 import { buildLunaRequest, mapLunaResponse } from '../luna'
 import { buildOpenRouterJevRequest } from '../openrouter'
 import { buildJevRequest } from '../jev'
@@ -98,5 +98,45 @@ describe('check-digit validation stays in the app', () => {
     expect(reading.checkDigitValid).toBe(false)
     expect(reading.value).toBe('COYU2661130')
     expect(reading.certainty).toBe('Uncertain')
+  })
+})
+
+describe('Liquid d1.2-ultra names a character’s place from the left only', () => {
+  const texts = (places: 'both-ends' | 'from-left') =>
+    jevIdQuestionSet({ image: 'the photo', box: false, places }).questions.filter((q) =>
+      q.name.startsWith('id_char_'),
+    )
+
+  it('chooses the wording by the route’s question set', () => {
+    expect(placesOf('liquid')).toBe('from-left')
+    expect(placesOf('jev')).toBe('both-ends')
+    expect(placesOf('luna')).toBe('both-ends')
+  })
+
+  it.each([
+    [1, 'Read only the first letter of the four-letter group, counting from the left.'],
+    [4, 'Read only the fourth letter of the four-letter group, counting from the left.'],
+    [5, 'Read only the first digit of the six-digit group, counting from its left-hand end.'],
+    [7, 'Read only the third digit of the six-digit group, counting from its left-hand end.'],
+    [10, 'Read only the sixth digit of the six-digit group, counting from its left-hand end.'],
+    [11, 'Read only the single digit in the drawn box, exactly as printed.'],
+  ])('names position %i by its place from the left', (position, place) => {
+    expect(texts('from-left')[position - 1]!.instructions).toContain(place)
+  })
+
+  it('never mentions the right-hand end, and keeps the layout, the choices and the names', () => {
+    const liquid = texts('from-left')
+    const jev = texts('both-ends')
+    expect(liquid.some((q) => q.instructions.includes('right-hand end'))).toBe(false)
+    expect(liquid.map((q) => q.name)).toEqual(jev.map((q) => q.name))
+    expect(liquid.map((q) => (q as ChoiceQuestion).choices)).toEqual(
+      jev.map((q) => (q as ChoiceQuestion).choices),
+    )
+    for (const q of liquid) expect(q.instructions).toMatch(/four capital letters.*six-digit group/)
+  })
+
+  it('leaves Jev’s default wording as it was', () => {
+    const base = { image: 'the photo', box: false }
+    expect(jevIdQuestionSet(base)).toEqual(jevIdQuestionSet({ ...base, places: 'both-ends' }))
   })
 })

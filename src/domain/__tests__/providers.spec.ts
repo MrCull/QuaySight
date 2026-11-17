@@ -6,6 +6,7 @@ import {
   isMovingTarget,
   labelsFor,
   providers,
+  questionSetOf,
   supportsBox,
 } from '../providers'
 
@@ -59,11 +60,12 @@ describe('provider catalogue: moving targets', () => {
 describe('provider catalogue: model declarations', () => {
   const models = providers.flatMap((p) => p.models.map((m) => ({ provider: p.id, ...m })))
 
-  it('offers Luna through OpenAI direct only, Jev through OpenRouter, and no direct TypeSafe route', () => {
+  it('offers Luna through OpenAI direct only, Jev and Liquid through OpenRouter, and no direct TypeSafe route', () => {
     expect(models.map((m) => [m.provider, m.id, m.maker, m.route, m.wireFormat])).toEqual([
       ['openrouter', '~typesafe/jev-latest', 'TypeSafe', 'openrouter', 'openrouter-decisions'],
       ['openrouter', 'typesafe/jev-1.14', 'TypeSafe', 'openrouter', 'openrouter-decisions'],
       ['openrouter', 'typesafe/jev-1.13', 'TypeSafe', 'openrouter', 'openrouter-decisions'],
+      ['openrouter', 'liquid/d1.2-ultra', 'Liquid', 'openrouter', 'openrouter-decisions'],
       ['luna', 'gpt-6-luna', 'OpenAI', 'direct', 'openai-decisions'],
     ])
     expect(models.some((m) => m.wireFormat === 'typesafe-system-one')).toBe(false)
@@ -83,6 +85,7 @@ describe('provider catalogue: model declarations', () => {
       'Jev latest (TypeSafe) via OpenRouter · moving target, recommended',
       'Jev 1.14 (TypeSafe) via OpenRouter · pinned',
       'Jev 1.13 (TypeSafe) via OpenRouter · pinned',
+      'd1.2-ultra (Liquid) via OpenRouter · pinned',
       'GPT-6 Luna (OpenAI) direct · pinned',
     ])
   })
@@ -162,5 +165,50 @@ describe('provider catalogue: model declarations', () => {
     expect(openrouter.keyField.hint).toMatch(/go only to OpenRouter's Decisions endpoint/)
     const luna = providers.find((p) => p.id === 'luna')!
     expect(luna.keyField.label).toBe('OpenAI API key')
+  })
+})
+
+describe('provider catalogue: Liquid d1.2-ultra', () => {
+  const liquid = findModel('openrouter', 'liquid/d1.2-ultra')!
+
+  it('is a pinned OpenRouter Decisions model with probabilities and no box question', () => {
+    expect(liquid).toMatchObject({
+      maker: 'Liquid',
+      route: 'openrouter',
+      wireFormat: 'openrouter-decisions',
+      probabilities: true,
+      box: false,
+      movingTarget: false,
+      recommended: false,
+    })
+    expect(supportsBox('openrouter', 'liquid/d1.2-ultra')).toBe(false)
+  })
+
+  it('takes 128 questions a request, fewer than the wire format, and no other model says so', () => {
+    expect(liquid.maxQuestions).toBe(128)
+    const others = providers.flatMap((p) => p.models).filter((m) => m !== liquid)
+    expect(others.every((m) => m.maxQuestions === undefined)).toBe(true)
+  })
+
+  it('takes photos to 2,048 px with no documented minimum', () => {
+    expect(liquid.photoLimits).toEqual({ maxSide: 2048, minSide: 0, maxPixels: null, minPixels: 0 })
+  })
+
+  it('has its own question set, and the other makers keep theirs', () => {
+    expect(questionSetOf(liquid)).toBe('liquid')
+    expect(questionSetOf(findModel('openrouter', '~typesafe/jev-latest')!)).toBe('jev')
+    expect(questionSetOf(findModel('luna', 'gpt-6-luna')!)).toBe('luna')
+  })
+
+  it('is named by model, maker and route, and never becomes the default', () => {
+    expect(labelsFor('openrouter', 'liquid/d1.2-ultra')).toEqual({
+      option: 'd1.2-ultra (Liquid) via OpenRouter · pinned',
+      route: 'Liquid via OpenRouter',
+      provider: 'd1.2-ultra (Liquid) via OpenRouter',
+      ledger: 'd1.2-ultra (Liquid) via OpenRouter',
+      prose: 'd1.2-ultra (Liquid) via OpenRouter',
+      model: 'd1.2-ultra',
+    })
+    expect(defaultModelFor('openrouter')).toBe('~typesafe/jev-latest')
   })
 })
