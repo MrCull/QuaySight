@@ -780,6 +780,8 @@
 .qs-ledger { container-type: inline-size; display: grid; gap: var(--space-4); min-width: 0; }
 .qs-ledger__head { display: flex; align-items: center; justify-content: space-between; gap: var(--space-4); flex-wrap: wrap; }
 .qs-ledger__title { font: 600 28px/32px var(--font-display); letter-spacing: 0.01em; color: var(--ink); }
+/* In the Readings tab the tab names the ledger: no title, and the UnitsToggle sits at the right on its own. */
+.qs-ledger--untitled .qs-ledger__head { justify-content: flex-end; }
 /* The door gives way first as the ledger narrows (480px down to 400px), so the rows and close-ups keep their room. */
 .qs-ledger__body { --ledger-door: clamp(calc(var(--space-8) * 6 + var(--space-4)), calc(100cqi - var(--space-8) * 14), calc(var(--space-8) * 7 + var(--space-6))); --ledger-link: var(--space-6); --ledger-crop: calc(var(--space-8) * 2); display: grid; grid-template-columns: minmax(calc(var(--space-8) * 3.5), 0.5fr) var(--ledger-door) minmax(0, 1.7fr); padding: var(--space-5); background: var(--surface-sunken); border: 1px solid var(--line); border-radius: var(--radius-lg); }
 .qs-ledger__door { min-width: 0; }

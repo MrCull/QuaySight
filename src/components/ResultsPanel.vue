@@ -131,8 +131,9 @@ const remainsUncertain = computed(() => {
 })
 const showExplanation = computed(() => idState.value === 'uncertain' || idState.value === 'partial')
 
-// Tabs under the readings (design-system Tabs): Characteristics, Damage, Markings. A tab shows once its part
-// has arrived. Damage is left out after a failed damage request: the error notice names it as not checked,
+// Tabs under the key facts (design-system Tabs): Readings, Characteristics, Damage, Markings. Readings shows
+// from the start (the ledger's own Reading state while the run goes); any other tab once its part has
+// arrived. Damage is left out after a failed damage request: the error notice names it as not checked,
 // and "not assessed in this inspection" would be untrue.
 const slots = useSlots()
 const showDamage = computed(
@@ -141,6 +142,7 @@ const showDamage = computed(
 const tabs = computed(() => {
   const list: { id: DetailTab; label: string; count?: number }[] = []
   const details = !!record.value && detailsLanded.value
+  if (showLedger.value) list.push({ id: 'readings', label: 'Readings' })
   if (details) list.push({ id: 'characteristics', label: 'Characteristics' })
   if (showDamage.value) {
     const count = record.value?.damage?.findings.length
@@ -153,11 +155,11 @@ const tabs = computed(() => {
 const activeTab = computed(() =>
   tabs.value.some((t) => t.id === detailTab.value) ? detailTab.value : tabs.value[0]?.id,
 )
-// Each inspection opens on Characteristics.
+// Each inspection opens on Readings.
 watch(
   () => record.value === null,
   (cleared) => {
-    if (cleared) detailTab.value = 'characteristics'
+    if (cleared) detailTab.value = 'readings'
   },
 )
 
@@ -267,26 +269,8 @@ async function onTabKey(event: KeyboardEvent) {
     <!-- The headline at a glance: Reading… placeholders from the start, filled in as each part arrives. -->
     <KeyFacts />
 
-    <!-- Detail: the readings ledger, the cards for what is not painted on the doors, then damage at full width. -->
+    <!-- Detail: the manifest check when it is offered, then the tabs: Readings (the ledger), Characteristics, Damage, Markings. -->
     <div class="rs-detail">
-      <ReadingsLedger
-        v-if="showLedger"
-        :record="record"
-        :parts="ledgerParts"
-        :photos="photoUrls"
-        :close-ups="{ id: idClose, type: isoClose, seal: sealClose }"
-        :busy="running && !idLanded"
-        :class="['qs-rise', { 'qs-arrived': arrivedEarly }]"
-      >
-        <div v-if="idLanded && showExplanation" class="rs-explain qs-type-body-sm">
-          <p>
-            <b>Best interpretation: </b>
-            <span class="qs-type-data">{{ groupedId(bestInterpretation) }}</span>
-          </p>
-          <p><b>What remains uncertain:</b> {{ remainsUncertain }}</p>
-        </div>
-      </ReadingsLedger>
-
       <!-- Live: a live call on the same model. Demo: the sample's own recorded check. Never a replay against another photo. -->
       <section
         v-if="store.canCheckManifest && !differentContainers"
@@ -296,7 +280,7 @@ async function onTabKey(event: KeyboardEvent) {
         <ManifestRetry />
       </section>
 
-      <!-- What is not painted on the doors, one tab at a time. Every panel stays in the page; only one shows. -->
+      <!-- One tab at a time. Every panel stays in the page; only one shows. -->
       <div v-if="tabs.length" class="qs-tabs">
         <div
           class="qs-tabs__list"
@@ -319,6 +303,33 @@ async function onTabKey(event: KeyboardEvent) {
             {{ tab.label }}
             <span v-if="tab.count" class="qs-tabs__count">{{ tab.count }}</span>
           </button>
+        </div>
+        <div
+          v-if="showLedger"
+          v-show="activeTab === 'readings'"
+          id="detail-panel-readings"
+          class="qs-tabs__panel"
+          role="tabpanel"
+          aria-labelledby="detail-tab-readings"
+          data-detail-tab="readings"
+        >
+          <ReadingsLedger
+            :record="record"
+            :parts="ledgerParts"
+            :photos="photoUrls"
+            :close-ups="{ id: idClose, type: isoClose, seal: sealClose }"
+            :busy="running && !idLanded"
+            :heading="false"
+            :class="['qs-rise', { 'qs-arrived': arrivedEarly }]"
+          >
+            <div v-if="idLanded && showExplanation" class="rs-explain qs-type-body-sm">
+              <p>
+                <b>Best interpretation: </b>
+                <span class="qs-type-data">{{ groupedId(bestInterpretation) }}</span>
+              </p>
+              <p><b>What remains uncertain:</b> {{ remainsUncertain }}</p>
+            </div>
+          </ReadingsLedger>
         </div>
         <div
           v-if="record && detailsLanded"

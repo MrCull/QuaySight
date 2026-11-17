@@ -31,6 +31,20 @@ describe('ResultsPanel', () => {
     expect(wrapper.get('[data-tile="id"]').text()).toContain('Confident')
   })
 
+  it('opens on the Readings tab, first in the row, with the ledger in its panel and no second title', async () => {
+    const store = useInspectionStore()
+    store.record = await recordedInspection('luna', { delayMs: 0 })
+    store.status = 'complete'
+    const wrapper = mount(ResultsPanel)
+    const tabs = wrapper.findAll('[role="tab"]')
+    expect(tabs[0]!.text()).toBe('Readings')
+    expect(tabs[0]!.attributes('aria-selected')).toBe('true')
+    const panel = wrapper.get('#detail-panel-readings')
+    expect(panel.attributes('role')).toBe('tabpanel')
+    expect(panel.find('.qs-ledger').exists()).toBe(true)
+    expect(panel.find('.qs-ledger__title').exists()).toBe(false)
+  })
+
   it('labels a Jev recorded result with the model, maker and route', async () => {
     const store = useInspectionStore()
     store.record = await recordedInspection('openrouter', { delayMs: 0 })

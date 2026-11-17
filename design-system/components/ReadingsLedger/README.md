@@ -1,10 +1,10 @@
 # ReadingsLedger
 
-The readings of one container, laid out around a `DoorFace`: each reading sits level with the place it is painted on the doors, with a short dashed link to that place. A presenter can point at the drawing and the number beside it in one gesture. It replaces the stacked Container ID, Container details and Markings cards in the main screen's detail area.
+The readings of one container, laid out around a `DoorFace`: each reading sits level with the place it is painted on the doors, with a short dashed link to that place. A presenter can point at the drawing and the number beside it in one gesture. It replaces the stacked Container ID, Container details and Markings cards in the main screen's detail area, as the first of its `Tabs` (*Readings*).
 
 ## Anatomy
 `section.qs-ledger` (`aria-label="Readings"`):
-- `div.qs-ledger__head`: `h2.qs-ledger__title` ("Readings") and the `UnitsToggle`.
+- `div.qs-ledger__head`: `h2.qs-ledger__title` ("Readings") and the `UnitsToggle`. In the main screen the ledger is the first panel of `Tabs`, whose *Readings* tab names it: there it carries `qs-ledger--untitled`, has no title, and the `UnitsToggle` sits at the right on its own.
 - `div.qs-ledger__body`, three columns on the `surface-sunken` well:
   - `div.qs-ledger__side.qs-ledger__side--left`: readings painted on the **left** leaf (DG placard, approval and CSC plates) and the high-container caution. Each row takes two lines, right-aligned against the door: icon and label, then the value and its `CertaintyChip`.
   - `div.qs-ledger__door`: the `DoorFace`, drawn 480px wide, giving way to 400px as the ledger narrows (`--ledger-door`), so the rows and close-ups keep their room.

@@ -13,16 +13,21 @@ import DoorFace from './DoorFace.vue'
 import PhotoCrop from './PhotoCrop.vue'
 import UnitsToggle from './UnitsToggle.vue'
 
-const props = defineProps<{
-  record: InspectionRecord | null
-  /** Which parts have landed: the ID and seal come with the ID stage, the rest with the details. */
-  parts: { id: boolean; details: boolean }
-  /** Every photo's URL in order; a close-up is cut from the photo its reading names. */
-  photos: string[]
-  closeUps: { id: CloseUpSource | null; type?: CloseUpSource | null; seal: CloseUpSource | null }
-  /** The run is going and the ID has not landed: the door bare, skeletons for the values. */
-  busy: boolean
-}>()
+const props = withDefaults(
+  defineProps<{
+    record: InspectionRecord | null
+    /** Which parts have landed: the ID and seal come with the ID stage, the rest with the details. */
+    parts: { id: boolean; details: boolean }
+    /** Every photo's URL in order; a close-up is cut from the photo its reading names. */
+    photos: string[]
+    closeUps: { id: CloseUpSource | null; type?: CloseUpSource | null; seal: CloseUpSource | null }
+    /** The run is going and the ID has not landed: the door bare, skeletons for the values. */
+    busy: boolean
+    /** False inside the Readings tab, whose tab already names it: no title, the units toggle alone. */
+    heading?: boolean
+  }>(),
+  { heading: true },
+)
 
 const { units, set: setUnits } = useUnits()
 
@@ -163,9 +168,13 @@ watch([model, reading], () => void nextTick(layout), { deep: true })
 </script>
 
 <template>
-  <section class="qs-ledger" aria-label="Readings" aria-live="polite">
-    <div class="qs-ledger__head">
-      <h2 class="qs-ledger__title">Readings</h2>
+  <section
+    :class="['qs-ledger', { 'qs-ledger--untitled': !heading }]"
+    aria-label="Readings"
+    aria-live="polite"
+  >
+    <div v-if="heading || showUnits" class="qs-ledger__head">
+      <h2 v-if="heading" class="qs-ledger__title">Readings</h2>
       <UnitsToggle v-if="showUnits" :model-value="units" @update:model-value="setUnits" />
     </div>
     <div class="qs-ledger__body" :style="{ '--ledger-h': `${sideHeight}px` }">
