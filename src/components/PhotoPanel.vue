@@ -7,12 +7,17 @@ import { useLoupe } from '../composables/loupe'
 import PhotoFrame from './PhotoFrame.vue'
 import PhotoLoupe from './PhotoLoupe.vue'
 import PhotoViewer, { type ViewerPhoto } from './PhotoViewer.vue'
+import { EXAMPLE_ID_BOX, EXAMPLE_SHOTS } from './exampleShots'
+import { boxStyle } from './landingReadings'
 
 const store = useInspectionStore()
 const picker = ref<HTMLInputElement | null>(null)
 const dragging = ref(false)
 const error = ref<string | null>(null)
 const busy = computed(() => store.status === 'running')
+
+/** The example shots whose photo has loaded: each is dealt onto the drop zone only once there is a picture on it. */
+const dealt = ref(new Set<string>())
 
 const orientationLabel = computed(() => {
   switch (store.photo?.orientation) {
@@ -126,7 +131,7 @@ function openPicker() {
 
     <label
       v-if="!store.photo"
-      :class="['qs-drop', { 'qs-drop--over': dragging }]"
+      :class="['qs-drop', 'qs-drop--stage', { 'qs-drop--over': dragging }]"
       tabindex="0"
       data-next-step="photo"
       @click="openPicker"
@@ -136,8 +141,29 @@ function openPicker() {
       @keydown.enter.prevent="openPicker"
       @keydown.space.prevent="openPicker"
     >
-      <span class="qs-drop__icon"><i class="qs-glyph qs-glyph--photo" aria-hidden="true"></i></span>
-      <span class="qs-drop__title">Drop a container photo here</span>
+      <!-- Decoration: bundled photos showing the kinds of shot that help. Never the visitor's own photos. -->
+      <span class="qs-drop__eyebrow" aria-hidden="true">Example shots</span>
+      <span class="qs-drop__shots" aria-hidden="true">
+        <span
+          v-for="shot in EXAMPLE_SHOTS"
+          :key="shot.label"
+          :class="['qs-shot', { 'qs-shot--in': dealt.has(shot.label) }]"
+        >
+          <span class="qs-shot__img">
+            <img
+              :src="shot.url"
+              alt=""
+              :style="shot.focus ? { objectPosition: shot.focus } : undefined"
+              @load="dealt.add(shot.label)"
+            />
+            <i v-if="shot.idOutlined" class="qs-shot__box" :style="boxStyle(EXAMPLE_ID_BOX)"></i>
+          </span>
+          <span class="qs-shot__label">{{ shot.label }}</span>
+        </span>
+      </span>
+      <span class="qs-drop__title">{{
+        dragging ? 'Let go to start the inspection' : 'Drop a container photo here'
+      }}</span>
       <span class="qs-drop__meta">1–5 photos of one container · JPEG, PNG or WebP</span>
       <!-- Drawn as the screen's primary action; the whole zone is the control, so this is not a second button. -->
       <span class="qs-btn qs-btn--primary qs-btn--lg qs-drop__cta" aria-hidden="true">
