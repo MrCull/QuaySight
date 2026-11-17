@@ -3,7 +3,7 @@
 // Free: nothing is sent. Run `npm run score` to see the table.
 import { describe, it, expect } from 'vitest'
 import { parsePlanRecording } from '../../plan/recording'
-import { labelsFor } from '../../domain/providers'
+import { defaultModelFor, labelsFor } from '../../domain/providers'
 import type { ProviderId } from '../../domain/inspection'
 import expected from '../expected.json'
 import { potentiallySignificant } from '../../domain/damage'
@@ -22,10 +22,15 @@ const files = import.meta.glob<unknown>('../../fixtures/live/plan/*.json', {
 })
 const recordings = Object.values(files).map((f) => parsePlanRecording(f))
 const truths = expected as Expected[]
-const ROUTES: ProviderId[] = ['luna', 'openrouter']
+// Each model's recordings: the catalogue's default model on each provider, and Liquid d1.2-ultra beside Jev.
+const ROUTES: { provider: ProviderId; model: string }[] = [
+  { provider: 'luna', model: defaultModelFor('luna') },
+  { provider: 'openrouter', model: defaultModelFor('openrouter') },
+  { provider: 'openrouter', model: 'liquid/d1.2-ultra' },
+]
 
 describe('regression set', () => {
-  it('describes whole inspections of 1 to 5 photos, each recorded on both models', () => {
+  it('describes whole inspections of 1 to 5 photos, each recorded on every model', () => {
     expect(truths.map((t) => t.id)).toEqual([
       'coyu-doors',
       'chsu-doors',
@@ -39,9 +44,9 @@ describe('regression set', () => {
       expect(truth.photos.length).toBeLessThanOrEqual(5)
       for (const photo of truth.photos) {
         const own = recordings.filter((r) => r.photo === photo.photo)
-        expect({ photo: photo.photo, routes: own.map((r) => r.provider).sort() }).toEqual({
+        expect({ photo: photo.photo, routes: own.map((r) => r.model).sort() }).toEqual({
           photo: photo.photo,
-          routes: ['luna', 'openrouter'],
+          routes: ROUTES.map((r) => r.model).sort(),
         })
       }
     }
@@ -51,10 +56,9 @@ describe('regression set', () => {
     const rows = ROUTES.flatMap((route) =>
       truths.map((truth) => {
         const record = replayInspection(truth, recordings, route)
-        const recording = recordings.find((r) => r.provider === route)!
         return {
           entry: truth.id,
-          model: labelsFor(route, recording.model).model,
+          model: labelsFor(route.provider, route.model).model,
           scores: scoreRecord(record, truth),
         }
       }),

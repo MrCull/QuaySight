@@ -218,6 +218,25 @@ describe('request limits', () => {
     )
   })
 
+  it('refuses a set over the model’s own question limit, before anything is sent, though the wire format would take it', () => {
+    const opts = { model: 'm', imageDataUrl: PHOTO, maxQuestions: 128 }
+    expect(() => toWireRequest('openrouter-decisions', predicates(128), opts)).not.toThrow()
+    expect(() => toWireRequest('openrouter-decisions', predicates(129), opts)).toThrow(
+      /at most 128 questions/,
+    )
+    expect(() =>
+      toWireRequest('openrouter-decisions', predicates(129), { model: 'm', imageDataUrl: PHOTO }),
+    ).not.toThrow()
+  })
+
+  it('splits a set at the model’s own limit: 132 questions into 128 and 4, in order', () => {
+    const parts = splitQuestionSet(predicates(132), 'openrouter-decisions', 128)
+    expect(parts.map((p) => p.questions.length)).toEqual([128, 4])
+    expect(parts.flatMap((p) => p.questions.map((q) => q.name))).toEqual(
+      predicates(132).questions.map((q) => q.name),
+    )
+  })
+
   it('leaves a set within the limit as one request', () => {
     expect(splitQuestionSet(predicates(132), 'openrouter-decisions')).toHaveLength(1)
   })

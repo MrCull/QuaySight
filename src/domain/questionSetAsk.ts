@@ -20,7 +20,7 @@ import {
 /** What the ask needs of a run's route: the model id sent and its catalogue wire format. */
 export interface AskRoute {
   model: string
-  entry: { wireFormat: WireFormat }
+  entry: { wireFormat: WireFormat; maxQuestions?: number }
 }
 
 export interface QuestionSetAsk<A> {
@@ -47,7 +47,11 @@ export function questionSetAsk<A>(
 ): QuestionSetAsk<A> {
   return {
     build: ({ route, imageDataUrl }) =>
-      toWireRequest(wireOf(route), set, { model: route.model, imageDataUrl }),
+      toWireRequest(wireOf(route), set, {
+        model: route.model,
+        imageDataUrl,
+        maxQuestions: route.entry.maxQuestions,
+      }),
     map: (raw, route) => {
       const reply =
         wireOf(route) === 'openai-decisions'

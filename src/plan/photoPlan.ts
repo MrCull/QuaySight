@@ -30,6 +30,9 @@ const showsId = (plan: PlanView): boolean =>
 const GATES: Record<string, (plan: PlanView) => boolean> = {
   recheck: showsId,
   [SIDE_DAMAGE_REQUEST]: (plan) => shows(plan, 'long-side'),
+  // The two halves of the side set on a model with a question limit below its size (sideDamage.ts).
+  [`${SIDE_DAMAGE_REQUEST}-a`]: (plan) => shows(plan, 'long-side'),
+  [`${SIDE_DAMAGE_REQUEST}-b`]: (plan) => shows(plan, 'long-side'),
   [DOOR_DAMAGE_REQUEST]: (plan) => shows(plan, 'rear-doors'),
 }
 

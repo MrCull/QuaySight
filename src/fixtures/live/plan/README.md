@@ -23,6 +23,10 @@ Demo mode plays both several-photo inspections (`src/domain/demoSamples.ts`).
 - Score: `npm run score` replays every recording here (free, nothing is sent) and prints, per model, a
   hit / miss / unread table by sample and field (ID, size code, max gross, tare, payload, face, length,
   damage present). Run it before and after a change to a prompt or a mapping and compare.
+- Liquid d1.2-ultra has its own recordings beside Jev's (`<photo>-liquid.json`, provider `openrouter`, model
+  `liquid/d1.2-ultra`); a check that names only a provider replays its default model's recordings, and
+  `replayInspection` takes `{ provider, model }` for the others. Record them with
+  `-t 'Liquid'`; `PLAN_RECORDING_DIR` writes a run elsewhere, so a comparison does not replace these.
 - Re-record (chargeable, about $0.005 a run, 8 runs): with `OPENAI_API_KEY` and `OPENROUTER_API_KEY` in the
   environment, `npx vitest run src/services/__tests__/planRecording.live.spec.ts`. Then `npm run check:secrets`
   and commit the changed files. Re-recording changes the scores: say so in the commit.

@@ -28,7 +28,7 @@ import { idRecheck } from './idRecheck'
 import { regions } from './regions'
 import { sealPick } from './sealPick'
 import { sealZoom } from './sealZoom'
-import { sideDamage } from './sideDamage'
+import { sideDamage, sideDamageFirstHalf, sideDamageSecondHalf } from './sideDamage'
 import { survey } from './survey'
 import { weightCheck } from './weightCheck'
 
@@ -114,6 +114,8 @@ const BEFORE: PlanRequest[] = [
   sealZoom,
   sealPick,
   sideDamage,
+  sideDamageFirstHalf,
+  sideDamageSecondHalf,
   doorDamage,
   doorEndCrop,
   weightCheck,

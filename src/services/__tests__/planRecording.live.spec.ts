@@ -10,14 +10,16 @@
 // those files as they are: nothing else is needed to put a recording into the demo.
 //   - GPT-6 Luna, OpenAI direct   (needs OPENAI_API_KEY)     -> <photo>-luna.json
 //   - Jev latest, via OpenRouter  (needs OPENROUTER_API_KEY) -> <photo>-jev.json
+//   - Liquid d1.2-ultra, via OpenRouter (needs OPENROUTER_API_KEY) -> <photo>-liquid.json
 // Keys are supplied at run time and never stored in the repo:
 //   Bash: OPENAI_API_KEY='<key>' OPENROUTER_API_KEY='<key>' npx vitest run src/services/__tests__/planRecording.live.spec.ts
-// One photo or route: add `-t 'coyu'` or `-t 'Jev'`. Nothing is written for a run that did not complete.
+// One photo or route: add `-t 'coyu'`, `-t 'Jev'` or `-t 'Liquid'`. Nothing is written for a run that did not complete.
 // Run `npm run check:secrets` before committing the recordings. The sequence is in docs/research/live-api-findings-2026-10-16.md (the last section).
 //
 // The bar (ticket #37): every run completes; COYU 266813 0 reads COYU 266813 0 on Jev latest. Luna through
 // the app is known to misread one COYU digit (docs/research/live-api-findings-2026-10-16.md, "Luna on COYU"),
 // so for Luna the bar is only that a wrong reading is never settled: it comes out partial or uncertain.
+// Liquid d1.2-ultra has the same bar as Luna: it is held to never settling a wrong reading, not to reading it.
 //
 // Behind an HTTP proxy, set HTTPS_PROXY (and NODE_EXTRA_CA_CERTS if the proxy re-signs TLS); this spec then
 // installs undici's EnvHttpProxyAgent, as the other live specs do.
@@ -44,7 +46,8 @@ if ((openAiKey || openRouterKey) && (process.env.HTTPS_PROXY || process.env.http
   setGlobalDispatcher(new EnvHttpProxyAgent())
 }
 const root = resolve(dirname(fileURLToPath(import.meta.url)), '../../..')
-const OUT_DIR = 'src/fixtures/live/plan'
+// PLAN_RECORDING_DIR writes elsewhere, e.g. for a comparison run that must not replace the demo's recordings.
+const OUT_DIR = process.env.PLAN_RECORDING_DIR ?? 'src/fixtures/live/plan'
 
 const PHOTOS = [
   { name: 'rear-door-aphu-45g1', orientation: 'landscape' },
@@ -79,6 +82,13 @@ const ROUTES: readonly {
     file: 'jev',
     provider: 'openrouter',
     model: '~typesafe/jev-latest',
+    key: openRouterKey,
+  },
+  {
+    label: 'Liquid d1.2-ultra on OpenRouter',
+    file: 'liquid',
+    provider: 'openrouter',
+    model: 'liquid/d1.2-ultra',
     key: openRouterKey,
   },
 ]
@@ -126,6 +136,7 @@ describe('Live plan recording (opt-in, chargeable)', () => {
                 .join('\n'),
           )
           if (!live) console.error(`No result: ${store.errorMessage}`)
+          for (const f of live?.failures ?? []) console.error(`  ${f.requestId} failed: ${f.message}`)
           expect(live).not.toBeNull()
           // Every request of the plan answered.
           expect(live!.status).toBe('complete')
@@ -155,7 +166,7 @@ describe('Live plan recording (opt-in, chargeable)', () => {
           const wrong = [...(id?.value ?? '')].filter((c, i) => c !== '?' && c !== COYU[i])
           const meetsBar =
             photo.name !== 'rear-door-coyu-22g1' ||
-            (route.provider === 'openrouter'
+            (route.file === 'jev'
               ? id?.value === COYU && id.checkDigitValid
               : wrong.length === 0 || idResultState(id!) !== 'settled')
           expect(meetsBar).toBe(true)

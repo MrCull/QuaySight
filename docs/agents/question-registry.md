@@ -5,7 +5,7 @@ A question family is one reading (ID characters, details, weights, face, length,
 A family declares:
 
 - `key`: its name in the findings.
-- `questions(ask)`: prompt, choices, levels. `ask` carries the route's question set (`luna` or `jev`) and whether it takes box questions.
+- `questions(ask)`: prompt, choices, levels. `ask` carries the route's question set (`luna`, `jev` or `liquid`, from the model's maker) and whether it takes box questions. A model that takes fewer questions in a request than a set holds declares `maxQuestions` in the catalogue; a set over it is refused before sending, and the side damage set is asked in two requests on such a model (`src/plan/requests/sideDamage.ts`).
 - `read(answers, ask)`: its answers by meaning, typed as `SurveyFindings[key]`.
 - `apply(record, finding, { passId })`: what it adds to the `InspectionRecord`. Optional.
 - `export(record)`: values, unresolved fields, conflicts and summary lines it adds to the exports. Optional.

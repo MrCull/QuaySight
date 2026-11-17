@@ -59,4 +59,28 @@ describe('the container ID on the regression recordings', () => {
     expect(reading).toMatchObject({ value: 'JDLU2006902', certainty: 'Confident' })
     expect(reading?.alternatives).toBeUndefined()
   })
+
+  describe('on Liquid d1.2-ultra', () => {
+    const liquid = { provider: 'openrouter', model: 'liquid/d1.2-ultra' } as const
+    const readable = truths.filter((t) => t.containerId !== null)
+
+    it('reads every container ID of the regression set exactly, passing the check digit', () => {
+      for (const truth of readable) {
+        const reading = replayInspection(truth, recordings, liquid).containerId
+        expect({ entry: truth.id, value: reading?.value }).toEqual({
+          entry: truth.id,
+          value: truth.containerId,
+        })
+        expect(reading?.checkDigitValid).toBe(true)
+      }
+    })
+
+    it('never shows an alternative that fails the check digit', () => {
+      for (const truth of truths) {
+        const reading = replayInspection(truth, recordings, liquid).containerId
+        for (const alt of reading?.alternatives ?? []) expect(passesCheckDigit(alt)).toBe(true)
+        expect((reading?.alternatives ?? []).length).toBeLessThanOrEqual(2)
+      }
+    })
+  })
 })

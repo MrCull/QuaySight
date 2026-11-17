@@ -7,6 +7,7 @@ import {
   LUNA_IDENTIFICATION_INSTRUCTIONS,
   jevIdQuestionSet,
   lunaIdQuestionSet,
+  placesOf,
   readIdCharacters,
   type ChoiceReading,
 } from './idQuestions'
@@ -141,7 +142,11 @@ export const idFamily: QuestionFamily = {
   questions: (ask) =>
     (ask.questionSet === 'luna'
       ? lunaIdQuestionSet()
-      : jevIdQuestionSet({ image: 'the photo', box: ask.box })
+      : jevIdQuestionSet({
+          image: 'the photo',
+          box: ask.box,
+          places: placesOf(ask.questionSet),
+        })
     ).questions,
   read: (answers, ask): IdFinding => {
     if (ask.questionSet === 'luna') {

@@ -36,6 +36,8 @@ export interface WireRequestOptions {
   model: string
   /** The photo as a data URL with its real MIME type. Replaces every image part's placeholder. */
   imageDataUrl: string
+  /** The model's own question limit, where it is under the wire format's (ModelOption.maxQuestions). */
+  maxQuestions?: number
 }
 
 /** The questions in OpenRouter's (and TypeSafe System One's) format: a map by name. */
@@ -131,6 +133,6 @@ export function toWireRequest(
   set: SharedQuestionSet,
   options: WireRequestOptions,
 ): OpenAiDecisionsRequest | OpenRouterDecisionsRequest {
-  checkLimits(set, wire)
+  checkLimits(set, wire, options.maxQuestions)
   return wire === 'openai-decisions' ? toOpenAi(set, options) : toOpenRouter(set, options)
 }
