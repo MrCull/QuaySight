@@ -91,7 +91,7 @@ test.describe('Live run progress and Cancel', () => {
     await page.getByRole('button', { name: 'Cancel' }).click()
 
     // Cancel clears straight back to the empty picker; the money already spent stays in the session total.
-    await expect(page.getByText('Drop a container photo here')).toBeVisible()
+    await expect(page.getByText('Drop container photos here')).toBeVisible()
     await expect(page.getByRole('alert')).toHaveCount(0)
     await expect(page.locator('.rs-photo__img')).toHaveCount(0)
     // Nothing is left to clear, so New inspection is gone and focus is on the drop zone, not on a removed button.
@@ -139,7 +139,7 @@ test.describe('Live run progress and Cancel', () => {
     await page.getByRole('button', { name: 'Cancel' }).click()
 
     // Cancel clears to the empty picker: nothing of the run is shown, not even what had arrived.
-    await expect(page.getByText('Drop a container photo here')).toBeVisible()
+    await expect(page.getByText('Drop container photos here')).toBeVisible()
     await expect(page.locator('.qs-notice--partial')).toHaveCount(0)
     await expect(page.locator('.qs-id')).toHaveCount(0)
     await expect(page.getByRole('region', { name: 'Damage view' })).toHaveCount(0)
@@ -155,7 +155,7 @@ test.describe('Live run progress and Cancel', () => {
 
     await page.getByRole('button', { name: 'Cancel' }).click()
 
-    await expect(page.getByText('Drop a container photo here')).toBeVisible()
+    await expect(page.getByText('Drop container photos here')).toBeVisible()
     await expect(page.locator('.qs-notice--partial')).toHaveCount(0)
     await expect(page.locator('.qs-id')).toHaveCount(0)
     await expect(page.getByRole('button', { name: /^(New inspection|Cancel)$/ })).toHaveCount(0)

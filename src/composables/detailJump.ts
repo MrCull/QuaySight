@@ -13,10 +13,10 @@ export const DETAIL_IDS = {
 } as const
 
 /** The tabs under the readings (design-system Tabs), in the order they show. */
-export type DetailTab = 'characteristics' | 'damage' | 'markings'
+export type DetailTab = 'readings' | 'characteristics' | 'damage' | 'markings'
 
 /** The tab the presenter is on. A jump to a section in another tab's panel opens that tab. */
-export const detailTab = ref<DetailTab>('characteristics')
+export const detailTab = ref<DetailTab>('readings')
 
 /**
  * Brings a detail section into view, moves focus to it and highlights it for a moment

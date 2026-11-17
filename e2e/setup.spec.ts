@@ -26,7 +26,7 @@ test.describe('first visit', () => {
     await expect(card.getByText("OpenRouter's Decisions endpoint")).toBeVisible()
 
     await expect(page.locator('input[type="file"]')).toHaveCount(0)
-    await expect(page.getByText('Drop a container photo here')).toHaveCount(0)
+    await expect(page.getByText('Drop container photos here')).toHaveCount(0)
     await expect(
       page.getByRole('button', { name: /Run live inspection|Start inspection|Replace photo/ }),
     ).toHaveCount(0)
@@ -61,7 +61,7 @@ test.describe('continue', () => {
 
     await key.press('Enter')
     await expect(setupCard(page)).toHaveCount(0)
-    await expect(page.getByText('Drop a container photo here')).toBeVisible()
+    await expect(page.getByText('Drop container photos here')).toBeVisible()
   })
 
   test('starts focus on the provider and moves in a logical order to Continue', async ({
@@ -181,7 +181,7 @@ test.describe('header chip and settings drawer', () => {
     await drawer(page).getByTestId('provider-option-luna').click()
     await expect(drawer(page).locator('#provider-button strong')).toHaveText('OpenAI')
     await expect(page.locator('.rs-photo__img')).toHaveCount(0)
-    await expect(page.getByText('Drop a container photo here')).toBeVisible()
+    await expect(page.getByText('Drop container photos here')).toBeVisible()
     await expect(drawer(page).getByLabel('OpenAI API key', { exact: true })).toHaveValue('')
     await expect(chip(page)).toContainText('GPT-6 Luna')
     await expect(chip(page)).toContainText('OpenAI')

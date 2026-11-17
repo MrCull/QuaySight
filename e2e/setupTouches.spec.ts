@@ -35,7 +35,7 @@ test.describe('key-format warning', () => {
     await expect(continueButton).toBeEnabled()
     await continueButton.click()
     await expect(setupCard(page)).toHaveCount(0)
-    await expect(page.getByText('Drop a container photo here')).toBeVisible()
+    await expect(page.getByText('Drop container photos here')).toBeVisible()
   })
 
   test('a key with the right prefix shows nothing', async ({ page }) => {

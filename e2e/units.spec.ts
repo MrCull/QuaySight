@@ -113,9 +113,9 @@ test.describe('units toggle', () => {
     expect(hits).toBeGreaterThan(40)
   })
 
-  test('is in the Readings heading, and the exports still carry both units', async ({ page }) => {
+  test('is in the Readings tab, and the exports still carry both units', async ({ page }) => {
     await inspectRearDoors(page)
-    const heading = page.locator('.qs-ledger__head', { hasText: 'Readings' })
+    const heading = page.locator('#detail-panel-readings .qs-ledger__head')
     await expect(heading.getByRole('group', { name: 'Units' })).toBeVisible()
 
     await units(page).getByRole('button', { name: 'Imperial' }).click()

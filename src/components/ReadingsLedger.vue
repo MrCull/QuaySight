@@ -13,16 +13,21 @@ import DoorFace from './DoorFace.vue'
 import PhotoCrop from './PhotoCrop.vue'
 import UnitsToggle from './UnitsToggle.vue'
 
-const props = defineProps<{
-  record: InspectionRecord | null
-  /** Which parts have landed: the ID and seal come with the ID stage, the rest with the details. */
-  parts: { id: boolean; details: boolean }
-  /** Every photo's URL in order; a close-up is cut from the photo its reading names. */
-  photos: string[]
-  closeUps: { id: CloseUpSource | null; type?: CloseUpSource | null; seal: CloseUpSource | null }
-  /** The run is going and the ID has not landed: the door bare, skeletons for the values. */
-  busy: boolean
-}>()
+const props = withDefaults(
+  defineProps<{
+    record: InspectionRecord | null
+    /** Which parts have landed: the ID and seal come with the ID stage, the rest with the details. */
+    parts: { id: boolean; details: boolean }
+    /** Every photo's URL in order; a close-up is cut from the photo its reading names. */
+    photos: string[]
+    closeUps: { id: CloseUpSource | null; type?: CloseUpSource | null; seal: CloseUpSource | null }
+    /** The run is going and the ID has not landed: the door bare, skeletons for the values. */
+    busy: boolean
+    /** False inside the Readings tab, whose tab already names it: no title, the units toggle alone. */
+    heading?: boolean
+  }>(),
+  { heading: true },
+)
 
 const { units, set: setUnits } = useUnits()
 
@@ -76,6 +81,8 @@ const leftSide = ref<HTMLElement | null>(null)
 const rightSide = ref<HTMLElement | null>(null)
 const tops = ref<Record<string, number>>({})
 const anchors = ref<Record<string, number>>({})
+/** How far each close-up sits below its row's top, so close-ups never cover one another. */
+const cropDy = ref<Record<string, number>>({})
 const heights = ref<{ left: number; right: number; door: number }>({ left: 0, right: 0, door: 0 })
 /** Half a row's first line (control-sm): a row is centred on its slot by its first line. */
 const HALF_LINE = 16
@@ -91,11 +98,8 @@ function placeSide(side: HTMLElement | null, rows: { key: string; slot: string |
   const placed = placeRows(
     rows.map((r, i) => ({
       ideal: r.slot ? slotY(r.slot as Slot, tank.value) * scale - HALF_LINE : null,
-      // A row holds its close-up's height too, so a close-up never hangs over the next row's.
-      height: Math.max(
-        els[i]?.offsetHeight ?? 0,
-        els[i]?.querySelector<HTMLElement>('.qs-ledger__crop > *')?.offsetHeight ?? 0,
-      ),
+      // A close-up takes no height in its row: the rows stay level with the paint, the close-ups have their own column.
+      height: els[i]?.offsetHeight ?? 0,
     })),
     GAP,
   )
@@ -105,11 +109,19 @@ function placeSide(side: HTMLElement | null, rows: { key: string; slot: string |
   })
   const last = rows.length - 1
   const bottom = last < 0 ? 0 : placed[last]! + (els[last]?.offsetHeight ?? 0)
-  // A close-up takes no height in its row; it hangs below it, so the side is as tall as the lowest one.
-  const hanging = els.map((el, i) => {
-    const crop = el?.querySelector<HTMLElement>('.qs-ledger__crop > *')
-    return crop ? placed[i]! + crop.offsetHeight : 0
+  // The close-ups, down their own column: each starts level with its row, except a seal's, which ends level with
+  // the foot of the Seal row (near the bottom); each moves down only as far as it must to clear the one above.
+  const crops = rows.flatMap((r, i) => {
+    const crop = els[i]?.querySelector<HTMLElement>('.qs-ledger__crop > *')
+    if (!crop) return []
+    const rowTop = placed[i]!
+    const ideal =
+      r.key === 'seal' ? rowTop + (els[i]?.offsetHeight ?? 0) - crop.offsetHeight : rowTop
+    return [{ key: r.key, rowTop, ideal: Math.max(0, ideal), height: crop.offsetHeight }]
   })
+  const cropTops = placeRows(crops, GAP)
+  crops.forEach((c, i) => (cropDy.value[c.key] = cropTops[i]! - c.rowTop))
+  const hanging = crops.map((c, i) => cropTops[i]! + c.height)
   return Math.max(bottom, ...hanging)
 }
 
@@ -156,9 +168,13 @@ watch([model, reading], () => void nextTick(layout), { deep: true })
 </script>
 
 <template>
-  <section class="qs-ledger" aria-label="Readings" aria-live="polite">
-    <div class="qs-ledger__head">
-      <h2 class="qs-ledger__title">Readings</h2>
+  <section
+    :class="['qs-ledger', { 'qs-ledger--untitled': !heading }]"
+    aria-label="Readings"
+    aria-live="polite"
+  >
+    <div v-if="heading || showUnits" class="qs-ledger__head">
+      <h2 v-if="heading" class="qs-ledger__title">Readings</h2>
       <UnitsToggle v-if="showUnits" :model-value="units" @update:model-value="setUnits" />
     </div>
     <div class="qs-ledger__body" :style="{ '--ledger-h': `${sideHeight}px` }">
@@ -266,7 +282,11 @@ watch([model, reading], () => void nextTick(layout), { deep: true })
             <span v-if="row.note">{{ row.note }}</span>
           </p>
           <!-- Where the ID, the ISO code or the seal was read, cut from the photo, with the loupe; absent without a usable box. -->
-          <div v-if="closeUp(row.key)" class="qs-ledger__crop">
+          <div
+            v-if="closeUp(row.key)"
+            class="qs-ledger__crop"
+            :style="{ '--crop-dy': `${cropDy[row.key] ?? 0}px` }"
+          >
             <PhotoCrop
               compact
               magnify

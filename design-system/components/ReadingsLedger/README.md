@@ -1,10 +1,10 @@
 # ReadingsLedger
 
-The readings of one container, laid out around a `DoorFace`: each reading sits level with the place it is painted on the doors, with a short dashed link to that place. A presenter can point at the drawing and the number beside it in one gesture. It replaces the stacked Container ID, Container details and Markings cards in the main screen's detail area.
+The readings of one container, laid out around a `DoorFace`: each reading sits level with the place it is painted on the doors, with a short dashed link to that place. A presenter can point at the drawing and the number beside it in one gesture. It replaces the stacked Container ID, Container details and Markings cards in the main screen's detail area, as the first of its `Tabs` (*Readings*).
 
 ## Anatomy
 `section.qs-ledger` (`aria-label="Readings"`):
-- `div.qs-ledger__head`: `h2.qs-ledger__title` ("Readings") and the `UnitsToggle`.
+- `div.qs-ledger__head`: `h2.qs-ledger__title` ("Readings") and the `UnitsToggle`. In the main screen the ledger is the first panel of `Tabs`, whose *Readings* tab names it: there it carries `qs-ledger--untitled`, has no title, and the `UnitsToggle` sits at the right on its own.
 - `div.qs-ledger__body`, three columns on the `surface-sunken` well:
   - `div.qs-ledger__side.qs-ledger__side--left`: readings painted on the **left** leaf (DG placard, approval and CSC plates) and the high-container caution. Each row takes two lines, right-aligned against the door: icon and label, then the value and its `CertaintyChip`.
   - `div.qs-ledger__door`: the `DoorFace`, drawn 480px wide, giving way to 400px as the ledger narrows (`--ledger-door`), so the rows and close-ups keep their room.
@@ -20,7 +20,7 @@ The readings of one container, laid out around a `DoorFace`: each reading sits l
 3. `span.qs-ledger__value`: the reading **character by character**, through `ContainerId`'s markup at the small size: `span.qs-id.qs-id--sm` with `.qs-id__group`s of `.qs-id__ch`, each with its own `data-c` (none for confident, `likely`, `uncertain`, `unknown`), and the boxed `.qs-id__check` for the container ID's check digit only. A unit follows in `span.qs-ledger__unit` (*kg*, *m³*, or *lb*, *cu ft* under Imperial). A calculated value adds `span.qs-prov.qs-prov--calculated` ("Calculated"). Words (a marking, *No DG placard visible*) use `qs-ledger__value--words` and no per-character marks.
 4. The `CertaintyChip` for the whole reading: its weakest character, never better.
 5. Optional `p.qs-ledger__note` under the value, one short line: a plausible alternative (*Also possible* `QSIU 3074`**`7`**`8 1`, the differing character in `cert-uncertain-fg`), *Check digit valid*, or a caveat (*Not evidence that the cargo is non-hazardous*).
-6. On the ID and Seal rows, optional `div.qs-ledger__crop`, right after the `CertaintyChip`, taking no height in the row: it hangs down beside the rows below, which keep their places level with the paint (the ledger's height allows for it). The close-up of where the reading was read, cut from the photo, 128px wide and no taller than 128px. It is a glance; the hover `Loupe` does the reading. A note never widens the columns before it, so the crop stays beside its chip.
+6. On the ID, size-type code and Seal rows, optional `div.qs-ledger__crop`, right after the `CertaintyChip`, taking no height in the row: the close-ups form their own column (the certainty column has a minimum width, so they all start at the same x) and hang down beside the rows below, which keep their places level with the paint (the ledger's height allows for it). Each close-up starts level with its row and is moved down (`--crop-dy`) only as far as it must to clear the one above; the seal's close-up ends level with the foot of the Seal row, near the bottom. The close-up of where the reading was read, cut from the photo, 128px wide and no taller than 128px. It is a glance; the hover `Loupe` does the reading. A note never widens the columns before it, so the crop stays beside its chip.
 
 The ledger takes over from `ContainerId`'s card, `SealCard` and the Container details and Markings cards in the detail area: the same readings, the same per-character marks, the same tap-to-enlarge crops, now arranged around the door. The key-facts tiles above it keep their own large ID and seal.
 

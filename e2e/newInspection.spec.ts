@@ -77,7 +77,7 @@ test.describe('New inspection on a phone (390 px)', () => {
   }) => {
     await mockDecisions(page)
     await continueWithKey(page)
-    await expect(page.getByText('Drop a container photo here')).toBeVisible()
+    await expect(page.getByText('Drop container photos here')).toBeVisible()
     await expect(newInspection(page)).toHaveCount(0)
     const before = await headerMeta(page)
 
@@ -99,7 +99,7 @@ test.describe('New inspection', () => {
   }) => {
     await mockDecisions(page)
     await continueWithKey(page)
-    await expect(page.getByText('Drop a container photo here')).toBeVisible()
+    await expect(page.getByText('Drop container photos here')).toBeVisible()
     await expect(newInspection(page)).toHaveCount(0)
     const chipBefore = (await page.locator('.rs-top .qs-settingschip').boundingBox())!
 
@@ -206,7 +206,7 @@ test.describe('New inspection', () => {
     await page.keyboard.press('Enter')
 
     await expect(page.locator('.rs-photo__img')).toHaveCount(0)
-    await expect(page.getByText('Drop a container photo here')).toBeVisible()
+    await expect(page.getByText('Drop container photos here')).toBeVisible()
     await expect(page.locator('#stage')).not.toHaveClass(/qs-arrived|qs-arriving/)
     await expect(page.getByRole('region', { name: 'Damage view' })).toHaveCount(0)
     await expect(page.locator('.qs-marker, .is-selected')).toHaveCount(0)
@@ -257,7 +257,7 @@ test.describe('New inspection', () => {
     await newInspection(page).click()
     await release()
 
-    await expect(page.getByText('Drop a container photo here')).toBeVisible()
+    await expect(page.getByText('Drop container photos here')).toBeVisible()
     // The call is aborted: it was sent, so the session counts it as cancelled with unknown cost, and its result never lands.
     await expect(costLine(page)).not.toContainText('Session None yet')
     await expect(page.locator('#stage')).not.toHaveClass(/qs-arrived|qs-arriving/)

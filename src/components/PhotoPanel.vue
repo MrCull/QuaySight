@@ -7,8 +7,7 @@ import { useLoupe } from '../composables/loupe'
 import PhotoFrame from './PhotoFrame.vue'
 import PhotoLoupe from './PhotoLoupe.vue'
 import PhotoViewer, { type ViewerPhoto } from './PhotoViewer.vue'
-import { EXAMPLE_ID_BOX, EXAMPLE_SHOTS } from './exampleShots'
-import { boxStyle } from './landingReadings'
+import { EXAMPLE_SHOTS } from './exampleShots'
 
 const store = useInspectionStore()
 const picker = ref<HTMLInputElement | null>(null)
@@ -156,13 +155,12 @@ function openPicker() {
               :style="shot.focus ? { objectPosition: shot.focus } : undefined"
               @load="dealt.add(shot.label)"
             />
-            <i v-if="shot.idOutlined" class="qs-shot__box" :style="boxStyle(EXAMPLE_ID_BOX)"></i>
           </span>
           <span class="qs-shot__label">{{ shot.label }}</span>
         </span>
       </span>
       <span class="qs-drop__title">{{
-        dragging ? 'Let go to start the inspection' : 'Drop a container photo here'
+        dragging ? 'Let go to start the inspection' : 'Drop container photos here'
       }}</span>
       <span class="qs-drop__meta">1–5 photos of one container · JPEG, PNG or WebP</span>
       <!-- Drawn as the screen's primary action; the whole zone is the control, so this is not a second button. -->
