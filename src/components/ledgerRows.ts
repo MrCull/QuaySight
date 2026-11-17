@@ -282,15 +282,20 @@ function splitUnit(value: string): { number: string; unit: string | null } {
 
 function weightRows(record: InspectionRecord, units: Units, door: DoorPaint): LedgerRow[] {
   const group = weightGroup(record, units)
-  // Both payload rows read "Payload" here: when the printed one was not seen and a calculated one was
-  // worked out, the printed one would only say "Payload: Not seen" above a payload, so it is left out.
-  const calculatedPayload = group.rows.some(
-    (r) => r.label === 'PAYLOAD (CALCULATED)' && r.value !== null,
-  )
+  // Both payload rows read "Payload" here, so the ledger says Payload once: a calculated payload stands
+  // in for a printed one not read, and a printed row stands in for a payload that could not be worked
+  // out. Only a printed payload and a calculated one that both have values keep two rows.
+  const printedRow = group.rows.find((r) => r.label === 'PAYLOAD')
+  const calculatedRow = group.rows.find((r) => r.label === 'PAYLOAD (CALCULATED)')
+  const redundant = (row: DetailRow) =>
+    printedRow !== undefined &&
+    calculatedRow !== undefined &&
+    row.value === null &&
+    (row === printedRow ? calculatedRow.value !== null : row === calculatedRow)
   return group.rows.flatMap((row: DetailRow): LedgerRow[] => {
     const spec = WEIGHTS[row.label]
     if (!spec) return []
-    if (row.label === 'PAYLOAD' && row.value === null && calculatedPayload) return []
+    if (redundant(row)) return []
     // Painted on the door only when printed there; a value worked out (or converted) has no place on it.
     const printed =
       row.value !== null && row.provenance === PRINTED.provenance && spec.slot !== null
