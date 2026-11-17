@@ -790,7 +790,8 @@
 .qs-ledger__links path { fill: none; stroke: var(--line-strong); stroke-width: 1.2; stroke-dasharray: 3 3; }
 .qs-ledger__links circle { fill: var(--ink); }
 .qs-ledger__row { position: absolute; top: var(--y, 0); display: grid; grid-template-columns: auto calc(var(--space-8) + var(--space-5)) auto auto; align-items: center; column-gap: var(--space-3); row-gap: var(--space-1); min-height: var(--control-sm); }
-.qs-ledger__side--right .qs-ledger__row { left: var(--ledger-link); right: 0; grid-template-columns: auto calc(var(--space-8) + var(--space-4)) calc(var(--space-8) * 3) auto auto; justify-content: start; }
+/* The certainty column has a floor, so every row's close-up starts at the same x: the close-ups form one column. */
+.qs-ledger__side--right .qs-ledger__row { left: var(--ledger-link); right: 0; grid-template-columns: auto calc(var(--space-8) + var(--space-4)) calc(var(--space-8) * 3) minmax(calc(var(--space-8) + var(--space-6) + var(--space-1)), auto) auto; justify-content: start; }
 /* Left of the door the row takes two lines, right-aligned against the door: icon and label, then value and certainty. */
 .qs-ledger__side--left .qs-ledger__row { left: 0; right: var(--ledger-link); grid-template-columns: minmax(0, 1fr) auto auto; grid-template-areas: ". icon label" "value value chip" "note note note"; justify-items: end; }
 .qs-ledger__side--left .qs-ledger__icon { grid-area: icon; }
@@ -810,9 +811,10 @@
 .qs-ledger__side--right .qs-ledger__note { contain: inline-size; }
 .qs-ledger__note code { font: 500 12px/16px var(--font-mono); color: var(--ink); }
 .qs-ledger__note u { text-decoration: none; color: var(--cert-uncertain-fg); }
-/* The close-up a reading was read from, right after its certainty. It takes no height in the row (height 0, overflow visible):
-   it hangs down beside the rows below, which keep their places by the paint; the ledger's height still allows for it. */
-.qs-ledger__crop { grid-column: 5; grid-row: 1; align-self: start; width: var(--ledger-crop); height: 0; overflow: visible; margin-left: var(--space-2); }
+/* The close-up a reading was read from, in its own column after the certainties. It takes no height in the row (height 0, overflow visible):
+   it hangs down beside the rows below, which keep their places by the paint; the ledger's height still allows for it. --crop-dy moves it
+   down so it never covers the close-up above (the ID's and the ISO code's); a seal's close-up ends level with the foot of the Seal row. */
+.qs-ledger__crop { grid-column: 5; grid-row: 1; align-self: start; width: var(--ledger-crop); height: 0; overflow: visible; margin-left: var(--space-2); translate: 0 var(--crop-dy, 0px); }
 /* A row's empty box would sit over the close-up hanging down from the row above and take its hover (the Loupe): only a row's content takes the pointer. */
 .qs-ledger__row { pointer-events: none; }
 .qs-ledger__row > * { pointer-events: auto; }
@@ -833,7 +835,7 @@
   .qs-ledger__row > .qs-cert, .qs-ledger__side--left .qs-ledger__row > .qs-cert { grid-area: chip; justify-self: end; }
   /* Stretched: the note contains its inline size, so left to its content it would wrap a word to a line. */
   .qs-ledger__row > .qs-ledger__note, .qs-ledger__side--left .qs-ledger__note { grid-area: note; justify-self: stretch; justify-content: flex-start; text-align: left; }
-  .qs-ledger__row > .qs-ledger__crop { grid-column: 1 / -1; grid-row: auto; height: auto; margin-left: 0; }
+  .qs-ledger__row > .qs-ledger__crop { grid-column: 1 / -1; grid-row: auto; height: auto; margin-left: 0; translate: none; }
 }
 /* Door face markings: the DG placard place (seen: the hazard diamond; not seen: a dashed outline) and the high-container caution stripes. */
 .qs-door__placard { fill: var(--hazard-bg); stroke: var(--hazard-fg); stroke-width: 2; }
