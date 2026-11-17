@@ -638,7 +638,8 @@
 @keyframes qs-draw { from { stroke-dashoffset: 900; opacity: 0.2; } to { stroke-dashoffset: 0; opacity: 1; } }
 @keyframes qs-fade { from { opacity: 0; } to { opacity: 1; } }
 @keyframes qs-shimmer { from { background-position: 200% 0; } to { background-position: -200% 0; } }
-@keyframes qs-sweep { 0% { transform: translateY(-30%); opacity: 0; } 15% { opacity: 1; } 85% { opacity: 1; } 100% { transform: translateY(130%); opacity: 0; } }
+/* translateY is a share of the band's own height (40% of the photo): -100% starts it just above the photo, 250% ends it just below. */
+@keyframes qs-sweep { 0% { transform: translateY(-100%); opacity: 0; } 15% { opacity: 1; } 85% { opacity: 1; } 100% { transform: translateY(250%); opacity: 0; } }
 @keyframes qs-glow { 0% { box-shadow: 0 0 0 0 var(--brand); } 100% { box-shadow: 0 0 0 10px transparent; } }
 @keyframes qs-bar { from { transform: scaleX(0); } to { transform: scaleX(1); } }
 
