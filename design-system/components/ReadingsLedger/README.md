@@ -24,7 +24,7 @@ The readings of one container, laid out around a `DoorFace`: each reading sits l
 
 The ledger takes over from `ContainerId`'s card, `SealCard` and the Container details and Markings cards in the detail area: the same readings, the same per-character marks, the same tap-to-enlarge crops, now arranged around the door. The key-facts tiles above it keep their own large ID and seal.
 
-Rows that land on the jump targets of the key-facts tiles carry `data-detail` and `tabindex="-1"`: the Container ID row `detail-id`, the Seal row `detail-seal`, the DG placard row `detail-markings`.
+Rows that land on the jump targets of the key-facts tiles carry `data-detail` and `tabindex="-1"`: the Container ID row `detail-id`, the Type row `detail-type`, the Seal row `detail-seal`, the DG placard row `detail-markings`.
 
 ### Evidence crop
 `button.qs-evidence` inside the row's `div.qs-ledger__crop`: `span.qs-evidence__frame` holding the region cut from the photo, then `span.qs-evidence__cap` with the `photo` glyph and the photo's number. A crop appears only when the model gave a usable box for that reading; no box, no crop, and no empty frame. Tapping it opens the full photo with the region outlined (`PhotoViewer`, `qs-photo-region`), as `SealCard`'s crop does. The crop is the photo as uploaded: never drawn on.
@@ -36,6 +36,7 @@ Rows that land on the jump targets of the key-facts tiles carry `data-detail` an
 ## States
 - **Reading**: while the inspection runs the door is drawn bare and each row shows its icon and label with a `qs-skeleton` bar in place of the value. No chips, no crops.
 - **Arrived**: rows carry `qs-rise` with `--i` in reading order, the characters settle as `ContainerId`'s do, and the door's painted values appear with their rows.
+- **Payload once**: a printed payload and the one worked out from maximum gross minus tare share one *Payload* row. The printed value keeps the row (and its place on the door); the note says *Maximum gross minus tare agrees.*, or, when they differ, gives both figures (*Printed payload 28,000 kg does not match maximum gross minus tare, 28,200 kg.*) and the chip takes the weaker certainty. With only one of them read, that one has the row.
 - **Not read**: a reading the model could not make out keeps its row with *Can't tell* (`unknown`) and no value; a part not visible keeps *Not seen*. A part the survey did not ask about has no row. Absent means not asked, never Not seen.
 
 ## Rules

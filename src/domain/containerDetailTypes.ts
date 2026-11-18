@@ -9,7 +9,7 @@ import type { RegionBox } from './regionMarks'
 export type DetailSource = 'printed' | 'decoded' | 'observed'
 
 /**
- * read: a common code was read. other: a code is printed but is not one of the common codes.
+ * read: a common code was read, or a code that is not one of them was read in its two halves. other: a code is printed but is not one of the common codes, and was not read in full.
  * unreadable: a code is printed but cannot be read. not-visible: no code in the photo. unclear: no
  * answer clear enough to say which.
  */
@@ -126,6 +126,11 @@ export const SIZE_CODE_NOT_VISIBLE = 'not_visible'
 
 export const DETAIL_QUESTION_NAMES = {
   sizeCode: 'size_type_code',
+  /**
+   * The code's two halves asked on their own, size (45, L5) then type (G1, R1): how a code that is not
+   * one of the common codes is read.
+   */
+  sizeCodeParts: ['size_type_code_size', 'size_type_code_type'],
   equipment: {
     reefer: 'equipment_reefer',
     openTop: 'equipment_open_top',

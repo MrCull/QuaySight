@@ -7,6 +7,7 @@ const HIGHLIGHT_MS = 1800
 /** The ids of the detail sections a key-facts tile leads to, one place for the tiles and the sections. */
 export const DETAIL_IDS = {
   id: 'detail-id',
+  type: 'detail-type',
   seal: 'detail-seal',
   damage: 'detail-damage',
   markings: 'detail-markings',

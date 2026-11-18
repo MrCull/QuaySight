@@ -1,13 +1,14 @@
 // The key-facts tiles (spec 8.1, ticket 102): the headline of a result at a glance. Pure: worked out
 // from the inspection record and which parts of the run have arrived, and nothing else. Order on screen
-// is the order here: Container ID, Seal, Damage, then Placards, which exists only when a placard is seen.
+// is the order here: Container ID, ISO type, Seal, Damage, then Placards, which exists only when a
+// placard is seen.
 //
 // A tile whose part has not arrived says "Reading…" and shows no value, even when the record already
 // holds one. A part that failed or did not finish says "No result", never "Not seen". The words are the
 // fixed ones: Confident, Likely, Uncertain, Can't tell, Not seen. Certainty and severity are separate:
 // a tile carries a certainty word and, for damage, a severity, and never one in place of the other.
 import { idResultState, UNREAD } from './certainty'
-import { dgClassName } from './containerDetailTypes'
+import { dgClassName, type SizeCodeState } from './containerDetailTypes'
 import type { DamageFinding, Severity } from './damage'
 import type { CertaintyLabel, ContainerIdReading, InspectionRecord } from './inspection'
 import type { StageId } from './runStages'
@@ -17,7 +18,7 @@ export type PartState = 'reading' | 'arrived' | 'unavailable'
 /** Where each stage of the run is: still reading, arrived, or failed or did not finish (unavailable). */
 export type PartStates = Record<StageId, PartState>
 
-export type KeyFactId = 'id' | 'seal' | 'damage' | 'placards'
+export type KeyFactId = 'id' | 'type' | 'seal' | 'damage' | 'placards'
 
 export interface KeyFactTile {
   id: KeyFactId
@@ -30,6 +31,8 @@ export interface KeyFactTile {
   certainty: CertaintyLabel | null
   /** Damage tile only: the worst apparent severity among the findings. A separate axis from certainty. */
   severity: Severity | null
+  /** ISO type tile only: the headline is the code as printed, set in the mono face. */
+  code: boolean
   /** Container ID tile only: the reading to set in the ID display. Null when the ID is not readable. */
   reading: ContainerIdReading | null
 }
@@ -42,6 +45,7 @@ export const TANK_SEAL_NOTE = 'Tank container: no doors; any seal is on the valv
 
 const LABEL: Record<KeyFactId, string> = {
   id: 'Container ID',
+  type: 'ISO type',
   seal: 'Seal',
   damage: 'Damage',
   placards: 'Placards',
@@ -59,6 +63,7 @@ function tile(id: KeyFactId, state: PartState, over: Partial<KeyFactTile> = {}):
     certainty: null,
     severity: null,
     reading: null,
+    code: false,
     ...(state === 'arrived' ? over : {}),
   }
 }
@@ -70,6 +75,47 @@ function idTile(state: PartState, record: InspectionRecord | null): KeyFactTile 
   }
   const value = reading.value.replace(/\s+/g, '').toUpperCase()
   return tile('id', state, { headline: value, certainty: reading.certainty, reading })
+}
+
+/** Why no size/type code shows, in the tile's few words. */
+const TYPE_ABSENT: Record<Exclude<SizeCodeState, 'read'>, string> = {
+  'not-visible': 'Not seen',
+  other: 'Not a common code',
+  unreadable: 'Not readable',
+  unclear: "Can't tell",
+}
+
+/**
+ * The size/type code as printed and, read at Confident or Likely, what it means ("40 ft High Cube,
+ * general purpose"). A survey that did not ask, with no decoded code either, says Not assessed.
+ */
+function typeTile(state: PartState, record: InspectionRecord | null): KeyFactTile {
+  const decoded = record?.sizeCode ?? null
+  const reading = record?.details?.sizeCode
+  const plain = (certainty: CertaintyLabel, summary: string) =>
+    certainty === 'Confident' || certainty === 'Likely' ? [summary] : []
+  if (decoded) {
+    return tile('type', state, {
+      headline: decoded.code,
+      code: true,
+      certainty: decoded.certainty,
+      notes: plain(decoded.certainty, decoded.summary),
+    })
+  }
+  if (!reading) return tile('type', state, { headline: NOT_ASSESSED_TEXT })
+  if (reading.state === 'read' && reading.code) {
+    return tile('type', state, {
+      headline: reading.code,
+      code: true,
+      certainty: reading.certainty,
+      notes: ['Not a code this app decodes'],
+    })
+  }
+  const absent = reading.state === 'read' ? 'unclear' : reading.state
+  return tile('type', state, {
+    headline: TYPE_ABSENT[absent],
+    certainty: absent === 'not-visible' ? 'Not seen' : reading.certainty,
+  })
 }
 
 function sealTile(state: PartState, record: InspectionRecord | null): KeyFactTile {
@@ -156,12 +202,14 @@ function placardsTile(state: PartState, record: InspectionRecord | null): KeyFac
 
 /**
  * The tiles for one inspection. `record` may be null before anything has landed. `parts` says which
- * stages have arrived: the ID stage carries the ID and the seal, details carry the placard, damage its own.
+ * stages have arrived: the ID stage carries the ID and the seal, details carry the ISO type and the
+ * placard, damage its own.
  */
 export function buildKeyFacts(record: InspectionRecord | null, parts: PartStates): KeyFactTile[] {
   const placards = placardsTile(parts.details, record)
   return [
     idTile(parts.id, record),
+    typeTile(parts.details, record),
     sealTile(parts.id, record),
     damageTile(parts.damage, record),
     ...(placards ? [placards] : []),

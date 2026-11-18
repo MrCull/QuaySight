@@ -1,6 +1,7 @@
 // The survey's container-detail questions, in the shared format (spec 4.3, 4.4; ticket #32; split out in
 // ticket #54). Pure: the question wording and nothing that reads an answer.
 import type { ChoiceQuestion, SharedQuestion } from './questionSet'
+import { SIZE_CODE_CHARACTERS } from './isoSizeCode'
 import {
   COMMON_SIZE_CODES,
   DETAIL_QUESTION_NAMES,
@@ -72,7 +73,7 @@ const MARKING_INSTRUCTIONS: Record<MarkingCheck, [question: string, yes: string,
   ],
 }
 
-/** The survey's container-detail questions, in the shared format (11 questions). */
+/** The survey's container-detail questions, in the shared format (13 questions). */
 export function containerDetailQuestions(): SharedQuestion[] {
   const names = DETAIL_QUESTION_NAMES
   const sizeCode: ChoiceQuestion = {
@@ -93,6 +94,43 @@ export function containerDetailQuestions(): SharedQuestion[] {
       { value: SIZE_CODE_NOT_VISIBLE, description: 'No size/type code is visible in this photo' },
     ],
   }
+  // The code's two halves, each from the pairs the decoding table knows, so the model cannot shift a
+  // character into the wrong place (one model read single positions of 45G1 as 44GG).
+  const CODE_PLACE =
+    'The ISO size/type code is the four characters usually below or beside the container number (for example 22G1, 45G1 or L5G1).'
+  const pairs = (first: readonly string[], second: readonly string[]) =>
+    first.flatMap((a) => second.map((b) => a + b))
+  const UNREADABLE_PART = {
+    value: SIZE_CODE_UNREADABLE,
+    description: 'Cannot be read clearly, or no size/type code is visible',
+  }
+  const [sizeName, typeName] = names.sizeCodeParts
+  const sizeCodeParts: ChoiceQuestion[] = [
+    {
+      type: 'choice',
+      name: sizeName,
+      instructions: `${CODE_PLACE} Read only its first two characters, the size part (45 in 45G1, L5 in L5G1), exactly as printed; do not work them out from the container size.`,
+      choices: [
+        ...pairs(SIZE_CODE_CHARACTERS.length, SIZE_CODE_CHARACTERS.height).map((v) => ({
+          value: v,
+          description: `Size part ${v}`,
+        })),
+        UNREADABLE_PART,
+      ],
+    },
+    {
+      type: 'choice',
+      name: typeName,
+      instructions: `${CODE_PLACE} Read only its last two characters, the type part (G1 in 45G1, R1 in 22R1), exactly as printed.`,
+      choices: [
+        ...pairs(SIZE_CODE_CHARACTERS.group, SIZE_CODE_CHARACTERS.detail).map((v) => ({
+          value: v,
+          description: `Type part ${v}`,
+        })),
+        UNREADABLE_PART,
+      ],
+    },
+  ]
   const check = (name: string, [question, yes, no]: [string, string, string]): ChoiceQuestion => ({
     type: 'choice',
     name,
@@ -118,6 +156,7 @@ export function containerDetailQuestions(): SharedQuestion[] {
   }
   return [
     sizeCode,
+    ...sizeCodeParts,
     ...EQUIPMENT_CHECKS.map((c) => check(names.equipment[c], EQUIPMENT_INSTRUCTIONS[c])),
     ...MARKING_CHECKS.map((c) => check(names.markings[c], MARKING_INSTRUCTIONS[c])),
     dgPlacard,

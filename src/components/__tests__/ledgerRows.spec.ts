@@ -57,6 +57,52 @@ describe('the readings ledger rows', () => {
     expect(payloads[0]!.words).toBe('Not visible in this photo')
   })
 
+  it('says Payload once when the printed payload does not match maximum gross minus tare', async () => {
+    const base = await recordedInspection('luna', { delayMs: 0 })
+    const w = base.weights!
+    const { rows, door } = ledgerModel({
+      ...base,
+      weights: {
+        ...w,
+        printedPayload: { valueKg: 28000, provenance: 'printed', certainty: 'Uncertain' },
+        payload: { ...w.payload!, certainty: 'Uncertain' },
+        payloadConflict: {
+          kind: 'differs',
+          printedKg: 28000,
+          printedLb: null,
+          calculatedKg: w.payload!.valueKg,
+          calculatedLb: null,
+        },
+      },
+    })
+    const payloads = rows.filter((r) => r.label === 'Payload')
+    expect(payloads.map((r) => r.key)).toEqual(['net'])
+    expect(payloads[0]!.certainty).toBe('Uncertain')
+    expect(payloads[0]!.note).toBe(
+      `Printed payload 28,000 kg does not match maximum gross minus tare, ${w.payload!.valueKg.toLocaleString('en-GB')} kg.`,
+    )
+    expect(door.net?.text).toBe('28,000 kg')
+  })
+
+  it('says Payload once when the printed payload matches maximum gross minus tare', async () => {
+    const base = await recordedInspection('luna', { delayMs: 0 })
+    const w = base.weights!
+    const { rows } = ledgerModel({
+      ...base,
+      weights: {
+        ...w,
+        printedPayload: {
+          valueKg: w.payload!.valueKg,
+          provenance: 'printed',
+          certainty: 'Confident',
+        },
+      },
+    })
+    const payloads = rows.filter((r) => r.label === 'Payload')
+    expect(payloads.map((r) => r.key)).toEqual(['net'])
+    expect(payloads[0]!.note).toContain('Maximum gross minus tare agrees.')
+  })
+
   it('splits the unit from the number and follows the units setting', async () => {
     const record = await recordedInspection('luna', { delayMs: 0 })
     const gross = ledgerModel(record, 'imperial').rows.find((r) => r.key === 'gross')!

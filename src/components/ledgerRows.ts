@@ -225,7 +225,7 @@ function typeRow(record: InspectionRecord, door: DoorPaint): LedgerRow | null {
     glyph: 'container' as const,
     label: 'Type',
     unit: null,
-    detail: null,
+    detail: DETAIL_IDS.type,
     spoken: null,
     alternatives: [],
   }
@@ -280,22 +280,48 @@ function splitUnit(value: string): { number: string; unit: string | null } {
     : { number: value.slice(0, space), unit: value.slice(space + 1) }
 }
 
+/** A printed payload that maximum gross minus tare bears out: said once, on the printed row. */
+export const PAYLOAD_AGREES = 'Maximum gross minus tare agrees.'
+
+const CERTAINTY_ORDER: CertaintyLabel[] = [
+  'Confident',
+  'Likely',
+  'Uncertain',
+  "Can't tell",
+  'Not seen',
+]
+const weaker = (a: CertaintyLabel, b: CertaintyLabel): CertaintyLabel =>
+  CERTAINTY_ORDER.indexOf(a) >= CERTAINTY_ORDER.indexOf(b) ? a : b
+
 function weightRows(record: InspectionRecord, units: Units, door: DoorPaint): LedgerRow[] {
   const group = weightGroup(record, units)
   // Both payload rows read "Payload" here, so the ledger says Payload once: a calculated payload stands
   // in for a printed one not read, and a printed row stands in for a payload that could not be worked
-  // out. Only a printed payload and a calculated one that both have values keep two rows.
+  // out. When both have values the printed one keeps the row and the calculated one becomes its note:
+  // whether maximum gross minus tare agrees, or both figures when it does not.
   const printedRow = group.rows.find((r) => r.label === 'PAYLOAD')
   const calculatedRow = group.rows.find((r) => r.label === 'PAYLOAD (CALCULATED)')
-  const redundant = (row: DetailRow) =>
-    printedRow !== undefined &&
-    calculatedRow !== undefined &&
-    row.value === null &&
-    (row === printedRow ? calculatedRow.value !== null : row === calculatedRow)
-  return group.rows.flatMap((row: DetailRow): LedgerRow[] => {
+  const both = printedRow?.value != null && calculatedRow?.value != null
+  const redundant = (row: DetailRow) => {
+    if (!printedRow || !calculatedRow) return false
+    if (row === calculatedRow) return row.value === null || both
+    return row === printedRow && row.value === null && calculatedRow.value !== null
+  }
+  const combined = (row: DetailRow): DetailRow =>
+    both && row === printedRow
+      ? {
+          ...row,
+          certainty: weaker(row.certainty, calculatedRow!.certainty),
+          note: record.weights?.payloadConflict
+            ? calculatedRow!.note
+            : [row.note, PAYLOAD_AGREES].filter(Boolean).join(' '),
+        }
+      : row
+  return group.rows.flatMap((detail: DetailRow): LedgerRow[] => {
+    if (redundant(detail)) return []
+    const row = combined(detail)
     const spec = WEIGHTS[row.label]
     if (!spec) return []
-    if (redundant(row)) return []
     // Painted on the door only when printed there; a value worked out (or converted) has no place on it.
     const printed =
       row.value !== null && row.provenance === PRINTED.provenance && spec.slot !== null
