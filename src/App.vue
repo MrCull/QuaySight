@@ -20,6 +20,7 @@ import RunChip from './components/RunChip.vue'
 import ThemeToggle from './components/ThemeToggle.vue'
 import NotAContainer from './components/NotAContainer.vue'
 import { isTankContainer } from './domain/tankContainer'
+import { focusNextStep } from './components/nextStepFocus'
 
 const store = useInspectionStore()
 const setup = useSetupStore()
@@ -37,6 +38,12 @@ const recordedRun = computed(() =>
 // Before any photo, the drop zone or the sample picker has the whole width.
 const startScreen = computed(() => !store.photo && !store.record && store.status === 'idle')
 
+// The logo returns to the photo step: the same reset as New inspection (it also cancels a run in flight).
+function goHome() {
+  store.newInspection()
+  void focusNextStep('photo')
+}
+
 // Arrival choreography: .qs-arriving while analysing, .qs-arrived once the record lands.
 const stageClass = computed(() => {
   if (store.status === 'complete') return 'qs-arrived'
@@ -52,7 +59,9 @@ const stageClass = computed(() => {
     <div v-if="setup.view === 'inspection'" class="rs-chrome">
       <header class="rs-top">
         <div class="rs-top__brand">
-          <span class="qs-brand"><i class="qs-logo" aria-hidden="true"></i>Quay Sight</span>
+          <button type="button" class="qs-brand rs-top__home" @click="goHome">
+            <i class="qs-logo" aria-hidden="true"></i>Quay Sight
+          </button>
           <span class="rs-crumb">Container inspection</span>
         </div>
         <!-- The centre slot keeps its place when New inspection is hidden, so the right side never moves. -->

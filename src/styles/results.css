@@ -18,6 +18,17 @@ body {
   background: var(--surface);
   border-bottom: 1px solid var(--line);
 }
+/* The logo is a button that returns to the photo step: strip the button chrome, keep the brand look. */
+.rs-top__home {
+  padding: 0;
+  border: 0;
+  background: none;
+  cursor: pointer;
+}
+.rs-top__home:focus-visible {
+  outline: 2px solid var(--focus-ring, currentColor);
+  outline-offset: var(--space-1);
+}
 .rs-top__brand {
   display: flex;
   align-items: center;
