@@ -2,8 +2,8 @@
 // format, and the answers read back by meaning into the record's `details`.
 //
 // - The ISO size/type code is a whole-code choice among common codes, plus other, unreadable and not
-//   visible, so the model is never forced into a wrong common answer. Each of its four characters is
-//   also asked on its own: a code that is not common, read in full at Confident, still shows. What it
+//   visible, so the model is never forced into a wrong common answer. Its two halves (size, type) are
+//   also asked on their own: a code that is not common, read in both halves, still shows. What it
 //   decodes to comes from the app's table (isoSizeCode.ts), never from the model.
 // - Reefer, open top, tank and flat rack are separate yes/no/unknown checks.
 // - Super Heavy, high-container, overwidth, fumigation and marine pollutant are separate checks: a
@@ -29,7 +29,6 @@ import {
   DG_CLASSES,
   EQUIPMENT_CHECKS,
   MARKING_CHECKS,
-  SIZE_CODE_LENGTH,
   SIZE_CODE_NOT_VISIBLE,
   SIZE_CODE_OTHER,
   SIZE_CODE_UNREADABLE,
@@ -76,22 +75,44 @@ function readChoice(answer: SharedAnswer | undefined): ChoiceRead | null {
 
 const UNCLEAR = "Can't tell" as const
 
+const CERTAINTY_ORDER: CertaintyLabel[] = [
+  'Confident',
+  'Likely',
+  'Uncertain',
+  "Can't tell",
+  'Not seen',
+]
+const rank = (c: CertaintyLabel) => CERTAINTY_ORDER.indexOf(c)
+const weaker = (a: CertaintyLabel, b: CertaintyLabel): CertaintyLabel =>
+  rank(a) >= rank(b) ? a : b
+
 /**
- * The code put together from its four character answers, when the whole-code answer was "not a common
- * code" at Confident and every character was read at Confident into the shape of a code (22G1, L5G1).
- * Anything less leaves it unread: an unlisted code is shown only when the reading is beyond doubt.
+ * The code put together from its two halves (size, then type), at the weaker of their certainties.
+ * Null unless both halves were read at Likely or better.
  */
-function codeFromCharacters(characters: readonly (SharedAnswer | undefined)[]): string | null {
-  if (characters.length !== SIZE_CODE_LENGTH) return null
-  const read = characters.map(readChoice)
-  if (read.some((c) => c?.certainty !== 'Confident' || !/^[0-9A-Z]$/.test(c.value))) return null
-  const code = read.map((c) => c!.value).join('')
-  return /^[0-9A-Z]{2}[A-Z][0-9A-Z]$/.test(code) ? code : null
+function codeFromParts(
+  parts: readonly (SharedAnswer | undefined)[],
+): { code: string; certainty: CertaintyLabel } | null {
+  if (parts.length !== 2) return null
+  const read = parts.map(readChoice)
+  let certainty: CertaintyLabel = 'Confident'
+  for (const part of read) {
+    if (!part || !/^[0-9A-Z]{2}$/.test(part.value)) return null
+    if (part.certainty !== 'Confident' && part.certainty !== 'Likely') return null
+    certainty = weaker(certainty, part.certainty)
+  }
+  return { code: read.map((p) => p!.value).join(''), certainty }
 }
 
+/**
+ * The size/type code from the whole-code choice and, beside it, the code read in its two halves.
+ * The halves decide when they are more certain than the whole-code answer: a code that is not one of
+ * the common codes has no choice of its own, and a model may then pick a near common code at low
+ * probability rather than answer "other". A whole-code answer of "not visible" always stands.
+ */
 export function readSizeCode(
   answer: SharedAnswer | undefined,
-  characters: readonly (SharedAnswer | undefined)[] = [],
+  parts: readonly (SharedAnswer | undefined)[] = [],
 ): SizeCodeReading {
   const unclear: SizeCodeReading = {
     state: 'unclear',
@@ -102,25 +123,36 @@ export function readSizeCode(
     decoded: null,
   }
   const read = readChoice(answer)
-  if (!read || read.certainty === UNCLEAR) return unclear
-  switch (read.value) {
-    case SIZE_CODE_NOT_VISIBLE:
-      return { ...unclear, state: 'not-visible', certainty: 'Not seen' }
-    case SIZE_CODE_UNREADABLE:
-      return { ...unclear, state: 'unreadable' }
-    case SIZE_CODE_OTHER: {
-      const code = read.certainty === 'Confident' ? codeFromCharacters(characters) : null
-      if (code === null) return { ...unclear, state: 'other', certainty: read.certainty }
-      return {
-        ...unclear,
-        state: 'read',
-        code,
-        certainty: 'Confident',
-        decoded: decodeSizeCode(code, 'Confident'),
-      }
+  const common: readonly string[] = COMMON_SIZE_CODES
+  if (read?.value === SIZE_CODE_NOT_VISIBLE && read.certainty !== UNCLEAR) {
+    return { ...unclear, state: 'not-visible', certainty: 'Not seen' }
+  }
+  const wholeCode = read && read.certainty !== UNCLEAR && common.includes(read.value) ? read : null
+  const parted = codeFromParts(parts)
+  if (
+    parted &&
+    (!wholeCode ||
+      (parted.code !== wholeCode.value && rank(parted.certainty) < rank(wholeCode.certainty)))
+  ) {
+    // A common code the halves overrule stays as the plausible alternative when it was likely enough.
+    const chosen = answer?.type === 'choice' ? (answer.probabilities[answer.value] ?? 0) : 0
+    const alternative = wholeCode && chosen >= ALTERNATIVE_MIN ? wholeCode.value : null
+    return {
+      ...unclear,
+      state: 'read',
+      code: parted.code,
+      certainty: parted.certainty,
+      alternative,
+      decoded: decodeSizeCode(parted.code, parted.certainty),
     }
   }
-  const common: readonly string[] = COMMON_SIZE_CODES
+  if (!read || read.certainty === UNCLEAR) return unclear
+  switch (read.value) {
+    case SIZE_CODE_UNREADABLE:
+      return { ...unclear, state: 'unreadable' }
+    case SIZE_CODE_OTHER:
+      return { ...unclear, state: 'other', certainty: read.certainty }
+  }
   const runnerUp = read.runnerUp
   return {
     state: 'read',
@@ -220,7 +252,7 @@ export function readContainerDetails(
   const names = DETAIL_QUESTION_NAMES
   const sizeCode = readSizeCode(
     answers[names.sizeCode],
-    names.sizeCodeCharacters.map((name) => answers[name]),
+    names.sizeCodeParts.map((name) => answers[name]),
   )
   return {
     sizeCode,

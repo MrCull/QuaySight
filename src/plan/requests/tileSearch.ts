@@ -55,13 +55,13 @@ const ISO_ASK = questionSetAsk(
     containerDetailQuestions().filter(
       (q) =>
         q.name === DETAIL_QUESTION_NAMES.sizeCode ||
-        (DETAIL_QUESTION_NAMES.sizeCodeCharacters as readonly string[]).includes(q.name),
+        (DETAIL_QUESTION_NAMES.sizeCodeParts as readonly string[]).includes(q.name),
     ),
   ),
   ({ answers }) =>
     readSizeCode(
       answers[DETAIL_QUESTION_NAMES.sizeCode],
-      DETAIL_QUESTION_NAMES.sizeCodeCharacters.map((name) => answers[name]),
+      DETAIL_QUESTION_NAMES.sizeCodeParts.map((name) => answers[name]),
     ),
 )
 

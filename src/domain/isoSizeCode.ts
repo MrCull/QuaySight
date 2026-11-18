@@ -87,6 +87,14 @@ const TYPES: Record<string, { label: string; equipment: EquipmentType }> = {
 /** P0 is a plain platform; P1 to P9 have end walls or posts (flat racks). */
 const PLATFORM = { label: 'Platform', equipment: 'platform' } as const
 
+/** The characters each place of a code can hold, as the decoding table knows them. */
+export const SIZE_CODE_CHARACTERS = {
+  length: Object.keys(LENGTHS),
+  height: Object.keys(HEIGHTS),
+  group: Object.keys(TYPES),
+  detail: [...'0123456789'],
+} as const
+
 function heightPhrase(height: { highCube: boolean; label: string }, char: string): string {
   if (height.highCube && height.label.includes('High Cube')) return 'High Cube'
   if (char === '2' || char === 'C' || char === 'L') return 'standard height'
