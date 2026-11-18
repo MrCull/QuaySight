@@ -52,9 +52,17 @@ const SEAL_ASK = questionSetAsk(
 const ISO_ASK = questionSetAsk(
   questionSet(
     'This is part of a photo of a freight container. Answer only from what is visible in this part.',
-    containerDetailQuestions().filter((q) => q.name === DETAIL_QUESTION_NAMES.sizeCode),
+    containerDetailQuestions().filter(
+      (q) =>
+        q.name === DETAIL_QUESTION_NAMES.sizeCode ||
+        (DETAIL_QUESTION_NAMES.sizeCodeCharacters as readonly string[]).includes(q.name),
+    ),
   ),
-  ({ answers }) => readSizeCode(answers[DETAIL_QUESTION_NAMES.sizeCode]),
+  ({ answers }) =>
+    readSizeCode(
+      answers[DETAIL_QUESTION_NAMES.sizeCode],
+      DETAIL_QUESTION_NAMES.sizeCodeCharacters.map((name) => answers[name]),
+    ),
 )
 
 /** One subject's search: where it starts, what counts as the whole reading, and how a part is read. */

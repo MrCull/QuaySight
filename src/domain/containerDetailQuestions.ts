@@ -72,7 +72,7 @@ const MARKING_INSTRUCTIONS: Record<MarkingCheck, [question: string, yes: string,
   ],
 }
 
-/** The survey's container-detail questions, in the shared format (11 questions). */
+/** The survey's container-detail questions, in the shared format (15 questions). */
 export function containerDetailQuestions(): SharedQuestion[] {
   const names = DETAIL_QUESTION_NAMES
   const sizeCode: ChoiceQuestion = {
@@ -93,6 +93,20 @@ export function containerDetailQuestions(): SharedQuestion[] {
       { value: SIZE_CODE_NOT_VISIBLE, description: 'No size/type code is visible in this photo' },
     ],
   }
+  const ordinals = ['first', 'second', 'third', 'fourth']
+  const alphanumeric = [...'0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ']
+  const sizeCodeCharacters = names.sizeCodeCharacters.map((name, i): ChoiceQuestion => ({
+    type: 'choice',
+    name,
+    instructions: `Read only the ${ordinals[i]} character of the ISO size/type code (the four characters usually below or beside the container number, for example 22G1 or 45G1), counting from its left, exactly as printed.`,
+    choices: [
+      ...alphanumeric.map((ch) => ({ value: ch, description: `The character ${ch}` })),
+      {
+        value: SIZE_CODE_UNREADABLE,
+        description: 'This character cannot be read clearly, or no size/type code is visible',
+      },
+    ],
+  }))
   const check = (name: string, [question, yes, no]: [string, string, string]): ChoiceQuestion => ({
     type: 'choice',
     name,
@@ -118,6 +132,7 @@ export function containerDetailQuestions(): SharedQuestion[] {
   }
   return [
     sizeCode,
+    ...sizeCodeCharacters,
     ...EQUIPMENT_CHECKS.map((c) => check(names.equipment[c], EQUIPMENT_INSTRUCTIONS[c])),
     ...MARKING_CHECKS.map((c) => check(names.markings[c], MARKING_INSTRUCTIONS[c])),
     dgPlacard,

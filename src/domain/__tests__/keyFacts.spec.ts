@@ -74,9 +74,54 @@ const partlyRead = (value: string, certainty: 'Uncertain') => ({
 const tile = (tiles: KeyFactTile[], id: KeyFactTile['id']) => tiles.find((t) => t.id === id)
 
 describe('the tiles of a full result', () => {
-  it('are the container ID, the seal and the damage, in that order, and no placards tile without a placard', async () => {
+  it('are the container ID, the ISO type, the seal and the damage, in that order, and no placards tile without a placard', async () => {
     const tiles = buildKeyFacts(await record(), ARRIVED)
-    expect(tiles.map((t) => t.id)).toEqual(['id', 'seal', 'damage'])
+    expect(tiles.map((t) => t.id)).toEqual(['id', 'type', 'seal', 'damage'])
+  })
+})
+
+describe('the ISO type tile', () => {
+  it('shows the code as printed, its certainty and what it means', async () => {
+    const t = tile(buildKeyFacts(await record(), ARRIVED), 'type')!
+    expect(t).toMatchObject({
+      label: 'ISO type',
+      headline: '22G1',
+      certainty: 'Confident',
+      code: true,
+    })
+    expect(t.notes).toEqual(['20 ft standard height, general purpose'])
+  })
+
+  it('says Reading… until the details land', async () => {
+    const t = tile(buildKeyFacts(await record(), { ...ARRIVED, details: 'reading' }), 'type')!
+    expect(t).toMatchObject({ headline: 'Reading…', certainty: null })
+  })
+
+  it('shows a code read but not decoded, and says so', async () => {
+    const base = await record()
+    const details = {
+      ...base.details!,
+      sizeCode: { ...base.details!.sizeCode, code: '2ZG1', decoded: null },
+    }
+    const t = tile(buildKeyFacts({ ...base, sizeCode: null, details }, ARRIVED), 'type')!
+    expect(t).toMatchObject({ headline: '2ZG1', code: true })
+    expect(t.notes).toEqual(['Not a code this app decodes'])
+  })
+
+  it('says Not seen when no code is visible', async () => {
+    const base = await record()
+    const details = {
+      ...base.details!,
+      sizeCode: {
+        ...base.details!.sizeCode,
+        state: 'not-visible' as const,
+        code: null,
+        certainty: 'Not seen' as const,
+        decoded: null,
+      },
+    }
+    const t = tile(buildKeyFacts({ ...base, sizeCode: null, details }, ARRIVED), 'type')!
+    expect(t).toMatchObject({ headline: 'Not seen', certainty: 'Not seen', code: false })
   })
 })
 
@@ -220,7 +265,7 @@ describe('the Placards tile', () => {
 
   it('appears, with the class and its certainty, when a placard is seen', async () => {
     const tiles = buildKeyFacts(await withPlacard('Confident', 3), ARRIVED)
-    expect(tiles.map((t) => t.id)).toEqual(['id', 'seal', 'damage', 'placards'])
+    expect(tiles.map((t) => t.id)).toEqual(['id', 'type', 'seal', 'damage', 'placards'])
     const t = tile(tiles, 'placards')!
     expect(t.label).toBe('Placards')
     expect(t.headline).toBe('Class 3, flammable liquids')
@@ -307,6 +352,7 @@ describe('arrived or reading', () => {
     const tiles = buildKeyFacts(null, READING)
     expect(tiles.map((t) => [t.id, t.state, t.headline])).toEqual([
       ['id', 'reading', 'Reading…'],
+      ['type', 'reading', 'Reading…'],
       ['seal', 'reading', 'Reading…'],
       ['damage', 'reading', 'Reading…'],
     ])

@@ -43,6 +43,7 @@ const arrivesEarly = (state: PartState) => running.value && state === 'arrived'
 // The detail section each tile leads to.
 const DETAIL: Record<KeyFactId, string> = {
   id: DETAIL_IDS.id,
+  type: DETAIL_IDS.type,
   seal: DETAIL_IDS.seal,
   damage: DETAIL_IDS.damage,
   placards: DETAIL_IDS.markings,
@@ -107,7 +108,8 @@ const progress = computed(() => {
                 'qs-keytile__value',
                 'qs-type-display-md',
                 {
-                  'qs-keytile__value--mono': tile.id === 'seal' && tile.state === 'arrived',
+                  'qs-keytile__value--mono':
+                    (tile.id === 'seal' && tile.state === 'arrived') || tile.code,
                   'qs-keytile__value--quiet': tile.state !== 'arrived',
                 },
               ]"
